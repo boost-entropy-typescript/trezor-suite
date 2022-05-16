@@ -1,9 +1,6 @@
 /* WARNING! This file should be imported ONLY in tests! */
 
-/* eslint-disable @typescript-eslint/naming-convention */
-import type { Features } from '@trezor/connect';
-
-import { Release } from './src/utils/parse';
+import type { Features, FirmwareRelease } from './src/types';
 
 export const getDeviceFeatures = (feat?: Partial<Features>): Features => ({
     vendor: 'trezor.io',
@@ -46,7 +43,7 @@ export const getDeviceFeatures = (feat?: Partial<Features>): Features => ({
     ...feat,
 });
 
-const getRelease = (model: 1 | 2) => ({
+const getRelease = (model: 1 | 2): FirmwareRelease => ({
     required: false,
     version: [model, 0, 0],
     min_bridge_version: [2, 0, 25],
@@ -57,20 +54,20 @@ const getRelease = (model: 1 | 2) => ({
     changelog: '* Fix fault when using the device with no PIN* Fix OMNI transactions parsing',
 });
 
-const getReleaseT1 = (release: any): Release => ({
+const getReleaseT1 = (release: any): FirmwareRelease => ({
     ...getRelease(1),
     bootloader_version: [1, 0, 0],
     ...release,
 });
 
-const getReleaseT2 = (release: any): Release => ({
+const getReleaseT2 = (release: any): FirmwareRelease => ({
     ...getRelease(2),
     ...release,
 });
 
-const getReleasesT1 = (releases: Partial<Release>[]) => releases.map(r => getReleaseT1(r));
+const getReleasesT1 = (releases: Partial<FirmwareRelease>[]) => releases.map(r => getReleaseT1(r));
 
-const getReleasesT2 = (releases: Partial<Release>[]) => releases.map(r => getReleaseT2(r));
+const getReleasesT2 = (releases: Partial<FirmwareRelease>[]) => releases.map(r => getReleaseT2(r));
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace

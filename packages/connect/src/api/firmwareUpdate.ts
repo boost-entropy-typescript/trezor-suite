@@ -1,12 +1,14 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/FirmwareUpdate.js
 
-import { getBinary, modifyFirmware } from '@trezor/rollout';
+import { getBinary } from './firmware/getBinary';
+import { modifyFirmware } from './firmware/modifyFirmware';
 import { AbstractMethod } from '../core/AbstractMethod';
 import { ERRORS } from '../constants';
 import { UI, createUiMessage } from '../events';
 import { uploadFirmware } from './management/uploadFirmware';
 import { validateParams } from './common/paramsValidator';
 import { getReleases } from '../data/firmwareInfo';
+import { isStrictFeatures } from '../utils/firmwareUtils';
 
 type Params = {
     binary?: ArrayBuffer;
@@ -47,7 +49,10 @@ export default class FirmwareUpdate extends AbstractMethod<'firmwareUpdate', Par
 
         if ('binary' in payload) {
             // or binary
-            this.params.binary = payload.binary;
+            this.params = {
+                ...this.params,
+                binary: payload.binary,
+            };
         }
     }
 
@@ -80,19 +85,20 @@ export default class FirmwareUpdate extends AbstractMethod<'firmwareUpdate', Par
         let binary: ArrayBuffer;
         try {
             if (params.binary) {
+                if (!isStrictFeatures(device.features)) {
+                    throw new Error('Features of unexpected shape provided');
+                }
+
                 binary = modifyFirmware({
                     fw: params.binary,
-                    // @ts-expect-error TODO https://github.com/trezor/trezor-suite/issues/5320
                     features: device.features,
                 });
             } else {
                 const firmware = await getBinary({
-                    // features and releases are used for sanity checking inside @trezor/rollout
+                    // features and releases are used for sanity checking
                     features: device.features,
-                    // @ts-expect-error TODO https://github.com/trezor/trezor-suite/issues/5320
                     releases: getReleases(device.features.major_version),
                     // version argument is used to find and fetch concrete release from releases list
-                    // @ts-expect-error TODO https://github.com/trezor/trezor-suite/issues/5320
                     version: params.version,
                     btcOnly: params.btcOnly,
                     baseUrl: params.baseUrl!,
@@ -111,7 +117,6 @@ export default class FirmwareUpdate extends AbstractMethod<'firmwareUpdate', Par
             this.device.getCommands().typedCall.bind(this.device.getCommands()),
             this.postMessage,
             device,
-            // @ts-expect-error TODO https://github.com/trezor/trezor-suite/issues/5320
             { payload: binary },
         );
     }

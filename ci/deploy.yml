@@ -154,11 +154,6 @@ beta connect-common deploy npm:
   script:
     - nix-shell --run "yarn && yarn build:libs && cd ./packages/connect-common && npm publish --tag beta"
 
-beta rollout deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/rollout && npm publish --tag beta"
-
 beta transport deploy npm:
   <<: *npm_deploy_rules
   script:
@@ -194,13 +189,6 @@ connect-common deploy npm:
   <<: *npm_deploy_rules
   script:
     - nix-shell --run "yarn && yarn build:libs && cd ./packages/connect-common && npm publish"
-
-rollout deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/rollout && npm publish"
 
 transport deploy npm:
   only:
@@ -245,7 +233,7 @@ connect deploy to dev:
     url: $BASE_REVIEW_URL/$CI_BUILD_REF_NAME
   before_script: []
   script:
-    - rm -rv ${DEPLOY_DIRECTORY}
+    - rm -rfv ${DEPLOY_DIRECTORY}
     - mkdir -pv ${DEPLOY_DIRECTORY}
     - rsync -aviuzP packages/connect-iframe/build/ "${DEPLOY_DIRECTORY}/"
     - rsync -aviuzP packages/connect-popup/build/ "${DEPLOY_DIRECTORY}/"
