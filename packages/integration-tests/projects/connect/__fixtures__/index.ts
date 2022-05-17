@@ -21,6 +21,8 @@ import getAddress from './getAddress';
 import getAddressMultisig from './getAddressMultisig';
 import getAddressSegwit from './getAddressSegwit';
 import getFeatures from './getFeatures';
+import getOwnershipId from './getOwnershipId';
+import getOwnershipProof from './getOwnershipProof';
 import getPublicKey from './getPublicKey';
 import nemGetAddress from './nemGetAddress';
 import nemSignTransactionMosaic from './nemSignTransactionMosaic';
@@ -41,6 +43,7 @@ import signTransactionExternal from './signTransactionExternal';
 import signTransactionKomodo from './signTransactionKomodo';
 import signTransactionMultisig from './signTransactionMultisig';
 import signTransactionMultisigChange from './signTransactionMultisigChange';
+import signTransactionPaymentRequest from './signTransactionPaymentRequest';
 import signTransactionPeercoin from './signTransactionPeercoin';
 import signTransactionReplace from './signTransactionReplace';
 import signTransactionSegwit from './signTransactionSegwit';
@@ -106,6 +109,8 @@ let fixtures = [
     getAddressMultisig,
     getAddressSegwit,
     getFeatures,
+    getOwnershipId,
+    getOwnershipProof,
     getPublicKey,
     nemGetAddress,
     nemSignTransactionMosaic,
@@ -126,6 +131,7 @@ let fixtures = [
     signTransactionKomodo,
     signTransactionMultisig,
     signTransactionMultisigChange,
+    signTransactionPaymentRequest,
     signTransactionPeercoin,
     signTransactionReplace,
     signTransactionSegwit,
@@ -151,6 +157,7 @@ if (includedMethods) {
 
 // sort by mnemonic to avoid emu re-loading
 const result = fixtures.sort((a, b) => {
+    if (!a.setup.mnemonic || !b.setup.mnemonic) return 0;
     if (a.setup.mnemonic > b.setup.mnemonic) return 1;
     if (b.setup.mnemonic > a.setup.mnemonic) return -1;
     return 0;

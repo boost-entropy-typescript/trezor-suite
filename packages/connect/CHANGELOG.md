@@ -16,3 +16,8 @@
     -   `CardanoTxWitnessType` => `PROTO.CardanoTxWitnessType`
     -   removed unused `DEVICE.WAIT_FOR_SELECTION`
     -   removed unused `UI.CHANGE_ACCOUNT`
+
+## Added:
+
+-   `getOwnershipId` method
+-   `getOwnershipProof` method

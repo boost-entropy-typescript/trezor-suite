@@ -133,6 +133,10 @@ export const factory = ({
 
         getFeatures: params => call({ ...params, method: 'getFeatures' }),
 
+        getOwnershipId: params => call({ ...params, method: 'getOwnershipId' }),
+
+        getOwnershipProof: params => call({ ...params, method: 'getOwnershipProof' }),
+
         getPublicKey: params => call({ ...params, method: 'getPublicKey' }),
 
         nemGetAddress: params =>

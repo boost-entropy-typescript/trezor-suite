@@ -228,6 +228,33 @@ export const signTransaction = async (api: TrezorConnect) => {
                 script_type: 'PAYTOOPRETURN',
             },
         ],
+        paymentRequests: [
+            {
+                recipient_name: 'trezor.io',
+                signature: '000000',
+                nonce: '1',
+                amount: 1,
+                memos: [
+                    {
+                        text_memo: { text: 'Invoice #87654321' },
+                    },
+                    {
+                        coin_purchase_memo: {
+                            coin_type: 1, // CoinInfo.slip44
+                            amount: 1,
+                            address: 'PROTO.Address.address',
+                            mac: 'PROTO.Address.mac',
+                        },
+                    },
+                    {
+                        refund_memo: {
+                            address: 'PROTO.Address.address',
+                            mac: 'PROTO.Address.mac',
+                        },
+                    },
+                ],
+            },
+        ],
         refTxs: [
             {
                 hash: 'txhash',
@@ -586,4 +613,76 @@ export const signMessage = async (api: TrezorConnect) => {
         const { payload } = verify;
         payload.message.toLowerCase();
     }
+};
+
+export const getOwnershipId = async (api: TrezorConnect) => {
+    const result = await api.getOwnershipId({ path: 'm/44' });
+    if (result.success) {
+        const { payload } = result;
+        payload.ownership_id.toLowerCase();
+    }
+
+    api.getOwnershipId({
+        path: 'm/44',
+        coin: 'btc',
+        multisig: {
+            pubkeys: [{ node: 'HDNodeAsString', address_n: [0] }],
+            signatures: ['signature'],
+            m: 0,
+        },
+        scriptType: 'SPENDTAPROOT',
+    });
+
+    // bundle
+    const bundleId = await api.getOwnershipId({ bundle: [{ path: 'm/44' }] });
+    if (bundleId.success) {
+        bundleId.payload.forEach(item => {
+            item.ownership_id.toLowerCase();
+        });
+        // @ts-expect-error
+        bundleId.payload.ownership_id.toLowerCase();
+    } else {
+        bundleId.payload.error.toLowerCase();
+    }
+
+    // @ts-expect-error missing path
+    TrezorConnect.getOwnershipId({ coin: 'btc' });
+};
+
+export const getOwnershipProof = async (api: TrezorConnect) => {
+    const result = await api.getOwnershipProof({ path: 'm/44' });
+    if (result.success) {
+        const { payload } = result;
+        payload.ownership_proof.toLowerCase();
+        payload.signature.toLowerCase();
+    }
+
+    api.getOwnershipProof({
+        path: 'm/44',
+        coin: 'btc',
+        scriptType: 'SPENDTAPROOT',
+        multisig: {
+            pubkeys: [{ node: 'HDNodeAsString', address_n: [0] }],
+            signatures: ['signature'],
+            m: 0,
+        },
+        userConfirmation: true,
+        ownershipIds: ['dead'],
+        commitmentData: 'beef',
+    });
+
+    // bundle
+    const bundleId = await api.getOwnershipProof({ bundle: [{ path: 'm/44' }] });
+    if (bundleId.success) {
+        bundleId.payload.forEach(item => {
+            item.ownership_proof.toLowerCase();
+        });
+        // @ts-expect-error
+        bundleId.payload.ownership_proof.toLowerCase();
+    } else {
+        bundleId.payload.error.toLowerCase();
+    }
+
+    // @ts-expect-error missing path
+    TrezorConnect.getOwnershipProof({ coin_name: 'btc' });
 };
