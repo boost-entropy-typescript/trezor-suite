@@ -1,6 +1,7 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { FeeLevel } from '@trezor/connect';
+import { UseFormMethods } from 'react-hook-form';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SelectBar, variables } from '@trezor/components';
 import { FiatValue, FormattedCryptoAmount, Translation } from '@suite-components';
@@ -8,9 +9,12 @@ import { formatNetworkAmount } from '@wallet-utils/accountUtils';
 import { useLayoutSize } from '@suite-hooks';
 import { ANIMATION } from '@suite-config';
 import { InputError } from '@wallet-components';
-import FeeCustom from './components/FeeCustom';
+import { Account } from '@wallet-types';
+import { ExtendedMessageDescriptor } from '@suite-types';
+import { FeeInfo, PrecomposedLevels, PrecomposedLevelsCardano } from '@wallet-types/sendForm';
+import { TypedValidationRules } from '@wallet-types/form';
+import { CustomFee } from './components/CustomFee';
 import FeeDetails from './components/FeeDetails';
-import { Props } from './definitions';
 
 const FeeSetupWrapper = styled.div`
     width: 100%;
@@ -19,20 +23,14 @@ const FeeSetupWrapper = styled.div`
 const FeesWrapper = styled.div<{ desktop?: boolean }>`
     width: 100%;
     display: flex;
-    flex-direction: ${props => (props.desktop ? 'row' : 'column')};
+    flex-direction: ${({ desktop }) => (desktop ? 'row' : 'column')};
 `;
 
 const SelectBarWrapper = styled.div<{ desktop?: boolean }>`
     display: flex; /* necessary for the <SelectBar> not to be stretched over full column width */
-    margin: 8px 20px 20px 0;
+    margin: ${({ desktop }) => (desktop ? '0px' : '8px 20px 20px 0')};
 
-    ${props =>
-        props.desktop &&
-        css`
-            margin: 0px;
-        `}
-
-    @media (max-width: ${variables.SCREEN_SIZE.SM}) {
+    ${variables.SCREEN_QUERY.MOBILE} {
         margin: 8px 0px 20px;
     }
 `;
@@ -41,7 +39,7 @@ const CoinAmount = styled.div`
     display: flex;
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     font-size: ${variables.FONT_SIZE.NORMAL};
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     padding-bottom: 6px;
 `;
 
@@ -49,13 +47,12 @@ const FiatAmount = styled.div`
     display: flex;
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     font-size: ${variables.FONT_SIZE.NORMAL};
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
 const Row = styled.div`
     display: flex;
     width: 100%;
-    /* justify-content: space-between; */
     min-height: 56px; /* reserve space for fiat/crypto amounts */
 `;
 
@@ -69,7 +66,7 @@ const FeeAmount = styled.div`
 
 const FeeError = styled.div`
     font-size: ${variables.FONT_SIZE.TINY};
-    color: ${props => props.theme.TYPE_RED};
+    color: ${({ theme }) => theme.TYPE_RED};
     padding-top: 5px;
     width: 100%;
     text-align: right;
@@ -80,50 +77,81 @@ const FeeInfoWrapper = styled.div`
     justify-content: space-between;
 `;
 
-const Label = styled.div<Pick<Props, 'rbfForm'>>`
-    padding: ${props => (props.rbfForm ? '5px 60px 10px 0;' : '5px 20px 10px 0;')};
+const Label = styled.div<Pick<FeesProps, 'rbfForm'>>`
+    padding: ${({ rbfForm }) => (rbfForm ? '5px 60px 10px 0;' : '5px 20px 10px 0;')};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     text-transform: capitalize;
     font-size: ${variables.FONT_SIZE.NORMAL};
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
 `;
 
-enum FEE_LEVELS_TRANSLATION {
-    custom = 'FEE_LEVEL_CUSTOM',
-    high = 'FEE_LEVEL_HIGH',
-    normal = 'FEE_LEVEL_NORMAL',
-    economy = 'FEE_LEVEL_ECONOMY',
-    low = 'FEE_LEVEL_LOW',
-}
+const FEE_LEVELS_TRANSLATIONS = {
+    custom: 'FEE_LEVEL_CUSTOM',
+    high: 'FEE_LEVEL_HIGH',
+    normal: 'FEE_LEVEL_NORMAL',
+    economy: 'FEE_LEVEL_ECONOMY',
+    low: 'FEE_LEVEL_LOW',
+} as const;
 
 const buildFeeOptions = (levels: FeeLevel[]) =>
     levels.map(({ label }) => ({
-        label: <Translation id={FEE_LEVELS_TRANSLATION[label]} />,
+        label: <Translation id={FEE_LEVELS_TRANSLATIONS[label]} />,
         value: label,
     }));
 
-const Fees = (props: Props) => {
-    const {
-        account: { symbol, networkType },
-        feeInfo,
-        getValues,
-        errors,
-        changeFeeLevel,
-        composedLevels,
-    } = props;
+type FormMethods = UseFormMethods<{
+    selectedFee?: FeeLevel['label'];
+    feePerUnit?: string;
+    feeLimit?: string;
+    estimatedFeeLimit?: string;
+}>;
+
+export interface FeesProps {
+    account: Account;
+    feeInfo: FeeInfo;
+    register: (rules?: TypedValidationRules) => (ref: any) => void;
+    setValue: FormMethods['setValue'];
+    getValues: FormMethods['getValues'];
+    errors: FormMethods['errors'];
+    changeFeeLevel: (level: FeeLevel['label']) => void;
+    changeFeePerUnit?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    changeFeeLimit?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
+    showLabel?: boolean;
+    label?: ExtendedMessageDescriptor['id'];
+    rbfForm?: boolean;
+}
+
+export const Fees = ({
+    account: { symbol, networkType },
+    feeInfo,
+    register,
+    setValue,
+    getValues,
+    errors,
+    changeFeeLevel,
+    changeFeePerUnit,
+    changeFeeLimit,
+    composedLevels,
+    showLabel,
+    label,
+    rbfForm,
+}: FeesProps) => {
     const { layoutSize } = useLayoutSize();
+    const isDesktopLayout = layoutSize === 'XLARGE'; // we use slightly different layout on big screens (Fee label, selector and amount in one row)
+
     const selectedOption = getValues('selectedFee') || 'normal';
+    const isCustomLevel = selectedOption === 'custom';
+
     const error = errors.selectedFee;
     const selectedLevel = feeInfo.levels.find(level => level.label === selectedOption)!;
     const transactionInfo = composedLevels ? composedLevels[selectedOption] : undefined;
-    const isCustomLevel = selectedOption === 'custom';
     const feeOptions = buildFeeOptions(feeInfo.levels);
-    const isDesktopLayout = layoutSize === 'XLARGE'; // we use slightly different layout on big screens (Fee label, selector and amount in one row)
 
     const labelComponent =
-        props.showLabel || props.label ? (
-            <Label rbfForm={props.rbfForm}>
-                <Translation id={props.label ?? 'FEE'} />
+        showLabel || label ? (
+            <Label rbfForm={rbfForm}>
+                <Translation id={label ?? 'FEE'} />
             </Label>
         ) : null;
 
@@ -141,10 +169,10 @@ const Fees = (props: Props) => {
         <FeesWrapper desktop={isDesktopLayout}>
             {/* Only 2 components are changing positions based on layout, Label and SelectBar */}
             {isDesktopLayout && labelComponent}
+
             <FeeSetupWrapper>
                 <Row>
-                    {!isDesktopLayout && labelComponent}
-                    {isDesktopLayout && selectBarComponent}
+                    {isDesktopLayout ? selectBarComponent : labelComponent}
 
                     {transactionInfo !== undefined && transactionInfo.type !== 'error' && (
                         <FeeAmount>
@@ -155,6 +183,7 @@ const Fees = (props: Props) => {
                                     symbol={symbol}
                                 />
                             </CoinAmount>
+
                             <FiatAmount>
                                 <FiatValue
                                     disableHiddenPlaceholder
@@ -164,18 +193,30 @@ const Fees = (props: Props) => {
                             </FiatAmount>
                         </FeeAmount>
                     )}
+
                     {error && (
                         <FeeError>
                             <InputError error={error} />
                         </FeeError>
                     )}
                 </Row>
+
                 {!isDesktopLayout && selectBarComponent}
+
                 <FeeInfoWrapper>
                     <AnimatePresence initial={false}>
                         {isCustomLevel ? (
                             <motion.div style={{ width: '100%' }} {...ANIMATION.EXPAND}>
-                                <FeeCustom {...props} />
+                                <CustomFee
+                                    networkType={networkType}
+                                    feeInfo={feeInfo}
+                                    errors={errors}
+                                    register={register}
+                                    getValues={getValues}
+                                    setValue={setValue}
+                                    changeFeePerUnit={changeFeePerUnit}
+                                    changeFeeLimit={changeFeeLimit}
+                                />
                             </motion.div>
                         ) : (
                             <FeeDetails
@@ -191,5 +232,3 @@ const Fees = (props: Props) => {
         </FeesWrapper>
     );
 };
-
-export default Fees;

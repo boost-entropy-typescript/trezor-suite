@@ -33,6 +33,7 @@ type Params = {
     options: TransactionOptions;
     coinInfo: BitcoinNetworkInfo;
     push: boolean;
+    preauthorized?: boolean;
 };
 
 export default class SignTransaction extends AbstractMethod<'signTransaction', Params> {
@@ -59,6 +60,7 @@ export default class SignTransaction extends AbstractMethod<'signTransaction', P
             { name: 'branchId', type: 'number' },
             { name: 'decredStakingTicket', type: 'boolean' },
             { name: 'push', type: 'boolean' },
+            { name: 'preauthorized', type: 'boolean' },
         ]);
 
         const coinInfo = getBitcoinNetwork(payload.coin);
@@ -109,6 +111,7 @@ export default class SignTransaction extends AbstractMethod<'signTransaction', P
             },
             coinInfo,
             push: typeof payload.push === 'boolean' ? payload.push : false,
+            preauthorized: payload.preauthorized,
         };
 
         if (coinInfo.hasTimestamp && !Object.prototype.hasOwnProperty.call(payload, 'timestamp')) {
@@ -166,6 +169,10 @@ export default class SignTransaction extends AbstractMethod<'signTransaction', P
             refTxs = params.refTxs;
         }
 
+        if (params.preauthorized) {
+            await device.getCommands().typedCall('DoPreauthorized', 'PreauthorizedRequest', {});
+        }
+
         const signTxMethod = !useLegacySignProcess ? signTx : signTxLegacy;
         const response = await signTxMethod({
             ...params,
@@ -182,13 +189,19 @@ export default class SignTransaction extends AbstractMethod<'signTransaction', P
                 params.coinInfo,
             );
         } else {
-            await verifyTx(
+            const bitcoinTx = await verifyTx(
                 device.getCommands().getHDNode.bind(device.getCommands()),
                 params.inputs,
                 params.outputs,
                 response.serializedTx,
                 params.coinInfo,
             );
+
+            if (bitcoinTx.hasWitnesses()) {
+                response.witnesses = bitcoinTx.ins.map((_, i) =>
+                    bitcoinTx.getWitness(i)?.toString('hex'),
+                );
+            }
         }
 
         if (params.push) {

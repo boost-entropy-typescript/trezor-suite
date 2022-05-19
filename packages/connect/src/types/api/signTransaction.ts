@@ -69,11 +69,13 @@ export interface SignTransaction {
     branchId?: number;
     decredStakingTicket?: boolean;
     push?: boolean;
+    preauthorized?: boolean;
 }
 
 export type SignedTransaction = {
     signatures: string[];
     serializedTx: string;
+    witnesses?: (string | undefined)[];
     txid?: string;
 };
 
