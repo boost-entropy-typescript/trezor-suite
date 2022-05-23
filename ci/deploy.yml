@@ -20,7 +20,7 @@
     - "packages/utils"
 
 # Suite web deploy to dev
-suite-web deploy dev:
+suite-web deploy sldev:
   stage: deploy to dev
   variables:
     DEPLOY_DIRECTORY: ${DEPLOY_BASE_DIR}/suite-web/${CI_BUILD_REF_NAME}
@@ -37,9 +37,10 @@ suite-web deploy dev:
     - rsync --delete -va packages/suite-web/build/ "${DEPLOY_DIRECTORY}/web/"
   tags:
     - deploy
+  interruptible: true
 
 # Suite web landing deploy to dev
-suite-web-landing deploy dev:
+suite-web-landing deploy sldev:
   stage: deploy to dev
   variables:
     DEPLOY_DIRECTORY: ${DEPLOY_BASE_DIR}/suite-web-landing/${CI_BUILD_REF_NAME}
@@ -54,9 +55,10 @@ suite-web-landing deploy dev:
     - rsync --delete -va packages/suite-web-landing/build/ "${DEPLOY_DIRECTORY}/"
   tags:
     - deploy
+  interruptible: true
 
 # Suite desktop deploy to dev and production
-suite-desktop deploy dev:
+suite-desktop deploy sldev:
   stage: deploy to dev
   only:
     <<: *run_everything_rules
@@ -69,9 +71,10 @@ suite-desktop deploy dev:
     - 'rsync --delete -va "${DESKTOP_APP_NAME}"-*.exe "${DEPLOY_DIRECTORY}/" || :'
   tags:
     - deploy
+  interruptible: true
 
 # # Suite native deploy to dev
-# suite-native deploy dev:
+# suite-native deploy sldev:
 #   stage: deploy to dev
 #   only:
 #     <<: *run_everything_rules
@@ -85,7 +88,7 @@ suite-desktop deploy dev:
 # TODO: Disabled until the new suite native build is introduced. Fix this deploy job after.
 
 # Messaging system deploy to dev
-msg-system deploy dev:
+msg-system deploy sldev:
   stage: deploy to dev
   needs:
     - "msg-system config sign dev"
@@ -98,6 +101,7 @@ msg-system deploy dev:
     - source ${MSG_SYSTEM_DATA_DEPLOY_KEYFILE}
     - aws s3 cp packages/suite-data/files/message-system/config.v1.jws s3://data.trezor.io/config/develop/config.v1.jws
     - aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_ID} --paths '/config/develop/*'
+  interruptible: true
 
 .connect-explorer deploy dev base:
   stage: deploy to dev
@@ -112,8 +116,9 @@ msg-system deploy dev:
     - rsync --delete -va packages/connect-explorer/build/ "${DEPLOY_DIRECTORY}/"
   tags:
     - deploy
+  interruptible: true
 
-connect-explorer deploy dev:
+connect-explorer deploy sldev:
   extends: .connect-explorer deploy dev base
   needs:
     - connect-explorer build
@@ -127,89 +132,6 @@ connect-explorer deploy dev manual:
   except:
     <<: *run_everything_rules
   when: manual
-
-# npm packages deploy to npm registry
-.npm_deploy_rules: &npm_deploy_rules
-  stage: deploy to dev
-  when: manual
-  tags:
-    - deploy
-  before_script:
-    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-  after_script:
-    - rm ~/.npmrc
-
-beta blockchain-link deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/blockchain-link && npm publish --tag beta"
-
-beta components deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/components && npm publish --tag beta"
-
-beta connect-common deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/connect-common && npm publish --tag beta"
-
-beta transport deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/transport && npm publish --tag beta"
-
-beta utils deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/utils && npm publish --tag beta"
-
-beta utxo-lib deploy npm:
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/utxo-lib && npm publish --tag beta"
-
-blockchain-link deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/blockchain-link && npm publish"
-
-components deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/components && npm publish"
-
-connect-common deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/connect-common && npm publish"
-
-transport deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/transport && npm publish"
-
-utils deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/utils && npm publish"
-
-utxo-lib deploy npm:
-  only:
-    <<: *run_everything_rules
-  <<: *npm_deploy_rules
-  script:
-    - nix-shell --run "yarn && yarn build:libs && cd ./packages/utxo-lib && npm publish"
 
 # connect deploy to dev
 connect deploy to dev:
@@ -248,3 +170,59 @@ connect deploy to dev:
     - deploy
     # todo: use connect_deploy?
     # - connect_deploy
+  interruptible: true
+
+# components deploy
+.run_components_rules: &run_components_rules
+  refs:
+    - develop
+    - releases
+    - schedules
+    - /^release\//
+    - /^run\//
+  changes:
+    - packages/components
+    - packages/components-storybook
+    - yarn.lock
+
+# Deploy
+
+.deploy_common: &deploy_common
+  stage: deploy to dev
+  variables:
+    DEPLOY_DIRECTORY: ${DEPLOY_BASE_DIR}/components/${CI_BUILD_REF_NAME}
+  environment:
+    name: ${CI_BUILD_REF_NAME}
+    url: $BASE_REVIEW_URL/${CI_BUILD_REF_NAME}
+  before_script: []
+  script:
+    - mkdir -p ${DEPLOY_DIRECTORY}
+    - rsync --delete -va packages/components/.build-storybook/ "${DEPLOY_DIRECTORY}/"
+  tags:
+    - deploy
+  interruptible: true
+
+# Currently two jobs needed, it seems not to be possible to have a job depending on manual job
+# https://gitlab.com/gitlab-org/gitlab/-/issues/31264
+components storybook deploy sldev:
+  <<: *deploy_common
+  only:
+    <<: *run_components_rules
+
+components storybook deploy dev manual:
+  <<: *deploy_common
+  when: manual
+  except:
+    <<: *run_components_rules
+# components-storybook test snapshots:
+#   stage: integration testing
+#   script:
+#     - npx cypress install
+#     - CYPRESS_baseUrl=${DEV_SERVER_URL}/components-storybook/${CI_BUILD_REF_NAME} yarn workspace @trezor/integration-tests test:components-storybook
+#   artifacts:
+#     expire_in: 7 days
+#     when: always
+#     paths:
+#       - /builds/satoshilabs/trezor/trezor-suite/packages/integration-tests/projects/components-storybook/snapshots
+#       - /builds/satoshilabs/trezor/trezor-suite/packages/integration-tests/projects/components-storybook/screenshots
+#   needs: []
