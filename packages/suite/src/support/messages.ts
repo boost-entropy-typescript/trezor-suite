@@ -1948,7 +1948,7 @@ export default defineMessages({
     TR_ONBOARDING_DATA_COLLECTION_DESCRIPTION: {
         id: 'TR_ONBOARDING_DATA_COLLECTION_DESCRIPTION',
         defaultMessage:
-            'All data is anonymous and is used only for product development purposes. Read more in <a>Terms & Conditions</a>.',
+            'All data is anonymous and is used only for product development purposes. Read more in our <analytics>technical documentation</analytics> and <tos>Terms & Conditions</tos>.',
     },
     TR_EJECT_WALLET: {
         defaultMessage: 'Eject wallet',
@@ -3971,10 +3971,6 @@ export default defineMessages({
     TR_HEX_FORMAT: {
         id: 'TR_HEX_FORMAT',
         defaultMessage: 'Hex format',
-    },
-    TR_BUY_TREZOR: {
-        id: 'TR_BUY_TREZOR',
-        defaultMessage: 'Buy Trezor',
     },
     TR_DISABLE_WEBUSB_TRY_BRIDGE: {
         id: 'TR_DISABLE_WEBUSB_TRY_BRIDGE',
