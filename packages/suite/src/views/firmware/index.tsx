@@ -34,17 +34,15 @@ const Wrapper = styled.div<{ isWithTopPadding: boolean }>`
 const StyledModal = styled(Modal)`
     width: 620px;
     min-height: 500px;
-    ${Modal.Body} {
+
+    > ${Modal.Body} {
         padding: 0;
         margin-top: 0;
         height: 100%;
+
         > * {
             height: 100%;
         }
-    }
-    ${Modal.Content} {
-        justify-content: center;
-        align-items: center;
     }
 `;
 
@@ -153,12 +151,11 @@ export const Firmware = () => {
     return (
         <StyledModal
             isCancelable={isCancelable}
-            devicePrompt={
+            modalPrompt={
                 status === 'waiting-for-confirmation' && (
                     <ConfirmOnDevice
                         title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
                         trezorModel={device?.features?.major_version === 1 ? 1 : 2}
-                        animated
                     />
                 )
             }

@@ -5,7 +5,7 @@ import { Modal } from '@suite-components';
 import { Translation } from '@suite-components/Translation';
 import { useActions } from '@suite-hooks';
 import * as discoveryActions from '@wallet-actions/discoveryActions';
-import DeviceConfirmImage from '@suite-components/images/DeviceConfirmImage';
+import { DeviceConfirmImage } from '@suite-components/images/DeviceConfirmImage';
 import type { TrezorDevice } from '@suite-types';
 
 const StyledModal = styled(Modal)`
@@ -24,6 +24,7 @@ export const PassphraseOnDevice = ({ device }: PassphraseOnDeviceProps) => {
     const { getDiscoveryAuthConfirmationStatus } = useActions({
         getDiscoveryAuthConfirmationStatus: discoveryActions.getDiscoveryAuthConfirmationStatus,
     });
+
     const authConfirmation = getDiscoveryAuthConfirmationStatus() || device.authConfirm;
 
     return (
@@ -47,7 +48,7 @@ export const PassphraseOnDevice = ({ device }: PassphraseOnDeviceProps) => {
                     }
                 />
             }
-            devicePrompt={
+            modalPrompt={
                 !authConfirmation ? (
                     <ConfirmOnDevice
                         title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
