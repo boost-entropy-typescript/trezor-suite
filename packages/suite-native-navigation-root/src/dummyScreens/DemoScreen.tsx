@@ -10,8 +10,11 @@ import {
     Hint,
     SearchInput,
     Radio,
+    CheckBox,
     Chip,
     Switch,
+    ListItem,
+    SelectableListItem,
 } from '@trezor/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
@@ -20,6 +23,7 @@ const backgroundStyle = prepareNativeStyle<{ isDarkMode: boolean }>(
         backgroundColor: isDarkMode ? colors.black : colors.white,
         padding: spacings.lg,
         marginTop: 0,
+        flex: 1,
     }),
 );
 
@@ -28,10 +32,15 @@ export const DemoScreen = () => {
     const [inputText, setInputText] = useState<string>('');
     const { applyStyle } = useNativeStyles();
     const [radioChecked, setRadioChecked] = useState('second');
+    const [isCheckBox1Checked, setIsCheckBox1Checked] = useState(false);
+    const [isCheckBox2Checked, setIsCheckBox2Checked] = useState(true);
+    const [isCheckBox3Checked, setIsCheckBox3Checked] = useState(false);
+    const [isCheckBox4Checked, setIsCheckBox4Checked] = useState(true);
     const [isChip1Selected, setIsChip1Selected] = useState<boolean>(false);
     const [isChip2Selected, setIsChip2Selected] = useState<boolean>(false);
     const [isSwitchActive, setIsSwitchActive] = useState<boolean>(true);
     const [isSwitch2Active, setIsSwitch2Active] = useState<boolean>(false);
+
     const handleRadioPress = (value: string) => {
         setRadioChecked(value);
     };
@@ -145,6 +154,29 @@ export const DemoScreen = () => {
                             />
                         </Box>
                     </Box>
+                    <Box marginVertical="md">
+                        <Text>Checkbox:</Text>
+                        <Box flexDirection="row" justifyContent="space-between">
+                            <CheckBox
+                                isChecked={isCheckBox1Checked}
+                                onChange={() => setIsCheckBox1Checked(!isCheckBox1Checked)}
+                            />
+                            <CheckBox
+                                isChecked={isCheckBox2Checked}
+                                onChange={() => setIsCheckBox2Checked(!isCheckBox2Checked)}
+                            />
+                            <CheckBox
+                                isChecked={isCheckBox3Checked}
+                                onChange={() => setIsCheckBox3Checked(!isCheckBox3Checked)}
+                                isDisabled
+                            />
+                            <CheckBox
+                                isChecked={isCheckBox4Checked}
+                                onChange={() => setIsCheckBox4Checked(!isCheckBox4Checked)}
+                                isDisabled
+                            />
+                        </Box>
+                    </Box>
 
                     <NumPadButton
                         value={5}
@@ -159,6 +191,57 @@ export const DemoScreen = () => {
                     >
                         Get features
                     </Button>
+                    <Box marginVertical="md">
+                        <ListItem
+                            iconType="placeholder"
+                            title="Headline"
+                            subtitle="Description of that headline"
+                            hasRightArrow
+                            onPress={() => console.log('Press ListItem. No implementation yet.')}
+                        />
+                    </Box>
+                    <Box marginVertical="md">
+                        <ListItem
+                            iconType="warningCircle"
+                            title="Some Really and I mean really Long Headline without isTextWrapped"
+                            hasRightArrow
+                            isTextTruncated
+                        />
+                    </Box>
+                    <Box marginVertical="md">
+                        <ListItem
+                            title="Headline"
+                            subtitle="Description of that headline"
+                            hasRightArrow
+                        />
+                    </Box>
+                    <Box marginVertical="md">
+                        <ListItem
+                            iconType="warningCircle"
+                            title="Some Really and I mean really really Long Headline"
+                            subtitle="Description of that headlineDescription of that headlineDescription of that headlineDescription of that headline"
+                            hasRightArrow={false}
+                        />
+                    </Box>
+                    <Box marginVertical="md">
+                        <ListItem
+                            iconType="placeholder"
+                            title="Not wrapped example with long and I mean really long Headline"
+                            subtitle="Description of that not wrapped example with long and I mean really long Headline"
+                            hasRightArrow
+                            isTextTruncated
+                        />
+                    </Box>
+                    <Box marginVertical="md">
+                        <SelectableListItem
+                            iconType="placeholder"
+                            title="Headline"
+                            subtitle="Description of that headline"
+                            onPress={handleRadioPress}
+                            value="firstSelectable"
+                            isChecked={radioChecked === 'firstSelectable'}
+                        />
+                    </Box>
                 </View>
             </ScrollView>
         </SafeAreaView>
