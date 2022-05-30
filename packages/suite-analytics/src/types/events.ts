@@ -35,6 +35,7 @@ export type SuiteAnalyticsEvent =
           payload: {
               prevRouterUrl: string;
               nextRouterUrl: string;
+              anchor?: string;
           };
       }
     | { type: EventType.TransportType; payload: { type: string; version: string } }
@@ -88,20 +89,13 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
-          type: EventType.CheckSeedError;
-          error?: string;
-      }
-    | {
-          type: EventType.CheckSeedSuccess;
-      }
-    | {
-          type: EventType.AccountStatus;
+          type: EventType.AccountsStatus;
           payload: {
               [key: string]: number;
           };
       }
     | {
-          type: EventType.WalletAddAccount;
+          type: EventType.AccountsNewAccount;
           payload: {
               type: string;
               path: string;
@@ -150,53 +144,17 @@ export type SuiteAnalyticsEvent =
               networkSymbol: string;
           };
       }
-    | { type: EventType.DashboardSecurityCardCreateBackup }
-    | { type: EventType.DashboardSecurityCardSeedLink }
-    | { type: EventType.DashboardSecurityCardSetPin }
-    | { type: EventType.DashboardSecurityCardChangePin }
-    | { type: EventType.DashboardSecurityCardEnablePassphrase }
-    | { type: EventType.DashboardSecurityCardCreateHiddenWallet }
-    | { type: EventType.DashboardSecurityCardEnableDiscreet }
-    | {
-          type: EventType.DashboardSecurityCardToggleDiscreet;
-          payload: {
-              value: boolean;
-          };
-      }
-    | { type: EventType.MenuGotoSwitchDevice }
-    | { type: EventType.MenuGotoSuiteIndex }
-    | { type: EventType.MenuGotoWalletIndex }
-    | { type: EventType.MenuGotoNotificationsIndex }
     | {
           type: EventType.MenuNotificationsToggle;
           payload: {
               value: boolean;
           };
       }
-    | { type: EventType.MenuGotoSettingsIndex }
     | {
           type: EventType.MenuToggleDiscreet;
           payload: {
               value: boolean;
           };
-      }
-    | {
-          type: EventType.MenuGotoTor;
-      }
-    | {
-          type: EventType.MenuToggleTor;
-          payload: {
-              value: boolean;
-          };
-      }
-    | {
-          type: EventType.MenuToggleOnionLinks;
-          payload: {
-              value: boolean;
-          };
-      }
-    | {
-          type: EventType.MenuGotoEarlyAccess;
       }
     | {
           type: EventType.MenuGuide;
@@ -233,19 +191,19 @@ export type SuiteAnalyticsEvent =
               id: string;
           };
       }
-    | { type: EventType.SwitchDeviceAddWallet }
-    | { type: EventType.SwitchDeviceAddHiddenWallet }
     | { type: EventType.SwitchDeviceForget }
     | { type: EventType.SwitchDeviceRemember }
     | { type: EventType.SwitchDeviceEject }
-    | { type: EventType.SettingsDeviceGotoBackup }
-    | { type: EventType.SettingsDeviceGotoRecovery }
-    | { type: EventType.SettingsDeviceGotoFirmware }
     | {
           type: EventType.SettingsDeviceChangePinProtection;
           payload: {
               remove: boolean | null;
           };
+      }
+    | {
+          type: EventType.SettingsDeviceCheckSeed;
+          status: 'finished' | 'error';
+          error?: string;
       }
     | {
           type: EventType.SettingsDeviceChangePin;
@@ -255,12 +213,6 @@ export type SuiteAnalyticsEvent =
           type: EventType.SettingsDeviceUpdateAutoLock;
           payload: {
               value: number;
-          };
-      }
-    | {
-          type: EventType.SettingsDeviceGotoBackground;
-          payload: {
-              custom: boolean;
           };
       }
     | {
@@ -279,7 +231,7 @@ export type SuiteAnalyticsEvent =
               value: 0 | 90 | 180 | 270;
           };
       }
-    | { type: EventType.SettingsDeviceGotoWipe }
+    | { type: EventType.SettingsDeviceWipe }
     | {
           type: EventType.SettingsDeviceChangePassphraseProtection;
           payload: {
@@ -319,22 +271,14 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
-          type: EventType.SettingsGeneralEarlyAccessCheckForUpdates;
+          type: EventType.SettingsCoins;
           payload: {
-              checkNow: boolean;
+              symbol: string;
+              value: boolean;
           };
       }
     | {
-          type: EventType.SettingsGeneralEarlyAccessDownloadStable;
-      }
-    | {
-          type: EventType.SettingsGeneralGotoEarlyAccess;
-          payload: {
-              allowPrerelease: boolean;
-          };
-      }
-    | {
-          type: EventType.SettingsCoinBackend;
+          type: EventType.SettingsCoinsBackend;
           payload: {
               symbol: string;
               type: 'blockbook' | 'electrum' | 'ripple' | 'blockfrost' | 'default';
@@ -343,10 +287,22 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
-          type: EventType.AnalyticsEnable;
+          type: EventType.SettingsTor;
+          payload: {
+              value: boolean;
+          };
       }
     | {
-          type: EventType.AnalyticsDispose;
+          type: EventType.SettingsTorOnionLinks;
+          payload: {
+              value: boolean;
+          };
+      }
+    | {
+          type: EventType.SettingsAnalytics;
+          payload: {
+              value: boolean;
+          };
       }
     | {
           type: EventType.SelectWalletType;

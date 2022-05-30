@@ -2,11 +2,62 @@
 
 This changelog lists changes in suite events.
 
+### 1.20
+
+-   analytics 1.19 was never released due to a bug
+
 ### 1.19
+
+Added:
+
+-   settings/device/wipe
+-   settings/coins
+
+Renamed:
+
+-   wallet/add-account to accounts/new-account
+-   settings/coin-backend to settings/coins/backend
+-   menu/toggle-onion-links to settings/tor/onion-links
+-   menu/toggle-tor to settings/tor
+
+Merged:
+
+-   analytics/enable, analytics/dispose to settings/analytics
+    -   value: boolean
+-   check-seed/error, check-seed/success to settings/device/check-seed
+    -   error: string
+    -   status: 'finished' | 'error'
 
 Removed:
 
 -   session-end
+-   menu/goto/early-access
+-   menu/goto/tor
+-   settings/general/goto/early-access
+-   settings/general/early-access/check-for-updates
+-   settings/general/early-access/download-stable
+-   menu/settings/dropdown
+-   menu/settings/toggle
+-   dashboard/security-card/create-backup
+-   dashboard/security-card/seed-link
+-   dashboard/security-card/set-pin
+-   dashboard/security-card/change-pin
+-   dashboard/security-card/enable-passphrase
+-   dashboard/security-card/create-hidden-wallet
+-   dashboard/security-card/enable-discreet
+-   dashboard/security-card/toggle-discreet
+-   menu/goto/switch-device
+-   menu/goto/suite-index
+-   menu/goto/wallet-index
+-   menu/goto/notifications-index
+-   menu/goto/settings-index
+-   settings/device/goto/background
+-   settings/device/goto/backup
+-   settings/device/goto/recovery
+-   settings/device/goto/firmware
+-   switch-device/add-wallet
+-   switch-device/add-hidden-wallet
+-   settings/device/goto/wipe
 
 ### 1.18
 
