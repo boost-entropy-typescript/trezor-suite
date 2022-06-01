@@ -8,9 +8,14 @@ import { TorConnectionOptions } from './types';
 const readFile = util.promisify(fs.readFile);
 const randomBytes = util.promisify(crypto.randomBytes);
 
-const getCookieString = async (authFilePath: string) => {
+export const getCookieString = async (authFilePath: string) => {
     const controlAuthCookiePath = path.join(authFilePath, 'control_auth_cookie');
     return (await readFile(controlAuthCookiePath)).toString('hex');
+};
+
+export const createHmacSignature = (authString: string, key: string) => {
+    const bufferToSign = Buffer.from(authString, 'hex');
+    return crypto.createHmac('sha256', key).update(bufferToSign).digest('hex').toUpperCase();
 };
 
 const getClientNonce = async () => (await randomBytes(32)).toString('hex');
@@ -19,11 +24,15 @@ export class TorControlPort {
     options: TorConnectionOptions;
     socket: Socket;
     isSocketConnected = false;
+    isCircuitDone = false;
     clientNonce = '';
 
-    constructor(options: TorConnectionOptions) {
+    onMessageReceived: (message: string) => void;
+
+    constructor(options: TorConnectionOptions, onMessageReceived: (message: string) => void) {
         this.options = options;
         this.socket = new net.Socket();
+        this.onMessageReceived = onMessageReceived;
     }
 
     connect() {
@@ -37,7 +46,7 @@ export class TorControlPort {
             this.socket.on('connect', async () => {
                 await (async () => {
                     this.clientNonce = await getClientNonce();
-                    this.socket.write(`AUTHCHALLENGE SAFECOOKIE ${this.clientNonce}\r\n`);
+                    this.write(`AUTHCHALLENGE SAFECOOKIE ${this.clientNonce}`);
                 })();
             });
 
@@ -53,6 +62,7 @@ export class TorControlPort {
 
             this.socket.on('data', async data => {
                 const message = data.toString();
+                this.onMessageReceived(message);
                 // Section 3.24. AUTHCHALLENGE in https://gitweb.torproject.org/torspec.git/tree/control-spec.txt
                 // https://stem.torproject.org/faq.html#i-m-using-safe-cookie-authentication
                 const authchallengeResponse = message
@@ -70,22 +80,13 @@ export class TorControlPort {
                     const serverNonce = authchallengeResponse[2];
                     const authString = `${cookieString}${this.clientNonce}${serverNonce}`;
 
-                    const bufferToSign = Buffer.from(authString, 'hex');
                     // key is a hardcoded string provided by the TOR control-spec
                     const key = 'Tor safe cookie authentication controller-to-server hash';
-                    const authSignature = crypto
-                        .createHmac('sha256', key)
-                        .update(bufferToSign)
-                        .digest('hex')
-                        .toUpperCase();
-
-                    this.socket.write(`AUTHENTICATE ${authSignature}\r\n`);
-                    // Section 3.23. TAKEOWNERSHIP in https://gitweb.torproject.org/torspec.git/tree/control-spec.txt
-                    // This command instructs Tor to shut down when this control connection is closed.
-                    // If multiple control connections send the TAKEOWNERSHIP command to a Tor instance, Tor
-                    // will shut down when any of those connections closes.
-                    this.socket.write('TAKEOWNERSHIP\r\n');
+                    const authSignature = createHmacSignature(authString, key);
+                    this.write(`AUTHENTICATE ${authSignature}`);
+                    this.write('GETINFO circuit-status');
                     this.isSocketConnected = true;
+                    this.subscribeEvents();
                     resolve(true);
                 }
             });
@@ -106,9 +107,18 @@ export class TorControlPort {
             return false;
         }
         try {
-            return !!this.socket.write('GETINFO\r\n');
+            return !!this.write('GETINFO');
         } catch (error) {
             return false;
         }
+    }
+
+    write(command: string): boolean {
+        return this.socket.write(`${command}\r\n`);
+    }
+
+    subscribeEvents() {
+        const events = ['STATUS_CLIENT'];
+        this.write(`SETEVENTS ${events.join(' ')}`);
     }
 }

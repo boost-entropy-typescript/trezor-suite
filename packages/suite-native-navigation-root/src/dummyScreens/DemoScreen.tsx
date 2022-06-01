@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StatusBar, useColorScheme, View } from 'react-native';
 
+import { Icon, CryptoIcon, FlagIcon } from '@trezor/icons';
 import {
     Text,
     Box,
     Button,
     NumPadButton,
-    Icon,
     Hint,
     SearchInput,
     Radio,
@@ -15,8 +15,10 @@ import {
     Switch,
     ListItem,
     SelectableListItem,
+    BottomModal,
 } from '@trezor/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
+import { TypographyStyle } from '@trezor/theme';
 
 const backgroundStyle = prepareNativeStyle<{ isDarkMode: boolean }>(
     ({ colors, spacings }, { isDarkMode }) => ({
@@ -27,6 +29,16 @@ const backgroundStyle = prepareNativeStyle<{ isDarkMode: boolean }>(
     }),
 );
 
+const typographyItems: TypographyStyle[] = [
+    'titleLarge',
+    'titleMedium',
+    'titleSmall',
+    'highlight',
+    'body',
+    'callout',
+    'hint',
+    'label',
+];
 export const DemoScreen = () => {
     const isDarkMode = useColorScheme() === 'dark';
     const [inputText, setInputText] = useState<string>('');
@@ -40,6 +52,7 @@ export const DemoScreen = () => {
     const [isChip2Selected, setIsChip2Selected] = useState<boolean>(false);
     const [isSwitchActive, setIsSwitchActive] = useState<boolean>(true);
     const [isSwitch2Active, setIsSwitch2Active] = useState<boolean>(false);
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     const handleRadioPress = (value: string) => {
         setRadioChecked(value);
@@ -59,14 +72,15 @@ export const DemoScreen = () => {
                         placeholder="Type here.."
                     />
                     <Box marginTop="lg">
+                        <FlagIcon name="cz" />
                         <Chip
-                            icon={<Icon type="settings" />}
+                            icon={<CryptoIcon name="btc" />}
                             title="Bitcoin"
                             isSelected={isChip1Selected}
                             onSelect={() => setIsChip1Selected(!isChip1Selected)}
                         />
                         <Chip
-                            icon={<Icon type="settings" />}
+                            icon={<Icon name="settings" />}
                             title="Bitcoin"
                             isSelected={isChip2Selected}
                             onSelect={() => setIsChip2Selected(!isChip2Selected)}
@@ -88,41 +102,30 @@ export const DemoScreen = () => {
                         onChange={() => setIsSwitch2Active(!isSwitch2Active)}
                         isDisabled
                     />
-                    <Box>
-                        <Text variant="titleSmall">Title Small</Text>
-                    </Box>
-                    <Box>
-                        <Text variant="highlight">Highlight</Text>
-                    </Box>
-                    <Box>
-                        <Text variant="body">Body</Text>
-                    </Box>
-                    <Box>
-                        <Text variant="callout">Callout</Text>
-                    </Box>
-                    <Box>
-                        <Text variant="hint">Hint</Text>
-                    </Box>
-                    <Box>
-                        <Text variant="label">Label</Text>
-                    </Box>
+                    <Button onPress={() => setIsModalVisible(true)} colorScheme="primary" size="md">
+                        Show Typograhy
+                    </Button>
+                    <BottomModal
+                        isVisible={isModalVisible}
+                        onVisibilityChange={setIsModalVisible}
+                        title="Typography Demo"
+                        hasBackArrow
+                        onBackArrowClick={() => setIsModalVisible(!isModalVisible)}
+                    >
+                        {typographyItems.map(item => (
+                            <Box marginTop="sm" key={item}>
+                                <Text variant={item}>{item}</Text>
+                            </Box>
+                        ))}
+                    </BottomModal>
                     <Box marginVertical="md">
                         <Text>Icon:</Text>
-                        <Icon type="warningCircle" size="big" color="black" />
+                        <Icon name="warningCircle" size="large" color="black" />
                     </Box>
                     <Box marginVertical="md">
                         <Text>Hints:</Text>
                         <Hint variant="hint">Hned to mažem</Hint>
                         <Hint variant="error">Please enter a valid address dumbo</Hint>
-                    </Box>
-                    <Box marginVertical="md">
-                        <Button
-                            onPress={() => console.log('Get features')}
-                            size="md"
-                            colorScheme="primary"
-                        >
-                            My Fancy Button
-                        </Button>
                     </Box>
                     <Box marginVertical="md">
                         <Text>Radio:</Text>
@@ -193,7 +196,7 @@ export const DemoScreen = () => {
                     </Button>
                     <Box marginVertical="md">
                         <ListItem
-                            iconType="placeholder"
+                            iconName="placeholder"
                             title="Headline"
                             subtitle="Description of that headline"
                             hasRightArrow
@@ -202,7 +205,7 @@ export const DemoScreen = () => {
                     </Box>
                     <Box marginVertical="md">
                         <ListItem
-                            iconType="warningCircle"
+                            iconName="warningCircle"
                             title="Some Really and I mean really Long Headline without isTextWrapped"
                             hasRightArrow
                             isTextTruncated
@@ -217,7 +220,7 @@ export const DemoScreen = () => {
                     </Box>
                     <Box marginVertical="md">
                         <ListItem
-                            iconType="warningCircle"
+                            iconName="warningCircle"
                             title="Some Really and I mean really really Long Headline"
                             subtitle="Description of that headlineDescription of that headlineDescription of that headlineDescription of that headline"
                             hasRightArrow={false}
@@ -225,7 +228,7 @@ export const DemoScreen = () => {
                     </Box>
                     <Box marginVertical="md">
                         <ListItem
-                            iconType="placeholder"
+                            iconName="placeholder"
                             title="Not wrapped example with long and I mean really long Headline"
                             subtitle="Description of that not wrapped example with long and I mean really long Headline"
                             hasRightArrow
@@ -234,7 +237,7 @@ export const DemoScreen = () => {
                     </Box>
                     <Box marginVertical="md">
                         <SelectableListItem
-                            iconType="placeholder"
+                            iconName="placeholder"
                             title="Headline"
                             subtitle="Description of that headline"
                             onPress={handleRadioPress}

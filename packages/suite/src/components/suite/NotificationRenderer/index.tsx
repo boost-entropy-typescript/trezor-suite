@@ -126,6 +126,12 @@ const NotificationRenderer = ({ notification, render }: NotificationRendererProp
             return success(render, notification, 'TR_GUIDE_FEEDBACK_SENT');
         case 'user-feedback-send-error':
             return error(render, notification, 'TR_GUIDE_FEEDBACK_ERROR');
+        case 'qr-incorrect-address':
+            return error(render, notification, 'TOAST_QR_INCORRECT_ADDRESS');
+        case 'qr-incorrect-coin-scheme-protocol':
+            return error(render, notification, 'TOAST_QR_INCORRECT_COIN_SCHEME_PROTOCOL', {
+                coin: notification.coin,
+            });
         case 'coin-scheme-protocol':
             return <CoinProtocolRenderer render={render} notification={notification} />;
         case 'tx-received':
@@ -169,6 +175,11 @@ const NotificationRenderer = ({ notification, render }: NotificationRendererProp
                     }}
                 />
             );
+        case 'savings-kyc-failed':
+            return error(render, notification, 'TR_SAVINGS_KYC_FAILED_NOTIFICATION');
+        case 'savings-kyc-success':
+            return success(render, notification, 'TR_SAVINGS_KYC_SUCCESS_NOTIFICATION');
+
         // Events:
         case SUITE.AUTH_DEVICE:
             return info(render, notification, 'EVENT_WALLET_CREATED');

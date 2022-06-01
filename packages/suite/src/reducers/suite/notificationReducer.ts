@@ -86,6 +86,13 @@ export type ToastPayload = (
           type: 'user-feedback-send-success' | 'user-feedback-send-error';
       }
     | {
+          type: 'qr-incorrect-coin-scheme-protocol';
+          coin: string;
+      }
+    | {
+          type: 'qr-incorrect-address';
+      }
+    | {
           type: 'coin-scheme-protocol';
           scheme: PROTOCOL_SCHEME;
           address: string;
@@ -98,6 +105,12 @@ export type ToastPayload = (
     | {
           type: 'cardano-withdrawal-error';
           error: string;
+      }
+    | {
+          type: 'savings-kyc-failed';
+      }
+    | {
+          type: 'savings-kyc-success';
       }
 ) &
     Options;

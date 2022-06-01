@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { NativeStyleObject, prepareNativeStyle, useNativeStyles } from '@trezor/styles';
-import { Icon } from './Icon/Icon';
+import { Icon } from '@trezor/icons';
 
 type CheckBoxProps = {
     isChecked: boolean;
@@ -21,7 +21,7 @@ const checkBoxStyle = prepareNativeStyle<CheckBoxStyleProps>(
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 4,
-        borderWidth: utils.borders.widths.md,
+        borderWidth: utils.borders.widths.medium,
         borderColor: utils.colors.gray400,
         backgroundColor: isDisabled ? utils.colors.gray400 : utils.colors.white,
         extend: [
@@ -47,7 +47,7 @@ export const CheckBox = ({ isChecked, isDisabled = false, onChange, style }: Che
             accessibilityState={{ checked: isChecked, disabled: isDisabled }}
             style={[applyStyle(checkBoxStyle, { isChecked, isDisabled }), style]}
         >
-            {isChecked && <Icon type="check" color="white" size="small" />}
+            {isChecked && <Icon name="check" color="white" size="small" />}
         </TouchableOpacity>
     );
 };
