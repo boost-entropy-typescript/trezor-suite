@@ -258,7 +258,7 @@ Structure of config, types and optionality of specific keys can be found in the 
 
 When updating message system config, sequence number must always be higher than the previous one. Once released config cannot be rolled back to the previous one with lower sequence number. A new one with higher sequence number has to be created.
 
-Updated config is automatically uploaded by CI job to the correspondent S3 bucket based on the current branch.
+Updated config is automatically uploaded by CI job to the corresponding S3 bucket based on the current branch.
 
 #### Priorities of messages
 
@@ -272,8 +272,8 @@ Unfortunately, it is not possible to target specific distributions and versions 
 ### Application steps
 
 1. Config is fetched on load of application and is stored in Redux state. To be persisted between sessions, is is mirrored into IndexDB.
-2. Conditions of config are evaluated on specific Redux actions. See `messageSystemMiddleware.ts` [file](https://github.com/trezor/trezor-suite/blob/145a43d21ee94461d3f013c1dc23241dd27b0224/packages/suite/src/middlewares/suite/messageSystemMiddleware.ts).
-3. If conditions of message satisfies user's stack, the message is accordingly propagated. If it is dismissible, its id is saved to Redux state (IndexDB) on close, to avoid displaying next time.
+1. Conditions of config are evaluated on specific Redux actions. See `messageSystemMiddleware.ts` [file](https://github.com/trezor/trezor-suite/blob/145a43d21ee94461d3f013c1dc23241dd27b0224/packages/suite/src/middlewares/suite/messageSystemMiddleware.ts).
+1. If conditions of a message satisfy the user's stack, the message is accordingly propagated. If it is dismissible, its ID is saved to Redux state (IndexDB) on close, to avoid displaying it next time.
 
 ### Followup
 
