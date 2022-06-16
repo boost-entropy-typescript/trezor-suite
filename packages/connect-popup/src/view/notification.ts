@@ -1,6 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/popup/view/notification.js
 
 import { UiRequestUnexpectedDeviceMode } from '@trezor/connect';
+import { SUITE_FIRMWARE_URL } from '@trezor/urls';
 import { views } from './common';
 
 export const showFirmwareUpdateNotification = (
@@ -24,8 +25,8 @@ export const showFirmwareUpdateNotification = (
     }
 
     const button = notification.getElementsByClassName('notification-button')[0];
-    // todo: https://github.com/trezor/trezor-suite/issues/5326
-    button.setAttribute('href', 'https://suite.trezor.io/web/firmware/');
+
+    button.setAttribute('href', SUITE_FIRMWARE_URL);
 
     container.appendChild(notification);
 

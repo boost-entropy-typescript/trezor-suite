@@ -1,6 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/popup/view/firmwareRequiredUpdate.js
 
 import { UiRequestUnexpectedDeviceMode } from '@trezor/connect';
+import { SUITE_FIRMWARE_URL } from '@trezor/urls';
 import { showView } from './common';
 
 export const firmwareRequiredUpdate = (device: UiRequestUnexpectedDeviceMode['payload']) => {
@@ -9,6 +10,6 @@ export const firmwareRequiredUpdate = (device: UiRequestUnexpectedDeviceMode['pa
     if (!device.firmwareRelease) return;
 
     const button = view.getElementsByClassName('confirm')[0];
-    // todo: https://github.com/trezor/trezor-suite/issues/5326
-    button.setAttribute('href', 'https://suite.trezor.io/web/firmware/');
+
+    button.setAttribute('href', SUITE_FIRMWARE_URL);
 };
