@@ -108,7 +108,7 @@ const StyledIcon = styled(Icon)`
     margin-right: 3px;
 `;
 
-const SelectBankAccount = () => {
+export const SelectBankAccount = () => {
     const theme = useTheme();
     const { callInProgress, confirmTrade, addBankAccount, selectedQuote } =
         useCoinmarketSellOffersContext();
@@ -172,8 +172,6 @@ const SelectBankAccount = () => {
                                 )}
                             </Option>
                         )}
-                        isOptionDisabled={(option: BankAccount) => !option.verified}
-                        isDropdownVisible={bankAccounts.length > 1}
                         isDisabled={bankAccounts.length < 2}
                     />
                 </Row>
@@ -192,5 +190,3 @@ const SelectBankAccount = () => {
         </Wrapper>
     );
 };
-
-export default SelectBankAccount;

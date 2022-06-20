@@ -7,7 +7,7 @@ import { UseFormMethods, Control, Controller } from 'react-hook-form';
 import { formatNetworkAmount } from '@wallet-utils/accountUtils';
 import type { Account } from '@wallet-types';
 import { useAccountAddressDictionary } from '@wallet-hooks/useAccounts';
-import type { MenuPlacement } from 'react-select/src/types';
+import type { MenuPlacement } from 'react-select';
 
 const AddressWrapper = styled.div`
     display: flex;
@@ -45,7 +45,7 @@ const UpperCase = styled.div`
 `;
 
 const buildOptions = (addresses: Account['addresses']) => {
-    if (!addresses) return null;
+    if (!addresses) return undefined;
 
     interface Options {
         label: React.ReactElement;
@@ -76,10 +76,20 @@ interface Props extends Pick<UseFormMethods<FormState>, 'setValue'> {
     address?: string;
     menuPlacement?: MenuPlacement;
 }
-const AddressOptions = (props: Props) => {
-    const { control, receiveSymbol, setValue, address, account, menuPlacement } = props;
+export const AddressOptions = ({
+    control,
+    receiveSymbol,
+    setValue,
+    address,
+    account,
+    menuPlacement,
+}: Props) => {
     const addresses = account?.addresses;
     const addressDictionary = useAccountAddressDictionary(account);
+    const value = address ? addressDictionary[address] : null;
+
+    const handleChange = (accountAddress: AccountAddress) =>
+        setValue('address', accountAddress.address);
 
     useEffect(() => {
         if (!address && addresses) {
@@ -91,16 +101,14 @@ const AddressOptions = (props: Props) => {
         <Controller
             control={control}
             name="address"
-            defaultValue={addressDictionary && address && addressDictionary[address]}
+            defaultValue={value}
             render={({ ref, ...field }) => (
                 <>
                     <Select
                         {...field}
-                        onChange={(accountAddress: AccountAddress) =>
-                            setValue('address', accountAddress.address)
-                        }
+                        onChange={handleChange}
                         isClearable={false}
-                        value={addressDictionary && address && addressDictionary[address]}
+                        value={value}
                         options={buildOptions(addresses)}
                         minWidth="70px"
                         menuPlacement={menuPlacement}
@@ -137,5 +145,3 @@ const AddressOptions = (props: Props) => {
         />
     );
 };
-
-export default AddressOptions;
