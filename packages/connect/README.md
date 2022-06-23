@@ -1,4 +1,4 @@
-# @trezor/connect API version 9.0.0-beta.1
+# @trezor/connect API version 9.0.0-beta.4
 
 [![Build Status](https://github.com/trezor/trezor-suite/actions/workflows/connect-test.yml/badge.svg)](https://github.com/trezor/trezor-suite/actions/workflows/connect-test.yml)
 [![NPM](https://img.shields.io/npm/v/@trezor/connect.svg)](https://www.npmjs.org/package/@trezor/connect)
@@ -21,13 +21,14 @@ Version 9+ will be available as `@trezor/connect` and `@trezor/connect-web` npm 
 
 ## Step by step release process
 
--   Make sure you have released all [npm dependencies](../../releases/npm-packages.md)
--   bump version in all @trezor/connect\* packages (except plugin packages).
+-   Make sure you have released all [npm dependencies](../../releases/npm-packages.md).
+-   Optional: if unsure run `node ./ci/scripts/check-npm-dependencies.js connect`. Please note that this script will report unreleased dependencies even for changes that do not affect runtime (READMEs etc.)
+-   bump version in all @trezor/connect\* packages (except plugin packages). `yarn workspace @trezor/connect version:<beta|patch|minor|major>`
 -   make sure CHANGELOG files have been updated
 -   merge into develop branch
 -   from develop branch create a pull requests into branch `release/connect-v9`
 -   gitlab: click manual release `@trezor/connect-web` and `@trezor/connect` into npm
--   gitlab: click manual release `@trezor/connect-web` and `@trezor/connect` into npm
+-   gitlab: click manual deploy job to connect.trezor.io/9
 
 ## Version 8 (stable)
 
