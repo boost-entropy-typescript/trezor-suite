@@ -4,10 +4,11 @@ import { desktopApi } from '@trezor/suite-desktop-api';
 
 import * as comparisonUtils from '@suite-utils/comparisonUtils';
 import * as deviceUtils from '@suite-utils/device';
-import { isOnionUrl } from '@suite-utils/tor';
+import { baseFetch, getIsTorLoading, isOnionUrl, torFetch } from '@suite-utils/tor';
 import { getCustomBackends } from '@suite-utils/backend';
 import { addToast } from '@suite-actions/notificationActions';
 import * as modalActions from '@suite-actions/modalActions';
+import { TorStatus } from '@suite-types';
 import { SUITE, METADATA } from './constants';
 import type { Locale } from '@suite-config/languages';
 import type {
@@ -19,6 +20,7 @@ import type {
     AppState,
 } from '@suite-types';
 import type { DebugModeOptions, AutodetectSettings } from '@suite-reducers/suiteReducer';
+import type { TranslationKey } from '@suite-components/Translation/components/BaseTranslation';
 
 export type SuiteAction =
     | { type: typeof SUITE.INIT }
@@ -52,7 +54,7 @@ export type SuiteAction =
       }
     | { type: typeof SUITE.SET_DEBUG_MODE; payload: Partial<DebugModeOptions> }
     | { type: typeof SUITE.ONLINE_STATUS; payload: boolean }
-    | { type: typeof SUITE.TOR_STATUS; payload: boolean }
+    | { type: typeof SUITE.TOR_STATUS; payload: TorStatus }
     | { type: typeof SUITE.ONION_LINKS; payload: boolean }
     | { type: typeof SUITE.LOCK_UI; payload: boolean }
     | { type: typeof SUITE.LOCK_DEVICE; payload: boolean }
@@ -151,31 +153,64 @@ export const updateOnlineStatus = (payload: boolean): SuiteAction => ({
  * @param {boolean} payload
  * @returns {Action}
  */
-export const updateTorStatus = (payload: boolean): SuiteAction => ({
+export const updateTorStatus = (payload: TorStatus): SuiteAction => ({
     type: SUITE.TOR_STATUS,
     payload,
 });
 
-export const toggleTor = (enable: boolean) => async (dispatch: Dispatch, getState: GetState) => {
-    const backends = getCustomBackends(getState().wallet.blockchain);
-    const hasOnlyOnionBackends = backends.some(
+export const toggleTor =
+    (shouldEnable: boolean) => async (dispatch: Dispatch, getState: GetState) => {
+        const isTorLoading = getIsTorLoading(getState().suite.torStatus);
+
+        if (isTorLoading) {
+            return;
+        }
+
+        const backends = getCustomBackends(getState().wallet.blockchain);
         // Is there any network with only onion custom backends?
-        ({ urls }) => urls.length && urls.every(isOnionUrl),
-    );
+        const hasOnlyOnionBackends = backends.some(
+            ({ urls }) => urls.length && urls.every(isOnionUrl),
+        );
 
-    if (!enable && hasOnlyOnionBackends) {
-        const res = await dispatch(modalActions.openDeferredModal({ type: 'disable-tor' }));
-        if (!res) return;
-    }
-    desktopApi.toggleTor(enable);
+        if (!shouldEnable && hasOnlyOnionBackends) {
+            const res = await dispatch(modalActions.openDeferredModal({ type: 'disable-tor' }));
+            if (!res) return;
+        }
 
-    analytics.report({
-        type: EventType.SettingsTor,
-        payload: {
-            value: enable,
-        },
-    });
-};
+        const progressStatus = shouldEnable ? TorStatus.Enabling : TorStatus.Disabling;
+
+        dispatch(updateTorStatus(progressStatus));
+
+        const ipcResponse = await desktopApi.toggleTor(shouldEnable);
+
+        if (ipcResponse.success) {
+            window.fetch = shouldEnable ? torFetch : baseFetch;
+
+            const newStatus = shouldEnable ? TorStatus.Enabled : TorStatus.Disabled;
+
+            dispatch(updateTorStatus(newStatus));
+
+            analytics.report({
+                type: EventType.SettingsTor,
+                payload: {
+                    value: shouldEnable,
+                },
+            });
+        }
+
+        if (!ipcResponse.success && ipcResponse.error) {
+            const previousStatus = shouldEnable ? TorStatus.Disabled : TorStatus.Enabled;
+
+            dispatch(updateTorStatus(previousStatus));
+
+            dispatch(
+                addToast({
+                    type: 'tor-toggle-error',
+                    error: ipcResponse.error as TranslationKey,
+                }),
+            );
+        }
+    };
 
 export const setOnionLinks = (payload: boolean): SuiteAction => ({
     type: SUITE.ONION_LINKS,

@@ -4,7 +4,7 @@ import { Icon } from '../../Icon';
 import { IconType, ButtonVariant, SuiteThemeColors } from '../../../support/types';
 import { variables } from '../../../config';
 import { useTheme } from '../../../utils';
-import FluidSpinner from '../../loaders/FluidSpinner';
+import { FluidSpinner } from '../../loaders/FluidSpinner';
 import { darken } from 'polished';
 
 const getPadding = (variant: ButtonVariant, hasLabel: boolean) => {
@@ -51,6 +51,7 @@ interface WrapperProps {
     variant: ButtonVariant;
     hasLabel: boolean;
     isDisabled: boolean;
+    disabled: boolean;
     isWhite: boolean;
     fullWidth: boolean;
     color: string | undefined;
@@ -63,90 +64,90 @@ const Wrapper = styled.button<WrapperProps>`
     justify-content: center;
     border: none;
     white-space: nowrap;
-    cursor: ${props => (props.isDisabled ? 'default' : 'pointer')};
+    cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
     border-radius: 8px;
-    font-size: ${props => getFontSize(props.variant)};
+    font-size: ${({ variant }) => getFontSize(variant)};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     outline: none;
-    padding: ${props => getPadding(props.variant, props.hasLabel)};
-    transition: ${props =>
-        `background ${props.theme.HOVER_TRANSITION_TIME} ${props.theme.HOVER_TRANSITION_EFFECT}`};
+    padding: ${({ variant, hasLabel }) => getPadding(variant, hasLabel)};
+    transition: ${({ theme }) =>
+        `background ${theme.HOVER_TRANSITION_TIME} ${theme.HOVER_TRANSITION_EFFECT}`};
     color: ${({ variant, isDisabled, theme }) => getColor(variant, isDisabled, theme)};
+    pointer-events: ${({ disabled }) => disabled && 'none'};
 
-    ${props =>
-        props.variant === 'primary' &&
+    ${({ variant, theme }) =>
+        variant === 'primary' &&
         css`
             font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-            background: ${props => props.theme.BG_GREEN};
+            background: ${({ theme }) => theme.BG_GREEN};
 
-            &:hover,
-            &:focus,
-            &:active {
+            :hover,
+            :focus,
+            :active {
                 /* we use this color only for this case  */
-                background: ${props => props.theme.BG_GREEN_HOVER};
+                background: ${({ theme }) => theme.BG_GREEN_HOVER};
             }
         `}
 
-    ${props =>
-        props.variant === 'secondary' &&
+    ${({ variant, theme }) =>
+        variant === 'secondary' &&
         css`
-            background: ${props => props.theme.BG_SECONDARY};
+            background: ${({ theme }) => theme.BG_SECONDARY};
 
-            &:hover,
-            &:focus,
-            &:active {
+            :hover,
+            :focus,
+            :active {
                 /* we use this color only for this case  */
-                background: ${props => props.theme.BG_SECONDARY_HOVER};
+                background: ${({ theme }) => theme.BG_SECONDARY_HOVER};
             }
         `}
 
-    ${props =>
-        props.variant === 'tertiary' &&
+    ${({ variant, theme }) =>
+        variant === 'tertiary' &&
         css`
-            background: ${props => props.theme.BG_GREY_ALT};
+            background: ${({ theme }) => theme.BG_GREY_ALT};
 
-            &:hover,
-            &:active,
-            &:focus {
-                background: ${props =>
-                    darken(props.theme.HOVER_DARKEN_FILTER, props.theme.BG_GREY_ALT)};
+            :hover,
+            :active,
+            :focus {
+                background: ${({ theme }) => darken(theme.HOVER_DARKEN_FILTER, theme.BG_GREY_ALT)};
             }
         `};
 
-    ${props =>
-        props.variant === 'tertiary' &&
-        props.isWhite &&
+    ${({ variant, isWhite, theme }) =>
+        variant === 'tertiary' &&
+        isWhite &&
         css`
-            background: ${props => props.theme.BG_WHITE};
+            background: ${({ theme }) => theme.BG_WHITE};
         `};
 
-    ${props =>
-        props.variant === 'danger' &&
+    ${({ variant, theme }) =>
+        variant === 'danger' &&
         css`
             font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-            background: ${props => props.theme.BUTTON_RED};
+            background: ${({ theme }) => theme.BUTTON_RED};
 
-            &:hover,
-            &:active,
-            &:focus {
-                background: ${props => props.theme.BUTTON_RED_HOVER};
+            :hover,
+            :active,
+            :focus {
+                background: ${({ theme }) => theme.BUTTON_RED_HOVER};
             }
         `}
 
-    ${props =>
-        props.isDisabled &&
+    ${({ isDisabled, theme }) =>
+        isDisabled &&
         css`
-            background: ${props => props.theme.BG_GREY};
+            background: ${({ theme }) => theme.BG_GREY};
 
-            &:hover,
-            &:active,
-            &:focus {
-                background: ${props => props.theme.BG_GREY};
+            :hover,
+            :active,
+            :focus {
+                background: ${({ theme }) => theme.BG_GREY};
             }
         `}
 
-    ${props =>
-        props.fullWidth &&
+    ${({ fullWidth }) =>
+        fullWidth &&
         css`
             width: 100%;
         `}
@@ -154,45 +155,45 @@ const Wrapper = styled.button<WrapperProps>`
 
 interface IconWrapperProps {
     hasLabel?: boolean;
-    alignIcon?: Props['alignIcon'];
-    variant?: Props['variant'];
+    alignIcon?: ButtonProps['alignIcon'];
+    variant?: ButtonProps['variant'];
 }
 
 const IconWrapper = styled.div<IconWrapperProps>`
     display: flex;
 
-    ${props =>
-        props.alignIcon === 'left' &&
-        props.hasLabel &&
+    ${({ alignIcon, hasLabel }) =>
+        alignIcon === 'left' &&
+        hasLabel &&
         css`
             margin: 0 8px 0 3px;
         `}
 
-    ${props =>
-        props.alignIcon === 'right' &&
-        props.hasLabel &&
+    ${({ alignIcon, hasLabel }) =>
+        alignIcon === 'right' &&
+        hasLabel &&
         css`
             margin: 0 0 0 8px;
         `}
 
-    ${props =>
-        props.variant === 'tertiary' &&
-        props.hasLabel &&
-        props.alignIcon === 'right' &&
+    ${({ alignIcon, hasLabel, variant }) =>
+        variant === 'tertiary' &&
+        hasLabel &&
+        alignIcon === 'right' &&
         css`
             margin: 0 0 0 4px;
         `}
 
-    ${props =>
-        props.variant === 'tertiary' &&
-        props.hasLabel &&
-        props.alignIcon === 'left' &&
+    ${({ alignIcon, hasLabel, variant }) =>
+        variant === 'tertiary' &&
+        hasLabel &&
+        alignIcon === 'left' &&
         css`
             margin: 0 4px 0 0;
         `}
 `;
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     icon?: IconType;
     size?: number;
@@ -204,7 +205,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     'data-test'?: string;
 }
 
-const Button = React.forwardRef(
+export const Button = React.forwardRef(
     (
         {
             children,
@@ -219,7 +220,7 @@ const Button = React.forwardRef(
             alignIcon = 'left',
             onChange,
             ...rest
-        }: Props,
+        }: ButtonProps,
         ref?: React.Ref<HTMLButtonElement>,
     ) => {
         const theme = useTheme();
@@ -260,6 +261,3 @@ const Button = React.forwardRef(
         );
     },
 );
-
-export type { Props as ButtonProps };
-export { Button };

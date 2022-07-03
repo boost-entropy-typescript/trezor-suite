@@ -5,12 +5,13 @@
     "repository": "https://github.com/trezor/trezor-suite.git",
     "license": "SEE LICENSE IN LICENSE.md",
     "engines": {
-        "node": "14",
+        "node": "16",
         "yarn": ">=1.22.0 <2"
     },
     "workspaces": {
         "packages": [
             "packages/*",
+            "suite-native/*",
             "scripts"
         ],
         "nohoist": [
@@ -113,6 +114,6 @@
         "ts-node": "^10.6.0",
         "tsconfig-paths": "^3.13.0",
         "typescript": "4.5.5",
-        "yarn-deduplicate": "^3.1.0"
+        "yarn-deduplicate": "^5.0.0"
     }
 }

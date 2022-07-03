@@ -1,5 +1,6 @@
 import { parseHostname } from '@trezor/utils';
 import { TOR_URLS } from '@suite-constants/tor';
+import { TorStatus } from '@suite-types';
 
 /**
  * returns tor url if tor url is request and tor url is available for given domain
@@ -30,9 +31,49 @@ export const toTorUrl = (url: string) => {
     return torUrl;
 };
 
-export const isTorDomain = (domain: string) => domain.endsWith('.onion');
+export const getIsTorDomain = (domain: string) => domain.endsWith('.onion');
 
 export const isOnionUrl = (url: string) => {
     const hostname = parseHostname(url);
-    return !!hostname && isTorDomain(hostname);
+    return !!hostname && getIsTorDomain(hostname);
+};
+
+export const baseFetch = window.fetch;
+
+export const torFetch = (input: RequestInfo, init?: RequestInit | undefined) => {
+    if (typeof input === 'string') {
+        input = toTorUrl(input);
+    }
+
+    return baseFetch(input, init);
+};
+
+export const getIsTorEnabled = (torStatus: TorStatus) => {
+    switch (torStatus) {
+        case TorStatus.Enabled:
+            return true;
+
+        case TorStatus.Enabling:
+        case TorStatus.Disabling:
+        case TorStatus.Disabled:
+            return false;
+
+        default:
+            return false;
+    }
+};
+
+export const getIsTorLoading = (torStatus: TorStatus) => {
+    switch (torStatus) {
+        case TorStatus.Enabling:
+        case TorStatus.Disabling:
+            return true;
+
+        case TorStatus.Enabled:
+        case TorStatus.Disabled:
+            return false;
+
+        default:
+            return false;
+    }
 };

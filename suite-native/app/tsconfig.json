@@ -1,0 +1,17 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": { "outDir": "libDev" },
+    "references": [
+        { "path": "../atoms" },
+        { "path": "../module-home" },
+        { "path": "../module-settings" },
+        { "path": "../navigation" },
+        { "path": "../../packages/connect" },
+        { "path": "../../packages/styles" },
+        { "path": "../../packages/theme" },
+        {
+            "path": "../../packages/transport-native"
+        }
+    ],
+    "include": [".", "**.json"]
+}

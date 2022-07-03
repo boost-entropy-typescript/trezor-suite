@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "yarn lint:styles && yarn lint:js",
         "lint:js": "eslint '**/*.{ts,tsx,js}'",
-        "lint:styles": "npx stylelint './src/**/*{.ts,.tsx}'",
+        "lint:styles": "npx stylelint './src/**/*{.ts,.tsx}' --cache",
         "translations:format": "yarn prettier --write \"../suite-data/files/translations/*\"",
         "translations:extract": "formatjs extract src/support/messages.ts --format simple > ../suite-data/files/translations/master.json",
         "translations:upload": "crowdin upload",
@@ -64,7 +64,7 @@
         "react-use": "^17.4.0",
         "react-window": "^1.8.7",
         "recharts": "^2.1.10",
-        "redux": "^4.0.5",
+        "redux": "^4.2.0",
         "redux-logger": "^3.0.6",
         "redux-thunk": "^2.3.0",
         "semver": "^7.3.7",

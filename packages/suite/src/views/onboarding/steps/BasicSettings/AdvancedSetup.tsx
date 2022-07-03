@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
 import { Translation } from '@suite-components';
 import { Box } from '@onboarding-components';
-import styled from 'styled-components';
 import { Icon, useTheme } from '@trezor/components';
 import { useSelector } from '@suite-hooks';
 import { isDesktop, isWeb } from '@suite-utils/env';
-import Tor from './Tor';
+import { TorSection } from './TorSection';
+import { getIsTorEnabled } from '@suite-utils/tor';
 
 const AdvancedSetupWrapper = styled.div`
     width: 100%;
@@ -18,7 +19,8 @@ const Boxes = styled.div`
     flex-direction: column;
     text-align: left;
     margin-bottom: 36px;
-    & > * + * {
+
+    > * + * {
         margin-top: 24px;
     }
 `;
@@ -33,26 +35,26 @@ const IconWrapper = styled.div`
     margin: 0 28px 0 0;
 `;
 
-interface Props {
+interface AdvancedSetupProps {
     children: React.ReactNode;
 }
 
-const AdvancedSetup = ({ children }: Props) => {
+export const AdvancedSetup = ({ children }: AdvancedSetupProps) => {
+    const torStatus = useSelector(state => state.suite.torStatus);
     const [torOpen, setTorOpen] = useState(false);
+
     const theme = useTheme();
 
-    const { tor } = useSelector(state => ({
-        tor: state.suite.tor,
-    }));
-
-    const toggleTor = () => {
+    const toggleTor = useCallback(() => {
         setTorOpen(!torOpen);
-    };
+    }, [torOpen]);
+
+    const isTorEnabled = getIsTorEnabled(torStatus);
 
     return (
         <AdvancedSetupWrapper>
             <Boxes>
-                {(isDesktop() || (isWeb() && tor)) && (
+                {(isDesktop() || (isWeb() && isTorEnabled)) && (
                     <Box
                         heading={<Translation id="TR_TOR" />}
                         description={
@@ -67,7 +69,7 @@ const AdvancedSetup = ({ children }: Props) => {
                         expanded={torOpen}
                         expandableIcon={
                             <IconWrapper>
-                                {tor ? (
+                                {isTorEnabled ? (
                                     <Icon icon="CHECK" size={24} color={theme.TYPE_LIGHT_GREY} />
                                 ) : (
                                     <Icon icon="PLUS" size={24} color={theme.TYPE_LIGHT_GREY} />
@@ -76,7 +78,7 @@ const AdvancedSetup = ({ children }: Props) => {
                         }
                         onToggle={toggleTor}
                     >
-                        <Tor tor={tor} />
+                        <TorSection torStatus={torStatus} />
                     </Box>
                 )}
             </Boxes>
@@ -84,5 +86,3 @@ const AdvancedSetup = ({ children }: Props) => {
         </AdvancedSetupWrapper>
     );
 };
-
-export default AdvancedSetup;
