@@ -26,10 +26,16 @@ export const AUTH_WINDOW_WIDTH = 600;
 export const AUTH_WINDOW_HEIGHT = 720;
 export const AUTH_WINDOW_PROPS = `width=${AUTH_WINDOW_WIDTH},height=${AUTH_WINDOW_HEIGHT},dialog=yes,dependent=yes,scrollbars=yes,location=yes`;
 
-// google does not allow authorization code flow (with long lived tokens) for web. that is the reason why 2 clientIds are used
-export const GOOGLE_CLIENT_ID_DESKTOP =
-    '705190185912-q1usa46qtt21mbtldki8juhn78a0v0ma.apps.googleusercontent.com';
-export const GOOGLE_CLIENT_ID_WEB =
+// server holding client_secret used in Google OAuth authorization code flow - set to 'http://localhost:3005' for development
+export const AUTH_SERVER_URL = 'https://oauth.trezor.io';
+
+// used when auth-server is running - generate testing credentials for development
+export const GOOGLE_CODE_FLOW_CLIENT_ID =
+    '705190185912-m4mrh55knjbg6gqhi72fr906a6n0b0u1.apps.googleusercontent.com'; //
+
+// used as a fallback from authorization code flow
+export const GOOGLE_IMPLICIT_FLOW_CLIENT_ID =
     '705190185912-nejegm4dbdecdaiumncbaa4ulrfnpk82.apps.googleusercontent.com';
-// dropbox allows authorization code flow for both web and desktop
+
+// dropbox allows authorization code flow for both web and desktop without client secret
 export const DROPBOX_CLIENT_ID = 'wg0yz2pbgjyhoda';

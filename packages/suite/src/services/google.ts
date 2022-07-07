@@ -1,18 +1,16 @@
 /* eslint camelcase: 0 */
 
 /**
- * Reason why this file exists:
- * at the begging I did not like googleapis package (official from google) as it does not have browser support
- * but later I found out that it was possible to use google-auth-library, also official google package
- * which is also a part of googleapis only by little tweaking in webpack config. So, it might be possible (haven't tried yet)
- * to do the same with googleapis package
+ * This is a custom implementation of Google OAuth authorization code flow with a fallback to an implicit flow. The documentation and packages
+ * (we originally used google-auth-library-nodejs) recommend using one way or the other, but since we had to implement the authorization code
+ * flow for the desktop app anyway, we enabled it for the web app as well for users' convenience. We also use the implicit flow as a backup if
+ *  our authorization server (which holds a client secret necessary for the authorization code flow) is not available.
  */
 
-import { OAuth2Client, CodeChallengeMethod } from 'google-auth-library';
 import { METADATA } from '@suite-actions/constants';
+import { Tokens } from '@suite-types/metadata';
 import { extractCredentialsFromAuthorizationFlow, getOauthReceiverUrl } from '@suite-utils/oauth';
 import { getCodeChallenge } from '@suite-utils/random';
-import { isWeb, isDesktop } from '@suite-utils/env';
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 const BOUNDARY = '-------314159265358979323846';
@@ -81,110 +79,161 @@ type GetTokenInfoResponse = {
     };
 };
 
+type Flow = 'implicit' | 'code';
+
 /**
  * This class provides communication interface with selected google rest APIs:
  * - oauth v2
  * - drive v3
  */
 class Client {
-    token?: string;
-    nameIdMap: Record<string, string>;
-    listPromise?: Promise<ListResponse>;
-    oauth2Client: OAuth2Client;
+    static nameIdMap: Record<string, string>;
+    static listPromise?: Promise<ListResponse>;
+    static flow: Flow;
+    static clientId = '';
+    static authServerAvailable = false;
+    static initPromise: Promise<Client> | undefined;
+    static accessToken: string;
+    static refreshToken: string;
 
-    constructor(token?: string) {
-        this.token = token;
-        this.nameIdMap = {};
-        this.oauth2Client = new OAuth2Client({
-            clientId: isWeb() ? METADATA.GOOGLE_CLIENT_ID_WEB : METADATA.GOOGLE_CLIENT_ID_DESKTOP,
-        });
+    static init({ accessToken, refreshToken }: Tokens) {
+        Client.initPromise = new Promise(resolve => {
+            Client.nameIdMap = {};
+            Client.isAuthServerAvailable().then(result => {
+                // if our server providing the refresh token is not available, fallback to a flow with access tokens only (authorization for a limited time)
+                Client.flow = result ? 'code' : 'implicit';
+                // the app has two sets of credentials to enable both OAuth flows
+                Client.clientId =
+                    Client.flow === 'code'
+                        ? METADATA.GOOGLE_CODE_FLOW_CLIENT_ID
+                        : METADATA.GOOGLE_IMPLICIT_FLOW_CLIENT_ID;
+                if (refreshToken) {
+                    Client.refreshToken = refreshToken;
+                }
+                if (accessToken) {
+                    Client.accessToken = accessToken;
+                }
 
-        // which token is going to be updated depends on platform
-        this.oauth2Client.on('tokens', tokens => {
-            if (tokens.refresh_token && isDesktop()) {
-                this.token = tokens.refresh_token;
-            }
-            if (tokens.access_token && isWeb()) {
-                this.token = tokens.access_token;
-            }
-        });
-
-        // which token is going to be remembered depends on platform
-        if (token && isDesktop()) {
-            this.oauth2Client.setCredentials({
-                refresh_token: token,
+                resolve(Client);
             });
-        }
-        if (token && isWeb()) {
-            this.oauth2Client.setCredentials({
-                access_token: token,
-            });
-        }
+        });
     }
 
-    async authorize() {
+    static async getAccessToken() {
+        await Client.initPromise;
+        if (!Client.accessToken && Client.refreshToken && Client.flow === 'code') {
+            try {
+                const res = await fetch(`${METADATA.AUTH_SERVER_URL}/google-oauth-refresh`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        clientId: Client.clientId,
+                        refreshToken: Client.refreshToken,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const json = await res.json();
+                if (!json?.access_token) {
+                    throw new Error('Could not refresh access token.');
+                } else {
+                    Client.accessToken = json.access_token;
+                }
+            } catch {
+                Client.authServerAvailable = false;
+            }
+        }
+        return Client.accessToken;
+    }
+
+    static async isAuthServerAvailable() {
+        try {
+            Client.authServerAvailable = (await fetch(`${METADATA.AUTH_SERVER_URL}/status`)).ok;
+        } catch (err) {
+            Client.authServerAvailable = false;
+        }
+
+        return Client.authServerAvailable;
+    }
+
+    static async authorize() {
+        await Client.initPromise;
         const redirectUri = await getOauthReceiverUrl();
         if (!redirectUri) return;
 
         const random = getCodeChallenge();
 
         const options = {
-            scope: SCOPES,
+            client_id: Client.clientId,
             redirect_uri: redirectUri,
+            scope: SCOPES,
         };
 
-        switch (process.env.SUITE_TYPE) {
-            case 'desktop':
-                // authorization code flow with PKCE
-                Object.assign(options, {
-                    access_type: 'offline',
-                    code_challenge: random,
-                    code_challenge_method: CodeChallengeMethod.Plain,
-                });
-                break;
-            case 'web':
-                // implicit flow
-                Object.assign(options, { access_type: 'online', response_type: 'token' });
-                break;
-            default:
-            // no default
-        }
-
-        const url = this.oauth2Client.generateAuthUrl(options);
-
-        const { access_token, code } = await extractCredentialsFromAuthorizationFlow(url);
-        // implicit flow returns short lived access_token directly
-        if (access_token) {
-            this.token = access_token;
-            this.oauth2Client.setCredentials({ access_token });
-            return;
-        }
-
-        // otherwise authorization code which is to be exchanged for tokens is retrieved
-        if (code) {
-            const { tokens } = await this.oauth2Client.getToken({
-                code,
-                redirect_uri: redirectUri,
-                codeVerifier: random,
+        if (Client.flow === 'code') {
+            // authorization code flow with PKCE
+            Object.assign(options, {
+                code_challenge: random,
+                code_challenge_method: 'plain',
+                response_type: 'code',
             });
-            this.oauth2Client.setCredentials(tokens);
+        } else {
+            // implicit flow
+            Object.assign(options, {
+                response_type: 'token',
+            });
+        }
+
+        const url = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
+            options,
+        ).toString()}`;
+        const response = await extractCredentialsFromAuthorizationFlow(url);
+        const { access_token, code } = response;
+        if (access_token) {
+            // implicit flow returns short lived access_token directly
+            Client.accessToken = access_token;
+        } else {
+            // authorization code flow retrieves code, then refresh_token, which can generate access_token on demand
+            try {
+                const res = await fetch(`${METADATA.AUTH_SERVER_URL}/google-oauth-init`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        clientId: Client.clientId,
+                        code,
+                        codeVerifier: random,
+                        redirectUri,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const json = await res.json();
+                Client.accessToken = json.access_token;
+                Client.refreshToken = json.refresh_token;
+            } catch {
+                Client.authServerAvailable = false;
+            }
         }
     }
 
     /**
      * implementation of https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow#tokenrevoke
      */
-    revoke() {
-        if (!this.token) return;
-        const promise = this.call(`https://oauth2.googleapis.com/revoke?token=${this.token}`, {
-            method: 'POST',
-        });
-        this.token = '';
+    static revoke() {
+        // revoking an access token also invalidates any corresponding refresh token
+        const promise = Client.call(
+            `https://oauth2.googleapis.com/revoke?token=${Client.accessToken}`,
+            {
+                method: 'POST',
+            },
+        );
+        Client.accessToken = '';
+        Client.refreshToken = '';
         return promise;
     }
 
-    async getTokenInfo(): Promise<GetTokenInfoResponse> {
-        const response = await this.call(
+    static async getTokenInfo(): Promise<GetTokenInfoResponse> {
+        const response = await Client.call(
             `https://www.googleapis.com/drive/v3/about?fields=user`,
             { method: 'GET' },
             {},
@@ -195,8 +244,8 @@ class Client {
     /**
      * implementation of https://developers.google.com/drive/api/v3/reference/files/list
      */
-    async list(params: ListParams): Promise<ListResponse> {
-        const response = await this.call(
+    static async list(params: ListParams): Promise<ListResponse> {
+        const response = await Client.call(
             'https://www.googleapis.com/drive/v3/files',
             {
                 method: 'GET',
@@ -206,9 +255,9 @@ class Client {
 
         const json: ListResponse = await response.json();
 
-        this.nameIdMap = {};
+        Client.nameIdMap = {};
         json.files.forEach(file => {
-            this.nameIdMap[file.name] = file.id;
+            Client.nameIdMap[file.name] = file.id;
         });
 
         // hmm this is a rare case that probably can't be solved in elegant way. User may somehow (manually, or some race condition)
@@ -216,7 +265,7 @@ class Client {
         // drive has no problem with it as they have different id. What makes this case even more confusing is that list requests
         // returns array of files in randomized order. So user is seeing and is saving his data in one session to file.mtdt(id: A) but
         // then to file.mtdt(id: B) in another session. So this warn should help as debug if this mysterious bug appears some day...
-        if (Object.keys(this.nameIdMap).length < json.files.length) {
+        if (Object.keys(Client.nameIdMap).length < json.files.length) {
             console.warn(
                 'There are multiple files with the same name in Google Drive. This may happen as a result of race condition bug in application.',
             );
@@ -228,8 +277,8 @@ class Client {
     /**
      * implementation of https://developers.google.com/drive/api/v3/reference/files/get
      */
-    async get(params: GetParams, id: string) {
-        const response = await this.call(
+    static async get(params: GetParams, id: string) {
+        const response = await Client.call(
             `https://www.googleapis.com/drive/v3/files/${id}`,
             {
                 method: 'GET',
@@ -242,9 +291,9 @@ class Client {
     /**
      * implementation of https://developers.google.com/drive/api/v3/reference/files/create
      */
-    async create(params: CreateParams, payload: string): Promise<CreateResponse> {
-        params.body = this.getWriteBody(params.body, payload);
-        const response = await this.call(
+    static async create(params: CreateParams, payload: string): Promise<CreateResponse> {
+        params.body = Client.getWriteBody(params.body, payload);
+        const response = await Client.call(
             'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
             {
                 method: 'POST',
@@ -260,9 +309,9 @@ class Client {
     /**
      * implementation of https://developers.google.com/drive/api/v3/reference/files/update
      */
-    async update(params: UpdateParams, payload: string, id: string) {
-        params.body = this.getWriteBody(params.body, payload);
-        const response = await this.call(
+    static async update(params: UpdateParams, payload: string, id: string) {
+        params.body = Client.getWriteBody(params.body, payload);
+        const response = await Client.call(
             `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart`,
             {
                 method: 'PATCH',
@@ -283,32 +332,34 @@ class Client {
      * so in theory, you would need 2 calls to get single file: first get list of files from which you would filter file id and then get call.
      * to avoid this, google class holds map of name-ids and performs list request only if it could not find required name in the map.
      */
-    async getIdByName(name: string, forceReload = false) {
-        if (!forceReload && this.nameIdMap[name]) {
-            return this.nameIdMap[name];
+    static async getIdByName(name: string, forceReload = false) {
+        if (!forceReload && Client.nameIdMap[name]) {
+            return Client.nameIdMap[name];
         }
-
         try {
             // request to list files might have already been dispatched and exist as unresolved promise, so wait for it here in that case
-            if (this.listPromise) {
-                await this.listPromise;
-                this.listPromise = undefined; // unset
-                return this.nameIdMap[name];
+            if (Client.listPromise) {
+                await Client.listPromise;
+                Client.listPromise = undefined; // unset
+                return Client.nameIdMap[name];
             }
             // refresh nameIdMap
-            this.listPromise = this.list({
+            Client.listPromise = Client.list({
                 query: { spaces: 'appDataFolder' },
             });
-            await this.listPromise;
+            await Client.listPromise;
         } finally {
-            this.listPromise = undefined; // unset
+            Client.listPromise = undefined; // unset
         }
         // request to list files might have already been dispatched and exist as unresolved promise, so wait for it here in that case
 
-        return this.nameIdMap[name];
+        return Client.nameIdMap[name];
     }
 
-    private getWriteBody(body: CreateParams['body'] | UpdateParams['body'], payload: string) {
+    private static getWriteBody(
+        body: CreateParams['body'] | UpdateParams['body'],
+        payload: string,
+    ) {
         const delimiter = `\r\n--${BOUNDARY}\r\n`;
         const closeDelimiter = `\r\n--${BOUNDARY}--`;
         const contentType = 'text/plain;charset=UTF-8';
@@ -320,19 +371,15 @@ class Client {
         return multipartRequestBody;
     }
 
-    private async call(url: string, fetchParams: RequestInit, apiParams?: ApiParams) {
+    private static async call(url: string, fetchParams: RequestInit, apiParams?: ApiParams) {
         if (apiParams?.query) {
             const query = new URLSearchParams(apiParams.query as Record<string, string>).toString();
             url += `?${query}`;
         }
-
-        const accessToken = await this.oauth2Client.getAccessToken();
-
         const fetchOptions = {
             ...fetchParams,
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken?.token}`,
                 ...fetchParams.headers,
             },
         };
@@ -345,11 +392,24 @@ class Client {
             Object.assign(fetchOptions, { body });
         }
 
-        const response = await fetch(url, fetchOptions);
-        if (response.status !== 200) {
-            const error = await response.json();
-            throw error;
-        }
+        const getTokenAndFetch = async (isRetry?: boolean) => {
+            await Client.getAccessToken();
+            Object.assign(fetchOptions.headers, {
+                Authorization: `Bearer ${Client.accessToken}`,
+            });
+            let response = await fetch(url, fetchOptions);
+            if (!isRetry && response.status === 401 && Client.refreshToken) {
+                // refresh access token if expired and attempt the request again
+                Client.accessToken = '';
+                response = await getTokenAndFetch(true);
+            } else if (response.status !== 200) {
+                const error = await response.json();
+                throw error;
+            }
+            return response;
+        };
+
+        const response = await getTokenAndFetch();
         return response;
     }
 }

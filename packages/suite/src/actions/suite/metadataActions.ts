@@ -8,6 +8,7 @@ import {
     MetadataProviderType,
     MetadataProvider,
     MetadataAddPayload,
+    Tokens,
     DeviceMetadata,
     Error as MetadataProviderError,
     ProviderErrorAction,
@@ -46,12 +47,12 @@ export type MetadataAction =
 let providerInstance: DropboxProvider | GoogleProvider | FileSystemProvider | undefined;
 const fetchIntervals: { [deviceState: string]: any } = {}; // any because of native at the moment, otherwise number | undefined
 
-const createProvider = (type: MetadataProvider['type'], token?: MetadataProvider['token']) => {
+const createProvider = (type: MetadataProvider['type'], tokens: Tokens = {}) => {
     switch (type) {
         case 'dropbox':
-            return new DropboxProvider(token);
+            return new DropboxProvider(tokens?.refreshToken);
         case 'google':
-            return new GoogleProvider(token);
+            return new GoogleProvider(tokens);
         case 'fileSystem':
             return new FileSystemProvider();
         default:
@@ -207,7 +208,7 @@ const getProvider = () => (_dispatch: Dispatch, getState: GetState) => {
 
     if (providerInstance) return providerInstance;
 
-    providerInstance = createProvider(state.type, state.token);
+    providerInstance = createProvider(state.type, state.tokens);
 
     return providerInstance;
 };
@@ -250,7 +251,9 @@ export const fetchMetadata =
         // this triggers renewal of access token if needed. Otherwise multiple requests
         // to renew access token are issued by every provider.getFileContent
         const response = await provider.getProviderDetails();
-        if (!response.success) return;
+        if (!response.success) {
+            return dispatch(handleProviderError(response, ProviderErrorAction.LOAD));
+        }
 
         const deviceFileContentP = new Promise<void>((resolve, reject) => {
             if (device?.metadata?.status !== 'enabled') {
@@ -413,14 +416,17 @@ export const connectProvider = (type: MetadataProviderType) => async (dispatch: 
     if (!provider) {
         provider = createProvider(type);
     }
+
     const isConnected = await provider.isConnected();
-    if (provider && !isConnected) {
+    if (!isConnected) {
         const connectionResult = await provider.connect();
         if ('error' in connectionResult) {
             return connectionResult.error;
         }
     }
+
     const result = await provider.getProviderDetails();
+
     if (!result.success) {
         dispatch(handleProviderError(result, ProviderErrorAction.CONNECT));
         return;

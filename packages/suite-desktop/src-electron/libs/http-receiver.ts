@@ -1,6 +1,8 @@
 import * as http from 'http';
 import * as net from 'net';
 import * as url from 'url';
+import { URL } from 'url';
+
 import { EventEmitter } from 'events';
 import { HTTP_ORIGINS_DEFAULT } from './constants';
 
@@ -10,6 +12,7 @@ type Request = RequiredKey<http.IncomingMessage, 'url'>;
 
 type TemplateOptions = {
     title?: string;
+    script?: string;
 };
 /**
  * Events that may be emitted or listened to by HttpReceiver
@@ -53,7 +56,7 @@ export class HttpReceiver extends EventEmitter {
             {
                 pathname: '/oauth',
                 handler: this.oauthHandler,
-                origins: [''], // No referer is sent by Google and Dropbox
+                origins: ['', '127.0.0.1'], // No referer is sent by Google and Dropbox
             },
             {
                 pathname: '/buy-redirect',
@@ -183,7 +186,7 @@ export class HttpReceiver extends EventEmitter {
             return true;
         }
 
-        // If referer is not define, check if empty referers are allowed
+        // If referer is not defined, check if empty referers are allowed
         if (referer === undefined) {
             return origins.includes('');
         }
@@ -209,6 +212,7 @@ export class HttpReceiver extends EventEmitter {
             <html>
                 <head>
                     <title>${options?.title ?? 'Trezor Suite'}</title>
+                    ${options?.script || ''}
                 </head>
                 <body>
                     ${content}
@@ -230,7 +234,15 @@ export class HttpReceiver extends EventEmitter {
             this.emit('oauth/response', { search });
         }
 
-        const template = this.applyTemplate('You may now close this window.');
+        // replace # with ? so that query parameters can be read by renderer
+        const script = `
+            <script>
+                if (window.location.href.includes('#')) {
+                    fetch(window.location.href.replace('#', '?'))
+                }
+            </script>
+        `;
+        const template = this.applyTemplate('You may now close this window.', { script });
         response.end(template);
     };
 

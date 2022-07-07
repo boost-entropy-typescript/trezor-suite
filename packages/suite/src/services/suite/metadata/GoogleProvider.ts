@@ -1,18 +1,17 @@
-import { AbstractMetadataProvider } from '@suite-types/metadata';
+import { AbstractMetadataProvider, Tokens } from '@suite-types/metadata';
 import GoogleClient from '@suite/services/google';
 
 class GoogleProvider extends AbstractMetadataProvider {
     connected = false;
-    client: GoogleClient;
     isCloud = true;
-    constructor(token?: string) {
+    constructor(tokens: Tokens) {
         super('google');
-        this.client = new GoogleClient(token);
+        GoogleClient.init(tokens);
     }
 
     async connect() {
         try {
-            await this.client.authorize();
+            await GoogleClient.authorize();
             this.connected = true;
             return this.ok();
         } catch (err) {
@@ -28,7 +27,7 @@ class GoogleProvider extends AbstractMetadataProvider {
 
     async disconnect() {
         try {
-            await this.client.revoke();
+            await GoogleClient.revoke();
             return this.ok();
         } catch (error) {
             return this.handleProviderError(error);
@@ -37,12 +36,12 @@ class GoogleProvider extends AbstractMetadataProvider {
 
     async getFileContent(file: string) {
         try {
-            const id = await this.client.getIdByName(`${file}.mtdt`);
+            const id = await GoogleClient.getIdByName(`${file}.mtdt`);
             if (!id) {
                 return this.ok(undefined);
             }
 
-            const response = await this.client.get(
+            const response = await GoogleClient.get(
                 {
                     query: {
                         alt: 'media',
@@ -67,9 +66,9 @@ class GoogleProvider extends AbstractMetadataProvider {
         try {
             // search for file by name with forceReload=true parameter to make sure that we do not save
             // two files with the same name but different ids
-            const id = await this.client.getIdByName(`${file}.mtdt`, true);
+            const id = await GoogleClient.getIdByName(`${file}.mtdt`, true);
             if (id) {
-                await this.client.update(
+                await GoogleClient.update(
                     {
                         body: {
                             name: `${file}.mtdt`,
@@ -81,7 +80,7 @@ class GoogleProvider extends AbstractMetadataProvider {
                 );
                 return this.ok();
             }
-            await this.client.create(
+            await GoogleClient.create(
                 {
                     body: {
                         name: `${file}.mtdt`,
@@ -98,13 +97,17 @@ class GoogleProvider extends AbstractMetadataProvider {
     }
 
     async getProviderDetails() {
-        if (!this.client.token) return this.error('AUTH_ERROR', 'token is missing');
         try {
-            const response = await this.client.getTokenInfo();
+            const response = await GoogleClient.getTokenInfo();
             return this.ok({
                 type: this.type,
                 isCloud: this.isCloud,
-                token: this.client.token,
+                tokens: {
+                    // saving the access token for users using the implicit OAuth flow
+                    // returning to Suite shortly after authorization or refreshing the page
+                    accessToken: GoogleClient.accessToken,
+                    refreshToken: GoogleClient.refreshToken,
+                },
                 user: response.user.displayName,
             } as const);
         } catch (err) {
@@ -114,8 +117,8 @@ class GoogleProvider extends AbstractMetadataProvider {
 
     async isConnected() {
         try {
-            await this.client.oauth2Client.getAccessToken();
-            return true;
+            const result = await GoogleClient.getAccessToken();
+            return !!result;
         } catch (_err) {
             return false;
         }
@@ -126,7 +129,7 @@ class GoogleProvider extends AbstractMetadataProvider {
      */
     handleProviderError(err: any) {
         // collect human readable errors from wherever possible or fill with own general message;
-        let message: string = err?.error?.message || err?.message;
+        let message = err?.error?.message || err?.message;
 
         if (typeof message !== 'string') {
             // this should never happen

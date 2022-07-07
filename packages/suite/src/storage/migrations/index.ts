@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { isDesktop } from '@suite-utils/env';
 import { enhanceTransactionDetails } from '@suite/utils/wallet/transactionUtils';
 import type { OnUpgradeFunc } from '@trezor/suite-storage';
 import type { SuiteDBSchema } from '../definitions';
@@ -454,15 +455,43 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
             .then(() => {
                 db.deleteObjectStore('discovery');
             })
-            .then(() => {
+            .then(() =>
                 // object store for discovery
-                return db.createObjectStore('discovery', { keyPath: 'deviceState' });
-            })
+                db.createObjectStore('discovery', { keyPath: 'deviceState' }),
+            )
             .then(discoveryStore => {
                 discoveries.forEach(discovery => {
                     discovery.deviceState = discovery.deviceState.replace('undefined', '0');
                     discoveryStore.add(discovery);
                 });
             });
+    }
+
+    if (oldVersion < 29) {
+        const providerStore = await transaction.objectStore('metadata');
+        providerStore.openCursor().then(function update(cursor): Promise<void> | undefined {
+            if (!cursor) {
+                return;
+            }
+            const state = cursor.value;
+            // @ts-ignore (token property removed)
+            if (state.provider?.token) {
+                if (isDesktop()) {
+                    state.provider.tokens = {
+                        accessToken: '',
+                        // @ts-ignore
+                        refreshToken: state.provider.token,
+                    };
+                }
+                // @ts-ignore
+                delete state.provider.token;
+                cursor.update(state);
+            }
+            return cursor.continue().then(update);
+        });
+    }
+
+    if (oldVersion < 29) {
+        db.createObjectStore('firmware');
     }
 };
