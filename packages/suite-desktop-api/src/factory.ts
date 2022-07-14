@@ -61,7 +61,8 @@ export const factory = <R extends StrictIpcRenderer<any>>(ipcRenderer?: R): Desk
         },
 
         // Client
-        clientReady: () => ipcRenderer.send('client/ready'),
+        handshake: () => ipcRenderer.invoke('handshake/client'),
+        loadModules: payload => ipcRenderer.invoke('handshake/load-modules', payload),
 
         // Metadata
         metadataRead: options => {
@@ -99,7 +100,6 @@ export const factory = <R extends StrictIpcRenderer<any>>(ipcRenderer?: R): Desk
 
         // user-data
         clearUserData: () => ipcRenderer.invoke('user-data/clear'),
-        getUserDataInfo: () => ipcRenderer.invoke('user-data/get-info'),
 
         // Udev rules
         installUdevRules: () => ipcRenderer.invoke('udev/install'),

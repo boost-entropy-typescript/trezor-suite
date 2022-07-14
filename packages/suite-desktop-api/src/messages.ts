@@ -2,6 +2,41 @@ import { ExtractUndefined } from './methods';
 
 export type SuiteThemeVariant = 'light' | 'dark' | 'system';
 
+export type HandshakeEvent =
+    | {
+          type: 'progress';
+          message?: string;
+          progress: {
+              current: number;
+              total: number;
+          };
+      }
+    | {
+          type: 'message';
+          message: string;
+      }
+    | {
+          type: 'error';
+          message: string;
+      };
+
+export type HandshakeClient = any;
+
+export type HandshakeElectron = {
+    protocol?: string;
+    desktopUpdate?: {
+        allowPrerelease: boolean;
+        firstRun?: string;
+    };
+    paths: {
+        userDir: string;
+        binDir: string;
+    };
+    urls: {
+        httpReceiver: string;
+    };
+};
+
 export interface UpdateInfo {
     version: string;
     releaseDate: string;

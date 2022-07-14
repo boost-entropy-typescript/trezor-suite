@@ -131,15 +131,6 @@ describe('DesktopApi', () => {
             expect(spy).toBeCalledTimes(1); // invalid param not processed
         });
 
-        it('DesktopApi.clientReady', () => {
-            const spy = jest.spyOn(ipcRenderer, 'send');
-            api.clientReady();
-            expect(spy).toBeCalledWith('client/ready');
-
-            // @ts-expect-error no expected params
-            api.clientReady(true);
-        });
-
         it('DesktopApi.metadataWrite', async () => {
             const spy = jest
                 .spyOn(ipcRenderer, 'invoke')
@@ -246,25 +237,6 @@ describe('DesktopApi', () => {
             api.clearUserData(true);
         });
 
-        it('DesktopApi.getUserDataInfo', async () => {
-            const spy = jest
-                .spyOn(ipcRenderer, 'invoke')
-                .mockImplementation(() =>
-                    Promise.resolve({ success: true, payload: { dir: '/' } }),
-                );
-            const result = await api.getUserDataInfo();
-            expect(spy).toBeCalledWith('user-data/get-info');
-            expect(result.success).toBe(true);
-            if (result.success) {
-                expect(result.payload).toEqual({ dir: '/' });
-            } else {
-                expect(result.error).toBe('should not happen');
-            }
-
-            // @ts-expect-error no expected params
-            api.getUserDataInfo(true);
-        });
-
         it('DesktopApi.installUdevRules', async () => {
             const spy = jest
                 .spyOn(ipcRenderer, 'invoke')
@@ -280,6 +252,26 @@ describe('DesktopApi', () => {
 
             // @ts-expect-error no expected params
             api.installUdevRules(true);
+        });
+
+        it('DesktopApi.handshake', async () => {
+            const spy = jest
+                .spyOn(ipcRenderer, 'invoke')
+                .mockImplementation(() => Promise.resolve());
+            await api.handshake();
+            expect(spy).toBeCalledWith('handshake/client');
+        });
+
+        it('DesktopApi.loadModules', async () => {
+            const spy = jest
+                .spyOn(ipcRenderer, 'invoke')
+                .mockImplementation(() => Promise.resolve({ success: true }));
+            const data = await api.loadModules(null);
+            expect(spy).toBeCalledWith('handshake/load-modules', null);
+            expect(data.success).toBe(true);
+
+            // @ts-expect-error param expected
+            api.loadModules();
         });
     });
 });

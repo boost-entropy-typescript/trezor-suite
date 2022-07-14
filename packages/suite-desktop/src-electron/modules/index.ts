@@ -1,7 +1,10 @@
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
+import path from 'path';
+import { isNotUndefined } from '@trezor/utils';
 import { isDev } from '@suite-utils/build';
 import { StrictBrowserWindow } from '../typed-electron';
+import type { HandshakeClient } from '@trezor/suite-desktop-api';
 
 // General modules (both dev & prod)
 const MODULES = [
@@ -11,7 +14,6 @@ const MODULES = [
     'event-logging/contents',
     // Standard modules
     'crash-recover',
-    'hang-detect',
     'menu',
     'shortcuts',
     'request-filter',
@@ -28,40 +30,85 @@ const MODULES = [
     'udev-install',
     'user-data',
     'trezor-connect-ipc',
+    // Modules used only in dev/prod mode
+    ...(isDev ? ['dev-tools'] : ['csp', 'file-protocol']),
 ];
-
-// Modules only used in prod mode
-const MODULES_PROD = ['csp', 'file-protocol'];
-
-// Modules only used in dev mode
-const MODULES_DEV = ['dev-tools'];
 
 export type Dependencies = {
     mainWindow: StrictBrowserWindow;
     store: LocalStore;
-    src: string;
     interceptor: RequestInterceptor;
 };
 
-export type Module = (dependencies: Dependencies) => any;
+type ModuleLoad = (payload: HandshakeClient) => any | Promise<any>;
 
-export const loadModules: Module = async dependencies => {
+type ModuleInit = (dependencies: Dependencies) => ModuleLoad | void;
+
+export type Module = ModuleInit;
+
+export const initModules = async (dependencies: Dependencies) => {
     const { logger } = global;
 
-    logger.info('modules', `Loading ${MODULES.length} modules`);
+    logger.info('modules', `Initializing ${MODULES.length} modules`);
 
-    await Promise.all(
-        [...MODULES, ...(isDev ? MODULES_DEV : MODULES_PROD)].flatMap(async module => {
-            logger.debug('modules', `Loading ${module}`);
-
+    const modules = await Promise.all(
+        MODULES.map(async module => {
+            logger.debug('modules', `Initializing ${module}`);
             try {
                 const m = await require(`./modules/${module}`);
-                return [m.default(dependencies)];
+                const initModule: Module = m.default;
+                const loadModule = initModule(dependencies);
+                if (loadModule) {
+                    return [module, loadModule] as const;
+                }
             } catch (err) {
-                logger.error('modules', `Couldn't load ${module} (${err.toString()})`);
+                logger.error('modules', `Couldn't initialize ${module} (${err.toString()})`);
             }
         }),
     );
 
-    logger.info('modules', 'All modules loaded');
+    logger.info('modules', 'All modules initialized');
+
+    const modulesToLoad = modules.filter(isNotUndefined);
+    let loaded = 0;
+    return (handshake: HandshakeClient) =>
+        Promise.all(
+            modulesToLoad.map(async ([module, loadModule]) => {
+                logger.debug('modules', `Loading ${module}`);
+                try {
+                    const payload = await loadModule(handshake);
+                    logger.debug('modules', `Loaded ${module}`);
+                    dependencies.mainWindow.webContents.send('handshake/event', {
+                        type: 'progress',
+                        message: `${module} loaded`,
+                        progress: {
+                            current: ++loaded,
+                            total: modulesToLoad.length,
+                        },
+                    });
+                    return [module, payload] as const;
+                } catch (err) {
+                    logger.error('modules', `Couldn't load ${module} (${err.toString()})`);
+                    dependencies.mainWindow.webContents.send('handshake/event', {
+                        type: 'error',
+                        message: `${module} error`,
+                    });
+                    throw err;
+                }
+            }),
+        )
+            .then(results => Object.fromEntries(results.filter(isNotUndefined)))
+            .then(
+                ({
+                    'custom-protocols': protocol,
+                    'auto-updater': desktopUpdate,
+                    'user-data': { dir: userDir },
+                    'http-receiver': { url: httpReceiver },
+                }) => ({
+                    protocol,
+                    desktopUpdate,
+                    paths: { userDir, binDir: path.join(global.resourcesPath, 'bin') },
+                    urls: { httpReceiver },
+                }),
+            );
 };

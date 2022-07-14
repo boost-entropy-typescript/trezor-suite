@@ -1,5 +1,13 @@
 import { ListenerMethod, SendMethod, InvokeMethod } from './methods';
-import { SuiteThemeVariant, UpdateInfo, UpdateProgress, InvokeResult } from './messages';
+import {
+    SuiteThemeVariant,
+    HandshakeClient,
+    HandshakeElectron,
+    HandshakeEvent,
+    UpdateInfo,
+    UpdateProgress,
+    InvokeResult,
+} from './messages';
 
 // Event messages from renderer to main process
 // Sent by DesktopApi.[method] via ipcRenderer.send (see ./main)
@@ -7,7 +15,6 @@ import { SuiteThemeVariant, UpdateInfo, UpdateProgress, InvokeResult } from './m
 export interface MainChannels {
     'app/restart': void;
     'app/focus': void;
-    'client/ready': void;
     'store/clear': void;
     'theme/change': SuiteThemeVariant;
     'tor/get-status': void;
@@ -26,14 +33,12 @@ export interface RendererChannels {
     'oauth/response': { [key: string]: string };
 
     // Update events
-    'update/enable': void;
     'update/checking': void;
     'update/available': UpdateInfo;
     'update/not-available': UpdateInfo;
     'update/error': Error;
     'update/downloading': UpdateProgress;
     'update/downloaded': UpdateInfo;
-    'update/new-version-first-run': string;
     'update/allow-prerelease': boolean;
     // invity
     'spend/message': Partial<MessageEvent>;
@@ -43,19 +48,22 @@ export interface RendererChannels {
 
     // custom protocol
     'protocol/open': string;
+
+    'handshake/event': HandshakeEvent;
 }
 
 // Invocation from renderer process
 // Sent by DesktopApi.[method] via ipcRenderer.invoke (./main)
 // Handled by ipcMain.handle (see packages/suite-desktop/src-electron/modules/*)
 export interface InvokeChannels {
+    'handshake/client': () => void;
+    'handshake/load-modules': (payload: HandshakeClient) => InvokeResult<HandshakeElectron>;
     'metadata/read': (options: { file: string }) => InvokeResult<string>;
     'metadata/write': (options: { file: string; content: string }) => InvokeResult;
     'server/request-address': (route: string) => string | undefined;
     'tor/get-address': () => string;
     'tor/toggle': (shouldEnableTor: boolean) => InvokeResult;
     'user-data/clear': () => InvokeResult;
-    'user-data/get-info': () => InvokeResult<{ dir: string }>;
     'udev/install': () => InvokeResult;
 }
 
@@ -81,8 +89,9 @@ export interface DesktopApi {
     allowPrerelease: DesktopApiSend<'update/allow-prerelease'>;
     // Theme
     themeChange: DesktopApiSend<'theme/change'>;
-    // Client controls
-    clientReady: DesktopApiSend<'client/ready'>;
+    // Handshake
+    handshake: DesktopApiInvoke<'handshake/client'>;
+    loadModules: DesktopApiInvoke<'handshake/load-modules'>;
     // Metadata
     metadataWrite: DesktopApiInvoke<'metadata/write'>;
     metadataRead: DesktopApiInvoke<'metadata/read'>;
@@ -94,7 +103,6 @@ export interface DesktopApi {
     // Store
     clearStore: DesktopApiSend<'store/clear'>;
     clearUserData: DesktopApiInvoke<'user-data/clear'>;
-    getUserDataInfo: DesktopApiInvoke<'user-data/get-info'>;
     // Udev rules
     installUdevRules: DesktopApiInvoke<'udev/install'>;
 }
