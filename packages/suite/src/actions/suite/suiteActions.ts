@@ -6,6 +6,7 @@ import * as comparisonUtils from '@suite-utils/comparisonUtils';
 import * as deviceUtils from '@suite-utils/device';
 import { baseFetch, getIsTorLoading, isOnionUrl, torFetch } from '@suite-utils/tor';
 import { getCustomBackends } from '@suite-utils/backend';
+import { sortByTimestamp } from '@suite-utils/device';
 import { addToast } from '@suite-actions/notificationActions';
 import * as modalActions from '@suite-actions/modalActions';
 import { TorStatus } from '@suite-types';
@@ -27,8 +28,6 @@ export type SuiteAction =
     | { type: typeof SUITE.READY }
     | { type: typeof SUITE.ERROR; error: string }
     | { type: typeof SUITE.DESKTOP_HANDSHAKE; payload: HandshakeElectron }
-    | { type: typeof SUITE.SET_DB_ERROR; payload: AppState['suite']['dbError'] }
-    | { type: typeof SUITE.CONNECT_INITIALIZED }
     | { type: typeof SUITE.SELECT_DEVICE; payload?: TrezorDevice }
     | { type: typeof SUITE.UPDATE_SELECTED_DEVICE; payload: TrezorDevice }
     | {
@@ -101,11 +100,6 @@ export const removeButtonRequests = (device: TrezorDevice | undefined) => ({
 export const addButtonRequest = (device: TrezorDevice | undefined, payload: ButtonRequest) => ({
     type: SUITE.ADD_BUTTON_REQUEST,
     device,
-    payload,
-});
-
-export const setDbError = (payload: AppState['suite']['dbError']) => ({
-    type: SUITE.SET_DB_ERROR,
     payload,
 });
 
@@ -221,15 +215,6 @@ export const toggleTor =
 export const setOnionLinks = (payload: boolean): SuiteAction => ({
     type: SUITE.ONION_LINKS,
     payload,
-});
-
-/**
- * Called from `suiteMiddleware`
- * Set `loaded` field in suite reducer
- * @returns {SuiteAction}
- */
-export const onSuiteReady = (): SuiteAction => ({
-    type: SUITE.READY,
 });
 
 /**
@@ -659,3 +644,24 @@ export const switchDuplicatedDevice =
 export const requestDeviceReconnect = () => ({
     type: SUITE.REQUEST_DEVICE_RECONNECT,
 });
+
+export const initDevices = () => (dispatch: Dispatch, getState: GetState) => {
+    // select first device from storage
+    const {
+        suite: { device },
+        devices,
+    } = getState();
+
+    if (!device && devices && devices[0]) {
+        // if there are force remember devices, forget them and pick the first one of them as selected device
+        const forcedDevices = devices.filter(d => d.forceRemember && d.remember);
+        forcedDevices.forEach(d => {
+            dispatch(toggleRememberDevice(d));
+        });
+        dispatch(
+            selectDevice(
+                forcedDevices.length ? forcedDevices[0] : sortByTimestamp([...devices])[0],
+            ),
+        );
+    }
+};

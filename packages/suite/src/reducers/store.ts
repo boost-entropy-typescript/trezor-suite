@@ -20,6 +20,7 @@ import { desktopReducer } from './desktop';
 // toastMiddleware can be used only in suite-desktop and suite-web
 // it's not included into `@suite-middlewares` index
 import toastMiddleware from '@suite-middlewares/toastMiddleware';
+import type { PreloadStoreAction } from '@suite-support/preloadStore';
 
 const rootReducer = combineReducers({
     ...suiteReducers,
@@ -69,4 +70,12 @@ const composeEnhancers =
 
 const enhancer = composeEnhancers(applyMiddleware(...middlewares), ...enhancers);
 
-export const store = createStore(rootReducer, enhancer);
+export const initStore = (preloadStoreAction?: PreloadStoreAction) => {
+    // get initial state by calling STORAGE.LOAD action with optional payload
+    // payload will be processed in each reducer explicitly
+    const initialState = preloadStoreAction
+        ? rootReducer(undefined, preloadStoreAction)
+        : undefined;
+    // use initialState while creating storage
+    return createStore(rootReducer, initialState, enhancer);
+};

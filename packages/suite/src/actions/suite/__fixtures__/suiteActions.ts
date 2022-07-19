@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { DEVICE, TRANSPORT } from '@trezor/connect';
-import { SUITE, STORAGE, NOTIFICATION, MODAL } from '@suite-actions/constants';
+import { SUITE, NOTIFICATION, MODAL } from '@suite-actions/constants';
 import { DISCOVERY } from '@wallet-actions/constants';
 import { TorStatus } from '@suite-types';
 import * as suiteActions from '../suiteActions';
@@ -16,12 +16,17 @@ const CONNECT_DEVICE = getConnectDevice({ path: '1' });
 
 const reducerActions = [
     {
-        description: `onSuiteReady`,
-        actions: [suiteActions.onSuiteReady()],
+        description: `SUITE.READY`,
+        actions: [
+            {
+                type: SUITE.READY,
+            },
+        ],
         result: [
             {
-                loading: false,
-                loaded: true,
+                lifecycle: {
+                    status: 'ready',
+                },
             },
         ],
     },
@@ -35,9 +40,10 @@ const reducerActions = [
         ],
         result: [
             {
-                loading: false,
-                loaded: false,
-                error: 'Error',
+                lifecycle: {
+                    status: 'error',
+                    error: 'Error',
+                },
             },
         ],
     },
@@ -50,35 +56,8 @@ const reducerActions = [
         ],
         result: [
             {
-                loading: true,
-                loaded: false,
-            },
-        ],
-    },
-    {
-        description: `STORAGE.LOADED`,
-        actions: [
-            {
-                type: STORAGE.LOADED,
-                payload: {
-                    suite: {
-                        flags: {
-                            initialRun: false,
-                        },
-                        settings: {
-                            language: 'cs',
-                        },
-                    },
-                },
-            },
-        ],
-        result: [
-            {
-                flags: {
-                    initialRun: false,
-                },
-                settings: {
-                    language: 'cs',
+                lifecycle: {
+                    status: 'loading',
                 },
             },
         ],
@@ -780,7 +759,6 @@ const acquireDevice = [
     {
         description: `without device`,
         state: {},
-        result: SUITE.CONNECT_INITIALIZED,
     },
 ];
 
