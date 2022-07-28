@@ -1,6 +1,6 @@
 {
     "name": "@trezor/connect-web",
-    "version": "9.0.0-beta.4",
+    "version": "9.0.0-beta.5",
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/connect-web",
     "description": "High-level javascript interface for Trezor hardware wallet.",
@@ -30,12 +30,12 @@
         "type-check": "tsc --build",
         "build:lib": "rimraf ./lib && tsc --build tsconfig.lib.json",
         "dev": "rimraf build && TS_NODE_PROJECT=\"tsconfig.lib.json\" webpack --config ./webpack/dev.webpack.config.ts",
-        "build:inline": "TS_NODE_PROJECT=\"tsconfig.lib.json\" wp --config ./webpack/inline.webpack.config.ts",
-        "build:webextension": "TS_NODE_PROJECT=\"tsconfig.lib.json\"  wp --config ./webpack/prod.webpack.config.ts",
+        "build:inline": "TS_NODE_PROJECT=\"tsconfig.lib.json\" webpack --config ./webpack/inline.webpack.config.ts",
+        "build:webextension": "TS_NODE_PROJECT=\"tsconfig.lib.json\"  webpack --config ./webpack/prod.webpack.config.ts",
         "build": "rimraf build && yarn build:inline && yarn build:webextension"
     },
     "dependencies": {
-        "@trezor/connect": "9.0.0-beta.4",
+        "@trezor/connect": "9.0.0-beta.5",
         "@trezor/utils": "^9.0.2",
         "events": "^3.3.0",
         "tslib": "^2.3.1"

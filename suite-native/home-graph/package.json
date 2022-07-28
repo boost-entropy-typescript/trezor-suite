@@ -1,0 +1,26 @@
+{
+    "name": "@suite-native/home-graph",
+    "version": "1.0.0",
+    "private": true,
+    "license": "See LICENSE.md in repo root",
+    "sideEffects": false,
+    "main": "src/index",
+    "scripts": {
+        "lint": "eslint '**/*.{ts,tsx,js}'",
+        "test:unit": "jest --passWithNoTests",
+        "type-check": "tsc --build"
+    },
+    "dependencies": {
+        "@shopify/react-native-skia": "0.1.123",
+        "@suite-native/atoms": "*",
+        "@trezor/styles": "*",
+        "@trezor/theme": "*",
+        "react": "^17.0.2",
+        "react-native": "0.68.2",
+        "react-native-gesture-handler": "^2.4.1",
+        "react-native-graph": "^0.1.1",
+        "react-native-reanimated": "^2.8.0",
+        "@reduxjs/toolkit": "^1.8.3",
+        "react-redux": "7.2.2"
+    }
+}
