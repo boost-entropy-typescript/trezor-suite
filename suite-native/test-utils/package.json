@@ -1,0 +1,21 @@
+{
+    "name": "@suite-native/test-utils",
+    "version": "1.0.0",
+    "private": true,
+    "license": "See LICENSE.md in repo root",
+    "sideEffects": false,
+    "main": "src/index",
+    "scripts": {
+        "lint": "eslint '**/*.{ts,tsx,js}'",
+        "type-check": "tsc --build"
+    },
+    "dependencies": {
+        "react": "^17.0.2",
+        "react-redux": "7.2.2",
+        "@trezor/styles": "*",
+        "@trezor/theme": "*",
+        "react-native-gesture-handler": "^2.5.0",
+        "react-native-reanimated": "^2.8.0",
+        "@testing-library/react-native": "^11.0.0"
+    }
+}
