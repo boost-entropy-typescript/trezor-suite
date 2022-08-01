@@ -1,6 +1,7 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useActions, useSelector } from '@suite-hooks';
+import { useDidUpdate } from '@trezor/react-utils';
 import * as sendFormActions from '@wallet-actions/sendFormActions';
 import * as walletSettingsActions from '@settings-actions/walletSettingsActions';
 import * as routerActions from '@suite-actions/routerActions';
@@ -8,13 +9,19 @@ import * as protocolActions from '@suite-actions/protocolActions';
 import { UseSendFormState, FormState, SendContextValues, Output } from '@wallet-types/sendForm';
 import { AppState } from '@suite-types';
 
-import { getFeeLevels, getDefaultValues } from '@wallet-utils/sendFormUtils';
+import {
+    getFeeLevels,
+    getDefaultValues,
+    amountToSatoshi,
+    formatAmount,
+} from '@suite-common/wallet-utils';
 import { useSendFormOutputs } from './useSendFormOutputs';
 import { useSendFormFields } from './useSendFormFields';
 import { useSendFormCompose } from './useSendFormCompose';
 import { useSendFormImport } from './useSendFormImport';
 import { useFees } from './form/useFees';
 import { PROTOCOL_TO_NETWORK } from '@suite-constants/protocol';
+import { useBitcoinAmountUnit } from './useBitcoinAmountUnit';
 
 export const SendContext = createContext<SendContextValues | null>(null);
 SendContext.displayName = 'SendContext';
@@ -95,7 +102,10 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
     const { localCurrencyOption } = state;
 
     // register `react-hook-form`, defaultValues are set later in "loadDraft" useEffect block
-    const useFormMethods = useForm<FormState>({ mode: 'onChange', shouldUnregister: false });
+    const useFormMethods = useForm<FormState>({
+        mode: 'onChange',
+        shouldUnregister: false,
+    });
 
     const { control, reset, register, getValues, errors, setValue } = useFormMethods;
 
@@ -104,6 +114,10 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         control,
         name: 'outputs',
     });
+
+    const { areSatsDisplayed, areUnitsSupportedByNetwork, areUnitsSupportedByDevice } =
+        useBitcoinAmountUnit(props.selectedAccount.account.symbol);
+    const areSatsUsed = areSatsDisplayed && areUnitsSupportedByNetwork && areUnitsSupportedByDevice;
 
     // enhance DEFAULT_VALUES with last remembered FeeLevel and localCurrencyOption
     // used in "loadDraft" useEffect and "importTransaction" callback
@@ -308,6 +322,22 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         }
         setDraftSaveRequest(false);
     }, [draftSaveRequest, setDraftSaveRequest, saveDraft, getValues, errors]);
+
+    useDidUpdate(() => {
+        const { outputs } = getValues();
+
+        const conversionToUse = areSatsUsed ? amountToSatoshi : formatAmount;
+
+        outputs.forEach((output, index) => {
+            if (!output.amount) {
+                return;
+            }
+
+            sendFormUtils.setAmount(index, conversionToUse(output.amount, state.network.decimals));
+        });
+
+        composeRequest();
+    }, [areSatsUsed]);
 
     return {
         ...state,

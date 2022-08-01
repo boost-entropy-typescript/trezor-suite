@@ -14,7 +14,8 @@ import {
     findAccountDevice,
     formatAmount,
     formatNetworkAmount,
-} from '@wallet-utils/accountUtils';
+    getAreSatoshisUsed,
+} from '@suite-common/wallet-utils';
 import * as notificationActions from '@suite-actions/notificationActions';
 import { State as FeeState } from '@wallet-reducers/feesReducer';
 import { NETWORKS } from '@wallet-config';
@@ -367,10 +368,15 @@ export const onNotification =
         // dispatch only recv notifications
         if (tx.type === 'recv' && !tx.blockHeight) {
             const accountDevice = findAccountDevice(account, getState().devices);
+
             const token = tx.tokens && tx.tokens.length ? tx.tokens[0] : undefined;
+            const areSatoshisUsed = getAreSatoshisUsed(
+                getState().wallet.settings.bitcoinAmountUnit,
+            );
+
             const formattedAmount = token
                 ? `${formatAmount(token.amount, token.decimals)} ${token.symbol.toUpperCase()}`
-                : formatNetworkAmount(tx.amount, account.symbol, true);
+                : formatNetworkAmount(tx.amount, account.symbol, true, areSatoshisUsed);
 
             dispatch(
                 notificationActions.addEvent({

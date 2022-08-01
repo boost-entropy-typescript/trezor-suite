@@ -4,13 +4,14 @@ import { Network } from '@wallet-types';
 import { CoinLogo, Icon, variables, useTheme } from '@trezor/components';
 import {
     FiatValue,
+    AmountUnitSwitchWrapper,
     SkeletonCircle,
     SkeletonRectangle,
     Ticker,
     Translation,
 } from '@suite-components';
 import { CoinBalance } from '@wallet-components';
-import { isTestnet } from '@wallet-utils/accountUtils';
+import { isTestnet } from '@suite-common/wallet-utils';
 import * as routerActions from '@suite-actions/routerActions';
 import { useActions, useAccountSearch, useLoadingSkeleton } from '@suite-hooks';
 
@@ -94,6 +95,7 @@ const AssetGrid = React.memo(({ network, failed, cryptoValue }: Props) => {
     const { setCoinFilter, setSearchString } = useAccountSearch();
 
     const { goto } = useActions({ goto: routerActions.goto });
+
     return (
         <CoinGridWrapper>
             <UpperRowWrapper>
@@ -120,14 +122,17 @@ const AssetGrid = React.memo(({ network, failed, cryptoValue }: Props) => {
             </UpperRowWrapper>
             {!failed ? (
                 <CryptoBalanceWrapper>
-                    <CoinBalance value={cryptoValue} symbol={symbol} />
-                    <FiatBalanceWrapper>
-                        <FiatValue
-                            amount={cryptoValue}
-                            symbol={symbol}
-                            showApproximationIndicator
-                        />
-                    </FiatBalanceWrapper>
+                    <AmountUnitSwitchWrapper symbol={symbol}>
+                        <CoinBalance value={cryptoValue} symbol={symbol} />
+
+                        <FiatBalanceWrapper>
+                            <FiatValue
+                                amount={cryptoValue}
+                                symbol={symbol}
+                                showApproximationIndicator
+                            />
+                        </FiatBalanceWrapper>
+                    </AmountUnitSwitchWrapper>
                 </CryptoBalanceWrapper>
             ) : (
                 <FailedCol>

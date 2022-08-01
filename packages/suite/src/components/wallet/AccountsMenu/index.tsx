@@ -4,7 +4,7 @@ import { useDiscovery, useAccountSearch, useSelector } from '@suite-hooks';
 import { H2, variables, useTheme, Icon, LoadingContent } from '@trezor/components';
 import { Translation, AddAccountButton } from '@suite-components';
 
-import { sortByCoin, getFailedAccounts, accountSearchFn } from '@wallet-utils/accountUtils';
+import { sortByCoin, getFailedAccounts, accountSearchFn } from '@suite-common/wallet-utils';
 import { Account } from '@wallet-types';
 
 import AccountSearchBox from './components/AccountSearchBox';
@@ -313,7 +313,11 @@ const AccountsMenu = ({ isMenuInline }: AccountsMenuProps) => {
                                 <Translation id="TR_MY_ACCOUNTS" />
                             </LoadingContent>
                         </Heading>
-                        <AddAccountButton device={device} noButtonLabel />
+                        <AddAccountButton
+                            data-test="@account-menu/add-account"
+                            device={device}
+                            noButtonLabel
+                        />
                     </Row>
                     <AccountSearchBox />
                 </MenuHeader>

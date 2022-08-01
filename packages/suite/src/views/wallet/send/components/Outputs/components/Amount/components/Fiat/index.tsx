@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import BigNumber from 'bignumber.js';
 import styled from 'styled-components';
 import { Controller } from 'react-hook-form';
@@ -8,11 +8,17 @@ import { InputError } from '@wallet-components';
 import { Translation } from '@suite-components';
 import { useSendFormContext } from '@wallet-hooks';
 import { FIAT } from '@suite-config';
-import { fromFiatCurrency } from '@wallet-utils/fiatConverterUtils';
-import { getInputState, getFiatRate, findToken } from '@wallet-utils/sendFormUtils';
-import { isDecimalsValid } from '@wallet-utils/validation';
+import {
+    fromFiatCurrency,
+    isDecimalsValid,
+    getInputState,
+    getFiatRate,
+    findToken,
+    amountToSatoshi,
+} from '@suite-common/wallet-utils';
 import { CurrencyOption, Output } from '@wallet-types/sendForm';
 import { MAX_LENGTH } from '@suite-constants/inputs';
+import { useBitcoinAmountUnit } from '@wallet-hooks/useBitcoinAmountUnit';
 
 const Wrapper = styled.div`
     display: flex;
@@ -49,6 +55,10 @@ const Fiat = ({ output, outputId }: Props) => {
         composeTransaction,
     } = useSendFormContext();
 
+    const { areSatsDisplayed, areUnitsSupportedByNetwork, areUnitsSupportedByDevice } =
+        useBitcoinAmountUnit(account.symbol);
+    const areSatsUsed = areSatsDisplayed && areUnitsSupportedByNetwork && areUnitsSupportedByDevice;
+
     const inputName = `outputs[${outputId}].fiat`;
     const currencyInputName = `outputs[${outputId}].currency`;
     const amountInputName = `outputs[${outputId}].amount`;
@@ -62,7 +72,6 @@ const Fiat = ({ output, outputId }: Props) => {
     const currencyValue =
         getDefaultValue(currencyInputName, output.currency) || localCurrencyOption;
     const token = findToken(account.tokens, tokenValue);
-    const decimals = token ? token.decimals : network.decimals;
 
     // relation case:
     // Amount input has an error and Fiat has not (but it should)
@@ -71,44 +80,74 @@ const Fiat = ({ output, outputId }: Props) => {
     const amountError = outputError ? outputError.amount : undefined;
     const errorToDisplay = !error && fiatValue && amountError ? amountError : error;
 
+    const handleChange = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            if (isSetMaxActive) {
+                setValue('setMaxOutputId', undefined);
+            }
+
+            if (error) {
+                // reset Amount field in case of invalid Fiat value
+                if (getDefaultValue(amountInputName, '').length > 0) {
+                    setValue(amountInputName, '');
+                    clearErrors(amountInputName);
+                }
+
+                composeTransaction(amountInputName);
+
+                return;
+            }
+
+            // calculate new Amount, Fiat input times currency rate
+            // NOTE: get fresh values (currencyValue may be outdated)
+            const { value: fiatCurrency } = getDefaultValue(currencyInputName, localCurrencyOption);
+
+            const decimals = token ? token.decimals : network.decimals;
+
+            const amount =
+                fiatRates && fiatRates.current && fiatCurrency
+                    ? fromFiatCurrency(
+                          event.target.value,
+                          fiatCurrency,
+                          fiatRates.current.rates,
+                          decimals,
+                      )
+                    : null;
+
+            const formattedAmount = areSatsUsed ? amountToSatoshi(amount || '0', decimals) : amount;
+
+            if (formattedAmount) {
+                // set Amount value and validate if
+                setValue(amountInputName, formattedAmount, {
+                    shouldValidate: true,
+                });
+            }
+
+            composeTransaction(amountInputName);
+        },
+        [
+            amountInputName,
+            clearErrors,
+            composeTransaction,
+            currencyInputName,
+            error,
+            fiatRates,
+            getDefaultValue,
+            isSetMaxActive,
+            localCurrencyOption,
+            network.decimals,
+            setValue,
+            token,
+            areSatsUsed,
+        ],
+    );
+
     return (
         <Wrapper>
             <Input
                 inputState={getInputState(errorToDisplay, fiatValue)}
                 isMonospace
-                onChange={event => {
-                    if (isSetMaxActive) {
-                        setValue('setMaxOutputId', undefined);
-                    }
-                    if (error) {
-                        // reset Amount field in case of invalid Fiat value
-                        if (getDefaultValue(amountInputName, '').length > 0) {
-                            setValue(amountInputName, '');
-                            clearErrors(amountInputName);
-                        }
-                        composeTransaction(amountInputName);
-                        return;
-                    }
-                    // calculate new Amount, Fiat input times currency rate
-                    // NOTE: get fresh values (currencyValue may be outdated)
-                    const { value } = getDefaultValue(currencyInputName, localCurrencyOption);
-                    const amount =
-                        fiatRates && fiatRates.current && value
-                            ? fromFiatCurrency(
-                                  event.target.value,
-                                  value,
-                                  fiatRates.current.rates,
-                                  decimals,
-                              )
-                            : null;
-                    if (amount) {
-                        // set Amount value and validate if
-                        setValue(amountInputName, amount, {
-                            shouldValidate: true,
-                        });
-                    }
-                    composeTransaction(amountInputName);
-                }}
+                onChange={handleChange}
                 name={inputName}
                 data-test={inputName}
                 defaultValue={fiatValue}

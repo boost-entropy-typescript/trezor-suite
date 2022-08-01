@@ -17,6 +17,9 @@ import accountsReducer from '@wallet-reducers/accountsReducer';
 
 jest.mock('@trezor/connect', () => {
     let fixture: any;
+
+    const { PROTO } = jest.requireActual('@trezor/connect');
+
     return {
         __esModule: true, // this property makes it work
         default: {
@@ -35,6 +38,7 @@ jest.mock('@trezor/connect', () => {
         BLOCKCHAIN: {},
         TRANSPORT: {},
         UI: {},
+        PROTO,
     };
 });
 

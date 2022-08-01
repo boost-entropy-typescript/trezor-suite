@@ -8,8 +8,13 @@ import * as notificationActions from '@suite-actions/notificationActions';
 import * as modalActions from '@suite-actions/modalActions';
 import * as metadataActions from '@suite-actions/metadataActions';
 import { SEND } from '@wallet-actions/constants';
-import { formatAmount, formatNetworkAmount, getPendingAccount } from '@wallet-utils/accountUtils';
-import { isCardanoTx } from '@wallet-utils/cardanoUtils';
+import {
+    formatAmount,
+    formatNetworkAmount,
+    getPendingAccount,
+    isCardanoTx,
+    getAreSatoshisUsed,
+} from '@suite-common/wallet-utils';
 import { Dispatch, GetState } from '@suite-types';
 import { Account } from '@wallet-types';
 import {
@@ -149,10 +154,13 @@ const pushTransaction = () => async (dispatch: Dispatch, getState: GetState) => 
     const spentWithoutFee = !token
         ? new BigNumber(precomposedTx.totalSpent).minus(precomposedTx.fee).toString()
         : '0';
+
+    const areSatoshisUsed = getAreSatoshisUsed(getState().wallet.settings.bitcoinAmountUnit);
+
     // get total amount without fee OR token amount
     const formattedAmount = token
         ? `${formatAmount(precomposedTx.totalSpent, token.decimals)} ${token.symbol!.toUpperCase()}`
-        : formatNetworkAmount(spentWithoutFee, account.symbol, true);
+        : formatNetworkAmount(spentWithoutFee, account.symbol, true, areSatoshisUsed);
 
     if (sentTx.success) {
         const { txid } = sentTx.payload;

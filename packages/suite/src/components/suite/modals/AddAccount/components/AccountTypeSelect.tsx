@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { P, Select, variables } from '@trezor/components';
 import { Translation } from '@suite-components/Translation';
-import { getAccountTypeName, getAccountTypeTech } from '@wallet-utils/accountUtils';
+import { getAccountTypeName, getAccountTypeTech } from '@suite-common/wallet-utils';
 import { AccountTypeDescription } from './AccountTypeDescription';
 import type { UnavailableCapabilities } from '@trezor/connect';
 import type { Network } from '@wallet-types';
@@ -61,6 +61,7 @@ export const AccountTypeSelect = ({
     return (
         <>
             <Select
+                data-test="@add-account-type/select"
                 label={<Translation id="TR_ACCOUNT_TYPE" />}
                 isSearchable={false}
                 isClearable={false}

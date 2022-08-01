@@ -33,6 +33,8 @@ jest.mock('@trezor/connect', () => {
         return Promise.resolve(fixture.mocks.connect);
     };
 
+    const { PROTO } = jest.requireActual('@trezor/connect');
+
     return {
         __esModule: true, // this property makes it work
         default: {
@@ -52,6 +54,7 @@ jest.mock('@trezor/connect', () => {
         setTestFixtures: (f: Fixture) => {
             fixture = f;
         },
+        PROTO,
     };
 });
 

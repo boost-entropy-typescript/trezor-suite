@@ -4,13 +4,14 @@ import { Network } from '@wallet-types';
 import { CoinLogo, Icon, variables, useTheme } from '@trezor/components';
 import {
     FiatValue,
+    AmountUnitSwitchWrapper,
     SkeletonCircle,
     SkeletonRectangle,
     Ticker,
     Translation,
 } from '@suite-components';
 import { CoinBalance } from '@wallet-components';
-import { isTestnet } from '@wallet-utils/accountUtils';
+import { isTestnet } from '@suite-common/wallet-utils';
 import * as routerActions from '@suite-actions/routerActions';
 import { useActions, useAccountSearch, useLoadingSkeleton } from '@suite-hooks';
 import { ANIMATION } from '@suite-config';
@@ -108,19 +109,20 @@ const ExchangeRateWrapper = styled(Col)`
     padding-right: 0px;
 `;
 
-interface Props {
+interface AssetTableProps {
     network: Network;
     failed: boolean;
     cryptoValue: string;
     isLastRow?: boolean;
 }
 
-const AssetTable = React.memo(({ network, failed, cryptoValue, isLastRow }: Props) => {
+const AssetTable = React.memo(({ network, failed, cryptoValue, isLastRow }: AssetTableProps) => {
     const { symbol, name } = network;
     const theme = useTheme();
     const { setCoinFilter, setSearchString } = useAccountSearch();
 
     const { goto } = useActions({ goto: routerActions.goto });
+
     return (
         <>
             <CoinNameWrapper
@@ -141,23 +143,30 @@ const AssetTable = React.memo(({ network, failed, cryptoValue, isLastRow }: Prop
                 <LogoWrapper>
                     <CoinLogo symbol={symbol} size={24} />
                 </LogoWrapper>
+
                 <Coin>{name}</Coin>
+
                 <Symbol>{symbol.toUpperCase()}</Symbol>
             </CoinNameWrapper>
+
             {!failed ? (
                 <CryptoBalanceWrapper isLastRow={isLastRow}>
-                    <CoinBalance value={cryptoValue} symbol={symbol} />
-                    <FiatBalanceWrapper>
-                        <FiatValue
-                            amount={cryptoValue}
-                            symbol={symbol}
-                            showApproximationIndicator
-                        />
-                    </FiatBalanceWrapper>
+                    <AmountUnitSwitchWrapper symbol={symbol}>
+                        <CoinBalance value={cryptoValue} symbol={symbol} />
+
+                        <FiatBalanceWrapper>
+                            <FiatValue
+                                amount={cryptoValue}
+                                symbol={symbol}
+                                showApproximationIndicator
+                            />
+                        </FiatBalanceWrapper>
+                    </AmountUnitSwitchWrapper>
                 </CryptoBalanceWrapper>
             ) : (
                 <FailedCol isLastRow={isLastRow}>
                     <Translation id="TR_DASHBOARD_ASSET_FAILED" />
+
                     <Icon
                         style={{ paddingLeft: '4px', paddingBottom: '2px' }}
                         icon="WARNING"
