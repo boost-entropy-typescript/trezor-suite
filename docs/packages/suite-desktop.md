@@ -50,17 +50,24 @@ More technical information can be found on the [Desktop Logger page](../misc/des
 
 ## Shortcuts
 
-_TODO_
+Available shortcuts:
+
+| name            | commands                                             |
+| --------------- | ---------------------------------------------------- |
+| Reload app      | F5, Ctrl+R, Cmd+R                                    |
+| Hard Reload app | Shift+F5, Shift+Ctrl+R, Shift+Cmd+R                  |
+| Restart app     | Alt+F5, Option+F5, Alt+Shift+R, Option+Shift+R       |
+| Open DevTools   | F12, Cmd+Shift+I,Ctrl+Shift+I, Cmd+Alt+I, Ctrl+Alt+I |
 
 ## Runtime flags
 
-Runtime flags can be used when running the Suite Desktop executable, enabling or disabling certain features. For example: `./Trezor-Suite-20.10.1.AppImage --disable-csp` will run with this flag turned on, which will result in the Content Security Policy being disabled.
+Runtime flags can be used when running the Suite Desktop executable, enabling or disabling certain features. For example: `./Trezor-Suite-22.7.2.AppImage --open-devtools` will run with this flag turned on, which will result in opening DevTools on app launch.
 
 Available flags:
 
 | name                  | description                                                                                                                                                                            |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--disable-csp`       | Disables the Content Security Policy. Necessary for using DevTools in a production build.                                                                                              |
+| `--open-devtools`     | Open DevTools on app launch.                                                                                                                                                           |
 | `--pre-release`       | Tells the auto-updater to fetch pre-release updates.                                                                                                                                   |
 | `--bridge-dev`        | Instruct Bridge to support emulator (starts Bridge with `-e 21324`).                                                                                                                   |
 | `--log-level=NAME`    | Set the logging level. Available levels are [name (value)]: error (1), warn (2), info(3), debug (4). All logs with a value equal or lower to the selected log level will be displayed. |
@@ -97,7 +104,7 @@ The auto-updater has been mocked to simulate similar behavior to the actual libr
 
 #### Linux
 
-`./Trezor-Suite-20.10.1.AppImage --log-level=debug`
+`./Trezor-Suite-22.7.2.AppImage --log-level=debug`
 
 #### MacOS
 
