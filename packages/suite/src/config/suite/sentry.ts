@@ -37,7 +37,7 @@ const redactUserPath = (event: Event) => {
     }
 };
 
-const beforeSend: Options['beforeSend'] = event => {
+export const beforeSend: Options['beforeSend'] = event => {
     // sentry events are skipped until user confirm analytics reporting
     const allowReport = event.tags?.[allowReportTag];
     if (allowReport === false) {
@@ -51,8 +51,8 @@ const beforeSend: Options['beforeSend'] = event => {
     return redactUserPath(event);
 };
 
-const beforeBreadcrumb: Options['beforeBreadcrumb'] = breadcrumb => {
-    // filter out analytics requests and image fetche
+export const beforeBreadcrumb: Options['beforeBreadcrumb'] = breadcrumb => {
+    // filter out analytics requests and image fetches
     const isAnalytics =
         breadcrumb.category === 'fetch' &&
         breadcrumb.data?.url?.contains('data.trezor.io/suite/log');
@@ -64,6 +64,17 @@ const beforeBreadcrumb: Options['beforeBreadcrumb'] = breadcrumb => {
     }
     return breadcrumb;
 };
+
+const ignoreErrors = [
+    'ERR_INTERNET_DISCONNECTED',
+    'ERR_NETWORK_IO_SUSPENDED',
+    'ERR_NETWORK_CHANGED',
+    'Error: HTTP Error',
+    'other call in progress',
+    'Action cancelled by user',
+    'ResizeObserver loop limit exceeded',
+    'device disconnected during action',
+];
 
 const config: Options = {
     dsn: 'https://6d91ca6e6a5d4de7b47989455858b5f6@o117836.ingest.sentry.io/5193825',
@@ -79,8 +90,9 @@ const config: Options = {
     release: process.env.SENTRY_RELEASE,
     environment: process.env.SUITE_TYPE,
     normalizeDepth: 4,
-    maxBreadcrumbs: 30,
+    maxBreadcrumbs: 40,
     beforeBreadcrumb,
+    ignoreErrors,
     initialScope: {
         tags: {
             version: process.env.VERSION || 'undefined',

@@ -27,7 +27,7 @@ const Wrapper = styled.div<{ isWithTopPadding: boolean }>`
     position: relative;
 
     ${variables.SCREEN_QUERY.ABOVE_TABLET} {
-        padding-top: ${({ isWithTopPadding }) => isWithTopPadding && '40px'};
+        padding-top: ${({ isWithTopPadding }) => isWithTopPadding && '44px'};
     }
 `;
 
@@ -46,7 +46,11 @@ const StyledModal = styled(Modal)`
     }
 `;
 
-export const Firmware = () => {
+type FirmwareProps = {
+    shouldSwitchFirmwareType?: boolean;
+};
+
+export const Firmware = ({ shouldSwitchFirmwareType }: FirmwareProps) => {
     const { resetReducer, status, setStatus, error, firmwareUpdate, firmwareHashInvalid } =
         useFirmware();
     const { device } = useSelector(state => ({
@@ -119,6 +123,7 @@ export const Firmware = () => {
                         cachedDevice={cachedDevice}
                         setCachedDevice={setCachedDevice}
                         standaloneFwUpdate
+                        shouldSwitchFirmwareType={shouldSwitchFirmwareType}
                         onInstall={firmwareUpdate}
                     />
                 );

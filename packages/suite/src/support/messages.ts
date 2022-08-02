@@ -2103,24 +2103,50 @@ export default defineMessages({
         id: 'TR_FIRMWARE_INSTALLED',
     },
     TR_FIRMWARE_INSTALLED_TEXT: {
-        defaultMessage: 'This device has firmware {version} installed.',
+        defaultMessage: 'This device has firmware {version} ({type}) installed.',
         description: 'Text to display in case device has firmware installed but it is outdated',
         id: 'TR_FIRMWARE_INSTALLED_TEXT',
     },
     TR_INSTALL_FIRMWARE: {
-        defaultMessage: 'Install firmware',
-        description: 'sub heading in onboarding when user is about to install a new firmware',
+        defaultMessage: 'Firmware installation',
+        description: 'Heading in onboarding when user is about to install a new firmware',
         id: 'TR_INSTALL_FIRMWARE',
     },
-    TR_FIRMWARE_SUBHEADING: {
+    TR_INSTALL_BITCOIN_FW: {
+        defaultMessage: 'Install Bitcoin-only firmware',
+        description: 'Heading in onboarding when user is about to install Bitcoin-only firmware',
+        id: 'TR_INSTALL_BITCOIN_FW',
+    },
+    TR_FIRMWARE_SUBHEADING_NONE: {
         defaultMessage:
-            'Your Trezor is shipped without any firmware, so you can install the latest version directly by clicking the button below. When your device starts up, it will confirm that the firmware is authentic or display a warning.',
-        description: 'Main text on firmware page for devices without firmware.',
-        id: 'TR_FIRMWARE_SUBHEADING',
+            'Your Trezor is shipped without any firmware. Your device is ready to receive the latest full-featured firmware in order to be used safely. If you are a super BTC fan, feel free to install <button>Bitcoin-only firmware</button>.',
+        description: 'Main text on firmware page for devices without firmware',
+        id: 'TR_FIRMWARE_SUBHEADING_NONE',
+    },
+    TR_FIRMWARE_SUBHEADING_UNKNOWN: {
+        defaultMessage:
+            'Your device is ready to receive the latest full-featured firmware in order to be used safely. If you are a super BTC fan, feel free to install <button>Bitcoin-only firmware</button>.',
+        description:
+            'Main text on firmware page for devices in bootloader mode, i.e. when Suite cannot determine current firmware type',
+        id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN',
+    },
+    TR_FIRMWARE_SUBHEADING_BITCOIN: {
+        defaultMessage: 'Light-weight firmware supporting only Bitcoin operations.',
+        description: 'Explanation of Bitcoin-only firmware in onboarding',
+        id: 'TR_FIRMWARE_SUBHEADING_BITCOIN',
+    },
+    TR_CHANGE_FIRMWARE_TYPE_ANYTIME: {
+        defaultMessage: 'You can change your firmware type in Settings anytime.',
+        description: 'Info in onboarding',
+        id: 'TR_CHANGE_FIRMWARE_TYPE_ANYTIME',
     },
     TR_FIRMWARE_VERSION: {
-        defaultMessage: 'Firmware version',
+        defaultMessage: 'Version',
         id: 'TR_FIRMWARE_VERSION',
+    },
+    TR_FIRMWARE_TYPE: {
+        defaultMessage: 'Type',
+        id: 'TR_FIRMWARE_TYPE',
     },
     TR_FIRMWARE_VALIDATION_UNRECOGNIZED_FORMAT: {
         defaultMessage: 'Unrecognized firmware image type',
@@ -2225,6 +2251,16 @@ export default defineMessages({
         defaultMessage: 'Install firmware',
         description: 'Install button',
         id: 'TR_INSTALL',
+    },
+    TR_INSTALL_UNIVERSAL: {
+        defaultMessage: 'Install Universal',
+        description: 'Install button for Universal firmware',
+        id: 'TR_INSTALL_UNIVERSAL',
+    },
+    TR_INSTALL_BITCOIN_ONLY: {
+        defaultMessage: 'Install Bitcoin-only',
+        description: 'Install button for Bitcoin-only firmware',
+        id: 'TR_INSTALL_BITCOIN_ONLY',
     },
     TR_DO_NOT_DISCONNECT: {
         defaultMessage: 'Do not disconnect your Trezor.',
@@ -2766,6 +2802,15 @@ export default defineMessages({
             'Reconnect the device without touching the screen to access all other Settings.',
         id: 'TR_SETTINGS_DEVICE_BANNER_DESCRIPTION_BOOTLOADER_MODEL_2',
     },
+    TR_SETTINGS_COINS_UNIVERSAL_FIRMWARE_SUGGESTION: {
+        defaultMessage: 'For more coins, install <button>Universal</button> firmware.',
+        id: 'TR_SETTINGS_COINS_UNIVERSAL_FIRMWARE_SUGGESTION',
+    },
+    TR_SETTINGS_COINS_BITCOIN_FIRMWARE_SUGGESTION: {
+        defaultMessage:
+            'If you only need Bitcoin wallet operations, you can install <button>Bitcoin-only</button> firmware.',
+        id: 'TR_SETTINGS_COINS_BITCOIN_FIRMWARE_SUGGESTION',
+    },
     TR_SHOW_ADDRESS_ANYWAY: {
         defaultMessage: 'Show address anyway',
         id: 'TR_SHOW_ADDRESS_ANYWAY',
@@ -3012,6 +3057,11 @@ export default defineMessages({
         description: 'Info what is happening with users device.',
         id: 'TR_WAIT_FOR_REBOOT',
     },
+    TR_VALIDATION: {
+        defaultMessage: 'Validating firmware',
+        description: 'Info what is happening with users device.',
+        id: 'TR_VALIDATION',
+    },
     TR_WALLET_DUPLICATE_DESC: {
         defaultMessage: 'The Hidden wallet you are trying to add has been already discovered.',
         id: 'TR_WALLET_DUPLICATE_DESC',
@@ -3071,9 +3121,21 @@ export default defineMessages({
         defaultMessage: 'You were disconnected.',
         id: 'TR_YOU_WERE_DISCONNECTED_DOT',
     },
-    TR_YOUR_CURRENT_FIRMWARE: {
-        defaultMessage: 'Your current firmware version is {version}',
-        id: 'TR_YOUR_CURRENT_FIRMWARE',
+    TR_YOUR_FIRMWARE_VERSION: {
+        defaultMessage: 'Your firmware version is {version}',
+        id: 'TR_YOUR_FIRMWARE_VERSION',
+    },
+    TR_YOUR_FIRMWARE_TYPE: {
+        defaultMessage: 'Your firmware type is {version}',
+        id: 'TR_YOUR_FIRMWARE_TYPE',
+    },
+    TR_SWITCH_TO_BITCOIN: {
+        defaultMessage: 'Switch to Bitcoin',
+        id: 'TR_SWITCH_TO_BITCOIN',
+    },
+    TR_SWITCH_TO_UNIVERSAL: {
+        defaultMessage: 'Switch to Universal',
+        id: 'TR_SWITCH_TO_UNIVERSAL',
     },
     TR_YOUR_CURRENT_FIRMWARE_UNKNOWN: {
         defaultMessage:
@@ -4048,6 +4110,16 @@ export default defineMessages({
         defaultMessage: 'NZ Bank Transfer',
         dynamic: true,
     },
+    TR_PAYMENT_METHOD_PIX: {
+        id: 'TR_PAYMENT_METHOD_PIX',
+        defaultMessage: 'Pix',
+        dynamic: true,
+    },
+    TR_PAYMENT_METHOD_PAY4FUN: {
+        id: 'TR_PAYMENT_METHOD_PAY4FUN',
+        defaultMessage: 'Pay4Fun',
+        dynamic: true,
+    },
     TR_OFFER_FEE_INFO: {
         id: 'TR_OFFER_FEE_INFO',
         defaultMessage:
@@ -4408,6 +4480,11 @@ export default defineMessages({
         id: 'TR_FIRMWARE_REINSTALL_FW_DESCRIPTION',
         defaultMessage:
             'Your device is already updated to latest firmware. You may reinstall the firmware if needed.',
+    },
+    TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION: {
+        id: 'TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION',
+        defaultMessage:
+            'Bitcoin-only firmware is a light-weight option for users only interested in Bitcoin. Universal firmware enables all supported coins and features. Do you wish to switch firmware type?',
     },
     TR_EXPERIMENTAL_FEATURES: {
         id: 'TR_EXPERIMENTAL_FEATURES',

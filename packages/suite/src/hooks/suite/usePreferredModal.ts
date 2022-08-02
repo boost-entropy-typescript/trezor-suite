@@ -1,6 +1,7 @@
 import { MODAL } from '@suite-actions/constants';
 import { useSelector, useDiscovery } from '@suite-hooks';
 import type { Route, ForegroundAppRoute } from '@suite-types';
+import { ModalAppParams } from '@suite-utils/router';
 
 const isForegroundApp = (route: Route): route is ForegroundAppRoute =>
     !route.isFullscreenApp && !!route.isForegroundApp;
@@ -12,6 +13,7 @@ const hasPriority = (route: ForegroundAppRoute) => {
     switch (route.app) {
         case 'bridge':
         case 'firmware':
+        case 'firmware-type':
         case 'firmware-custom':
         case 'recovery':
         case 'udev':
@@ -22,22 +24,26 @@ const hasPriority = (route: ForegroundAppRoute) => {
     }
 };
 
+const getForegroundAppAction = (route: ForegroundAppRoute, params: Partial<ModalAppParams>) =>
+    ({
+        type: 'foreground-app',
+        payload: {
+            app: route.app,
+            // params are undefined when the user goes directly to the URL
+            cancelable: !!params?.cancelable,
+        },
+    } as const);
+
 export const usePreferredModal = () => {
     const { getDiscoveryStatus } = useDiscovery();
     const { route, params, modal } = useSelector(state => ({
         route: state.router.route,
-        params: state.router.params,
+        params: state.router.params as Partial<ModalAppParams>,
         modal: state.modal,
     }));
 
     if (route && isForegroundApp(route) && hasPriority(route)) {
-        return {
-            type: 'foreground-app',
-            payload: {
-                app: route.app,
-                cancelable: !!(params as any)?.cancelable,
-            },
-        } as const;
+        return getForegroundAppAction(route, params);
     }
 
     if (modal.context !== MODAL.CONTEXT_NONE) {
@@ -57,13 +63,7 @@ export const usePreferredModal = () => {
     }
 
     if (route && isForegroundApp(route)) {
-        return {
-            type: 'foreground-app',
-            payload: {
-                app: route.app,
-                cancelable: !!(params as any)?.cancelable,
-            },
-        } as const;
+        return getForegroundAppAction(route, params);
     }
 
     return {

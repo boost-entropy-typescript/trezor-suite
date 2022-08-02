@@ -5,7 +5,7 @@
 // 4. add params types to RouteParamsTypes (@suite-constants/routes)
 
 const walletParams = ['symbol', 'accountIndex', 'accountType'] as const;
-const modalAppParams = ['cancelable'] as const;
+const modalAppParams = ['cancelable', 'variant'] as const;
 const routes = [
     {
         name: 'suite-start',
@@ -93,6 +93,13 @@ const routes = [
         name: 'firmware-index',
         pattern: '/firmware',
         app: 'firmware',
+        isForegroundApp: true,
+        params: modalAppParams,
+    },
+    {
+        name: 'firmware-type',
+        pattern: '/firmware-type',
+        app: 'firmware-type',
         isForegroundApp: true,
         params: modalAppParams,
     },

@@ -11,10 +11,15 @@ import { Version } from '@suite-views/version';
 import { SwitchDevice } from '@suite-components/SwitchDevice';
 import type { ForegroundAppRoute } from '@suite-types';
 
+// would not work if defined directly in the switch
+const FirmwareType = () => <Firmware shouldSwitchFirmwareType />;
+
 const getForegroundApp = (app: ForegroundAppRoute['app']) => {
     switch (app) {
         case 'firmware':
             return Firmware;
+        case 'firmware-type':
+            return FirmwareType;
         case 'firmware-custom':
             return FirmwareCustom;
         case 'bridge':

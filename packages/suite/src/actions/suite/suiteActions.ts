@@ -83,9 +83,7 @@ export type SuiteAction =
           type: typeof SUITE.SET_AUTODETECT;
           payload: Partial<AutodetectSettings>;
       }
-    | {
-          type: typeof SUITE.REQUEST_DEVICE_RECONNECT;
-      };
+    | { type: typeof SUITE.REQUEST_DEVICE_RECONNECT };
 
 export const desktopHandshake = (payload: HandshakeElectron): SuiteAction => ({
     type: SUITE.DESKTOP_HANDSHAKE,
@@ -215,6 +213,15 @@ export const toggleTor =
 export const setOnionLinks = (payload: boolean): SuiteAction => ({
     type: SUITE.ONION_LINKS,
     payload,
+});
+
+/**
+ * Called from `suiteMiddleware`
+ * Set `loaded` field in suite reducer
+ * @returns {SuiteAction}
+ */
+export const onSuiteReady = (): SuiteAction => ({
+    type: SUITE.READY,
 });
 
 /**
@@ -386,7 +393,7 @@ export const handleDeviceDisconnect =
          * Under normal circumstances, after device is disconnected we want suite to select another existing device (either remembered or physically connected)
          * This is not the case in firmware update and onboarding; In this case we simply wan't suite.device to be empty until user reconnects a device again
          */
-        if (['onboarding', 'firmware'].includes(router.app)) {
+        if (['onboarding', 'firmware', 'firmware-type'].includes(router.app)) {
             dispatch({ type: SUITE.SELECT_DEVICE, payload: undefined });
             return;
         }

@@ -4,22 +4,22 @@ import { Dispatch, GetState } from '@suite-types';
 import { allowReportTag } from '@suite-config/sentry';
 import { redactDevice, redactDiscovery, getApplicationLog } from '@suite-utils/logsUtils';
 
+export const setSentryContext = Sentry.setContext;
+
+export const setSentryTag = Sentry.setTag;
+
+export const addSentryBreadcrumb = Sentry.addBreadcrumb;
+
 export const allowSentryReport = (value: boolean) => {
-    Sentry.configureScope(scope => {
-        scope.setTag(allowReportTag, value);
-    });
+    Sentry.setTag(allowReportTag, value);
 };
 
 export const setSentryUser = (instanceId: string) => {
-    Sentry.configureScope(scope => {
-        scope.setUser({ id: instanceId });
-    });
+    Sentry.setUser({ id: instanceId });
 };
 
 export const unsetSentryUser = () => {
-    Sentry.configureScope(scope => {
-        scope.setUser(null);
-    });
+    Sentry.setUser(null);
 };
 
 export const reportToSentry = (error: any) => (_: Dispatch, getState: GetState) => {
