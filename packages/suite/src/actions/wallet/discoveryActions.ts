@@ -11,6 +11,7 @@ import { NETWORKS } from '@wallet-config';
 import { Dispatch, GetState, TrezorDevice } from '@suite-types';
 import { Account } from '@wallet-types';
 import { getDerivationType } from '@suite-common/wallet-utils';
+import { isTrezorConnectBackendType } from '@suite-utils/backend';
 
 export type DiscoveryAction =
     | { type: typeof DISCOVERY.CREATE; payload: Discovery }
@@ -37,7 +38,9 @@ export interface DiscoveryItem {
     index: number;
     accountType: Account['accountType'];
     networkType: Account['networkType'];
+    backendType?: Account['backendType'];
     derivationType?: 0 | 1 | 2;
+    lastKnownState?: Account['lastKnownState'];
 }
 
 type ProgressEvent = BundleProgress<AccountInfo | null>['payload'];
@@ -183,6 +186,7 @@ const filterUnavailableNetworks = (enabledNetworks: Account['symbol'][], device?
                 )); // device version is newer or equal to support field in networks => supported
 
         return (
+            isTrezorConnectBackendType(n.backendType) && // exclude accounts with unsupported backend type
             enabledNetworks.includes(n.symbol) &&
             !n.isHidden &&
             !device?.unavailableCapabilities?.[n.accountType!] && // exclude by account types (ex: taproot)

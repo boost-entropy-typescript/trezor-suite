@@ -4,6 +4,7 @@ import { DiscoveryItem } from '@wallet-actions/discoveryActions';
 import * as notificationActions from '@suite-actions/notificationActions';
 import * as transactionActions from '@wallet-actions/transactionActions';
 import * as tokenActions from '@wallet-actions/tokenActions';
+import { isTrezorConnectBackendType } from '@suite-utils/backend';
 import {
     analyzeTransactions,
     getAccountTransactions,
@@ -34,7 +35,7 @@ export const create = (
     deviceState: string,
     discoveryItem: DiscoveryItem,
     accountInfo: AccountInfo,
-): AccountAction => ({
+) => ({
     type: ACCOUNT.CREATE,
     payload: {
         deviceState,
@@ -45,8 +46,11 @@ export const create = (
         accountType: discoveryItem.accountType,
         symbol: discoveryItem.coin,
         empty: accountInfo.empty,
+        backendType: discoveryItem.backendType,
+        lastKnownState: discoveryItem.lastKnownState,
         visible:
             !accountInfo.empty ||
+            discoveryItem.accountType === 'coinjoin' ||
             (discoveryItem.accountType === 'normal' && discoveryItem.index === 0),
         balance: accountInfo.balance,
         availableBalance: accountInfo.availableBalance,
@@ -76,7 +80,7 @@ export const create = (
     },
 });
 
-export const update = (account: Account, accountInfo: AccountInfo): AccountAction => ({
+export const update = (account: Account, accountInfo: AccountInfo) => ({
     type: ACCOUNT.UPDATE,
     payload: {
         ...account,
@@ -96,7 +100,7 @@ export const update = (account: Account, accountInfo: AccountInfo): AccountActio
     },
 });
 
-export const updateAccount = (payload: Account): AccountAction => ({
+export const updateAccount = (payload: Account) => ({
     type: ACCOUNT.UPDATE,
     payload,
 });
@@ -132,6 +136,7 @@ export const changeAccountVisibility = (payload: Account, visible = true): Accou
 // as we usually want to update all accounts for a single coin at once
 export const fetchAndUpdateAccount =
     (account: Account) => async (dispatch: Dispatch, getState: GetState) => {
+        if (!isTrezorConnectBackendType(account.backendType)) return; // skip unsupported backend type
         // first basic check, traffic optimization
         // basic check returns only small amount of data without full transaction history
         const basic = await TrezorConnect.getAccountInfo({
