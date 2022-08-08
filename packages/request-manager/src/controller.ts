@@ -12,23 +12,32 @@ export class TorController extends EventEmitter {
     waitingTime = 1000;
     maxTriesWaiting = 60;
     isCircuitEstablished = false;
+    torIsDisabledWhileStarting: boolean;
 
     constructor(options: TorConnectionOptions) {
         super();
         this.options = options;
+        this.torIsDisabledWhileStarting = false;
         this.controlPort = new TorControlPort(options, this.onMessageReceived.bind(this));
     }
 
     onMessageReceived(message: string) {
         const bootstrap: BootstrapEvent[] = bootstrapParser(message);
-        this.isCircuitEstablished = bootstrap.some(
-            (event: BootstrapEvent) => event.progress === BootstrapEventProgress.Done,
-        );
+        bootstrap.forEach(event => {
+            if (!event?.progress) return;
+            this.isCircuitEstablished = event.progress === BootstrapEventProgress.Done;
+            this.emit('bootstrap/event', event);
+        });
     }
 
     waitUntilAlive(): Promise<void> {
         const errorMessages: string[] = [];
+        this.torIsDisabledWhileStarting = false;
         const waitUntilResponse = async (triesCount: number): Promise<void> => {
+            if (this.torIsDisabledWhileStarting) {
+                // If TOR is starting and we want to cancel it.
+                return;
+            }
             if (triesCount >= this.maxTriesWaiting) {
                 throw new Error(
                     `Timeout waiting for TOR control port: \n${errorMessages.join('\n')}`,
@@ -58,5 +67,9 @@ export class TorController extends EventEmitter {
 
     status() {
         return this.controlPort.ping();
+    }
+
+    stopWhileLoading() {
+        this.torIsDisabledWhileStarting = true;
     }
 }
