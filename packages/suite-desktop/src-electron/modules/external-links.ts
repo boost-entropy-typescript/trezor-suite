@@ -12,6 +12,13 @@ const init: Module = ({ mainWindow, store }) => {
 
     mainWindow.webContents.setWindowOpenHandler((details: HandlerDetails) => {
         const { url } = details;
+        const { protocol } = new URL(url);
+
+        // https://benjamin-altpeter.de/shell-openexternal-dangers/
+        if (!config.allowedProtocols.includes(protocol)) {
+            logger.error('external-links', `Protocol '${protocol}' not allowed`);
+            return { action: 'deny' };
+        }
 
         if (config.oauthUrls.some(u => url.startsWith(u))) {
             logger.info('external-links', `${url} was allowed (OAuth list)`);
@@ -41,7 +48,12 @@ const init: Module = ({ mainWindow, store }) => {
         }
 
         // open URL in the user's default browser instead of headless browser window
-        shell.openExternal(url);
+        shell.openExternal(url).catch(err =>
+            dialog.showMessageBoxSync(mainWindow, {
+                type: 'error',
+                message: `${err} ${url}`,
+            }),
+        );
 
         // do not open headless browser window
         return { action: 'deny' };
