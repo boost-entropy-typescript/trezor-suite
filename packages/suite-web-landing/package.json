@@ -19,14 +19,14 @@
         "@trezor/suite": "*",
         "@trezor/urls": "*",
         "@trezor/utils": "*",
-        "next": "^12.1.6",
+        "next": "^12.2.5",
         "react": "17.0.2",
         "react-dom": "17.0.2",
-        "react-intl": "^6.0.4"
+        "react-intl": "^6.0.5"
     },
     "devDependencies": {
-        "@types/react": "^17.0.0",
-        "@types/react-dom": "^17.0.0",
+        "@types/react": "^17.0.48",
+        "@types/react-dom": "^17.0.17",
         "next-optimized-images": "^2.6.2",
         "next-transpile-modules": "^9.0.0"
     }

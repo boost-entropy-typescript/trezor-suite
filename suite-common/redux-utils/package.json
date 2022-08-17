@@ -1,0 +1,21 @@
+{
+    "name": "@suite-common/redux-utils",
+    "version": "1.0.0",
+    "private": true,
+    "license": "See LICENSE.md in repo root",
+    "sideEffects": false,
+    "main": "src/index",
+    "scripts": {
+        "lint": "eslint '**/*.{ts,tsx,js}'",
+        "type-check": "tsc --build"
+    },
+    "dependencies": {
+        "@reduxjs/toolkit": "^1.8.3",
+        "@suite-common/suite-types": "*",
+        "@suite-common/wallet-types": "*",
+        "@suite-common/wallet-config": "*",
+        "@suite-common/notifications": "*",
+        "@trezor/connect": "9.0.0-beta.6",
+        "redux": "^4.2.0"
+    }
+}

@@ -27,11 +27,11 @@
         "@trezor/connect": "9.0.0-beta.6",
         "@trezor/urls": "*",
         "@trezor/utils": "*",
-        "bignumber.js": "^9.0.2",
+        "bignumber.js": "^9.1.0",
         "ethereumjs-util": "^7.1.5",
         "pdfmake": "^0.2.5",
         "react-hook-form": "6.15.7",
-        "trezor-address-validator": "^0.4.2",
+        "trezor-address-validator": "^0.4.3",
         "web3-utils": "^1.7.3"
     },
     "devDependencies": {
