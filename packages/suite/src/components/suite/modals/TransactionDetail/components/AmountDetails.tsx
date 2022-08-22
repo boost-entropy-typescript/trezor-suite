@@ -4,7 +4,13 @@ import { Button, variables } from '@trezor/components';
 import { Translation, FormattedCryptoAmount, FiatValue, FormattedDate } from '@suite-components';
 import { AmountRow } from './AmountRow';
 import { NetworkSymbol, WalletAccountTransaction } from '@wallet-types';
-import { getNetwork } from '@suite-common/wallet-utils';
+import {
+    formatAmount,
+    formatCardanoDeposit,
+    formatCardanoWithdrawal,
+    formatNetworkAmount,
+    getNetwork,
+} from '@suite-common/wallet-utils';
 
 // define these attributes as a constant because we will use the same values in two different styled components
 const ROW_HEIGHT = '36px';
@@ -57,7 +63,10 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
     const [showFiat, setShowFiat] = useState(false);
 
     const tokenTransfer = tx.tokens.length > 0 ? tx.tokens[0] : undefined;
-    const amount = tokenTransfer ? tokenTransfer.amount : tx.amount;
+    const txAmount = formatNetworkAmount(tx.amount, tx.symbol);
+    const amount = tokenTransfer
+        ? formatAmount(tokenTransfer.amount, tokenTransfer.decimals)
+        : txAmount;
     const assetSymbol = tokenTransfer ? tokenTransfer.symbol : tx.symbol;
 
     const network = getNetwork(tx.symbol);
@@ -65,6 +74,11 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
         network?.networkType === 'ripple' || network?.networkType === 'ethereum'; // don't show for eth, xrp
 
     const showHistoricalRates = showFiat && !tokenTransfer;
+    const totalInput = formatNetworkAmount(tx.details.totalInput, tx.symbol);
+    const totalOutput = formatNetworkAmount(tx.details.totalOutput, tx.symbol);
+    const fee = formatNetworkAmount(tx.fee, tx.symbol);
+    const cardanoWithdrawal = formatCardanoWithdrawal(tx);
+    const cardanoDeposit = formatCardanoDeposit(tx);
 
     return (
         <MainContainer>
@@ -122,16 +136,13 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                         <AmountRow
                             firstColumn={<Translation id="TR_TOTAL_INPUT" />}
                             secondColumn={
-                                <FormattedCryptoAmount
-                                    value={tx.details.totalInput}
-                                    symbol={tx.symbol}
-                                />
+                                <FormattedCryptoAmount value={totalInput} symbol={tx.symbol} />
                             }
                             thirdColumn={
                                 showHistoricalRates &&
-                                tx.details.totalInput && (
+                                totalInput && (
                                     <FiatValue
-                                        amount={tx.details.totalInput}
+                                        amount={totalInput}
                                         symbol={tx.symbol}
                                         source={tx.rates}
                                         useCustomSource
@@ -140,9 +151,7 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                             }
                             fourthColumn={
                                 showFiat &&
-                                tx.details.totalInput && (
-                                    <FiatValue amount={tx.details.totalInput} symbol={tx.symbol} />
-                                )
+                                totalInput && <FiatValue amount={totalInput} symbol={tx.symbol} />
                             }
                             color="dark"
                         />
@@ -151,16 +160,13 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                         <AmountRow
                             firstColumn={<Translation id="TR_TOTAL_OUTPUT" />}
                             secondColumn={
-                                <FormattedCryptoAmount
-                                    value={tx.details.totalOutput}
-                                    symbol={tx.symbol}
-                                />
+                                <FormattedCryptoAmount value={totalOutput} symbol={tx.symbol} />
                             }
                             thirdColumn={
                                 showHistoricalRates &&
-                                tx.details.totalOutput && (
+                                totalOutput && (
                                     <FiatValue
-                                        amount={tx.details.totalOutput}
+                                        amount={totalOutput}
                                         symbol={tx.symbol}
                                         source={tx.rates}
                                         useCustomSource
@@ -169,9 +175,7 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                             }
                             fourthColumn={
                                 showFiat &&
-                                tx.details.totalOutput && (
-                                    <FiatValue amount={tx.details.totalOutput} symbol={tx.symbol} />
-                                )
+                                totalOutput && <FiatValue amount={totalOutput} symbol={tx.symbol} />
                             }
                             color="dark"
                         />
@@ -182,9 +186,7 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                 {tx.targets.length > 0 && (
                     <AmountRow
                         firstColumn={<Translation id="AMOUNT" />}
-                        secondColumn={
-                            <FormattedCryptoAmount value={tx.amount} symbol={tx.symbol} />
-                        }
+                        secondColumn={<FormattedCryptoAmount value={txAmount} symbol={tx.symbol} />}
                         thirdColumn={
                             showHistoricalRates && (
                                 <FiatValue
@@ -208,19 +210,16 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                     />
                 )}
 
-                {tx.cardanoSpecific?.withdrawal && (
+                {cardanoWithdrawal && (
                     <AmountRow
                         firstColumn={<Translation id="TR_TX_WITHDRAWAL" />}
                         secondColumn={
-                            <FormattedCryptoAmount
-                                value={tx.cardanoSpecific.withdrawal}
-                                symbol={tx.symbol}
-                            />
+                            <FormattedCryptoAmount value={cardanoWithdrawal} symbol={tx.symbol} />
                         }
                         thirdColumn={
                             showHistoricalRates && (
                                 <FiatValue
-                                    amount={tx.cardanoSpecific.withdrawal}
+                                    amount={cardanoWithdrawal}
                                     symbol={tx.symbol}
                                     source={tx.rates}
                                     useCustomSource
@@ -228,30 +227,22 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                             )
                         }
                         fourthColumn={
-                            showFiat && (
-                                <FiatValue
-                                    amount={tx.cardanoSpecific.withdrawal}
-                                    symbol={tx.symbol}
-                                />
-                            )
+                            showFiat && <FiatValue amount={cardanoWithdrawal} symbol={tx.symbol} />
                         }
                         color="light"
                     />
                 )}
 
-                {tx.cardanoSpecific?.deposit && (
+                {cardanoDeposit && (
                     <AmountRow
                         firstColumn={<Translation id="TR_TX_DEPOSIT" />}
                         secondColumn={
-                            <FormattedCryptoAmount
-                                value={tx.cardanoSpecific.deposit}
-                                symbol={tx.symbol}
-                            />
+                            <FormattedCryptoAmount value={cardanoDeposit} symbol={tx.symbol} />
                         }
                         thirdColumn={
                             showHistoricalRates && (
                                 <FiatValue
-                                    amount={tx.cardanoSpecific.deposit}
+                                    amount={cardanoDeposit}
                                     symbol={tx.symbol}
                                     source={tx.rates}
                                     useCustomSource
@@ -259,9 +250,7 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                             )
                         }
                         fourthColumn={
-                            showFiat && (
-                                <FiatValue amount={tx.cardanoSpecific.deposit} symbol={tx.symbol} />
-                            )
+                            showFiat && <FiatValue amount={cardanoDeposit} symbol={tx.symbol} />
                         }
                         color="light"
                     />
@@ -276,7 +265,7 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                         }
                         secondColumn={
                             <FormattedCryptoAmount
-                                value={t.amount}
+                                value={formatAmount(t.amount, t.decimals)}
                                 symbol={t.symbol as NetworkSymbol}
                             />
                         }
@@ -306,18 +295,18 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                 {/* TX FEE */}
                 <AmountRow
                     firstColumn={<Translation id="TR_TX_FEE" />}
-                    secondColumn={<FormattedCryptoAmount value={tx.fee} symbol={tx.symbol} />}
+                    secondColumn={<FormattedCryptoAmount value={fee} symbol={tx.symbol} />}
                     thirdColumn={
                         showHistoricalRates && (
                             <FiatValue
-                                amount={tx.fee}
+                                amount={fee}
                                 symbol={tx.symbol}
                                 source={tx.rates}
                                 useCustomSource
                             />
                         )
                     }
-                    fourthColumn={showFiat && <FiatValue amount={tx.fee} symbol={tx.symbol} />}
+                    fourthColumn={showFiat && <FiatValue amount={fee} symbol={tx.symbol} />}
                     color="light"
                 />
             </AmountWrapper>

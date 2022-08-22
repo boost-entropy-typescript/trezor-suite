@@ -3,14 +3,21 @@ import styled from 'styled-components';
 import { variables } from '@trezor/components';
 import { FiatValue, Translation, MetadataLabeling, FormattedCryptoAmount } from '@suite-components';
 import { ArrayElement } from '@trezor/type-utils';
-import { getTxOperation, getTargetAmount, isTestnet } from '@suite-common/wallet-utils';
+import {
+    getTxOperation,
+    getTargetAmount,
+    isTestnet,
+    formatAmount,
+    formatCardanoWithdrawal,
+    formatCardanoDeposit,
+} from '@suite-common/wallet-utils';
 import { WalletAccountTransaction } from '@wallet-types';
 import * as notificationActions from '@suite-actions/notificationActions';
 import { useActions } from '@suite-hooks';
 import { TokenTransferAddressLabel } from './TokenTransferAddressLabel';
 import { TargetAddressLabel } from './TargetAddressLabel';
 import { BaseTargetLayout } from './BaseTargetLayout';
-import { copyToClipboard } from '@suite-utils/dom';
+import { copyToClipboard } from '@trezor/dom-utils';
 import { AccountMetadata } from '@suite-types/metadata';
 import { ExtendedMessageDescriptor } from '@suite-types';
 
@@ -46,7 +53,7 @@ export const TokenTransfer = ({
             amount={
                 !baseLayoutProps.singleRowLayout && (
                     <StyledCryptoAmount
-                        value={transfer.amount}
+                        value={formatAmount(transfer.amount, transfer.decimals)}
                         symbol={transfer.symbol}
                         signValue={operation}
                     />
@@ -182,10 +189,12 @@ export const CustomRow = ({
 );
 
 export const FeeRow = ({
+    fee,
     transaction,
     useFiatValues,
     ...baseLayoutProps
 }: {
+    fee: string;
     transaction: WalletAccountTransaction;
     useFiatValues?: boolean;
     isFirst?: boolean;
@@ -196,7 +205,7 @@ export const FeeRow = ({
         {...baseLayoutProps}
         title="FEE"
         sign="neg"
-        amount={transaction.fee}
+        amount={fee}
         transaction={transaction}
         useFiatValues={useFiatValues}
     />
@@ -217,7 +226,7 @@ export const WithdrawalRow = ({
         {...baseLayoutProps}
         title="TR_TX_WITHDRAWAL"
         sign="pos"
-        amount={transaction.cardanoSpecific?.withdrawal ?? '0'}
+        amount={formatCardanoWithdrawal(transaction) ?? '0'}
         transaction={transaction}
         useFiatValues={useFiatValues}
     />
@@ -238,7 +247,7 @@ export const DepositRow = ({
         {...baseLayoutProps}
         title="TR_TX_DEPOSIT"
         sign="neg"
-        amount={transaction.cardanoSpecific?.deposit ?? '0'}
+        amount={formatCardanoDeposit(transaction) ?? '0'}
         transaction={transaction}
         useFiatValues={useFiatValues}
     />

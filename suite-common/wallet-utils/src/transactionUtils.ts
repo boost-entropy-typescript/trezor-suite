@@ -9,7 +9,7 @@ import {
 import { AccountMetadata } from '@suite-common/metadata-types';
 import { AccountTransaction, AccountAddress } from '@trezor/connect';
 
-import { formatAmount, formatNetworkAmount, amountToSatoshi } from './accountUtils';
+import { formatAmount, formatNetworkAmount } from './accountUtils';
 import { toFiatCurrency } from './fiatConverterUtils';
 
 export const sortByBlockHeight = (a: WalletAccountTransaction, b: WalletAccountTransaction) => {
@@ -66,6 +66,16 @@ export const groupTransactionsByDate = (
     return r;
 };
 
+export const formatCardanoWithdrawal = (tx: WalletAccountTransaction) =>
+    tx.cardanoSpecific?.withdrawal
+        ? formatNetworkAmount(tx.cardanoSpecific.withdrawal, tx.symbol)
+        : undefined;
+
+export const formatCardanoDeposit = (tx: WalletAccountTransaction) =>
+    tx.cardanoSpecific?.deposit
+        ? formatNetworkAmount(tx.cardanoSpecific.deposit, tx.symbol)
+        : undefined;
+
 /**
  * Returns a sum of sent/recv txs amounts as a BigNumber.
  * Amounts of sent transactions are added, amounts of recv transactions are subtracted
@@ -75,29 +85,34 @@ export const groupTransactionsByDate = (
 export const sumTransactions = (transactions: WalletAccountTransaction[]) => {
     let totalAmount = new BigNumber(0);
     transactions.forEach(tx => {
+        const amount = formatNetworkAmount(tx.amount, tx.symbol);
+        const fee = formatNetworkAmount(tx.fee, tx.symbol);
+
         if (tx.type === 'self') {
             // in sent to self tx all we spent is just a fee
             // (tx.amount is set to the fee in blockchain-link)
-            totalAmount = totalAmount.minus(tx.fee);
+            totalAmount = totalAmount.minus(fee);
 
-            if (tx.cardanoSpecific?.withdrawal) {
-                totalAmount = totalAmount.plus(tx.cardanoSpecific?.withdrawal);
+            const cardanoWithdrawal = formatCardanoWithdrawal(tx);
+            if (cardanoWithdrawal) {
+                totalAmount = totalAmount.plus(cardanoWithdrawal);
             }
 
-            if (tx.cardanoSpecific?.deposit) {
-                totalAmount = totalAmount.minus(tx.cardanoSpecific?.deposit);
+            const cardanoDeposit = formatCardanoDeposit(tx);
+            if (cardanoDeposit) {
+                totalAmount = totalAmount.minus(cardanoDeposit);
             }
         }
 
         if (tx.type === 'sent') {
-            totalAmount = totalAmount.minus(tx.amount);
-            totalAmount = totalAmount.minus(tx.fee);
+            totalAmount = totalAmount.minus(amount);
+            totalAmount = totalAmount.minus(fee);
         }
         if (tx.type === 'recv') {
-            totalAmount = totalAmount.plus(tx.amount);
+            totalAmount = totalAmount.plus(amount);
         }
         if (tx.type === 'failed') {
-            totalAmount = totalAmount.minus(tx.fee);
+            totalAmount = totalAmount.minus(fee);
         }
     });
     return totalAmount;
@@ -109,42 +124,39 @@ export const sumTransactionsFiat = (
 ) => {
     let totalAmount = new BigNumber(0);
     transactions.forEach(tx => {
+        const amount = formatNetworkAmount(tx.amount, tx.symbol);
+        const fee = formatNetworkAmount(tx.fee, tx.symbol);
+
         if (tx.type === 'self') {
             // in sent to self tx all we spent is just a fee
             // (tx.amount is set to the fee in blockchain-link)
-            totalAmount = totalAmount.minus(
-                toFiatCurrency(tx.fee, fiatCurrency, tx.rates, -1) ?? 0,
-            );
+            totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
 
-            if (tx.cardanoSpecific?.withdrawal) {
+            const cardanoWithdrawal = formatCardanoWithdrawal(tx);
+            if (cardanoWithdrawal) {
                 totalAmount = totalAmount.plus(
-                    toFiatCurrency(tx.cardanoSpecific.withdrawal, fiatCurrency, tx.rates, -1) ?? 0,
+                    toFiatCurrency(cardanoWithdrawal, fiatCurrency, tx.rates, -1) ?? 0,
                 );
             }
 
-            if (tx.cardanoSpecific?.deposit) {
+            const cardanoDeposit = formatCardanoDeposit(tx);
+            if (cardanoDeposit) {
                 totalAmount = totalAmount.minus(
-                    toFiatCurrency(tx.cardanoSpecific.deposit, fiatCurrency, tx.rates, -1) ?? 0,
+                    toFiatCurrency(cardanoDeposit, fiatCurrency, tx.rates, -1) ?? 0,
                 );
             }
         }
         if (tx.type === 'sent') {
             totalAmount = totalAmount.minus(
-                toFiatCurrency(tx.amount, fiatCurrency, tx.rates, -1) ?? 0,
+                toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0,
             );
-            totalAmount = totalAmount.minus(
-                toFiatCurrency(tx.fee, fiatCurrency, tx.rates, -1) ?? 0,
-            );
+            totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
         }
         if (tx.type === 'recv') {
-            totalAmount = totalAmount.plus(
-                toFiatCurrency(tx.amount, fiatCurrency, tx.rates, -1) ?? 0,
-            );
+            totalAmount = totalAmount.plus(toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0);
         }
         if (tx.type === 'failed') {
-            totalAmount = totalAmount.minus(
-                toFiatCurrency(tx.fee, fiatCurrency, tx.rates, -1) ?? 0,
-            );
+            totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
         }
     });
     return totalAmount;
@@ -349,17 +361,20 @@ export const getTargetAmount = (
     target: WalletAccountTransaction['targets'][number] | undefined,
     transaction: WalletAccountTransaction,
 ) => {
-    const validTxAmount = typeof transaction.amount === 'string' && transaction.amount !== '0';
+    const txAmount = formatNetworkAmount(transaction.amount, transaction.symbol);
+    const validTxAmount = txAmount && txAmount !== '0';
     if (!target) {
-        return validTxAmount ? transaction.amount : null;
+        return validTxAmount ? txAmount : null;
     }
 
     const sentToSelfTarget =
         (transaction.type === 'sent' || transaction.type === 'self') && target.isAccountTarget;
-    const validTargetAmount = typeof target.amount === 'string' && target.amount !== '0';
+
+    const amount = target.amount && formatNetworkAmount(target.amount, transaction.symbol);
+    const validTargetAmount = amount && amount !== '0';
     if (!sentToSelfTarget && validTargetAmount) {
         // show target amount for all non "sent to myself" targets
-        return target.amount;
+        return amount;
     }
 
     if (
@@ -368,7 +383,7 @@ export const getTargetAmount = (
         validTxAmount
     ) {
         // "sent to self" target, if it is first of its type and there are no other non-self targets show a fee
-        return transaction.amount;
+        return txAmount;
     }
 
     // "sent to self" target while other non-self targets are also present
@@ -390,11 +405,9 @@ export const isTxUnknown = (transaction: WalletAccountTransaction) => {
 export const isTxFailed = (tx: AccountTransaction | WalletAccountTransaction) =>
     !isPending(tx) && tx.ethereumSpecific?.status === 0;
 
-export const getFeeRate = (tx: AccountTransaction, decimals?: number) => {
+export const getFeeRate = (tx: AccountTransaction) =>
     // calculate fee rate, TODO: add this to blockchain-link tx details
-    const fee = typeof decimals === 'number' ? amountToSatoshi(tx.fee, decimals) : tx.fee;
-    return new BigNumber(fee).div(tx.details.size).integerValue(BigNumber.ROUND_CEIL).toString();
-};
+    new BigNumber(tx.fee).div(tx.details.size).integerValue(BigNumber.ROUND_CEIL).toString();
 
 const getEthereumRbfParams = (
     tx: AccountTransaction,
@@ -520,34 +533,6 @@ export const getRbfParams = (
 ): WalletAccountTransaction['rbfParams'] =>
     getBitcoinRbfParams(tx, account) || getEthereumRbfParams(tx, account);
 
-export const enhanceTransactionDetails = (tx: AccountTransaction, symbol: Account['symbol']) => ({
-    ...tx.details,
-    vin: tx.details.vin.map(v => ({
-        ...v,
-        value: v.value ? formatNetworkAmount(v.value, symbol) : v.value,
-    })),
-    vout: tx.details.vout.map(v => ({
-        ...v,
-        value: v.value ? formatNetworkAmount(v.value, symbol) : v.value,
-    })),
-    totalInput: formatNetworkAmount(tx.details.totalInput, symbol),
-    totalOutput: formatNetworkAmount(tx.details.totalOutput, symbol),
-});
-
-const enhanceFailedTransaction = (
-    tx: AccountTransaction,
-    _account: Account,
-): AccountTransaction => {
-    if (!isTxFailed(tx)) return tx;
-    // const address = tx.targets[0].addresses![0];
-    // TODO: find failed token in account.tokens list?
-    // TODO: try to parse smart contract data to get values (destination, amount..)
-    return {
-        ...tx,
-        type: 'failed',
-    };
-};
-
 /**
  * Formats amounts and attaches fields from the account (descriptor, deviceState, symbol) to the tx object
  *
@@ -559,7 +544,10 @@ export const enhanceTransaction = (
     origTx: AccountTransaction,
     account: Account,
 ): WalletAccountTransaction => {
-    const tx = enhanceFailedTransaction(origTx, account);
+    const tx = {
+        ...origTx,
+        type: isTxFailed(origTx) ? 'failed' : origTx.type,
+    };
     return {
         descriptor: account.descriptor,
         deviceState: account.deviceState,
@@ -570,41 +558,7 @@ export const enhanceTransaction = (
             account.networkType === 'ripple' && tx.blockTime
                 ? tx.blockTime + 946684800
                 : tx.blockTime,
-        tokens: tx.tokens.map(tok => ({
-            ...tok,
-            amount: formatAmount(tok.amount, tok.decimals),
-        })),
-        amount: formatNetworkAmount(tx.amount, account.symbol),
-        fee: formatNetworkAmount(tx.fee, account.symbol),
-        totalSpent: formatNetworkAmount(tx.totalSpent, account.symbol),
-        targets: tx.targets.map(tr => {
-            if (typeof tr.amount === 'string') {
-                return {
-                    ...tr,
-                    amount: formatNetworkAmount(tr.amount, account.symbol),
-                };
-            }
-            return tr;
-        }),
         rbfParams: getRbfParams(tx, account),
-        details: enhanceTransactionDetails(tx, account.symbol),
-        ethereumSpecific: tx.ethereumSpecific
-            ? {
-                  ...tx.ethereumSpecific,
-                  gasPrice: fromWei(tx.ethereumSpecific.gasPrice, 'gwei'),
-              }
-            : undefined,
-        cardanoSpecific: tx.cardanoSpecific
-            ? {
-                  ...tx.cardanoSpecific,
-                  withdrawal: tx.cardanoSpecific.withdrawal
-                      ? formatNetworkAmount(tx.cardanoSpecific.withdrawal, account.symbol)
-                      : undefined,
-                  deposit: tx.cardanoSpecific.deposit
-                      ? formatNetworkAmount(tx.cardanoSpecific.deposit, account.symbol)
-                      : undefined,
-              }
-            : undefined,
     };
 };
 
@@ -674,7 +628,7 @@ const groupAddressesByLabel = (accountMetadata: AccountMetadata) => {
 
 const getTargetAmounts = (transaction: WalletAccountTransaction) =>
     transaction.targets.length === 0
-        ? [transaction.amount]
+        ? [formatNetworkAmount(transaction.amount, transaction.symbol)]
         : transaction.targets.flatMap(target => getTargetAmount(target, transaction) || []);
 
 const searchOperators = ['<', '>', '=', '!='] as const;
