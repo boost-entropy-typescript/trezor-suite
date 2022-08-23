@@ -9,11 +9,11 @@ const result = await TrezorConnect.nemGetAddress(params);
 
 ### Params
 
-[\***\*Optional common params\*\***](commonParams.md)
+[Optional common params](commonParams.md)
 
 #### Exporting single address
 
--   `path` — _required_ `string | Array<number>` minimum length is `3`. [read more](path.md)
+-   `path` — _required_ `string | Array<number>` minimum length is `3`. [read more](../path.md)
 -   `address` — _optional_ `string` address for validation (read `Handle button request` section below)
 -   `network` — _optional_ `number` `0x68` - Mainnet, `0x96` - Testnet, `0x60` - Mijin. Default is set to `Mainnet`
 -   `showOnTrezor` — _optional_ `boolean` determines if address will be displayed on device. Default is set to `true`
@@ -76,6 +76,8 @@ const result = await TrezorConnect.nemGetAddress({
 ```
 
 ### Result
+
+[Address type](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/params.ts)
 
 Result with only one address
 

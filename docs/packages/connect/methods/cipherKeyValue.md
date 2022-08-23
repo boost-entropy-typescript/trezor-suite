@@ -10,13 +10,13 @@ const result = await TrezorConnect.cipherKeyValue(params);
 
 ### Params
 
-[\***\*Optional common params\*\***](commonParams.md)
-<br>
+[Optional common params](commonParams.md)
+
 Common parameter `useEmptyPassphrase` - is always set to `true` and it will be ignored by this method
 
 #### Encrypt single value
 
--   `path` — _required_ `string | Array<number>` minimum length is `1`. [read more](path.md)
+-   `path` — _required_ `string | Array<number>` minimum length is `1`. [read more](../path.md)
 -   `key` — _optional_ `string` a message shown on device
 -   `value` — _optional_ `string` hexadecimal value with length a multiple of 16 bytes (32 letters in hexadecimal). Value is what is actually being encrypted.
 -   `askOnEncrypt` - _optional_ `boolean` should user confirm encrypt?
@@ -65,6 +65,8 @@ TrezorConnect.cipherKeyValue({
 ```
 
 ### Result
+
+[CipheredValue type](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/api/cipherKeyValue.ts)
 
 Result with only one value
 

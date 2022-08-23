@@ -9,11 +9,11 @@ const result = await TrezorConnect.tezosGetPublicKey(params);
 
 ### Params
 
-[\***\*Optional common params\*\***](commonParams.md)
+[Optional common params](commonParams.md)
 
 #### Exporting single public key
 
--   `path` — _required_ `string | Array<number>` minimum length is `3`. [read more](path.md)
+-   `path` — _required_ `string | Array<number>` minimum length is `3`. [read more](../path.md)
 -   `showOnTrezor` — _optional_ `boolean` determines if public key will be displayed on device.
 
 #### Exporting bundle of public keys
@@ -43,6 +43,8 @@ TrezorConnect.tezosGetPublicKey({
 ```
 
 ### Result
+
+[PublicKey type](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/params.ts)
 
 Result with only one public key
 
