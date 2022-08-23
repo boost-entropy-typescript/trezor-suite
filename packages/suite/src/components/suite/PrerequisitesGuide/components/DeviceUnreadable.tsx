@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Button } from '@trezor/components';
 import { desktopApi } from '@trezor/suite-desktop-api';
 import { isLinux, isDesktop } from '@suite-utils/env';
@@ -15,11 +14,6 @@ import {
 import { useActions } from '@suite-hooks';
 import * as notificationActions from '@suite-actions/notificationActions';
 import type { TrezorDevice } from '@suite-types';
-
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
 
 // linux web
 const UdevWeb = () => (
@@ -37,45 +31,53 @@ const UdevWeb = () => (
                 description: <UdevDownload />,
             },
         ]}
+        data-test="@connect-device-prompt/unreadable-udev"
     />
 );
 
 // linux desktop
 const UdevDesktop = () => {
+    const [response, setResponse] = useState(-1);
+
     const { addToast } = useActions({
         addToast: notificationActions.addToast,
     });
-    const [response, setResponse] = useState(-1);
+
+    const handleCtaClick = async (event: React.MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const resp = await desktopApi.installUdevRules();
+
+        if (resp?.success) {
+            setResponse(1);
+        } else {
+            addToast({
+                type: 'error',
+                error: resp?.error || 'desktopApi not available',
+            });
+
+            setResponse(0);
+        }
+    };
+
     if (response === 1) {
         return (
             <TroubleshootingTips
                 opened={false}
                 label={<Translation id="TR_RECONNECT_IN_NORMAL" />}
                 items={[]}
+                data-test="@connect-device-prompt/unreadable-udev"
             />
         );
     }
+
     return (
         <TroubleshootingTips
             opened={response === 0}
             label={<Translation id="TR_TROUBLESHOOTING_UNREADABLE_UDEV" />}
             cta={
-                <Button
-                    onClick={async event => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        const resp = await desktopApi.installUdevRules();
-                        if (resp?.success) {
-                            setResponse(1);
-                        } else {
-                            addToast({
-                                type: 'error',
-                                error: resp?.error || 'desktopApi not available',
-                            });
-                            setResponse(0);
-                        }
-                    }}
-                >
+                <Button onClick={handleCtaClick}>
                     <Translation id="TR_TROUBLESHOOTING_UDEV_INSTALL_TITLE" />
                 </Button>
             }
@@ -91,6 +93,7 @@ const UdevDesktop = () => {
                     noBullet: true,
                 },
             ]}
+            data-test="@connect-device-prompt/unreadable-udev"
         />
     );
 };
@@ -101,46 +104,39 @@ interface DeviceUnreadableProps {
 }
 
 // We don't really know what happened, show some generic help and provide link to contact a support
-const DeviceUnreadable = ({ device, isWebUsbTransport }: DeviceUnreadableProps) => {
+export const DeviceUnreadable = ({ device, isWebUsbTransport }: DeviceUnreadableProps) => {
     if (isWebUsbTransport) {
         // only install bridge will help (webusb + HID device)
         return (
-            <Wrapper data-test="@connect-device-prompt/unreadable-hid">
-                <TroubleshootingTips
-                    label={<Translation id="TR_TROUBLESHOOTING_UNREADABLE_WEBUSB" />}
-                    items={[TROUBLESHOOTING_TIP_BRIDGE_STATUS, TROUBLESHOOTING_TIP_BRIDGE_INSTALL]}
-                    offerWebUsb
-                />
-            </Wrapper>
+            <TroubleshootingTips
+                label={<Translation id="TR_TROUBLESHOOTING_UNREADABLE_WEBUSB" />}
+                items={[TROUBLESHOOTING_TIP_BRIDGE_STATUS, TROUBLESHOOTING_TIP_BRIDGE_INSTALL]}
+                offerWebUsb
+                data-test="@connect-device-prompt/unreadable-hid"
+            />
         );
     }
+
     // this error is dispatched by trezord when udev rules are missing
     if (isLinux() && device?.error === 'LIBUSB_ERROR_ACCESS') {
-        return (
-            <Wrapper data-test="@connect-device-prompt/unreadable-udev">
-                {isDesktop() ? <UdevDesktop /> : <UdevWeb />}
-            </Wrapper>
-        );
+        return <> {isDesktop() ? <UdevDesktop /> : <UdevWeb />}</>;
     }
 
     return (
-        <Wrapper data-test="@connect-device-prompt/unreadable-unknown">
-            <TroubleshootingTips
-                label={
-                    <Translation
-                        id="TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN"
-                        values={{ error: device?.error }}
-                    />
-                }
-                items={[
-                    TROUBLESHOOTING_TIP_CABLE,
-                    TROUBLESHOOTING_TIP_USB,
-                    TROUBLESHOOTING_TIP_DIFFERENT_COMPUTER,
-                ]}
-                offerWebUsb={isWebUsbTransport}
-            />
-        </Wrapper>
+        <TroubleshootingTips
+            label={
+                <Translation
+                    id="TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN"
+                    values={{ error: device?.error }}
+                />
+            }
+            items={[
+                TROUBLESHOOTING_TIP_CABLE,
+                TROUBLESHOOTING_TIP_USB,
+                TROUBLESHOOTING_TIP_DIFFERENT_COMPUTER,
+            ]}
+            offerWebUsb={isWebUsbTransport}
+            data-test="@connect-device-prompt/unreadable-unknown"
+        />
     );
 };
-
-export default DeviceUnreadable;

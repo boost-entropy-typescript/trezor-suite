@@ -1,77 +1,64 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled, { css } from 'styled-components';
-import { animated, useSpring } from 'react-spring';
+import { motion, Variants } from 'framer-motion';
 import Text from '@onboarding-components/Text';
 import { Translation } from '@suite-components';
-import { H1, variables, Button, Image, ImageProps, useTheme } from '@trezor/components';
+import { H1, variables, Button, Image, useTheme, ImageType } from '@trezor/components';
 import useMeasure from 'react-use/lib/useMeasure';
+import { transitionEase } from '@suite-config/animation';
+import { useLayoutSize } from '@suite-hooks/useLayoutSize';
 
 const BoxWrapper = styled(
     ({ variant, withImage, disablePadding, expanded, expandable, nested, ...rest }) => (
-        <animated.div {...rest} />
+        <motion.div {...rest} />
     ),
 )<{
-    variant?: Props['variant'];
+    variant?: BoxProps['variant'];
     withImage?: boolean;
-    expanded?: Props['expanded'];
-    expandable?: Props['expandable'];
+    expanded?: BoxProps['expanded'];
+    expandable?: BoxProps['expandable'];
 }>`
     position: relative;
-    padding: ${props => (props.variant === 'large' ? '40px 80px' : '20px 30px')};
-    width: ${props => (props.variant === 'large' ? '100%' : 'auto')};
+    padding: ${({ variant }) => (variant === 'large' ? '40px 80px' : '20px 30px')};
+    width: ${({ variant }) => (variant === 'large' ? '100%' : 'auto')};
     border-radius: 16px;
-    background: ${props => props.theme.BG_WHITE};
+    background: ${({ theme }) => theme.BG_WHITE};
     z-index: ${variables.Z_INDEX.BASE};
+    cursor: ${({ expanded }) => !expanded && 'pointer'};
 
-    @media all and (max-width: ${variables.SCREEN_SIZE.LG}) {
-        padding-left: ${props => (props.variant === 'large' ? '40px' : '30px')};
-        padding-right: ${props => (props.variant === 'large' ? '40px' : '30px')};
-        padding-bottom: ${props => (props.variant === 'large' && props.expanded ? '40px' : '20px')};
+    ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
+        padding-left: ${({ variant }) => (variant === 'large' ? '40px' : '30px')};
+        padding-right: ${({ variant }) => (variant === 'large' ? '40px' : '30px')};
+        padding-bottom: ${({ variant }) => (variant === 'large' ? '40px' : '20px')};
     }
 
-    @media (max-width: ${variables.SCREEN_SIZE.SM}) {
+    ${variables.SCREEN_QUERY.MOBILE} {
         padding-left: 20px;
         padding-right: 20px;
     }
 
-    ${props =>
-        !props.nested &&
+    ${({ nested, theme }) =>
+        !nested &&
         css`
-            box-shadow: 0 2px 5px 0 ${props => props.theme.BOX_SHADOW_BLACK_20};
+            box-shadow: 0 2px 5px 0 ${theme.BOX_SHADOW_BLACK_20};
         `}
 
-    ${props =>
-        props.withImage &&
+    ${({ withImage }) =>
+        withImage &&
         css`
             margin-top: 50px;
             padding-top: 80px;
         `}
-    ${props =>
-        props.variant === 'small' &&
+
+    ${({ variant }) =>
+        variant === 'small' &&
         css`
             max-width: 550px;
         `}
-    ${props =>
-        props.expandable &&
-        (props.expanded
-            ? css`
-                  padding-top: 57px;
-              `
-            : css`
-                  background: ${props.theme.BG_GREY};
-                  box-shadow: none;
-                  border-radius: 10px;
-                  cursor: pointer;
-                  padding: 22px 25px 19px 36px;
-              `)}
 `;
 
 const BoxWrapperInner = styled.div<{ expandable: boolean }>`
-    ${props =>
-        props.expandable &&
-        css`
-            overflow: hidden;
-        `}
+    overflow: ${({ expandable }) => expandable && 'hidden'};
 `;
 
 const BoxImageWrapper = styled.div`
@@ -94,7 +81,7 @@ const ChildrenWrapper = styled.div`
 const Heading = styled(H1)<{ withDescription?: boolean }>`
     font-size: 28px;
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-    margin-bottom: ${props => (props.withDescription ? '16px' : '36px')};
+    margin-bottom: ${({ withDescription }) => (withDescription ? '16px' : '36px')};
     text-align: center;
 `;
 
@@ -102,19 +89,12 @@ const Description = styled.div<{ hasChildren?: boolean }>`
     padding: 0px 60px 36px 60px;
     text-align: center;
 
-    ${props =>
-        props.hasChildren &&
-        css`
-            /* border-bottom: 1px solid ${props => props.theme.STROKE_GREY}; */
-            /* margin-bottom: 32px; */
-        `}
-
-    @media only screen and (max-width: ${variables.SCREEN_SIZE.MD}) {
+    ${variables.SCREEN_QUERY.BELOW_TABLET} {
         padding: 0px 0px 36px 0px;
     }
 `;
 
-const ExpandableBox = styled(animated.div)`
+const ExpandableBox = styled(motion.div)`
     text-align: left;
     display: flex;
     align-items: center;
@@ -122,14 +102,14 @@ const ExpandableBox = styled(animated.div)`
 `;
 
 const HeadingExpandable = styled.div`
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     flex: 1;
 `;
 
 const Tag = styled.div`
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     text-transform: uppercase;
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
@@ -142,8 +122,8 @@ const CloseButton = styled(Button)`
     right: 16px;
 `;
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    image?: Extract<ImageProps, { image: any }>['image'];
+export interface BoxProps extends React.HTMLAttributes<HTMLDivElement> {
+    image?: ImageType;
     variant?: 'small' | 'large';
     expandable?: boolean;
     expanded?: boolean;
@@ -155,7 +135,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     children?: React.ReactNode;
 }
 
-const Box = ({
+export const Box = ({
     heading,
     description,
     image,
@@ -168,20 +148,65 @@ const Box = ({
     nested,
     onToggle = () => undefined,
     ...rest
-}: Props) => {
+}: BoxProps) => {
     const theme = useTheme();
     const [heightRef, { height }] = useMeasure<HTMLDivElement>();
-    const springExpandableBox = useSpring({
-        from: { opacity: 0 },
-        to: { background: expanded ? theme.BG_WHITE : theme.BG_GREY, opacity: 1 },
-    });
-    const expandedStyles = useSpring({
-        from: { opacity: 0, height: 0 },
-        to: {
-            opacity: expandable && expanded ? 1 : 0,
-            height: expandable && expanded ? height + 0 : 0,
-        },
-    });
+    const { isMobileLayout, layoutSize } = useLayoutSize();
+
+    const wrapperVariants = useMemo<Variants>(() => {
+        let padding;
+
+        if (variant === 'large' && !isMobileLayout) {
+            if (layoutSize === 'NORMAL') {
+                padding = '40px 40px 40px 40px';
+            } else {
+                padding = '40px 80px 40px 80px';
+            }
+        } else {
+            padding = '20px 30px 20px 30px';
+        }
+
+        return {
+            closed: {
+                background: theme.BG_GREY,
+                boxShadow: 'rgba(0, 0, 0, 0) 0px 2px 5px 0px',
+                borderRadius: 10,
+                padding: '16px 26px 16px 26px',
+            },
+            expanded: {
+                background: theme.BG_WHITE,
+                borderRadius: 16,
+                padding,
+            },
+        };
+    }, [theme, variant, isMobileLayout, layoutSize]);
+
+    const headerVariants = useMemo<Variants>(
+        () => ({
+            closed: {
+                opacity: 1,
+            },
+            expanded: {
+                opacity: 0,
+            },
+        }),
+        [],
+    );
+
+    const animationVariants = useMemo<Variants>(
+        () => ({
+            closed: {
+                opacity: 0,
+                height: 0,
+            },
+            expanded: {
+                opacity: 1,
+                height,
+            },
+        }),
+        [height],
+    );
+
     return (
         <BoxWrapper
             expanded={expanded}
@@ -189,47 +214,61 @@ const Box = ({
             variant={variant}
             withImage={!!image}
             className={className}
-            style={springExpandableBox}
             nested={nested}
+            variants={expandable ? wrapperVariants : undefined}
+            animate={expanded ? 'expanded' : 'closed'}
+            transition={{ duration: 0.4, ease: transitionEase }}
             onClick={expandable && !expanded ? onToggle : undefined}
             data-test="@onboarding/box-animated"
             {...rest}
         >
             <BoxWrapperInner expandable={expandable}>
-                {expandable && !expanded && (
-                    <ExpandableBox>
+                {expandable && (
+                    <ExpandableBox
+                        variants={headerVariants}
+                        animate={expanded ? 'expanded' : 'closed'}
+                        transition={{ duration: 0.2, ease: 'linear' }}
+                    >
                         {expandableIcon}
+
                         <HeadingExpandable>{heading}</HeadingExpandable>
+
                         <Tag>
                             <Translation id="TR_ONBOARDING_ADVANCED" />
                         </Tag>
                     </ExpandableBox>
                 )}
-                <animated.div style={expandable ? expandedStyles : {}}>
+
+                <motion.div
+                    variants={expandable ? animationVariants : undefined}
+                    animate={expanded ? 'expanded' : 'closed'}
+                    transition={{ duration: 0.4, ease: transitionEase }}
+                >
                     <div ref={heightRef}>
                         {expandable && expanded && (
                             <CloseButton variant="tertiary" onClick={() => onToggle()}>
                                 <Translation id="TR_CLOSE" />
                             </CloseButton>
                         )}
+
                         {heading && <Heading withDescription={!!description}>{heading}</Heading>}
+
                         {description && (
                             <Description hasChildren={!!children}>
                                 <Text>{description}</Text>
                             </Description>
                         )}
+
                         {image && (
                             <BoxImageWrapper>
                                 <Image width={100} height={100} image={image} />
                             </BoxImageWrapper>
                         )}
+
                         <ChildrenWrapper>{children}</ChildrenWrapper>
                     </div>
-                </animated.div>
+                </motion.div>
             </BoxWrapperInner>
         </BoxWrapper>
     );
 };
-
-export default Box;
-export type { Props as BoxProps };

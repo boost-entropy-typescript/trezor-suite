@@ -11,14 +11,20 @@ import { getConnectedDeviceStatus } from '@suite-utils/device';
 import type { TrezorDevice } from '@suite-types';
 
 // todo: these should be replaced
-import NoTransport from './components/NoTransport';
-import NoDeviceDetected from './components/NoDeviceDetected';
-import UnexpectedDeviceState from './components/UnexpectedDeviceState';
+import { NoTransport } from './components/NoTransport';
+import { NoDeviceDetected } from './components/NoDeviceDetected';
+import { UnexpectedDeviceState } from './components/UnexpectedDeviceState';
+import { motion } from 'framer-motion';
+import { enterEase } from '@suite-config/animation';
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+`;
+
+const ContentWrapper = styled(motion.div)`
+    display: flex;
 `;
 
 interface ConnectDevicePromptManagerProps {
@@ -34,7 +40,10 @@ interface ConnectDevicePromptManagerProps {
  *  2. Device not detected
  *  3. Device in unexpected state (unreadable, seedless, in bootloader)
  */
-const ConnectDevicePromptManager = ({ device, children }: ConnectDevicePromptManagerProps) => {
+export const ConnectDevicePromptManager = ({
+    device,
+    children,
+}: ConnectDevicePromptManagerProps) => {
     const { transport } = useSelector(state => ({
         transport: state.suite.transport,
     }));
@@ -74,9 +83,14 @@ const ConnectDevicePromptManager = ({ device, children }: ConnectDevicePromptMan
                 connected={isDetectingDevice}
                 showWarning={deviceInUnexpectedState}
             />
-            {content ?? children}
+
+            <ContentWrapper
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5, ease: enterEase }}
+            >
+                {content ?? children}
+            </ContentWrapper>
         </Wrapper>
     );
 };
-
-export default ConnectDevicePromptManager;
