@@ -8,6 +8,7 @@ import {
     findTransactions,
     formatData,
     getAccountTransactions,
+    getExportedFileName,
     isTrezorConnectBackendType,
 } from '@suite-common/wallet-utils';
 import TrezorConnect from '@trezor/connect';
@@ -124,9 +125,6 @@ export const addFakePendingTxThunk = createThunk(
     },
 );
 
-// Note: This was not moved to suite-common due browser API that wouldn't work on mobile right now
-// (rest of the actions will be found in suite-common/wallet-core/transactions)
-
 export const exportTransactionsThunk = createThunk(
     `${modulePrefix}/exportTransactions`,
     async (
@@ -141,9 +139,10 @@ export const exportTransactionsThunk = createThunk(
         },
         { getState, extra },
     ) => {
-        const { utils } = extra;
+        const { utils, selectors } = extra;
         // Get state of transactions
         const allTransactions = selectTransactions(getState());
+        const localCurrency = selectors.selectLocalCurrency(getState());
         const transactions = getAccountTransactions(
             account.key,
             allTransactions,
@@ -162,10 +161,13 @@ export const exportTransactionsThunk = createThunk(
             accountName,
             type,
             transactions,
+            localCurrency,
         });
 
         // Save file
-        utils.saveAs(data, `export-${account.symbol}-${+new Date()}.${type}`);
+        const fileName = getExportedFileName(accountName, type);
+
+        utils.saveAs(data, fileName);
     },
 );
 
