@@ -132,16 +132,6 @@ export const isSelectedDevice = (selected?: TrezorDevice | Device, device?: Trez
 
 export const isDeviceInBootloader = (device?: KnownDevice) => !!device?.features.bootloader_mode;
 
-export const isDeviceBitcoinOnly = (device: TrezorDevice | Device) => {
-    const { features } = device;
-    return !!(
-        features &&
-        features.capabilities &&
-        features.capabilities.length > 0 &&
-        !features.capabilities.includes('Capability_Bitcoin_like')
-    );
-};
-
 export const getDeviceModel = (device: TrezorDevice): 'T' | '1' => {
     const { features } = device;
     return features && features.major_version > 1 ? 'T' : '1';
@@ -183,7 +173,9 @@ export const getFwType = (device: KnownDevice) => {
     if (isDeviceInBootloader(device)) {
         return '';
     }
-    return isDeviceBitcoinOnly(device) ? FirmwareType.BitcoinOnly : FirmwareType.Universal;
+    return device.firmwareType === 'bitcoin-only'
+        ? FirmwareType.BitcoinOnly
+        : FirmwareType.Universal;
 };
 
 export const supportIntermediary = (features: TrezorDevice['features']) =>
@@ -397,10 +389,11 @@ export const getFirstDeviceInstance = (devices: TrezorDevice[]) =>
         }, [] as TrezorDevice[])
         .sort(sortByPriority);
 
-export const getPhysicalDeviceCount = (devices: Device[]) => {
-    const uniqueIds = new Set(devices.map(d => d.id));
-    return uniqueIds.size;
-};
+export const getPhysicalDeviceUniqueIds = (devices: Device[]) =>
+    [...new Set(devices.map(d => d.id))].filter(id => id) as string[];
+
+export const getPhysicalDeviceCount = (devices: Device[]) =>
+    getPhysicalDeviceUniqueIds(devices).length;
 
 export const parseFirmwareChangelog = (
     features: TrezorDevice['features'],

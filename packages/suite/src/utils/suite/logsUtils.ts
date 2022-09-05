@@ -3,7 +3,7 @@ import { DISCOVERY } from '@wallet-actions/constants';
 import { SUITE } from '@suite-actions/constants';
 import { DEVICE, Device } from '@trezor/connect';
 import { LogEntry } from '@suite-reducers/logsReducer';
-import { AppState } from '@suite-types';
+import { AppState, TrezorDevice } from '@suite-types';
 import { getCustomBackends } from '@suite-common/wallet-utils';
 import { getEnvironment, getOsName } from '@suite-utils/env';
 import {
@@ -20,8 +20,19 @@ import { getIsTorEnabled } from '@suite-utils/tor';
 import { DeepPartial } from '@trezor/type-utils';
 import { accountsActions } from '@suite-common/wallet-core';
 import { isAnyOf } from '@reduxjs/toolkit';
+import {
+    getBootloaderHash,
+    getBootloaderVersion,
+    getDeviceModel,
+    getFwRevision,
+    getFwType,
+    getFwVersion,
+    getPhysicalDeviceUniqueIds,
+} from './device';
 
 export const REDACTED_REPLACEMENT = '[redacted]';
+
+export const startTime = new Date().toUTCString();
 
 export const prettifyLog = (json: Record<any, any>) => JSON.stringify(json, null, 2);
 
@@ -153,10 +164,11 @@ export const getApplicationLog = (log: LogEntry[], redactSensitiveData = false) 
         };
     });
 
-export const getApplicationInfo = (state: AppState) => ({
+export const getApplicationInfo = (state: AppState, hideSensitiveInfo: boolean) => ({
     environment: getEnvironment(),
     suiteVersion: process.env.VERSION || '',
     commitHash: process.env.COMMITHASH || '',
+    startTime,
     isDev: !process.env.CODESIGN_BUILD,
     debugMenu: state.suite.settings.debug.showDebugMenu,
     online: state.suite.online,
@@ -180,12 +192,25 @@ export const getApplicationInfo = (state: AppState) => ({
     torOnionLinks: state.suite.settings.torOnionLinks,
     labeling: state.metadata.enabled ? state.metadata.provider?.type || 'missing-provider' : '',
     analytics: state.analytics.enabled,
+    instanceId: hideSensitiveInfo ? REDACTED_REPLACEMENT : state.analytics.instanceId,
+    sessionId: hideSensitiveInfo ? REDACTED_REPLACEMENT : state.analytics.sessionId,
     transport: state.suite.transport?.type,
     transportVersion: state.suite.transport?.version,
     wallets: state.devices.length,
-    devices: [...new Set(state.devices.map(device => device.id))].length,
     rememberedStandardWallets: state.devices.filter(d => d.remember && d.useEmptyPassphrase).length,
     rememberedHiddenWallets: state.devices.filter(d => d.remember && !d.useEmptyPassphrase).length,
     enabledNetworks: state.wallet.settings.enabledNetworks,
     customBackends: getCustomBackends(state.wallet.blockchain).map(({ coin }) => coin),
+    devices: getPhysicalDeviceUniqueIds(state.devices)
+        .map(id => state.devices.find(device => device.id === id) as TrezorDevice) // filter unique devices
+        .map(device => ({
+            id: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.id,
+            label: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.label,
+            model: getDeviceModel(device),
+            firmware: device.features ? getFwVersion(device) : '',
+            firmwareRevision: device.features ? getFwRevision(device) : '',
+            firmwareType: device.features ? getFwType(device) : '',
+            bootloader: device.features ? getBootloaderVersion(device) : '',
+            bootloaderHash: device.features ? getBootloaderHash(device) : '',
+        })),
 });
