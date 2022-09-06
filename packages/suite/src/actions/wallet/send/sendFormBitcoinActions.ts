@@ -149,17 +149,8 @@ export const composeTransaction =
         Object.keys(wrappedResponse).forEach(key => {
             const tx = wrappedResponse[key];
             if (tx.type !== 'error') {
-                if (formValues.selectedFee === 'custom' && key === 'custom') {
-                    // calculated/real feeePerByte may be slightly higher that requested
-                    // example: spending dust limit, chained txs in rbf...
-                    // override calculated value
-                    tx.feePerByte = formValues.feePerUnit;
-                } else {
-                    // make sure that feePerByte is an integer (@trezor/connect may return float)
-                    tx.feePerByte = new BigNumber(tx.feePerByte)
-                        .integerValue(BigNumber.ROUND_FLOOR)
-                        .toString();
-                }
+                // round to
+                tx.feePerByte = new BigNumber(tx.feePerByte).decimalPlaces(2).toString();
                 if (typeof tx.max === 'string') {
                     tx.max = isSatoshis ? tx.max : formatNetworkAmount(tx.max, account.symbol);
                 }
