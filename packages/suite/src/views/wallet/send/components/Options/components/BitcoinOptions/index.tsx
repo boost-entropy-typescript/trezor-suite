@@ -6,7 +6,8 @@ import { Button, Tooltip } from '@trezor/components';
 import { useSendFormContext } from '@wallet-hooks';
 import { isFeatureFlagEnabled } from '@suite-common/suite-utils';
 import { OpenGuideFromTooltip } from '@guide-components';
-import Locktime from './components/Locktime';
+import { Locktime } from './components/Locktime';
+import { CoinControl } from './components/CoinControl';
 
 const Wrapper = styled.div`
     display: flex;
@@ -40,11 +41,12 @@ const StyledButton = styled(Button)`
     margin: 4px 8px 4px 0px;
 `;
 
-const BitcoinOptions = () => {
+export const BitcoinOptions = () => {
     const {
         network,
         addOutput,
         getDefaultValue,
+        isCoinControlEnabled,
         toggleOption,
         composeTransaction,
         resetDefaultValue,
@@ -53,6 +55,7 @@ const BitcoinOptions = () => {
     const options = getDefaultValue('options', []);
     const locktimeEnabled = options.includes('bitcoinLockTime');
     const rbfEnabled = options.includes('bitcoinRBF');
+    const utxoSelectionEnabled = options.includes('utxoSelection');
     const broadcastEnabled = options.includes('broadcast');
 
     return (
@@ -65,6 +68,15 @@ const BitcoinOptions = () => {
                         if (!rbfEnabled) toggleOption('bitcoinRBF');
                         if (!broadcastEnabled) toggleOption('broadcast');
                         toggleOption('bitcoinLockTime');
+                        composeTransaction();
+                    }}
+                />
+            )}
+            {utxoSelectionEnabled && (
+                <CoinControl
+                    close={() => {
+                        resetDefaultValue('utxoSelection');
+                        toggleOption('utxoSelection');
                         composeTransaction();
                     }}
                 />
@@ -137,6 +149,31 @@ const BitcoinOptions = () => {
                             <OnOffSwitcher isOn={broadcastEnabled} />
                         </StyledButton>
                     </Tooltip>
+                    {!utxoSelectionEnabled && (
+                        <Tooltip
+                            guideAnchor={instance => (
+                                <OpenGuideFromTooltip
+                                    id="/suite-basics/coin-control.md"
+                                    instance={instance}
+                                />
+                            )}
+                            content={<Translation id="TR_COIN_CONTROL_TOOLTIP" />}
+                            cursor="pointer"
+                        >
+                            <StyledButton
+                                variant="tertiary"
+                                icon="COIN_CONTROL"
+                                onClick={() => {
+                                    // open additional form
+                                    toggleOption('utxoSelection');
+                                    composeTransaction();
+                                }}
+                            >
+                                <Translation id="TR_COIN_CONTROL" />
+                                {isCoinControlEnabled && <OnOffSwitcher isOn />}
+                            </StyledButton>
+                        </Tooltip>
+                    )}
                 </Left>
                 <Right>
                     <AddRecipientButton
@@ -152,5 +189,3 @@ const BitcoinOptions = () => {
         </Wrapper>
     );
 };
-
-export default BitcoinOptions;

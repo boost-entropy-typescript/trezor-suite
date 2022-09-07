@@ -6,11 +6,9 @@ import { useActions, useDiscovery, useSelector } from '@suite-hooks';
 import * as metadataActions from '@suite-actions/metadataActions';
 import { MetadataAddPayload } from '@suite-types/metadata';
 import { Translation } from '@suite-components';
-
 import { Props, ExtendedProps, DropdownMenuItem } from './definitions';
 import { withEditable } from './withEditable';
 import { withDropdown } from './withDropdown';
-
 import type { Timeout } from '@trezor/type-utils';
 
 const LabelValue = styled.div`
@@ -30,7 +28,7 @@ const LabelDefaultValue = styled(LabelValue)`
     ::before {
         content: '|';
         font-size: 14px;
-        line-height: 12px;
+        line-height: 14px;
         margin: 0 6px;
         opacity: 0.25;
     }
@@ -49,16 +47,16 @@ const LabelButton = styled(Button)`
 `;
 
 const ActionButton = styled(Button)<{ isVisible?: boolean }>`
-    visibility: ${props => (props.isVisible ? 'visible' : 'hidden')};
+    margin-left: ${({ isVisible }) => !isVisible && '14px'};
+    visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
     /* hack to keep button in place to prevent vertical jumping (if used display: none) */
-    width: ${props => (props.isVisible ? 'auto' : '0')};
-    margin-left: 14px;
+    width: ${({ isVisible }) => (isVisible ? 'auto' : '0')};
 `;
 
 const SuccessButton = styled(Button)`
     cursor: wait;
+    margin-left: 12px;
     width: auto;
-    margin-left: 14px;
     background-color: ${props => props.theme.BG_LIGHT_GREEN};
     color: ${props => props.theme.BG_GREEN};
     :hover {
@@ -90,10 +88,12 @@ const LabelContainer = styled.div`
 `;
 
 const RelativeButton = styled(Button)`
+    padding-bottom: 4px;
+    padding-top: 4px;
     position: relative;
 `;
 
-const RelativeLabel = styled(Label)`
+const RelativeLabel = styled(Label)<{ isVisible?: boolean }>`
     position: relative;
 `;
 
@@ -218,7 +218,6 @@ export const MetadataLabeling = (props: Props) => {
     const actionButtonsDisabled = isDiscoveryRunning || pending;
     const isSubscribedToSubmitResult = useRef(props.payload.defaultValue);
     let timeout: Timeout | undefined;
-
     useEffect(() => {
         setPending(false);
         setShowSuccess(false);
@@ -299,6 +298,10 @@ export const MetadataLabeling = (props: Props) => {
 
     const labelContainerDatatest = `${dataTestBase}/hover-container`;
 
+    // should "add label"/"edit label" button be visible
+    const showActionButton = labelingPossible && !showSuccess && !editActive;
+    const isVisible = pending || props.visible;
+
     // metadata is still initiating, on hover, show only disabled button with spinner
     if (metadata.initiating)
         return (
@@ -309,9 +312,6 @@ export const MetadataLabeling = (props: Props) => {
                 </ActionButton>
             </LabelContainer>
         );
-
-    // should "add label"/"edit label" button be visible
-    const showActionButton = labelingPossible && !showSuccess && !editActive;
 
     // should "add label"/"edit label" button for output label be visible
     // special case here. It should not be visible if metadata label already exists (props.payload.value) because
@@ -335,7 +335,6 @@ export const MetadataLabeling = (props: Props) => {
                         {...props}
                         dropdownOptions={dropdownItems}
                     />
-
                     {showOutputLabelActionButton && (
                         <ActionButton
                             data-test={`${dataTestBase}/add-label-button`}
@@ -343,7 +342,7 @@ export const MetadataLabeling = (props: Props) => {
                             icon={!actionButtonsDisabled ? 'TAG' : undefined}
                             isLoading={actionButtonsDisabled}
                             isDisabled={actionButtonsDisabled}
-                            isVisible={pending || props.visible}
+                            isVisible={isVisible}
                             onClick={e => {
                                 e.stopPropagation();
                                 // by clicking on add label button, metadata.editing field is set
@@ -376,7 +375,7 @@ export const MetadataLabeling = (props: Props) => {
                             icon={!actionButtonsDisabled ? 'TAG' : undefined}
                             isLoading={actionButtonsDisabled}
                             isDisabled={actionButtonsDisabled}
-                            isVisible={pending || props.visible}
+                            isVisible={isVisible}
                             onClick={e => {
                                 e.stopPropagation();
                                 activateEdit();

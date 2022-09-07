@@ -303,13 +303,13 @@ const preparePdf = (data: Data): TDocumentDefinitions => {
                         fontSize: 18,
                         bold: true,
                         alignment: 'left',
-                        margin: [50, 12, 0, 0],
+                        margin: [39, 12, 0, 0],
                     },
                     {
                         image: `data:image/png;base64,${trezorLogo}`,
                         width: 140,
                         alignment: 'right',
-                        margin: [0, 10, 30, 0],
+                        margin: [0, 10, 25, 0],
                     },
                 ],
             },
@@ -325,6 +325,7 @@ const preparePdf = (data: Data): TDocumentDefinitions => {
         content: [
             {
                 table: {
+                    widths: [45, 30, 290, 65, 203, 65],
                     headerRows: 1,
                     body: [fieldValues, ...lines],
                 },

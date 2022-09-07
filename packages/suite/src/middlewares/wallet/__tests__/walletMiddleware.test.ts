@@ -4,12 +4,13 @@ import { configureStore } from '@suite/support/tests/configureStore';
 import { accountsReducer, blockchainReducer } from '@wallet-reducers';
 import walletSettingsReducer from '@wallet-reducers/settingsReducer';
 import walletMiddleware from '@wallet-middlewares/walletMiddleware';
-import { blockchainMiddleware } from '@suite-common/wallet-core';
+import { prepareBlockchainMiddleware } from '@suite-common/wallet-core';
 import * as fixtures from '../__fixtures__/walletMiddleware';
 import selectedAccountReducer, {
     State as SelectedAccountState,
 } from '@wallet-reducers/selectedAccountReducer';
 import sendFormReducer, { SendState } from '@wallet-reducers/sendFormReducer';
+import formDraftReducer from '@wallet-reducers/formDraftReducer';
 
 import { RouterState } from '@suite-reducers/routerReducer';
 import { Action } from '@suite-types';
@@ -57,6 +58,7 @@ export const getInitialState = ({
             status: 'loaded',
         },
         send: { ...sendFormReducer(undefined, { type: 'foo' } as any), ...send },
+        formDrafts: {},
     },
 });
 
@@ -64,20 +66,22 @@ type State = ReturnType<typeof getInitialState>;
 
 const mockStore = configureStore<State, Action>([
     walletMiddleware,
-    blockchainMiddleware(extraDependencies),
+    prepareBlockchainMiddleware(extraDependencies),
 ]);
 
 const initStore = (state: State) => {
     const store = mockStore(state);
     store.subscribe(() => {
         const action = store.getActions().pop();
-        const { accounts, blockchain, settings, selectedAccount, send } = store.getState().wallet;
+        const { accounts, blockchain, settings, selectedAccount, send, formDrafts } =
+            store.getState().wallet;
         store.getState().wallet = {
             accounts: accountsReducer(accounts, action),
             blockchain: blockchainReducer(blockchain, action),
             settings: walletSettingsReducer(settings, action),
             selectedAccount: selectedAccountReducer(selectedAccount as any, action),
             send: sendFormReducer(send, action),
+            formDrafts: formDraftReducer(formDrafts, { type: 'foo' } as any),
         };
         // add action back to stack
         store.getActions().push(action);

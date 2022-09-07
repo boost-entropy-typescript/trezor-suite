@@ -228,7 +228,7 @@ export default defineMessages({
     },
     TR_EXCHANGE_DEX_OFFER_FEE_INFO: {
         defaultMessage:
-            'The fees to perform this swap are estimated at {symbol} {approvalFee} ({approvalFeeFiat}) for approval (if required) and {symbol} {swapFee} ({swapFeeFiat}) for the swap.',
+            'The fees to perform this swap are estimated at {approvalFee} ({approvalFeeFiat}) for approval (if required) and {swapFee} ({swapFeeFiat}) for the swap.',
         id: 'TR_EXCHANGE_DEX_OFFER_FEE_INFO',
     },
     TR_EXCHANGE_FEES_INFO: {
@@ -255,11 +255,11 @@ export default defineMessages({
             "What you see is close to what you'll get—the amount shown is the best estimate of the final amount you'll receive, all exchange fees included. For float-rate offers, there may be slight changes between accepting the offer and completing the transaction.",
     },
     TR_EXCHANGE_VALIDATION_ERROR_MINIMUM_CRYPTO: {
-        defaultMessage: 'Minimum is {minimum} {currency}',
+        defaultMessage: 'Minimum is {minimum}',
         id: 'TR_EXCHANGE_VALIDATION_ERROR_MINIMUM_CRYPTO',
     },
     TR_EXCHANGE_VALIDATION_ERROR_MAXIMUM_CRYPTO: {
-        defaultMessage: 'Maximum is {maximum} {currency}',
+        defaultMessage: 'Maximum is {maximum}',
         id: 'TR_EXCHANGE_VALIDATION_ERROR_MAXIMUM_CRYPTO',
     },
     TR_EXCHANGE_SHOW_OFFERS: {
@@ -617,7 +617,7 @@ export default defineMessages({
         id: 'TR_EXCHANGE_CREATE_SUITE_ACCOUNT',
     },
     TR_EXCHANGE_USE_NON_SUITE_ACCOUNT: {
-        defaultMessage: "Use a {symbol} account that isn't in Suite",
+        defaultMessage: "Use an account ({symbol}) that isn't in Suite",
         id: 'TR_EXCHANGE_USE_NON_SUITE_ACCOUNT',
     },
     TR_EXCHANGE_CONFIRMED_ON_TREZOR: {
@@ -681,11 +681,11 @@ export default defineMessages({
         id: 'TR_REQUIRED_FIELD',
     },
     TR_SELL_VALIDATION_ERROR_MINIMUM_CRYPTO: {
-        defaultMessage: 'Minimum is {minimum} {currency}',
+        defaultMessage: 'Minimum is {minimum}',
         id: 'TR_SELL_VALIDATION_ERROR_MINIMUM_CRYPTO',
     },
     TR_SELL_VALIDATION_ERROR_MAXIMUM_CRYPTO: {
-        defaultMessage: 'Maximum is {maximum} {currency}',
+        defaultMessage: 'Maximum is {maximum}',
         id: 'TR_SELL_VALIDATION_ERROR_MAXIMUM_CRYPTO',
     },
     TR_SELL_VALIDATION_ERROR_MINIMUM_FIAT: {
@@ -1197,11 +1197,11 @@ export default defineMessages({
         id: 'TR_BUY_VALIDATION_ERROR_EMPTY',
     },
     TR_BUY_VALIDATION_ERROR_MINIMUM_CRYPTO: {
-        defaultMessage: 'Minimum is {minimum} {currency}',
+        defaultMessage: 'Minimum is {minimum}',
         id: 'TR_BUY_VALIDATION_ERROR_MINIMUM_CRYPTO',
     },
     TR_BUY_VALIDATION_ERROR_MAXIMUM_CRYPTO: {
-        defaultMessage: 'Maximum is {maximum} {currency}',
+        defaultMessage: 'Maximum is {maximum}',
         id: 'TR_BUY_VALIDATION_ERROR_MAXIMUM_CRYPTO',
     },
     TR_BUY_VALIDATION_ERROR_MINIMUM_FIAT: {
@@ -1250,12 +1250,12 @@ export default defineMessages({
     },
     TR_OFFER_ERROR_MINIMUM_CRYPTO: {
         defaultMessage:
-            'The chosen amount of {currency} {amount} is lower than the accepted minimum of {currency} {min}.',
+            'The chosen amount of {amount} is lower than the accepted minimum of {min}.',
         id: 'TR_OFFER_ERROR_MINIMUM_CRYPTO',
     },
     TR_OFFER_ERROR_MAXIMUM_CRYPTO: {
         defaultMessage:
-            'The chosen amount of {currency} {amount} is higher than the accepted maximum of {currency} {max}.',
+            'The chosen amount of {amount} is higher than the accepted maximum of {max}.',
         id: 'TR_OFFER_ERROR_MAXIMUM_CRYPTO',
     },
     TR_OFFER_ERROR_MINIMUM_FIAT: {
@@ -1756,7 +1756,7 @@ export default defineMessages({
     },
     TR_DETAIL: {
         defaultMessage: 'Detail',
-        description: 'Button in modal',
+        description: 'Button in modal, button in UTXO selection',
         id: 'TR_DETAIL',
     },
     TR_DEVICE: {
@@ -2140,7 +2140,7 @@ export default defineMessages({
         id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN',
     },
     TR_FIRMWARE_SUBHEADING_BITCOIN: {
-        defaultMessage: 'Light-weight firmware supporting only Bitcoin operations.',
+        defaultMessage: 'Lightweight firmware supporting only Bitcoin operations.',
         description: 'Explanation of Bitcoin-only firmware in onboarding',
         id: 'TR_FIRMWARE_SUBHEADING_BITCOIN',
     },
@@ -2816,12 +2816,12 @@ export default defineMessages({
         id: 'TR_SETTINGS_DEVICE_BANNER_DESCRIPTION_BOOTLOADER_MODEL_2',
     },
     TR_SETTINGS_COINS_UNIVERSAL_FIRMWARE_SUGGESTION: {
-        defaultMessage: 'For more coins, <button>install Universal firmware</button>',
+        defaultMessage: 'For more coins, install <button>Universal</button> firmware.',
         id: 'TR_SETTINGS_COINS_UNIVERSAL_FIRMWARE_SUGGESTION',
     },
     TR_SETTINGS_COINS_BITCOIN_FIRMWARE_SUGGESTION: {
         defaultMessage:
-            'If you only need Bitcoin wallet operations, you can <button>install Bitcoin-only firmware</button>',
+            'If you only need Bitcoin wallet operations, you can install <button>Bitcoin-only</button> firmware.',
         id: 'TR_SETTINGS_COINS_BITCOIN_FIRMWARE_SUGGESTION',
     },
     TR_SHOW_ADDRESS_ANYWAY: {
@@ -3113,7 +3113,7 @@ export default defineMessages({
     },
     TR_WIPING_YOUR_DEVICE: {
         defaultMessage:
-            'Factory Reset wipes the device memory, erasing all information including the Recovery Seed and PIN. Only perform a Factory Reset if you have your Recovery Seed to hand, or there are no funds stored on the device.',
+            'Factory Reset wipes the device memory, erasing all information including the Recovery Seed and PIN. Only perform a Factory Reset if you have a safe offline backup of your Recovery Seed, which allows you to restore your funds.',
         id: 'TR_WIPING_YOUR_DEVICE',
     },
     TR_WORDS: {
@@ -3598,7 +3598,7 @@ export default defineMessages({
     TR_WIPE_DEVICE_TEXT: {
         id: 'TR_WIPE_DEVICE_TEXT',
         defaultMessage:
-            'Resetting the device removes all its data. Reset your device only if you have your recovery seed or there are no funds stored on the device.',
+            'Resetting the device removes all its data. Reset your device only if you have a safe offline backup of your recovery seed, which allows you to restore your funds.',
     },
     TR_WIPE_DEVICE_CHECKBOX_1_TITLE: {
         id: 'TR_WIPE_DEVICE_CHECKBOX_1_TITLE',
@@ -4509,7 +4509,7 @@ export default defineMessages({
     TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION: {
         id: 'TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION',
         defaultMessage:
-            'Bitcoin-only firmware is a light-weight option for users only interested in Bitcoin. Universal firmware enables all supported coins and features. Do you wish to switch firmware type?',
+            'Bitcoin-only firmware is a lightweight option for users only interested in Bitcoin. Universal firmware enables all supported coins and features. Do you wish to switch firmware type?',
     },
     TR_BITCOIN_ONLY_UNAVAILABLE: {
         id: 'TR_BITCOIN_ONLY_UNAVAILABLE',
@@ -5203,6 +5203,56 @@ export default defineMessages({
         description: 'item in dropdown menu',
         defaultMessage: 'Import',
     },
+    TR_COIN_CONTROL: {
+        id: 'TR_COIN_CONTROL',
+        defaultMessage: 'Coin control',
+    },
+    TR_COIN_CONTROL_TOOLTIP: {
+        id: 'TR_COIN_CONTROL_TOOLTIP',
+        defaultMessage:
+            'Coin control enables manual selection of UTXOs to be used as inputs for a transaction.',
+        description: 'Tooltip on coin control button in send form.',
+    },
+    TR_SELECTED: {
+        id: 'TR_SELECTED',
+        defaultMessage: '{amount} selected',
+        description: 'Number of list items selected',
+    },
+    TR_NOT_ENOUGH_SELECTED: {
+        id: 'TR_NOT_ENOUGH_SELECTED',
+        defaultMessage: 'Not enough funds selected',
+        description: 'Error message for amount field in send form when coin control is on',
+    },
+    TR_MISSING_TO_INPUT: {
+        id: 'TR_MISSING_TO_INPUT',
+        defaultMessage: '{amount} missing to your input (excluding fee)',
+        description: 'Info in Coin control section',
+    },
+    TR_MISSING_TO_FEE: {
+        id: 'TR_MISSING_TO_FEE',
+        defaultMessage: 'Not enough funds selected to cover the fee',
+        description: 'Info in Coin control section',
+    },
+    TR_NO_SPENDABLE_UTXOS: {
+        id: 'TR_NO_SPENDABLE_UTXOS',
+        defaultMessage: 'There are no spendable UTXOs in your account.',
+        description: 'Message showing in Coin control section',
+    },
+    TR_CHANGE_ADDRESS: {
+        id: 'TR_CHANGE_ADDRESS',
+        defaultMessage: 'change address',
+        description: 'Address type showing in Coin control section',
+    },
+    TR_DUST: {
+        id: 'TR_DUST',
+        defaultMessage: 'Unspendable outpusts (dust)',
+        description: 'Heading in Coin control section',
+    },
+    TR_DUST_DESCRIPTION: {
+        id: 'TR_DUST_DESCRIPTION',
+        defaultMessage: 'These outputs are likely smaller than the fee required to spend them.',
+        description: 'Sub-heading in Coin control section',
+    },
     TR_CONNECTED_TO_PROVIDER: {
         defaultMessage: 'Connected to {provider} as {user}',
         id: 'TR_CONNECTED_TO_PROVIDER',
@@ -5319,7 +5369,7 @@ export default defineMessages({
     },
     TR_CUSTOM_FIRMWARE_BUTTON_DOWNLOAD: {
         id: 'TR_CUSTOM_FIRMWARE_BUTTON_DOWNLOAD',
-        defaultMessage: 'Download on github.com',
+        defaultMessage: 'github.com',
     },
     TR_CUSTOM_FIRMWARE_BUTTON_INSTALL: {
         id: 'TR_CUSTOM_FIRMWARE_BUTTON_INSTALL',
@@ -6820,7 +6870,7 @@ export default defineMessages({
     },
     TR_FIRMWARE_CHECK_AUTHENTICITY_SUCCESS: {
         id: 'TR_FIRMWARE_CHECK_AUTHENTICITY_SUCCESS',
-        defaultMessage: 'Firmware authenthic',
+        defaultMessage: 'Firmware authentic',
     },
     TR_FEE_ROUNDING_WARNING: {
         id: 'TR_FEE_ROUNDING_WARNING',

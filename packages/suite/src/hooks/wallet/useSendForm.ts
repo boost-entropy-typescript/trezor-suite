@@ -22,6 +22,7 @@ import { useSendFormImport } from './useSendFormImport';
 import { useFees } from './form/useFees';
 import { PROTOCOL_TO_NETWORK } from '@suite-constants/protocol';
 import { useBitcoinAmountUnit } from './useBitcoinAmountUnit';
+import { useUtxoSelection } from './form/useUtxoSelection';
 
 export const SendContext = createContext<SendContextValues | null>(null);
 SendContext.displayName = 'SendContext';
@@ -195,6 +196,15 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         ...useFormMethods,
     });
 
+    // sub-hook
+    const utxoSelection = useUtxoSelection({
+        account: state.account,
+        composedLevels,
+        composeRequest,
+        feeInfo: state.feeInfo,
+        ...useFormMethods,
+    });
+
     const resetContext = useCallback(() => {
         setComposedLevels(undefined);
         removeDraft(); // reset draft
@@ -360,6 +370,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         setDraftSaveRequest,
         ...sendFormUtils,
         ...sendFormOutputs,
+        ...utxoSelection,
     };
 };
 

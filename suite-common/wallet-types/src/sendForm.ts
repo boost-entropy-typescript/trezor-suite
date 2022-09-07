@@ -1,7 +1,7 @@
 import { UseFormMethods } from 'react-hook-form';
 
 import { Network } from '@suite-common/wallet-config';
-import { FeeLevel } from '@trezor/connect';
+import { AccountUtxo, FeeLevel, PROTO } from '@trezor/connect';
 
 import { TypedValidationRules } from './form';
 import { Account } from './account';
@@ -17,6 +17,7 @@ import {
 
 export type FormOptions =
     | 'broadcast'
+    | 'utxoSelection'
     | 'bitcoinRBF'
     | 'bitcoinLockTime'
     | 'ethereumData'
@@ -40,6 +41,8 @@ export type FormState = {
     ethereumAdjustGasLimit?: string; // if used, final gas limit = estimated limit * ethereumAdjustGasLimit
     rippleDestinationTag?: string;
     rbfParams?: RbfTransactionParams;
+    isCoinControlEnabled: boolean;
+    selectedUtxos: AccountUtxo[];
 };
 // local state of @wallet-hooks/useSendForm
 export type UseSendFormState = {
@@ -92,4 +95,14 @@ export type SendContextValues = Omit<UseFormMethods<FormState>, 'register'> &
         removeOpReturn: (index: number) => void;
         // useSendFormCompose
         setDraftSaveRequest: React.Dispatch<React.SetStateAction<boolean>>;
+        // UTXO selection
+        allUtxosSelected: boolean;
+        composedInputs: PROTO.TxInputType[];
+        dustUtxos: AccountUtxo[];
+        isCoinControlEnabled: boolean;
+        selectedUtxos: AccountUtxo[];
+        spendableUtxos: AccountUtxo[];
+        toggleCheckAllUtxos: () => void;
+        toggleCoinControl: () => void;
+        toggleUtxoSelection: (utxo: AccountUtxo) => void;
     };
