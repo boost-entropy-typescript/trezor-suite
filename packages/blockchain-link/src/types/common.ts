@@ -65,9 +65,13 @@ export type TypedRawTransaction =
           tx: BlockfrostTransaction;
       };
 
+export type EnhancedVinVout = VinVout & {
+    isAccountOwned?: boolean;
+};
+
 export type TransactionDetail = {
-    vin: VinVout[];
-    vout: VinVout[];
+    vin: EnhancedVinVout[];
+    vout: EnhancedVinVout[];
     size: number;
     totalInput: string;
     totalOutput: string;
@@ -87,7 +91,7 @@ export interface AccountBalanceHistory {
 }
 
 export interface Transaction {
-    type: 'sent' | 'recv' | 'self' | 'failed' | 'unknown';
+    type: 'sent' | 'recv' | 'self' | 'joint' | 'failed' | 'unknown';
     txid: string;
     blockTime?: number;
     blockHeight?: number;
@@ -96,7 +100,6 @@ export interface Transaction {
 
     amount: string;
     fee: string;
-    totalSpent: string; // amount + total
 
     targets: Target[];
     tokens: TokenTransfer[];

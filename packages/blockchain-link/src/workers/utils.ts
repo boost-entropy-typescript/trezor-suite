@@ -1,9 +1,12 @@
 import BigNumber from 'bignumber.js';
-import { parseHostname } from '@trezor/utils';
-import type { Address } from '../types';
+import { isNotUndefined, parseHostname } from '@trezor/utils';
+import type { Address, EnhancedVinVout } from '../types';
 import type { VinVout } from '../types/blockbook';
 
 export type Addresses = (Address | string)[] | string;
+
+export const isAccountOwned = (addresses: string[]) => (vinVout: VinVout) =>
+    Array.isArray(vinVout?.addresses) && vinVout.addresses.some(a => addresses.includes(a));
 
 export const filterTargets = (addresses: Addresses, targets: VinVout[]): VinVout[] => {
     if (typeof addresses === 'string') {
@@ -12,31 +15,26 @@ export const filterTargets = (addresses: Addresses, targets: VinVout[]): VinVout
     // neither addresses or targets are missing
     if (!addresses || !Array.isArray(addresses) || !targets || !Array.isArray(targets)) return [];
 
-    const all: (string | null)[] = addresses.map(a => {
-        if (typeof a === 'string') return a;
-        if (typeof a === 'object' && typeof a.address === 'string') return a.address;
-        return null;
-    });
+    const all = addresses
+        .map(a => {
+            if (typeof a === 'string') return a;
+            if (typeof a === 'object' && typeof a.address === 'string') return a.address;
+            return undefined;
+        })
+        .filter(isNotUndefined);
 
-    return targets.filter(t => {
-        if (t && Array.isArray(t.addresses)) {
-            return t.addresses.filter(a => all.indexOf(a) >= 0).length > 0;
-        }
-        return false;
-    });
+    return targets.filter(isAccountOwned(all));
 };
 
-export const sumVinVout = (
-    vinVout: VinVout[],
-    initialValue = '0',
-    operation: 'sum' | 'reduce' = 'sum',
-) => {
-    const sum = vinVout.reduce((bn, v) => {
-        if (typeof v.value !== 'string') return bn;
-        return operation === 'sum' ? bn.plus(v.value) : bn.minus(v.value);
-    }, new BigNumber(initialValue));
-    return sum.toString();
-};
+export const enhanceVinVout =
+    (addresses: string[]) =>
+    (vinVout: VinVout): EnhancedVinVout => ({
+        ...vinVout,
+        isAccountOwned: isAccountOwned(addresses)(vinVout) || undefined,
+    });
+
+export const sumVinVout = (sum: BigNumber.Value, { value }: VinVout): BigNumber.Value =>
+    typeof value === 'string' ? new BigNumber(value || '0').plus(sum) : sum;
 
 export const transformTarget = (target: VinVout, incoming: VinVout[]) => ({
     n: target.n || 0,

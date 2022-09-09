@@ -111,14 +111,13 @@ const notifyAddresses = [
             tx: {
                 ...tx,
                 amount: '0',
-                totalSpent: '0',
                 type: 'sent',
                 targets: [{ addresses: ['B'], n: 0, amount: '0', isAddress: true }],
                 cardanoSpecific: {
                     subtype: null,
                 },
                 details: {
-                    vin: [{ addresses: ['A'], isAddress: true, value: '0' }],
+                    vin: [{ addresses: ['A'], isAddress: true, value: '0', isAccountOwned: true }],
                     vout: [{ addresses: ['B'], isAddress: true, value: '0' }],
                     totalInput: '0',
                     totalOutput: '0',
@@ -166,7 +165,6 @@ const notifyAddresses = [
                 ...tx,
                 type: 'recv',
                 amount: '50',
-                totalSpent: '50',
                 targets: [
                     {
                         addresses: ['A'],
@@ -181,7 +179,15 @@ const notifyAddresses = [
                 },
                 details: {
                     vin: [{ addresses: ['B'], value: '100', isAddress: true }],
-                    vout: [{ addresses: ['A'], value: '50', isAddress: true, n: 1 }],
+                    vout: [
+                        {
+                            addresses: ['A'],
+                            value: '50',
+                            isAddress: true,
+                            n: 1,
+                            isAccountOwned: true,
+                        },
+                    ],
                     totalInput: '100',
                     totalOutput: '50',
                 },
@@ -218,8 +224,8 @@ const notifyAddresses = [
                     { addresses: ['A'], isAccountTarget: true, n: 0, amount: '0', isAddress: true },
                 ],
                 details: {
-                    vin: [{ addresses: ['A'], isAddress: true, value: '0' }],
-                    vout: [{ addresses: ['A'], isAddress: true, value: '0' }],
+                    vin: [{ addresses: ['A'], isAddress: true, value: '0', isAccountOwned: true }],
+                    vout: [{ addresses: ['A'], isAddress: true, value: '0', isAccountOwned: true }],
                     totalInput: '0',
                     totalOutput: '0',
                 },
@@ -261,17 +267,23 @@ const notifyAddresses = [
             tx: {
                 ...tx,
                 amount: '60',
-                totalSpent: '60',
                 type: 'sent',
                 targets: [{ addresses: ['A'], amount: '40', n: 0, isAddress: true }],
                 cardanoSpecific: {
                     subtype: null,
                 },
                 details: {
-                    vin: [{ addresses: ['B'], value: '100', isAddress: true }],
+                    vin: [
+                        { addresses: ['B'], value: '100', isAddress: true, isAccountOwned: true },
+                    ],
                     vout: [
                         { addresses: ['A'], value: '40', isAddress: true },
-                        { addresses: ['B-change'], value: '40', isAddress: true },
+                        {
+                            addresses: ['B-change'],
+                            value: '40',
+                            isAddress: true,
+                            isAccountOwned: true,
+                        },
                     ],
                     totalInput: '100',
                     totalOutput: '80',
@@ -308,7 +320,6 @@ const notifyAddresses = [
                 ...tx,
                 type: 'recv',
                 amount: '50',
-                totalSpent: '50',
                 targets: [
                     {
                         addresses: ['B'],
@@ -323,7 +334,9 @@ const notifyAddresses = [
                 },
                 details: {
                     vin: [{ addresses: ['A'], value: '100', isAddress: true }],
-                    vout: [{ addresses: ['B'], value: '50', isAddress: true }],
+                    vout: [
+                        { addresses: ['B'], value: '50', isAddress: true, isAccountOwned: true },
+                    ],
 
                     totalInput: '100',
                     totalOutput: '50',
@@ -355,13 +368,14 @@ const notifyAddresses = [
                 ...tx,
                 type: 'sent',
                 amount: '0',
-                totalSpent: '0',
                 cardanoSpecific: {
                     subtype: null,
                 },
                 targets: [{ addresses: ['0x1'], n: 0, isAddress: true, amount: '0' }],
                 details: {
-                    vin: [{ addresses: ['0x0'], isAddress: true, value: '0' }],
+                    vin: [
+                        { addresses: ['0x0'], isAddress: true, value: '0', isAccountOwned: true },
+                    ],
                     vout: [{ addresses: ['0x1'], isAddress: true, value: '0' }],
 
                     totalInput: '0',
@@ -438,10 +452,10 @@ const notifyAddresses = [
                 cardanoSpecific: { subtype: null },
                 details: {
                     vin: [
-                        { addresses: ['B'], isAddress: true, value: '0' },
-                        { addresses: ['C'], isAddress: true, value: '0' },
+                        { addresses: ['B'], isAddress: true, value: '0', isAccountOwned: true },
+                        { addresses: ['C'], isAddress: true, value: '0', isAccountOwned: true },
                     ],
-                    vout: [{ addresses: ['D'], isAddress: true, value: '0' }],
+                    vout: [{ addresses: ['D'], isAddress: true, value: '0', isAccountOwned: true }],
                     totalInput: '0',
                     totalOutput: '0',
                 },
@@ -472,7 +486,6 @@ const notifyAddresses = [
                 ...tx,
                 type: 'unknown',
                 amount: '0',
-                totalSpent: '0',
                 cardanoSpecific: {
                     subtype: null,
                 },

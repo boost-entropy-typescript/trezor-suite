@@ -1,7 +1,7 @@
 import { Account, Discovery } from '@wallet-types';
 import { DISCOVERY } from '@wallet-actions/constants';
 import { SUITE } from '@suite-actions/constants';
-import { DEVICE, Device } from '@trezor/connect';
+import { DEVICE } from '@trezor/connect';
 import { LogEntry } from '@suite-reducers/logsReducer';
 import { AppState, TrezorDevice } from '@suite-types';
 import { getCustomBackends } from '@suite-common/wallet-utils';
@@ -19,7 +19,6 @@ import {
 import { getIsTorEnabled } from '@suite-utils/tor';
 import { DeepPartial } from '@trezor/type-utils';
 import { accountsActions } from '@suite-common/wallet-core';
-import { isAnyOf } from '@reduxjs/toolkit';
 import {
     getBootloaderHash,
     getBootloaderVersion,
@@ -80,14 +79,14 @@ export const redactDiscovery = (discovery: DeepPartial<Discovery> | undefined) =
     };
 };
 
-export const redactDevice = (device: DeepPartial<Device> | undefined) => {
+export const redactDevice = (device: DeepPartial<TrezorDevice> | undefined) => {
     if (!device) return undefined;
     return {
         ...device,
         id: REDACTED_REPLACEMENT,
         label: device.label ? REDACTED_REPLACEMENT : undefined,
         state: REDACTED_REPLACEMENT,
-        firmwareRelease: REDACTED_REPLACEMENT,
+        firmwareRelease: device.firmwareRelease ? REDACTED_REPLACEMENT : undefined,
         features: device.features
             ? {
                   ...device.features,
@@ -95,26 +94,26 @@ export const redactDevice = (device: DeepPartial<Device> | undefined) => {
                   label: device.features.label ? REDACTED_REPLACEMENT : undefined,
               }
             : undefined,
+        metadata: device.metadata ? REDACTED_REPLACEMENT : undefined,
     };
 };
 
 export const redactAction = (action: LogEntry) => {
     let payload;
 
-    if (isAnyOf(accountsActions.createAccount, accountsActions.updateAccount)(action)) {
-        payload = redactAccount(action.payload);
-    }
-
-    if (accountsActions.updateSelectedAccount.match(action)) {
-        payload = {
-            ...action.payload,
-            account: redactAccount(action.payload?.account),
-            network: undefined,
-            discovery: undefined,
-        };
-    }
-
     switch (action.type) {
+        case accountsActions.updateSelectedAccount.type:
+            payload = {
+                ...action.payload,
+                account: redactAccount(action.payload?.account),
+                network: undefined,
+                discovery: undefined,
+            };
+            break;
+        case accountsActions.createAccount.type:
+        case accountsActions.updateAccount.type:
+            payload = redactAccount(action.payload);
+            break;
         case SUITE.AUTH_DEVICE:
             payload = {
                 state: REDACTED_REPLACEMENT,
@@ -196,7 +195,6 @@ export const getApplicationInfo = (state: AppState, hideSensitiveInfo: boolean) 
     sessionId: hideSensitiveInfo ? REDACTED_REPLACEMENT : state.analytics.sessionId,
     transport: state.suite.transport?.type,
     transportVersion: state.suite.transport?.version,
-    wallets: state.devices.length,
     rememberedStandardWallets: state.devices.filter(d => d.remember && d.useEmptyPassphrase).length,
     rememberedHiddenWallets: state.devices.filter(d => d.remember && !d.useEmptyPassphrase).length,
     enabledNetworks: state.wallet.settings.enabledNetworks,
@@ -210,11 +208,31 @@ export const getApplicationInfo = (state: AppState, hideSensitiveInfo: boolean) 
             id: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.id,
             label: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.label,
             mode: device.mode,
+            connected: device.connected,
+            passphraseProtection: device.features?.passphrase_protection,
             model: getDeviceModel(device),
             firmware: device.features ? getFwVersion(device) : '',
             firmwareRevision: device.features ? getFwRevision(device) : '',
             firmwareType: device.features ? getFwType(device) : '',
             bootloader: device.features ? getBootloaderVersion(device) : '',
             bootloaderHash: device.features ? getBootloaderHash(device) : '',
+            numberOfWallets:
+                device.mode !== 'bootloader'
+                    ? state.devices.filter(d => d.id === device.id).length
+                    : 1,
         })),
+    wallets: state.devices.map(device => ({
+        deviceId: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.id,
+        deviceLabel: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.label,
+        label:
+            // eslint-disable-next-line no-nested-ternary
+            device.metadata.status === 'enabled'
+                ? hideSensitiveInfo
+                    ? REDACTED_REPLACEMENT
+                    : device.metadata.walletLabel
+                : '',
+        connected: device.connected,
+        remember: device.remember,
+        useEmptyPassphrase: hideSensitiveInfo ? REDACTED_REPLACEMENT : device.useEmptyPassphrase,
+    })),
 });
