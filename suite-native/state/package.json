@@ -14,10 +14,9 @@
         "@suite-common/redux-utils": "*",
         "@suite-common/test-utils": "*",
         "@suite-common/wallet-core": "*",
-        "@suite-native/home-graph": "*",
         "@suite-native/module-devices": "*",
         "@suite-native/module-settings": "*",
-        "@trezor/connect": "9.0.0",
+        "@trezor/connect": "9.0.1",
         "@trezor/styles": "*",
         "@trezor/utils": "*",
         "redux-flipper": "2.0.2"
