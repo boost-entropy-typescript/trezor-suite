@@ -44,6 +44,7 @@ interface FirmwareInitialProps {
     standaloneFwUpdate?: boolean;
     onInstall: (firmwareType?: FirmwareType) => void;
     shouldSwitchFirmwareType?: boolean;
+    onClose?: () => void;
 }
 
 const getDescription = ({
@@ -83,6 +84,7 @@ export const FirmwareInitial = ({
     onInstall,
     standaloneFwUpdate = false,
     shouldSwitchFirmwareType,
+    onClose,
 }: FirmwareInitialProps) => {
     const [bitcoinOnlyOffer, setBitcoinOnlyOffer] = useState(false);
     const { device: liveDevice } = useDevice();
@@ -90,7 +92,10 @@ export const FirmwareInitial = ({
     const { goToNextStep, updateAnalytics } = useOnboarding();
     const theme = useTheme();
     const devices = useSelector(state => state.devices);
-    const multipleDevicesConnected = devices.filter(device => device.connected).length > 1;
+
+    // todo: move to utils device.ts
+    const devicesConnected = devices.filter(device => device?.connected);
+    const multipleDevicesConnected = [...new Set(devicesConnected.map(d => d.path))].length > 1;
 
     useEffect(() => {
         // When the user choses to install a new firmware update we will ask him/her to reconnect a device in bootloader mode.
@@ -281,6 +286,7 @@ export const FirmwareInitial = ({
                         expectedDevice={device}
                         requestedMode="bootloader"
                         onSuccess={() => onInstall(targetFirmwareType)}
+                        onClose={onClose}
                     />
                 )}
 

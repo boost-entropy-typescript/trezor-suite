@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import styled, { css } from 'styled-components';
-import { Icon, P, useTheme } from '@trezor/components';
+import styled from 'styled-components';
+import { Icon, P, useTheme, variables } from '@trezor/components';
 import { Translation } from '@suite-components';
 
 const animationDuration = 0.24;
@@ -50,7 +50,12 @@ const BackgroundWrapper = styled.div<{ isExpanded: boolean }>`
     transition: all ${animationDuration}s ease-in-out;
     padding: ${({ isExpanded }) => (isExpanded ? '16px' : '10px 16px')};
     margin-right: auto;
+    margin-top: 8px;
     min-width: ${({ isExpanded }) => (isExpanded ? '100%' : 0)};
+
+    :hover {
+        opacity: ${({ isExpanded }) => !isExpanded && 0.7};
+    }
 `;
 
 const ContentWrapper = styled.div`
@@ -69,13 +74,7 @@ const CloseIconWrapper = styled(motion.div)`
 const OpenIconWrapper = styled.div<{ isExpanded: boolean }>`
     display: flex;
     flex-direction: row;
-    cursor: pointer;
-    ${({ isExpanded }) =>
-        isExpanded
-            ? css`
-                  border-bottom: 1.5px dashed rgba(0, 0, 0, 0.15);
-              `
-            : ''}
+    cursor: ${({ isExpanded }) => !isExpanded && 'pointer'};
 `;
 
 const HeaderWrapper = styled.div`
@@ -92,12 +91,13 @@ const StyledIcon = styled(Icon)`
 const Label = styled(
     ({ isExpanded, ...rest }: { isExpanded: boolean; children: React.ReactNode }) => (
         <P
-            size={isExpanded ? 'tiny' : 'normal'}
+            size={isExpanded ? 'small' : 'normal'}
             weight={isExpanded ? 'bold' : 'normal'}
             {...rest}
         />
     ),
 )`
+    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     color: ${({ theme }) => theme.TYPE_DARK_GREY};
     transition: all ${animationDuration}s ease-in-out;
 `;
@@ -121,7 +121,7 @@ const Header = ({
                 <AnimatePresence initial={false}>
                     {!isExpanded && (
                         <PlusIconWrapper>
-                            <StyledIcon icon="PLUS" size={24} color={theme.TYPE_DARK_GREY} />
+                            <StyledIcon icon="PLUS" size={20} color={theme.TYPE_DARK_GREY} />
                         </PlusIconWrapper>
                     )}
                 </AnimatePresence>
