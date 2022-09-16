@@ -1,21 +1,26 @@
-const { test, expect } = require('@playwright/test');
-const { Controller } = require('../../../websocket-client');
-const { createDeferred } = require('@trezor/utils');
+import { test, expect, Page } from '@playwright/test';
+import { Controller } from '@trezor/trezor-user-env-link';
+import { createDeferred, Deferred } from '@trezor/utils';
 
 const url = process.env.URL || 'http://localhost:8088/';
 const controller = new Controller();
 
 const WAIT_AFTER_TEST = 3000; // how long test should wait for more potential trezord requests
 
+interface Response {
+    url: string;
+    status: number;
+    body: string;
+}
 // requests to bridge
-let requests = [];
+let requests: any[] = [];
 // responses from bridge
-let responses = [];
+let responses: Response[] = [];
 
-let releasePromise;
+let releasePromise: Deferred<undefined> | undefined;
 // popup window reference
-let popup;
-let popupClosedPromise;
+let popup: Page;
+let popupClosedPromise: Promise<undefined> | undefined;
 
 test.beforeAll(async () => {
     await controller.connect();
@@ -72,7 +77,7 @@ test.beforeAll(async () => {
                 return;
             }
             if (response.url().endsWith('release/2')) {
-                releasePromise.resolve();
+                releasePromise!.resolve(undefined);
             }
             console.log(response.status(), response.url());
             responses.push({
@@ -88,7 +93,7 @@ test.beforeAll(async () => {
         ]);
 
         popupClosedPromise = new Promise(resolve => {
-            popup.on('close', () => resolve());
+            popup.on('close', () => resolve(undefined));
         });
 
         await popup.waitForLoadState('load');
@@ -137,7 +142,7 @@ test.beforeAll(async () => {
     }) => {
         // user canceled dialog on device
         await controller.send({ type: 'emulator-press-no' });
-        await releasePromise.promise;
+        await releasePromise!.promise;
         await popupClosedPromise;
         await page.waitForTimeout(WAIT_AFTER_TEST);
 
@@ -155,7 +160,7 @@ test.beforeAll(async () => {
     }) => {
         // user canceled interaction on device
         await controller.send({ type: 'emulator-stop' });
-        await releasePromise.promise;
+        await releasePromise!.promise;
         await popupClosedPromise;
         await page.waitForTimeout(WAIT_AFTER_TEST);
 
@@ -213,7 +218,7 @@ test.beforeAll(async () => {
     // just like the previous skipped test.
     // request: http://127.0.0.1:21325/call/3
     // response {"error":"closed device"}
-    test.skip(`popup is reloaded by user. bridge version ${bridgeVersion}`, async ({ page }) => {
+    test.skip(`popup is reloaded by user. bridge version ${bridgeVersion}`, async () => {
         await popup.reload();
         // after popup is reload, communication is lost, there is only infinite loader
         await popup.waitForSelector('.loader');

@@ -1,8 +1,7 @@
 /* eslint no-await-in-loop: 0 */
 
-const { test, expect } = require('@playwright/test');
-const { Controller } = require('../../../websocket-client');
-const { createDeferred } = require('@trezor/utils');
+import { test, expect, Page } from '@playwright/test';
+import { Controller } from '@trezor/trezor-user-env-link';
 
 const connectUrl = process.env.URL
     ? process.env.URL.replace('connect-explorer', 'connect')
@@ -20,8 +19,8 @@ test.beforeAll(async () => {
  * @param {Page} page - an instance of playwright's page object
  * @returns {Object}
  */
-const getConnectPopup = async page => {
-    [popup] = await Promise.all([
+const getConnectPopup = async (page: Page) => {
+    const [popup] = await Promise.all([
         page.waitForEvent('popup'),
         page.locator('button', { hasText: 'Start Test' }).click(),
     ]);
@@ -33,7 +32,7 @@ const getConnectPopup = async page => {
  * Clicks on "Don't ask again" input and confirms it
  * @param {Page} popup - an instance of playwright's page object
  */
-const handleDontAskAgain = async popup => {
+const handleDontAskAgain = async (popup: Page) => {
     const confirmBtn = 'button.confirm';
     await popup.waitForSelector(confirmBtn, { state: 'visible', timeout: 40000 });
     await popup.locator('text="Don\'t ask me again"').first().click();
@@ -44,7 +43,7 @@ const handleDontAskAgain = async popup => {
  * Waits and verifies that the test finished correctly
  * @param {Page} popup - an instance of playwright's page object
  */
-const assertSuccess = async page => {
+const assertSuccess = async (page: Page) => {
     const testResult = await page.waitForSelector('h5[class*="TestRun-success"]', {
         state: 'visible',
         timeout: 30000,
@@ -57,7 +56,7 @@ const assertSuccess = async page => {
  * @param {Page} page - an instance of playwright's page object
  * @param {number} iteration
  */
-const exportPublicKey = async (page, iteration) => {
+const exportPublicKey = async (page: Page, iteration: number) => {
     const confirmBtn = 'button.confirm';
     // withe the exception of the first iteration, continue to the next test
     if (iteration !== 0) await page.locator('button:has-text("Next")').click();
@@ -74,8 +73,7 @@ const exportPublicKey = async (page, iteration) => {
  * @param {Page} page - an instance of playwright's page object
  * @param {number} iteration
  */
-const signTransaction = async (page, iteration) => {
-    const confirmBtn = 'button.confirm';
+const signTransaction = async (page: Page, iteration: number) => {
     await page.locator('button:has-text("Next")').click();
     const popup = await getConnectPopup(page);
     // click on "Don't ask again" in the first iteration
@@ -90,7 +88,7 @@ const signTransaction = async (page, iteration) => {
     await assertSuccess(page);
 };
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async () => {
     await controller.send({
         type: 'bridge-stop',
     });
@@ -125,7 +123,6 @@ test.beforeEach(async ({ page }) => {
 test('Verify unchained test suite', async ({ page }) => {
     test.slow();
     const keystoreInput = '#keystore-select';
-    const nextBtn = 'button:has-text("Next")';
     await page.goto(url);
     await page.locator(keystoreInput).click();
     // select trezor

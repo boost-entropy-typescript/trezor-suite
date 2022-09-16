@@ -1,19 +1,19 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
-const { test } = require('@playwright/test');
-const fs = require('fs');
+import { test } from '@playwright/test';
+import fs from 'fs';
 
-const { Controller } = require('../../../websocket-client');
-const fixtures = require('./__fixtures__/methods');
-const buildOverview = require('../support/buildOverview');
+import { Controller } from '@trezor/trezor-user-env-link';
+import { fixtures } from './__fixtures__/methods';
+import { buildOverview } from '../support/buildOverview';
 
 const url = process.env.URL || 'http://localhost:8088/';
-const SCREENSHOTS_DIR = './projects/connect-popup/screenshots';
+const SCREENSHOTS_DIR = './e2e/screenshots';
 const controller = new Controller();
-const emuScreenshots = {};
+const emuScreenshots: Record<string, string> = {};
 
-const log = (...val) => {
+const log = (...val: string[]) => {
     console.log(`[===]`, ...val);
 };
 
@@ -27,7 +27,7 @@ const ensureScreenshotsDir = () => {
     }
 };
 
-const screenshotEmu = async path => {
+const screenshotEmu = async (path: string) => {
     const { response } = await controller.send({
         type: 'emulator-get-screenshot',
     });
@@ -46,6 +46,7 @@ test.afterAll(() => {
 let device = {};
 
 fixtures.forEach(f => {
+    // @ts-expect-error
     test(f.title || f.url, async ({ page }, { retry }) => {
         log(f.url, 'start');
 
@@ -65,6 +66,7 @@ fixtures.forEach(f => {
                 wipe: true,
                 save_screenshots: true,
             });
+            // @ts-expect-error
             if (!f.device.wiped) {
                 await controller.send({
                     type: 'emulator-setup',
