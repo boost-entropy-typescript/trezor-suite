@@ -6659,6 +6659,7 @@ __metadata:
     "@storybook/manager-webpack5": ^6.5.10
     "@storybook/react": ^6.5.10
     "@tippyjs/react": ^4.2.6
+    "@trezor/dom-utils": "*"
     "@trezor/react-utils": "*"
     "@types/react": ^17.0.48
     "@types/react-date-range": ^1.4.4
@@ -6672,9 +6673,11 @@ __metadata:
     react: 17.0.2
     react-date-range: ^1.4.0
     react-dom: 17.0.2
+    react-intl: ^6.0.5
     react-select: ^5.4.0
     react-svg: ^15.1.6
     react-truncate: ^2.4.0
+    react-use: ^17.4.0
     styled-components: ^5.3.5
     stylelint: ^14.10.0
     stylelint-config-recommended: ^9.0.0
@@ -6684,6 +6687,7 @@ __metadata:
     ts-loader: ^9.3.1
     typescript: 4.7.4
     typescript-styled-plugin: ^0.18.2
+    zxcvbn: ^4.4.2
   peerDependencies:
     react: 17.0.2
     styled-components: ^5.3.5
@@ -6792,20 +6796,23 @@ __metadata:
     "@trezor/components": "*"
     "@trezor/connect": 9.0.1
     "@trezor/connect-ui": "*"
+    "@trezor/crypto-utils": "*"
     "@trezor/trezor-user-env-link": "*"
     "@trezor/urls": "*"
-    "@types/react": ^17.0.0
+    "@types/react": ^17.0.48
     "@types/styled-components": ^5.1.25
     jest: ^26.6.3
     playwright: ^1.22.2
     react: 17.0.2
     rimraf: ^3.0.2
-    styled-components: ^5.3.5
     typescript: 4.7.4
     webpack: ^5.73.0
     webpack-cli: ^4.10.0
     webpack-dev-server: ^4.7.4
     xvfb-maybe: ^0.2.1
+  peerDependencies:
+    react: 17.0.2
+    styled-components: ^5.3.5
   languageName: unknown
   linkType: soft
 
@@ -6814,13 +6821,18 @@ __metadata:
   resolution: "@trezor/connect-ui@workspace:packages/connect-ui"
   dependencies:
     "@trezor/components": "*"
+    "@trezor/connect": 9.0.1
+    "@trezor/env-utils": "*"
     "@trezor/urls": "*"
     "@types/react": ^17.0.0
     "@types/styled-components": ^5.1.25
     jest: ^26.6.3
     react: 17.0.2
-    styled-components: ^5.3.5
+    react-intl: ^6.0.5
     typescript: 4.7.4
+  peerDependencies:
+    react: 17.0.2
+    styled-components: ^5.3.5
   languageName: unknown
   linkType: soft
 
@@ -6865,6 +6877,12 @@ __metadata:
     tslib: ^2.3.1
     tsx: ^3.8.2
     typescript: 4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@trezor/crypto-utils@*, @trezor/crypto-utils@workspace:packages/crypto-utils":
+  version: 0.0.0-use.local
+  resolution: "@trezor/crypto-utils@workspace:packages/crypto-utils"
   languageName: unknown
   linkType: soft
 
@@ -7200,6 +7218,8 @@ __metadata:
     "@suite-common/suite-config": "*"
     "@suite-common/suite-utils": "*"
     "@trezor/components": "*"
+    "@trezor/dom-utils": "*"
+    "@trezor/env-utils": "*"
     "@trezor/react-utils": "*"
     "@trezor/suite": "*"
     "@trezor/urls": "*"
@@ -7275,6 +7295,7 @@ __metadata:
     "@testing-library/user-event": 12.8.3
     "@trezor/components": "*"
     "@trezor/connect": 9.0.1
+    "@trezor/crypto-utils": "*"
     "@trezor/dom-utils": "*"
     "@trezor/env-utils": "*"
     "@trezor/react-utils": "*"
