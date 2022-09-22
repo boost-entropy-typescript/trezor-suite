@@ -128,6 +128,13 @@
                     "to": "bin/tor"
                 }
             ],
+            "electronLanguages": [
+                "en",
+                "es",
+                "cs",
+                "ja",
+                "ru"
+            ],
             "icon": "build/static/images/icons/512x512.icns",
             "artifactName": "Trezor-Suite-${version}-mac-${arch}.${ext}",
             "hardenedRuntime": true,
@@ -185,6 +192,7 @@
     },
     "dependencies": {
         "@sentry/electron": "3.0.0",
+        "@suite-common/suite-types": "*",
         "@suite-common/suite-utils": "*",
         "@trezor/connect": "9.0.2",
         "@trezor/connect-common": "*",
