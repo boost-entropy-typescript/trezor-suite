@@ -6629,7 +6629,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/blockchain-link@^2.1.4, @trezor/blockchain-link@workspace:packages/blockchain-link":
+"@trezor/blockchain-link@*, @trezor/blockchain-link@^2.1.4, @trezor/blockchain-link@workspace:packages/blockchain-link":
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link@workspace:packages/blockchain-link"
   dependencies:
@@ -6652,6 +6652,21 @@ __metadata:
     webpack-dev-server: ^4.7.4
     worker-loader: ^3.0.8
     ws: 7.4.6
+  languageName: unknown
+  linkType: soft
+
+"@trezor/coinjoin@*, @trezor/coinjoin@workspace:packages/coinjoin":
+  version: 0.0.0-use.local
+  resolution: "@trezor/coinjoin@workspace:packages/coinjoin"
+  dependencies:
+    "@trezor/blockchain-link": "*"
+    "@trezor/utils": "*"
+    "@trezor/utxo-lib": "*"
+    bignumber.js: ^9.0.2
+    cross-fetch: ^3.1.5
+    events: ^3.3.0
+    golomb: 1.2.0
+    n64: ^0.2.10
   languageName: unknown
   linkType: soft
 
@@ -6963,7 +6978,6 @@ __metadata:
     typescript: 4.7.4
     webpack: ^5.73.0
     ws: ^7.5.5
-    xvfb-maybe: ^0.2.1
   languageName: unknown
   linkType: soft
 
@@ -7123,6 +7137,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/suite-desktop@workspace:packages/suite-desktop"
   dependencies:
+    "@playwright/test": ^1.22.2
     "@sentry/electron": 3.0.0
     "@suite-common/suite-types": "*"
     "@suite-common/suite-utils": "*"
@@ -7131,6 +7146,7 @@ __metadata:
     "@trezor/request-manager": "*"
     "@trezor/suite-analytics": "*"
     "@trezor/suite-desktop-api": "*"
+    "@trezor/trezor-user-env-link": "*"
     "@trezor/urls": "*"
     "@trezor/utils": "*"
     "@types/electron-localshortcut": ^3.1.0
@@ -7150,6 +7166,7 @@ __metadata:
     jest: ^26.6.3
     node-fetch: ^2.6.7
     openpgp: ^5.5.0
+    playwright: ^1.22.2
     react: 17.0.2
     react-dom: 17.0.2
     react-markdown: ^8.0.3
@@ -7159,6 +7176,7 @@ __metadata:
     styled-components: ^5.3.5
     systeminformation: ^5.12.6
     typescript: 4.7.4
+    xvfb-maybe: ^0.2.1
   languageName: unknown
   linkType: soft
 
@@ -7307,6 +7325,7 @@ __metadata:
     "@suite-common/wallet-utils": "*"
     "@testing-library/react": 12.1.5
     "@testing-library/user-event": 12.8.3
+    "@trezor/coinjoin": "*"
     "@trezor/components": "*"
     "@trezor/connect": 9.0.2
     "@trezor/crypto-utils": "*"
@@ -7478,7 +7497,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/utxo-lib@^1.0.0, @trezor/utxo-lib@workspace:packages/utxo-lib":
+"@trezor/utxo-lib@*, @trezor/utxo-lib@^1.0.0, @trezor/utxo-lib@workspace:packages/utxo-lib":
   version: 0.0.0-use.local
   resolution: "@trezor/utxo-lib@workspace:packages/utxo-lib"
   dependencies:
@@ -10997,6 +11016,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bcrypto@npm:~5.0.0":
+  version: 5.0.4
+  resolution: "bcrypto@npm:5.0.4"
+  dependencies:
+    bufio: ~1.0.6
+    loady: ~0.0.1
+    nan: ^2.14.0
+    node-gyp: latest
+  checksum: 21b54d15ae03ebb43f5276a60b99da9316ad045504e4ec026787d47aa88d0a9ac1a1cb414b6ce7bb4f58582a86d8efd07e8349a88f0aa63380c62715b29b2335
+  languageName: node
+  linkType: hard
+
 "bech32@npm:^2.0.0":
   version: 2.0.0
   resolution: "bech32@npm:2.0.0"
@@ -11055,7 +11086,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.1.0":
+"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.0.2, bignumber.js@npm:^9.1.0":
   version: 9.1.0
   resolution: "bignumber.js@npm:9.1.0"
   checksum: 52ec2bb5a3874d7dc1a1018f28f8f7aff4683515ffd09d6c2d93191343c76567ae0ee32cc45149d53afb2b904bc62ed471a307b35764beea7e9db78e56bef6c6
@@ -11537,6 +11568,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bsert@npm:~0.0.10":
+  version: 0.0.10
+  resolution: "bsert@npm:0.0.10"
+  checksum: 015e428d0df3df0d864d26f94d27456e658f0c55d7e8d9eb5c338a2bbc87fbf91863fd98727b61d99281441b8df7ef1035cd9df19d4491d5c267611ecfe6d730
+  languageName: node
+  linkType: hard
+
 "btoa-lite@npm:^1.0.0":
   version: 1.0.0
   resolution: "btoa-lite@npm:1.0.0"
@@ -11655,6 +11693,13 @@ __metadata:
     base64-js: ^1.3.1
     ieee754: ^1.2.1
   checksum: 5ad23293d9a731e4318e420025800b42bf0d264004c0286c8cc010af7a270c7a0f6522e84f54b9ad65cbd6db20b8badbfd8d2ebf4f80fa03dab093b89e68c3f9
+  languageName: node
+  linkType: hard
+
+"bufio@npm:~1.0.6":
+  version: 1.0.7
+  resolution: "bufio@npm:1.0.7"
+  checksum: 4871b8060a8d3bc04de8722f5cc5575b77f4cb18af389eab62d51bf42b08f43fe75159126ef11f15fe4045dc8c20e0e344406ca8388cb1371e558b986e971a57
   languageName: node
   linkType: hard
 
@@ -18449,6 +18494,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"golomb@npm:1.2.0":
+  version: 1.2.0
+  resolution: "golomb@npm:1.2.0"
+  dependencies:
+    bcrypto: ~5.0.0
+    bsert: ~0.0.10
+    bufio: ~1.0.6
+    n64: ~0.2.10
+  checksum: 1e251e031bf3896fa48c7fb4b3e92824e927e8af6198851852312c4529463f6f6b76cdc736086e11886e5e0005e52f4455a0e99f1c57e5cae8e844a9ac72ab8c
+  languageName: node
+  linkType: hard
+
 "got@npm:^9.6.0":
   version: 9.6.0
   resolution: "got@npm:9.6.0"
@@ -22215,6 +22272,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"loady@npm:~0.0.1":
+  version: 0.0.5
+  resolution: "loady@npm:0.0.5"
+  checksum: 3cba2ffa8cef8a082b3d23f22c1269a339e9f268105c30229bb3fed9123bb79830c0c7f3fa79f52286e1de9303b87e4eb3236952a6ee3fcffa83e7c576f7a8f5
+  languageName: node
+  linkType: hard
+
 "localforage@npm:^1.8.1":
   version: 1.10.0
   resolution: "localforage@npm:1.10.0"
@@ -24290,12 +24354,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"n64@npm:^0.2.10, n64@npm:~0.2.10":
+  version: 0.2.10
+  resolution: "n64@npm:0.2.10"
+  checksum: 4b330363fa12b78e1f22baa4663969414f78585442b775d85fa7058fd785ace6e56b363f6e91d5294beb0185b1ab7b9af8053d6603abe9dd30675292242ebca6
+  languageName: node
+  linkType: hard
+
 "nan@npm:^2.12.1, nan@npm:^2.13.2, nan@npm:^2.15.0":
   version: 2.15.0
   resolution: "nan@npm:2.15.0"
   dependencies:
     node-gyp: latest
   checksum: 33e1bb4dfca447fe37d4bb5889be55de154828632c8d38646db67293a21afd61ed9909cdf1b886214a64707d935926c4e60e2b09de9edfc2ad58de31d6ce8f39
+  languageName: node
+  linkType: hard
+
+"nan@npm:^2.14.0":
+  version: 2.16.0
+  resolution: "nan@npm:2.16.0"
+  dependencies:
+    node-gyp: latest
+  checksum: cb16937273ea55b01ea47df244094c12297ce6b29b36e845d349f1f7c268b8d7c5abd126a102c5678a1e1afd0d36bba35ea0cc959e364928ce60561c9306064a
   languageName: node
   linkType: hard
 
