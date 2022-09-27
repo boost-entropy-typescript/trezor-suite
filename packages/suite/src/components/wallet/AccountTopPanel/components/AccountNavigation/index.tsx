@@ -105,7 +105,7 @@ export const AccountNavigation = ({
             },
             title: <Translation id="TR_NAV_TRADE" />,
             position: 'secondary',
-            isHidden: false,
+            isHidden: account?.accountType === 'coinjoin',
         },
         {
             id: 'wallet-add-token',
@@ -123,7 +123,7 @@ export const AccountNavigation = ({
                 goto('wallet-sign-verify', { preserveParams: true });
             },
             title: <Translation id="TR_NAV_SIGN_AND_VERIFY" />,
-            icon: 'SIGN',
+            icon: 'SIGNATURE',
             position: 'secondary',
             extra: true,
             isHidden: !account || !hasNetworkFeatures(account, 'sign-verify'),

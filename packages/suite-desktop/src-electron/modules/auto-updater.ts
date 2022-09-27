@@ -7,13 +7,12 @@ import {
     ProgressInfo,
 } from 'electron-updater';
 import { bytesToHumanReadable } from '@trezor/utils';
-import { isFeatureFlagEnabled } from '@suite-common/suite-utils';
-import { isDev } from '@suite-utils/build';
+import { isFeatureFlagEnabled, isDevEnv } from '@suite-common/suite-utils';
 import { app, ipcMain } from '../typed-electron';
 import { b2t } from '../libs/utils';
 import { verifySignature } from '../libs/update-checker';
 import { Module } from './index';
-import { getReleaseNotes } from '@suite/services/github';
+import { getReleaseNotes } from '../libs/github';
 
 // Runtime flags
 const enableUpdater = app.commandLine.hasSwitch('enable-updater');
@@ -34,7 +33,7 @@ const init: Module = ({ mainWindow, store }) => {
     }
 
     // If APPIMAGE is not set on Linux, the auto updater can't handle that
-    if (process.platform === 'linux' && process.env.APPIMAGE === undefined && !isDev) {
+    if (process.platform === 'linux' && process.env.APPIMAGE === undefined && !isDevEnv) {
         logger.warn('auto-updater', 'APPIMAGE is not defined, skipping auto updater');
         return;
     }

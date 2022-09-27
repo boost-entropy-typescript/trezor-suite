@@ -9,7 +9,7 @@ import { useActions } from '@suite-hooks';
 import { ExtendedMessageDescriptor } from '@suite-types';
 import { Pagination } from '@wallet-components';
 import { Checkbox, Icon, Switch, variables } from '@trezor/components';
-import { UtxoSelectionList } from '@wallet-components/UtxoSelectionList';
+import { UtxoSelectionList } from '@wallet-components/CoinControl/UtxoSelectionList';
 import { useSendFormContext } from '@wallet-hooks';
 import { useBitcoinAmountUnit } from '@wallet-hooks/useBitcoinAmountUnit';
 import { TypedFieldError } from '@wallet-types/form';
@@ -144,7 +144,7 @@ export const CoinControl = ({ close }: CoinControlProps) => {
 
     useEffect(() => {
         const promise = fetchTransactions({
-            account,
+            accountKey: account.key,
             page: 2,
             perPage: SETTINGS.TXS_PER_PAGE,
             noLoading: true,
