@@ -119,7 +119,15 @@ export class DeviceCommands {
         return this.disposed;
     }
 
-    async getPublicKey(params: Messages.GetPublicKey) {
+    unlockPath(params?: Messages.UnlockPath) {
+        return this.typedCall('UnlockPath', 'UnlockedPathRequest', params);
+    }
+
+    async getPublicKey(params: Messages.GetPublicKey, unlockPath?: Messages.UnlockPath) {
+        if (unlockPath) {
+            await this.unlockPath(unlockPath);
+        }
+
         const response = await this.typedCall('GetPublicKey', 'PublicKey', {
             address_n: params.address_n,
             coin_name: params.coin_name || 'Bitcoin',
@@ -134,10 +142,14 @@ export class DeviceCommands {
     // Validation of xpub
     async getHDNode(
         params: Messages.GetPublicKey,
-        options: { coinInfo?: BitcoinNetworkInfo; validation?: boolean } = {},
+        options: {
+            coinInfo?: BitcoinNetworkInfo;
+            validation?: boolean;
+            unlockPath?: Messages.UnlockPath;
+        } = {},
     ) {
         const path = params.address_n;
-        const { coinInfo } = options;
+        const { coinInfo, unlockPath } = options;
         const validation = typeof options.validation === 'boolean' ? options.validation : true;
         if (!this.device.atLeast(['1.7.2', '2.0.10']) || !coinInfo) {
             return this.getBitcoinHDNode(path, coinInfo);
@@ -166,13 +178,15 @@ export class DeviceCommands {
 
         let publicKey: Messages.PublicKey;
         if (params.show_display || !validation) {
-            publicKey = await this.getPublicKey(params);
+            publicKey = await this.getPublicKey(params, unlockPath);
         } else {
             const suffix = 0;
             const childPath = path.concat([suffix]);
-            const resKey = await this.getPublicKey(params);
-            const childKey = await this.getPublicKey({ ...params, address_n: childPath });
-
+            const resKey = await this.getPublicKey(params, unlockPath);
+            const childKey = await this.getPublicKey(
+                { ...params, address_n: childPath },
+                unlockPath,
+            );
             publicKey = hdnodeUtils.xpubDerive(resKey, childKey, suffix, network, coinInfo.network);
         }
 
