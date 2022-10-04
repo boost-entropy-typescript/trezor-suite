@@ -2,7 +2,6 @@
 .config_sign_stable: &config_sign_stable
   interruptible: true
   dependencies:
-    - install
     - msg-system config sign stable
 
 .config_sign_dev: &config_sign_dev
@@ -42,26 +41,6 @@ suite-web build dev:
   artifacts:
     expire_in: 7 days
     paths:
-      - packages/suite-web/build
-
-suite-web build stable:
-  stage: build
-  <<: *config_sign_dev
-  only:
-    refs:
-      - develop
-      - releases
-      - schedules
-      - /^release\//
-  variables:
-    ASSET_PREFIX: /web
-  script:
-    - yarn install --immutable
-    - yarn workspace @trezor/suite-web build
-  artifacts:
-    expire_in: 7 days
-    paths:
-      - packages/suite-web/scripts/s3sync.sh
       - packages/suite-web/build
 
 suite-web build stable codesign:
@@ -106,9 +85,6 @@ suite-web-landing build stable:
   stage: build
   only:
     refs:
-      - develop
-      - releases
-      - schedules
       - /^release\//
       - codesign
   script:

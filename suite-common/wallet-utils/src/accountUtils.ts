@@ -358,6 +358,16 @@ export const enhanceUtxo = (
     return enhancedUtxos;
 };
 
+export const enhanceHistory = ({
+    total,
+    unconfirmed,
+    tokens,
+}: AccountInfo['history']): Account['history'] => ({
+    total,
+    unconfirmed,
+    tokens,
+});
+
 export const getAccountFiatBalance = (
     account: Account,
     localCurrency: string,
@@ -717,24 +727,31 @@ export const getPendingAccount = (
     };
 };
 
+export const getNetworkFeatures = ({
+    networkType,
+    symbol,
+    accountType,
+}: Pick<Account, 'networkType' | 'symbol' | 'accountType'>) =>
+    NETWORKS.find(
+        network =>
+            network.networkType === networkType &&
+            network.symbol === symbol &&
+            (network.accountType || 'normal') === accountType,
+    )?.features || [];
+
 export const hasNetworkFeatures = (
     account: Account,
     features: NetworkFeature | Array<NetworkFeature>,
 ) => {
-    const networkConfig = NETWORKS.find(
-        ({ networkType, symbol, accountType }) =>
-            networkType === account.networkType &&
-            symbol === account.symbol &&
-            (accountType || 'normal') === account.accountType,
-    );
+    const networkFeatures = getNetworkFeatures(account);
 
-    if (!networkConfig) {
+    if (!networkFeatures) {
         return false;
     }
 
     const areFeaturesPresent = ([] as NetworkFeature[])
         .concat(features)
-        .every(feature => networkConfig.features?.includes(feature));
+        .every(feature => networkFeatures.includes(feature));
 
     return areFeaturesPresent;
 };
