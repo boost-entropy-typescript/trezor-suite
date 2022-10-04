@@ -1,35 +1,25 @@
 import React, { useState, useEffect } from 'react';
-
 import styled from 'styled-components';
-import { ThemeProvider } from '@suite-support/ThemeProvider';
-import { TorStatus } from '@suite-types';
-import { Translation, TorLoader } from '@suite-components';
 
-import { Button, Modal } from '@trezor/components';
 import { desktopApi, BootstrapTorEvent } from '@trezor/suite-desktop-api';
+import { Button } from '@trezor/components';
+import { TorStatus } from '@suite-types';
+import { TorLoader, Modal, Translation } from '@suite-components';
 
-const Wrapper = styled.div`
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
+import type { UserContextPayload } from '@suite-actions/modalActions';
+
+const SmallModal = styled(Modal)`
+    width: 560px;
 `;
 
-const StyledModal = styled(Modal)`
-    max-width: 600px;
-`;
+type RequestEnableTorProps = Omit<
+    Extract<UserContextPayload, { type: 'request-enable-tor' }>,
+    'type'
+> & {
+    onCancel: () => void;
+};
 
-const StyledButton = styled(Button)`
-    width: 150px;
-`;
-
-interface TorLoadingScreenProps {
-    callback: (value?: unknown) => void;
-}
-
-export const TorLoadingScreen = ({ callback }: TorLoadingScreenProps) => {
+export const TorLoading = ({ onCancel, decision }: RequestEnableTorProps) => {
     const [torStatus, setTorStatus] = useState<TorStatus>(TorStatus.Enabling);
     const [progress, setProgress] = useState<number>(0);
 
@@ -48,7 +38,7 @@ export const TorLoadingScreen = ({ callback }: TorLoadingScreenProps) => {
 
                 if (bootstrapEvent.progress.current === bootstrapEvent.progress.total) {
                     setTorStatus(TorStatus.Enabled);
-                    callback();
+                    decision.resolve(true);
                 } else {
                     setTorStatus(TorStatus.Enabling);
                 }
@@ -56,7 +46,7 @@ export const TorLoadingScreen = ({ callback }: TorLoadingScreenProps) => {
         });
 
         return () => desktopApi.removeAllListeners('tor/bootstrap');
-    }, [torStatus, callback]);
+    }, [torStatus, decision]);
 
     const tryAgain = async () => {
         setProgress(0);
@@ -90,28 +80,24 @@ export const TorLoadingScreen = ({ callback }: TorLoadingScreenProps) => {
             }, 300);
         });
 
-        callback();
+        decision.resolve(false);
+        onCancel();
     };
 
     return (
-        <ThemeProvider>
-            <Wrapper data-test="@tor-loading-screen">
-                <StyledModal
-                    bottomBar={
-                        torStatus === TorStatus.Error && (
-                            <StyledButton
-                                data-test="@tor-loading-screen/try-again-button"
-                                icon="REFRESH"
-                                onClick={tryAgain}
-                            >
-                                <Translation id="TR_TRY_AGAIN" />
-                            </StyledButton>
-                        )
-                    }
-                >
-                    <TorLoader torStatus={torStatus} progress={progress} disableTor={disableTor} />
-                </StyledModal>
-            </Wrapper>
-        </ThemeProvider>
+        <>
+            <SmallModal
+                heading={<Translation id="TR_TOR_ENABLE" />}
+                bottomBar={
+                    torStatus === TorStatus.Error && (
+                        <Button icon="REFRESH" onClick={tryAgain}>
+                            <Translation id="TR_TRY_AGAIN" />
+                        </Button>
+                    )
+                }
+            >
+                <TorLoader torStatus={torStatus} progress={progress} disableTor={disableTor} />
+            </SmallModal>
+        </>
     );
 };
