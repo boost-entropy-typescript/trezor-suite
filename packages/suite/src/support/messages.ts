@@ -3558,7 +3558,7 @@ export default defineMessages({
     },
     TR_ACCOUNT_TYPE_SLIP25_DESC: {
         id: 'TR_ACCOUNT_TYPE_SLIP25_DESC',
-        defaultMessage: 'What is a CoinJoin account?',
+        defaultMessage: 'What is CoinJoin account?',
     },
     TOAST_QR_INCORRECT_ADDRESS: {
         id: 'TOAST_QR_INCORRECT_ADDRESS',
@@ -7160,7 +7160,7 @@ export default defineMessages({
         defaultMessage: '{rounds} rounds left',
     },
     TR_COINJOIN_ROUND_COUNTDOWN: {
-        id: 'TR_FEE_RATE_CHANGED',
+        id: 'TR_COINJOIN_ROUND_COUNTDOWN',
         defaultMessage: 'Next transaction signing starts in {time}',
     },
     TR_VIEW: {
@@ -7175,7 +7175,6 @@ export default defineMessages({
         id: 'TR_ANONYMIZING',
         defaultMessage: 'Anonymizing',
     },
-
     TR_COINS_ANONYMITY: {
         id: 'TR_COINS_ANONYMITY',
         defaultMessage: 'Anonymity of my coins',
