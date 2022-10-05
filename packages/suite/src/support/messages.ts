@@ -7153,7 +7153,19 @@ export default defineMessages({
     },
     TR_FEE_RATE_CHANGED: {
         id: 'TR_FEE_RATE_CHANGED',
-        defaultMessage: 'Fee rate has changed to complete transaction.',
+        defaultMessage: 'Fee rate has changed to complete transaction',
+    },
+    TR_COINJOIN_COUNTDOWN: {
+        id: 'TR_COINJOIN_COUNTDOWN',
+        defaultMessage: '{rounds} rounds left',
+    },
+    TR_COINJOIN_ROUND_COUNTDOWN: {
+        id: 'TR_FEE_RATE_CHANGED',
+        defaultMessage: 'Next transaction signing starts in {time}',
+    },
+    TR_VIEW: {
+        id: 'TR_VIEW',
+        defaultMessage: 'View',
     },
     TR_MY_COINS: {
         id: 'TR_MY_COINS',
@@ -7327,5 +7339,62 @@ export default defineMessages({
         id: 'TR_RESET_TO_DEFAULT',
         description: 'Button in coin join settings',
         defaultMessage: 'Reset to default',
+    },
+    TR_COINJOIN_PHASE_0_MESSAGE: {
+        id: 'TR_COINJOIN_PHASE_1_MESSAGE',
+        defaultMessage: 'Collecting inputs',
+    },
+    TR_COINJOIN_PHASE_1_MESSAGE: {
+        id: 'TR_COINJOIN_PHASE_2_MESSAGE',
+        defaultMessage: 'Joining coins',
+    },
+    TR_COINJOIN_PHASE_2_MESSAGE: {
+        id: 'TR_COINJOIN_PHASE_3_MESSAGE',
+        defaultMessage: 'U poor now',
+    },
+    TR_LEFT: {
+        id: 'TR_LEFT',
+        description: 'As in "{time} Left"',
+        defaultMessage: 'left',
+    },
+    TR_PAUSE: {
+        id: 'TR_PAUSE',
+        defaultMessage: 'Pause',
+    },
+    TR_CANCEL_COINJOIN: {
+        id: 'TR_CANCEL_COINJOIN',
+        defaultMessage: 'Cancel CoinJoin',
+    },
+    TR_CANCEL_COINJOIN_QUESTION: {
+        id: 'TR_CANCEL_COINJOIN_QUESTION',
+        defaultMessage: 'Do you really want to cancel this CoinJoin?',
+    },
+    TR_CANCEL_COINJOIN_NO: {
+        id: 'TR_CANCEL_COINJOIN_NO',
+        defaultMessage: 'No, continue',
+    },
+    TR_CANCEL_COINJOIN_YES: {
+        id: 'TR_CANCEL_COINJOIN_YES',
+        defaultMessage: 'Yes, cancel it',
+    },
+    TR_PAUSED: {
+        id: 'TR_PAUSED',
+        defaultMessage: 'Paused',
+    },
+    TR_RESUME: {
+        id: 'TR_RESUME',
+        defaultMessage: 'Resume',
+    },
+    TR_COINJOIN_PAUSED: {
+        id: 'TR_COINJOIN_PAUSED',
+        defaultMessage: 'Coinjoin paused',
+    },
+    TR_RESUMING: {
+        id: 'TR_RESUMING',
+        defaultMessage: 'Resuming',
+    },
+    TR_PAUSING: {
+        id: 'TR_PAUSING',
+        defaultMessage: 'Pausing',
     },
 });
