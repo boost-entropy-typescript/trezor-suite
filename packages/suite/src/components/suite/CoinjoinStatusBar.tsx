@@ -2,15 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { Button, variables } from '@trezor/components';
 import { Translation } from './Translation';
-import { CoinjoinSession, WalletParams } from '@suite-common/wallet-types';
+import { CoinjoinSession, RoundPhase, WalletParams } from '@suite-common/wallet-types';
 import { CountdownTimer } from './CountdownTimer';
 import { useActions } from '@suite-hooks/useActions';
 import * as routerActions from '@suite-actions/routerActions';
 import * as suiteActions from '@suite-actions/suiteActions';
 import { useSelector } from '@suite-hooks/useSelector';
 import { STATUS as DiscoveryStatus } from '@wallet-actions/constants/discoveryConstants';
-import { TranslationKey } from '@suite-common/intl-types';
 import { WalletLabeling } from './Labeling';
+import { COINJOIN_PHASE_MESSAGES } from '@suite-constants/coinjoin';
 
 const SPACING = 6;
 
@@ -50,18 +50,6 @@ const ViewButton = styled(Button)`
     height: 20px;
     margin-left: auto;
 `;
-
-enum MockCoinjoinPhase {
-    Starting,
-    Ongoing,
-    Error,
-}
-
-const PHASE_MESSAGES: Record<MockCoinjoinPhase, TranslationKey> = {
-    [MockCoinjoinPhase.Starting]: 'TR_COINJOIN_PHASE_0_MESSAGE',
-    [MockCoinjoinPhase.Ongoing]: 'TR_COINJOIN_PHASE_1_MESSAGE',
-    [MockCoinjoinPhase.Error]: 'TR_COINJOIN_PHASE_2_MESSAGE',
-};
 
 interface CoinjoinStatusBarProps {
     accountKey: string;
@@ -110,9 +98,7 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
         });
     };
 
-    const { signedRounds, maxRounds, deadline } = session;
-
-    const phase = MockCoinjoinPhase.Ongoing; // TEMPORARY
+    const { phase, signedRounds, maxRounds, deadline } = session;
     const progress = signedRounds.length / (maxRounds / 100);
 
     const {
@@ -137,7 +123,7 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
             <ProgressPie progress={progress} />
 
             <StatusText>
-                <Translation id={PHASE_MESSAGES[phase]} />
+                <Translation id={COINJOIN_PHASE_MESSAGES[phase || RoundPhase.InputRegistration]} />
 
                 <Separator>•</Separator>
 
@@ -154,7 +140,7 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
                     <Translation
                         id="TR_COINJOIN_ROUND_COUNTDOWN"
                         values={{
-                            time: <CountdownTimer deadline={Number(deadline)} />,
+                            time: <CountdownTimer deadline={deadline} />,
                         }}
                     />
                 </Note>
