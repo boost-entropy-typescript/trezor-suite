@@ -6,13 +6,13 @@ import { config } from '@trezor/connect/lib/data/config';
 export const WebUsbButton = (props: ButtonProps) => (
     <Button
         {...props}
-        icon={props.icon || 'PLUS'}
+        icon="SEARCH"
         onClick={async e => {
             e.stopPropagation();
             try {
                 await navigator.usb.requestDevice({ filters: config.webusb });
             } catch (error) {
-                // empty
+                console.error(error);
             }
         }}
     >
