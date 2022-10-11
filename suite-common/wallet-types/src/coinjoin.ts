@@ -17,6 +17,7 @@ export enum RoundPhase {
 }
 
 export interface CoinjoinSession extends CoinjoinSessionParameters {
+    registeredUtxos: string[]; // list of utxos (outpoints) registered in session
     timeCreated: number; // timestamp when was created
     timeEnded?: number; // timestamp when was finished
     phase?: RoundPhase; // current phase enum
@@ -26,6 +27,7 @@ export interface CoinjoinSession extends CoinjoinSessionParameters {
 
 export interface CoinjoinAccount {
     key: string; // reference to wallet Account.key
+    targetAnonymity: number; // anonymity set by the user
     session?: CoinjoinSession; // current/active authorized session
     previousSessions: CoinjoinSession[]; // history
 }
