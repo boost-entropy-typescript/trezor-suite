@@ -35,6 +35,7 @@ import {
 
 import type { AcquiredDevice } from '@suite-types';
 import type { ReduxModalProps } from './types';
+import { AccessCoinjoinAccount } from '@suite-components/modals/AccessCoinjoinAccount';
 
 /** Modals opened as result of user action */
 export const UserContextModal = ({
@@ -151,6 +152,14 @@ export const UserContextModal = ({
             return <RequestEnableTor decision={payload.decision} onCancel={onCancel} />;
         case 'tor-loading':
             return <TorLoading decision={payload.decision} onCancel={onCancel} />;
+        case 'access-coinjoin-account':
+            return (
+                <AccessCoinjoinAccount
+                    network={payload.network}
+                    decision={payload.decision}
+                    onCancel={onCancel}
+                />
+            );
         case 'cancel-coinjoin':
             return <CancelCoinjoin onClose={onCancel} />;
         default:
