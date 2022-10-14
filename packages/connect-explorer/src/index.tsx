@@ -1,8 +1,9 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './router';
 
-const root = document.getElementById('root');
+const container = document.getElementById('root');
+const root = createRoot(container!);
 if (root) {
-    render(<App />, root);
+    root.render(<App />);
 }

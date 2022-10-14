@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Router as RouterProvider } from 'react-router-dom';
 import { init as initSentry } from '@sentry/browser';
@@ -11,7 +11,7 @@ import { SENTRY_CONFIG } from '@suite-common/sentry';
 import Metadata from '@suite-components/Metadata';
 import Preloader from '@suite-components/Preloader';
 import { ToastContainer } from '@suite-components';
-import IntlProvider from '@suite-support/ConnectedIntlProvider';
+import { ConnectedIntlProvider } from '@suite-support/ConnectedIntlProvider';
 import Resize from '@suite-support/Resize';
 import Protocol from '@suite-support/Protocol';
 import Autodetect from '@suite-support/Autodetect';
@@ -44,7 +44,7 @@ const Main = () => {
                         <Protocol />
                         <OnlineStatus />
                         <RouterHandler />
-                        <IntlProvider>
+                        <ConnectedIntlProvider>
                             <FormatterProvider config={formattersConfig}>
                                 <Metadata />
                                 <ToastContainer />
@@ -52,7 +52,7 @@ const Main = () => {
                                     <AppRouter />
                                 </Preloader>
                             </FormatterProvider>
-                        </IntlProvider>
+                        </ConnectedIntlProvider>
                     </ErrorBoundary>
                 </ModalContextProvider>
             </RouterProvider>
@@ -60,21 +60,21 @@ const Main = () => {
     );
 };
 
-export const init = async (root: HTMLElement) => {
+export const init = async (container: HTMLElement) => {
     if (!window.Cypress) {
         initSentry(SENTRY_CONFIG);
     }
 
     // render simple loader with theme provider without redux, wait for indexedDB
-    render(<LoadingScreen />, root);
+    const root = createRoot(container);
+    root.render(<LoadingScreen />);
 
     const preloadAction = await preloadStore();
     const store = initStore(preloadAction);
 
-    render(
+    root.render(
         <ReduxProvider store={store}>
             <Main />
         </ReduxProvider>,
-        root,
     );
 };

@@ -1,15 +1,15 @@
 import React from 'react';
-import { render } from 'react-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Router as RouterProvider } from 'react-router-dom';
 
+import { createRoot } from 'react-dom/client';
 import { init as initSentry } from '@sentry/electron/renderer';
 import { initStore } from '@suite/reducers/store';
 import { preloadStore } from '@suite-support/preloadStore';
 import Metadata from '@suite-components/Metadata';
 import Preloader from '@suite-components/Preloader';
 import { ToastContainer } from '@suite-components/ToastContainer';
-import IntlProvider from '@suite-support/ConnectedIntlProvider';
+import { ConnectedIntlProvider } from '@suite-support/ConnectedIntlProvider';
 import Resize from '@suite-support/Resize';
 import Autodetect from '@suite-support/Autodetect';
 import Protocol from '@suite-support/Protocol';
@@ -49,7 +49,7 @@ const Main = () => {
                         <Protocol />
                         <OnlineStatus />
                         <RouterHandler />
-                        <IntlProvider>
+                        <ConnectedIntlProvider>
                             <FormatterProvider config={formattersConfig}>
                                 <DesktopUpdater>
                                     <Metadata />
@@ -59,7 +59,7 @@ const Main = () => {
                                     </Preloader>
                                 </DesktopUpdater>
                             </FormatterProvider>
-                        </IntlProvider>
+                        </ConnectedIntlProvider>
                     </ErrorBoundary>
                 </ModalContextProvider>
             </RouterProvider>
@@ -67,11 +67,12 @@ const Main = () => {
     );
 };
 
-export const init = async (root: HTMLElement) => {
+export const init = async (container: HTMLElement) => {
     initSentry(SENTRY_CONFIG);
 
     // render simple loader with theme provider without redux, wait for indexedDB
-    render(<LoadingScreen />, root);
+    const root = createRoot(container);
+    root.render(<LoadingScreen />);
 
     const preloadAction = await preloadStore();
     const store = initStore(preloadAction);
@@ -85,13 +86,12 @@ export const init = async (root: HTMLElement) => {
     // when it runs because of renderer (e.g. Ctrl+R) it will always be false.
     if (shouldRunTor) {
         await new Promise(resolve => {
-            render(
+            root.render(
                 <ReduxProvider store={store}>
-                    <IntlProvider>
+                    <ConnectedIntlProvider>
                         <TorLoadingScreen callback={resolve} />
-                    </IntlProvider>
+                    </ConnectedIntlProvider>
                 </ReduxProvider>,
-                root,
             );
             desktopApi.toggleTor(true);
         });
@@ -100,7 +100,7 @@ export const init = async (root: HTMLElement) => {
     const loadModules = await desktopApi.loadModules(null);
     if (!loadModules.success) {
         // loading failed, render error with theme provider without redux and do not continue
-        render(<ErrorScreen error={loadModules.error} />, root);
+        root.render(<ErrorScreen error={loadModules.error} />);
         return;
     }
 
@@ -115,10 +115,9 @@ export const init = async (root: HTMLElement) => {
     });
 
     // finally render whole app
-    render(
+    root.render(
         <ReduxProvider store={store}>
             <Main />
         </ReduxProvider>,
-        root,
     );
 };
