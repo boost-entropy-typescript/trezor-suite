@@ -2,8 +2,9 @@ import TrezorConnect from '@trezor/connect';
 import * as COINJOIN from './constants/coinjoinConstants';
 import { goto } from '../suite/routerActions';
 import { addToast } from '../suite/notificationActions';
-import { initCoinjoinClient, getCoinjoinClient } from './coinjoinClientActions';
+import { initCoinjoinClient, getCoinjoinClient, clientDisable } from './coinjoinClientActions';
 import { CoinjoinBackendService } from '@suite/services/coinjoin/coinjoinBackend';
+import { CoinjoinClientService } from '@suite/services/coinjoin/coinjoinClient';
 import { Dispatch, GetState } from '@suite-types';
 import { Network } from '@suite-common/wallet-config';
 import { Account, CoinjoinSessionParameters } from '@suite-common/wallet-types';
@@ -12,45 +13,66 @@ import { accountsActions, transactionsActions } from '@suite-common/wallet-core'
 const coinjoinAccountCreate = (account: Account, targetAnonymity: number) =>
     ({
         type: COINJOIN.ACCOUNT_CREATE,
-        account,
-        targetAnonymity,
+        payload: {
+            account,
+            targetAnonymity,
+        },
     } as const);
 
-const coinjoinAccountUpdateAnonymity = (key: string, targetAnonymity: number) =>
+const coinjoinAccountRemove = (accountKey: string) =>
+    ({
+        type: COINJOIN.ACCOUNT_REMOVE,
+        payload: {
+            accountKey,
+        },
+    } as const);
+
+const coinjoinAccountUpdateAnonymity = (accountKey: string, targetAnonymity: number) =>
     ({
         type: COINJOIN.ACCOUNT_UPDATE_TARGET_ANONYMITY,
-        key,
-        targetAnonymity,
+        payload: {
+            accountKey,
+            targetAnonymity,
+        },
     } as const);
 
-const coinjoinAccountAuthorize = (account: Account) =>
+const coinjoinAccountAuthorize = (accountKey: string) =>
     ({
         type: COINJOIN.ACCOUNT_AUTHORIZE,
-        account,
+        payload: {
+            accountKey,
+        },
     } as const);
 
-const coinjoinAccountAuthorizeSuccess = (account: Account, params: CoinjoinSessionParameters) =>
+const coinjoinAccountAuthorizeSuccess = (accountKey: string, params: CoinjoinSessionParameters) =>
     ({
         type: COINJOIN.ACCOUNT_AUTHORIZE_SUCCESS,
-        account,
-        params,
+        payload: {
+            accountKey,
+            params,
+        },
     } as const);
 
-const coinjoinAccountAuthorizeFailed = (account: Account, error: string) =>
+const coinjoinAccountAuthorizeFailed = (accountKey: string, error: string) =>
     ({
         type: COINJOIN.ACCOUNT_AUTHORIZE_FAILED,
-        account,
-        error,
+        payload: {
+            accountKey,
+            error,
+        },
     } as const);
 
-const coinjoinAccountUnregister = (account: Account) =>
+const coinjoinAccountUnregister = (accountKey: string) =>
     ({
         type: COINJOIN.ACCOUNT_UNREGISTER,
-        account,
+        payload: {
+            accountKey,
+        },
     } as const);
 
 export type CoinjoinAccountAction =
     | ReturnType<typeof coinjoinAccountCreate>
+    | ReturnType<typeof coinjoinAccountRemove>
     | ReturnType<typeof coinjoinAccountUpdateAnonymity>
     | ReturnType<typeof coinjoinAccountAuthorize>
     | ReturnType<typeof coinjoinAccountAuthorizeSuccess>
@@ -247,7 +269,7 @@ const authorizeCoinjoin =
         const { device } = getState().suite;
 
         // authorize coinjoin session on Trezor
-        dispatch(coinjoinAccountAuthorize(account));
+        dispatch(coinjoinAccountAuthorize(account.key));
 
         const auth = await TrezorConnect.authorizeCoinJoin({
             device,
@@ -258,11 +280,11 @@ const authorizeCoinjoin =
         });
 
         if (auth.success) {
-            dispatch(coinjoinAccountAuthorizeSuccess(account, params));
+            dispatch(coinjoinAccountAuthorizeSuccess(account.key, params));
             return true;
         }
 
-        dispatch(coinjoinAccountAuthorizeFailed(account, auth.payload.error));
+        dispatch(coinjoinAccountAuthorizeFailed(account.key, auth.payload.error));
 
         dispatch(
             addToast({
@@ -313,5 +335,70 @@ export const stopCoinjoinSession = (account: Account) => (dispatch: Dispatch) =>
     client.unregisterAccount(account.key);
 
     // dispatch data to reducer
-    dispatch(coinjoinAccountUnregister(account));
+    dispatch(coinjoinAccountUnregister(account.key));
+};
+
+export const forgetCoinjoinAccounts =
+    (accounts: Account[]) => (dispatch: Dispatch, getState: GetState) => {
+        const { coinjoin } = getState().wallet;
+        // find all accounts to unregister
+        const coinjoinNetworks = coinjoin.accounts.reduce((res, cjAccount) => {
+            const account = accounts.find(a => a.key === cjAccount.key);
+            if (account) {
+                if (cjAccount.session) {
+                    dispatch(stopCoinjoinSession(account));
+                }
+                dispatch(coinjoinAccountRemove(cjAccount.key));
+                if (!res.includes(cjAccount.symbol)) {
+                    return res.concat(cjAccount.symbol);
+                }
+            }
+            return res;
+        }, [] as Account['symbol'][]);
+
+        // get new state
+        const otherCjAccounts = getState().wallet.coinjoin.accounts;
+        coinjoinNetworks.forEach(network => {
+            const other = otherCjAccounts.find(a => a.symbol === network);
+            // clear CoinjoinClientInstance if there are no related accounts left
+            if (!other) {
+                dispatch(clientDisable(network));
+                CoinjoinBackendService.removeInstance(network);
+                CoinjoinClientService.removeInstance(network);
+            }
+        });
+    };
+
+export const restoreCoinjoin = () => (dispatch: Dispatch, getState: GetState) => {
+    const { accounts, coinjoin } = getState().wallet;
+
+    // find all networks to restore
+    const coinjoinNetworks = coinjoin.accounts.reduce((res, cjAccount) => {
+        const account = accounts.find(a => a.key === cjAccount.key);
+        if (account) {
+            // currently it is not possible to full restore session while using passphrase.
+            // related to @trezor/connect and inner-outer state
+            if (cjAccount.session) {
+                dispatch(coinjoinAccountUnregister(account.key));
+            }
+
+            if (!res.includes(account.symbol)) {
+                return res.concat(account.symbol);
+            }
+        }
+        return res;
+    }, [] as Account['symbol'][]);
+
+    // async actions in sequence
+    // TODO: handle client init error and do not proceed after first failure
+    return coinjoinNetworks.reduce(
+        (p, symbol) =>
+            p.then(async () => {
+                // initialize @trezor/coinjoin backend
+                await CoinjoinBackendService.createInstance(symbol);
+                // initialize @trezor/coinjoin client
+                await dispatch(initCoinjoinClient(symbol));
+            }),
+        Promise.resolve(),
+    );
 };

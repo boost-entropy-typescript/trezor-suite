@@ -2,18 +2,19 @@ import { db } from '@suite/storage';
 import * as notificationActions from '@suite-actions/notificationActions';
 import * as suiteActions from '@suite-actions/suiteActions';
 import { serializeDiscovery, serializeDevice } from '@suite-utils/storage';
-import { deviceGraphDataFilterFn } from '@wallet-utils/graphUtils';
-import { getFormDraftKey } from '@suite-common/wallet-utils';
-import { FormDraftPrefixKeyValues } from '@suite-common/wallet-constants';
-
 import type { Dispatch, GetState, TrezorDevice } from '@suite-types';
 import type { Account, Network } from '@wallet-types';
-import type { GraphData } from '@wallet-types/graph';
 import type { Discovery } from '@wallet-reducers/discoveryReducer';
 import type { FormState } from '@wallet-types/sendForm';
 import type { Trade } from '@wallet-types/coinmarketCommonTypes';
 import type { FormDraft, FormDraftKeyPrefix } from '@wallet-types/form';
 import type { PreloadStoreAction } from '@suite-support/preloadStore';
+
+import { getFormDraftKey } from '@suite-common/wallet-utils';
+import { deviceGraphDataFilterFn } from '@suite-common/wallet-graph';
+import type { GraphData } from '@suite-common/wallet-graph';
+import { FormDraftPrefixKeyValues } from '@suite-common/wallet-constants';
+
 import { STORAGE } from './constants';
 
 export type StorageAction = NonNullable<PreloadStoreAction>;
@@ -42,6 +43,20 @@ export const saveAccountDraft = (account: Account) => async (_: Dispatch, getSta
 export const removeAccountDraft = async (account: Account) => {
     if (!(await db.isAccessible())) return Promise.resolve();
     return db.removeItemByPK('sendFormDrafts', account.key);
+};
+
+export const saveCoinjoinAccount =
+    (accountKey: string) => async (_: Dispatch, getState: GetState) => {
+        const state = getState();
+        const { device } = state.suite;
+        const account = state.wallet.coinjoin.accounts.find(a => a.key === accountKey);
+        if (!device?.remember || !account || !(await db.isAccessible())) return;
+        return db.addItem('coinjoinAccounts', account, accountKey, true);
+    };
+
+export const removeCoinjoinAccount = async (accountKey: string) => {
+    if (!(await db.isAccessible())) return;
+    return db.removeItemByPK('coinjoinAccounts', accountKey);
 };
 
 // send form drafts end
@@ -182,6 +197,7 @@ export const rememberDevice =
                     [
                         dispatch(saveAccountTransactions(account)),
                         dispatch(saveAccountDraft(account)),
+                        dispatch(saveCoinjoinAccount(account.key)),
                     ],
                     FormDraftPrefixKeyValues.map(prefix =>
                         dispatch(saveAccountFormDraft(prefix, account.key)),
