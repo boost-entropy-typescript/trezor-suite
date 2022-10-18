@@ -46,26 +46,31 @@ export const groupTransactionsByDate = (
     transactions: WalletAccountTransaction[],
 ): { [key: string]: WalletAccountTransaction[] } => {
     const r: { [key: string]: WalletAccountTransaction[] } = {};
-    transactions.sort(sortByBlockHeight).forEach(item => {
-        let key = 'pending';
-        if (item.blockHeight && item.blockHeight > 0 && item.blockTime && item.blockTime > 0) {
-            const t = item.blockTime * 1000;
-            const d = new Date(t);
-            if (d) {
-                // YYYY-MM-DD format
-                key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(
-                    `Error during grouping transaction by date. Failed timestamp conversion (${t})`,
-                );
+    // Note: We should use ts-belt for sorting this array but currently, there can be undefined inside
+    // Built-in sort doesn't include undefined elements but ts-belt does so there will be some refactoring involved.
+    transactions
+        .slice()
+        .sort(sortByBlockHeight)
+        .forEach(item => {
+            let key = 'pending';
+            if (item.blockHeight && item.blockHeight > 0 && item.blockTime && item.blockTime > 0) {
+                const t = item.blockTime * 1000;
+                const d = new Date(t);
+                if (d) {
+                    // YYYY-MM-DD format
+                    key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        `Error during grouping transaction by date. Failed timestamp conversion (${t})`,
+                    );
+                }
             }
-        }
-        if (!r[key]) {
-            r[key] = [];
-        }
-        r[key].push(item);
-    });
+            if (!r[key]) {
+                r[key] = [];
+            }
+            r[key].push(item);
+        });
     return r;
 };
 
@@ -537,7 +542,7 @@ export const getRbfParams = (
     getBitcoinRbfParams(tx, account) || getEthereumRbfParams(tx, account);
 
 /**
- * Formats amounts and attaches fields from the account (descriptor, deviceState, symbol) to the tx object
+ * Attaches fields from the account (descriptor, deviceState, symbol) to the tx object
  *
  * @param {AccountTransaction} tx
  * @param {Account} account
@@ -564,6 +569,15 @@ export const enhanceTransaction = (
         rbfParams: getRbfParams(tx, account),
     };
 };
+
+export const getOriginalTransaction = ({
+    descriptor,
+    deviceState,
+    symbol,
+    rbfParams,
+    rates,
+    ...tx
+}: WalletAccountTransaction): AccountTransaction => tx;
 
 const groupTransactionIdsByAddress = (transactions: WalletAccountTransaction[]) => {
     const addresses: { [address: string]: string[] } = {};

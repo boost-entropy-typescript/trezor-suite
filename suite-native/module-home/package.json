@@ -20,6 +20,8 @@
         "@suite-common/wallet-core": "*",
         "@suite-common/wallet-graph": "*",
         "@suite-common/wallet-types": "*",
+        "@suite-common/wallet-utils": "*",
+        "@suite-native/assets": "*",
         "@suite-native/atoms": "*",
         "@suite-native/graph": "*",
         "@suite-native/module-settings": "*",
