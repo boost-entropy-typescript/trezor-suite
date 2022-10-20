@@ -3284,6 +3284,10 @@ export default defineMessages({
         defaultMessage: '{inMy} out of {in} inputs, {outMy} out of {out} outputs',
         id: 'TR_JOINT_TRANSACTION_TARGET',
     },
+    TR_COINJOIN_TRANSACTION_BATCH: {
+        defaultMessage: 'CoinJoin transactions',
+        id: 'TR_COINJOIN_TRANSACTION_BATCH',
+    },
     TR_UNKNOWN_ERROR_SEE_CONSOLE: {
         defaultMessage: 'Unknown error. See console logs for details.',
         id: 'TR_UNKNOWN_ERROR_SEE_CONSOLE',
@@ -5905,6 +5909,14 @@ export default defineMessages({
         id: 'TR_INPUTS_OUTPUTS',
         defaultMessage: 'Inputs, Outputs',
     },
+    TR_MY_INPUTS_AND_OUTPUTS: {
+        id: 'TR_MY_INPUTS_AND_OUTPUTS',
+        defaultMessage: 'My inputs and outputs',
+    },
+    TR_OTHER_INPUTS_AND_OUTPUTS: {
+        id: 'TR_OTHER_INPUTS_AND_OUTPUTS',
+        defaultMessage: 'Other input and outputs',
+    },
     TR_CHAINED_TXS: {
         id: 'TR_CHAINED_TXS',
         defaultMessage: 'Chained transactions',
@@ -7456,5 +7468,25 @@ export default defineMessages({
     TR_PAUSING: {
         id: 'TR_PAUSING',
         defaultMessage: 'Pausing',
+    },
+    TR_COINJOIN_RUNNING: {
+        id: 'TR_COINJOIN_RUNNING',
+        defaultMessage: 'Coinjoin running',
+    },
+    TR_DO_NOT_DISCONNECT_DEVICE: {
+        id: 'TR_DO_NOT_DISCONNECT_DEVICE',
+        defaultMessage: "Don't disconnect your device",
+    },
+    TR_DISMISS: {
+        id: 'TR_DISMISS',
+        defaultMessage: 'Dismiss',
+    },
+    TR_VIEW_ACCOUNT: {
+        id: 'TR_VIEW_ACCOUNT',
+        defaultMessage: 'View account',
+    },
+    TR_COINJOIN_COMPLETED: {
+        id: 'TR_COINJOIN_COMPLETED',
+        defaultMessage: 'Coinjoin successfully completed!',
     },
 });

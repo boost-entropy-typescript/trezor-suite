@@ -36,3 +36,6 @@ export { DisableTor } from './DisableTor';
 export { RequestEnableTor } from './RequestEnableTor';
 export { TorLoading } from './TorLoading';
 export { CancelCoinjoin } from './CancelCoinjoin';
+export { CriticalCoinjoinPhase } from './CriticalCoinjoinPhase';
+export { AccessCoinjoinAccount } from './AccessCoinjoinAccount';
+export { CoinjoinSuccess } from './CoinjoinSuccess';

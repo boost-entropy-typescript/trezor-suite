@@ -140,10 +140,18 @@ export type UserContextPayload =
     | {
           type: 'access-coinjoin-account';
           decision: Deferred<boolean>;
-          network: string;
+          network: Account['symbol'];
       }
     | {
           type: 'cancel-coinjoin';
+      }
+    | {
+          type: 'critical-coinjoin-phase';
+          relatedAccountKey: string;
+      }
+    | {
+          type: 'coinjoin-success';
+          relatedAccountKey: string;
       };
 
 export type ModalAction =

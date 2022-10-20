@@ -1782,26 +1782,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/webpack-preprocessor@npm:^5.11.1":
-  version: 5.14.0
-  resolution: "@cypress/webpack-preprocessor@npm:5.14.0"
-  dependencies:
-    bluebird: 3.7.1
-    debug: ^4.3.2
-    fs-extra: ^10.1.0
-    loader-utils: ^2.0.0
-    lodash: ^4.17.20
-    md5: 2.3.0
-    webpack-virtual-modules: ^0.4.4
-  peerDependencies:
-    "@babel/core": ^7.0.1
-    "@babel/preset-env": ^7.0.0
-    babel-loader: ^8.0.2
-    webpack: ^4 || ^5
-  checksum: 5e3fce0cf5e57eb1ae181062fbe3ae385996f49c934e47beed1a81d62bea5a6e951d3212df0e0e61f24579676b6a6ce250c14ae6ecef175daa0be495f02e23e2
-  languageName: node
-  linkType: hard
-
 "@cypress/xvfb@npm:^1.2.4":
   version: 1.2.4
   resolution: "@cypress/xvfb@npm:1.2.4"
@@ -6494,7 +6474,7 @@ __metadata:
     "@trezor/icons": "*"
     "@trezor/styles": "*"
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-redux: 7.2.2
   languageName: unknown
   linkType: soft
@@ -6519,7 +6499,7 @@ __metadata:
     "@trezor/styles": "*"
     bignumber.js: ^9.1.0
     react: ^18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-redux: 7.2.2
   languageName: unknown
   linkType: soft
@@ -6537,7 +6517,7 @@ __metadata:
     "@trezor/utils": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-gesture-handler: ^2.7.0
     react-native-reanimated: ^2.10.0
     react-native-safe-area-context: ^4.3.1
@@ -6581,7 +6561,7 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-gesture-handler: ^2.7.0
     react-native-graph: ^0.3.0
     react-native-reanimated: ^2.10.0
@@ -6616,7 +6596,7 @@ __metadata:
     "@trezor/validation": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-config: ^1.4.6
     react-native-reanimated: ^2.10.0
     react-native-vision-camera: ^2.14.1
@@ -6640,14 +6620,13 @@ __metadata:
     "@suite-common/wallet-utils": "*"
     "@suite-native/accounts": "*"
     "@suite-native/atoms": "*"
-    "@suite-native/graph": "*"
     "@suite-native/navigation": "*"
     "@suite-native/transactions": "*"
     "@trezor/icons": "*"
     "@trezor/styles": "*"
     "@trezor/theme": "*"
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-redux: 7.2.2
   languageName: unknown
   linkType: soft
@@ -6667,7 +6646,7 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
@@ -6679,7 +6658,7 @@ __metadata:
     "@reduxjs/toolkit": ^1.8.3
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
@@ -6710,7 +6689,7 @@ __metadata:
     date-fns: ^2.29.1
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-graph: ^0.3.0
     react-redux: 7.2.2
     typescript: 4.7.4
@@ -6729,7 +6708,7 @@ __metadata:
     "@trezor/styles": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
@@ -6749,9 +6728,9 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-qr-code: 2.0.8
-    react-redux: 8.0.4
+    react-redux: 7.2.2
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
@@ -6774,7 +6753,7 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-redux: 7.2.2
     typescript: 4.7.4
   languageName: unknown
@@ -6795,7 +6774,7 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-safe-area-context: ^4.3.1
     typescript: 4.7.4
   languageName: unknown
@@ -6859,16 +6838,18 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": ^3.11.0
     "@react-navigation/native": ^6.0.11
+    "@suite-common/formatters": "*"
     "@suite-common/wallet-config": "*"
     "@suite-common/wallet-core": "*"
     "@suite-common/wallet-types": "*"
     "@suite-common/wallet-utils": "*"
     "@suite-native/atoms": "*"
+    "@suite-native/module-settings": "*"
     "@suite-native/navigation": "*"
     "@trezor/icons": "*"
     "@trezor/styles": "*"
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-redux: 7.2.2
   languageName: unknown
   linkType: soft
@@ -7331,7 +7312,7 @@ __metadata:
     "@trezor/theme": "*"
     jest: ^26.6.3
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     svgo: 2.8.0
     tsx: ^3.8.2
     typescript: 4.7.4
@@ -7342,24 +7323,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/integration-tests@workspace:packages/integration-tests"
   dependencies:
-    "@cypress/skip-test": ^2.6.1
-    "@cypress/webpack-preprocessor": ^5.11.1
     "@playwright/test": ^1.22.2
-    "@suite-common/test-utils": "*"
-    "@trezor/suite-analytics": "*"
     "@trezor/trezor-user-env-link": "*"
-    "@trezor/utils": "*"
-    chrome-remote-interface: ^0.31.2
-    cypress: 9.5.4
-    cypress-file-upload: ^5.0.8
-    cypress-image-snapshot: ^4.0.1
-    cypress-wait-until: ^1.7.2
-    express: ^4.17.3
     playwright: ^1.22.2
-    ts-loader: ^9.3.1
-    tsx: ^3.8.2
-    typescript: 4.7.4
-    webpack: ^5.73.0
   languageName: unknown
   linkType: soft
 
@@ -7647,7 +7613,7 @@ __metadata:
     node-libs-browser: ^2.2.1
     react: 18.2.0
     react-intl: ^6.0.5
-    react-native: 0.70.2
+    react-native: 0.70.3
     react-native-config: ^1.4.6
     react-native-flipper: 0.164.0
     react-native-gesture-handler: ^2.7.0
@@ -7711,10 +7677,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/suite-web@workspace:packages/suite-web"
   dependencies:
+    "@cypress/skip-test": ^2.6.1
     "@sentry/browser": 6.17.2
     "@suite-common/formatters": "*"
     "@suite-common/sentry": "*"
+    "@suite-common/test-utils": "*"
     "@trezor/suite": "*"
+    "@trezor/trezor-user-env-link": "*"
+    "@trezor/utils": "*"
+    "@types/chrome-remote-interface": ^0.31.4
+    "@types/cypress-image-snapshot": ^3.1.6
     "@types/react": 18.0.21
     "@types/react-dom": 18.0.6
     "@types/react-helmet": ^6.1.5
@@ -7722,6 +7694,11 @@ __metadata:
     "@types/react-router": ^5.1.18
     "@types/react-router-dom": ^5.1.7
     "@types/styled-components": ^5.1.26
+    chrome-remote-interface: ^0.31.2
+    cypress: ^10.10.0
+    cypress-file-upload: ^5.0.8
+    cypress-image-snapshot: ^4.0.1
+    cypress-wait-until: ^1.7.2
     jest: ^26.6.3
     react-helmet: ^6.1.0
     react-redux: 7.2.2
@@ -7729,7 +7706,9 @@ __metadata:
     react-router-dom: ^5.2.0
     rimraf: ^3.0.2
     styled-components: ^5.3.5
+    tsx: ^3.8.2
     typescript: 4.7.4
+    webpack: ^5.73.0
     worker-loader: ^3.0.8
   languageName: unknown
   linkType: soft
@@ -7873,7 +7852,7 @@ __metadata:
     jest: ^26.6.3
     pod-install: ^0.1.31
     react: 18.2.0
-    react-native: 0.70.2
+    react-native: 0.70.3
     typescript: 4.7.4
   peerDependencies:
     react: "*"
@@ -8149,6 +8128,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chrome-remote-interface@npm:^0.31.4":
+  version: 0.31.4
+  resolution: "@types/chrome-remote-interface@npm:0.31.4"
+  dependencies:
+    devtools-protocol: 0.0.927104
+  checksum: 91c6cf9c749adedc08458b772db12f4142172f36fe885dc741921d259bdb7ec47d64b9e294d793a6c36f0435c6855d6470754fd143711e0b2ff204878dd4f721
+  languageName: node
+  linkType: hard
+
 "@types/chrome@npm:0.0.181":
   version: 0.0.181
   resolution: "@types/chrome@npm:0.0.181"
@@ -8235,6 +8223,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 82a99d6202bf79d62ad8ad9974b6a047500dd7429b90ae4e83993023ab953ca03956d1fb248939fd6efc8caa1d1192f76cd19750c540440ca174733a342b45fd
+  languageName: node
+  linkType: hard
+
+"@types/cypress-image-snapshot@npm:^3.1.6":
+  version: 3.1.6
+  resolution: "@types/cypress-image-snapshot@npm:3.1.6"
+  checksum: cd0128d330233702095dac1d2b4524c8bab9f9bc4070e27942e3e26e7701ec2f1d90faa7901bf335523160e4b9689eff9f6c192f30c0e90b9b846b8dde310ebc
   languageName: node
   linkType: hard
 
@@ -9247,13 +9242,6 @@ __metadata:
   version: 1.19.19
   resolution: "@types/urijs@npm:1.19.19"
   checksum: 2c08d41782149a243b374b28be009ca461f541c440d8d47c9d75b1d3255ff7169b34bb721cf2dd6266c2c44be6b70fc6d67a1abad50c4dae369774042b1facd8
-  languageName: node
-  linkType: hard
-
-"@types/use-sync-external-store@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "@types/use-sync-external-store@npm:0.0.3"
-  checksum: 161ddb8eec5dbe7279ac971531217e9af6b99f7783213566d2b502e2e2378ea19cf5e5ea4595039d730aa79d3d35c6567d48599f69773a02ffcff1776ec2a44e
   languageName: node
   linkType: hard
 
@@ -11689,13 +11677,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bluebird@npm:3.7.1":
-  version: 3.7.1
-  resolution: "bluebird@npm:3.7.1"
-  checksum: 58c295399e109925149977ebcb40e42fd109d3e458899e71441bc7e5e0867bbd796fdd20278b425fa29f13377fe335fbfc2a6e68e5ca1da03b1c3afdc439d097
-  languageName: node
-  linkType: hard
-
 "bluebird@npm:^3.5.0, bluebird@npm:^3.5.1, bluebird@npm:^3.5.3, bluebird@npm:^3.5.5, bluebird@npm:^3.7.2":
   version: 3.7.2
   resolution: "bluebird@npm:3.7.2"
@@ -12735,13 +12716,6 @@ __metadata:
   version: 0.7.0
   resolution: "chardet@npm:0.7.0"
   checksum: 6fd5da1f5d18ff5712c1e0aed41da200d7c51c28f11b36ee3c7b483f3696dabc08927fc6b227735eb8f0e1215c9a8abd8154637f3eff8cada5959df7f58b024d
-  languageName: node
-  linkType: hard
-
-"charenc@npm:0.0.2":
-  version: 0.0.2
-  resolution: "charenc@npm:0.0.2"
-  checksum: 81dcadbe57e861d527faf6dd3855dc857395a1c4d6781f4847288ab23cffb7b3ee80d57c15bba7252ffe3e5e8019db767757ee7975663ad2ca0939bb8fcaf2e5
   languageName: node
   linkType: hard
 
@@ -13948,13 +13922,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crypt@npm:0.0.2":
-  version: 0.0.2
-  resolution: "crypt@npm:0.0.2"
-  checksum: baf4c7bbe05df656ec230018af8cf7dbe8c14b36b98726939cef008d473f6fe7a4fad906cfea4062c93af516f1550a3f43ceb4d6615329612c6511378ed9fe34
-  languageName: node
-  linkType: hard
-
 "crypto-browserify@npm:^3.11.0, crypto-browserify@npm:^3.12.0":
   version: 3.12.0
   resolution: "crypto-browserify@npm:3.12.0"
@@ -14359,9 +14326,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:9.5.4":
-  version: 9.5.4
-  resolution: "cypress@npm:9.5.4"
+"cypress@npm:^10.10.0":
+  version: 10.10.0
+  resolution: "cypress@npm:10.10.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -14382,7 +14349,7 @@ __metadata:
     dayjs: ^1.10.4
     debug: ^4.3.2
     enquirer: ^2.3.6
-    eventemitter2: ^6.4.3
+    eventemitter2: 6.4.7
     execa: 4.1.0
     executable: ^4.1.1
     extract-zip: 2.0.1
@@ -14407,7 +14374,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 55c61f33db5658da8e5af5c6de64f40a85aeb7cba1219f2772675406f6431b7aa7512e13173d0f475af026fffe9878289229b4f5c74d307eac22d8f51fc29f77
+  checksum: 668a32534a527dba79754abbf98af176b80c539a12ec00058932ba2a19c794c7888323e59e738c30f726ad740c5451c31d02548a0cb7c1b1c8ad01c55a984ca2
   languageName: node
   linkType: hard
 
@@ -14973,6 +14940,13 @@ __metadata:
     detect: bin/detect-port.js
     detect-port: bin/detect-port.js
   checksum: b48da9340481742547263d5d985e65d078592557863402ecf538511735e83575867e94f91fe74405ea19b61351feb99efccae7e55de9a151d5654e3417cea05b
+  languageName: node
+  linkType: hard
+
+"devtools-protocol@npm:0.0.927104":
+  version: 0.0.927104
+  resolution: "devtools-protocol@npm:0.0.927104"
+  checksum: 13617e735f326b9822e64480060e59068434e937a6141ffe18353d0c7626be890e94d3118e7c262e6fd17eea3a4a2a18c221d0ff1eb31768ebcf0a0b95475d32
   languageName: node
   linkType: hard
 
@@ -16883,10 +16857,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter2@npm:^6.4.3":
-  version: 6.4.9
-  resolution: "eventemitter2@npm:6.4.9"
-  checksum: be59577c1e1c35509c7ba0e2624335c35bbcfd9485b8a977384c6cc6759341ea1a98d3cb9dbaa5cea4fff9b687e504504e3f9c2cc1674cf3bd8a43a7c74ea3eb
+"eventemitter2@npm:6.4.7":
+  version: 6.4.7
+  resolution: "eventemitter2@npm:6.4.7"
+  checksum: 1b36a77e139d6965ebf3a36c01fa00c089ae6b80faa1911e52888f40b3a7057b36a2cc45dcd1ad87cda3798fe7b97a0aabcbb8175a8b96092a23bb7d0f039e66
   languageName: node
   linkType: hard
 
@@ -20154,7 +20128,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-buffer@npm:^1.1.5, is-buffer@npm:~1.1.6":
+"is-buffer@npm:^1.1.5":
   version: 1.1.6
   resolution: "is-buffer@npm:1.1.6"
   checksum: 4a186d995d8bbf9153b4bd9ff9fd04ae75068fe695d29025d25e592d9488911eeece84eefbd8fa41b8ddcc0711058a71d4c466dcf6f1f6e1d83830052d8ca707
@@ -23224,17 +23198,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"md5@npm:2.3.0":
-  version: 2.3.0
-  resolution: "md5@npm:2.3.0"
-  dependencies:
-    charenc: 0.0.2
-    crypt: 0.0.2
-    is-buffer: ~1.1.6
-  checksum: a63cacf4018dc9dee08c36e6f924a64ced735b37826116c905717c41cebeb41a522f7a526ba6ad578f9c80f02cb365033ccd67fe186ffbcc1a1faeb75daa9b6e
-  languageName: node
-  linkType: hard
-
 "mdast-squeeze-paragraphs@npm:^4.0.0":
   version: 4.0.0
   resolution: "mdast-squeeze-paragraphs@npm:4.0.0"
@@ -23641,7 +23604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"metro-react-native-babel-preset@npm:0.72.3, metro-react-native-babel-preset@npm:^0.72.1, metro-react-native-babel-preset@npm:^0.72.3":
+"metro-react-native-babel-preset@npm:0.72.3, metro-react-native-babel-preset@npm:^0.72.3":
   version: 0.72.3
   resolution: "metro-react-native-babel-preset@npm:0.72.3"
   dependencies:
@@ -28225,9 +28188,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.70.2":
-  version: 0.70.2
-  resolution: "react-native@npm:0.70.2"
+"react-native@npm:0.70.3":
+  version: 0.70.3
+  resolution: "react-native@npm:0.70.3"
   dependencies:
     "@jest/create-cache-key-function": ^27.0.1
     "@react-native-community/cli": 9.1.3
@@ -28265,7 +28228,7 @@ __metadata:
     react: 18.1.0
   bin:
     react-native: cli.js
-  checksum: b6719b6a7bb7e985207f5c5f520b14cc55653d1f0762d5583fe25631802ff7891a2a4ae4d5441c1b564dcc2639aa4daf2a9d045798aa636c97c1ec9fee416187
+  checksum: 7e40da7c3cf78fc16d453fd961b213a236689a06cc88da41154b1f1935844a0d00bcf49b1d344154a5c6d6fa33a800642c5516e9d6070718444e784fbe99b2a2
   languageName: node
   linkType: hard
 
@@ -28330,38 +28293,6 @@ __metadata:
     react-native:
       optional: true
   checksum: c421df8a888a261aaecd9dab92b6d2c92712a7d4e4eab15a9ed5a47bafd0cac44d66cff6cfd6ef6563820887053af7641ba872012f41a415067274430e860e98
-  languageName: node
-  linkType: hard
-
-"react-redux@npm:8.0.4":
-  version: 8.0.4
-  resolution: "react-redux@npm:8.0.4"
-  dependencies:
-    "@babel/runtime": ^7.12.1
-    "@types/hoist-non-react-statics": ^3.3.1
-    "@types/use-sync-external-store": ^0.0.3
-    hoist-non-react-statics: ^3.3.2
-    react-is: ^18.0.0
-    use-sync-external-store: ^1.0.0
-  peerDependencies:
-    "@types/react": ^16.8 || ^17.0 || ^18.0
-    "@types/react-dom": ^16.8 || ^17.0 || ^18.0
-    react: ^16.8 || ^17.0 || ^18.0
-    react-dom: ^16.8 || ^17.0 || ^18.0
-    react-native: ">=0.59"
-    redux: ^4
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-    redux:
-      optional: true
-  checksum: fd940de6a691c734ea975cb73a4413ee6beadb48434d6306fc2edbcf40c0c8c6432b0008663372d01b3578c9381b0acae7766d9f2f5f5f61a0cdaf7abc5eab7d
   languageName: node
   linkType: hard
 
@@ -32505,7 +32436,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     jest: ^26.6.3
     lerna: ^3.20.2
-    metro-react-native-babel-preset: ^0.72.1
+    metro-react-native-babel-preset: ^0.72.3
     npm-run-all: ^4.1.5
     nx: 14.5.10
     patch-package: ^6.4.7
@@ -34411,7 +34342,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-virtual-modules@npm:^0.4.1, webpack-virtual-modules@npm:^0.4.4":
+"webpack-virtual-modules@npm:^0.4.1":
   version: 0.4.5
   resolution: "webpack-virtual-modules@npm:0.4.5"
   checksum: 0ae9a8b50d0cb1e43da5ff8acaa7b99c34a42f0d6cc83a82908fb6e131e574a949d19948df4fdd3de0dbfdbadb2b93ceb4a740c55727a4236eb3b2bbc8f785a6

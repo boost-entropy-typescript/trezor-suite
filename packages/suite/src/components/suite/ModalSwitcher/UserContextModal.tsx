@@ -31,11 +31,13 @@ import {
     RequestEnableTor,
     TorLoading,
     CancelCoinjoin,
+    CriticalCoinjoinPhase,
+    CoinjoinSuccess,
+    AccessCoinjoinAccount,
 } from '@suite-components/modals';
 
 import type { AcquiredDevice } from '@suite-types';
 import type { ReduxModalProps } from './types';
-import { AccessCoinjoinAccount } from '@suite-components/modals/AccessCoinjoinAccount';
 
 /** Modals opened as result of user action */
 export const UserContextModal = ({
@@ -162,6 +164,11 @@ export const UserContextModal = ({
             );
         case 'cancel-coinjoin':
             return <CancelCoinjoin onClose={onCancel} />;
+        case 'critical-coinjoin-phase':
+            return <CriticalCoinjoinPhase relatedAccountKey={payload.relatedAccountKey} />;
+        case 'coinjoin-success':
+            return <CoinjoinSuccess relatedAccountKey={payload.relatedAccountKey} />;
+
         default:
             return null;
     }
