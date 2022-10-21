@@ -4,6 +4,7 @@ interface BaseSettings {
 }
 
 export interface CoinjoinBackendSettings extends BaseSettings {
+    wabisabiBackendUrl: string;
     blockbookUrls: readonly string[];
     baseBlockHeight: number;
     baseBlockHash: string;
@@ -15,4 +16,5 @@ export interface CoinjoinClientSettings extends BaseSettings {
     middlewareUrl: string;
 }
 
+export * from './account';
 export * from './client';
