@@ -1375,6 +1375,19 @@ export default defineMessages({
         defaultMessage: 'Go to Invity',
         id: 'TR_SAVINGS_SETUP_WAITING_BUTTON_LABEL',
     },
+    TR_SAVINGS_SETUP_ALL_FEES_INCLUDED: {
+        defaultMessage: 'All fees included',
+        id: 'TR_SAVINGS_SETUP_ALL_FEES_INCLUDED',
+    },
+    TR_SAVINGS_FEES_TOOLTIP: {
+        defaultMessage:
+            "What you see is what you'll get—the amount shown is the final amount you'll be charged. Here is detailed {feesOverviewLink}.",
+        id: 'TR_SAVINGS_FEES_TOOLTIP',
+    },
+    TR_SAVINGS_FEES_TOOLTIP_FEES_LINK: {
+        defaultMessage: 'schedule of fees',
+        id: 'TR_SAVINGS_FEES_TOOLTIP_FEES_LINK',
+    },
     TR_BUY_FOOTER_TEXT_1: {
         defaultMessage:
             'Invity is a comparison tool that connects you to the best exchange providers. They only use location in order to show the most relevant offers.',
@@ -3833,14 +3846,6 @@ export default defineMessages({
         id: 'TR_TOR_REQUEST_ENABLE_FOR_COIN_JOIN_LEAVE',
         defaultMessage: 'Leave',
     },
-    TR_COINJOIN_ACCESS_ACCOUNT_TITLE: {
-        id: 'TR_COINJOIN_ACCESS_ACCOUNT_TITLE',
-        defaultMessage: 'Access Coinjoin Account',
-    },
-    TR_COINJOIN_ACCESS_ACCOUNT_SUBTITLE: {
-        id: 'TR_COINJOIN_ACCESS_ACCOUNT_SUBTITLE',
-        defaultMessage: 'Privacy enhanced Bitcoin account',
-    },
     TR_COINJOIN_ACCESS_ACCOUNT_STEP_INITIAL_TITLE: {
         id: 'TR_COINJOIN_ACCESS_ACCOUNT_STEP_INITIAL_TITLE',
         defaultMessage: 'Anonymize your funds',
@@ -3853,14 +3858,6 @@ export default defineMessages({
     TR_COINJOIN_ACCESS_ACCOUNT_STEP_INITIAL_FEE_MESSAGE: {
         id: 'TR_COINJOIN_ACCESS_ACCOUNT_STEP_INITIAL_FEE_MESSAGE',
         defaultMessage: 'A fee of {fee}% of the used amount is applied',
-    },
-    TR_COINJOIN_ACCESS_ACCOUNT_STEP_ANONYMITY_LEVEL_TITLE: {
-        id: 'TR_COINJOIN_ACCESS_ACCOUNT_STEP_ANONYMITY_LEVEL_TITLE',
-        defaultMessage: 'Anonymity level',
-    },
-    TR_COINJOIN_ACCESS_ACCOUNT_STEP_ANONYMITY_LEVEL_DESCRIPTION: {
-        id: 'TR_COINJOIN_ACCESS_ACCOUNT_STEP_ANONYMITY_LEVEL_DESCRIPTION',
-        defaultMessage: 'Shows the number of people with whom your resources are indistinguishable',
     },
     TR_TRANSACTIONS: {
         id: 'TR_TRANSACTIONS',

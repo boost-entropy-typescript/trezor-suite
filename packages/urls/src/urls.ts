@@ -49,11 +49,14 @@ export const WIKI_ADVANCED_RECOVERY_URL =
 export const WIKI_XPUB_URL =
     'https://wiki.trezor.io/Suite_manual:Displaying_account_public_key_(XPUB)';
 
+export const HELP_CENTER_COINJOIN = 'https://trezor.io/learn/a/what-is-coinjoin';
+
 export const SOCIAL_TWITTER_URL = 'https://twitter.com/trezor';
 export const SOCIAL_FACEBOOK_URL = 'https://www.facebook.com/trezor.io';
 
 export const SATOSHILABS_URL = 'https://satoshilabs.com';
 export const INVITY_URL = 'https://invity.io/';
+export const INVITY_SCHEDULE_OF_FEES = 'https://blog.invity.io/schedule-of-fees';
 export const HOMESCREEN_EDITOR_URL = 'https://trezor.github.io/homescreen-editor/';
 export const LTC_ADDRESS_INFO_URL =
     'https://blog.trezor.io/litecoins-new-p2sh-segwit-addresses-843633e3e707';

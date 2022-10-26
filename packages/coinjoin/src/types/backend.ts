@@ -5,6 +5,7 @@ import type {
     Transaction,
     AccountAddresses,
     AccountInfo as AccountInfoBase,
+    EnhancedVinVout,
 } from '@trezor/blockchain-link/lib/types';
 import type {
     Transaction as BlockbookTransaction,
@@ -14,7 +15,7 @@ import type {
 import type { CoinjoinBackendClient } from '../backend/CoinjoinBackendClient';
 import type { MempoolController } from '../backend/CoinjoinMempoolController';
 
-export type { BlockbookTransaction, VinVout };
+export type { BlockbookTransaction, VinVout, EnhancedVinVout };
 export type { Address, Utxo, Transaction, AccountAddresses };
 
 export type BlockbookBlock = {
@@ -107,12 +108,15 @@ export type FilterControllerContext = {
     abortSignal?: AbortSignal;
 };
 
+type IteratedBlockFilter = BlockFilter & {
+    progress?: number;
+};
+
 export interface FilterController {
-    get bestBlockHeight(): number;
     getFilterIterator(
         params?: FilterControllerParams,
         context?: FilterControllerContext,
-    ): AsyncGenerator<BlockFilter>;
+    ): AsyncGenerator<IteratedBlockFilter>;
 }
 
 export type FilterClient = Pick<CoinjoinBackendClient, 'fetchFilters'>;
