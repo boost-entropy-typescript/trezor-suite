@@ -1,7 +1,13 @@
 import BigNumber from 'bignumber.js';
+
 import { CoinjoinStatusEvent, RegisterAccountParams } from '@trezor/coinjoin';
 import { getUtxoOutpoint, getBip43Type } from '@suite-common/wallet-utils';
 import { Account, CoinjoinSessionParameters } from '@suite-common/wallet-types';
+import {
+    ESTIMATED_ANONYMITY_GAINED_PER_ROUND,
+    ESTIMATED_HOURS_PER_ROUND_WITHOUT_SKIPPING_ROUNDS,
+    ESTIMATED_HOURS_PER_ROUND_WITH_SKIPPING_ROUNDS,
+} from '@suite/services/coinjoin/config';
 
 export type CoinjoinBalanceBreakdown = {
     notAnonymized: string;
@@ -61,24 +67,24 @@ export const breakdownCoinjoinBalance = ({
  * array => object { name: value-in-vBytes }
  */
 export const transformFeeRatesMedians = (medians: CoinjoinStatusEvent['feeRatesMedians']) => {
-    const [fast, recommended, slow] = medians.map(m => m.medianFeeRate);
-    // convert from kvBytes (kilo virtual bytes) to vBytes
+    const [fast, recommended] = medians.map(m => m.medianFeeRate);
+    // convert from kvBytes (kilo virtual bytes) to vBytes (how the value is displayed in UI)
     const kvB2vB = (v: number) => (v ? Math.round(v / 1000) : 1);
+
     return {
         fast: kvB2vB(fast) * 2, // NOTE: this calculation will be smarter once have enough data
         recommended: kvB2vB(recommended),
-        slow: kvB2vB(slow),
     };
 };
 
 /**
  * Transform from coordinator format to coinjoinReducer format `CoinjoinClientInstance`
- * - coordinatorFeeRate: multiplied by 10. representation of percentage value
- * - feeRatesMedians: array => object with values in vBytes
+ * - coordinatorFeeRate: multiply the amount registered for coinjoin by this value to get the total fee
+ * - feeRatesMedians: array => object with values in kvBytes
  */
 export const transformCoinjoinStatus = (event: CoinjoinStatusEvent) => ({
     rounds: event.rounds.map(r => ({ id: r.id, phase: r.phase })),
-    coordinatorFeeRate: event.coordinatorFeeRate * 10,
+    coordinatorFeeRate: event.coordinatorFeeRate,
     feeRatesMedians: transformFeeRatesMedians(event.feeRatesMedians),
 });
 
@@ -128,3 +134,18 @@ export const getRegisterAccountParams = (
     utxos: getCoinjoinAccountUtxos(account.utxo, account.addresses?.anonymitySet),
     changeAddresses: getCoinjoinAccountAddresses(account.addresses),
 });
+
+// calculate max rounds from anonymity levels
+export const getMaxRounds = (
+    targetAnonymity: number,
+    anonymitySet: Record<string, number | undefined>,
+) => {
+    const lowestAnonymity = Math.min(...Object.values(anonymitySet).map(item => item ?? 1));
+    return Math.ceil((targetAnonymity - lowestAnonymity) / ESTIMATED_ANONYMITY_GAINED_PER_ROUND);
+};
+
+// get time estimate in hours per round
+export const getEstimatedTimePerRound = (skipRounds: boolean) =>
+    skipRounds
+        ? ESTIMATED_HOURS_PER_ROUND_WITH_SKIPPING_ROUNDS
+        : ESTIMATED_HOURS_PER_ROUND_WITHOUT_SKIPPING_ROUNDS;

@@ -6640,6 +6640,7 @@ __metadata:
     "@react-navigation/stack": ^6.2.2
     "@suite-native/atoms": "*"
     "@suite-native/config": "*"
+    "@suite-native/module-settings": "*"
     "@suite-native/navigation": "*"
     "@suite-native/storage": "*"
     "@trezor/icons": "*"
@@ -7387,7 +7388,7 @@ __metadata:
     chalk: ^4.1.2
     fs-extra: ^10.1.0
     jest: ^26.6.3
-    minimatch: ^3.0.4
+    minimatch: ^3.1.2
     prettier: ^2.7.1
     sort-package-json: ^1.54.0
     typescript: 4.7.4
@@ -7619,7 +7620,7 @@ __metadata:
     react-intl: ^6.0.5
     react-native: 0.70.3
     react-native-config: ^1.4.6
-    react-native-flipper: 0.171.1
+    react-native-flipper: 0.164.0
     react-native-gesture-handler: ^2.7.0
     react-native-mmkv: ^2.4.3
     react-native-reanimated: ^2.10.0
@@ -15017,7 +15018,7 @@ __metadata:
     buffer-equal: 1.0.0
     colors: 1.0.3
     commander: 2.9.0
-    minimatch: 3.0.4
+    minimatch: ^3.0.4
   bin:
     dircompare: src/cli/dircompare.js
   checksum: 16710bcb640b0edb753c6ecf10440c20a073588d797f624288601c52bca64a1f8c4dcd474d1fb7fda3595361b7cf528dee856140d83ecdaa19ba5695112d1209
@@ -24215,25 +24216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:3.0.4":
-  version: 3.0.4
-  resolution: "minimatch@npm:3.0.4"
-  dependencies:
-    brace-expansion: ^1.1.7
-  checksum: 66ac295f8a7b59788000ea3749938b0970344c841750abd96694f80269b926ebcafad3deeb3f1da2522978b119e6ae3a5869b63b13a7859a456b3408bd18a078
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:3.0.5":
-  version: 3.0.5
-  resolution: "minimatch@npm:3.0.5"
-  dependencies:
-    brace-expansion: ^1.1.7
-  checksum: a3b84b426eafca947741b864502cee02860c4e7b145de11ad98775cfcf3066fef422583bc0ffce0952ddf4750c1ccf4220b1556430d4ce10139f66247d87d69e
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:^3.0.2, minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
+"minimatch@npm:^3.0.2, minimatch@npm:^3.0.4, minimatch@npm:^3.0.5, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
   dependencies:
@@ -25297,7 +25280,7 @@ __metadata:
     ignore: ^5.0.4
     js-yaml: 4.1.0
     jsonc-parser: 3.0.0
-    minimatch: 3.0.5
+    minimatch: ^3.0.5
     npm-run-path: ^4.0.1
     open: ^8.4.0
     semver: 7.3.4
@@ -28062,13 +28045,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-flipper@npm:0.171.1":
-  version: 0.171.1
-  resolution: "react-native-flipper@npm:0.171.1"
+"react-native-flipper@npm:0.164.0":
+  version: 0.164.0
+  resolution: "react-native-flipper@npm:0.164.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-native: ">0.62.0"
-  checksum: 45a2bfe177b0068375923005a0892e0fd626d018ee40f0aefce902acfa8d43b475cb068fec7702db73b79f0a5d7fe730a74378b768cfeaa522f077fa3fe8ab0d
+  checksum: 8730d7349bec27a23558760320082bd89b07fb404a87bf039a8d852455f28e4d5419f093bb7900ff5f6d85488274cfb246278b6700878bcabe574d5aacd88dac
   languageName: node
   linkType: hard
 

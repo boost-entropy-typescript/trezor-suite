@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
+import BigNumber from 'bignumber.js';
 import styled from 'styled-components';
 
+import { DEFAULT_MAX_MINING_FEE, RECOMMENDED_SKIP_ROUNDS } from '@suite/services/coinjoin/config';
+import { Account } from '@suite-common/wallet-types';
+import { TooltipSymbol, Translation } from '@suite-components';
+import { Error } from '@suite-components/Error';
+import { useActions, useSelector } from '@suite-hooks';
 import { Card, Checkbox, Link, TooltipButton, variables } from '@trezor/components';
 import { ZKSNACKS_TERMS_URL } from '@trezor/urls';
 import { startCoinjoinSession } from '@wallet-actions/coinjoinAccountActions';
-import { TooltipSymbol, Translation } from '@suite-components';
-import { useActions } from '@suite-hooks';
-import { Account } from '@suite-common/wallet-types';
 import { CryptoAmountWithHeader } from '@wallet-components/PrivacyAccount/CryptoAmountWithHeader';
-import { CoinjoinCustomStrategy } from './CoinjoinCustomStrategy';
 import {
-    CoinjoinDefaultStrategy,
-    COINJOIN_STRATEGIES,
-    CoinJoinStrategy,
-} from './CoinjoinDefaultStrategy';
+    selectCurrentCoinjoinBalanceBreakdown,
+    selectCurrentTargetAnonymity,
+} from '@wallet-reducers/coinjoinReducer';
+import { getMaxRounds } from '@wallet-utils/coinjoinUtils';
+import { CoinjoinCustomStrategy } from './CoinjoinCustomStrategy';
+import { CoinjoinDefaultStrategy, CoinJoinStrategy } from './CoinjoinDefaultStrategy';
 
 const StyledCard = styled(Card)`
     margin-bottom: 8px;
@@ -72,25 +76,52 @@ interface CoinjoinSetupStrategiesProps {
 
 export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProps) => {
     const [strategy, setStrategy] = useState<CoinJoinStrategy>('recommended');
+    const [customMaxFee, setCustomMaxFee] = useState(DEFAULT_MAX_MINING_FEE);
+    const [customSkipRounds, setCustomSkipRounds] = useState(true);
     const [connectedConfirmed, setConnectedConfirmed] = useState(false);
     const [termsConfirmed, setTermsConfirmed] = useState(false);
 
     const actions = useActions({
         startCoinjoinSession,
     });
+    const coordinatorData = useSelector(state => state.wallet.coinjoin.clients[account.symbol]);
+    const targetAnonymity = useSelector(selectCurrentTargetAnonymity);
+    const { notAnonymized } = useSelector(selectCurrentCoinjoinBalanceBreakdown);
 
+    if (!coordinatorData || !targetAnonymity || !account.addresses?.anonymitySet) {
+        return (
+            <Error
+                error={`Suite could not ${
+                    coordinatorData ? 'determine setup values' : 'connect to coordinator'
+                }.`}
+            />
+        );
+    }
+
+    const maxRounds = getMaxRounds(targetAnonymity, account.addresses.anonymitySet);
     const isCustom = strategy === 'custom';
     const allChecked = connectedConfirmed && termsConfirmed;
-    const fee = (Number(account.balance) * 0.003).toString();
+    const fee = new BigNumber(notAnonymized).times(coordinatorData.coordinatorFeeRate).toString();
 
-    const reset = () => setStrategy('recommended');
+    const reset = () => {
+        setStrategy('recommended');
+        setCustomMaxFee(DEFAULT_MAX_MINING_FEE);
+        setCustomSkipRounds(true);
+    };
     const toggleConnectConfirmation = () => setConnectedConfirmed(current => !current);
     const toggleTermsConfirmation = () => setTermsConfirmed(current => !current);
     const anonymize = () =>
-        actions.startCoinjoinSession(
-            account,
-            COINJOIN_STRATEGIES[strategy === 'custom' ? 'recommended' : strategy], // TODO: enable custom strategy
-        );
+        actions.startCoinjoinSession(account, {
+            maxCoordinatorFeeRate: coordinatorData.coordinatorFeeRate * 10 ** 10, // transform to a format firmware can work with
+            maxFeePerKvbyte:
+                (isCustom ? customMaxFee : coordinatorData.feeRatesMedians[strategy]) * 1000, // transform to kvB
+            maxRounds,
+            skipRounds:
+                customSkipRounds || strategy === 'recommended'
+                    ? RECOMMENDED_SKIP_ROUNDS
+                    : undefined,
+            targetAnonymity,
+        });
 
     return (
         <>
@@ -105,7 +136,7 @@ export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProp
                                 <Translation id="TR_AMOUNT" />
                             </AmountHeading>
                         }
-                        value={account.balance}
+                        value={notAnonymized}
                         symbol={account.symbol}
                     />
                     <StyledCryptoAmountWithHeader
@@ -120,9 +151,21 @@ export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProp
                     />
                 </Row>
                 {isCustom ? (
-                    <CoinjoinCustomStrategy reset={reset} />
+                    <CoinjoinCustomStrategy
+                        maxRounds={maxRounds}
+                        maxFee={customMaxFee}
+                        skipRounds={customSkipRounds}
+                        setMaxFee={setCustomMaxFee}
+                        setSkipRounds={setCustomSkipRounds}
+                        reset={reset}
+                    />
                 ) : (
-                    <CoinjoinDefaultStrategy strategy={strategy} setStrategy={setStrategy} />
+                    <CoinjoinDefaultStrategy
+                        maxRounds={maxRounds}
+                        feeRatesMedians={coordinatorData.feeRatesMedians}
+                        strategy={strategy}
+                        setStrategy={setStrategy}
+                    />
                 )}
             </StyledCard>
 
