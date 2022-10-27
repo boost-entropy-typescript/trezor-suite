@@ -1,7 +1,7 @@
 import { transformTransaction } from '@trezor/blockchain-link/lib/workers/blockbook/utils';
 
 import { getAddressScript, getFilter } from './filters';
-import { doesTxContainAddress, deriveAddresses, fixTxInputs } from './backendUtils';
+import { doesTxContainAddress, deriveAddresses, fixTx } from './backendUtils';
 import type {
     AccountAddress,
     BlockbookBlock,
@@ -109,7 +109,7 @@ export const scanAccount = async (
 
         txs.clear();
 
-        await fixTxInputs(transactions, client);
+        await fixTx(transactions, client);
 
         if (transactions.length || progress) {
             onProgress({
@@ -125,8 +125,6 @@ export const scanAccount = async (
     const pending = mempool
         .getTransactions(receive.concat(change).map(({ address }) => address))
         .map(transformTx(xpub, receive, change));
-
-    await fixTxInputs(pending, client);
 
     const cache = {
         receivePrederived: receive.map(({ address, path }) => ({ address, path })),

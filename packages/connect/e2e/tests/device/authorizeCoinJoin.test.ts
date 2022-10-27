@@ -13,6 +13,11 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
                 experimental_features: true,
             },
         });
+    });
+
+    beforeEach(async () => {
+        // restart connect for each test (working with event listeners)
+        TrezorConnect.dispose();
         await initTrezorConnect(controller, { debug: false });
     });
 
@@ -134,6 +139,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
             coin: 'testnet',
             preauthorized: true,
             unlockPath: unlockPath.payload, // NOTE: unlock path is required for validation, it will be removed in future
+            serialize: false,
         };
 
         // ButtonRequests during signing is not emitted because of preauthorization
@@ -144,12 +150,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
                 undefined,
                 'c017fce789fa8db54a2ae032012d2dd6d7c76cc1c1a6f00e29b86acbf93022da8aa559009a574792c7b09b2535d288d6e03c6ed169902ed8c4c97626a83fbc11',
             ],
-            witnesses: [
-                undefined,
-                '0140c017fce789fa8db54a2ae032012d2dd6d7c76cc1c1a6f00e29b86acbf93022da8aa559009a574792c7b09b2535d288d6e03c6ed169902ed8c4c97626a83fbc11',
-            ],
-            serializedTx:
-                '010000000001028abbd1cf69e00fbf60fa3ba475dccdbdba4a859ffa6bfd1ee820a75b1be2b7e50000000000ffffffff0ab6ad3ba09261cfb4fa1d3680cb19332a8fe4d9de9ea89aa565bd83a2c082f90100000000ffffffff0550c3000000000000225120e0458118b80a08042d84c4f0356d86863fe2bffc034e839c166ad4e8da7e26ef50c3000000000000225120bdb100a4e7ba327d364642dc653b9e6b51783bde6ea0df2ccbc1a78e3cc1329511e56d0000000000225120c5c7c63798b59dc16e97d916011e99da5799d1b3dd81c2f2e93392477417e71e72bf00000000000022512062fdf14323b9ccda6f5b03c5c2c28e35839a3909a2e14d32b595c63d53c7b88f51900000000000001976a914a579388225827d9f2fe9014add644487808c695d88ac000140c017fce789fa8db54a2ae032012d2dd6d7c76cc1c1a6f00e29b86acbf93022da8aa559009a574792c7b09b2535d288d6e03c6ed169902ed8c4c97626a83fbc1100000000',
+            serializedTx: '',
         });
 
         // sign again ...
@@ -160,5 +161,105 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         const round3 = await TrezorConnect.signTransaction(params);
         expect(round3.success).toBe(false);
         expect(round3.payload).toMatchObject({ error: 'Exceeded number of CoinJoin rounds.' });
+    });
+
+    conditionalTest(['1', '<2.5.3'], 'Authorize and re-authorize', async () => {
+        // setup two wallets, 1 with and 1 without passphrase
+        await TrezorConnect.applySettings({ use_passphrase: true });
+        const walletDefault = await TrezorConnect.getDeviceState({
+            device: {
+                instance: 0,
+                state: undefined, // reset state from previous tests on this instance
+            },
+            useEmptyPassphrase: true,
+        });
+
+        TrezorConnect.on('ui-request_passphrase', () => {
+            TrezorConnect.uiResponse({
+                type: 'ui-receive_passphrase',
+                payload: {
+                    passphraseOnDevice: false,
+                    value: 'a',
+                },
+            });
+        });
+        const walletA = await TrezorConnect.getDeviceState({
+            device: {
+                instance: 1,
+                state: undefined, // reset state from previous tests on this instance
+            },
+        });
+        if (!walletDefault.success || !walletA.success) {
+            throw new Error(`Wallet state exception`);
+        }
+
+        // use same params in each call
+        const params = {
+            coordinator: 'www.example.com',
+            maxRounds: 2,
+            maxCoordinatorFeeRate: 50000000, // 0.5 %
+            maxFeePerKvbyte: 3500,
+            path: ADDRESS_N("m/10025'/1'/0'/1'"),
+            coin: 'Testnet',
+            scriptType: 'SPENDTAPROOT',
+        } as const;
+
+        // watch for button requests
+        const spy = jest.fn();
+        TrezorConnect.on('button', spy);
+
+        // authorize no passphrase wallet
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 0, state: walletDefault.payload.state },
+            useEmptyPassphrase: true,
+        });
+
+        expect(spy).toBeCalledTimes(2);
+
+        // re-authorize
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 0, state: walletDefault.payload.state },
+            useEmptyPassphrase: true,
+            preauthorized: true,
+        });
+
+        expect(spy).toBeCalledTimes(2); // no more button requests
+
+        // authorize passphrase wallet
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 1, state: walletA.payload.state },
+        });
+
+        expect(spy).toBeCalledTimes(4);
+
+        // re-authorize passphrase wallet
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 1, state: walletA.payload.state },
+            preauthorized: true,
+        });
+
+        // re-authorize no passphrase wallet again
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 0, state: walletDefault.payload.state },
+            useEmptyPassphrase: true,
+            preauthorized: true,
+        });
+
+        // re-authorize passphrase wallet again
+        await TrezorConnect.authorizeCoinJoin({
+            ...params,
+            device: { instance: 1, state: walletA.payload.state },
+            preauthorized: true,
+        });
+
+        expect(spy).toBeCalledTimes(4); // no more button requests
+
+        // disable passphrase for future tests
+        await TrezorConnect.applySettings({ use_passphrase: false });
     });
 });
