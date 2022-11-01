@@ -7,8 +7,8 @@ import * as sendFormActions from '@wallet-actions/sendFormActions';
 import * as walletSettingsActions from '@settings-actions/walletSettingsActions';
 import * as routerActions from '@suite-actions/routerActions';
 import * as protocolActions from '@suite-actions/protocolActions';
-import { UseSendFormState, FormState, SendContextValues, Output } from '@wallet-types/sendForm';
 import { AppState } from '@suite-types';
+import { FormState, Output, SendContextValues, UseSendFormState } from '@wallet-types/sendForm';
 
 import {
     getFeeLevels,
@@ -151,8 +151,6 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         name: 'outputs',
     });
 
-    const { souldSendInSats } = useBitcoinAmountUnit(props.selectedAccount.account.symbol);
-
     // enhance DEFAULT_VALUES with last remembered FeeLevel and localCurrencyOption
     // used in "loadDraft" useEffect and "importTransaction" callback
     const getLoadedValues = useCallback(
@@ -236,9 +234,12 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         account: state.account,
         composedLevels,
         composeRequest,
+        excludedUtxos: state.excludedUtxos,
         feeInfo: state.feeInfo,
         ...useFormMethods,
     });
+
+    const { shouldSendInSats } = useBitcoinAmountUnit(props.selectedAccount.account.symbol);
 
     const resetContext = useCallback(() => {
         setComposedLevels(undefined);
@@ -313,7 +314,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
             if (protocol.sendForm.amount) {
                 const protocolAmount = protocol.sendForm.amount.toString();
 
-                const formattedAmount = souldSendInSats
+                const formattedAmount = shouldSendInSats
                     ? amountToSatoshi(protocolAmount, state.network.decimals)
                     : protocolAmount;
 
@@ -337,7 +338,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         updateContext,
         sendFormUtils,
         composeRequest,
-        souldSendInSats,
+        shouldSendInSats,
         state.network.decimals,
     ]);
 
@@ -377,7 +378,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
     useDidUpdate(() => {
         const { outputs } = getValues();
 
-        const conversionToUse = souldSendInSats ? amountToSatoshi : formatAmount;
+        const conversionToUse = shouldSendInSats ? amountToSatoshi : formatAmount;
 
         outputs.forEach((output, index) => {
             if (!output.amount) {
@@ -388,7 +389,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         });
 
         composeRequest();
-    }, [souldSendInSats]);
+    }, [shouldSendInSats]);
 
     return {
         ...state,

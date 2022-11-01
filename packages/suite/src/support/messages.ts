@@ -3532,10 +3532,21 @@ export default defineMessages({
         id: 'TR_ACCOUNT_DETAILS_XPUB_BUTTON',
         defaultMessage: 'Show public key',
     },
-    TR_ACCOUNT_TYPE_BIP86_NOT_SUPPORTED: {
-        id: 'TR_ACCOUNT_TYPE_BIP86_NOT_SUPPORTED',
-        defaultMessage:
-            'Current firmware does not support Taproot. Please update your Trezor firmware to enable this feature.',
+    TR_ACCOUNT_TYPE_NO_CAPABILITY: {
+        id: 'TR_ACCOUNT_TYPE_NO_CAPABILITY',
+        defaultMessage: 'Not supported.',
+    },
+    TR_ACCOUNT_TYPE_NO_SUPPORT_T1: {
+        id: 'TR_ACCOUNT_TYPE_NO_SUPPORT_T1',
+        defaultMessage: 'This Account Type is not supported on Trezor Model One.',
+    },
+    TR_ACCOUNT_TYPE_NO_SUPPORT_T2: {
+        id: 'TR_ACCOUNT_TYPE_NO_SUPPORT_T2',
+        defaultMessage: 'This Account Type is not supported on Trezor Model T.',
+    },
+    TR_ACCOUNT_TYPE_UPDATE_REQUIRED: {
+        id: 'TR_ACCOUNT_TYPE_UPDATE_REQUIRED',
+        defaultMessage: 'Please update device firmware to enable this Account Type.',
     },
     TR_ACCOUNT_TYPE_BIP86_NAME: {
         id: 'TR_ACCOUNT_TYPE_BIP86_NAME',
@@ -4090,6 +4101,22 @@ export default defineMessages({
     MODAL_ADD_ACCOUNT_LIMIT_EXCEEDED: {
         id: 'MODAL_ADD_ACCOUNT_LIMIT_EXCEEDED',
         defaultMessage: 'The maximum allowed number of accounts has been created. ',
+    },
+    MODAL_ADD_ACCOUNT_COINJOIN_LIMIT_EXCEEDED: {
+        id: 'MODAL_ADD_ACCOUNT_COINJOIN_LIMIT_EXCEEDED',
+        defaultMessage: 'You can have only one CoinJoin account per wallet.',
+    },
+    MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT: {
+        id: 'MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT',
+        defaultMessage: 'CoinJoin is supported only on Trezor Model T',
+    },
+    MODAL_ADD_ACCOUNT_COINJOIN_UPDATE_REQUIRED: {
+        id: 'MODAL_ADD_ACCOUNT_COINJOIN_UPDATE_REQUIRED',
+        defaultMessage: 'Please update your Firmware to enable the CoinJoin feature.',
+    },
+    MODAL_ADD_ACCOUNT_COINJOIN_DESKTOP_ONLY: {
+        id: 'MODAL_ADD_ACCOUNT_COINJOIN_DESKTOP_ONLY',
+        defaultMessage: 'CoinJoin account only available on Trezor Suite desktop app.',
     },
     TR_DEVICE_IN_RECOVERY_MODE: {
         id: 'TR_DEVICE_IN_RECOVERY_MODE',
@@ -7525,5 +7552,46 @@ export default defineMessages({
     TR_ANONYMITY_LEVEL_BAD_WARNING: {
         id: 'TR_ANONYMITY_LEVEL_BAD_WARNING',
         defaultMessage: 'We recommend a minimum "1 in 5" anonymity level',
+    },
+    TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING: {
+        id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS',
+        description: 'Warning in coinjoin send form',
+        defaultMessage:
+            'Not enough anonymized funds{br}Either anonymize more funds, or lower the anonymity level at your own risk',
+    },
+    TR_BREAKING_ANONYMITY_CHECKBOX: {
+        id: 'TR_BREAKING_ANONYMITY_CHECKBOX',
+        description: 'Checkbox in coinjoin send form',
+        defaultMessage: "I understand I'm breaking my anonymity",
+    },
+    TR_NOT_ENOUGH_ANONYMIZED_FUNDS_TOOLTIP: {
+        id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS_TOOLTIP',
+        description: 'Tooltip in coinjoin send form',
+        defaultMessage: 'You can:',
+    },
+    TR_ANONYMIZATION_OPTION_1: {
+        id: 'TR_ANONYMIZATION_OPTION_1',
+        description: 'Tooltip in coinjoin send form',
+        defaultMessage: 'Anonymize more coins',
+    },
+    TR_ANONYMIZATION_OPTION_2: {
+        id: 'TR_ANONYMIZATION_OPTION_2',
+        description: 'Tooltip in coinjoin send form',
+        defaultMessage: 'Select UTXOs in <button>Coin Control</button>',
+    },
+    TR_ANONYMIZATION_OPTION_3: {
+        id: 'TR_ANONYMIZATION_OPTION_3',
+        description: 'Tooltip in coinjoin send form',
+        defaultMessage: 'Reduce anonymity level',
+    },
+    TR_NOT_ENOUGH_ANONYMIZED_FUNDS: {
+        id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS',
+        description: 'Secondary button text in coinjoin sed form',
+        defaultMessage: 'Not enough anonymized funds',
+    },
+    TR_YOU_SHOULD_ANONYMIZE: {
+        id: 'TR_YOU_SHOULD_ANONYMIZE',
+        description: 'Secondary button text in coinjoin sed form',
+        defaultMessage: 'You should anonymize them',
     },
 });
