@@ -5,6 +5,7 @@ import { FluidSpinner, Icon, useTheme, variables } from '@trezor/components';
 import { COINJOIN_PHASE_MESSAGES } from '@suite-constants/coinjoin';
 import { Translation } from '@suite-components/Translation';
 import { CountdownTimer } from '@suite-components/CountdownTimer';
+import { getPhaseTimerFormat } from '@wallet-utils/coinjoinUtils';
 
 const Container = styled.div`
     padding: 32px 38px 0;
@@ -81,7 +82,7 @@ const Step = ({ phase, currentPhase }: StepProps) => {
 
 interface PhaseProgressProps {
     currentPhase: RoundPhase;
-    phaseDeadline: CoinjoinSession['deadline'];
+    phaseDeadline: CoinjoinSession['phaseDeadline'];
 }
 
 export const PhaseProgress = ({ currentPhase, phaseDeadline }: PhaseProgressProps) => (
@@ -99,8 +100,14 @@ export const PhaseProgress = ({ currentPhase, phaseDeadline }: PhaseProgressProp
             ...
         </Message>
 
-        <TimerCointainer>
-            ~<CountdownTimer deadline={phaseDeadline} format={['hours', 'minutes', 'seconds']} />
-        </TimerCointainer>
+        {phaseDeadline && (
+            <TimerCointainer>
+                ~
+                <CountdownTimer
+                    deadline={phaseDeadline}
+                    format={getPhaseTimerFormat(phaseDeadline)}
+                />
+            </TimerCointainer>
+        )}
     </Container>
 );

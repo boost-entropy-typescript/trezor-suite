@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback } from 'react';
 import styled, { css } from 'styled-components';
+import { lighten } from 'polished';
 import {
     Dropdown,
     FluidSpinner,
@@ -8,12 +9,15 @@ import {
     useTheme,
     variables,
 } from '@trezor/components';
-import { CoinjoinSession, RoundPhase } from '@suite-common/wallet-types';
+import { CoinjoinSession } from '@suite-common/wallet-types';
 import { Translation } from '@suite-components/Translation';
 import { CountdownTimer } from '@suite-components';
 import { COINJOIN_PHASE_MESSAGES } from '@suite-constants/coinjoin';
-import { getEstimatedTimePerRound } from '@wallet-utils/coinjoinUtils';
-import { lighten } from 'polished';
+import {
+    calculateSessionProgress,
+    getPhaseTimerFormat,
+    getSessionDeadlineFormat,
+} from '@wallet-utils/coinjoinUtils';
 
 const Container = styled.div`
     position: relative;
@@ -92,8 +96,10 @@ const StyledLoader = styled(FluidSpinner)`
 `;
 
 const TimeLeft = styled.p`
+    max-width: 80%;
     color: ${({ theme }) => theme.TYPE_DARK_GREY};
-    font-size: ${variables.FONT_SIZE.BIG};
+    font-size: ${variables.FONT_SIZE.NORMAL};
+    line-height: 1;
 `;
 
 const iconBase = css`
@@ -114,7 +120,7 @@ const CrossIcon = styled(Icon)`
     height: 10px;
 `;
 
-const PauseText = styled.p`
+const TextCointainer = styled.p`
     height: 30px;
 `;
 
@@ -131,18 +137,16 @@ export const CoinjoinStatus = ({
     restoreSession,
     stopSession,
 }: CoinjoinStatusProps) => {
-    const isPaused = !!session.paused;
     const [isLoading, setIsLoading] = useState(false);
     const [isWheelHovered, setIsWheelHovered] = useState(false);
 
     const menuRef = useRef<HTMLUListElement & { close: () => void }>(null);
     const theme = useTheme();
 
-    const timeLeft = `${
-        (session.maxRounds - session.signedRounds.length) *
-        getEstimatedTimePerRound(!!session.skipRounds)
-    }h`;
-    const progress = session.signedRounds.length / (session.maxRounds / 100);
+    const { maxRounds, signedRounds, paused, phaseDeadline, sessionDeadline, phase } = session;
+
+    const progress = calculateSessionProgress(signedRounds, maxRounds);
+    const isPaused = !!paused;
 
     const togglePause = useCallback(async () => {
         if (isPaused) {
@@ -219,10 +223,86 @@ export const CoinjoinStatus = ({
         color: theme.TYPE_DARK_GREY,
     };
 
+    const getProgressContent = () => {
+        if (isPaused) {
+            if (isWheelHovered) {
+                return (
+                    <>
+                        <PlayIcon icon="PLAY" {...iconConfig} />
+                        <Translation id="TR_RESUME" />
+                    </>
+                );
+            }
+
+            return (
+                <>
+                    <PauseIcon icon="PAUSE" {...iconConfig} />
+                    <Translation id="TR_PAUSED" />
+                </>
+            );
+        }
+
+        if (isWheelHovered) {
+            return (
+                <>
+                    <PauseIcon icon="PAUSE" {...iconConfig} />
+                    <Translation id="TR_PAUSE" />
+                </>
+            );
+        }
+
+        if (sessionDeadline) {
+            return (
+                <>
+                    <TimeLeft>
+                        <CountdownTimer
+                            deadline={sessionDeadline}
+                            format={getSessionDeadlineFormat(sessionDeadline)}
+                        />
+                    </TimeLeft>
+                    <p>
+                        <Translation id="TR_LEFT" />
+                    </p>
+                </>
+            );
+        }
+
+        return <StyledLoader size={30} strokeWidth={3} />;
+    };
+
+    const getProgressMessage = () => {
+        if (isPaused) {
+            return (
+                <TextCointainer>
+                    <Translation id="TR_COINJOIN_PAUSED" />
+                </TextCointainer>
+            );
+        }
+
+        if (phase !== undefined) {
+            return (
+                <>
+                    <Translation id={COINJOIN_PHASE_MESSAGES[phase]} />
+                    <p>
+                        <CountdownTimer
+                            deadline={phaseDeadline}
+                            format={getPhaseTimerFormat(phaseDeadline)}
+                        />
+                    </p>
+                </>
+            );
+        }
+
+        return (
+            <TextCointainer>
+                <Translation id="TR_LOOKING_FOR_COINJOIN_ROUND" />
+            </TextCointainer>
+        );
+    };
+
     return (
         <Container>
             <SessionControlsMenu alignMenu="right" items={menuItems} ref={menuRef} />
-
             <ProgressWheel
                 progress={progress}
                 isPaused={isPaused}
@@ -232,71 +312,17 @@ export const CoinjoinStatus = ({
                 onMouseLeave={() => setIsWheelHovered(false)}
             >
                 <ProgressContent>
-                    {isLoading && <StyledLoader size={30} strokeWidth={3} />}
-
-                    {/*  only show hours or fit min too? Or rounds left? */}
-                    {!isLoading &&
-                        (isPaused ? (
-                            <>
-                                {isWheelHovered ? (
-                                    <>
-                                        <PlayIcon icon="PLAY" {...iconConfig} />
-                                        <Translation id="TR_RESUME" />
-                                    </>
-                                ) : (
-                                    <>
-                                        <PauseIcon icon="PAUSE" {...iconConfig} />
-                                        <Translation id="TR_PAUSED" />
-                                    </>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                {isWheelHovered ? (
-                                    <>
-                                        <PauseIcon icon="PAUSE" {...iconConfig} />
-                                        <Translation id="TR_PAUSE" />
-                                    </>
-                                ) : (
-                                    <>
-                                        <TimeLeft>{timeLeft}</TimeLeft>
-                                        <p>
-                                            <Translation id="TR_LEFT" />
-                                        </p>
-                                    </>
-                                )}
-                            </>
-                        ))}
+                    {isLoading ? <StyledLoader size={30} strokeWidth={3} /> : getProgressContent()}
                 </ProgressContent>
             </ProgressWheel>
 
-            {isLoading && (
-                <PauseText>
+            {isLoading ? (
+                <TextCointainer>
                     {isPaused ? <Translation id="TR_RESUMING" /> : <Translation id="TR_PAUSING" />}
-                </PauseText>
+                </TextCointainer>
+            ) : (
+                getProgressMessage()
             )}
-
-            {!isLoading &&
-                (isPaused ? (
-                    <PauseText>
-                        <Translation id="TR_COINJOIN_PAUSED" />
-                    </PauseText>
-                ) : (
-                    <>
-                        <p>
-                            <Translation
-                                id={
-                                    COINJOIN_PHASE_MESSAGES[
-                                        session.phase || RoundPhase.InputRegistration
-                                    ]
-                                }
-                            />
-                        </p>
-                        <p>
-                            <CountdownTimer deadline={session?.deadline} />
-                        </p>
-                    </>
-                ))}
         </Container>
     );
 };
