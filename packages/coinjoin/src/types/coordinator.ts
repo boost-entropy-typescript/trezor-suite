@@ -168,8 +168,70 @@ export interface Round {
     inputRegistrationEnd: string;
 }
 
-export interface TxPaymentRequest {
+// errors from coordinator in string based format (see ./utils/http coordinatorRequest errorCode handling)
+export enum WabiSabiProtocolErrorCode {
+    RoundNotFound = 'RoundNotFound',
+    WrongPhase = 'WrongPhase',
+    InputSpent = 'InputSpent',
+    InputUnconfirmed = 'InputUnconfirmed',
+    InputImmature = 'InputImmature',
+    WrongOwnershipProof = 'WrongOwnershipProof',
+    TooManyInputs = 'TooManyInputs',
+    NotEnoughFunds = 'NotEnoughFunds',
+    TooMuchFunds = 'TooMuchFunds',
+    NonUniqueInputs = 'NonUniqueInputs',
+    InputBanned = 'InputBanned',
+    InputLongBanned = 'InputLongBanned',
+    InputNotWhitelisted = 'InputNotWhitelisted',
+    AliceNotFound = 'AliceNotFound',
+    IncorrectRequestedVsizeCredentials = 'IncorrectRequestedVsizeCredentials',
+    TooMuchVsize = 'TooMuchVsize',
+    ScriptNotAllowed = 'ScriptNotAllowed',
+    IncorrectRequestedAmountCredentials = 'IncorrectRequestedAmountCredentials',
+    WrongCoinjoinSignature = 'WrongCoinjoinSignature',
+    SignatureTooLong = 'SignatureTooLong',
+    AliceAlreadyRegistered = 'AliceAlreadyRegistered',
+    NonStandardInput = 'NonStandardInput',
+    NonStandardOutput = 'NonStandardOutput',
+    WitnessAlreadyProvided = 'WitnessAlreadyProvided',
+    InsufficientFees = 'InsufficientFees',
+    SizeLimitExceeded = 'SizeLimitExceeded',
+    DustOutput = 'DustOutput',
+    UneconomicalInput = 'UneconomicalInput',
+    VsizeQuotaExceeded = 'VsizeQuotaExceeded',
+    DeltaNotZero = 'DeltaNotZero',
+    WrongNumberOfCreds = 'WrongNumberOfCreds',
+    CryptoException = 'CryptoException',
+    AliceAlreadySignalled = 'AliceAlreadySignalled',
+    AliceAlreadyConfirmedConnection = 'AliceAlreadyConfirmedConnection',
+    AlreadyRegisteredScript = 'AlreadyRegisteredScript',
+}
+
+// types and below should be removed after affiliate server implementation on coordinator
+
+interface AffiliateRequestInputs {
+    prevout: {
+        hash: string;
+        index: number;
+    };
+    script_pubkey: string;
+}
+
+interface AffiliateRequestOutputs {
     amount: number;
-    recipient_name: string;
+    script_pubkey: string;
+}
+
+export interface CoinjoinAffiliateTx {
+    inputs: AffiliateRequestInputs[];
+    outputs: AffiliateRequestOutputs[];
+}
+
+export interface CoinjoinAffiliateRequest {
+    fee_rate: number;
+    no_fee_threshold: number;
+    min_registrable_amount: number;
+    mask_public_key: string;
+    coinjoin_flags_array: number[];
     signature: string;
 }

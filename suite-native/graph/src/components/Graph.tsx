@@ -16,25 +16,19 @@ type GraphProps = {
     animated?: boolean;
 };
 
+const GRAPH_HEIGHT = 250;
+
 const graphWrapperStyle = prepareNativeStyle(_ => ({
-    height: 250,
     justifyContent: 'center',
+    height: GRAPH_HEIGHT,
     alignItems: 'center',
 }));
 
 const graphStyle = prepareNativeStyle(_ => ({
     alignSelf: 'center',
-    aspectRatio: 1.4,
+    height: GRAPH_HEIGHT,
     width: '100%',
 }));
-
-const placeholderPoints = [
-    {
-        date: new Date(0),
-        originalDate: new Date(),
-        value: 0,
-    },
-];
 
 export const Graph = ({
     onPointSelected,
@@ -65,8 +59,6 @@ export const Graph = ({
         }
     }, [extremaFromGraphPoints]);
 
-    const graphPoints = points.length ? points : placeholderPoints;
-
     // FIXME animated=true graph shows only 196 values, let's go with static for now.
     return (
         <Box style={applyStyle(graphWrapperStyle)}>
@@ -74,7 +66,7 @@ export const Graph = ({
                 <>
                     <LineGraph
                         style={applyStyle(graphStyle)}
-                        points={graphPoints}
+                        points={points}
                         color={defaultColorVariant.green}
                         animated={animated}
                         verticalPadding={20}

@@ -1316,21 +1316,25 @@ export default defineMessages({
     },
     TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_BANKTRANSFER_PAYMENT_HEADER: {
         defaultMessage: 'Waiting for your first payment.',
-        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_PAYMENT_HEADER',
+        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_BANKTRANSFER_PAYMENT_HEADER',
+        dynamic: true,
     },
     TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_BANKTRANSFER_PAYMENT_DESCRIPTION: {
         defaultMessage:
             'Select View payment details to find the information you need to make the payment.',
-        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_PAYMENT_DESCRIPTION',
+        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_BANKTRANSFER_PAYMENT_DESCRIPTION',
+        dynamic: true,
     },
     TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_ACH_PAYMENT_HEADER: {
         defaultMessage: 'Now you wait.',
-        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_CHARGE_HEADER',
+        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_ACH_PAYMENT_HEADER',
+        dynamic: true,
     },
     TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_ACH_PAYMENT_DESCRIPTION: {
         defaultMessage:
             '{providerName} will charge your bank account automatically. It usually takes until the next working day.',
-        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_CHARGE_DESCRIPTION',
+        id: 'TR_SAVINGS_OVERVIEW_WAITING_FOR_FIRST_ACH_PAYMENT_DESCRIPTION',
+        dynamic: true,
     },
     TR_SAVINGS_STATUS_PENDING: {
         defaultMessage: 'Pending',
@@ -5613,10 +5617,30 @@ export default defineMessages({
         defaultMessage: 'There are no spendable UTXOs in your account.',
         description: 'Message showing in Coin control section',
     },
+    TR_REGISTERED_FOR_COINJOIN: {
+        id: 'TR_REGISTERED_FOR_COINJOIN',
+        defaultMessage: 'Registered in CoinJoin',
+        description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_UNAVAILABLE_FOR_COINJOIN: {
+        id: 'TR_UNAVAILABLE_FOR_COINJOIN',
+        defaultMessage: 'Not available for CoinJoin - amount too small',
+        description: 'Tooltip over an icon in Coin control section',
+    },
     TR_CHANGE_ADDRESS_TOOLTIP: {
         id: 'TR_CHANGE_ADDRESS_TOOLTIP',
         defaultMessage: 'This is a change address created from a previous send.',
-        description: 'Tooltip over a change address icon in Coin control section',
+        description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_PRIVATE_DESCRIPTION: {
+        id: 'TR_PRIVATE_DESCRIPTION',
+        defaultMessage: 'Anonymity at least {targetAnonymity}',
+        description: 'Sub-heading in Coin control section',
+    },
+    TR_NOT_PRIVATE_DESCRIPTION: {
+        id: 'TR_NOT_PRIVATE_DESCRIPTION',
+        defaultMessage: 'Anonymity below {targetAnonymity}',
+        description: 'Sub-heading in Coin control section',
     },
     TR_DUST: {
         id: 'TR_DUST',
@@ -7562,7 +7586,7 @@ export default defineMessages({
     },
     TR_COINJOIN_ANONYMITY_LEVEL_INDICATOR: {
         id: 'TR_COINJOIN_ANONYMITY_LEVEL_INDICATOR',
-        defaultMessage: '1 in {targetAnonymity}',
+        defaultMessage: '1 in {anonymity}',
     },
     TR_ANONYMITY_LEVEL_BAD: {
         id: 'TR_ANONYMITY_LEVEL_BAD',
@@ -7588,7 +7612,7 @@ export default defineMessages({
         id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING',
         description: 'Warning in coinjoin send form',
         defaultMessage:
-            'Not enough anonymized funds{br}Either anonymize more funds, or lower the anonymity level at your own risk',
+            'Not enough anonymized funds. Either anonymize more funds, lower the anonymity level, or select coins manually at your own risk.',
     },
     TR_BREAKING_ANONYMITY_CHECKBOX: {
         id: 'TR_BREAKING_ANONYMITY_CHECKBOX',
@@ -7617,12 +7641,22 @@ export default defineMessages({
     },
     TR_NOT_ENOUGH_ANONYMIZED_FUNDS: {
         id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS',
-        description: 'Secondary button text in coinjoin sed form',
+        description: 'Secondary button text in coinjoin send form',
         defaultMessage: 'Not enough anonymized funds',
+    },
+    TR_SEND_NOT_ANONYMIZED_COINS: {
+        id: 'TR_SEND_NOT_ANONYMIZED_COINS',
+        description: 'Send button text in coinjoin account when low-anonymity UTXOs are selected',
+        defaultMessage: 'Send not anonymized Coins',
+    },
+    TR_SIGN_WITH_NOT_ANONYMIZED_COINS: {
+        id: 'TR_SIGN_WITH_NOT_ANONYMIZED_COINS',
+        description: 'Sign button text in coinjoin account when low-anonymity UTXOs are selected',
+        defaultMessage: 'Sign with not anonymized Coins',
     },
     TR_YOU_SHOULD_ANONYMIZE: {
         id: 'TR_YOU_SHOULD_ANONYMIZE',
-        description: 'Secondary button text in coinjoin sed form',
+        description: 'Secondary button text in coinjoin send form',
         defaultMessage: 'You should anonymize them',
     },
 });
