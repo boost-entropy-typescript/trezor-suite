@@ -6679,6 +6679,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/module-home@workspace:suite-native/module-home"
   dependencies:
+    "@mobily/ts-belt": ^3.11.0
     "@react-navigation/native": ^6.0.11
     "@react-navigation/stack": ^6.2.2
     "@suite-common/fiat-services": "*"
@@ -6701,6 +6702,7 @@ __metadata:
     "@trezor/theme": "*"
     date-fns: ^2.29.1
     jest: ^26.6.3
+    jotai: 1.9.0
     react: 18.2.0
     react-native: 0.70.3
     react-native-graph: ^0.3.0
@@ -7301,6 +7303,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@trezor/device-utils@*, @trezor/device-utils@workspace:packages/device-utils":
+  version: 0.0.0-use.local
+  resolution: "@trezor/device-utils@workspace:packages/device-utils"
+  languageName: unknown
+  linkType: soft
+
 "@trezor/dom-utils@*, @trezor/dom-utils@workspace:packages/dom-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/dom-utils@workspace:packages/dom-utils"
@@ -7765,6 +7773,7 @@ __metadata:
     "@trezor/components": "*"
     "@trezor/connect": 9.0.3
     "@trezor/crypto-utils": "*"
+    "@trezor/device-utils": "*"
     "@trezor/dom-utils": "*"
     "@trezor/env-utils": "*"
     "@trezor/message-system": "*"
@@ -7778,7 +7787,7 @@ __metadata:
     "@trezor/utils": "*"
     "@trezor/validation": "*"
     "@types/file-saver": ^2.0.5
-    "@types/invity-api": ^1.0.9
+    "@types/invity-api": ^1.0.10
     "@types/jws": ^3.2.4
     "@types/pako": ^1.0.1
     "@types/pdfmake": ^0.1.1
@@ -8524,10 +8533,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/invity-api@npm:^1.0.9":
-  version: 1.0.9
-  resolution: "@types/invity-api@npm:1.0.9"
-  checksum: 5782e3f95b9a7e117421cef6b6b5682b21db6d012066839e6b9bf3e9824bad2ccf298276cbc68aec5b33dbe0e6072cf305c7a0b4d777e51a1275357677fc6fd7
+"@types/invity-api@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@types/invity-api@npm:1.0.10"
+  checksum: 53a9b7e9a5a8040fbdf56e543f4540baea0807c1baef75b2c5568a73b5db18eaffcc1c7f25bd2b505a484d2b84032dfe6a7a131c7959df1afaa78d620293edd4
   languageName: node
   linkType: hard
 
@@ -21532,6 +21541,40 @@ __metadata:
     "@sideway/formula": ^3.0.0
     "@sideway/pinpoint": ^2.0.0
   checksum: a4cd53a83e68de7727ba48daa79047183d65a9bb6c2ad4f3028cb56a7526d113860c8189e95371d8d3a8315c344a478547f875daf3856f2d9477a995ca1ef05a
+  languageName: node
+  linkType: hard
+
+"jotai@npm:1.9.0":
+  version: 1.9.0
+  resolution: "jotai@npm:1.9.0"
+  peerDependencies:
+    "@babel/core": "*"
+    "@babel/template": "*"
+    immer: "*"
+    jotai-tanstack-query: "*"
+    jotai-urql: "*"
+    optics-ts: "*"
+    react: ">=16.8"
+    valtio: "*"
+    xstate: "*"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@babel/template":
+      optional: true
+    immer:
+      optional: true
+    jotai-tanstack-query:
+      optional: true
+    jotai-urql:
+      optional: true
+    optics-ts:
+      optional: true
+    valtio:
+      optional: true
+    xstate:
+      optional: true
+  checksum: 8b08421fbcc67068a58e17b287f1c640a6edb09ebb02f0284015c51e0b399ec8041cef9ca469d956b03b048f870f01de14ff51a01e9c790e21ea4f282127217a
   languageName: node
   linkType: hard
 
