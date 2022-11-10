@@ -54,28 +54,35 @@ export declare interface CoinjoinRound {
 
 const createRoundLock = (mainSignal: AbortSignal) => {
     let localResolve: () => void = () => {};
-    let localReject: (e?: Error) => void = () => {};
-
-    const promise: Promise<void> = new Promise((resolve, reject) => {
+    const promise: Promise<void> = new Promise(resolve => {
         localResolve = resolve;
-        localReject = reject;
     });
 
     const localAbort = new AbortController();
-    mainSignal.addEventListener('abort', () => {
+    const mainSignalListener = () => localAbort.abort();
+    const clearMainSignalListener = () =>
+        mainSignal.removeEventListener('abort', mainSignalListener);
+
+    const abort = () => {
+        clearMainSignalListener();
         localAbort.abort();
-    });
+    };
+    const resolve = () => {
+        clearMainSignalListener();
+        localResolve();
+    };
+
+    mainSignal.addEventListener('abort', mainSignalListener);
 
     return {
-        resolve: localResolve,
-        reject: localReject,
-        abort: localAbort.abort.bind(localAbort),
+        resolve,
+        abort,
         signal: localAbort.signal,
         promise,
     };
 };
 
-export class CoinjoinRound extends EventEmitter implements SerializedCoinjoinRound {
+export class CoinjoinRound extends EventEmitter {
     private lock?: ReturnType<typeof createRoundLock>;
     private options: CoinjoinRoundOptions;
 
@@ -175,7 +182,7 @@ export class CoinjoinRound extends EventEmitter implements SerializedCoinjoinRou
 
         if (this.inputs.length === 0 || this.phase === RoundPhase.Ended) {
             this.phase = RoundPhase.Ended;
-            this.emit('ended', { round: this });
+            this.emit('ended', { round: this.toSerialized() });
         }
 
         this.lock?.resolve();
@@ -213,7 +220,7 @@ export class CoinjoinRound extends EventEmitter implements SerializedCoinjoinRou
                 return {
                     type: 'ownership',
                     roundId: this.id,
-                    inputs,
+                    inputs: inputs.map(i => i.toSerialized()),
                     commitmentData: this.commitmentData,
                 };
             }
@@ -228,7 +235,7 @@ export class CoinjoinRound extends EventEmitter implements SerializedCoinjoinRou
                 return {
                     type: 'signature',
                     roundId: this.id,
-                    inputs,
+                    inputs: inputs.map(i => i.toSerialized()),
                     transaction: this.transactionData,
                 };
             }

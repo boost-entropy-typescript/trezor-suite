@@ -1,7 +1,8 @@
 import {
-    MAX_COORDINATOR_FEE_RATE,
+    COORDINATOR_FEE_RATE,
     MAX_ALLOWED_AMOUNT,
     MIN_ALLOWED_AMOUNT,
+    PLEBS_DONT_PAY_THRESHOLD,
     ROUND_REGISTRATION_END_OFFSET,
 } from '../constants';
 import {
@@ -136,26 +137,21 @@ export const findNearestDeadline = (rounds: Round[]) => {
     return Math.min(...deadlines);
 };
 
-// iterate Status and find relevant round data
+// get relevant round data from the most recent round
 export const getDataFromRounds = (rounds: Round[]) => {
-    const [coordinatorFeeRates, maxAllowedAmounts, minAllowedAmounts] = rounds.reduce(
-        ([previousRates, previousMax, previousMin], round) => {
-            const roundParameters = getRoundParameters(round);
-            if (roundParameters) {
-                previousRates.push(roundParameters.coordinationFeeRate.rate);
-                previousMax.push(roundParameters.allowedInputAmounts.max);
-                previousMin.push(roundParameters.allowedInputAmounts.min);
-            }
-            return [previousRates, previousMax, previousMin];
-        },
-        [[], [], []] as number[][],
-    );
+    const lastRound = rounds.at(-1);
+    const roundParameters = lastRound && getRoundParameters(lastRound);
 
     return {
-        coordinatorFeeRate: Math.max(...coordinatorFeeRates) ?? MAX_COORDINATOR_FEE_RATE,
+        coordinationFeeRate: {
+            plebsDontPayThreshold:
+                roundParameters?.coordinationFeeRate.plebsDontPayThreshold ??
+                PLEBS_DONT_PAY_THRESHOLD,
+            rate: roundParameters?.coordinationFeeRate.rate ?? COORDINATOR_FEE_RATE,
+        },
         allowedInputAmounts: {
-            min: Math.min(...minAllowedAmounts) ?? MIN_ALLOWED_AMOUNT,
-            max: Math.max(...maxAllowedAmounts) ?? MAX_ALLOWED_AMOUNT,
+            max: roundParameters?.allowedInputAmounts.max ?? MAX_ALLOWED_AMOUNT,
+            min: roundParameters?.allowedInputAmounts.min ?? MIN_ALLOWED_AMOUNT,
         },
     };
 };

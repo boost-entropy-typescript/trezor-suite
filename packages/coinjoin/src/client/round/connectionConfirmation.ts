@@ -44,7 +44,10 @@ const confirmInput = async (
     );
 
     const delay = 0; // TODO: delay cannot be longer than last confirmationInterval tick
-    log(`Confirming ~~${input.outpoint}~~ to ~~${round.id}~~ with delay ${delay}ms`);
+    const deadline = coordinator.RoundPhase.InputRegistration ? undefined : round.phaseDeadline;
+    log(
+        `Confirming ~~${input.outpoint}~~ to ~~${round.id}~~ with delay ${delay}ms and deadline ${deadline}`,
+    );
 
     const confirmationData = await coordinator.connectionConfirmation(
         round.id,
@@ -53,7 +56,7 @@ const confirmInput = async (
         input.realVsizeCredentials,
         zeroAmountCredentials,
         zeroVsizeCredentials,
-        { signal, baseUrl: coordinatorUrl, identity: input.outpoint, delay },
+        { signal, baseUrl: coordinatorUrl, identity: input.outpoint, delay, deadline },
     );
 
     // stop here if it's confirmationInterval at phase 0
@@ -105,6 +108,14 @@ export const confirmationInterval = (
 
     return new Promise<Alice>(resolve => {
         let timeout: ReturnType<typeof setTimeout>;
+
+        const done = () => {
+            options.log(`Confirmation interval for ~~${input.outpoint}~~ completed`);
+            options.signal.removeEventListener('abort', done);
+            clearTimeout(timeout);
+            resolve(input);
+        };
+
         const timeoutFn = async () => {
             try {
                 await confirmInput(round, input, options);
@@ -116,22 +127,18 @@ export const confirmationInterval = (
                     timeout = setTimeout(timeoutFn, timeoutDeadline);
                 } else {
                     // Alice timeout should be ok now
-                    resolve(input);
+                    done();
                 }
             } catch (error) {
                 options.log(`Confirmation interval with error ${error.message}`);
                 // do nothing. it will be processed by next phase in CoinjoinRound.processPhase
-                resolve(input);
+                done();
             }
         };
 
         timeout = setTimeout(timeoutFn, timeoutDeadline);
 
-        options.signal.addEventListener('abort', () => {
-            options.log(`Confirmation interval aborted`);
-            clearTimeout(timeout);
-            resolve(input); // same as above, do not throw errors from interval
-        });
+        options.signal.addEventListener('abort', done);
     });
 };
 

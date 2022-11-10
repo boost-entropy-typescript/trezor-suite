@@ -56,7 +56,7 @@ const registerInput = async (
     const deadline = round.phaseDeadline - Date.now() - ROUND_SELECTION_REGISTRATION_OFFSET;
     const delay = deadline > 0 ? getRandomNumberInRange(0, deadline) : 0;
     options.log(
-        `Trying to register ~~${input.outpoint}~~ to ~~${round.id}~~ with delay ${delay}ms`,
+        `Trying to register ~~${input.outpoint}~~ to ~~${round.id}~~ with delay ${delay}ms and deadline ${round.phaseDeadline}`,
     );
 
     // register input in coordinator
@@ -72,6 +72,7 @@ const registerInput = async (
                 baseUrl: coordinatorUrl,
                 identity: input.outpoint,
                 delay,
+                deadline: round.phaseDeadline,
             },
         )
         .catch(error => {
@@ -113,7 +114,7 @@ const registerInput = async (
         );
 
         // Calculate mining and coordinator fee
-        // coordinator fee is 0 if input is remixed or amount is lower than plebsDontPayThreshold value
+        // coordinator fee is 0 if input is remixed or amount is lower than or equal to plebsDontPayThreshold value
         const { roundParameters } = round;
         const coordinatorFee =
             input.amount > roundParameters.coordinationFeeRate.plebsDontPayThreshold &&
