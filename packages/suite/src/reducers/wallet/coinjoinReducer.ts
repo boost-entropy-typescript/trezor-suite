@@ -10,6 +10,7 @@ import {
     getEstimatedTimePerRound,
     transformCoinjoinStatus,
 } from '@wallet-utils/coinjoinUtils';
+import { ESTIMATED_ROUNDS_FAIL_RATE_BUFFER } from '@suite/services/coinjoin/config';
 import { selectSelectedAccount } from './selectedAccountReducer';
 import { CoinjoinStatusEvent } from '@trezor/coinjoin';
 
@@ -95,7 +96,10 @@ const updateSession = (
     const { signedRounds, maxRounds, skipRounds } = account.session;
     const { phase, phaseDeadline, roundDeadline } = round;
 
-    const roundsLeft = maxRounds - signedRounds.length - (typeof phase === 'number' ? 1 : 0);
+    const roundsLeft =
+        Math.ceil(maxRounds / ESTIMATED_ROUNDS_FAIL_RATE_BUFFER) -
+        signedRounds.length -
+        (typeof phase === 'number' ? 1 : 0);
     const timeLeftTillRoundEnd = roundDeadline - Date.now();
 
     const timePerRoundInMilliseconds = getEstimatedTimePerRound(!!skipRounds) * 3600000;
@@ -313,14 +317,13 @@ export const selectCurrentCoinjoinBalanceBreakdown = createSelector(
             account => account.key === selectedAccount?.key,
         );
 
-        const { targetAnonymity, session: currentSession } = currentCoinjoinAccount || {};
+        const { targetAnonymity } = currentCoinjoinAccount || {};
         const { addresses, utxo: utxos } = selectedAccount || {};
 
         const balanceBreakdown = breakdownCoinjoinBalance({
             targetAnonymity,
             anonymitySet: addresses?.anonymitySet,
             utxos,
-            registeredUtxos: currentSession?.registeredUtxos,
         });
 
         return balanceBreakdown;

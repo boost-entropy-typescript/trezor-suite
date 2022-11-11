@@ -86,6 +86,8 @@ export const COINJOIN_NETWORKS: PartialRecord<NetworkSymbol, ServerEnvironment> 
 
 // coinjoin strategy constants
 export const ESTIMATED_ANONYMITY_GAINED_PER_ROUND = 10;
+export const ESTIMATED_ROUNDS_FAIL_RATE_BUFFER = 2.5;
+export const ESTIMATED_MIN_ROUNDS_NEEDED = 8;
 export const ESTIMATED_HOURS_PER_ROUND_WITHOUT_SKIPPING_ROUNDS = 1;
 export const ESTIMATED_HOURS_PER_ROUND_WITH_SKIPPING_ROUNDS = 2.5;
 export const ESTIMATED_HOURS_BUFFER_MODIFIER = 0.25;
@@ -95,6 +97,8 @@ export const DEFAULT_MAX_MINING_FEE = 3;
 // coordinator fee rate from status format (0.003)
 // firmware format (300 000 = 0.003 * 10 ** 8)
 export const COORDINATOR_FEE_RATE_MULTIPLIER = 10 ** 8;
+
+export const DEFAULT_TARGET_ANONYMITY = 10;
 
 export const getCoinjoinConfig = (
     network: NetworkSymbol,
