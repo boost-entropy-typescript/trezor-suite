@@ -22,16 +22,18 @@ const testGetUrlHttp = 'http://check.torproject.org/';
 const testGetUrlHttps = 'https://check.torproject.org/';
 const testPostUrlHttps = 'https://httpbin.org/post';
 
+const INTERCEPTOR = {
+    handler: () => {},
+    getIsTorEnabled: () => true,
+};
+
 describe('Interceptor', () => {
     let torProcess: any;
     let torController: any;
 
     beforeAll(async () => {
         // Callback in in createInterceptor should return true in order for the request to use Tor.
-        createInterceptor({
-            handler: () => {},
-            getIsTorEnabled: () => true,
-        });
+        createInterceptor(INTERCEPTOR);
         // Starting Tor controller to make sure that Tor is running.
         torController = new TorController({
             host,
@@ -96,6 +98,21 @@ describe('Interceptor', () => {
             expect(iPIdentitieA).toEqual(iPIdentitieA2);
             // Check if identities are different when using different identity.
             expect(iPIdentitieA).not.toEqual(iPIdentitieB);
+
+            // reset existing circuit using identity with password
+            const identityB2 = await fetch(testGetUrlHttps, {
+                headers: { 'Proxy-Authorization': 'Basic user:password' },
+            });
+            const iPIdentitieB2 = ((await identityB2.text()) as any).match(ipRegex)[0];
+            // ip for "user" did change
+            expect(iPIdentitieB2).not.toEqual(iPIdentitieB);
+            // continue using new circuit
+            const identityB3 = await fetch(testGetUrlHttps, {
+                headers: { 'Proxy-Authorization': 'Basic user' },
+            });
+            const iPIdentitieB3 = ((await identityB3.text()) as any).match(ipRegex)[0];
+            // same ip after change
+            expect(iPIdentitieB3).toEqual(iPIdentitieB2);
         });
     });
 
@@ -126,5 +143,17 @@ describe('Interceptor', () => {
             // Check if identities are different when using different identity.
             expect(iPIdentitieA).not.toEqual(iPIdentitieB);
         });
+    });
+
+    it('Block unauthorized requests', async () => {
+        jest.spyOn(INTERCEPTOR, 'getIsTorEnabled').mockImplementation(() => false);
+
+        await expect(
+            fetch(testPostUrlHttps, {
+                method: 'POST',
+                body: JSON.stringify({ test: 'test' }),
+                headers: { 'Proxy-Authorization': 'Basic default' },
+            }),
+        ).rejects.toThrow('Blocked request with Proxy-Authorization');
     });
 });

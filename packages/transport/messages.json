@@ -1634,7 +1634,13 @@
         "CardanoTxAuxiliaryDataSupplementType": {
             "values": {
                 "NONE": 0,
-                "CATALYST_REGISTRATION_SIGNATURE": 1
+                "GOVERNANCE_REGISTRATION_SIGNATURE": 1
+            }
+        },
+        "CardanoGovernanceRegistrationFormat": {
+            "values": {
+                "CIP15": 0,
+                "CIP36": 1
             }
         },
         "CardanoTxSigningMode": {
@@ -2239,10 +2245,23 @@
                 }
             }
         },
-        "CardanoCatalystRegistrationParametersType": {
+        "CardanoGovernanceRegistrationDelegation": {
             "fields": {
                 "voting_public_key": {
                     "rule": "required",
+                    "type": "bytes",
+                    "id": 1
+                },
+                "weight": {
+                    "rule": "required",
+                    "type": "uint32",
+                    "id": 2
+                }
+            }
+        },
+        "CardanoGovernanceRegistrationParametersType": {
+            "fields": {
+                "voting_public_key": {
                     "type": "bytes",
                     "id": 1
                 },
@@ -2263,13 +2282,29 @@
                     "rule": "required",
                     "type": "uint64",
                     "id": 4
+                },
+                "format": {
+                    "type": "CardanoGovernanceRegistrationFormat",
+                    "id": 5,
+                    "options": {
+                        "default": "CIP15"
+                    }
+                },
+                "delegations": {
+                    "rule": "repeated",
+                    "type": "CardanoGovernanceRegistrationDelegation",
+                    "id": 6
+                },
+                "voting_purpose": {
+                    "type": "uint64",
+                    "id": 7
                 }
             }
         },
         "CardanoTxAuxiliaryData": {
             "fields": {
-                "catalyst_registration_parameters": {
-                    "type": "CardanoCatalystRegistrationParametersType",
+                "governance_registration_parameters": {
+                    "type": "CardanoGovernanceRegistrationParametersType",
                     "id": 1
                 },
                 "hash": {
@@ -2345,7 +2380,7 @@
                     "type": "bytes",
                     "id": 2
                 },
-                "catalyst_signature": {
+                "governance_signature": {
                     "type": "bytes",
                     "id": 3
                 }

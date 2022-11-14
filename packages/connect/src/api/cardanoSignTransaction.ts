@@ -44,6 +44,7 @@ const CardanoSignTransactionFeatures = Object.freeze({
     Plutus: ['0', '2.4.4'],
     KeyHashStakeCredential: ['0', '2.4.4'],
     Babbage: ['0', '2.5.2'],
+    GovernanceRegistrationCIP36: ['0', '2.5.3'],
 });
 
 export type CardanoSignTransactionParams = {
@@ -100,6 +101,17 @@ export default class CardanoSignTransaction extends AbstractMethod<
                 'Method_InvalidParameter',
                 'Auxiliary data can now only be sent as a hash.',
             );
+        }
+
+        // @ts-expect-error payload.auxiliaryData.catalystRegistrationParameters is a legacy param
+        // kept for backward compatibility (for now)
+        if (payload.auxiliaryData && payload.auxiliaryData.catalystRegistrationParameters) {
+            console.warn(
+                'Please use governanceRegistrationParameters instead of catalystRegistrationParameters.',
+            );
+            payload.auxiliaryData.governanceRegistrationParameters =
+                // @ts-expect-error
+                payload.auxiliaryData.catalystRegistrationParameters;
         }
 
         // validate incoming parameters
@@ -309,6 +321,26 @@ export default class CardanoSignTransaction extends AbstractMethod<
         ) {
             this._ensureFeatureIsSupported('Babbage');
         }
+
+        if (
+            params.requiredSigners.length > 0 &&
+            params.signingMode !== PROTO.CardanoTxSigningMode.PLUTUS_TRANSACTION
+        ) {
+            // Trezor Firmware allowed requiredSigners in non-Plutus txs with the Babbage update
+            this._ensureFeatureIsSupported('Babbage');
+        }
+
+        if (params.auxiliaryData?.governance_registration_parameters) {
+            const { format, delegations, voting_purpose } =
+                params.auxiliaryData.governance_registration_parameters;
+            if (
+                format === PROTO.CardanoGovernanceRegistrationFormat.CIP36 ||
+                delegations?.length ||
+                voting_purpose != null
+            ) {
+                this._ensureFeatureIsSupported('GovernanceRegistrationCIP36');
+            }
+        }
     }
 
     async _sign_tx(): Promise<CardanoSignedTxData> {
@@ -368,8 +400,8 @@ export default class CardanoSignTransaction extends AbstractMethod<
         // auxiliary data
         let auxiliaryDataSupplement: CardanoAuxiliaryDataSupplement | undefined;
         if (this.params.auxiliaryData) {
-            const { catalyst_registration_parameters } = this.params.auxiliaryData;
-            if (catalyst_registration_parameters) {
+            const { governance_registration_parameters } = this.params.auxiliaryData;
+            if (governance_registration_parameters) {
                 this.params.auxiliaryData = modifyAuxiliaryDataForBackwardsCompatibility(
                     this.device,
                     this.params.auxiliaryData,
@@ -388,7 +420,9 @@ export default class CardanoSignTransaction extends AbstractMethod<
                 auxiliaryDataSupplement = {
                     type: auxiliaryDataType,
                     auxiliaryDataHash: message.auxiliary_data_hash!,
-                    catalystSignature: message.catalyst_signature,
+                    governanceSignature: message.governance_signature,
+                    // @ts-expect-error auxiliaryDataSupplement.catalystSignature kept for backward compatibility
+                    catalystSignature: message.governance_signature,
                 };
             }
             await typedCall('CardanoTxHostAck', 'CardanoTxItemAck');

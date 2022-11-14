@@ -17,7 +17,7 @@ const result = await TrezorConnect.cardanoSignTransaction(params);
 -   `inputs` - _required_ `Array` of [CardanoInput](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/api/cardano/index.ts)
 -   `outputs` - _required_ `Array` of [CardanoOutput](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/api/cardano/index.ts)
 -   `fee` - _required_ `String`
--   `protocolMagic` - _required_ `Integer` 764824073 for Mainnet, 1097911063 for Testnet
+-   `protocolMagic` - _required_ `Integer` 764824073 for Mainnet, 1 for Preprod Testnet, 2 for Preview Testnet
 -   `networkId` - _required_ `Integer` 1 for Mainnet, 0 for Testnet
 -   `ttl` - _optional_ `String`
 -   `validityIntervalStart` - _optional_ `String`
@@ -46,7 +46,7 @@ The transaction
 
 -   _should_ have valid `path` property on all `inputs`
 -   _must not_ contain a pool registration certificate
--   _must not_ contain `collateralInputs` and `requiredSigners`
+-   _must not_ contain `collateralInputs`, `collateralReturn`, `totalCollateral` and `referenceInputs`
 -   _must_ contain paths as stake credentials in certificates and withdrawals (no key hashes or script hashes)
 -   _may_ contain only 1852 and 1855 paths
 -   _must not_ contain 1855 witness requests when transaction is not minting/burning tokens
@@ -62,7 +62,7 @@ The transaction
 -   _must_ have single owner given by path on that certificate
 -   _must not_ contain withdrawals
 -   _must not_ contain token minting
--   _must not_ contain `collateralInputs` and `requiredSigners`
+-   _must not_ contain `collateralInputs`, `requiredSigners`, `collateralReturn`, `totalCollateral` and `referenceInputs`
 -   _must_ contain only staking witness requests
 
 These restrictions are in place due to a possibility of maliciously signing _another_ part of the transaction with the pool owner path as we are not displaying device-owned paths on the device screen.
@@ -76,7 +76,7 @@ The transaction
 -   _must_ have `path` undefined on all `inputs`
 -   _must not_ contain output addresses given by parameters
 -   _must not_ contain a pool registration certificate
--   _must not_ contain `collateralInputs` and `requiredSigners`
+-   _must not_ contain `collateralInputs`, `collateralReturn`, `totalCollateral` and `referenceInputs`
 -   _must_ contain script hash stake credentials in certificates and withdrawals (no paths or key hashes)
 -   _may_ contain only 1854 and 1855 witness requests
 -   _must not_ contain 1855 witness requests when transaction is not minting/burning tokens
@@ -92,6 +92,8 @@ The transaction
 -   _may_ contain only 1852, 1854 and 1855 required signers
 -   _may_ contain only 1852, 1854 and 1855 witness requests
 
+Note: `requiredSigners` are meant for Plutus transactions (from the blockchain point of view), but some applications utilize them for their own purposes, so we allow them in all signing modes (except for pool registration as owner).
+
 ### Stake pool registration certificate specifics
 
 Trezor supports signing of stake pool registration certificates as a pool owner. The transaction may contain external inputs (e.g. belonging to the pool operator) and Trezor is not able to verify whether they are actually external or not, so if we allowed signing the transaction with a spending key, there is the risk of losing funds from an input that the user did not intend to spend from. Moreover there is the risk of inadvertedly signing a withdrawal in the transaction if there's any. To mitigate those risks, we introduced special validation rules for stake pool registration transactions which are validated on Trezor as well. The validation rules are the following:
@@ -101,7 +103,16 @@ Trezor supports signing of stake pool registration certificates as a pool owner.
 1. The transaction inputs must all be external, i.e. path must be either undefined or null
 1. Exactly one owner should be passed as a staking path and the rest of owners should be passed as bech32-encoded reward addresses
 
-### Example
+### Governance registration (Catalyst and other)
+
+Trezor supports signing transactions with auxiliary data containing a governance registration. Governance registrations used to follow [CIP-15](https://cips.cardano.org/cips/cip15/), which has been superseded by [CIP-36](https://cips.cardano.org/cips/cip36/). Currently, Trezor supports both CIP-15 and CIP-36 formats, the intended standard can be specified in the `format` field (with CIP-15 being the default). They differ in the following:
+
+-   CIP-36 allows delegating the voting power to several voting public keys with different voting power ([CardanoGovernanceRegistrationDelegation](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/api/cardano/index.ts)) as an alternative to providing only a single voting public key. Note that Trezor Firmware supports at most 32 delegations in a single governance registration.
+-   CIP-36 registrations contain the [votingPurpose](https://github.com/trezor/trezor-suite/blob/develop/packages/connect/src/types/api/cardano/index.ts) field. The value 0 is intended for Catalyst voting and the value 1 is intended for other purposes. If no value is provided, Trezor serializes 0 by default (if the CIP-36 format is used).
+
+Trezor does not support the 1694 derivation paths at the moment.
+
+### Transaction examples
 
 #### Ordinary transaction
 
@@ -275,7 +286,7 @@ TrezorConnect.cardanoSignTransaction({
 });
 ```
 
-#### Catalyst voting key registration
+#### Governance voting key registration
 
 ```javascript
 TrezorConnect.cardanoSignTransaction({
@@ -297,7 +308,7 @@ TrezorConnect.cardanoSignTransaction({
     fee: '42',
     ttl: '10',
     auxiliaryData: {
-        catalystRegistrationParameters: {
+        governanceRegistrationParameters: {
             votingPublicKey: '1af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc',
             stakingPath: "m/1852'/1815'/0'/2/0",
             rewardAddressParameters: {
@@ -568,7 +579,7 @@ Example:
             type: 1,
             auxiliaryDataHash:
                 'a943e9166f1bb6d767b175384d3bd7d23645170df36fc1861fbf344135d8e120',
-            catalystSignature:
+            governanceSignature:
                 '74f27d877bbb4a5fc4f7c56869905c11f70bad0af3de24b23afaa1d024e750930f434ecc4b73e5d1723c2cb8548e8bf6098ac876487b3a6ed0891cb76994d409',
         },
     }

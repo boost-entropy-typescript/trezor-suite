@@ -624,7 +624,12 @@ export enum CardanoPoolRelayType {
 
 export enum CardanoTxAuxiliaryDataSupplementType {
     NONE = 0,
-    CATALYST_REGISTRATION_SIGNATURE = 1,
+    GOVERNANCE_REGISTRATION_SIGNATURE = 1,
+}
+
+export enum CardanoGovernanceRegistrationFormat {
+    CIP15 = 0,
+    CIP36 = 1,
 }
 
 export enum CardanoTxSigningMode {
@@ -826,17 +831,26 @@ export type CardanoTxWithdrawal = {
     key_hash?: string;
 };
 
-// CardanoCatalystRegistrationParametersType
-export type CardanoCatalystRegistrationParametersType = {
+// CardanoGovernanceRegistrationDelegation
+export type CardanoGovernanceRegistrationDelegation = {
     voting_public_key: string;
+    weight: UintType;
+};
+
+// CardanoGovernanceRegistrationParametersType
+export type CardanoGovernanceRegistrationParametersType = {
+    voting_public_key?: string;
     staking_path: number[];
     reward_address_parameters: CardanoAddressParametersType;
     nonce: UintType;
+    format?: CardanoGovernanceRegistrationFormat;
+    delegations?: CardanoGovernanceRegistrationDelegation[];
+    voting_purpose?: UintType;
 };
 
 // CardanoTxAuxiliaryData
 export type CardanoTxAuxiliaryData = {
-    catalyst_registration_parameters?: CardanoCatalystRegistrationParametersType;
+    governance_registration_parameters?: CardanoGovernanceRegistrationParametersType;
     hash?: string;
 };
 
@@ -870,7 +884,7 @@ export type CardanoTxItemAck = {};
 export type CardanoTxAuxiliaryDataSupplement = {
     type: CardanoTxAuxiliaryDataSupplementType;
     auxiliary_data_hash?: string;
-    catalyst_signature?: string;
+    governance_signature?: string;
 };
 
 // CardanoTxWitnessRequest
@@ -2241,7 +2255,8 @@ export type MessageType = {
     CardanoPoolParametersType: CardanoPoolParametersType;
     CardanoTxCertificate: CardanoTxCertificate;
     CardanoTxWithdrawal: CardanoTxWithdrawal;
-    CardanoCatalystRegistrationParametersType: CardanoCatalystRegistrationParametersType;
+    CardanoGovernanceRegistrationDelegation: CardanoGovernanceRegistrationDelegation;
+    CardanoGovernanceRegistrationParametersType: CardanoGovernanceRegistrationParametersType;
     CardanoTxAuxiliaryData: CardanoTxAuxiliaryData;
     CardanoTxMint: CardanoTxMint;
     CardanoTxCollateralInput: CardanoTxCollateralInput;
