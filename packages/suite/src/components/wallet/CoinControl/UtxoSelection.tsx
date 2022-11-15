@@ -144,11 +144,13 @@ export const UtxoSelection = ({ isChecked, transaction, utxo }: UtxoSelectionPro
         coordinatorData && new BigNumber(utxo.amount).lt(coordinatorData.allowedInputAmounts.min);
     const amountTooBigForCoinjoin =
         coordinatorData && new BigNumber(utxo.amount).gt(coordinatorData.allowedInputAmounts.max);
-    const isUnavailableForCoinjoin = amountTooSmallForCoinjoin || amountTooBigForCoinjoin; // TODO: add blacklisted UTXOs - https://github.com/trezor/trezor-suite/issues/6757
+    const isUnavailableForCoinjoin =
+        account.accountType === 'coinjoin' &&
+        (amountTooSmallForCoinjoin || amountTooBigForCoinjoin); // TODO: add blacklisted UTXOs - https://github.com/trezor/trezor-suite/issues/6757
     const unavailableMessage = amountTooSmallForCoinjoin
         ? 'TR_AMOUNT_TOO_SMALL_FOR_COINJOIN'
         : 'TR_AMOUNT_TOO_BIG_FOR_COINJOIN';
-    const isChangeAddress = utxo.path.split('/')[4] === '1';
+    const isChangeAddress = utxo.path.split('/').at(-2) === '1'; // change address always has a 1 on the penultimate level of the derivation path
     const amountInBtc = (Number(utxo.amount) / 10 ** network.decimals).toString();
     const outputLabel = account.metadata.outputLabels?.[utxo.txid]?.[utxo.vout];
     const isLabelingPossible = device?.metadata.status === 'enabled' || device?.connected;
