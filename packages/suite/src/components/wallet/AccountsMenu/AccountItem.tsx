@@ -1,9 +1,10 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { CoinLogo, variables } from '@trezor/components';
 import styled from 'styled-components';
-import { getTitleForNetwork } from '@suite-common/wallet-utils';
-import { Translation, FiatValue } from '@suite-components';
-import { useActions } from '@suite-hooks';
+import { isTestnet } from '@suite-common/wallet-utils';
+import { AccountLabel, FiatValue } from '@suite-components';
+import { Stack, SkeletonRectangle } from '@suite-components/Skeleton';
+import { useActions, useLoadingSkeleton } from '@suite-hooks';
 import { CoinBalance } from '@wallet-components';
 import { Account } from '@wallet-types';
 import * as routerActions from '@suite-actions/routerActions';
@@ -106,89 +107,115 @@ interface AccountItemProps {
 }
 
 // Using `React.forwardRef` to be able to pass `ref` (item) TO parent (Menu/index)
-export const AccountItem = forwardRef((props: AccountItemProps, ref: React.Ref<HTMLDivElement>) => {
-    const { goto } = useActions({
-        goto: routerActions.goto,
-    });
-    const { account, selected, closeMenu } = props;
+export const AccountItem = forwardRef(
+    ({ account, selected, closeMenu }: AccountItemProps, ref: React.Ref<HTMLDivElement>) => {
+        const { goto } = useActions({
+            goto: routerActions.goto,
+        });
 
-    const accountRouteParams = useMemo(
-        () => ({
-            symbol: account.symbol,
-            accountIndex: account.index,
-            accountType: account.accountType,
-        }),
-        [account],
-    );
+        const { shouldAnimate } = useLoadingSkeleton();
 
-    const handleClickOnTokens = useCallback<React.MouseEventHandler<HTMLButtonElement>>(
-        event => {
-            event.stopPropagation();
-            closeMenu();
-            goto('wallet-tokens', { params: accountRouteParams });
-        },
-        [accountRouteParams, closeMenu, goto],
-    );
+        const { accountType, formattedBalance, index, metadata, networkType, symbol, tokens } =
+            account;
 
-    const dataTestKey = `@account-menu/${account.symbol}/${account.accountType}/${account.index}`;
+        const accountRouteParams = useMemo(
+            () => ({
+                symbol,
+                accountIndex: index,
+                accountType,
+            }),
+            [symbol, index, accountType],
+        );
 
-    const DefaultLabel = () => (
-        <>
-            <Translation id={getTitleForNetwork(account.symbol)} />
-            <span>&nbsp;#{account.index + 1}</span>
-        </>
-    );
+        const handleClickOnTokens = useCallback<React.MouseEventHandler<HTMLButtonElement>>(
+            event => {
+                event.stopPropagation();
+                closeMenu();
+                goto('wallet-tokens', { params: accountRouteParams });
+            },
+            [accountRouteParams, closeMenu, goto],
+        );
 
-    const accountLabel = account.metadata.accountLabel ? (
-        <span style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>
-            {account.metadata.accountLabel}
-        </span>
-    ) : (
-        <DefaultLabel />
-    );
+        // Tokens tab is available for ethereum and cardano accounts only, not yet implemented for XRP
+        const isTokensCountShown =
+            ['cardano', 'ethereum'].includes(networkType) && !!tokens?.length;
 
-    return (
-        <Wrapper selected={selected} type={account.accountType} ref={ref}>
-            <AccountHeader
-                onClick={() => {
-                    closeMenu();
-                    goto('wallet-index', { params: accountRouteParams });
-                }}
-                data-test={dataTestKey}
-            >
-                <Left>
-                    <CoinLogo size={16} symbol={account.symbol} />
-                </Left>
-                <Right>
-                    <Row>
-                        <AccountName data-test={`${dataTestKey}/label`}>{accountLabel}</AccountName>
-                    </Row>
-                    <Row>
-                        <Balance>
-                            <CoinBalance value={account.formattedBalance} symbol={account.symbol} />
-                        </Balance>
-                        {(account.networkType === 'ethereum' ||
-                            account.networkType === 'cardano') &&
-                            !!account.tokens?.length && (
-                                <TokensCount
-                                    count={account.tokens.length}
-                                    onClick={handleClickOnTokens}
+        // Show skeleton instead of zero balance during CoinJoin initial discovery
+        const isBalanceShown = account.backendType !== 'coinjoin' || account.status !== 'initial';
+
+        const dataTestKey = `@account-menu/${symbol}/${accountType}/${index}`;
+
+        return (
+            <Wrapper selected={selected} type={accountType} ref={ref}>
+                <AccountHeader
+                    onClick={() => {
+                        closeMenu();
+                        goto('wallet-index', { params: accountRouteParams });
+                    }}
+                    data-test={dataTestKey}
+                >
+                    <Left>
+                        <CoinLogo size={16} symbol={symbol} />
+                    </Left>
+                    <Right>
+                        <Row>
+                            <AccountName data-test={`${dataTestKey}/label`}>
+                                <AccountLabel
+                                    accountLabel={metadata.accountLabel}
+                                    accountType={accountType}
+                                    symbol={symbol}
+                                    index={index}
                                 />
-                            )}
-                    </Row>
-                    <Row>
-                        <FiatValue
-                            amount={account.formattedBalance}
-                            symbol={account.symbol}
-                            showApproximationIndicator
-                        >
-                            {({ value }) =>
-                                value ? <FiatValueWrapper>{value}</FiatValueWrapper> : null
-                            }
-                        </FiatValue>
-                    </Row>
-                </Right>
-            </AccountHeader>
-        </Wrapper>
-    );
-});
+                            </AccountName>
+                        </Row>
+                        {isBalanceShown && (
+                            <>
+                                <Row>
+                                    <Balance>
+                                        <CoinBalance value={formattedBalance} symbol={symbol} />
+                                    </Balance>
+                                    {isTokensCountShown && (
+                                        <TokensCount
+                                            count={tokens.length}
+                                            onClick={handleClickOnTokens}
+                                        />
+                                    )}
+                                </Row>
+                                <Row>
+                                    <FiatValue
+                                        amount={formattedBalance}
+                                        symbol={symbol}
+                                        showApproximationIndicator
+                                    >
+                                        {({ value }) =>
+                                            value ? (
+                                                <FiatValueWrapper>{value}</FiatValueWrapper>
+                                            ) : null
+                                        }
+                                    </FiatValue>
+                                </Row>
+                            </>
+                        )}
+                        {!isBalanceShown && (
+                            <Stack col margin="6px 0px 0px 0px" childMargin="0px 0px 8px 0px">
+                                <SkeletonRectangle
+                                    width="100px"
+                                    height="16px"
+                                    animate={shouldAnimate}
+                                />
+
+                                {!isTestnet(account.symbol) && (
+                                    <SkeletonRectangle
+                                        width="100px"
+                                        height="16px"
+                                        animate={shouldAnimate}
+                                    />
+                                )}
+                            </Stack>
+                        )}
+                    </Right>
+                </AccountHeader>
+            </Wrapper>
+        );
+    },
+);

@@ -27,7 +27,7 @@ const confirmInput = async (
     if (!input.registrationData || !input.realAmountCredentials || !input.realVsizeCredentials) {
         throw new Error(`Trying to confirm unregistered input ~~${input.outpoint}~~`);
     }
-    if (input.confirmationData) {
+    if (input.confirmedAmountCredentials && input.confirmedVsizeCredentials) {
         options.log(`Input ~~${input.outpoint}~~ already confirmed. Skipping.`);
         return input;
     }
@@ -49,18 +49,39 @@ const confirmInput = async (
         `Confirming ~~${input.outpoint}~~ to ~~${round.id}~~ with delay ${delay}ms and deadline ${deadline}`,
     );
 
-    const confirmationData = await coordinator.connectionConfirmation(
-        round.id,
-        input.registrationData.aliceId,
-        input.realAmountCredentials,
-        input.realVsizeCredentials,
-        zeroAmountCredentials,
-        zeroVsizeCredentials,
-        { signal, baseUrl: coordinatorUrl, identity: input.outpoint, delay, deadline },
-    );
+    const confirmationData = await coordinator
+        .connectionConfirmation(
+            round.id,
+            input.registrationData.aliceId,
+            input.realAmountCredentials,
+            input.realVsizeCredentials,
+            zeroAmountCredentials,
+            zeroVsizeCredentials,
+            { signal, baseUrl: coordinatorUrl, identity: input.outpoint, delay, deadline },
+        )
+        .catch(error => {
+            // catch specific error
+            if (
+                error.message ===
+                coordinator.WabiSabiProtocolErrorCode.AliceAlreadyConfirmedConnection
+            ) {
+                // NOTE: possible race condition between round phases:
+                // 1. suite is constantly confirming connection while in phase: 0 (see confirmationInterval below)
+                // 2. coordinator changes round phase to 1 before the deadline estimated by suite, suite doesn't know about phase change yet and is still in confirmation interval process
+                // 3. confirmation from interval is successfully sent as confirmation in phase: 1
+                // 5. suite receives phase change from coordinator and trying to process confirmation in phase: 1
+                // and here we are... ignoring it, if input doesn't have confirmedAmountCredentials it will fail in next phase
+            } else {
+                throw error;
+            }
+        });
 
     // stop here if it's confirmationInterval at phase 0
-    if (round.phase === coordinator.RoundPhase.InputRegistration) {
+    if (
+        !confirmationData ||
+        !confirmationData.realAmountCredentials ||
+        !confirmationData.realVsizeCredentials
+    ) {
         return input;
     }
 
@@ -77,7 +98,7 @@ const confirmInput = async (
         { baseUrl: middlewareUrl }, // NOTE: post processing intentionally without abort signal (should not be aborted)
     );
 
-    log(`Confirmed ${input.outpoint} in ${round.id}`);
+    log(`Confirmed ~~${input.outpoint}~~ in ~~${round.id}~~`);
 
     input.setConfirmationData(confirmationData);
     input.setConfirmedCredentials(confirmedAmountCredentials, confirmedVsizeCredentials);
@@ -99,7 +120,7 @@ export const confirmationInterval = (
     let timeLeft = phaseDeadline - Date.now();
     if (timeLeft < timeoutDeadline || options.signal.aborted) {
         options.log(
-            `Ignoring confirmation interval for ~~${input.outpoint}~~. Deadline ${timeLeft}`,
+            `Ignoring confirmation interval for ~~${input.outpoint}~~. Deadline ${timeLeft}ms`,
         );
         return input;
     }
