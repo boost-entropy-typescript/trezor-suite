@@ -18,6 +18,12 @@ import {
     getPhaseTimerFormat,
     getSessionDeadlineFormat,
 } from '@wallet-utils/coinjoinUtils';
+import { useDispatch } from 'react-redux';
+import {
+    pauseCoinjoinSession,
+    restoreCoinjoinSession,
+    stopCoinjoinSession,
+} from '@wallet-actions/coinjoinAccountActions';
 
 const Container = styled.div`
     position: relative;
@@ -126,22 +132,16 @@ const TextCointainer = styled.p`
 
 interface CoinjoinStatusProps {
     session: CoinjoinSession;
-    stopSession: () => void;
-    pauseSession: () => void;
-    restoreSession: () => Promise<void>;
+    accountKey: string;
 }
 
-export const CoinjoinStatus = ({
-    session,
-    pauseSession,
-    restoreSession,
-    stopSession,
-}: CoinjoinStatusProps) => {
+export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isWheelHovered, setIsWheelHovered] = useState(false);
 
     const menuRef = useRef<HTMLUListElement & { close: () => void }>(null);
     const theme = useTheme();
+    const dispatch = useDispatch();
 
     const { maxRounds, signedRounds, paused, phaseDeadline, sessionDeadline, phase } = session;
 
@@ -151,12 +151,12 @@ export const CoinjoinStatus = ({
     const togglePause = useCallback(async () => {
         if (isPaused) {
             setIsLoading(true);
-            await restoreSession();
+            await dispatch(restoreCoinjoinSession(accountKey));
             setIsLoading(false);
         } else {
-            pauseSession();
+            dispatch(pauseCoinjoinSession(accountKey));
         }
-    }, [isPaused, pauseSession, restoreSession]);
+    }, [isPaused, dispatch, accountKey]);
 
     const menuItems = useMemo<Array<GroupedMenuItems>>(
         () => [
@@ -208,14 +208,14 @@ export const CoinjoinStatus = ({
                         ),
                         callback: () => {
                             menuRef.current?.close();
-                            stopSession();
+                            dispatch(stopCoinjoinSession(accountKey));
                         },
                         'data-test': `@coinjoin/cancel`,
                     },
                 ],
             },
         ],
-        [stopSession, isPaused, togglePause, isLoading],
+        [isPaused, togglePause, isLoading, dispatch, accountKey],
     );
 
     const iconConfig = {
