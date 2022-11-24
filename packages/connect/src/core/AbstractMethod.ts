@@ -1,4 +1,4 @@
-import * as storage from '@trezor/connect-common/lib/storage';
+import { storage } from '@trezor/connect-common';
 import { DataManager } from '../data/DataManager';
 import { ERRORS, NETWORK } from '../constants';
 import {
@@ -8,10 +8,10 @@ import {
     createDeviceMessage,
     CallMethodPayload,
     CallMethodResponse,
-    CoreMessage,
     UiRequestButtonData,
     UiPromise,
     UiPromiseResponse,
+    PostMessage,
 } from '../events';
 import { Deferred } from '../utils/deferred';
 import { versionCompare } from '../utils/versionUtils';
@@ -83,7 +83,7 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     // callbacks
     // @ts-expect-error: strictPropertyInitialization
-    postMessage: (message: CoreMessage) => void;
+    postMessage: PostMessage;
     // @ts-expect-error: strictPropertyInitialization
     getPopupPromise: () => Deferred<void>;
     // @ts-expect-error: strictPropertyInitialization
@@ -175,7 +175,8 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
     }
 
     checkPermissions() {
-        const savedPermissions = storage.load(storage.PERMISSIONS_KEY);
+        const savedPermissions = storage.load().permissions;
+
         let notPermitted = [...this.requiredPermissions];
         if (savedPermissions) {
             // find permissions for this origin
@@ -196,7 +197,7 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
     }
 
     savePermissions(temporary = false) {
-        const savedPermissions = storage.load(storage.PERMISSIONS_KEY, temporary) || [];
+        const savedPermissions = storage.load(temporary).permissions || [];
 
         let permissionsToSave = this.requiredPermissions.map(p => ({
             origin: DataManager.getSettings('origin'),
@@ -233,8 +234,10 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         }
 
         storage.save(
-            storage.PERMISSIONS_KEY,
-            savedPermissions.concat(permissionsToSave),
+            state => ({
+                ...state,
+                permissions: savedPermissions.concat(permissionsToSave),
+            }),
             temporary,
         );
 

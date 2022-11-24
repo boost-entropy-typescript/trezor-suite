@@ -3,7 +3,8 @@ import { FormattedMessage } from 'react-intl';
 
 import styled from 'styled-components';
 
-import type { UiEvent } from '@trezor/connect';
+import { analytics, EventType } from '@trezor/connect-analytics';
+import { createUiResponse, UI, UiEvent, PostMessage } from '@trezor/connect';
 import { variables, PassphraseTypeCard } from '@trezor/components';
 
 import { View } from '../components/View';
@@ -31,14 +32,31 @@ const Divider = styled.div`
     background: ${props => props.theme.STROKE_GREY};
 `;
 
-export type PassphraseProps = Extract<UiEvent, { type: 'ui-request_passphrase' }> & {
-    onPassphraseSubmit: (value: string, enterOnDevice?: boolean) => void;
-};
+export type PassphraseEventProps = Extract<UiEvent, { type: 'ui-request_passphrase' }>;
+
+type PassphraseProps = PassphraseEventProps & { postMessage: PostMessage };
 
 export const Passphrase = (props: PassphraseProps) => {
-    const { onPassphraseSubmit } = props;
     const { device } = props.payload;
     const { features } = device;
+
+    const onPassphraseSubmit = (value: string, passphraseOnDevice?: boolean) => {
+        props.postMessage(
+            createUiResponse(UI.RECEIVE_PASSPHRASE, {
+                value,
+                passphraseOnDevice,
+                // todo: what is this param?
+                save: true,
+            }),
+        );
+
+        analytics.report({
+            type: EventType.WalletType,
+            payload: {
+                type: value ? 'hidden' : 'standard',
+            },
+        });
+    };
 
     const offerPassphraseOnDevice =
         features &&
