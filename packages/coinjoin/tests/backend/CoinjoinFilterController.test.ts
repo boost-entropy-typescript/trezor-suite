@@ -1,5 +1,5 @@
 import { CoinjoinFilterController } from '../../src/backend/CoinjoinFilterController';
-import { BlockFilter, FilterClient } from '../../src/types/backend';
+import { BlockFilter } from '../../src/types/backend';
 import { mockFilterSequence } from '../fixtures/filters.fixture';
 import { COINJOIN_BACKEND_SETTINGS } from '../fixtures/config.fixture';
 import { MockFilterClient } from '../mocks/MockFilterClient';
@@ -13,6 +13,16 @@ const FILTERS: BlockFilter[] = mockFilterSequence(
     COINJOIN_BACKEND_SETTINGS.baseBlockHash,
 );
 
+const REORG_FILTER: BlockFilter = {
+    blockHeight: 9,
+    blockTime: 90,
+    blockHash: 'nope',
+    filter: 'nope',
+    prevHash: FILTERS[FILTER_MIDDLE - 1].blockHash,
+};
+
+const REORG_FILTERS = FILTERS.slice(0, FILTER_MIDDLE).concat(REORG_FILTER);
+
 const FIXTURES = [
     {
         description: 'From start',
@@ -25,7 +35,12 @@ const FIXTURES = [
         description: 'From middle',
         params: {
             batchSize: 5,
-            fromHash: FILTERS[FILTER_MIDDLE].prevHash,
+            checkpoints: [
+                {
+                    blockHash: FILTERS[FILTER_MIDDLE - 1].blockHash,
+                    blockHeight: FILTERS[FILTER_MIDDLE - 1].blockHeight,
+                },
+            ],
         },
         expected: FILTERS.slice(FILTER_MIDDLE),
     },
@@ -33,31 +48,66 @@ const FIXTURES = [
         description: 'Not found',
         params: {
             batchSize: 5,
-            fromHash: 'foo',
+            checkpoints: [
+                {
+                    blockHash: 'foo',
+                    blockHeight: 42,
+                },
+            ],
         },
-        expected: [],
+        error: 'not found',
     },
 ];
 
 describe('CoinjoinFilterController', () => {
-    let client: FilterClient;
+    const client = new MockFilterClient();
 
     beforeEach(() => {
-        client = new MockFilterClient(FILTERS);
+        client.setFixture(FILTERS);
     });
 
     describe('Filter controller', () => {
-        FIXTURES.forEach(({ description, params, expected }) => {
+        FIXTURES.forEach(({ description, params, expected, error }) => {
             it(description, async () => {
                 const controller = new CoinjoinFilterController(client, COINJOIN_BACKEND_SETTINGS);
                 const iterator = controller.getFilterIterator(params);
-                const received = [];
-                // eslint-disable-next-line no-restricted-syntax
-                for await (const { progress, ...b } of iterator) {
-                    received.push(b);
+                if (error) {
+                    await expect(() => iterator.next()).rejects.toThrow(error);
+                } else {
+                    const received = [];
+                    // eslint-disable-next-line no-restricted-syntax
+                    for await (const { progress, ...b } of iterator) {
+                        received.push(b);
+                    }
+                    expect(received).toEqual(expected);
                 }
-                expect(received).toEqual(expected);
             });
+        });
+
+        it('Reorg', async () => {
+            const params = { batchSize: 5 };
+            const controller = new CoinjoinFilterController(client, COINJOIN_BACKEND_SETTINGS);
+            const received = [];
+
+            client.setFixture(REORG_FILTERS);
+            // eslint-disable-next-line no-restricted-syntax
+            for await (const { progress, ...b } of controller.getFilterIterator(params)) {
+                received.push(b);
+            }
+
+            expect(received).toEqual(REORG_FILTERS);
+            received.length = 0;
+
+            client.setFixture(FILTERS);
+            // eslint-disable-next-line no-restricted-syntax
+            for await (const { progress, ...b } of controller.getFilterIterator({
+                ...params,
+                checkpoints: [REORG_FILTER, FILTERS[5]],
+            })) {
+                received.push(b);
+            }
+
+            expect(received).toEqual(FILTERS.slice(6));
         });
     });
 });

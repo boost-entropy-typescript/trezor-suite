@@ -31,10 +31,14 @@ export type BlockFilter = {
     blockTime: number;
 };
 
-export type BlockFilterResponse = {
-    bestHeight: number;
-    filters: BlockFilter[];
-};
+export type BlockFilterResponse =
+    | { status: 'up-to-date' }
+    | { status: 'not-found' }
+    | {
+          status: 'ok';
+          bestHeight: number;
+          filters: BlockFilter[];
+      };
 
 type MethodContext = {
     client: CoinjoinBackendClient;
@@ -79,13 +83,13 @@ export type ScanAccountProgress = ScanProgress<ScanAccountCheckpoint>;
 
 export type ScanAccountParams = {
     descriptor: string;
-    checkpoint?: ScanAccountCheckpoint;
+    checkpoints?: ScanAccountCheckpoint[];
     cache?: AccountCache;
 };
 
 export type ScanAddressParams = {
     descriptor: string;
-    checkpoint?: ScanAddressCheckpoint;
+    checkpoints?: ScanAddressCheckpoint[];
 };
 
 export type ScanAccountResult = {
@@ -100,7 +104,10 @@ export type ScanAddressResult = {
 };
 
 export type FilterControllerParams = {
-    fromHash?: string;
+    checkpoints?: {
+        blockHeight: number;
+        blockHash: string;
+    }[];
     batchSize?: number;
 };
 

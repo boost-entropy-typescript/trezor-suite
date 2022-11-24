@@ -19,6 +19,9 @@ const EMPTY_CHECKPOINT = {
     changeCount: DISCOVERY_LOOKOUT,
 };
 
+const hasFilters = (r: BlockFilterResponse): r is Extract<BlockFilterResponse, { status: 'ok' }> =>
+    r.status === 'ok';
+
 describe(`CoinjoinBackend methods`, () => {
     const client = new MockBackendClient();
     const fetchFiltersMock = jest.spyOn(client, 'fetchFilters');
@@ -28,7 +31,9 @@ describe(`CoinjoinBackend methods`, () => {
     const getRequestedFilters = () =>
         Promise.all(fetchFiltersMock.mock.results.map(res => res.value)).then(
             (response: BlockFilterResponse[]) =>
-                response.flatMap(res => res.filters.map(filter => filter.blockHeight as number)),
+                response
+                    .filter(hasFilters)
+                    .flatMap(res => res.filters.map(filter => filter.blockHeight as number)),
         );
 
     const getRequestedBlocks = () =>
@@ -68,7 +73,7 @@ describe(`CoinjoinBackend methods`, () => {
         const { pending } = await scanAddress(
             {
                 descriptor: FIXTURES.SEGWIT_RECEIVE_ADDRESSES[0],
-                checkpoint: EMPTY_CHECKPOINT,
+                checkpoints: [EMPTY_CHECKPOINT],
             },
             getContext(progress => {
                 txs = txs.concat(progress.transactions);
@@ -96,7 +101,7 @@ describe(`CoinjoinBackend methods`, () => {
         const { pending, checkpoint } = await scanAccount(
             {
                 descriptor: FIXTURES.SEGWIT_XPUB,
-                checkpoint: EMPTY_CHECKPOINT,
+                checkpoints: [EMPTY_CHECKPOINT],
             },
             getContext(progress => {
                 txs = txs.concat(progress.transactions);
@@ -129,7 +134,7 @@ describe(`CoinjoinBackend methods`, () => {
         const half = await scanAccount(
             {
                 descriptor: FIXTURES.SEGWIT_XPUB,
-                checkpoint: EMPTY_CHECKPOINT,
+                checkpoints: [EMPTY_CHECKPOINT],
             },
             getContext(progress => {
                 txs = txs.concat(progress.transactions);
@@ -167,7 +172,7 @@ describe(`CoinjoinBackend methods`, () => {
         const full = await scanAccount(
             {
                 descriptor: FIXTURES.SEGWIT_XPUB,
-                checkpoint: half.checkpoint,
+                checkpoints: [half.checkpoint],
             },
             getContext(progress => {
                 txs = txs.concat(progress.transactions);
