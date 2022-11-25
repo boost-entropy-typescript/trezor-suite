@@ -2,6 +2,7 @@
     "name": "@trezor/transport",
     "version": "1.1.5",
     "description": "Low level library facilitating protocol buffers based communication with Trezor devices",
+    "npmPublishAccess": "public",
     "license": "SEE LICENSE IN LICENSE.md",
     "repository": {
         "type": "git",
@@ -31,11 +32,13 @@
         "test:unit": "jest",
         "test:e2e": "ts-node -O '{\"module\": \"commonjs\", \"esModuleInterop\": true}' ./e2e/run.ts",
         "example:bridge": "jest --verbose -c jest.config.e2e.js --testPathPattern bridge.integration",
-        "update:protobuf": "./scripts/protobuf-build.sh && yarn prettier --write \"{messages.json,src/types/messages.ts}\""
+        "update:protobuf": "./scripts/protobuf-build.sh && yarn prettier --write \"{messages.json,src/types/messages.ts}\"",
+        "prepublishOnly": "yarn tsx ../../scripts/prepublishNPM.js",
+        "prepublish": "yarn tsx ../../scripts/prepublish.js"
     },
     "devDependencies": {
         "@trezor/trezor-user-env-link": "*",
-        "@types/bytebuffer": "^5.0.43",
+        "@types/bytebuffer": "^5.0.44",
         "@types/w3c-web-usb": "^1.0.6",
         "jest": "^26.6.3",
         "rimraf": "^3.0.2",
@@ -45,9 +48,9 @@
     "dependencies": {
         "@trezor/utils": "^9.0.3",
         "bytebuffer": "^5.0.1",
-        "json-stable-stringify": "^1.0.1",
+        "json-stable-stringify": "^1.0.2",
         "long": "^4.0.0",
         "prettier": "2.8.0",
-        "protobufjs": "^6.11.3"
+        "protobufjs": "^7.1.2"
     }
 }

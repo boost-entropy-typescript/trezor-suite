@@ -10,8 +10,8 @@
         "type-check": "tsc --build"
     },
     "dependencies": {
-        "@mobily/ts-belt": "^3.11.0",
-        "@reduxjs/toolkit": "^1.8.3",
+        "@mobily/ts-belt": "^3.13.1",
+        "@reduxjs/toolkit": "1.8.3",
         "@suite-common/redux-utils": "*",
         "@suite-common/suite-types": "*",
         "@suite-common/wallet-config": "*",
@@ -20,7 +20,7 @@
         "@trezor/message-system": "*",
         "@trezor/utils": "*",
         "dropbox": "^10.32.0",
-        "fake-indexeddb": "^3.1.7",
+        "fake-indexeddb": "^4.0.0",
         "redux": "^4.2.0",
         "redux-thunk": "^2.3.0"
     },

@@ -35,6 +35,18 @@ describe('localizeNumber', () => {
         expect(() => localizeNumber(123456789, 'en', 3, 2)).toThrowError();
     });
 
+    it('formats negative numbers', () => {
+        expect(localizeNumber(-123456789)).toStrictEqual('-123,456,789');
+        expect(localizeNumber(-123456789.111)).toStrictEqual('-123,456,789.111');
+        expect(localizeNumber(-0.42)).toStrictEqual('-0.42');
+        expect(localizeNumber('-123456789')).toStrictEqual('-123,456,789');
+        expect(localizeNumber('-123456789.111')).toStrictEqual('-123,456,789.111');
+        expect(localizeNumber('-0.42')).toStrictEqual('-0.42');
+        expect(localizeNumber(new BigNumber('-123456789'))).toStrictEqual('-123,456,789');
+        expect(localizeNumber(new BigNumber('-123456789.111'))).toStrictEqual('-123,456,789.111');
+        expect(localizeNumber(new BigNumber('-0.42'))).toStrictEqual('-0.42');
+    });
+
     it('formats string decimals', () => {
         expect(localizeNumber('1112222222222233333333334444444444')).toStrictEqual(
             '1,112,222,222,222,233,333,333,334,444,444,444',
