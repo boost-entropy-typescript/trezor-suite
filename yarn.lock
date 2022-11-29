@@ -8023,6 +8023,7 @@ __metadata:
   resolution: "@trezor/connect@workspace:packages/connect"
   dependencies:
     "@trezor/blockchain-link": ^2.1.5
+    "@trezor/connect-analytics": "*"
     "@trezor/connect-common": 0.0.10
     "@trezor/device-utils": "*"
     "@trezor/transport": ^1.1.5
@@ -8063,6 +8064,8 @@ __metadata:
 "@trezor/device-utils@*, @trezor/device-utils@workspace:packages/device-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/device-utils@workspace:packages/device-utils"
+  dependencies:
+    typescript: 4.7.4
   languageName: unknown
   linkType: soft
 
