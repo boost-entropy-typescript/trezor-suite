@@ -5606,6 +5606,11 @@ export default defineMessages({
         defaultMessage: 'There are no spendable UTXOs in your account.',
         description: 'Message showing in Coin control section',
     },
+    TR_LOADING_TRANSACTION_DETAILS: {
+        id: 'TR_LOADING_TRANSACTION_DETAILS',
+        defaultMessage: 'Loading transaction details',
+        description: 'Tooltip over a spinner icon in Coin control section',
+    },
     TR_REGISTERED_FOR_COINJOIN: {
         id: 'TR_REGISTERED_FOR_COINJOIN',
         defaultMessage: 'Registered in CoinJoin',
@@ -7501,5 +7506,15 @@ export default defineMessages({
     TR_TIMER_PAST_DEADLINE: {
         id: 'TR_TIMER_PAST_DEADLINE',
         defaultMessage: 'Almost there...',
+    },
+    TR_UNAVAILABLE_WHILE_LOADING: {
+        id: 'TR_UNAVAILABLE_WHILE_LOADING',
+        description: 'CoinJoin account navigation button tooltip during discovery',
+        defaultMessage: 'Unavailable while loading',
+    },
+    TR_VIEW_ALL: {
+        id: 'TR_VIEW_ALL',
+        description: 'Button opening changelog',
+        defaultMessage: 'View all',
     },
 });
