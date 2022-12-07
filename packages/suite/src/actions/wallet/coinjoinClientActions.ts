@@ -8,12 +8,14 @@ import {
 } from '@trezor/coinjoin';
 import { arrayDistinct } from '@trezor/utils';
 import * as COINJOIN from './constants/coinjoinConstants';
-import { prepareCoinjoinTransaction } from '@wallet-utils/coinjoinUtils';
+import { breakdownCoinjoinBalance, prepareCoinjoinTransaction } from '@wallet-utils/coinjoinUtils';
 import { CoinjoinClientService } from '@suite/services/coinjoin/coinjoinClient';
 import { Dispatch, GetState } from '@suite-types';
 import { Account, CoinjoinServerEnvironment, RoundPhase } from '@suite-common/wallet-types';
 import { onCancel as closeModal, openModal } from '@suite-actions/modalActions';
 import { notificationsActions } from '@suite-common/toast-notifications';
+import { selectAccountByKey } from '@suite-common/wallet-core';
+import { isZero } from '@suite-common/wallet-utils';
 
 const clientEnable = (symbol: Account['symbol']) =>
     ({
@@ -179,7 +181,8 @@ export const setBusyScreen =
 export const onCoinjoinRoundChanged =
     ({ round }: CoinjoinRoundEvent) =>
     (dispatch: Dispatch, getState: GetState) => {
-        const { accounts } = getState().wallet.coinjoin;
+        const state = getState();
+        const { accounts } = state.wallet.coinjoin;
         // collect all account.keys from the round including failed one
         const accountKeys = round.inputs
             .concat(round.failed)
@@ -202,15 +205,13 @@ export const onCoinjoinRoundChanged =
         // round event is triggered multiple times. like at the beginning and at the end of round process
         // critical actions should be triggered only once
         if (phaseChanged) {
-            const relatedAccountKey = coinjoinAccountsWithSession[0].key; // since all accounts share the round, any key can be used
-
             if (round.phase === RoundPhase.ConnectionConfirmation) {
                 dispatch(setBusyScreen(accountKeys, round.roundDeadline - Date.now()));
 
                 dispatch(
                     openModal({
                         type: 'critical-coinjoin-phase',
-                        relatedAccountKey,
+                        relatedAccountKey: coinjoinAccountsWithSession[0].key, // since all accounts share the round, any key can be used,
                     }),
                 );
             }
@@ -224,11 +225,27 @@ export const onCoinjoinRoundChanged =
                 );
 
                 if (completedSessions.length > 0) {
+                    const moreRoundsNeeded = completedSessions.some(({ key, targetAnonymity }) => {
+                        const account = selectAccountByKey(state, key);
+
+                        const { notAnonymized } = breakdownCoinjoinBalance({
+                            anonymitySet: account?.addresses?.anonymitySet,
+                            targetAnonymity,
+                            utxos: account?.utxo,
+                        });
+
+                        return !isZero(notAnonymized);
+                    });
+
                     dispatch(
-                        openModal({
-                            type: 'coinjoin-success',
-                            relatedAccountKey,
-                        }),
+                        openModal(
+                            moreRoundsNeeded
+                                ? { type: 'more-rounds-needed' }
+                                : {
+                                      type: 'coinjoin-success',
+                                      relatedAccountKey: completedSessions[0].key,
+                                  },
+                        ),
                     );
                     completedSessions.forEach(({ key }) => {
                         dispatch(clientSessionCompleted(key));
@@ -238,6 +255,10 @@ export const onCoinjoinRoundChanged =
             }
         }
     };
+
+// populate errors for failed subset of requested inputs
+const coinjoinResponseError = (utxos: CoinjoinRequestEvent['inputs'], error: string) =>
+    utxos.map(u => ({ outpoint: u.outpoint, error }));
 
 export const getOwnershipProof =
     (request: Extract<CoinjoinRequestEvent, { type: 'ownership' }>) =>
@@ -272,17 +293,19 @@ export const getOwnershipProof =
             const realAccount = accounts.find(a => a.key === key);
             const utxos = groupUtxosByAccount[key];
             if (!coinjoinAccount || !realAccount) {
-                response.inputs.push(
-                    ...utxos.map(u => ({ outpoint: u.outpoint, error: 'Account not found' })),
-                );
-                return []; // TODO not registered?
+                response.inputs.push(...coinjoinResponseError(utxos, 'Account not found'));
+                return [];
+            }
+            const { session } = coinjoinAccount;
+            // do not provide ownership if requested account is no longer authorized
+            if (!session || session.signedRounds.length >= session.maxRounds) {
+                response.inputs.push(...coinjoinResponseError(utxos, 'Account without session'));
+                return [];
             }
             const device = devices.find(d => d.state === realAccount.deviceState);
             if (!device) {
-                response.inputs.push(
-                    ...utxos.map(u => ({ outpoint: u.outpoint, error: 'Device not found' })),
-                );
-                return []; // TODO disconnected
+                response.inputs.push(...coinjoinResponseError(utxos, 'Device not found'));
+                return [];
             }
 
             // TODO: double check if requested utxo exists in account?
@@ -368,15 +391,28 @@ export const signCoinjoinTx =
         const groupParamsByDevice = Object.keys(groupUtxosByAccount).flatMap(key => {
             const coinjoinAccount = coinjoin.accounts.find(r => r.key === key && r.session);
             const realAccount = accounts.find(a => a.key === key);
-            if (!coinjoinAccount || !realAccount) return []; // TODO: throw error not registered?
-
+            const utxos = groupUtxosByAccount[key];
+            if (!coinjoinAccount || !realAccount) {
+                response.inputs.push(...coinjoinResponseError(utxos, 'Account not found'));
+                return [];
+            }
+            const { session } = coinjoinAccount;
+            if (!session || session.signedRounds.length >= session.maxRounds) {
+                response.inputs.push(...coinjoinResponseError(utxos, 'Account without session'));
+                return [];
+            }
             const device = devices.find(d => d.state === realAccount.deviceState);
+            if (!device) {
+                response.inputs.push(...coinjoinResponseError(utxos, 'Device not found'));
+                return [];
+            }
+
             const tx = prepareCoinjoinTransaction(realAccount, request.transaction);
             return {
                 device,
                 unlockPath: realAccount.unlockPath,
                 tx,
-                utxos: groupUtxosByAccount[key],
+                utxos,
                 roundId: request.roundId,
                 key,
                 network: realAccount.symbol,

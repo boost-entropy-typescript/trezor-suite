@@ -7391,6 +7391,31 @@ export default defineMessages({
         id: 'TR_COINJOIN_COMPLETED',
         defaultMessage: 'Coinjoin successfully completed!',
     },
+    TR_COINJOIN_COMPLETED_DESCRIPTION: {
+        id: 'TR_COINJOIN_COMPLETED_DESCRIPTION',
+        defaultMessage: 'All your funds were successfully coinjoined',
+    },
+    TR_COINJOIN_ENDED: {
+        id: 'TR_COINJOIN_ENDED',
+        description: 'Modal subheading when coinjoin ends',
+        defaultMessage: 'Coinjoin ended',
+    },
+    TR_MORE_ROUNDS_NEEDED: {
+        id: 'TR_MORE_ROUNDS_NEEDED',
+        description: 'Modal heading when coinjoin ends',
+        defaultMessage: 'Few more rounds needed',
+    },
+    TR_MORE_ROUNDS_NEEDED_DESCRIPTION: {
+        id: 'TR_MORE_ROUNDS_NEEDED_DESCRIPTION',
+        description: 'Modal description when coinjoin ends',
+        defaultMessage:
+            'We were not able to bring you desired anonymity within reserved rounds. Please run another CoinJoin. You will not pay any service fee twice.',
+    },
+    TR_OK: {
+        id: 'TR_OK',
+        description: 'Button text',
+        defaultMessage: 'OK',
+    },
     TR_COINJOIN_ANONYMITY_LEVEL_SETUP_TITLE: {
         id: 'TR_COINJOIN_ANONYMITY_LEVEL_SETUP_TITLE',
         defaultMessage: 'Desired anonymity level',
@@ -7398,22 +7423,6 @@ export default defineMessages({
     TR_COINJOIN_ANONYMITY_LEVEL_SETUP_DESCRIPTION: {
         id: 'TR_COINJOIN_ANONYMITY_LEVEL_SETUP_DESCRIPTION',
         defaultMessage: 'Shows the number of people with whom your resources are indistinguishable',
-    },
-    TR_ANONYMITY_LEVEL_BAD: {
-        id: 'TR_ANONYMITY_LEVEL_BAD',
-        defaultMessage: 'BAD',
-    },
-    TR_ANONYMITY_LEVEL_MEDIUM: {
-        id: 'TR_ANONYMITY_LEVEL_MEDIUM',
-        defaultMessage: 'MEDIUM',
-    },
-    TR_ANONYMITY_LEVEL_GOOD: {
-        id: 'TR_ANONYMITY_LEVEL_GOOD',
-        defaultMessage: 'GOOD',
-    },
-    TR_ANONYMITY_LEVEL_GREAT: {
-        id: 'TR_ANONYMITY_LEVEL_GREAT',
-        defaultMessage: 'GREAT',
     },
     TR_ANONYMITY_LEVEL_BAD_WARNING: {
         id: 'TR_ANONYMITY_LEVEL_BAD_WARNING',
