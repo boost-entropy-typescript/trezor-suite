@@ -1,7 +1,8 @@
 .packages_matrix: &packages_matrix
   parallel:
     matrix:
-      - PACKAGE: [
+      - PACKAGE:
+          [
             "blockchain-link",
             "components",
             "connect-common",
@@ -10,9 +11,6 @@
             "utxo-lib",
             "connect-plugin-stellar",
             "connect-plugin-ethereum",
-            # connect packages have temporarily own jobs
-            # "connect",
-            # "connect-web",
             "connect-common",
           ]
 
@@ -44,9 +42,9 @@
     - deploy
   before_script:
     - nix-shell --run "yarn install --immutable"
-    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+    - nix-shell --run "yarn config set npmAuthToken ${NPM_TOKEN}"
   after_script:
-    - rm ~/.npmrc
+    - nix-shell --run "yarn config unset npmAuthToken"
 
 beta deploy npm:
   extends: .deploy npm base
@@ -54,7 +52,7 @@ beta deploy npm:
   <<: *packages_matrix
   script:
     - nix-shell --run "node ./ci/scripts/check-version $PACKAGE $CI_COMMIT_BRANCH beta"
-    - nix-shell --run "yarn && cd ./packages/$PACKAGE && yarn npm publish --tag beta"
+    - nix-shell --run "yarn && cd ./packages/$PACKAGE && yarn npm publish --tag beta --access public"
 
 deploy npm:
   extends: .deploy npm base
@@ -62,22 +60,22 @@ deploy npm:
   <<: *packages_matrix
   script:
     - nix-shell --run "node ./ci/scripts/check-version $PACKAGE $CI_COMMIT_BRANCH latest"
-    - nix-shell --run "yarn && cd ./packages/${PACKAGE} && yarn npm publish"
+    - nix-shell --run "yarn && cd ./packages/${PACKAGE} && yarn npm publish --access public"
 
 beta deploy npm connect:
   extends: .deploy npm base
   only:
     refs:
-      - /^beta-release\//
+      - release/connect-v9
   <<: *packages_matrix_connect
   script:
-    - nix-shell --run "yarn && cd ./packages/$PACKAGE && yarn npm publish --tag beta"
+    - nix-shell --run "yarn && cd ./packages/$PACKAGE && yarn npm publish --tag beta --access public"
 
 deploy npm connect:
   extends: .deploy npm base
   only:
     refs:
-      - /^npm-release\//
+      - release/connect-v9
   <<: *packages_matrix_connect
   script:
-    - nix-shell --run "cd ./packages/${PACKAGE} && yarn npm publish"
+    - nix-shell --run "cd ./packages/${PACKAGE} && yarn npm publish --access public"
