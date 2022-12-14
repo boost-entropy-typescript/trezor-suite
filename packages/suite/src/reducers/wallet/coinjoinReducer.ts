@@ -2,7 +2,8 @@ import produce from 'immer';
 import { STORAGE } from '@suite-actions/constants';
 import { createSelector } from '@reduxjs/toolkit';
 import * as COINJOIN from '@wallet-actions/constants/coinjoinConstants';
-import { Account, CoinjoinAccount, RoundPhase } from '@suite-common/wallet-types';
+import { Account } from '@suite-common/wallet-types';
+import { CoinjoinAccount, RoundPhase } from '@wallet-types/coinjoin';
 import { Action } from '@suite-types';
 import { PartialRecord } from '@trezor/type-utils';
 import {
@@ -11,8 +12,9 @@ import {
     transformCoinjoinStatus,
 } from '@wallet-utils/coinjoinUtils';
 import { ESTIMATED_ROUNDS_FAIL_RATE_BUFFER } from '@suite/services/coinjoin/config';
-import { selectSelectedAccount } from './selectedAccountReducer';
+import { selectSelectedAccount, selectSelectedAccountParams } from './selectedAccountReducer';
 import { CoinjoinStatusEvent } from '@trezor/coinjoin';
+import { selectDebug, selectTorState } from '@suite-reducers/suiteReducer';
 
 export interface CoinjoinClientFeeRatesMedians {
     fast: number;
@@ -175,6 +177,7 @@ const pauseSession = (
     delete account.session.sessionDeadline;
     account.session.registeredUtxos = [];
     account.session.paused = true;
+    account.session.interrupted = payload.interrupted;
     account.session.timeEnded = Date.now();
 };
 
@@ -186,6 +189,7 @@ const restoreSession = (
     if (!account || !account.session) return;
 
     delete account.session.paused;
+    delete account.session.interrupted;
     delete account.session.timeEnded;
     account.session.timeCreated = Date.now();
 };
@@ -364,5 +368,20 @@ export const selectCurrentTargetAnonymity = createSelector(
         const { targetAnonymity } = currentCoinjoinAccount || {};
 
         return targetAnonymity;
+    },
+);
+
+export const selectIsCoinjoinBlockedByTor = createSelector(
+    [selectSelectedAccountParams, selectTorState, selectDebug],
+    (accountParams, { isTorEnabled }, debug) => {
+        if (!accountParams) {
+            return false;
+        }
+
+        if (debug.coinjoinAllowNoTor) {
+            return false;
+        }
+
+        return accountParams.accountType === 'coinjoin' && !isTorEnabled;
     },
 );

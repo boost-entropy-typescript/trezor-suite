@@ -12,7 +12,7 @@ import { ensureLocale } from '@suite-utils/l10n';
 import { getNumberFromPixelString } from '@trezor/utils';
 import type { OAuthServerEnvironment } from '@suite-types/metadata';
 import type { InvityServerEnvironment } from '@wallet-types/invity';
-import type { CoinjoinServerEnvironment } from '@suite-common/wallet-types';
+import type { CoinjoinServerEnvironment } from '@wallet-types/coinjoin';
 import { createSelector } from '@reduxjs/toolkit';
 import { getIsTorEnabled, getIsTorLoading } from '@suite-utils/tor';
 
@@ -243,6 +243,11 @@ export const selectTorState = createSelector(
         isTorEnabled: getIsTorEnabled(torStatus),
         isTorLoading: getIsTorLoading(torStatus),
     }),
+);
+
+export const selectDebug = createSelector(
+    (state: SuiteRootState) => state.suite.settings.debug,
+    debug => debug,
 );
 
 export default suiteReducer;
