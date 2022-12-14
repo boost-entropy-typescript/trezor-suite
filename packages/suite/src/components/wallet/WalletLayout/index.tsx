@@ -1,17 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-    AccountsMenu,
-    AccountMode,
-    AccountException,
-    AccountAnnouncement,
-    AccountTopPanel,
-} from '@wallet-components';
+import { AccountsMenu, AccountException, AccountTopPanel } from '@wallet-components';
 import { MAX_WIDTH_WALLET_CONTENT } from '@suite-constants/layout';
 import { AppState, ExtendedMessageDescriptor } from '@suite-types';
 import { useTranslation, useLayout } from '@suite-hooks';
 import { SkeletonRectangle } from '@suite-components/Skeleton';
 import { CoinjoinAccountDiscoveryProgress } from './components/CoinjoinAccountDiscoveryProgress';
+import { AccountBanners } from './components/AccountBanners';
 
 const Wrapper = styled.div`
     display: flex;
@@ -49,7 +44,7 @@ export const WalletLayout = ({
 
     useLayout(l10nTitle, AccountTopPanel, AccountsMenu);
 
-    const { status, account: selectedAccount, loader, mode, network } = account;
+    const { status, account: selectedAccount, loader, network } = account;
 
     if (status === 'loading') {
         if (selectedAccount?.backendType === 'coinjoin') {
@@ -72,23 +67,15 @@ export const WalletLayout = ({
         );
     }
 
-    if (status === 'exception') {
-        return (
-            <Wrapper>
-                <AccountMode mode={mode} />
-                <AccountAnnouncement account={selectedAccount} />
-                <EmptyHeaderPlaceholder />
-                <AccountException loader={loader} network={network} />
-            </Wrapper>
-        );
-    }
-
     return (
         <Wrapper>
-            <AccountMode mode={mode} />
-            <AccountAnnouncement account={selectedAccount} />
+            <AccountBanners account={selectedAccount} />
             {showEmptyHeaderPlaceholder && <EmptyHeaderPlaceholder />}
-            {children}
+            {status === 'exception' ? (
+                <AccountException loader={loader} network={network} />
+            ) : (
+                children
+            )}
         </Wrapper>
     );
 };
