@@ -57,7 +57,7 @@ const LabelsWrapper = styled.div<{ count: number; $width?: number }>`
     justify-content: space-between;
 `;
 
-const Label = styled.p<{ $width?: number }>`
+const Label = styled.div<{ $width?: number }>`
     position: relative;
     justify-self: center;
     padding-top: 2px;
@@ -78,11 +78,11 @@ export interface RangeProps {
     thumbStyle?: CSSObject;
     trackStyle?: CSSObject;
     value: number;
-    labels?: (string | number)[];
+    labels?: Array<{ value: string | number; component?: React.ReactNode }>;
     onLabelClick?: (value: number) => void;
 }
 
-export const Range = ({ labels, onLabelClick, ...props }: RangeProps) => {
+export const Range = ({ labels, onLabelClick, className, ...props }: RangeProps) => {
     const [labelsElWidth, setLabelsElWidth] = useState<number>();
 
     const lastLabelRef = useRef<HTMLParagraphElement>(null);
@@ -97,17 +97,17 @@ export const Range = ({ labels, onLabelClick, ...props }: RangeProps) => {
 
     const labelComponents = useMemo(
         () =>
-            labels?.map((label, i) => {
+            labels?.map(({ value, component }, i) => {
                 const isLastElement = i === labels.length - 1;
 
                 return (
                     <Label
-                        key={label}
+                        key={value}
                         $width={labelsElWidth}
-                        onClick={() => onLabelClick?.(Number.parseFloat(String(label)))}
+                        onClick={() => onLabelClick?.(Number.parseFloat(String(value)))}
                         ref={isLastElement ? lastLabelRef : undefined}
                     >
-                        {label}
+                        {component || value}
                     </Label>
                 );
             }),
@@ -115,7 +115,7 @@ export const Range = ({ labels, onLabelClick, ...props }: RangeProps) => {
     );
 
     return (
-        <div>
+        <div className={className}>
             <Input type="range" {...props} />
             {labels?.length && (
                 <LabelsWrapper count={labels.length} $width={labelsElWidth}>

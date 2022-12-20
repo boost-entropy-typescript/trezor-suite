@@ -1,21 +1,59 @@
-import React, { useCallback, useState, ChangeEventHandler } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, ChangeEventHandler, useMemo } from 'react';
+import styled, { css } from 'styled-components';
 import { AnimatePresence, HTMLMotionProps, motion } from 'framer-motion';
-import { Range, Warning, useTheme, motionEasing } from '@trezor/components';
+import { Range, Warning, useTheme, motionEasing, Icon, variables } from '@trezor/components';
 import { Translation } from '@suite-components';
-import { useSelector, useActions, useAnonymityStatus } from '@suite-hooks';
+import { useAnonymityStatus } from '@suite-hooks';
 import { AnonymityStatus } from '@suite-constants/coinjoin';
-import { selectSelectedAccount } from '@wallet-reducers/selectedAccountReducer';
-import * as coinjoinActions from '@wallet-actions/coinjoinAccountActions';
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    position: relative;
 `;
 
-const Slider = styled(Range)`
-    margin-top: 0;
-    cursor: pointer;
+const blurredStyle = css<{ $isBlurred: boolean }>`
+    transition: filter 0.15s;
+    filter: ${({ $isBlurred }) => $isBlurred && 'blur(7px)'};
+`;
+
+const AnonymityRange = styled(Range)<{ $isBlurred: boolean }>`
+    ${blurredStyle}
+`;
+
+const Label = styled.span`
+    display: flex;
+    align-items: center;
+
+    > :first-child {
+        margin-right: 3px;
+    }
+`;
+
+const DisabledMessage = styled.div`
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    backdrop-filter: grayscale(0.5);
+    filter: ${({ theme }) => `drop-shadow(0px 0px 8px ${theme.BG_LIGHT_GREY})`};
+
+    > :first-child {
+        margin-right: 6px;
+    }
+`;
+
+const RedText = styled.span`
+    margin-right: 2px;
+    color: ${({ theme }) => theme.TYPE_RED};
+`;
+
+const AnonymityWarning = styled(Warning)`
+    ${blurredStyle}
 `;
 
 const expandAnimation: HTMLMotionProps<'div'> = {
@@ -36,48 +74,37 @@ const maxValue = Math.log(100);
 
 const scale = (maxValue - minValue) / (maxPosition - minPosition);
 
-const getValue = (position: number) =>
+export const getValue = (position: number) =>
     Math.round(Math.exp((position - minPosition) * scale + minValue));
-const getPosition = (value: number) => minPosition + (Math.log(value) - minValue) / scale;
+export const getPosition = (value: number) => minPosition + (Math.log(value) - minValue) / scale;
 
 interface AnonymityLevelSliderProps {
-    className?: string;
+    isSessionActive: boolean;
+    position: number;
+    handleChange: (value: number) => void;
 }
 
-export const AnonymityLevelSlider = ({ className }: AnonymityLevelSliderProps) => {
-    const currentAccount = useSelector(selectSelectedAccount);
-    const { anonymityStatus, targetAnonymity } = useAnonymityStatus();
-
-    const [sliderPosition, setSliderPosition] = useState(getPosition(targetAnonymity || 1));
-
-    const { coinjoinAccountUpdateAnonymity } = useActions({
-        coinjoinAccountUpdateAnonymity: coinjoinActions.coinjoinAccountUpdateAnonymity,
-    });
+export const AnonymityLevelSlider = ({
+    isSessionActive,
+    position,
+    handleChange,
+}: AnonymityLevelSliderProps) => {
+    const { anonymityStatus } = useAnonymityStatus();
 
     const theme = useTheme();
-
-    const setAnonymity = useCallback(
-        (number: number) => {
-            if (!Number.isNaN(number)) {
-                coinjoinAccountUpdateAnonymity(currentAccount?.key ?? '', getValue(number));
-                setSliderPosition(number);
-            }
-        },
-        [coinjoinAccountUpdateAnonymity, currentAccount?.key],
-    );
 
     const handleSliderChange: ChangeEventHandler<HTMLInputElement> = useCallback(
         event => {
             const position = Number(event?.target?.value);
 
-            setAnonymity(position);
-        },
-        [setAnonymity],
-    );
+            if (Number.isNaN(position)) {
+                return;
+            }
 
-    if (!currentAccount) {
-        return null;
-    }
+            handleChange(getValue(position));
+        },
+        [handleChange],
+    );
 
     const trackStyle = {
         background: `\
@@ -92,26 +119,85 @@ export const AnonymityLevelSlider = ({ className }: AnonymityLevelSliderProps) =
 
     const isErrorDisplayed = anonymityStatus === AnonymityStatus.Bad;
 
+    const labels = useMemo(
+        () => [
+            {
+                value: 1,
+                component: (
+                    <Label>
+                        <Icon icon="ONE_USER" size={14} color={theme.TYPE_DARK_GREY} /> 1
+                    </Label>
+                ),
+            },
+            {
+                value: 3,
+                component: (
+                    <Label>
+                        <Icon icon="TWO_USERS" size={14} color={theme.TYPE_DARK_GREY} /> 3
+                    </Label>
+                ),
+            },
+            {
+                value: 10,
+                component: (
+                    <Label>
+                        <Icon icon="THREE_USERS" size={14} color={theme.TYPE_DARK_GREY} /> 10
+                    </Label>
+                ),
+            },
+            {
+                value: 30,
+                component: (
+                    <Label>
+                        <Icon icon="FOUR_USERS" size={14} color={theme.TYPE_DARK_GREY} /> 30
+                    </Label>
+                ),
+            },
+            {
+                value: 100,
+                component: (
+                    <Label>
+                        <Icon icon="FOUR_USERS" size={14} color={theme.TYPE_DARK_GREY} /> 100
+                    </Label>
+                ),
+            },
+        ],
+        [theme],
+    );
+
     return (
-        <Container className={className}>
-            <Slider
-                value={sliderPosition}
+        <Container>
+            <AnonymityRange
+                value={position}
                 onChange={handleSliderChange}
                 trackStyle={trackStyle}
                 step="any"
-                labels={[1, 3, 10, 30, 100]}
-                onLabelClick={number => setAnonymity(getPosition(number))}
+                labels={labels}
+                onLabelClick={number => handleChange(number)}
+                $isBlurred={isSessionActive}
             />
 
             <AnimatePresence initial={!isErrorDisplayed}>
                 {isErrorDisplayed && (
                     <motion.div {...expandAnimation}>
-                        <Warning critical withIcon>
-                            <Translation id="TR_ANONYMITY_LEVEL_BAD_WARNING" />
-                        </Warning>
+                        <AnonymityWarning critical withIcon $isBlurred={isSessionActive}>
+                            <Translation
+                                values={{
+                                    red: chunks => <RedText>{chunks}</RedText>,
+                                }}
+                                id="TR_LOW_ANONYMITY_WARNING"
+                            />
+                        </AnonymityWarning>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {isSessionActive && (
+                <DisabledMessage>
+                    <Icon icon="INFO" size={14} color={theme.TYPE_DARK_GREY} />
+                    <Translation id="TR_DISABLED_ANONYMITY_CHANGE_MESSAGE" />
+                </DisabledMessage>
+            )}
         </Container>
     );
 };

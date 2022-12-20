@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Card, P, variables } from '@trezor/components';
+import { Card, P } from '@trezor/components';
 import { Translation } from '@suite-components';
 import { useSelector } from '@suite-hooks/useSelector';
-import { selectCurrentTargetAnonymity } from '@wallet-reducers/coinjoinReducer';
+import {
+    selectCurrentCoinjoinSession,
+    selectCurrentTargetAnonymity,
+} from '@wallet-reducers/coinjoinReducer';
 
-import { AnonymityLevelSlider } from './AnonymityLevelSlider';
+import { AnonymityLevelSlider, getPosition } from './AnonymityLevelSlider';
+import { useDispatch } from 'react-redux';
+import { selectSelectedAccount } from '@wallet-reducers/selectedAccountReducer';
+import { coinjoinAccountUpdateAnonymity } from '@wallet-actions/coinjoinAccountActions';
+import { SliderInput } from './SliderInput';
 
 const SetupCard = styled(Card)`
     position: relative;
@@ -13,45 +20,71 @@ const SetupCard = styled(Card)`
     overflow: hidden;
 `;
 
-const Level = styled.div`
-    position: absolute;
-    right: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 64px;
-    height: 42px;
-    border: 1.5px solid ${({ theme }) => theme.STROKE_GREY};
-    border-radius: 8px;
-    color: ${({ theme }) => theme.TYPE_GREEN};
-    font-size: ${variables.FONT_SIZE.H2};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+const Description = styled(P)`
+    margin-top: 6px;
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
 const Text = styled.div`
     margin-right: 72px;
-    margin-bottom: 38px;
+    margin-bottom: 14px;
 `;
 
 export const AnonymityLevelSetupCard = () => {
+    const currentAccount = useSelector(selectSelectedAccount);
     const targetAnonymity = useSelector(selectCurrentTargetAnonymity) || 1;
+    const session = useSelector(selectCurrentCoinjoinSession);
+
+    const [sliderPosition, setSliderPosition] = useState(getPosition(targetAnonymity));
+
+    const inputRef = useRef<{ setPreviousValue: (number: number) => void }>(null);
+    const dispatch = useDispatch();
+
+    const setAnonymity = useCallback(
+        (number: number) => {
+            if (Number.isNaN(number)) {
+                return;
+            }
+
+            dispatch(coinjoinAccountUpdateAnonymity(currentAccount?.key ?? '', number));
+            setSliderPosition(getPosition(number));
+        },
+        [currentAccount?.key, dispatch],
+    );
+
+    const handleSliderChange = useCallback(
+        (number: number) => {
+            inputRef.current?.setPreviousValue(number);
+            setAnonymity(number);
+        },
+        [setAnonymity],
+    );
+
+    const isSessionActive = !!session;
 
     return (
         <SetupCard>
-            <Level>
-                <span>{targetAnonymity}</span>
-            </Level>
+            <SliderInput
+                ref={inputRef}
+                value={targetAnonymity}
+                onChange={setAnonymity}
+                isDisabled={isSessionActive}
+            />
 
             <Text>
                 <P weight="medium">
                     <Translation id="TR_COINJOIN_ANONYMITY_LEVEL_SETUP_TITLE" />
                 </P>
-                <P size="tiny" weight="medium">
+                <Description size="small" weight="medium">
                     <Translation id="TR_COINJOIN_ANONYMITY_LEVEL_SETUP_DESCRIPTION" />
-                </P>
+                </Description>
             </Text>
 
-            <AnonymityLevelSlider />
+            <AnonymityLevelSlider
+                isSessionActive={isSessionActive}
+                position={sliderPosition}
+                handleChange={handleSliderChange}
+            />
         </SetupCard>
     );
 };
