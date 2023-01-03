@@ -4,8 +4,15 @@ import path from 'path';
 import chalk from 'chalk';
 import { app } from 'electron';
 
+import { isDevEnv } from '@suite-common/suite-utils';
+
+import { getBuildInfo, getComputerInfo } from './info';
+
 const logLevels = ['mute', 'error', 'warn', 'info', 'debug'] as const;
+
 export type LogLevel = typeof logLevels[number];
+const isLogLevel = (level: string): level is LogLevel =>
+    !!level && logLevels.includes(level as LogLevel);
 
 export type Options = {
     colors?: boolean; // Console output has colors
@@ -16,49 +23,83 @@ export type Options = {
     logFormat?: string; // Output format of the log
 };
 
-export const defaultOptions: Options = {
-    colors: true,
-    writeToConsole: true,
-    writeToDisk: false,
-    outputFile: 'trezor-suite-log-%ts.txt',
-    outputPath: app?.getPath('home') ?? process.cwd(),
-    logFormat: '%dt - %lvl(%top): %msg',
-} as const;
+const userDataDir = app?.getPath('userData');
+const logLevelSwitchValue = app?.commandLine.getSwitchValue('log-level');
+const logLevelByEnv = isDevEnv ? 'debug' : 'error';
+const logLevelDefault = isLogLevel(logLevelSwitchValue) ? logLevelSwitchValue : logLevelByEnv;
 
 export class Logger implements ILogger {
     static instance: Logger;
-    private stream: fs.WriteStream | undefined;
+    private stream?: Promise<fs.WriteStream | undefined>;
+    private defaultOptions: Options;
     private options: Options;
     private logLevel = 0;
 
-    constructor(level: LogLevel, options?: Options) {
-        this.logLevel = logLevels.indexOf(level);
+    constructor(level?: LogLevel, options?: Options) {
+        const logLevel = level || logLevelDefault;
+
+        this.logLevel = logLevels.indexOf(logLevel);
+
+        this.defaultOptions = {
+            colors: true,
+            writeToConsole: !app?.commandLine.hasSwitch('log-no-print'),
+            writeToDisk: app?.commandLine.hasSwitch('log-write'),
+            outputFile: app?.commandLine.getSwitchValue('log-file') || 'trezor-suite-log-%tt.txt',
+            outputPath:
+                app?.commandLine.getSwitchValue('log-path') ||
+                (userDataDir ? `${userDataDir}/logs` : process.cwd()),
+            logFormat: '%dt - %lvl(%top): %msg',
+        };
+
         this.options = {
-            ...defaultOptions,
+            ...this.defaultOptions,
             ...options,
         };
 
-        if (this.logLevel > 0 && this.options.writeToDisk) {
-            if (!this.options.outputFile) {
+        this.stream = this.prepareWriteStream(this.options);
+    }
+
+    private async prepareWriteStream({ writeToDisk, outputFile, outputPath }: Options) {
+        if (this.logLevel > 0 && writeToDisk) {
+            const stream = await this.stream;
+            if (stream !== undefined) {
+                // Do not create a new file if there is one currently open.
+                return stream;
+            }
+
+            if (!outputFile) {
                 this.error(
                     'logger',
-                    `Can't write log to file because outputFile is not properly set (${this.options.outputFile})`,
+                    `Can't write log to file because outputFile is not properly set (${outputFile})`,
                 );
                 return;
             }
 
-            if (!this.options.outputPath) {
+            if (!outputPath) {
                 this.error(
                     'logger',
-                    `Can't write log to file because outputPath is not properly set (${this.options.outputPath})`,
+                    `Can't write log to file because outputPath is not properly set (${outputPath})`,
                 );
                 return;
             }
 
-            this.stream = fs.createWriteStream(
-                path.join(this.options.outputPath, this.format(this.options.outputFile)),
-            );
+            try {
+                await fs.promises.access(outputPath, fs.constants.R_OK);
+            } catch {
+                await fs.promises.mkdir(outputPath);
+            }
+
+            return fs.createWriteStream(path.join(outputPath, this.format(outputFile)));
         }
+        this.exit();
+    }
+
+    private async logBasicInfo() {
+        const buildInfo = getBuildInfo();
+        this.info('build', buildInfo);
+
+        const computerInfo = await getComputerInfo();
+        this.debug('computer', computerInfo);
     }
 
     private log(level: LogLevel, topic: string, message: string | string[]) {
@@ -86,13 +127,14 @@ export class Logger implements ILogger {
         );
     }
 
-    private write(level: LogLevel, message: string) {
+    private async write(level: LogLevel, message: string) {
         if (this.options.writeToConsole) {
             console.log(this.options.colors ? this.color(level, message) : message);
         }
 
-        if (this.stream !== undefined) {
-            this.stream.write(`${message}\n`);
+        const stream = await this.stream;
+        if (stream !== undefined) {
+            stream.write(`${message}\n`);
         }
     }
 
@@ -105,7 +147,8 @@ export class Logger implements ILogger {
 
         message = message
             .replace('%dt', new Date().toISOString())
-            .replace('%ts', (+new Date()).toString());
+            .replace('%ts', (+new Date()).toString())
+            .replace('%tt', new Date().toISOString().split('.')[0].replace(/:/g, '-'));
 
         return message;
     }
@@ -125,9 +168,10 @@ export class Logger implements ILogger {
         }
     }
 
-    public exit() {
-        if (this.stream !== undefined) {
-            this.stream.end();
+    public async exit() {
+        const stream = await this.stream;
+        if (stream !== undefined) {
+            stream.end();
         }
     }
 
@@ -149,5 +193,30 @@ export class Logger implements ILogger {
 
     public get level() {
         return logLevels[this.logLevel];
+    }
+
+    public set level(level: LogLevel) {
+        this.logLevel = logLevels.indexOf(isLogLevel(level) ? level : logLevelDefault);
+    }
+
+    public get config() {
+        return this.options;
+    }
+
+    public set config(options: Partial<Options>) {
+        if (options) {
+            this.options = {
+                ...this.options,
+                ...options,
+            };
+        } else {
+            this.options = this.defaultOptions;
+        }
+
+        this.stream = this.prepareWriteStream(this.options);
+
+        if (options?.writeToDisk) {
+            this.logBasicInfo();
+        }
     }
 }

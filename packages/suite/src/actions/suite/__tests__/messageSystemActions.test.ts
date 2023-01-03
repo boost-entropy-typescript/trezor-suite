@@ -1,8 +1,6 @@
 import { configureStore } from '@suite/support/tests/configureStore';
 
-import messageSystemReducer, {
-    State as MessageSystemState,
-} from '@suite-reducers/messageSystemReducer';
+import messageSystemReducer, { MessageSystemState } from '@suite-reducers/messageSystemReducer';
 import * as messageSystemActions from '../messageSystemActions';
 import * as messageSystemConstants from '../constants/messageSystemConstants';
 import * as fixtures from '../__fixtures__/messageSystemActions';
@@ -46,6 +44,9 @@ describe('Message system actions', () => {
         });
 
         it("stores the fetched config if it's sequence number is higher than the current one", async () => {
+            const timestamp = 123456789;
+            jest.spyOn(Date, 'now').mockImplementation(() => timestamp);
+
             const store = initStore({
                 messageSystem: { ...getInitialState().messageSystem, currentSequence: 0 },
             });
@@ -56,8 +57,8 @@ describe('Message system actions', () => {
             expect(store.getActions()[0].type).toBe(
                 messageSystemConstants.FETCH_CONFIG_SUCCESS_UPDATE,
             );
-            expect(store.getActions()[0].payload).not.toBe(undefined);
-            expect(store.getActions()[0].isRemote).toBe(true);
+            expect(store.getActions()[0].payload.config).not.toBe(undefined);
+            expect(store.getActions()[0].payload.timestamp).toBe(timestamp);
         });
 
         it("does not store the fetched config if it's sequence number is the same as the current one", async () => {
@@ -119,9 +120,9 @@ describe('Message system actions', () => {
             expect(store.getActions()[0].type).toBe(
                 messageSystemConstants.FETCH_CONFIG_SUCCESS_UPDATE,
             );
-            expect(store.getActions()[0].payload).not.toBe(undefined);
-            expect(store.getActions()[0].payload.sequence).toBe(10);
-            expect(store.getActions()[0].isRemote).toBe(false);
+            expect(store.getActions()[0].payload.config).not.toBe(undefined);
+            expect(store.getActions()[0].payload.config.sequence).toBe(10);
+            expect(store.getActions()[0].payload.timestamp).toBe(0);
 
             expect(console.error).toHaveBeenCalled();
         });
@@ -175,11 +176,13 @@ describe('Message system actions', () => {
         const bannerMessages = [fixtures.messageId1, fixtures.messageId2, fixtures.messageId3];
         const contextMessages = [fixtures.messageId2];
         const modalMessages = [fixtures.messageId1];
+        const featureMessages = [fixtures.messageId3];
 
         const payload = {
             banner: [fixtures.messageId1, fixtures.messageId2, fixtures.messageId3],
             context: [fixtures.messageId2],
             modal: [fixtures.messageId1],
+            feature: [fixtures.messageId3],
         };
 
         store.dispatch(messageSystemActions.saveValidMessages(payload));
@@ -193,10 +196,14 @@ describe('Message system actions', () => {
         expect(store.getState().messageSystem.validMessages.modal.length).toEqual(
             modalMessages.length,
         );
+        expect(store.getState().messageSystem.validMessages.feature.length).toEqual(
+            featureMessages.length,
+        );
 
         expect(store.getState().messageSystem.validMessages.banner).toEqual(bannerMessages);
         expect(store.getState().messageSystem.validMessages.context).toEqual(contextMessages);
         expect(store.getState().messageSystem.validMessages.modal).toEqual(modalMessages);
+        expect(store.getState().messageSystem.validMessages.feature).toEqual(featureMessages);
     });
 
     it('dismissMessage', () => {
@@ -210,6 +217,7 @@ describe('Message system actions', () => {
             banner: true,
             context: false,
             modal: false,
+            feature: false,
         });
 
         store.dispatch(messageSystemActions.dismissMessage(fixtures.messageId1, 'modal'));
@@ -222,11 +230,13 @@ describe('Message system actions', () => {
             banner: true,
             context: false,
             modal: true,
+            feature: false,
         });
         expect(store.getState().messageSystem.dismissedMessages[fixtures.messageId2]).toEqual({
             banner: false,
             context: true,
             modal: false,
+            feature: false,
         });
     });
 });

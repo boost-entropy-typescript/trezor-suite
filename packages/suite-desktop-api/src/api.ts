@@ -4,6 +4,7 @@ import {
     HandshakeClient,
     HandshakeElectron,
     HandshakeEvent,
+    LoggerConfig,
     UpdateInfo,
     UpdateProgress,
     InvokeResult,
@@ -25,6 +26,7 @@ export interface MainChannels {
     'update/check': boolean | undefined;
     'update/download': void;
     'update/install': void;
+    'logger/config': LoggerConfig;
 }
 
 // Event messages from main to renderer process
@@ -67,6 +69,7 @@ export interface InvokeChannels {
     'server/request-address': (route: string) => string | undefined;
     'tor/toggle': (shouldEnableTor: boolean) => InvokeResult;
     'user-data/clear': () => InvokeResult;
+    'user-data/open': (directory?: string) => InvokeResult;
     'udev/install': () => InvokeResult;
 }
 
@@ -107,6 +110,9 @@ export interface DesktopApi {
     // Store
     clearStore: DesktopApiSend<'store/clear'>;
     clearUserData: DesktopApiInvoke<'user-data/clear'>;
+    openUserDataDirectory: DesktopApiInvoke<'user-data/open'>;
     // Udev rules
     installUdevRules: DesktopApiInvoke<'udev/install'>;
+    // Logger
+    configLogger: DesktopApiSend<'logger/config'>;
 }

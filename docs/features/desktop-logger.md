@@ -15,6 +15,8 @@ All messages with an inferior level to the selected one will be displayed. For e
 
 Logging can be enabled by running Suite with the command line flag `--log-level=LEVEL` (replace _LEVEL_ with _error_, _warn_, _info_ or _debug_ based on the logging you wish to display). Additional command line flags can be found on the [Suite-Desktop page](../packages/suite-desktop.md).
 
+If you activate Debug menu, logging to file is automatically started. When you deactivate Debug menu, logging stopped if the app is not running with the command line flag. If you run the app with `--log-write` flag and then activate the Debug menu, logging just continue with the same file.
+
 ## API
 
 ### Exported Types
@@ -31,14 +33,14 @@ Any of the following values:
 
 #### Options (all optional)
 
-| name           | type    | default value              | description                        |
-| -------------- | ------- | -------------------------- | ---------------------------------- |
-| colors         | boolean | `true`                     | Console output has colors          |
-| writeToConsole | boolean | `true`                     | Output is displayed in the console |
-| writeToDisk    | boolean | `false`                    | Output is written to a file        |
-| outputFile     | string  | `'log-%ts.txt'`            | file name for the output           |
-| outputPath     | string  | Home or CWD                | path for the output                |
-| logFormat      | string  | `'%dt - %lvl(%top): %msg'` | Output format of the log           |
+| name           | type    | default value                                    | description                        |
+| -------------- | ------- | ------------------------------------------------ | ---------------------------------- |
+| colors         | boolean | `true`                                           | Console output has colors          |
+| writeToConsole | boolean | `true`                                           | Output is displayed in the console |
+| writeToDisk    | boolean | `false`                                          | Output is written to a file        |
+| outputFile     | string  | `'trezor-suite-log-%tt.txt'`                     | file name for the output           |
+| outputPath     | string  | `/logs` subfolder in Suite data directory or CWD | path for the output                |
+| logFormat      | string  | `'%dt - %lvl(%top): %msg'`                       | Output format of the log           |
 
 ### String formatters
 
@@ -46,10 +48,11 @@ The options `outputFile` and `logFormat` can be used with some expressions, pref
 
 #### Global
 
-| Expression | Example output             | Description                            |
-| ---------- | -------------------------- | -------------------------------------- |
-| `%ts`      | `1611054460306`            | Timestamp                              |
-| `%dt`      | `2021-01-19T11:08:22.244Z` | Date and time in ISO format (ISO 8601) |
+| Expression | Example output             | Description                               |
+| ---------- | -------------------------- | ----------------------------------------- |
+| `%tt`      | `2021-01-19T11-07-40`      | Date and time in filename friendly format |
+| `%ts`      | `1611054460306`            | Timestamp                                 |
+| `%dt`      | `2021-01-19T11:08:22.244Z` | Date and time in ISO format (ISO 8601)    |
 
 #### logFormat
 

@@ -23,6 +23,7 @@ const initialState = {
         banner: [],
         context: [],
         modal: [],
+        feature: [],
     },
     dismissedMessages: {},
 };
@@ -34,6 +35,7 @@ export default [
         actions: [
             {
                 type: MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS,
+                payload: { config, timestamp },
             },
         ],
         result: { ...initialState, timestamp },
@@ -44,8 +46,7 @@ export default [
         actions: [
             {
                 type: MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS_UPDATE,
-                payload: config,
-                isRemote: true,
+                payload: { config, timestamp },
             },
         ],
         result: {
@@ -61,8 +62,7 @@ export default [
         actions: [
             {
                 type: MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS_UPDATE,
-                payload: config,
-                isRemote: false,
+                payload: { config, timestamp: 0 },
             },
         ],
         result: {
@@ -107,7 +107,7 @@ export default [
         actions: [
             {
                 type: MESSAGE_SYSTEM.SAVE_VALID_MESSAGES,
-                payload: { banner: messageIds, context: [], modal: [] },
+                payload: { banner: messageIds, context: [], modal: [], feature: [] },
             },
         ],
         result: {
@@ -124,18 +124,15 @@ export default [
         actions: [
             {
                 type: MESSAGE_SYSTEM.DISMISS_MESSAGE,
-                category: 'banner',
-                id: messageIds[0],
+                payload: { category: 'banner', id: messageIds[0] },
             },
             {
                 type: MESSAGE_SYSTEM.DISMISS_MESSAGE,
-                category: 'context',
-                id: messageIds[1],
+                payload: { category: 'context', id: messageIds[1] },
             },
             {
                 type: MESSAGE_SYSTEM.DISMISS_MESSAGE,
-                category: 'modal',
-                id: messageIds[0],
+                payload: { category: 'modal', id: messageIds[0] },
             },
         ],
         result: {
@@ -145,11 +142,13 @@ export default [
                     banner: true,
                     context: false,
                     modal: true,
+                    feature: false,
                 },
                 [messageIds[1]]: {
                     banner: false,
                     context: true,
                     modal: false,
+                    feature: false,
                 },
             },
         },

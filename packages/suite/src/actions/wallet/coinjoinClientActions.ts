@@ -6,7 +6,7 @@ import {
     CoinjoinRequestEvent,
     CoinjoinResponseEvent,
 } from '@trezor/coinjoin';
-import { arrayDistinct } from '@trezor/utils';
+import { arrayDistinct, arrayToDictionary } from '@trezor/utils';
 import * as COINJOIN from './constants/coinjoinConstants';
 import { breakdownCoinjoinBalance, prepareCoinjoinTransaction } from '@wallet-utils/coinjoinUtils';
 import { CoinjoinClientService } from '@suite/services/coinjoin/coinjoinClient';
@@ -98,15 +98,6 @@ const clientSessionSignTransaction = (payload: SessionSignTransactionPayload) =>
         payload,
     } as const);
 
-const clientLog = (symbol: Account['symbol'], message: string) =>
-    ({
-        type: COINJOIN.CLIENT_LOG,
-        payload: {
-            symbol,
-            message,
-        },
-    } as const);
-
 export type CoinjoinClientAction =
     | ReturnType<typeof clientEnable>
     | ReturnType<typeof clientDisable>
@@ -116,8 +107,7 @@ export type CoinjoinClientAction =
     | ReturnType<typeof clientSessionRoundChanged>
     | ReturnType<typeof clientSessionCompleted>
     | ReturnType<typeof clientSessionOwnership>
-    | ReturnType<typeof clientSessionSignTransaction>
-    | ReturnType<typeof clientLog>;
+    | ReturnType<typeof clientSessionSignTransaction>;
 
 // return only active instances
 export const getCoinjoinClient = (symbol: Account['symbol']) =>
@@ -280,15 +270,10 @@ export const getOwnershipProof =
         };
 
         // group utxos by account
-        const groupUtxosByAccount = request.inputs.reduce<Record<string, typeof request.inputs>>(
-            (result, utxo) => {
-                if (!result[utxo.accountKey]) {
-                    result[utxo.accountKey] = [];
-                }
-                result[utxo.accountKey].push(utxo);
-                return result;
-            },
-            {},
+        const groupUtxosByAccount = arrayToDictionary(
+            request.inputs,
+            utxo => utxo.accountKey,
+            true,
         );
 
         // prepare array of parameters for TrezorConnect, grouped by TrezorDevice
@@ -381,15 +366,10 @@ export const signCoinjoinTx =
         };
 
         // group utxos by account
-        const groupUtxosByAccount = request.inputs.reduce<Record<string, typeof request.inputs>>(
-            (result, utxo) => {
-                if (!result[utxo.accountKey]) {
-                    result[utxo.accountKey] = [];
-                }
-                result[utxo.accountKey].push(utxo);
-                return result;
-            },
-            {},
+        const groupUtxosByAccount = arrayToDictionary(
+            request.inputs,
+            utxo => utxo.accountKey,
+            true,
         );
 
         const groupParamsByDevice = Object.keys(groupUtxosByAccount).flatMap(key => {
@@ -547,8 +527,6 @@ export const initCoinjoinClient =
                 const response = await dispatch(onCoinjoinClientRequest(data));
                 client.resolveRequest(response);
             });
-            // handle log
-            client.on('log', message => dispatch(clientLog(symbol, message)));
             dispatch(clientEnableSuccess(symbol, status));
             return client;
         } catch (error) {

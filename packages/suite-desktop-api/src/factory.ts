@@ -101,8 +101,19 @@ export const factory = <R extends StrictIpcRenderer<any>>(ipcRenderer?: R): Desk
 
         // user-data
         clearUserData: () => ipcRenderer.invoke('user-data/clear'),
+        openUserDataDirectory: (directory = '') => {
+            if (validation.isPrimitive('string', directory)) {
+                return ipcRenderer.invoke('user-data/open', directory);
+            }
+            return Promise.resolve({ success: false, error: 'invalid params' });
+        },
 
         // Udev rules
         installUdevRules: () => ipcRenderer.invoke('udev/install'),
+
+        // Logger
+        configLogger: config => {
+            ipcRenderer.send('logger/config', config);
+        },
     };
 };

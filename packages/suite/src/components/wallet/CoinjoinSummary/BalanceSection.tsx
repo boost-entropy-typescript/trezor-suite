@@ -13,6 +13,11 @@ import {
 } from '@wallet-reducers/coinjoinReducer';
 import { BalancePrivacyBreakdown } from './BalancePrivacyBreakdown';
 import { CoinjoinStatus } from './CoinjoinStatus';
+import {
+    Feature,
+    selectIsFeatureDisabled,
+    selectFeatureMessageContent,
+} from '@suite-reducers/messageSystemReducer';
 
 const Container = styled(Card)`
     flex-direction: row;
@@ -50,13 +55,28 @@ interface BalanceSectionProps {
 export const BalanceSection = ({ accountKey }: BalanceSectionProps) => {
     const coinjoinAccount = useSelector(state => selectCoinjoinAccountByKey(state, accountKey));
     const { notAnonymized } = useSelector(selectCurrentCoinjoinBalanceBreakdown);
-    const isCoinJoinBlocked = useSelector(selectIsCoinjoinBlockedByTor);
+    const isCoinjoinBlockedByTor = useSelector(selectIsCoinjoinBlockedByTor);
+    const isCoinJoinDisabledByFeatureFlag = useSelector(state =>
+        selectIsFeatureDisabled(state, Feature.coinjoin),
+    );
+    const featureMessageContent = useSelector(state =>
+        selectFeatureMessageContent(state, Feature.coinjoin),
+    );
 
     const dispatch = useDispatch();
 
     const allAnonymized = notAnonymized === '0';
 
     const goToSetup = () => dispatch(goto('wallet-anonymize', { preserveParams: true }));
+
+    const getTooltipContent = () => {
+        if (isCoinJoinDisabledByFeatureFlag && featureMessageContent) {
+            return featureMessageContent;
+        }
+        if (isCoinjoinBlockedByTor) {
+            return <Translation id="TR_UNAVAILABLE_COINJOIN_TOR_DISABLE_TOOLTIP" />;
+        }
+    };
 
     const getRightSideComponent = () => {
         if (coinjoinAccount?.session) {
@@ -78,14 +98,10 @@ export const BalanceSection = ({ accountKey }: BalanceSectionProps) => {
             <AnonymizeButton
                 onClick={goToSetup}
                 icon="ARROW_RIGHT_LONG"
-                isDisabled={isCoinJoinBlocked}
+                isDisabled={isCoinJoinDisabledByFeatureFlag || isCoinjoinBlockedByTor}
                 alignIcon="right"
                 size={16}
-                tooltipContent={
-                    isCoinJoinBlocked && (
-                        <Translation id="TR_UNAVAILABLE_COINJOIN_TOR_DISABLE_TOOLTIP" />
-                    )
-                }
+                tooltipContent={getTooltipContent()}
             >
                 <Translation id="TR_ANONYMIZE" />
             </AnonymizeButton>

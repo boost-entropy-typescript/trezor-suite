@@ -7,11 +7,10 @@ import type { Dispatch, GetState } from '@suite-types';
 import type { Category, MessageSystem } from '@trezor/message-system';
 
 export type MessageSystemAction =
-    | { type: typeof MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS }
+    | { type: typeof MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS; payload: { timestamp: number } }
     | {
           type: typeof MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS_UPDATE;
-          payload: MessageSystem;
-          isRemote: boolean;
+          payload: { config: MessageSystem; timestamp: number };
       }
     | { type: typeof MESSAGE_SYSTEM.FETCH_CONFIG_ERROR }
     | {
@@ -20,20 +19,24 @@ export type MessageSystemAction =
       }
     | {
           type: typeof MESSAGE_SYSTEM.DISMISS_MESSAGE;
-          category: Category;
-          id: string;
+          payload: {
+              category: Category;
+              id: string;
+          };
       };
 
-export type ValidMessagesPayload = { banner: string[]; context: string[]; modal: string[] };
+export type ValidMessagesPayload = { [key in Category]: string[] };
 
-const fetchSuccess = (): MessageSystemAction => ({
+const fetchSuccess = (timestamp: number): MessageSystemAction => ({
     type: MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS,
+    payload: {
+        timestamp,
+    },
 });
 
-const fetchSuccessUpdate = (payload: MessageSystem, isRemote: boolean): MessageSystemAction => ({
+const fetchSuccessUpdate = (config: MessageSystem, timestamp: number): MessageSystemAction => ({
     type: MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS_UPDATE,
-    payload,
-    isRemote,
+    payload: { config, timestamp },
 });
 
 const fetchError = (): MessageSystemAction => ({
@@ -102,10 +105,12 @@ const fetchConfig = () => async (dispatch: Dispatch, getState: GetState) => {
                 throw Error('Config version is not supported');
             }
 
+            const timestamp = isRemote ? Date.now() : 0;
+
             if (currentSequence < config.sequence) {
-                await dispatch(fetchSuccessUpdate(config, isRemote));
+                await dispatch(fetchSuccessUpdate(config, timestamp));
             } else if (currentSequence === config.sequence) {
-                await dispatch(fetchSuccess());
+                await dispatch(fetchSuccess(timestamp));
             } else {
                 throw Error('Sequence of config is older than the current one');
             }
@@ -117,11 +122,15 @@ const fetchConfig = () => async (dispatch: Dispatch, getState: GetState) => {
 };
 
 export const init = () => async (dispatch: Dispatch, _getState: GetState) => {
-    await dispatch(fetchConfig());
+    const checkConfig = async () => {
+        await dispatch(fetchConfig());
 
-    setInterval(() => {
-        dispatch(fetchConfig());
-    }, MESSAGE_SYSTEM.FETCH_CHECK_INTERVAL);
+        setTimeout(() => {
+            checkConfig();
+        }, MESSAGE_SYSTEM.FETCH_CHECK_INTERVAL);
+    };
+
+    await checkConfig();
 };
 
 export const saveValidMessages = (payload: ValidMessagesPayload) => ({
@@ -131,6 +140,8 @@ export const saveValidMessages = (payload: ValidMessagesPayload) => ({
 
 export const dismissMessage = (id: string, category: Category): MessageSystemAction => ({
     type: MESSAGE_SYSTEM.DISMISS_MESSAGE,
-    id,
-    category,
+    payload: {
+        id,
+        category,
+    },
 });
