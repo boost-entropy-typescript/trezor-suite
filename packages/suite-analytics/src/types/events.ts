@@ -109,6 +109,12 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
+          type: EventType.AccountsTokensStatus;
+          payload: {
+              [key: string]: number;
+          };
+      }
+    | {
           type: EventType.AccountsNewAccount;
           payload: {
               type: string;
@@ -157,6 +163,8 @@ export type SuiteAnalyticsEvent =
               ethereumNonce: boolean;
               rippleDestinationTag: boolean;
               selectedFee: string;
+              isCoinControlEnabled: boolean;
+              hasCoinControlBeenOpened: boolean;
           };
       }
     | {

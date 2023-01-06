@@ -11,7 +11,7 @@ import type { ForegroundAppProps } from '@suite-types';
 import type { WordCount } from '@recovery-types';
 import { InstructionStep } from '@suite-components/InstructionStep';
 import { getCheckBackupUrl } from '@suite-utils/device';
-import { getDeviceModel } from '@trezor/device-utils';
+import { DeviceModel, getDeviceModel, pickByDeviceModel } from '@trezor/device-utils';
 
 const StyledModal = styled(Modal)`
     min-height: 420px;
@@ -92,14 +92,14 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
         actions.checkSeed();
     };
 
-    const model = device && getDeviceModel(device) === '1' ? '1' : 'T';
+    const deviceModel = getDeviceModel(device);
     const learnMoreUrl = getCheckBackupUrl(device);
-    const isModelOne = model === '1';
-    const statesInProgressBar = isModelOne
-        ? ['initial', 'select-word-count', 'select-recovery-type', 'in-progress', 'finished']
-        : ['initial', 'in-progress', 'finished'];
+    const statesInProgressBar =
+        deviceModel === DeviceModel.T1
+            ? ['initial', 'select-word-count', 'select-recovery-type', 'in-progress', 'finished']
+            : ['initial', 'in-progress', 'finished'];
 
-    if (!device || !device.features) {
+    if (!device || !device.features || !deviceModel) {
         return (
             <TinyModal
                 heading={<Translation id="TR_RECONNECT_HEADER" />}
@@ -126,7 +126,9 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
             {recovery.status === 'initial' && (
                 <StyledButton
                     onClick={() =>
-                        isModelOne ? actions.setStatus('select-word-count') : actions.checkSeed()
+                        deviceModel === DeviceModel.T1
+                            ? actions.setStatus('select-word-count')
+                            : actions.checkSeed()
                     }
                     isDisabled={!understood || isLocked()}
                     data-test="@recovery/start-button"
@@ -138,20 +140,38 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
     );
 
     const getStep = () => {
+        const isShamirBackupAvailable =
+            device?.features?.capabilities?.includes('Capability_Shamir');
+
+        // Shamir backup uses 20 and 33 word shares
+        const seedBackupLengthMessage = isShamirBackupAvailable
+            ? 'TR_SEED_BACKUP_LENGTH_INCLUDING_SHAMIR'
+            : 'TR_SEED_BACKUP_LENGTH';
+
         switch (recovery.status) {
             case 'initial':
                 return (
                     <>
                         <LeftAlignedP>
-                            {model && <Translation id={`TR_CHECK_RECOVERY_SEED_DESC_T${model}`} />}
+                            <Translation id={seedBackupLengthMessage} />
                         </LeftAlignedP>
 
                         <StepsContainer>
                             <InstructionStep
                                 number="1"
-                                title={<Translation id="TR_SELECT_NUMBER_OF_WORDS" />}
+                                title={
+                                    <Translation
+                                        id={`TR_CHECK_RECOVERY_SEED_DESC_T${deviceModel}`}
+                                    />
+                                }
                             >
-                                {model && <Translation id={`TR_YOU_EITHER_HAVE_T${model}`} />}
+                                <Translation
+                                    id={
+                                        isShamirBackupAvailable
+                                            ? 'TR_SEED_BACKUP_LENGTH_INCLUDING_SHAMIR'
+                                            : 'TR_SEED_BACKUP_LENGTH'
+                                    }
+                                />
                             </InstructionStep>
 
                             <InstructionStep
@@ -159,11 +179,12 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
                                 title={<Translation id="TR_ENTER_ALL_WORDS_IN_CORRECT" />}
                             >
                                 <Translation
-                                    id={
-                                        isModelOne
-                                            ? 'TR_ON_YOUR_COMPUTER_ENTER'
-                                            : 'TR_USING_TOUCHSCREEN'
-                                    }
+                                    id={pickByDeviceModel(deviceModel, {
+                                        default: 'TR_SEED_WORDS_ENTER_BUTTONS',
+                                        [DeviceModel.T1]: 'TR_SEED_WORDS_ENTER_COMPUTER',
+                                        [DeviceModel.TT]: 'TR_SEED_WORDS_ENTER_TOUCHSCREEN',
+                                        [DeviceModel.TR]: 'TR_SEED_WORDS_ENTER_BUTTONS',
+                                    })}
                                 />
                             </InstructionStep>
                         </StepsContainer>
@@ -195,7 +216,7 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
                 return (
                     <>
                         <StatusTitle>
-                            <Translation id="TR_CHOSE_RECOVERY_TYPE" />
+                            <Translation id="TR_CHOOSE_RECOVERY_TYPE" />
                         </StatusTitle>
                         <SelectRecoveryType onSelect={onSetRecoveryType} />
                     </>
@@ -204,9 +225,9 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
             case 'waiting-for-confirmation':
                 return modal.context !== '@modal/context-none' ? (
                     <>
-                        {!isModelOne && (
+                        {device.features.capabilities.includes('Capability_PassphraseEntry') && (
                             <LeftAlignedP>
-                                <Translation id="TR_ALL_THE_WORDS" />
+                                <Translation id="TR_ENTER_SEED_WORDS_ON_DEVICE" />
                             </LeftAlignedP>
                         )}
                         <ReduxModal {...modal} renderer={InstructionModal} />

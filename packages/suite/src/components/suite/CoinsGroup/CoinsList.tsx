@@ -4,8 +4,9 @@ import { Tooltip } from '@trezor/components';
 import { versionUtils } from '@trezor/utils';
 import { Coin, Translation } from '@suite-components';
 import { useDevice, useSelector } from '@suite-hooks';
-import { getUnavailabilityMessage } from '@suite-utils/device';
+import { getCoinUnavailabilityMessage } from '@suite-utils/device';
 import type { Network } from '@wallet-types';
+import { getDeviceModel, getFirmwareVersion, isDeviceInBootloaderMode } from '@trezor/device-utils';
 
 const Wrapper = styled.div`
     width: 100%;
@@ -37,23 +38,21 @@ const CoinsList = ({
         <Wrapper>
             {networks.map(({ symbol, label, tooltip, name, support }) => {
                 const toggled = !!selectedNetworks?.includes(symbol);
-                const isBootloaderMode = device?.mode === 'bootloader';
-                let unavailable = device?.unavailableCapabilities?.[symbol];
+                const isBootloaderMode = isDeviceInBootloaderMode(device);
 
                 const lockedTooltip = locked && 'TR_DISABLED_SWITCH_TOOLTIP';
 
                 const backend = blockchain[symbol].backends.selected;
                 const note = backend ? 'TR_CUSTOM_BACKEND' : label;
 
-                const features = device?.features;
-                const supportField = features && support && support[features.major_version];
-                const supportedBySuite =
-                    !supportField ||
-                    versionUtils.isNewerOrEqual(
-                        [features.major_version, features.minor_version, features.patch_version],
-                        supportField,
-                    );
+                const firmwareVersion = getFirmwareVersion(device);
+                const deviceModel = getDeviceModel(device);
 
+                const supportField = deviceModel && support?.[deviceModel];
+                const supportedBySuite =
+                    !supportField || versionUtils.isNewerOrEqual(firmwareVersion, supportField);
+
+                let unavailable = device?.unavailableCapabilities?.[symbol];
                 if (!supportedBySuite) {
                     unavailable = 'update-required';
                 }
@@ -69,9 +68,7 @@ const CoinsList = ({
                     locked ||
                     !supportedBySuite;
                 const unavailabilityTooltip =
-                    !!unavailable &&
-                    !isBootloaderMode &&
-                    getUnavailabilityMessage(unavailable, features?.major_version);
+                    !!unavailable && !isBootloaderMode && getCoinUnavailabilityMessage(unavailable);
                 const anyTooltip = lockedTooltip || unavailabilityTooltip || tooltip;
 
                 return (

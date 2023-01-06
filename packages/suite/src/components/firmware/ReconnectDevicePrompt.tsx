@@ -1,7 +1,12 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import * as semver from 'semver';
-import { getDeviceModel, getFirmwareVersion } from '@trezor/device-utils';
+import {
+    DeviceModel,
+    getDeviceModel,
+    pickByDeviceModel,
+    getFirmwareVersion,
+} from '@trezor/device-utils';
 
 import { H1, Button, ConfirmOnDevice, variables } from '@trezor/components';
 import { Modal, Translation, WebUsbButton } from '@suite-components';
@@ -155,26 +160,28 @@ const ReconnectLabel = ({
     requestedMode: RebootRequestedMode;
     device?: TrezorDevice;
 }) => {
-    const deviceFwVersion = device?.features ? getFirmwareVersion(device) : '';
-    const deviceModel = device?.features ? getDeviceModel(device) : 'T';
+    const deviceFwVersion = getFirmwareVersion(device);
+    const deviceModel = getDeviceModel(device);
 
     if (requestedMode === 'bootloader') {
-        if (deviceModel === '1') {
-            return semver.valid(deviceFwVersion) && semver.satisfies(deviceFwVersion, '<1.8.0') ? (
-                <Translation id="TR_HOLD_BOTH_BUTTONS" />
-            ) : (
-                <Translation id="TR_HOLD_LEFT_BUTTON" />
-            );
-        }
+        const switchToBootloaderModeMessage = pickByDeviceModel(deviceModel, {
+            default: 'TR_SWITCH_TO_BOOTLOADER_HOLD_LEFT_BUTTON',
+            [DeviceModel.T1]:
+                semver.valid(deviceFwVersion) && semver.satisfies(deviceFwVersion, '<1.8.0')
+                    ? 'TR_SWITCH_TO_BOOTLOADER_HOLD_BOTH_BUTTONS'
+                    : 'TR_SWITCH_TO_BOOTLOADER_HOLD_LEFT_BUTTON',
+            [DeviceModel.TT]: 'TR_SWITCH_TO_BOOTLOADER_SWIPE_YOUR_FINGERS',
+        } as const);
 
-        return <Translation id="TR_SWIPE_YOUR_FINGERS" />;
+        return <Translation id={switchToBootloaderModeMessage} />;
     }
 
-    return deviceModel === '1' ? (
-        <Translation id="FIRMWARE_CONNECT_IN_NORMAL_MODEL_1" />
-    ) : (
-        <Translation id="FIRMWARE_CONNECT_IN_NORMAL_MODEL_2" />
-    );
+    const switchToNormalModeMessage = pickByDeviceModel(deviceModel, {
+        default: 'FIRMWARE_CONNECT_IN_NORMAL_MODEL_NO_BUTTON',
+        [DeviceModel.TR]: 'FIRMWARE_CONNECT_IN_NORMAL_MODEL_NO_TOUCH',
+    } as const);
+
+    return <Translation id={switchToNormalModeMessage} />;
 };
 
 interface ReconnectStepProps {
@@ -230,6 +237,7 @@ export const ReconnectDevicePrompt = ({
     const { rebootPhase, rebootMethod } = useRebootRequest(device, requestedMode);
 
     const isRebootAutomatic = rebootMethod === 'automatic';
+    const deviceModel = getDeviceModel(device);
 
     return (
         <StyledModal
@@ -237,7 +245,7 @@ export const ReconnectDevicePrompt = ({
                 isRebootAutomatic && (
                     <ConfirmOnDevice
                         title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
-                        trezorModel={device?.features?.major_version === 1 ? 1 : 2}
+                        deviceModel={deviceModel}
                         isConfirmed={rebootPhase !== 'wait-for-confirm'}
                     />
                 )

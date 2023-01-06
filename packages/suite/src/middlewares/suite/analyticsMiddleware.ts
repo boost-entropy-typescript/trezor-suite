@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import {
     getBootloaderHash,
     getBootloaderVersion,
+    getDeviceModel,
     getFirmwareRevision,
     getFirmwareVersion,
     isDeviceInBootloaderMode,
@@ -77,7 +78,7 @@ const analyticsMiddleware =
                             isBitcoinOnly: action.payload.firmwareType === 'bitcoin-only',
                             totalDevices: getPhysicalDeviceCount(state.devices),
                             language: features.language,
-                            model: features.model,
+                            model: getDeviceModel(action.payload),
                         },
                     });
                 } else {
@@ -105,10 +106,25 @@ const analyticsMiddleware =
                     }, {});
 
                 const accountsWithNonZeroBalance = state.wallet.accounts
-                    .filter(account => new BigNumber(account.balance).gt(0))
+                    .filter(
+                        account =>
+                            new BigNumber(account.balance).gt(0) ||
+                            new BigNumber(
+                                (account.tokens || []).filter(token =>
+                                    new BigNumber(token.balance || 0).gt(0),
+                                ).length,
+                            ).gt(0),
+                    )
                     .reduce((acc: { [key: string]: number }, obj) => {
                         const id = `${obj.symbol}_${obj.accountType}`;
                         acc[id] = (acc[id] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                const accountsWithTokens = state.wallet.accounts
+                    .filter(account => new BigNumber((account.tokens || []).length).gt(0))
+                    .reduce((acc: { [key: string]: number }, obj) => {
+                        acc[obj.symbol] = (acc[obj.symbol] || 0) + 1;
                         return acc;
                     }, {});
 
@@ -120,6 +136,11 @@ const analyticsMiddleware =
                 analytics.report({
                     type: EventType.AccountsNonZeroBalance,
                     payload: { ...accountsWithNonZeroBalance },
+                });
+
+                analytics.report({
+                    type: EventType.AccountsTokensStatus,
+                    payload: { ...accountsWithTokens },
                 });
                 break;
             }
