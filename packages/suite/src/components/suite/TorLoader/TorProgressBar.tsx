@@ -1,14 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Progress, Image, variables } from '@trezor/components';
-import { TorStatus } from '@suite-types';
+import { Button, Progress, Icon, variables } from '@trezor/components';
 import { Translation } from '@suite-components/Translation';
 
-const StyledImage = styled(Image)`
+const IconWrapper = styled.div`
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
     margin-bottom: 28px;
-    width: auto;
-    height: 110px;
+    background: ${({ theme }) => theme.BG_GREY};
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `;
 
 const Text = styled.h2`
@@ -28,6 +32,11 @@ const MessageWrapper = styled.div`
     align-items: center;
     justify-content: center;
     margin-bottom: 28px;
+`;
+
+const MessageSlowWrapper = styled(MessageWrapper)`
+    flex-direction: row;
+    margin-top: 28px;
 `;
 
 const DisableButton = styled(Button)`
@@ -63,6 +72,7 @@ const StyledProgress = styled(Progress)`
 const ProgressWrapper = styled.div`
     display: flex;
     align-items: center;
+    background: ${({ theme }) => theme.BG_GREY};
     border-radius: 8px;
     width: 100%;
     min-height: 45px;
@@ -74,25 +84,35 @@ const ProgressMessage = styled.div`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
-interface TorLoaderProps {
-    torStatus: TorStatus;
+interface TorProgressBarProps {
+    isTorError: boolean;
+    isTorDisabling: boolean;
+    isTorBootstrapSlow: boolean;
     progress: number;
     disableTor: () => void;
 }
 
-export const TorLoader = ({ torStatus, progress, disableTor }: TorLoaderProps) => {
+export const TorProgressBar = ({
+    isTorError,
+    isTorDisabling,
+    isTorBootstrapSlow,
+    progress,
+    disableTor,
+}: TorProgressBarProps) => {
     let message: 'TR_ENABLING_TOR' | 'TR_ENABLING_TOR_FAILED' | 'TR_DISABLING_TOR' =
         'TR_ENABLING_TOR';
-    if (torStatus === TorStatus.Error) {
+    if (isTorError) {
         message = 'TR_ENABLING_TOR_FAILED';
-    } else if (torStatus === TorStatus.Disabling) {
+    } else if (isTorDisabling) {
         message = 'TR_DISABLING_TOR';
     }
 
     return (
         <>
             <MessageWrapper>
-                <StyledImage image="TOR_ENABLING" />
+                <IconWrapper>
+                    <Icon icon="TOR" size={80} />
+                </IconWrapper>
                 <Text>
                     <Translation id={message} />
                 </Text>
@@ -100,13 +120,10 @@ export const TorLoader = ({ torStatus, progress, disableTor }: TorLoaderProps) =
 
             <InfoWrapper>
                 <ProgressWrapper>
-                    <StyledProgress
-                        isRed={torStatus === TorStatus.Error}
-                        value={torStatus === TorStatus.Error ? 100 : progress}
-                    />
+                    <StyledProgress isRed={isTorError} value={isTorError ? 100 : progress} />
 
                     <ProgressMessage>
-                        {torStatus === TorStatus.Error ? (
+                        {isTorError ? (
                             <Translation id="TR_FAILED" />
                         ) : (
                             <Percentage>{progress} %</Percentage>
@@ -114,7 +131,7 @@ export const TorLoader = ({ torStatus, progress, disableTor }: TorLoaderProps) =
                     </ProgressMessage>
                 </ProgressWrapper>
 
-                {torStatus !== TorStatus.Disabling && (
+                {!isTorDisabling && (
                     <DisableButton
                         data-test="@tor-loading-screen/disable-button"
                         variant="secondary"
@@ -124,6 +141,12 @@ export const TorLoader = ({ torStatus, progress, disableTor }: TorLoaderProps) =
                     </DisableButton>
                 )}
             </InfoWrapper>
+
+            {isTorBootstrapSlow && (
+                <MessageSlowWrapper>
+                    <Translation id="TR_TOR_IS_SLOW_MESSAGE" values={{ br: () => ' ' }} />
+                </MessageSlowWrapper>
+            )}
         </>
     );
 };

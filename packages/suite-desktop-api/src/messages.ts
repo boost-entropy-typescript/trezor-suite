@@ -1,8 +1,17 @@
+import { TorStatus } from './enums';
 import { ExtractUndefined } from './methods';
 
 export type SuiteThemeVariant = 'light' | 'dark' | 'system';
 
+export type TorStatusEvent = {
+    type: TorStatus;
+    message?: string;
+};
+
 export type BootstrapTorEvent =
+    | {
+          type: 'slow';
+      }
     | {
           type: 'progress';
           summary: string;

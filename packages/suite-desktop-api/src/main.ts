@@ -17,4 +17,8 @@ export type {
     HandshakeElectron,
     HandshakeEvent,
     BootstrapTorEvent,
+    TorStatusEvent,
+    HandshakeTorModule,
 } from './messages';
+
+export { TorStatus } from './enums';
