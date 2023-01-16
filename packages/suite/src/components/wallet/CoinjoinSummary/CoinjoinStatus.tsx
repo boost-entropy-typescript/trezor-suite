@@ -14,7 +14,7 @@ import { CoinjoinSession } from '@wallet-types/coinjoin';
 import { Translation } from '@suite-components/Translation';
 import { CountdownTimer } from '@suite-components';
 
-import { COINJOIN_PHASE_MESSAGES } from '@suite-constants/coinjoin';
+import { SESSION_PHASE_MESSAGES } from '@suite-constants/coinjoin';
 import { getPhaseTimerFormat, getSessionDeadlineFormat } from '@wallet-utils/coinjoinUtils';
 import {
     pauseCoinjoinSession,
@@ -29,6 +29,7 @@ import {
     selectFeatureMessageContent,
 } from '@suite-reducers/messageSystemReducer';
 import { useBlockedCoinjoinResume } from '@suite/hooks/coinjoin/useBlockedCoinjoinResume';
+import { useCoinjoinSessionPhase } from '@wallet-hooks';
 
 const Container = styled.div`
     position: relative;
@@ -144,7 +145,7 @@ const CrossIcon = styled(Icon)`
     height: 10px;
 `;
 
-const TextCointainer = styled.p`
+const TextCointainer = styled.div`
     height: 30px;
 `;
 
@@ -178,7 +179,9 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
         restoreCoinjoinSession,
     });
 
-    const { paused, phaseDeadline, sessionDeadline, phase } = session;
+    const sessionPhase = useCoinjoinSessionPhase(accountKey);
+
+    const { paused, roundPhase, roundPhaseDeadline, sessionDeadline } = session;
 
     const isPaused = !!paused;
 
@@ -335,18 +338,21 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
             );
         }
 
-        if (phase !== undefined) {
+        if (sessionPhase !== undefined) {
             return (
-                <>
-                    <Translation id={COINJOIN_PHASE_MESSAGES[phase]} />
-                    <p>
-                        <CountdownTimer
-                            isApproximate
-                            deadline={phaseDeadline}
-                            format={getPhaseTimerFormat(phaseDeadline)}
-                        />
-                    </p>
-                </>
+                <TextCointainer>
+                    <Translation id={SESSION_PHASE_MESSAGES[sessionPhase]} />
+
+                    {roundPhase !== undefined && roundPhaseDeadline && (
+                        <p>
+                            <CountdownTimer
+                                isApproximate
+                                deadline={roundPhaseDeadline}
+                                format={getPhaseTimerFormat(roundPhaseDeadline)}
+                            />
+                        </p>
+                    )}
+                </TextCointainer>
             );
         }
 

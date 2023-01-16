@@ -7,7 +7,8 @@ import type { Account } from '../Account';
 import type { Alice } from '../Alice';
 import type { CoinjoinPrison } from '../CoinjoinPrison';
 import type { CoinjoinRound, CoinjoinRoundOptions } from '../CoinjoinRound';
-import type { AccountAddress } from '../../types';
+import { AccountAddress } from '../../types';
+import { SessionPhase } from '../../enums';
 
 /**
  * RoundPhase: 2, OutputRegistration
@@ -117,6 +118,7 @@ export const outputRegistration = async (
     // - decide if there is only 1 account registered should i abaddon this round and blame it on some "youngest" input?
     // - maybe if there is only 1 account inputs are so "far away" from each other that it is wort to mix anyway?
     try {
+        round.setSessionPhase(SessionPhase.RegisteringOutputs);
         // decompose output amounts for all registered inputs grouped by Account
         const decomposedGroup = await outputDecomposition(round, options);
 
@@ -142,6 +144,7 @@ export const outputRegistration = async (
             }
         }
 
+        round.setSessionPhase(SessionPhase.AwaitingOthersOutputs);
         // inform coordinator that each registered input is ready to sign
         await Promise.all(round.inputs.map(input => readyToSign(round, input, options)));
         options.log(`Ready to sign ~~${round.id}~~`);
@@ -150,6 +153,7 @@ export const outputRegistration = async (
         // registered inputs will probably be banned
         const message = `Output registration in ~~${round.id}~~ failed: ${error.message}`;
         options.log(message);
+        round.setSessionPhase(SessionPhase.OutputRegistrationFailed);
 
         round.inputs.forEach(input => input.setError(new Error(message)));
     }

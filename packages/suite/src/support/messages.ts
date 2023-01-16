@@ -7723,4 +7723,72 @@ export default defineMessages({
         id: 'TR_SKIP_ROUNDS_CHANCE',
         defaultMessage: '{value}% chance',
     },
+    TR_SESSION_PHASE_11_MESSAGE: {
+        id: 'TR_SESSION_PHASE_11_MESSAGE',
+        defaultMessage: 'Looking for a round',
+    },
+    TR_SESSION_PHASE_12_MESSAGE: {
+        id: 'TR_SESSION_PHASE_12_MESSAGE',
+        defaultMessage: 'Choosing coins',
+    },
+    TR_SESSION_PHASE_13_MESSAGE: {
+        id: 'TR_SESSION_PHASE_13_MESSAGE',
+        defaultMessage: 'Pairing coins with the round',
+    },
+    TR_SESSION_PHASE_14_MESSAGE: {
+        id: 'TR_SESSION_PHASE_14_MESSAGE',
+        defaultMessage: 'Registering coins',
+    },
+    TR_SESSION_PHASE_15_MESSAGE: {
+        id: 'TR_SESSION_PHASE_15_MESSAGE',
+        defaultMessage: 'Account missing UTXOs, retrying',
+    },
+    TR_SESSION_PHASE_16_MESSAGE: {
+        id: 'TR_SESSION_PHASE_16_MESSAGE',
+        defaultMessage: 'Skipping round',
+    },
+    TR_SESSION_PHASE_17_MESSAGE: {
+        id: 'TR_SESSION_PHASE_17_MESSAGE',
+        defaultMessage: 'Pairing failed, retrying',
+    },
+    TR_SESSION_PHASE_21_MESSAGE: {
+        id: 'TR_SESSION_PHASE_21_MESSAGE',
+        defaultMessage: 'Confirming availability',
+    },
+    TR_SESSION_PHASE_22_MESSAGE: {
+        id: 'TR_SESSION_PHASE_2_MESSAGE',
+        defaultMessage: 'Waiting for participants',
+    },
+    TR_SESSION_PHASE_31_MESSAGE: {
+        id: 'TR_SESSION_PHASE_31_MESSAGE',
+        defaultMessage: 'Registering outputs',
+    },
+    TR_SESSION_PHASE_32_MESSAGE: {
+        id: 'TR_SESSION_PHASE_32_MESSAGE',
+        defaultMessage: 'Coordinator verification',
+    },
+    TR_SESSION_PHASE_33_MESSAGE: {
+        id: 'TR_SESSION_PHASE_32_MESSAGE',
+        defaultMessage: 'Verification failed, retrying',
+    },
+    TR_SESSION_PHASE_41_MESSAGE: {
+        id: 'TR_SESSION_PHASE_41_MESSAGE',
+        defaultMessage: 'Waiting for transaction',
+    },
+    TR_SESSION_PHASE_42_MESSAGE: {
+        id: 'TR_SESSION_PHASE_42_MESSAGE',
+        defaultMessage: 'Signing transaction',
+    },
+    TR_SESSION_PHASE_43_MESSAGE: {
+        id: 'TR_SESSION_PHASE_43_MESSAGE',
+        defaultMessage: 'Sending to coordinator',
+    },
+    TR_SESSION_PHASE_44_MESSAGE: {
+        id: 'TR_SESSION_PHASE_44_MESSAGE',
+        defaultMessage: 'Waiting for signatures',
+    },
+    TR_SESSION_PHASE_45_MESSAGE: {
+        id: 'TR_SESSION_PHASE_45_MESSAGE',
+        defaultMessage: 'Signing failed, retrying',
+    },
 });

@@ -12,7 +12,8 @@ import {
 import type { Account } from '../Account';
 import type { Alice } from '../Alice';
 import type { CoinjoinRound, CoinjoinRoundOptions } from '../CoinjoinRound';
-import type { CoinjoinTransactionData } from '../../types';
+import { CoinjoinTransactionData } from '../../types';
+import { SessionPhase } from '../../enums';
 
 const getTransactionData = async (
     round: CoinjoinRound,
@@ -165,6 +166,8 @@ export const transactionSigning = async (
                 );
                 throw new Error('Wittiness not provided');
             }
+
+            round.setSessionPhase(SessionPhase.AwaitingCoinjoinTransaction);
             const transactionData = await getTransactionData(round, options);
             const liquidityClues = await updateRawLiquidityClue(
                 round,
@@ -177,6 +180,7 @@ export const transactionSigning = async (
             return round;
         }
 
+        round.setSessionPhase(SessionPhase.SendingSignature);
         await Promise.allSettled(
             round.inputs.map(input => sendTxSignature(round, input, options)),
         ).then(result =>
@@ -189,11 +193,14 @@ export const transactionSigning = async (
     } catch (error) {
         // NOTE: if anything goes wrong in this process this Round will be corrupted for all the users
         // registered inputs will probably be banned
+        round.setSessionPhase(SessionPhase.SignatureFailed);
+
         round.inputs.forEach(input =>
             input.setError(new Error(`transactionSigning failed: ${error.message}`)),
         );
     }
 
+    round.setSessionPhase(SessionPhase.AwaitingOtherSignatures);
     options.log(`Round ${round.id} signed successfully`);
     return round;
 };
