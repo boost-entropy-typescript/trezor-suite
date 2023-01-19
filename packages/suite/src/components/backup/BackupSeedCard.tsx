@@ -1,30 +1,45 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Icon, IconProps, variables, useTheme } from '@trezor/components';
+import { darken } from 'polished';
+import { Icon, IconProps, variables, useTheme, Checkbox } from '@trezor/components';
+
+const StyledCheckbox = styled(Checkbox)`
+    position: absolute;
+    right: 0;
+    top: 20px;
+
+    ${variables.SCREEN_QUERY.MOBILE} {
+        top: auto;
+    }
+`;
 
 const Card = styled.div<{ checked: boolean }>`
-    display: flex;
-    padding: 12px 24px;
-
+    position: relative;
+    padding: 24px;
     border-radius: 10px;
-    border: solid 1px ${props => (props.checked ? props.theme.TYPE_GREEN : props.theme.STROKE_GREY)};
+    border: solid 1.5px ${({ theme, checked }) => (checked ? theme.TYPE_GREEN : theme.STROKE_GREY)};
+    transition: box-shadow 0.2s ease-in-out, border 0.2s ease-in-out;
     cursor: pointer;
-    transition: all 0.2s;
 
     :hover {
-        box-shadow: 0 6px 40px 0 ${props => props.theme.BOX_SHADOW_OPTION_CARD};
-        border: 1px solid ${props => (props.checked ? props.theme.TYPE_GREEN : 'transparent')};
+        box-shadow: 0 4px 10px 0 ${({ theme }) => theme.BOX_SHADOW_OPTION_CARD};
+        border: 1.5px solid ${({ theme, checked }) => (checked ? theme.TYPE_GREEN : 'transparent')};
+
+        ${StyledCheckbox} > :first-child {
+            border: ${({ theme }) =>
+                `2px solid ${darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_GREY)}`};
+        }
     }
 
-    @media only screen and (max-width: ${variables.SCREEN_SIZE.MD}) {
-        flex-direction: row;
+    ${variables.SCREEN_QUERY.MOBILE} {
+        display: flex;
         align-items: center;
-        width: 100%;
+        padding-right: 56px;
     }
 `;
 
 const Label = styled.span`
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     font-size: ${variables.FONT_SIZE.NORMAL};
 `;
@@ -33,9 +48,8 @@ const Content = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
-    margin-top: 24px;
 
-    @media only screen and (max-width: ${variables.SCREEN_SIZE.MD}) {
+    ${variables.SCREEN_QUERY.BELOW_TABLET} {
         margin-top: 0px;
     }
 `;
@@ -44,41 +58,48 @@ const IconWrapper = styled.div`
     display: flex;
     margin-bottom: 30px;
 
-    @media only screen and (max-width: ${variables.SCREEN_SIZE.MD}) {
+    ${variables.SCREEN_QUERY.BELOW_TABLET} {
+        margin-bottom: 20px;
+    }
+
+    ${variables.SCREEN_QUERY.MOBILE} {
         display: none;
     }
 `;
-const Col = styled.div`
-    display: flex;
-    margin-left: 8px;
-`;
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface BackupSeedCardProps {
     label: React.ReactNode;
     icon: IconProps['icon'];
     isChecked: boolean;
+    onClick: () => void;
+    ['data-test']: string;
 }
 
-const BackupSeedCard = ({ label, icon, isChecked, ...rest }: Props) => {
+export const BackupSeedCard = ({
+    label,
+    icon,
+    isChecked,
+    onClick,
+    'data-test': dataTest,
+}: BackupSeedCardProps) => {
     const theme = useTheme();
 
+    const handleCheckboxClick = (e: React.SyntheticEvent<HTMLElement>) => {
+        e.stopPropagation();
+        onClick();
+    };
+
     return (
-        <Card checked={isChecked} {...rest}>
+        <Card checked={isChecked} onClick={onClick} data-test={dataTest}>
             <Content>
                 <IconWrapper>
                     <Icon icon={icon} color={theme.TYPE_DARK_GREY} />
                 </IconWrapper>
+
                 <Label>{label}</Label>
             </Content>
-            <Col>
-                <Icon
-                    icon="CHECK"
-                    size={24}
-                    color={isChecked ? theme.TYPE_GREEN : theme.TYPE_LIGHT_GREY}
-                />
-            </Col>
+
+            <StyledCheckbox isChecked={isChecked} onClick={handleCheckboxClick} />
         </Card>
     );
 };
-
-export default BackupSeedCard;
