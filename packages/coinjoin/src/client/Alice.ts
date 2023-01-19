@@ -4,7 +4,6 @@ import {
     RegistrationData,
     ConfirmationData,
     RealCredentials,
-    ZeroCredentials,
 } from '../types/coordinator';
 import { AccountUtxo } from '../types/account';
 import { Credentials } from '../types/middleware';
@@ -13,6 +12,11 @@ import { SerializedAlice, CoinjoinRequestEvent } from '../types/round';
 interface AlicePendingRequest {
     type: CoinjoinRequestEvent['type'];
     timestamp: number;
+}
+
+export interface AliceConfirmationInterval {
+    promise: Promise<Alice>;
+    abort: () => void;
 }
 
 export class Alice {
@@ -28,11 +32,7 @@ export class Alice {
     registrationData?: RegistrationData; // data from inputRegistration phase
     realAmountCredentials?: RealCredentials; // data from inputRegistration phase
     realVsizeCredentials?: RealCredentials; // data from inputRegistration phase
-    confirmationDeadline = 0;
-    confirmationParams?: Readonly<{
-        zeroAmountCredentials: ZeroCredentials;
-        zeroVsizeCredentials: ZeroCredentials;
-    }>;
+    confirmationInterval?: AliceConfirmationInterval;
     confirmationData?: ConfirmationData; // data from connectionConfirmation phase
     confirmedAmountCredentials?: Credentials[]; // data from connectionConfirmation phase
     confirmedVsizeCredentials?: Credentials[]; // data from connectionConfirmation phase
@@ -84,18 +84,17 @@ export class Alice {
         this.realVsizeCredentials = vsize;
     }
 
-    setConfirmationParams(
-        zeroAmountCredentials?: ZeroCredentials,
-        zeroVsizeCredentials?: ZeroCredentials,
-    ) {
-        if (zeroAmountCredentials && zeroVsizeCredentials) {
-            this.confirmationParams = {
-                zeroAmountCredentials,
-                zeroVsizeCredentials,
-            };
-        } else {
-            this.confirmationParams = undefined;
-        }
+    setConfirmationInterval(interval: AliceConfirmationInterval) {
+        this.confirmationInterval = interval;
+    }
+
+    clearConfirmationInterval() {
+        this.confirmationInterval?.abort();
+        this.confirmationInterval = undefined;
+    }
+
+    getConfirmationInterval() {
+        return this.confirmationInterval;
     }
 
     setConfirmationData(data: ConfirmationData) {
