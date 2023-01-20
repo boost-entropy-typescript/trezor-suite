@@ -460,3 +460,22 @@ export const selectIsCoinjoinBlockedByTor = createSelector(
 export const selectIsAnySessionInCriticalPhase = createSelector(selectCoinjoinAccounts, accounts =>
     accounts.some(acc => (acc.session?.roundPhase ?? 0) > 0),
 );
+
+export const selectIsAccountWithSessionInCriticalPhaseByAccountKey = createSelector(
+    [selectCoinjoinAccountByKey],
+    coinjoinAccount => (coinjoinAccount?.session?.roundPhase ?? 0) > 0,
+);
+
+export const selectIsAccountWithSessionByAccountKey = createSelector(
+    [selectCoinjoinAccounts, (_state: CoinjoinRootState, accountKey: string) => accountKey],
+    (coinjoinAccounts, accountKey) =>
+        coinjoinAccounts.find(a => a.key === accountKey && a.session && !a.session.paused),
+);
+
+export const selectIsAccountWithPausedSessionInterruptedByAccountKey = createSelector(
+    [selectCoinjoinAccountByKey],
+    coinjoinAccount =>
+        coinjoinAccount?.session &&
+        coinjoinAccount.session.paused &&
+        coinjoinAccount.session.interrupted,
+);
