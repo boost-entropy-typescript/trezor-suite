@@ -6890,7 +6890,7 @@ export default defineMessages({
         id: 'TR_ACCOUNT_TYPE_SHELLEY',
     },
     TR_NETWORK_CARDANO_TESTNET: {
-        defaultMessage: 'Cardano Testnet',
+        defaultMessage: 'Cardano Preview Testnet',
         id: 'TR_NETWORK_CARDANO_TESTNET',
     },
     TR_STAKING_REWARDS_TITLE: {
@@ -7817,5 +7817,15 @@ export default defineMessages({
     TR_COINJOIN_STEP_3_DESCRIPTION: {
         id: 'TR_COINJOIN_STEP_3_DESCRIPTION',
         defaultMessage: 'Your Bitcoin will be mixed with other peoples’ to make it untracable. ',
+    },
+    TR_ZERO_PHISHING_TOOLTIP: {
+        id: 'TR_ZERO_PHISHING_TOOLTIP',
+        defaultMessage:
+            'Address poisoning alert! This transaction looks suspicious. <a>Learn more.</a>',
+    },
+    TR_ZERO_PHISHING_BANNER: {
+        id: 'TR_ZERO_PHISHING_BANNER',
+        defaultMessage:
+            'Proceed with caution. This may be a fraudulent transaction. <a>Read more here.</a>',
     },
 });

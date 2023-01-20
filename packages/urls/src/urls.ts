@@ -59,6 +59,8 @@ export const HELP_CENTER_ADVANCED_RECOVERY_URL =
     'https://trezor.io/learn/a/advanced-recovery-on-trezor-model-one';
 export const HELP_CENTER_XPUB_URL = 'https://trezor.io/learn/a/trezor-suite-app-public-keys-xpub';
 export const HELP_FIRMWARE_TYPE = 'https://trezor.io/learn/a/bitcoin-only-firmware-on-trezor';
+export const HELP_CENTER_ZERO_VALUE_ATTACKS =
+    'https://trezor.io/support/a/address-poisoning-attacks';
 
 export const SOCIAL_TWITTER_URL = 'https://twitter.com/trezor';
 export const SOCIAL_FACEBOOK_URL = 'https://www.facebook.com/trezor.io';
@@ -72,8 +74,8 @@ export const LTC_ADDRESS_INFO_URL =
 
 export const CARDANO_STAKE_POOL_MAINNET_URL =
     'https://trezor-cardano-mainnet.blockfrost.io/api/v0/pools/';
-export const CARDANO_STAKE_POOL_TESTNET_URL =
-    'https://trezor-cardano-testnet.blockfrost.io/api/v0/pools/';
+export const CARDANO_STAKE_POOL_PREVIEW_URL =
+    'https://trezor-cardano-preview.blockfrost.io/api/v0/pools/';
 
 export const CHROME_URL = 'https://www.google.com/chrome/';
 export const CHROME_UPDATE_URL = 'https://support.google.com/chrome/answer/95414';
