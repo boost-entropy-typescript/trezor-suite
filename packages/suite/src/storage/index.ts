@@ -1,10 +1,10 @@
 import SuiteDB, { OnUpgradeFunc } from '@trezor/suite-storage';
-import { desktopApi } from '@trezor/suite-desktop-api';
+import { reloadApp } from '@suite-utils/reload';
 import { migrate } from './migrations';
 
 import type { SuiteDBSchema } from './definitions';
 
-const VERSION = 33; // don't forget to add migration and CHANGELOG when changing versions!
+const VERSION = 34; // don't forget to add migration and CHANGELOG when changing versions!
 
 /**
  *  If the object stores don't already exist then creates them.
@@ -85,18 +85,13 @@ const onUpgrade: OnUpgradeFunc<SuiteDBSchema> = async (db, oldVersion, newVersio
 
         // coinjoin, added in 32
         db.createObjectStore('coinjoinAccounts');
+
+        // coinjoin settings
+        db.createObjectStore('coinjoinDebugSettings');
     } else {
         // migrate functions
         await migrate(db, oldVersion, newVersion, transaction);
     }
 };
 
-const onDowngrade = () => {
-    if (desktopApi.available) {
-        desktopApi.appRestart();
-    } else if (typeof window !== 'undefined') {
-        window.location.reload();
-    }
-};
-
-export const db = new SuiteDB<SuiteDBSchema>('trezor-suite', VERSION, onUpgrade, onDowngrade);
+export const db = new SuiteDB<SuiteDBSchema>('trezor-suite', VERSION, onUpgrade, reloadApp);

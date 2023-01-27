@@ -4,55 +4,91 @@ import styled from 'styled-components';
 import { Switch } from '@trezor/components';
 import { COINJOIN_NETWORKS } from '@suite/services/coinjoin';
 import { ActionColumn, ActionSelect, SectionItem, TextColumn } from '@suite-components/Settings';
-import * as suiteActions from '@suite-actions/suiteActions';
+import * as coinjoinClientActions from '@wallet-actions/coinjoinClientActions';
 import { useSelector, useActions } from '@suite-hooks';
-import type { CoinjoinServerEnvironment } from '@wallet-types/coinjoin';
+import { CoinjoinServerEnvironment } from '@wallet-types/coinjoin';
+import { NetworkSymbol, networks } from '@suite-common/wallet-config';
+import { reloadApp } from '@suite-utils/reload';
 
 const StyledActionSelect = styled(ActionSelect)`
     min-width: 256px;
 `;
 
-export const CoinjoinApi = () => {
-    const { setDebugMode } = useActions({
-        setDebugMode: suiteActions.setDebugMode,
-    });
-    const { debug } = useSelector(state => ({
-        debug: state.suite.settings.debug,
-    }));
+interface CoordinatorServerProps {
+    symbol: NetworkSymbol;
+    environments: CoinjoinServerEnvironment[];
+    value?: CoinjoinServerEnvironment;
+    onChange: (network: NetworkSymbol, value: CoinjoinServerEnvironment) => void;
+}
 
-    const options = Object.keys(COINJOIN_NETWORKS.regtest!).map(environment => ({
+const CoordinatorServer = ({ symbol, environments, value, onChange }: CoordinatorServerProps) => {
+    const options = environments.map(environment => ({
         label: environment,
         value: environment,
     }));
-    const selectedOption =
-        options.find(option => option.value === debug.coinjoinRegtestServerEnvironment) ||
-        options[0];
 
-    const handleApiChange = (item: { value: CoinjoinServerEnvironment }) => {
-        setDebugMode({
-            coinjoinRegtestServerEnvironment: item.value,
+    const selectedOption = (value && options.find(option => option.value === value)) ?? options[0];
+    const networkName = networks[symbol].name;
+
+    return (
+        <SectionItem data-test={`@settings/debug/coinjoin/${symbol}`}>
+            <TextColumn
+                title={networkName}
+                description={`${networkName} coordinator server configuration`}
+            />
+            <ActionColumn>
+                <StyledActionSelect
+                    onChange={({ value }) => onChange(symbol, value)}
+                    value={selectedOption}
+                    options={options}
+                    data-test={`@settings/debug/coinjoin/${symbol}/server-select`}
+                />
+            </ActionColumn>
+        </SectionItem>
+    );
+};
+
+export const CoinjoinApi = () => {
+    const { setDebugSettings } = useActions({
+        setDebugSettings: coinjoinClientActions.setDebugSettings,
+    });
+    const debug = useSelector(state => state.wallet.coinjoin.debug);
+
+    const handleServerChange: CoordinatorServerProps['onChange'] = (network, value) => {
+        setDebugSettings({
+            coinjoinServerEnvironment: {
+                [network]: value,
+            },
         });
+        // reload the Suite to reinitialize everything, with a slight delay to let the browser save the settings
+        reloadApp(100);
     };
 
     const handleTorChange = () => {
-        setDebugMode({
-            coinjoinAllowNoTor: !debug.coinjoinAllowNoTor,
+        setDebugSettings({
+            coinjoinAllowNoTor: !debug?.coinjoinAllowNoTor,
         });
     };
 
     return (
         <>
-            <SectionItem data-test="@settings/debug/coinjoin-api">
-                <TextColumn title="Coinjoin" description="Coinjoin Regtest server" />
-                <ActionColumn>
-                    <StyledActionSelect
-                        onChange={handleApiChange}
-                        value={selectedOption}
-                        options={options}
-                        data-test="@settings/coinjoin-server-select"
+            {(Object.keys(COINJOIN_NETWORKS) as NetworkSymbol[]).map(symbol => {
+                const environments = Object.keys(
+                    COINJOIN_NETWORKS[symbol] || {},
+                ) as CoinjoinServerEnvironment[];
+                return (
+                    <CoordinatorServer
+                        key={symbol}
+                        symbol={symbol}
+                        environments={environments}
+                        value={
+                            debug?.coinjoinServerEnvironment &&
+                            debug?.coinjoinServerEnvironment[symbol]
+                        }
+                        onChange={handleServerChange}
                     />
-                </ActionColumn>
-            </SectionItem>
+                );
+            })}
             <SectionItem data-test="@settings/debug/coinjoin-allow-no-tor">
                 <TextColumn
                     title="Allow no Tor"
@@ -61,8 +97,8 @@ export const CoinjoinApi = () => {
                 <ActionColumn>
                     <Switch
                         onChange={handleTorChange}
-                        isChecked={debug.coinjoinAllowNoTor}
-                        data-test="@settings/coinjoin-allow-no-tor-checkbox"
+                        isChecked={debug?.coinjoinAllowNoTor ?? false}
+                        data-test="@settings/debug/coinjoin/allow-no-tor-checkbox"
                     />
                 </ActionColumn>
             </SectionItem>

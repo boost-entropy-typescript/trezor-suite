@@ -4,7 +4,7 @@ import { CoinjoinStatusEvent } from '@trezor/coinjoin';
 import { PartialRecord } from '@trezor/type-utils';
 import { STORAGE } from '@suite-actions/constants';
 import { Account, AccountKey } from '@suite-common/wallet-types';
-import { CoinjoinAccount, RoundPhase } from '@wallet-types/coinjoin';
+import { CoinjoinAccount, RoundPhase, CoinjoinDebugSettings } from '@wallet-types/coinjoin';
 import { COINJOIN } from '@wallet-actions/constants';
 import { Action } from '@suite-types';
 import {
@@ -20,7 +20,7 @@ import {
     selectSelectedAccount,
     selectSelectedAccountParams,
 } from './selectedAccountReducer';
-import { selectDebug, selectTorState, SuiteRootState } from '@suite-reducers/suiteReducer';
+import { selectTorState, SuiteRootState } from '@suite-reducers/suiteReducer';
 import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 
 export interface CoinjoinClientFeeRatesMedians {
@@ -40,6 +40,7 @@ export interface CoinjoinState {
     accounts: CoinjoinAccount[];
     clients: PartialRecord<Account['symbol'], CoinjoinClientInstance>;
     isPreloading?: boolean;
+    debug?: CoinjoinDebugSettings;
 }
 
 export type CoinjoinRootState = {
@@ -297,6 +298,23 @@ const updateSessionPhase = (
     });
 };
 
+const updateDebugMode = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.SET_DEBUG_SETTINGS>,
+) => {
+    if (payload.coinjoinServerEnvironment && draft.debug?.coinjoinServerEnvironment) {
+        draft.debug.coinjoinServerEnvironment = {
+            ...draft.debug.coinjoinServerEnvironment,
+            ...payload.coinjoinServerEnvironment,
+        };
+    } else {
+        draft.debug = {
+            ...draft.debug,
+            ...payload,
+        };
+    }
+};
+
 export const coinjoinReducer = (
     state: CoinjoinState = initialState,
     action: Action,
@@ -305,6 +323,11 @@ export const coinjoinReducer = (
         switch (action.type) {
             case STORAGE.LOAD:
                 draft.accounts = action.payload.coinjoinAccounts;
+                draft.debug = action.payload.coinjoinDebugSettings;
+                break;
+
+            case COINJOIN.SET_DEBUG_SETTINGS:
+                updateDebugMode(draft, action.payload);
                 break;
 
             case COINJOIN.ACCOUNT_CREATE:
@@ -457,13 +480,12 @@ export const selectCurrentTargetAnonymity = memoize((state: CoinjoinRootState) =
 export const selectIsCoinjoinBlockedByTor = memoize((state: CoinjoinRootState) => {
     const accountParams = selectSelectedAccountParams(state);
     const { isTorEnabled } = selectTorState(state);
-    const debug = selectDebug(state);
 
     if (!accountParams) {
         return false;
     }
 
-    if (debug.coinjoinAllowNoTor) {
+    if (state.wallet.coinjoin.debug?.coinjoinAllowNoTor) {
         return false;
     }
 

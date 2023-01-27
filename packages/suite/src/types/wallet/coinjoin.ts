@@ -1,4 +1,5 @@
 import { NetworkSymbol } from '@suite-common/wallet-config';
+import { PartialRecord } from '@trezor/type-utils';
 
 // @trezor/coinjoin package is meant to be imported dynamically
 // importing types is safe, but importing an enum thru index will bundle whole lib
@@ -6,8 +7,6 @@ import { RegisterAccountParams } from '@trezor/coinjoin';
 import { RoundPhase, SessionPhase } from '@trezor/coinjoin/src/enums';
 
 export { RoundPhase, SessionPhase };
-
-export type CoinjoinServerEnvironment = 'localhost' | 'public';
 
 export interface CoinjoinSessionParameters {
     targetAnonymity: number;
@@ -45,4 +44,11 @@ export interface CoinjoinAccount {
     session?: CoinjoinSession; // current/active authorized session
     previousSessions: CoinjoinSession[]; // history
     checkpoints?: CoinjoinDiscoveryCheckpoint[];
+}
+
+export type CoinjoinServerEnvironment = 'public' | 'staging' | 'localhost';
+
+export interface CoinjoinDebugSettings {
+    coinjoinAllowNoTor?: boolean;
+    coinjoinServerEnvironment?: PartialRecord<NetworkSymbol, CoinjoinServerEnvironment>;
 }
