@@ -7,7 +7,7 @@ import { Account } from '@suite-common/wallet-types';
 import { Translation, TrezorLink } from '@suite-components';
 import { Error } from '@suite-components/Error';
 import { useSelector, useDevice } from '@suite-hooks';
-import { Button, Card, Checkbox, Icon, Image, Link, Tooltip, variables } from '@trezor/components';
+import { Button, Card, Checkbox, Link, Note, Tooltip, variables } from '@trezor/components';
 import { DATA_TOS_COINJOIN_URL, ZKSNACKS_TERMS_URL } from '@trezor/urls';
 import { startCoinjoinSession } from '@wallet-actions/coinjoinAccountActions';
 import {
@@ -21,7 +21,7 @@ import {
     selectIsFeatureDisabled,
     selectFeatureMessageContent,
 } from '@suite-reducers/messageSystemReducer';
-import { Tile } from './Tile';
+import { Tile, TileProps } from './Tile';
 
 const StyledCard = styled(Card)`
     padding: 24px;
@@ -43,10 +43,6 @@ const TopFeeRow = styled(Row)`
     margin-bottom: 8px;
 `;
 
-const BottomFeeRow = styled(Row)`
-    gap: 4px;
-`;
-
 const FeeWrapper = styled.div`
     border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
     border-top: 1px solid ${({ theme }) => theme.STROKE_GREY};
@@ -63,24 +59,10 @@ const FeeValue = styled.div`
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
 `;
 
-const FeeNote = styled.p`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    font-size: ${variables.FONT_SIZE.SMALL};
-`;
-
 const Tiles = styled.div`
     display: grid;
     gap: 12px;
     grid-template-columns: repeat(3, 1fr);
-`;
-
-const ImageWrapper = styled.div`
-    height: 100px;
-`;
-
-const TrezorImage = styled(Image)`
-    margin-top: 4px;
 `;
 
 const StyledCheckbox = styled(Checkbox)`
@@ -95,29 +77,29 @@ const StyledButton = styled(Button)`
     }
 `;
 
-const tiles = [
+const tiles: TileProps[] = [
     {
         title: <Translation id="TR_COINJOIN_TILE_1_TITLE" />,
         description: <Translation id="TR_COINJOIN_TILE_1_DESCRIPTION" />,
-        image: <Image image="CLOCK" height={80} />,
+        image: 'CLOCK',
     },
     {
         title: <Translation id="TR_COINJOIN_TILE_2_TITLE" />,
         description: <Translation id="TR_COINJOIN_TILE_2_DESCRIPTION" />,
-        image: <TrezorImage image="CONNECTED_T" height={88} />,
+        image: 'FIRMWARE',
     },
     {
         title: <Translation id="TR_COINJOIN_TILE_3_TITLE" />,
         description: <Translation id="TR_COINJOIN_TILE_3_DESCRIPTION" />,
-        image: <Image image="BACKUP" height={80} />,
+        image: 'PIN_LOCKED',
     },
 ];
 
-interface CoinjoinSetupStrategiesProps {
+interface CoinjoinConfirmationProps {
     account: Account;
 }
 
-export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProps) => {
+export const CoinjoinConfirmation = ({ account }: CoinjoinConfirmationProps) => {
     const [termsConfirmed, setTermsConfirmed] = useState(false);
 
     const coordinatorData = useSelector(state => state.wallet.coinjoin.clients[account.symbol]);
@@ -195,13 +177,7 @@ export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProp
                 </TopRow>
                 <Tiles>
                     {tiles.map(tile => (
-                        <Tile
-                            key={tile.title.props.id}
-                            title={tile.title}
-                            description={tile.description}
-                        >
-                            <ImageWrapper>{tile.image}</ImageWrapper>
-                        </Tile>
+                        <Tile key={tile.image} {...tile} />
                     ))}
                 </Tiles>
                 <FeeWrapper>
@@ -211,12 +187,9 @@ export const CoinjoinSetupStrategies = ({ account }: CoinjoinSetupStrategiesProp
                         </FeeHeading>
                         <FeeValue>0.3%</FeeValue>
                     </TopFeeRow>
-                    <BottomFeeRow>
-                        <Icon icon="INFO" size={16} />
-                        <FeeNote>
-                            <Translation id="TR_SERVICE_FEE_NOTE" />
-                        </FeeNote>
-                    </BottomFeeRow>
+                    <Note>
+                        <Translation id="TR_SERVICE_FEE_NOTE" />
+                    </Note>
                 </FeeWrapper>
                 <StyledCheckbox
                     isChecked={termsConfirmed}

@@ -1,6 +1,7 @@
 import produce from 'immer';
 import { memoizeWithArgs, memoize } from 'proxy-memoize';
-import { CoinjoinStatusEvent } from '@trezor/coinjoin';
+import BigNumber from 'bignumber.js';
+import { CoinjoinStatusEvent, getInputSize, getOutputSize } from '@trezor/coinjoin';
 import { PartialRecord } from '@trezor/type-utils';
 import { STORAGE } from '@suite-actions/constants';
 import { Account, AccountKey } from '@suite-common/wallet-types';
@@ -23,17 +24,13 @@ import {
 import { selectTorState, SuiteRootState } from '@suite-reducers/suiteReducer';
 import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 
-export interface CoinjoinClientFeeRatesMedians {
-    fast: number;
-    recommended: number;
-}
-
-export interface CoinjoinClientInstance {
-    status: 'loading' | 'loaded';
+export interface CoinjoinClientInstance
+    extends Pick<
+        CoinjoinStatusEvent,
+        'coordinationFeeRate' | 'allowedInputAmounts' | 'feeRatesMedians'
+    > {
     rounds: { id: string; phase: RoundPhase }[]; // store only slice of Round in reducer. may be extended in the future
-    feeRatesMedians: CoinjoinClientFeeRatesMedians;
-    coordinationFeeRate: CoinjoinStatusEvent['coordinationFeeRate'];
-    allowedInputAmounts: CoinjoinStatusEvent['allowedInputAmounts'];
+    status: 'loading' | 'loaded';
 }
 
 export interface CoinjoinState {
@@ -51,7 +48,7 @@ export type CoinjoinRootState = {
     SelectedAccountRootState &
     SuiteRootState;
 
-const initialState: CoinjoinState = {
+export const initialState: CoinjoinState = {
     accounts: [],
     clients: {},
     isPreloading: false,
@@ -402,6 +399,14 @@ export const selectCoinjoinAccountByKey = memoizeWithArgs(
     },
 );
 
+export const selectCoinjoinClient = memoizeWithArgs(
+    (state: CoinjoinRootState, accountKey: AccountKey) => {
+        const coinjoinAccount = selectCoinjoinAccountByKey(state, accountKey);
+        const clients = selectCoinjoinClients(state);
+        return coinjoinAccount?.symbol && clients[coinjoinAccount?.symbol];
+    },
+);
+
 export const selectSessionByAccountKey = memoizeWithArgs(
     (state: CoinjoinRootState, accountKey: AccountKey) => {
         const coinjoinAccounts = selectCoinjoinAccounts(state);
@@ -520,5 +525,34 @@ export const selectIsAccountWithPausedSessionInterruptedByAccountKey = memoizeWi
             coinjoinAccount.session.paused &&
             coinjoinAccount.session.interrupted
         );
+    },
+);
+
+export const selectMinAllowedInputWithFee = memoizeWithArgs(
+    (state: CoinjoinRootState, accountKey: AccountKey) => {
+        const coinjoinClient = selectCoinjoinClient(state, accountKey);
+        const status = coinjoinClient || DEFAULT_CLIENT_STATUS;
+        const minAllowedInput = status.allowedInputAmounts.min;
+        const txSize = getInputSize('Taproot') + getOutputSize('Taproot');
+        const recommendedFeeRate = status.feeRatesMedians.recommended;
+
+        return minAllowedInput + txSize * recommendedFeeRate;
+    },
+);
+
+export const selectIsCoinjoinBlockedByAmountsTooSmall = memoizeWithArgs(
+    (state: CoinjoinRootState, accountKey: AccountKey) => {
+        const selectedAccount = selectSelectedAccount(state);
+
+        const minAllowedInputWithFee = selectMinAllowedInputWithFee(state, accountKey);
+        const targetAnonymity = selectCurrentTargetAnonymity(state) || 0;
+
+        const anonymitySet = selectedAccount?.addresses?.anonymitySet || {};
+        const utxos = selectedAccount?.utxo || [];
+
+        // return true if all non-privat funds are too small
+        return utxos
+            .filter(utxo => (anonymitySet[utxo.address] ?? 1) < targetAnonymity)
+            .every(utxo => new BigNumber(utxo.amount).lt(minAllowedInputWithFee));
     },
 );
