@@ -53,6 +53,7 @@ export class CoinjoinClient extends EventEmitter {
             }
         });
         this.status.on('exception', event => this.emit('exception', event));
+        this.status.on('affiliate-server', event => this.onAffiliateServerStatus(event));
 
         this.prison = new CoinjoinPrison();
     }
@@ -185,6 +186,10 @@ export class CoinjoinClient extends EventEmitter {
         this.emit('session-phase', event);
     }
 
+    private onAffiliateServerStatus(status: boolean) {
+        this.rounds.map(r => r.onAffiliateServerStatus(status));
+    }
+
     private async onStatusUpdate({
         changed,
         rounds,
@@ -207,12 +212,13 @@ export class CoinjoinClient extends EventEmitter {
 
         // there are no CoinjoinRounds to process? try to create new one
         if (roundsToProcess.length === 0) {
-            const newRound = await CoinjoinRound.create(
-                this.accounts,
-                rounds,
-                this.rounds,
-                this.prison,
-                {
+            const newRound = await CoinjoinRound.create({
+                accounts: this.accounts,
+                statusRounds: rounds,
+                coinjoinRounds: this.rounds,
+                prison: this.prison,
+                runningAffiliateServer: this.status.isAffiliateServerRunning(),
+                options: {
                     network: this.network,
                     signal: this.abortController.signal,
                     coordinatorName: this.settings.coordinatorName,
@@ -222,7 +228,7 @@ export class CoinjoinClient extends EventEmitter {
                     setSessionPhase: (sessionPhase: CoinjoinClientEvents['session-phase']) =>
                         this.setSessionPhase(sessionPhase),
                 },
-            );
+            });
 
             if (newRound) {
                 // try to release all inmates detained due to blame round

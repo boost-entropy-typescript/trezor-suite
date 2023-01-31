@@ -12,6 +12,7 @@ type StatusMode = keyof typeof STATUS_TIMEOUT;
 interface StatusEvents {
     update: CoinjoinStatusEvent;
     exception: string;
+    'affiliate-server': boolean;
 }
 
 export declare interface Status {
@@ -30,6 +31,7 @@ export class Status extends EventEmitter {
     private abortController: AbortController;
     private statusTimeout?: ReturnType<typeof setTimeout>;
     private identities: string[]; // registered identities
+    private runningAffiliateServer = false;
 
     constructor(settings: CoinjoinClientSettings) {
         super();
@@ -129,9 +131,17 @@ export class Status extends EventEmitter {
     private processStatus(status: coordinator.CoinjoinStatus) {
         // add matching coinjoinRequest to rounds
         status.roundStates.forEach(round => {
-            const roundRequest = status.affiliateInformation.coinjoinRequests[round.id];
+            const roundRequest = status.affiliateInformation?.coinjoinRequests[round.id];
             round.affiliateRequest = roundRequest?.trezor;
         });
+
+        // report affiliate server status
+        const runningAffiliateServer =
+            !!status.affiliateInformation?.runningAffiliateServers.includes('trezor');
+        if (this.runningAffiliateServer !== runningAffiliateServer) {
+            this.emit('affiliate-server', runningAffiliateServer);
+        }
+        this.runningAffiliateServer = runningAffiliateServer;
 
         const changed = this.compareStatus(status.roundStates);
         this.rounds = status.roundStates;
@@ -144,6 +154,10 @@ export class Status extends EventEmitter {
             this.emit('update', statusEvent);
             return statusEvent;
         }
+    }
+
+    isAffiliateServerRunning() {
+        return this.runningAffiliateServer;
     }
 
     async getStatus(attempts?: number) {

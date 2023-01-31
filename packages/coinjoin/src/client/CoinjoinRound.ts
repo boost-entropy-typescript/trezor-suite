@@ -82,6 +82,15 @@ const createRoundLock = (mainSignal: AbortSignal) => {
     };
 };
 
+interface CreateRoundProps {
+    accounts: Account[];
+    statusRounds: Round[];
+    coinjoinRounds: CoinjoinRound[];
+    prison: CoinjoinPrison;
+    options: CoinjoinRoundOptions;
+    runningAffiliateServer: boolean;
+}
+
 export class CoinjoinRound extends EventEmitter {
     private lock?: ReturnType<typeof createRoundLock>;
     private options: CoinjoinRoundOptions;
@@ -141,22 +150,24 @@ export class CoinjoinRound extends EventEmitter {
         });
     }
 
-    static create(
-        accounts: Account[],
-        statusRounds: Round[],
-        coinjoinRounds: CoinjoinRound[],
-        prison: CoinjoinPrison,
-        options: CoinjoinRoundOptions,
-    ) {
-        return selectRound(
-            (...args: ConstructorParameters<typeof CoinjoinRound>) => new CoinjoinRound(...args),
-            (...args: ConstructorParameters<typeof Alice>) => new Alice(...args),
+    static create({
+        accounts,
+        statusRounds,
+        coinjoinRounds,
+        prison,
+        options,
+        runningAffiliateServer,
+    }: CreateRoundProps) {
+        return selectRound({
+            roundGenerator: (...args) => new CoinjoinRound(...args),
+            aliceGenerator: (...args) => new Alice(...args),
             accounts,
             statusRounds,
             coinjoinRounds,
             prison,
             options,
-        );
+            runningAffiliateServer,
+        });
     }
 
     async onPhaseChange(changed: Round) {
@@ -354,20 +365,24 @@ export class CoinjoinRound extends EventEmitter {
             input => !account.utxos.find(u => u.outpoint === input.outpoint),
         );
         // set error on each input
-        spentInputs.forEach(input =>
-            input.setError(new Error(WabiSabiProtocolErrorCode.InputSpent)),
-        ); // TODO: error same as wasabi coordinator?
+        spentInputs.forEach(input => {
+            input.clearConfirmationInterval();
+            input.setError(new Error(WabiSabiProtocolErrorCode.InputSpent));
+        }); // TODO: error same as wasabi coordinator?
 
         this.breakRound(spentInputs);
     }
 
     unregisterAccount(accountKey: string) {
         // find registered inputs related to Account
-        const affectedInputs = this.inputs.filter(input => input.accountKey === accountKey);
+        const registeredInputs = this.inputs.filter(input => input.accountKey === accountKey);
         // set error on each input
-        affectedInputs.forEach(input => input.setError(new Error('Unregistered account')));
+        registeredInputs.forEach(input => {
+            input.clearConfirmationInterval();
+            input.setError(new Error('Unregistered account'));
+        });
 
-        this.breakRound(affectedInputs);
+        this.breakRound(registeredInputs);
     }
 
     // decide if round process should be interrupted by Account change
@@ -381,6 +396,17 @@ export class CoinjoinRound extends EventEmitter {
                 // no more inputs left in round, breaking the round
                 this.lock?.abort();
             }
+        }
+    }
+
+    onAffiliateServerStatus(status: boolean) {
+        if (!status && this.phase <= RoundPhase.OutputRegistration) {
+            // if affiliate server goes offline try to abort round if it's not in critical phase.
+            // if round is in critical phase, there is noting much we can do...
+            // ...we need to continue and hope that server will become online before transaction signing phase
+            this.options.log(`Affiliate server offline. Aborting round ${this.id}`);
+            this.lock?.abort();
+            this.inputs.forEach(i => i.clearConfirmationInterval());
         }
     }
 
