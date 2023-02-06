@@ -1,4 +1,4 @@
-## Bitcoin: authorize CoinJoin
+## Bitcoin: authorize Coinjoin
 
 Allow device to do preauthorized operations in `signTransaction` and `getOwnershipProof` methods without further user interaction.
 
@@ -60,7 +60,7 @@ TrezorConnect.authorizeCoinJoin({
 {
     success: true,
     payload: {
-        message: 'CoinJoin authorized'
+        message: 'Coinjoin authorized'
     }
 }
 ```

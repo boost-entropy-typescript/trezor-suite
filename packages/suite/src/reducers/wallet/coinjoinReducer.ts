@@ -27,7 +27,7 @@ import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core
 export interface CoinjoinClientInstance
     extends Pick<
         CoinjoinStatusEvent,
-        'coordinationFeeRate' | 'allowedInputAmounts' | 'feeRatesMedians'
+        'coordinationFeeRate' | 'allowedInputAmounts' | 'maxMiningFee'
     > {
     rounds: { id: string; phase: RoundPhase }[]; // store only slice of Round in reducer. may be extended in the future
     status: 'loading' | 'loaded';
@@ -155,6 +155,22 @@ const signSession = (
         ...account.session,
         signedRounds: account.session.signedRounds.concat(payload.roundId),
     };
+};
+
+const updateSessionStarting = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.SESSION_STARTING>,
+) => {
+    const account = draft.accounts.find(a => a.key === payload.accountKey);
+    if (!account || !account.session) return;
+    if (payload.isStarting) {
+        account.session = {
+            ...account.session,
+            starting: payload.isStarting,
+        };
+    } else {
+        delete account.session.starting;
+    }
 };
 
 const completeSession = (
@@ -380,9 +396,11 @@ export const coinjoinReducer = (
             case COINJOIN.SESSION_COMPLETED:
                 completeSession(draft, action.payload);
                 break;
-
             case COINJOIN.SESSION_TX_SIGNED:
                 signSession(draft, action.payload);
+                break;
+            case COINJOIN.SESSION_STARTING:
+                updateSessionStarting(draft, action.payload);
                 break;
 
             // no default
@@ -534,9 +552,8 @@ export const selectMinAllowedInputWithFee = memoizeWithArgs(
         const status = coinjoinClient || DEFAULT_CLIENT_STATUS;
         const minAllowedInput = status.allowedInputAmounts.min;
         const txSize = getInputSize('Taproot') + getOutputSize('Taproot');
-        const recommendedFeeRate = status.feeRatesMedians.recommended;
 
-        return minAllowedInput + txSize * recommendedFeeRate;
+        return minAllowedInput + txSize * status.maxMiningFee;
     },
 );
 
