@@ -6,7 +6,7 @@ const { ADDRESS_N } = global.TestUtils;
 
 const controller = getController('applyFlags');
 
-describe('TrezorConnect.authorizeCoinJoin', () => {
+describe('TrezorConnect.authorizeCoinjoin', () => {
     beforeAll(async () => {
         await setup(controller, {
             mnemonic: 'mnemonic_all',
@@ -35,14 +35,14 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         await TrezorConnect.dispose();
     });
 
-    conditionalTest(['1', '<2.5.3'], 'Coinjoin success', async () => {
+    conditionalTest(['1', '<2.5.4'], 'Coinjoin success', async () => {
         // unlocked path is required for tx validation
         const unlockPath = await TrezorConnect.unlockPath({
             path: ADDRESS_N("m/10025'"),
         });
         if (!unlockPath.success) throw new Error(unlockPath.payload.error);
 
-        const auth = await TrezorConnect.authorizeCoinJoin({
+        const auth = await TrezorConnect.authorizeCoinjoin({
             coordinator: 'www.example.com',
             maxRounds: 2,
             maxCoordinatorFeeRate: 500000, // 5% => 0.005 * 10**8;
@@ -177,7 +177,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         expect(round3.payload).toMatchObject({ error: 'Exceeded number of coinjoin rounds.' });
     });
 
-    conditionalTest(['1', '<2.5.3'], 'Authorize and re-authorize', async () => {
+    conditionalTest(['1', '<2.5.4'], 'Authorize and re-authorize', async () => {
         // difference in buttons request count between 2.5.3 and 2.5.4
         // see: https://github.com/trezor/trezor-firmware/pull/2613
         const features = await TrezorConnect.getFeatures();
@@ -241,7 +241,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         TrezorConnect.on('button', spy);
 
         // authorize no passphrase wallet
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 0, state: walletDefault.payload.state },
             useEmptyPassphrase: true,
@@ -250,7 +250,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         expect(spy).toBeCalledTimes(1 * confirmationScreensCount);
 
         // re-authorize
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 0, state: walletDefault.payload.state },
             useEmptyPassphrase: true,
@@ -260,7 +260,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         expect(spy).toBeCalledTimes(1 * confirmationScreensCount); // no more button requests
 
         // authorize passphrase wallet
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 1, state: walletA.payload.state },
         });
@@ -268,14 +268,14 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         expect(spy).toBeCalledTimes(2 * confirmationScreensCount);
 
         // re-authorize passphrase wallet
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 1, state: walletA.payload.state },
             preauthorized: true,
         });
 
         // re-authorize no passphrase wallet again
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 0, state: walletDefault.payload.state },
             useEmptyPassphrase: true,
@@ -283,7 +283,7 @@ describe('TrezorConnect.authorizeCoinJoin', () => {
         });
 
         // re-authorize passphrase wallet again
-        await TrezorConnect.authorizeCoinJoin({
+        await TrezorConnect.authorizeCoinjoin({
             ...params,
             device: { instance: 1, state: walletA.payload.state },
             preauthorized: true,

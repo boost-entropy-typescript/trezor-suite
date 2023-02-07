@@ -1,11 +1,11 @@
-## Bitcoin: authorize Coinjoin
+## Bitcoin: authorize coinjoin
 
 Allow device to do preauthorized operations in `signTransaction` and `getOwnershipProof` methods without further user interaction.
 
 Permission persists until physical device disconnection or `maxRounds` limit is reached.
 
 ```javascript
-const result = await TrezorConnect.authorizeCoinJoin(params);
+const result = await TrezorConnect.authorizeCoinjoin(params);
 ```
 
 > :warning: **This feature is experimental! Do not use it in production!**
@@ -38,12 +38,12 @@ const result = await TrezorConnect.authorizeCoinJoin(params);
 -   `preauthorized` — _optional_
     > Check if device session is already preauthorized and take no further action if so
 -   `coinjoinRequest` — _optional_ `PROTO.CoinJoinRequest`
-    > Signing request for a CoinJoin transaction
+    > Signing request for a coinjoin transaction
 
 ### Example:
 
 ```javascript
-TrezorConnect.authorizeCoinJoin({
+TrezorConnect.authorizeCoinjoin({
     path: "m/10086'/0'/0'",
     maxRounds: 3,
     maxCoordinatorFeeRate: 500000, // 0.5% => 0.005 * 10**8;
