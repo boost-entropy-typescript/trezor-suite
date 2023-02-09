@@ -6080,6 +6080,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/logger@workspace:*, @suite-common/logger@workspace:suite-common/logger":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/logger@workspace:suite-common/logger"
+  dependencies:
+    "@reduxjs/toolkit": 1.8.3
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/metadata-types@workspace:*, @suite-common/metadata-types@workspace:suite-common/metadata-types":
   version: 0.0.0-use.local
   resolution: "@suite-common/metadata-types@workspace:suite-common/metadata-types"
@@ -6398,6 +6410,7 @@ __metadata:
     "@suite-common/formatters": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@trezor/blockchain-link": "workspace:*"
@@ -6428,6 +6441,7 @@ __metadata:
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/react-native-graph": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -6436,7 +6450,6 @@ __metadata:
     react: 18.2.0
     react-native: 0.70.5
     react-native-gesture-handler: ^2.7.0
-    react-native-graph: ^0.3.0
     react-native-reanimated: ^2.12.0
     react-redux: 7.2.2
     typescript: 4.9.3
@@ -6451,6 +6464,16 @@ __metadata:
     react: 18.2.0
     react-native: 0.70.5
     react-native-root-toast: ^3.3.1
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/logger@workspace:*, @suite-native/logger@workspace:suite-native/logger":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/logger@workspace:suite-native/logger"
+  dependencies:
+    "@suite-common/logger": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-native/module-settings": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -6531,8 +6554,10 @@ __metadata:
   dependencies:
     "@react-navigation/core": ^6.2.2
     "@react-navigation/stack": ^6.2.2
+    "@suite-common/logger": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
+    "@suite-native/helpers": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -6542,6 +6567,7 @@ __metadata:
     jest: ^26.6.3
     react: 18.2.0
     react-native: 0.70.5
+    react-redux: 7.2.2
     typescript: 4.9.3
   languageName: unknown
   linkType: soft
@@ -6588,7 +6614,6 @@ __metadata:
     jotai: 1.9.1
     react: 18.2.0
     react-native: 0.70.5
-    react-native-graph: ^0.3.0
     react-redux: 7.2.2
     typescript: 4.9.3
   languageName: unknown
@@ -6681,15 +6706,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/react-native-graph@workspace:*, @suite-native/react-native-graph@workspace:suite-native/react-native-graph":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/react-native-graph@workspace:suite-native/react-native-graph"
+  dependencies:
+    "@shopify/react-native-skia": 0.1.163
+    "@types/react": 18.0.25
+    "@types/react-native": 0.70.3
+    react: 18.2.0
+    react-native: 0.70.5
+    react-native-gesture-handler: ^2.7.0
+    react-native-reanimated: ^2.12.0
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/state@workspace:*, @suite-native/state@workspace:suite-native/state":
   version: 0.0.0-use.local
   resolution: "@suite-native/state@workspace:suite-native/state"
   dependencies:
     "@reduxjs/toolkit": 1.8.3
+    "@suite-common/logger": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-native/config": "workspace:*"
+    "@suite-native/logger": "workspace:*"
     "@suite-native/module-devices": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -7241,6 +7282,7 @@ __metadata:
     jest: ^26.6.3
     react: 18.2.0
     react-native: 0.70.5
+    react-native-reanimated: ^2.12.0
     svgo: 3.0.2
     tsx: ^3.8.2
     typescript: 4.9.3
@@ -7608,7 +7650,7 @@ __metadata:
     "@types/react-router-dom": ^5.1.7
     "@types/styled-components": ^5.1.26
     chrome-remote-interface: ^0.31.3
-    cypress: ^12.3.0
+    cypress: ^12.5.1
     cypress-file-upload: ^5.0.8
     cypress-image-snapshot: ^4.0.1
     cypress-wait-until: ^1.7.2
@@ -7644,6 +7686,7 @@ __metadata:
     "@suite-common/formatters": "workspace:*"
     "@suite-common/intl-types": "workspace:*"
     "@suite-common/invity": "workspace:*"
+    "@suite-common/logger": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-config": "workspace:*"
@@ -7696,7 +7739,7 @@ __metadata:
     "@types/uuid": ^8.3.4
     "@types/zxcvbn": ^4.4.1
     bignumber.js: ^9.1.0
-    canvas: ^2.10.2
+    canvas: 2.10.2
     date-fns: ^2.29.3
     dropbox: ^10.32.0
     ethereumjs-util: ^7.1.5
@@ -12217,7 +12260,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas@npm:^2.10.2":
+"canvas@npm:2.10.2":
   version: 2.10.2
   resolution: "canvas@npm:2.10.2"
   dependencies:
@@ -13774,9 +13817,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^12.3.0":
-  version: 12.3.0
-  resolution: "cypress@npm:12.3.0"
+"cypress@npm:^12.5.1":
+  version: 12.5.1
+  resolution: "cypress@npm:12.5.1"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -13822,7 +13865,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 00658996bcca918254348eb42bc03079ccf2d583e5c9c04190267edcbc542d4a22835d7399711c99f7aa7334412104b23cc5a1aa7f02b8b541c12298bf3f63f0
+  checksum: acea08c933084bbdffe8e0d8f24ecdc3be52731824f09cf2e720c974a153d808f5af1c665d977e46f171e275c590065aeadf729022d1338a6a424e5ec8b119af
   languageName: node
   linkType: hard
 
@@ -18773,9 +18816,9 @@ __metadata:
   linkType: hard
 
 "http-cache-semantics@npm:^4.0.0, http-cache-semantics@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "http-cache-semantics@npm:4.1.0"
-  checksum: 974de94a81c5474be07f269f9fd8383e92ebb5a448208223bfb39e172a9dbc26feff250192ecc23b9593b3f92098e010406b0f24bd4d588d631f80214648ed42
+  version: 4.1.1
+  resolution: "http-cache-semantics@npm:4.1.1"
+  checksum: 83ac0bc60b17a3a36f9953e7be55e5c8f41acc61b22583060e8dedc9dd5e3607c823a88d0926f9150e571f90946835c7fe150732801010845c72cd8bbff1a236
   languageName: node
   linkType: hard
 
@@ -26765,19 +26808,6 @@ __metadata:
   version: 0.70.3
   resolution: "react-native-gradle-plugin@npm:0.70.3"
   checksum: 04a3379842bcb4709ac6b37e093a3de59acd33b28b200885843b13908fac685a77ab81d732c34090c56e5c0eec971d578b227f302bd04fe7901e8792d434f41f
-  languageName: node
-  linkType: hard
-
-"react-native-graph@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "react-native-graph@npm:0.3.0"
-  peerDependencies:
-    "@shopify/react-native-skia": "*"
-    react: "*"
-    react-native: "*"
-    react-native-gesture-handler: ">=2"
-    react-native-reanimated: ">=2"
-  checksum: ec9e4bf7a6d4ff28d0c465deeee16a40331fa0e8d899ecb2a9bdf2542aa5105c984e404654b965ff80d20dd870804867cfd7fc9638c9c5cd429ffa10dd987803
   languageName: node
   linkType: hard
 
