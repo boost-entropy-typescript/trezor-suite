@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator } from 'react-native';
 
 import { N } from '@mobily/ts-belt';
 
 import { GraphPoint, LineGraph } from '@suite-native/react-native-graph';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
-import { Box, Text } from '@suite-native/atoms';
+import { Box, Loader } from '@suite-native/atoms';
 
 import {
     getExtremaFromGraphPoints,
@@ -14,6 +13,7 @@ import {
 } from '../utils';
 import { AxisLabel } from './AxisLabel';
 import { GraphError } from './GraphError';
+import { SelectionDotWithLine } from './SelectionDotWithLine';
 
 type GraphProps<TGraphPoint extends GraphPoint> = {
     points: TGraphPoint[];
@@ -112,17 +112,16 @@ export const Graph = <TGraphPoint extends EnhancedGraphPoint>({
                 animated={animated}
                 verticalPadding={20}
                 enablePanGesture
+                SelectionDot={SelectionDotWithLine}
                 TopAxisLabel={axisLabels?.TopAxisLabel}
                 BottomAxisLabel={axisLabels?.BottomAxisLabel}
                 onPointSelected={onPointSelected as any /* because of ExtendedGraphPoint */}
                 onGestureEnd={onGestureEnd}
+                panGestureDelay={0}
             />
             {loading && (
                 <Box style={applyStyle(graphMessageStyleContainer)}>
-                    <ActivityIndicator size="large" color={colors.green} />
-                    <Text variant="label" color="gray600">
-                        Loading graph data...
-                    </Text>
+                    <Loader title="Loading graph data..." />
                 </Box>
             )}
             {error && !loading && (

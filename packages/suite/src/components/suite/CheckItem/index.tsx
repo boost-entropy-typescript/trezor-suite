@@ -10,7 +10,7 @@ const StyledCheckbox = styled(Checkbox)`
     align-items: flex-start;
 
     & + & {
-        margin-top: 12px;
+        margin-top: 16px;
     }
 `;
 
@@ -18,12 +18,12 @@ const CheckboxRight = styled.div`
     text-align: left;
 `;
 
-const CheckboxTitle = styled.div`
-    margin-bottom: 8px;
+const CheckboxTitle = styled.p`
+    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
 const CheckboxText = styled.div`
-    font-size: ${FONT_SIZE.TINY};
+    font-size: ${FONT_SIZE.SMALL};
     color: ${props => props.theme.TYPE_LIGHT_GREY};
 `;
 
@@ -35,7 +35,14 @@ interface CheckItemProps {
     onClick: () => void;
 }
 
-const CheckItem = ({ title, description, isChecked, link, onClick, ...rest }: CheckItemProps) => (
+export const CheckItem = ({
+    title,
+    description,
+    isChecked,
+    link,
+    onClick,
+    ...rest
+}: CheckItemProps) => (
     <StyledCheckbox isChecked={isChecked} onClick={onClick} {...rest}>
         <CheckboxRight>
             <CheckboxTitle>{title}</CheckboxTitle>
@@ -44,5 +51,3 @@ const CheckItem = ({ title, description, isChecked, link, onClick, ...rest }: Ch
         </CheckboxRight>
     </StyledCheckbox>
 );
-
-export default CheckItem;
