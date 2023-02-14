@@ -81,10 +81,6 @@ local.properties
 *.iml
 *.hprof
 .cxx/
-
-# BUCK
-buck-out/
-\.buckd/
 *.keystore
 !debug.keystore
 
@@ -129,6 +125,9 @@ buck-out/
 **/ios/Pods/
 **/vendor/bundle/
 
+# Temporary files created by Metro to check the health of the file watcher
+.metro-health-check*
+
 # android
 **/android/builds/*
 # fastlane supply (google service account - upload key)
@@ -141,7 +140,7 @@ buck-out/
 .yarn/*
 .yarn/cache
 !.yarn/patches
-!.yarn/plugins
+!.yarn/plugins/*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
