@@ -19,6 +19,7 @@
         "@suite-common/wallet-types": "workspace:*",
         "@suite-common/wallet-utils": "workspace:*",
         "@suite-native/atoms": "workspace:*",
+        "@suite-native/formatters": "workspace:*",
         "@suite-native/module-settings": "workspace:*",
         "@suite-native/navigation": "workspace:*",
         "@trezor/icons": "workspace:*",
@@ -27,7 +28,7 @@
         "bignumber.js": "^9.1.1",
         "proxy-memoize": "^2.0.2",
         "react": "^18.2.0",
-        "react-native": "0.71.2",
+        "react-native": "0.71.3",
         "react-redux": "7.2.2"
     },
     "devDependencies": {
