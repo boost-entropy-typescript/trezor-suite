@@ -3,7 +3,9 @@
  */
 
 import { app, ipcMain } from 'electron';
+import { captureMessage, withScope } from '@sentry/electron';
 
+import { coinjoinReportTag } from '@suite-common/sentry';
 import { createIpcProxyHandler, IpcProxyHandlerOptions } from '@trezor/ipc-proxy';
 import { CoinjoinBackend, CoinjoinClient } from '@trezor/coinjoin';
 
@@ -54,7 +56,21 @@ export const init: Module = ({ mainWindow }) => {
             // override default url in coinjoin settings
             settings.middlewareUrl = coinjoinMiddleware.getUrl();
             const client = new CoinjoinClient(settings);
-            client.on('log', message => logger.debug(SERVICE_NAME, message));
+            client.on('log', ({ level, payload }) => {
+                if (level === 'error') {
+                    withScope(scope => {
+                        scope.clear(); // scope is also cleared in beforeSend sentry handler, this is just to be safe.
+                        scope.setTag(coinjoinReportTag, true);
+                        captureMessage(payload, scope);
+                    });
+                }
+                if (level === 'log') {
+                    // suite-desktop logger doesn't have "log", using "debug" instead
+                    logger.debug(SERVICE_NAME, payload);
+                } else {
+                    logger[level](SERVICE_NAME, payload);
+                }
+            });
             clients.push(client);
             return {
                 onRequest: async (method, params) => {
@@ -111,7 +127,16 @@ export const init: Module = ({ mainWindow }) => {
             backends.forEach(b => b.cancel());
             backends.splice(0, backends.length);
 
-            clients.forEach(c => c.disable());
+            clients.forEach(cli => {
+                // emit unexpected app close before disabling the client
+                if (cli.getRoundsInCriticalPhase().length > 0) {
+                    cli.emit('log', {
+                        level: 'error',
+                        payload: 'Suite closed in critical phase',
+                    });
+                }
+                cli.disable();
+            });
             clients.splice(0, clients.length);
 
             unregisterBackendProxy();

@@ -13,7 +13,9 @@ import { startCoinjoinSession } from '@wallet-actions/coinjoinAccountActions';
 import {
     selectCurrentCoinjoinBalanceBreakdown,
     selectCurrentTargetAnonymity,
-    selectIsCoinjoinBlockedByTor,
+    selectIsCoinjoinSelectedAccountBlockedByTor,
+    selectRoundsNeeded,
+    selectRoundsFailRateBuffer,
 } from '@wallet-reducers/coinjoinReducer';
 import { getMaxRounds } from '@wallet-utils/coinjoinUtils';
 import {
@@ -106,10 +108,12 @@ export const CoinjoinConfirmation = ({ account }: CoinjoinConfirmationProps) => 
 
     const coordinatorData = useSelector(state => state.wallet.coinjoin.clients[account.symbol]);
     const targetAnonymity = useSelector(selectCurrentTargetAnonymity);
+    const roundsNeeded = useSelector(state => selectRoundsNeeded(state, account.key));
+    const roundsFailRateBuffer = useSelector(selectRoundsFailRateBuffer);
     const { notAnonymized } = useSelector(selectCurrentCoinjoinBalanceBreakdown);
     const device = useSelector(selectDevice);
     const { isLocked } = useDevice();
-    const isCoinjoinBlockedByTor = useSelector(selectIsCoinjoinBlockedByTor);
+    const isCoinjoinBlockedByTor = useSelector(selectIsCoinjoinSelectedAccountBlockedByTor);
     const isCoinjoinDisabledByFeatureFlag = useSelector(state =>
         selectIsFeatureDisabled(state, Feature.coinjoin),
     );
@@ -131,7 +135,7 @@ export const CoinjoinConfirmation = ({ account }: CoinjoinConfirmationProps) => 
         );
     }
 
-    const maxRounds = getMaxRounds(targetAnonymity, anonymitySet);
+    const maxRounds = getMaxRounds(roundsNeeded, roundsFailRateBuffer);
     const allAnonymized = notAnonymized === '0';
 
     const isDisabled =

@@ -7,10 +7,11 @@ import {
 } from '@wallet-actions/constants/coinjoinConstants';
 import { DISCOVERY } from '@wallet-actions/constants';
 import * as coinjoinAccountActions from '@wallet-actions/coinjoinAccountActions';
+import * as coinjoinClientActions from '@wallet-actions/coinjoinClientActions';
 import * as storageActions from '@suite-actions/storageActions';
 import { CoinjoinService } from '@suite/services/coinjoin';
 import type { AppState, Action, Dispatch } from '@suite-types';
-import { RoundPhase } from '@wallet-types/coinjoin';
+import { RoundPhase, CoinjoinConfig } from '@wallet-types/coinjoin';
 import { blockchainActions, accountsActions } from '@suite-common/wallet-core';
 import {
     selectCoinjoinAccountByKey,
@@ -18,11 +19,14 @@ import {
     selectIsAnySessionInCriticalPhase,
     selectIsAccountWithPausedSessionInterruptedByAccountKey,
     selectIsAccountWithSessionInCriticalPhaseByAccountKey,
-    selectIsCoinjoinBlockedByTor,
+    selectIsCoinjoinGloballyBlockedByTor,
 } from '@wallet-reducers/coinjoinReducer';
 import { selectDeviceState } from '@suite-reducers/suiteReducer';
-
-import { Feature, selectIsFeatureDisabled } from '@suite-reducers/messageSystemReducer';
+import {
+    Feature,
+    selectIsFeatureDisabled,
+    selectFeatureConfig,
+} from '@suite-reducers/messageSystemReducer';
 
 export const coinjoinMiddleware =
     (api: MiddlewareAPI<Dispatch, AppState>) =>
@@ -32,7 +36,7 @@ export const coinjoinMiddleware =
         const isCoinjoinSessionBlockedGlobally = (state: AppState) => {
             const deviceStatus = selectDeviceState(state);
             const isDeviceDisconnected = deviceStatus !== 'connected';
-            const isCoinjoinBlockedByTor = selectIsCoinjoinBlockedByTor(state);
+            const isCoinjoinBlockedByTor = selectIsCoinjoinGloballyBlockedByTor(state);
             const isCoinjoinDisabledByFeatureFlag = selectIsFeatureDisabled(
                 state,
                 Feature.coinjoin,
@@ -119,7 +123,11 @@ export const coinjoinMiddleware =
         next(action);
 
         if (action.type === SUITE.READY) {
-            api.dispatch(coinjoinAccountActions.restoreCoinjoinAccounts());
+            const state = api.getState();
+            const isCoinjoinGloballyBlockedByTor = selectIsCoinjoinGloballyBlockedByTor(state);
+            if (!isCoinjoinGloballyBlockedByTor) {
+                api.dispatch(coinjoinAccountActions.restoreCoinjoinAccounts());
+            }
         }
 
         if (accountsActions.removeAccount.match(action)) {
@@ -127,11 +135,13 @@ export const coinjoinMiddleware =
         }
 
         if (action.type === DISCOVERY.START) {
-            // find all coinjoin accounts
-            const coinjoinAccounts = api
-                .getState()
-                .wallet.accounts.filter(a => a.accountType === 'coinjoin');
-            if (coinjoinAccounts.length > 0) {
+            const state = api.getState();
+            const isCoinjoinGloballyBlockedByTor = selectIsCoinjoinGloballyBlockedByTor(state);
+            if (!isCoinjoinGloballyBlockedByTor) {
+                // find all coinjoin accounts
+                const coinjoinAccounts = state.wallet.accounts.filter(
+                    a => a.accountType === 'coinjoin',
+                );
                 coinjoinAccounts.forEach(a =>
                     api.dispatch(coinjoinAccountActions.fetchAndUpdateAccount(a)),
                 );
@@ -142,14 +152,24 @@ export const coinjoinMiddleware =
             api.dispatch(coinjoinAccountActions.pauseCoinjoinSessionByDeviceId(action.payload.id));
         }
 
-        if (blockchainActions.synced.match(action)) {
-            // find all coinjoin accounts for network
-            const coinjoinAccounts = api
-                .getState()
-                .wallet.accounts.filter(
-                    a => a.accountType === 'coinjoin' && a.symbol === action.payload.symbol,
+        if (action.type === SUITE.ONLINE_STATUS && !action.payload) {
+            if (selectIsAnySessionInCriticalPhase(api.getState())) {
+                api.dispatch(
+                    coinjoinClientActions.clientEmitException('Suite offline in critical phase'),
                 );
-            if (coinjoinAccounts.length > 0) {
+            }
+        }
+
+        if (blockchainActions.synced.match(action)) {
+            const state = api.getState();
+            const { symbol } = action.payload;
+            const isCoinjoinGloballyBlockedByTor = selectIsCoinjoinGloballyBlockedByTor(state);
+            if (!isCoinjoinGloballyBlockedByTor) {
+                const { accounts } = state.wallet;
+                // find all coinjoin accounts for network
+                const coinjoinAccounts = accounts.filter(
+                    a => a.accountType === 'coinjoin' && a.symbol === symbol,
+                );
                 coinjoinAccounts.forEach(a =>
                     api.dispatch(coinjoinAccountActions.fetchAndUpdateAccount(a)),
                 );
@@ -157,14 +177,46 @@ export const coinjoinMiddleware =
         }
 
         if (action.type === SUITE.TOR_STATUS) {
+            const state = api.getState();
             if (['Disabling', 'Disabled', 'Error'].includes(action.payload)) {
+                if (selectIsAnySessionInCriticalPhase(state)) {
+                    api.dispatch(
+                        coinjoinClientActions.clientEmitException(
+                            `TOR ${action.payload} in critical phase`,
+                        ),
+                    );
+                }
                 api.dispatch(coinjoinAccountActions.pauseInterruptAllCoinjoinSessions());
             }
             // We restore sessions that were interrupted when successfully Enabled if
             // there is not any other condition blocking coinjoin resume.
-            const state = api.getState();
             if (action.payload === 'Enabled' && !isCoinjoinSessionBlockedGlobally(state)) {
                 restoreInterruptedCoinjoinSessions(state);
+            }
+        }
+
+        if (action.type === MESSAGE_SYSTEM.SAVE_VALID_MESSAGES) {
+            const state = api.getState();
+
+            const incomingConfig = selectFeatureConfig(state, Feature.coinjoin);
+
+            if (incomingConfig) {
+                const config = {
+                    ...state.wallet.coinjoin.config,
+                };
+
+                // Iterate over existing config and replace the value from remote config only if it's valid number.
+                (Object.keys(config) as Array<keyof CoinjoinConfig>).forEach(
+                    (key: keyof CoinjoinConfig) => {
+                        const value = Number(incomingConfig[key]);
+
+                        if (!Number.isNaN(value) && typeof config[key] !== 'undefined') {
+                            config[key] = value;
+                        }
+                    },
+                );
+
+                api.dispatch(coinjoinAccountActions.updateCoinjoinConfig(config));
             }
         }
 

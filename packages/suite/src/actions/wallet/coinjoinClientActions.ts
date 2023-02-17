@@ -9,7 +9,17 @@ import {
 } from '@trezor/coinjoin';
 import { arrayDistinct, arrayToDictionary, promiseAllSequence } from '@trezor/utils';
 import * as COINJOIN from './constants/coinjoinConstants';
-import { breakdownCoinjoinBalance, prepareCoinjoinTransaction } from '@wallet-utils/coinjoinUtils';
+import {
+    selectRoundsNeeded,
+    selectRoundsLeft,
+    selectRoundsDurationInHours,
+} from '@wallet-reducers/coinjoinReducer';
+import {
+    breakdownCoinjoinBalance,
+    prepareCoinjoinTransaction,
+    getSessionDeadline,
+    getEstimatedTimePerRound,
+} from '@wallet-utils/coinjoinUtils';
 import { CoinjoinService } from '@suite/services/coinjoin';
 import { Dispatch, GetState } from '@suite-types';
 import { Account } from '@suite-common/wallet-types';
@@ -61,12 +71,17 @@ const clientOnStatusEvent = (symbol: Account['symbol'], status: CoinjoinStatusEv
         },
     } as const);
 
-const clientSessionRoundChanged = (accountKey: string, round: SerializedCoinjoinRound) =>
+const clientSessionRoundChanged = (
+    accountKey: string,
+    round: SerializedCoinjoinRound,
+    sessionDeadline: number,
+) =>
     ({
         type: COINJOIN.SESSION_ROUND_CHANGED,
         payload: {
             accountKey,
             round,
+            sessionDeadline,
         },
     } as const);
 
@@ -195,6 +210,10 @@ export const onCoinjoinRoundChanged =
             .map(input => input.accountKey)
             .filter(arrayDistinct);
 
+        const currentTimestamp = Date.now();
+
+        const roundsDurationInHours = selectRoundsDurationInHours(state);
+
         const coinjoinAccountsWithSession = accountKeys.flatMap(
             accountKey => accounts.find(r => r.key === accountKey && r.session) || [],
         );
@@ -204,8 +223,20 @@ export const onCoinjoinRoundChanged =
             if (account.session?.roundPhase !== round.phase) {
                 phaseChanged = true;
             }
+
+            const sessionDeadline = getSessionDeadline({
+                currentTimestamp,
+                roundDeadline: round.roundDeadline,
+                timePerRound: getEstimatedTimePerRound(
+                    roundsDurationInHours,
+                    account.session?.skipRounds,
+                ),
+                roundsLeft: selectRoundsLeft(state, account.key),
+                roundsNeeded: selectRoundsNeeded(state, account.key),
+            });
+
             // notify reducers
-            dispatch(clientSessionRoundChanged(account.key, round));
+            dispatch(clientSessionRoundChanged(account.key, round, sessionDeadline));
         });
 
         // round event is triggered multiple times. like at the beginning and at the end of round process
@@ -352,6 +383,23 @@ export const getOwnershipProof =
         });
 
         return response;
+    };
+
+interface ClientEmitExceptionOptions {
+    symbol?: Account['symbol'];
+}
+
+// use CoinjoinClient emitter to log/throw exceptions
+// exceptions will be reported to sentry in suite-desktop build
+export const clientEmitException =
+    (reason: string, options: ClientEmitExceptionOptions = {}) =>
+    () => {
+        (options.symbol
+            ? [CoinjoinService.getInstance(options.symbol)]
+            : CoinjoinService.getInstances()
+        ).forEach(instance => {
+            instance?.client.emit('log', { level: 'error', payload: reason });
+        });
     };
 
 export const signCoinjoinTx =

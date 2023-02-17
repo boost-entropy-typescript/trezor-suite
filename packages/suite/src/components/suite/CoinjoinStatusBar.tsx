@@ -9,13 +9,15 @@ import { ROUND_PHASE_MESSAGES } from '@suite-constants/coinjoin';
 import { selectDevice } from '@suite-actions/suiteActions';
 import { goto } from '@suite-actions/routerActions';
 import { useSelector } from '@suite-hooks/useSelector';
-import { getPhaseTimerFormat } from '@wallet-utils/coinjoinUtils';
 import { selectRouterParams } from '@suite-reducers/routerReducer';
 import { CountdownTimer } from './CountdownTimer';
 import { WalletLabeling } from './Labeling';
 import { ProgressPie } from './ProgressPie';
 import { Translation } from './Translation';
-import { selectSessionProgressByAccountKey } from '@wallet-reducers/coinjoinReducer';
+import {
+    selectSessionProgressByAccountKey,
+    selectRoundsDurationInHours,
+} from '@wallet-reducers/coinjoinReducer';
 
 const SPACING = 6;
 
@@ -65,6 +67,8 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
     const sessionProgress = useSelector(state =>
         selectSessionProgressByAccountKey(state, accountKey),
     );
+    const roundsDurationInHours = useSelector(selectRoundsDurationInHours);
+
     const dispatch = useDispatch();
 
     if (!relatedAccount) {
@@ -96,8 +100,7 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
         );
     };
 
-    const { roundPhase, signedRounds, maxRounds, roundPhaseDeadline, sessionDeadline, paused } =
-        session;
+    const { roundPhase, roundPhaseDeadline, sessionDeadline, paused } = session;
 
     const getSessionStatusMessage = () => {
         if (paused) {
@@ -120,9 +123,6 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
     const isOnAccountPage =
         symbolParam === symbol && indexParam === index && accountTypeParam === accountType;
 
-    const isPastDeadline =
-        !!roundPhaseDeadline && new Date(roundPhaseDeadline).getTime() <= Date.now() + 1000;
-
     return (
         <Container>
             <StyledProgressPie progress={sessionProgress} />
@@ -133,9 +133,12 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
                 {sessionDeadline && (
                     <>
                         <Separator>•</Separator>
-                        <Translation
-                            id="TR_COINJOIN_ROUNDS_LEFT"
-                            values={{ rounds: maxRounds - signedRounds.length }}
+                        <CountdownTimer
+                            deadline={sessionDeadline}
+                            unitDisplay="long"
+                            minUnit="hour"
+                            minUnitValue={roundsDurationInHours}
+                            message="TR_COINJOIN_SESSION_COUNTDOWN_PLURAL"
                         />
                     </>
                 )}
@@ -145,19 +148,11 @@ export const CoinjoinStatusBar = ({ accountKey, session, isSingle }: CoinjoinSta
                 <Note>
                     <Separator>•</Separator>
 
-                    <Translation
-                        id="TR_COINJOIN_ROUND_COUNTDOWN"
-                        values={{
-                            time: isPastDeadline ? (
-                                <Translation id="TR_COINJOIN_ROUND_COUNTDOWN_OVERTIME" />
-                            ) : (
-                                <CountdownTimer
-                                    isApproximate
-                                    deadline={roundPhaseDeadline}
-                                    format={getPhaseTimerFormat(roundPhaseDeadline)}
-                                />
-                            ),
-                        }}
+                    <CountdownTimer
+                        isApproximate
+                        deadline={roundPhaseDeadline}
+                        message="TR_COINJOIN_ROUND_COUNTDOWN_PLURAL"
+                        pastDeadlineMessage="TR_COINJOIN_ROUND_COUNTDOWN_OVERTIME"
                     />
                 </Note>
             )}

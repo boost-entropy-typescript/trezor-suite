@@ -15,7 +15,6 @@ import { Translation } from '@suite-components/Translation';
 import { CountdownTimer } from '@suite-components';
 
 import { SESSION_PHASE_MESSAGES } from '@suite-constants/coinjoin';
-import { getPhaseTimerFormat, getSessionDeadlineFormat } from '@wallet-utils/coinjoinUtils';
 import {
     pauseCoinjoinSession,
     restoreCoinjoinSession,
@@ -25,7 +24,9 @@ import { useSelector, useActions, useDevice } from '@suite-hooks';
 import {
     selectCoinjoinAccountByKey,
     selectSessionProgressByAccountKey,
+    selectRoundsDurationInHours,
 } from '@wallet-reducers/coinjoinReducer';
+import { Feature, selectIsFeatureDisabled } from '@suite-reducers/messageSystemReducer';
 import { useBlockedCoinjoinResume } from '@suite/hooks/coinjoin/useBlockedCoinjoinResume';
 import { useCoinjoinSessionPhase } from '@wallet-hooks';
 
@@ -152,7 +153,6 @@ const CrossIcon = styled(Icon)`
 const TextCointainer = styled.div`
     height: 30px;
 `;
-
 interface CoinjoinStatusProps {
     session: CoinjoinSession;
     accountKey: string;
@@ -164,9 +164,13 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
         selectSessionProgressByAccountKey(state, accountKey),
     );
     const coinjoinAccount = useSelector(state => selectCoinjoinAccountByKey(state, accountKey));
+    const roundsDurationInHours = useSelector(selectRoundsDurationInHours);
 
     const { isCoinjoinResumeBlocked, coinjoinResumeBlockedMessageId, featureMessageContent } =
         useBlockedCoinjoinResume();
+    const isCoinJoinDisabledByFeatureFlag = useSelector(state =>
+        selectIsFeatureDisabled(state, Feature.coinjoin),
+    );
 
     const actions = useActions({
         stopCoinjoinSession,
@@ -286,7 +290,9 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
                     <TimeLeft>
                         <CountdownTimer
                             deadline={sessionDeadline}
-                            format={getSessionDeadlineFormat(sessionDeadline)}
+                            minUnit="hour"
+                            unitDisplay="narrow"
+                            minUnitValue={roundsDurationInHours}
                         />
                     </TimeLeft>
                     <p>
@@ -318,7 +324,7 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
                             <CountdownTimer
                                 isApproximate
                                 deadline={roundPhaseDeadline}
-                                format={getPhaseTimerFormat(roundPhaseDeadline)}
+                                pastDeadlineMessage="TR_TIMER_PAST_DEADLINE"
                             />
                         </p>
                     )}
@@ -330,7 +336,7 @@ export const CoinjoinStatus = ({ session, accountKey }: CoinjoinStatusProps) => 
     };
 
     const tooltipMessage =
-        featureMessageContent ||
+        (isCoinJoinDisabledByFeatureFlag && featureMessageContent) ||
         (coinjoinResumeBlockedMessageId && <Translation id={coinjoinResumeBlockedMessageId} />);
 
     return (

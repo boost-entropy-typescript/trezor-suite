@@ -2,7 +2,12 @@ import { testMocks } from '@suite-common/test-utils';
 import * as MODAL from '@suite-actions/constants/modalConstants';
 import * as COINJOIN from '@wallet-actions/constants/coinjoinConstants';
 
-export const DEVICE = testMocks.getSuiteDevice({ state: 'device-state', connected: true });
+export const DEVICE = testMocks.getSuiteDevice({
+    state: 'device-state',
+    connected: true,
+    available: true,
+    remember: true,
+});
 
 const SESSION = { signedRounds: [] as string[], maxRounds: 10 };
 
@@ -33,6 +38,7 @@ export const onCoinjoinRoundChanged = [
         connect: undefined,
         state: {
             accounts: [{ key: 'a', deviceState: 'device-state-2' }],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [{ key: 'a', session: SESSION }],
             },
@@ -56,6 +62,7 @@ export const onCoinjoinRoundChanged = [
                 { key: 'a', deviceState: 'device-state' },
                 { key: 'b', deviceState: 'device-state-2' },
             ],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [
                     { key: 'a', session: SESSION },
@@ -96,6 +103,7 @@ export const onCoinjoinRoundChanged = [
                 { key: 'a', deviceState: 'device-state' },
                 { key: 'b', deviceState: 'device-state-2' },
             ],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [
                     { key: 'a', session: SESSION },
@@ -127,6 +135,7 @@ export const onCoinjoinRoundChanged = [
         state: {
             devices: [{ ...DEVICE, features: { busy: true } }],
             accounts: [{ key: 'a', deviceState: 'device-state' }],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [
                     {
@@ -160,6 +169,7 @@ export const onCoinjoinRoundChanged = [
         state: {
             devices: [{ ...DEVICE, features: { busy: false } }],
             accounts: [{ key: 'a', deviceState: 'device-state' }],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [
                     {
@@ -192,6 +202,7 @@ export const onCoinjoinRoundChanged = [
         state: {
             devices: [{ ...DEVICE, features: { busy: true } }],
             accounts: [{ key: 'a', deviceState: 'device-state' }],
+            selectedAccount: { key: 'a' },
             coinjoin: {
                 accounts: [
                     {

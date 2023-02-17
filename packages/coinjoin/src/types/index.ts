@@ -8,6 +8,7 @@ export interface CoinjoinBackendSettings extends BaseSettings {
     blockbookUrls: readonly string[];
     baseBlockHeight: number;
     baseBlockHash: string;
+    filtersBatchSize?: number;
     storagePath?: string;
 }
 
@@ -19,3 +20,4 @@ export interface CoinjoinClientSettings extends BaseSettings {
 export * from './account';
 export * from './client';
 export * from './round';
+export * from './logger';
