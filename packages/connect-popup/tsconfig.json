@@ -2,11 +2,10 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "outDir": "./libDev",
-        "types": ["web"]
+        "types": ["web", "jest"]
     },
     "include": [".", "**/*.json"],
     "references": [
-        { "path": "../components" },
         { "path": "../connect" },
         { "path": "../connect-analytics" },
         { "path": "../connect-ui" },
