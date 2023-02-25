@@ -33,7 +33,8 @@ export const getRoundCandidates = ({
     statusRounds,
     coinjoinRounds,
     options,
-}: Pick<SelectRoundProps, 'roundGenerator' | 'statusRounds' | 'coinjoinRounds' | 'options'>) => {
+    prison,
+}: Omit<SelectRoundProps, 'aliceGenerator' | 'accounts' | 'runningAffiliateServer'>) => {
     const now = Date.now();
     return statusRounds
         .filter(
@@ -47,7 +48,7 @@ export const getRoundCandidates = ({
             if (current) return current;
             // try to create new CoinjoinRound
             try {
-                return roundGenerator(round, options);
+                return roundGenerator(round, prison, options);
             } catch (e) {
                 // constructor fails on invalid round data (highly unlikely)
                 return [];
@@ -98,6 +99,12 @@ export const getAccountCandidates = ({
         const { accountKey } = account;
         // TODO: double-check account max signed rounds, should be done by suite tho
 
+        // account was detained
+        if (prison.isDetained(accountKey)) {
+            logger.log(`Account ~~${accountKey}~~ detained`);
+            return [];
+        }
+
         const blameOfUtxos = arrayToDictionary(
             account.utxos,
             utxo => {
@@ -137,6 +144,16 @@ export const getAccountCandidates = ({
                     return [];
                 }
                 account.skipRoundCounter++;
+            }
+
+            if (utxos.some(({ anonymityLevel }) => anonymityLevel === undefined)) {
+                logger.log(
+                    `Stopping the session for ~~${account.accountKey}~~. Missing anonymity level info.`,
+                );
+                skippedAccounts.push({
+                    key: account.accountKey,
+                    reason: SessionPhase.CriticalError,
+                });
             }
 
             logger.log(`Found account candidate ~~${accountKey}~~ with ${utxos.length} inputs`);
@@ -263,7 +280,7 @@ export const selectInputsForRound = async ({
                         outpoint: utxo.outpoint,
                         amount: utxo.amount,
                         scriptPubKey: utxo.scriptPubKey,
-                        anonymitySet: utxo.anonymityLevel,
+                        anonymitySet: utxo.anonymityLevel as number,
                     }));
 
                     // skip Round candidate if fees are greater than allowed by account
@@ -372,6 +389,7 @@ export const selectRound = async ({
         statusRounds,
         coinjoinRounds,
         options,
+        prison,
     });
     if (roundCandidates.length < 1) {
         logger.log('No suitable rounds');

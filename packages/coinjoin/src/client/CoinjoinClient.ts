@@ -92,6 +92,7 @@ export class CoinjoinClient extends EventEmitter {
             {
                 network: this.network,
                 middlewareUrl: this.settings.middlewareUrl,
+                logger: this.logger,
                 signal: this.abortController.signal,
             },
             sections,
@@ -256,7 +257,7 @@ export class CoinjoinClient extends EventEmitter {
                 this.status.setMode('registered');
 
                 // wait for the result
-                return round.process(this.accounts, this.prison);
+                return round.process(this.accounts);
             }),
         );
 

@@ -127,7 +127,10 @@ const getCoinjoinAccountScriptType = (path: string) => {
 };
 
 // use only confirmed utxos, map to @trezor/coinjoin RegisterAccountParams utxos
-const getCoinjoinAccountUtxos = (utxos: Account['utxo'], anonymitySet: any = {}) =>
+const getCoinjoinAccountUtxos = (
+    utxos: Account['utxo'],
+    anonymitySet: AnonymitySet | undefined = {},
+) =>
     utxos
         ?.filter(utxo => utxo.confirmations)
         .map(utxo => ({
@@ -135,12 +138,12 @@ const getCoinjoinAccountUtxos = (utxos: Account['utxo'], anonymitySet: any = {})
             outpoint: getUtxoOutpoint(utxo),
             address: utxo.address,
             amount: Number(utxo.amount),
-            anonymityLevel: anonymitySet[utxo.address] || 1,
+            anonymityLevel: anonymitySet[utxo.address],
         })) || [];
 
 // select only addresses without tx history
 const getCoinjoinAccountAddresses = (addresses: Account['addresses']) =>
-    addresses?.change.filter(a => !a.transfers) || [];
+    addresses?.change?.filter(a => !a.transfers) || [];
 
 /**
  * Transform from suite Account to @trezor/coinjoin RegisterAccountParams

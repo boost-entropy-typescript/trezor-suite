@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import {
     SettingsStackParamList,
@@ -11,8 +11,9 @@ import {
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SettingsLocalisationScreen } from '../screens/SettingsLocalisationScreen';
 import { SettingsCustomizationScreen } from '../screens/SettingsCustomizationScreen';
+import { SettingsAnalyticsScreen } from '../screens/SettingsAnalyticsScreen';
 
-export const SettingsStack = createStackNavigator<SettingsStackParamList>();
+export const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 export const SettingsStackNavigator = () => (
     <SettingsStack.Navigator
@@ -33,6 +34,11 @@ export const SettingsStackNavigator = () => (
             options={{ title: SettingsStackRoutes.SettingsCustomization }}
             name={SettingsStackRoutes.SettingsCustomization}
             component={SettingsCustomizationScreen}
+        />
+        <SettingsStack.Screen
+            options={{ title: SettingsStackRoutes.SettingsAnalytics }}
+            name={SettingsStackRoutes.SettingsAnalytics}
+            component={SettingsAnalyticsScreen}
         />
     </SettingsStack.Navigator>
 );

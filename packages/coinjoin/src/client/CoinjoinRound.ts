@@ -8,7 +8,7 @@ import {
     getRoundParameters,
     getCoinjoinRoundDeadlines,
 } from '../utils/roundUtils';
-import { ROUND_PHASE_PROCESS_TIMEOUT } from '../constants';
+import { ROUND_PHASE_PROCESS_TIMEOUT, ACCOUNT_BUSY_TIMEOUT } from '../constants';
 import { RoundPhase, EndRoundState, SessionPhase } from '../enums';
 import { AccountAddress, RegisterAccountParams } from '../types/account';
 import {
@@ -95,6 +95,7 @@ export class CoinjoinRound extends EventEmitter {
     private lock?: ReturnType<typeof createRoundLock>;
     private options: CoinjoinRoundOptions;
     private logger: Logger;
+    readonly prison: CoinjoinPrison;
 
     // partial coordinator.Round
     id: string;
@@ -117,7 +118,7 @@ export class CoinjoinRound extends EventEmitter {
     transactionData?: CoinjoinTransactionData; // transaction to sign
     liquidityClues?: CoinjoinTransactionLiquidityClue[]; // updated liquidity clues
 
-    constructor(round: Round, options: CoinjoinRoundOptions) {
+    constructor(round: Round, prison: CoinjoinPrison, options: CoinjoinRoundOptions) {
         super();
         this.id = round.id;
         this.blameOf = round.blameOf;
@@ -138,6 +139,7 @@ export class CoinjoinRound extends EventEmitter {
         this.roundDeadline = roundDeadline;
         this.options = options;
         this.logger = options.logger;
+        this.prison = prison;
     }
 
     setSessionPhase(phase: SessionPhase) {
@@ -210,18 +212,21 @@ export class CoinjoinRound extends EventEmitter {
         this.roundDeadline = roundDeadline;
         this.affiliateRequest = changed.affiliateRequest;
 
-        this.emit('changed', { round: this.toSerialized() });
+        // NOTE: emit changed event before each async phase
+        if (changed.phase !== RoundPhase.Ended) {
+            this.emit('changed', { round: this.toSerialized() });
+        }
 
         return this;
     }
 
-    async process(accounts: Account[], prison: CoinjoinPrison) {
+    async process(accounts: Account[]) {
         const { log } = this.logger;
         if (this.inputs.length === 0) {
             log('Trying to process round without inputs');
             return this;
         }
-        await this.processPhase(accounts, prison);
+        await this.processPhase(accounts);
 
         const [inputs, failed] = arrayPartition(this.inputs, input => !input.error);
         this.inputs = inputs;
@@ -229,7 +234,10 @@ export class CoinjoinRound extends EventEmitter {
         // do not pass failed inputs from InputRegistration to further phases
         if (this.phase > RoundPhase.InputRegistration) {
             failed.forEach(input =>
-                prison.detain(input.outpoint, { roundId: this.id, reason: input.error?.message }),
+                this.prison.detain(input.outpoint, {
+                    roundId: this.id,
+                    reason: input.error?.message,
+                }),
             );
             this.failed = this.failed.concat(...failed);
         }
@@ -252,7 +260,7 @@ export class CoinjoinRound extends EventEmitter {
             if (this.endRoundState === EndRoundState.TransactionBroadcasted) {
                 // detain all signed inputs and addresses forever
                 this.inputs.forEach(input =>
-                    prison.detain(input.outpoint, {
+                    this.prison.detain(input.outpoint, {
                         roundId: this.id,
                         reason: WabiSabiProtocolErrorCode.InputSpent,
                         sentenceEnd: Infinity,
@@ -260,7 +268,7 @@ export class CoinjoinRound extends EventEmitter {
                 );
 
                 this.addresses.forEach(addr =>
-                    prison.detain(addr.scriptPubKey, {
+                    this.prison.detain(addr.scriptPubKey, {
                         roundId: this.id,
                         reason: WabiSabiProtocolErrorCode.AlreadyRegisteredScript,
                         sentenceEnd: Infinity,
@@ -272,9 +280,9 @@ export class CoinjoinRound extends EventEmitter {
                     .map(i => i.outpoint)
                     .concat(this.addresses.map(a => a.scriptPubKey));
 
-                prison.detainForBlameRound(inmates, this.id);
+                this.prison.detainForBlameRound(inmates, this.id);
             } else if (this.endRoundState === EndRoundState.AbortedNotEnoughAlices) {
-                prison.releaseRegisteredInmates(this.id);
+                this.prison.releaseRegisteredInmates(this.id);
             }
         }
 
@@ -286,17 +294,17 @@ export class CoinjoinRound extends EventEmitter {
         return this;
     }
 
-    private processPhase(accounts: Account[], prison: CoinjoinPrison) {
+    private processPhase(accounts: Account[]) {
         this.lock = createRoundLock(this.options.signal);
         const processOptions = { ...this.options, signal: this.lock.signal };
         // try to run process on CoinjoinRound
         switch (this.phase) {
             case RoundPhase.InputRegistration:
-                return inputRegistration(this, prison, processOptions);
+                return inputRegistration(this, processOptions);
             case RoundPhase.ConnectionConfirmation:
                 return connectionConfirmation(this, processOptions);
             case RoundPhase.OutputRegistration:
-                return outputRegistration(this, accounts, prison, processOptions);
+                return outputRegistration(this, accounts, processOptions);
             case RoundPhase.TransactionSigning:
                 return transactionSigning(this, accounts, processOptions);
             default:
@@ -349,6 +357,11 @@ export class CoinjoinRound extends EventEmitter {
             if ('error' in i) {
                 log(`Resolving ${type} request for ~~${i.outpoint}~~ with error. ${i.error}`);
                 input.setError(new Error(i.error));
+                if (type === 'ownership') {
+                    // wallet request respond with error, account (device) is busy,
+                    // detain whole account for short while and try again later
+                    this.prison.detain(input.accountKey, { sentenceEnd: ACCOUNT_BUSY_TIMEOUT });
+                }
             } else if ('ownershipProof' in i) {
                 log(`Resolving ${type} request for ~~${i.outpoint}~~`);
                 input.setOwnershipProof(i.ownershipProof);

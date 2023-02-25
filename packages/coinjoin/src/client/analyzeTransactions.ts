@@ -4,15 +4,17 @@ import { arrayPartition } from '@trezor/utils';
 import * as middleware from './middleware';
 import { Transaction, EnhancedVinVout } from '../types/backend';
 import { AnalyzeInternalVinVout, AnalyzeExternalVinVout } from '../types/middleware';
+import type { CoinjoinClient } from './CoinjoinClient';
 
 interface AnalyzeTransactionsOptions {
     network: Network;
     middlewareUrl: string;
+    logger: CoinjoinClient['logger'];
     signal: AbortSignal;
 }
 
 export interface AnalyzeTransactionsResult {
-    anonymityScores: Record<string, number>;
+    anonymityScores: Record<string, number> | undefined;
     rawLiquidityClue: middleware.RawLiquidityClue;
 }
 
@@ -61,7 +63,7 @@ export const getAnonymityScores = async (
     transactions: Transaction[],
     options: AnalyzeTransactionsOptions,
 ) => {
-    const params = transactions.map(tx => {
+    const formattedTransactions = transactions.map(tx => {
         const [internalInputs, externalInputs] = arrayPartition(
             tx.details.vin.map(vin => transformVinVout(vin, options.network)),
             isInternal,
@@ -80,15 +82,19 @@ export const getAnonymityScores = async (
         };
     });
 
-    const scores = await middleware.getAnonymityScores(params, {
-        baseUrl: options.middlewareUrl,
-        signal: options.signal,
-    });
+    try {
+        const scores = await middleware.getAnonymityScores(formattedTransactions, {
+            baseUrl: options.middlewareUrl,
+            signal: options.signal,
+        });
 
-    return scores.reduce((dict, { address, anonymitySet }) => {
-        dict[address] = anonymitySet;
-        return dict;
-    }, {} as Record<string, number>);
+        return scores.reduce((dict, { address, anonymitySet }) => {
+            dict[address] = anonymitySet;
+            return dict;
+        }, {} as Record<string, number>);
+    } catch {
+        options.logger.error(`Error calculating anonymity levels`);
+    }
 };
 
 export const analyzeTransactions = async <T extends keyof AnalyzeTransactionsResult>(

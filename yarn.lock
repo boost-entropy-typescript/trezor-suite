@@ -4726,15 +4726,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-navigation/elements@npm:^1.3.14":
-  version: 1.3.14
-  resolution: "@react-navigation/elements@npm:1.3.14"
+"@react-navigation/elements@npm:^1.3.14, @react-navigation/elements@npm:^1.3.16":
+  version: 1.3.16
+  resolution: "@react-navigation/elements@npm:1.3.16"
   peerDependencies:
     "@react-navigation/native": ^6.0.0
     react: "*"
     react-native: "*"
     react-native-safe-area-context: ">= 3.0.0"
-  checksum: bf0856fb4dda63dcd21f3e6c9136fdf749e35a02e97741915d225f770348eea0ba8aea9875f653c984b12420cfb2a4a55cd5c0e4e033976d9e51be7ae27cf1a7
+  checksum: d3a9c80d91dbc3116bf57960601099c7ec7f28089f819e90b1c4545b3193b6ad368cb101cb05d5d6935f8bd658388bddd1d9fc4936ca7c2746dac702ed35d00d
+  languageName: node
+  linkType: hard
+
+"@react-navigation/native-stack@npm:^6.9.11":
+  version: 6.9.11
+  resolution: "@react-navigation/native-stack@npm:6.9.11"
+  dependencies:
+    "@react-navigation/elements": ^1.3.16
+    warn-once: ^0.1.0
+  peerDependencies:
+    "@react-navigation/native": ^6.0.0
+    react: "*"
+    react-native: "*"
+    react-native-safe-area-context: ">= 3.0.0"
+    react-native-screens: ">= 3.0.0"
+  checksum: b0dc76911f907be545a89af73d2ae4d8f38c1474c33ef4dcb497ecc9210a79b986b614d14531c2665be1b6919c871683267ceb88ef9be18a7c21b8707f07cc59
   languageName: node
   linkType: hard
 
@@ -4759,24 +4775,6 @@ __metadata:
   dependencies:
     nanoid: ^3.1.23
   checksum: 3e765b66cf3e94b9194cfffe8ba6fa51e6652e8f9d8fed713ac76f6ad9e2bd5af5590d83e546efb71455bd6bf2ab1faefcf7f1b0c24b15324c4fe1b8246f8dab
-  languageName: node
-  linkType: hard
-
-"@react-navigation/stack@npm:^6.3.12":
-  version: 6.3.12
-  resolution: "@react-navigation/stack@npm:6.3.12"
-  dependencies:
-    "@react-navigation/elements": ^1.3.14
-    color: ^4.2.3
-    warn-once: ^0.1.0
-  peerDependencies:
-    "@react-navigation/native": ^6.0.0
-    react: "*"
-    react-native: "*"
-    react-native-gesture-handler: ">= 1.0.0"
-    react-native-safe-area-context: ">= 3.0.0"
-    react-native-screens: ">= 3.0.0"
-  checksum: 09e793edb0bb56edacdb3446a001eeb6f388d125dcbabf76a0e6d0531a48db3f68a0535fafb322a290e8511cc8390ab5e9d2ee4bda8604552368fabffe438793
   languageName: node
   linkType: hard
 
@@ -6223,6 +6221,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@suite-common/analytics@workspace:*, @suite-common/analytics@workspace:suite-common/analytics":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/analytics@workspace:suite-common/analytics"
+  dependencies:
+    "@reduxjs/toolkit": 1.9.2
+    "@suite-common/redux-utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/connect-init@workspace:*, @suite-common/connect-init@workspace:suite-common/connect-init":
   version: 0.0.0-use.local
   resolution: "@suite-common/connect-init@workspace:suite-common/connect-init"
@@ -6395,6 +6402,7 @@ __metadata:
     "@reduxjs/toolkit": 1.9.2
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
+    "@trezor/analytics": "workspace:*"
     "@trezor/connect": "workspace:9.0.6"
     bignumber.js: ^9.1.1
     jest: ^26.6.3
@@ -6410,6 +6418,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@trezor/blockchain-link": "workspace:*"
+    "@trezor/utils": "workspace:*"
     bignumber.js: ^9.1.1
     date-fns: ^2.29.3
     jest: ^26.6.3
@@ -6579,6 +6588,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/analytics@workspace:*, @suite-native/analytics@workspace:suite-native/analytics":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/analytics@workspace:suite-native/analytics"
+  dependencies:
+    "@suite-common/analytics": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-native/config": "workspace:*"
+    "@trezor/analytics": "workspace:*"
+    react-redux: 8.0.5
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/assets@workspace:*, @suite-native/assets@workspace:suite-native/assets":
   version: 0.0.0-use.local
   resolution: "@suite-native/assets@workspace:suite-native/assets"
@@ -6716,7 +6737,7 @@ __metadata:
     "@mobily/ts-belt": ^3.13.1
     "@react-navigation/core": ^6.4.6
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@reduxjs/toolkit": 1.9.2
     "@shopify/react-native-skia": 0.1.173
     "@suite-common/formatters": "workspace:*"
@@ -6754,7 +6775,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": ^3.13.1
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@reduxjs/toolkit": 1.9.2
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -6785,7 +6806,7 @@ __metadata:
   resolution: "@suite-native/module-dev-utils@workspace:suite-native/module-dev-utils"
   dependencies:
     "@react-navigation/core": ^6.4.6
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@suite-common/logger": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
@@ -6821,7 +6842,7 @@ __metadata:
   resolution: "@suite-native/module-home@workspace:suite-native/module-home"
   dependencies:
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@suite-common/formatters": "workspace:*"
     "@suite-native/assets": "workspace:*"
     "@suite-native/atoms": "workspace:*"
@@ -6865,9 +6886,11 @@ __metadata:
   dependencies:
     "@react-navigation/core": ^6.4.6
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@reduxjs/toolkit": 1.9.2
+    "@suite-common/analytics": "workspace:*"
     "@suite-common/suite-config": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/navigation": "workspace:*"
@@ -6887,7 +6910,7 @@ __metadata:
   dependencies:
     "@react-navigation/bottom-tabs": ^6.5.4
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
@@ -6937,6 +6960,7 @@ __metadata:
   resolution: "@suite-native/state@workspace:suite-native/state"
   dependencies:
     "@reduxjs/toolkit": 1.9.2
+    "@suite-common/analytics": "workspace:*"
     "@suite-common/logger": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
@@ -7711,7 +7735,6 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
-    "@types/react-redux": ^7.1.25
     "@types/styled-components": ^5.1.26
     jest: ^26.6.3
     react: 18.2.0
@@ -7777,13 +7800,15 @@ __metadata:
     "@formatjs/intl-relativetimeformat": ^11.1.3
     "@react-navigation/bottom-tabs": ^6.5.4
     "@react-navigation/native": ^6.1.3
-    "@react-navigation/stack": ^6.3.12
+    "@react-navigation/native-stack": ^6.9.11
     "@reduxjs/toolkit": 1.9.2
     "@sentry/react-native": 5.0.0-alpha.9
     "@shopify/react-native-skia": 0.1.173
     "@suite-common/connect-init": "workspace:*"
     "@suite-common/formatters": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/module-accounts": "workspace:*"
@@ -7864,12 +7889,11 @@ __metadata:
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     "@types/react-helmet": ^6.1.6
-    "@types/react-redux": ^7.1.25
     "@types/react-router": ^5.1.20
     "@types/react-router-dom": ^5.1.7
     "@types/styled-components": ^5.1.26
     chrome-remote-interface: ^0.32.0
-    cypress: ^12.5.1
+    cypress: ^12.6.0
     cypress-file-upload: ^5.0.8
     cypress-image-snapshot: ^4.0.1
     cypress-wait-until: ^1.7.2
@@ -7901,6 +7925,7 @@ __metadata:
     "@reduxjs/toolkit": 1.9.2
     "@sentry/minimal": 6.17.2
     "@sentry/types": 6.17.2
+    "@suite-common/analytics": "workspace:*"
     "@suite-common/connect-init": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/formatters": "workspace:*"
@@ -7922,6 +7947,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@testing-library/react": 13.4.0
     "@testing-library/user-event": 14.4.3
+    "@trezor/analytics": "workspace:*"
     "@trezor/coinjoin": "workspace:*"
     "@trezor/components": "workspace:*"
     "@trezor/connect": "workspace:9.0.6"
@@ -7948,7 +7974,6 @@ __metadata:
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     "@types/react-qr-reader": ^2.1.4
-    "@types/react-redux": ^7.1.25
     "@types/react-test-renderer": ^18.0.0
     "@types/react-window": ^1.8.5
     "@types/redux-logger": ^3.0.9
@@ -8660,7 +8685,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.0, @types/hoist-non-react-statics@npm:^3.3.1":
+"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.1":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
   dependencies:
@@ -9161,18 +9186,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: aa2bb2f703bb826c5d2e8f15d45e42db48091b41b026d00709e6002214e348811b4ec80f121192fca292e8bfdcb047bfa0b3bd59e355e5ab1bc7e011232f2c3e
-  languageName: node
-  linkType: hard
-
-"@types/react-redux@npm:^7.1.25":
-  version: 7.1.25
-  resolution: "@types/react-redux@npm:7.1.25"
-  dependencies:
-    "@types/hoist-non-react-statics": ^3.3.0
-    "@types/react": "*"
-    hoist-non-react-statics: ^3.3.0
-    redux: ^4.0.0
-  checksum: a61ec25cbf8bb3720850402d3c49493fcff4afb73ad447d161460b5d4c600c984ad48708e8564d2fd32052eaa3c3b3f655c5b300ce813429637cce9e5958329f
   languageName: node
   linkType: hard
 
@@ -14047,9 +14060,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^12.5.1":
-  version: 12.5.1
-  resolution: "cypress@npm:12.5.1"
+"cypress@npm:^12.6.0":
+  version: 12.6.0
+  resolution: "cypress@npm:12.6.0"
   dependencies:
     "@cypress/request": ^2.88.10
     "@cypress/xvfb": ^1.2.4
@@ -14068,7 +14081,7 @@ __metadata:
     commander: ^5.1.0
     common-tags: ^1.8.0
     dayjs: ^1.10.4
-    debug: ^4.3.2
+    debug: ^4.3.4
     enquirer: ^2.3.6
     eventemitter2: 6.4.7
     execa: 4.1.0
@@ -14095,7 +14108,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: acea08c933084bbdffe8e0d8f24ecdc3be52731824f09cf2e720c974a153d808f5af1c665d977e46f171e275c590065aeadf729022d1338a6a424e5ec8b119af
+  checksum: 716afdc7bd83d14d9ad31aba9f757a5dfccc1a693c57273a6b2281ddc1b201a432fae5c5ae8f049088384e3bcc3bda530910870ff8604a0233e1b96abc069850
   languageName: node
   linkType: hard
 
