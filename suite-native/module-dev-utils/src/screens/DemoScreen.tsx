@@ -12,7 +12,6 @@ import {
     Switch,
     ListItem,
     SelectableListItem,
-    TipToast,
     IconButton,
     InputWrapper,
     Input,
@@ -24,10 +23,12 @@ import {
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Screen, ScreenHeader } from '@suite-native/navigation';
 import { CryptoIcon, Icon, IconName, icons } from '@trezor/icons';
-import { CoinsSettings, DeviceActionButtons } from '@suite-native/module-settings';
+import { TransactionNotification } from '@suite-native/notifications';
+import { CoinsSettings } from '@suite-native/module-settings';
+
+import { transactionNotifications } from '../fixtures';
 
 const inputStackStyle = prepareNativeStyle(utils => ({
-    backgroundColor: utils.colors.gray100,
     borderRadius: utils.borders.radii.medium,
     padding: utils.spacings.small,
 }));
@@ -43,15 +44,14 @@ export const DemoScreen = () => {
     const [isCheckBox4Checked, setIsCheckBox4Checked] = useState(true);
     const [isSwitchActive, setIsSwitchActive] = useState<boolean>(true);
     const [isSwitch2Active, setIsSwitch2Active] = useState<boolean>(false);
-    const [isTipToastVisible, setIsTipToastVisible] = useState<boolean>(true);
     const [inputText, setInputText] = useState<string>('');
     const demoInputRef = useRef<TextInput | null>(null);
 
     const buttonColorSchemes = [
         'primary',
         'secondary',
-        'tertiary',
-        'danger',
+        'tertiaryElevation0',
+        'dangerElevation0',
     ] satisfies ButtonColorScheme[];
 
     const handleRadioPress = (value: string | number) => {
@@ -61,6 +61,19 @@ export const DemoScreen = () => {
     return (
         <Screen header={<ScreenHeader />}>
             <VStack spacing="medium">
+                <VStack>
+                    <Text variant="titleSmall">Notifications:</Text>
+                    <VStack
+                        style={{ overflow: 'hidden', height: transactionNotifications.length * 60 }}
+                    >
+                        {transactionNotifications.map(notification => (
+                            <TransactionNotification
+                                {...notification}
+                                isHiddenAutomatically={false}
+                            />
+                        ))}
+                    </VStack>
+                </VStack>
                 <VStack>
                     <Text variant="titleSmall">Button:</Text>
                     {buttonColorSchemes.map(buttonScheme => (
@@ -187,18 +200,6 @@ export const DemoScreen = () => {
                             </InputWrapper>
                         </VStack>
                     </Box>
-                    <Box marginTop="large">
-                        {isTipToastVisible && (
-                            <TipToast
-                                title="TIP"
-                                description="Tip toast"
-                                onClose={() => {
-                                    setIsTipToastVisible(false);
-                                    demoInputRef?.current?.focus();
-                                }}
-                            />
-                        )}
-                    </Box>
                     <Box marginVertical="medium">
                         <VStack style={applyStyle(inputStackStyle)} spacing="small">
                             <InputWrapper hint="This input is not valid.">
@@ -228,7 +229,7 @@ export const DemoScreen = () => {
                     />
                     <Box marginVertical="medium">
                         <Text>Icon:</Text>
-                        <Icon name="warningCircle" size="large" color="gray1000" />
+                        <Icon name="warningCircle" size="large" />
                     </Box>
                     <Box marginVertical="medium">
                         <Text>Hints:</Text>
@@ -339,7 +340,6 @@ export const DemoScreen = () => {
                         </Box>
                     </Box>
                     <CoinsSettings />
-                    <DeviceActionButtons />
                 </Box>
             </VStack>
         </Screen>

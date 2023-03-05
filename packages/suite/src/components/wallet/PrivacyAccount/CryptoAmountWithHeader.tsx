@@ -18,6 +18,7 @@ const Container = styled.div`
 const Header = styled.div`
     display: flex;
     align-items: center;
+    height: 15px;
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     line-height: 1;
 
@@ -55,6 +56,10 @@ export const CryptoAmountWithHeader = ({
         </Header>
 
         <CryptoAmount value={formatNetworkAmount(value, symbol)} symbol={symbol} color={color} />
-        <FiatValue amount={value} symbol={symbol} showApproximationIndicator />
+        <FiatValue
+            amount={formatNetworkAmount(value, symbol)}
+            symbol={symbol}
+            showApproximationIndicator
+        />
     </Container>
 );

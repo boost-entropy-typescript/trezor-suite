@@ -22,7 +22,7 @@ const transactionIconMap: Record<TransactionType, IconName> = {
 const transactionIconStyle = prepareNativeStyle(utils => ({
     width: 48,
     height: 48,
-    backgroundColor: utils.colors.gray100,
+    backgroundColor: utils.colors.backgroundSurfaceElevation2,
     borderRadius: utils.borders.radii.round,
     padding: 14.5,
 }));
@@ -43,7 +43,7 @@ export const TransactionListItemIcon = ({
             <Box style={applyStyle(transactionIconStyle)}>
                 <Icon
                     name={transactionIconMap[transactionType]}
-                    color="gray600"
+                    color="iconSubdued"
                     size="mediumLarge"
                 />
             </Box>

@@ -2,66 +2,63 @@ import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
 
 import { fiatCurrencies, FiatCurrency, FiatCurrencyCode } from '@suite-common/suite-config';
 
-import { AppColorScheme } from './types';
-
 export interface AppSettingsState {
-    colorScheme: AppColorScheme;
     isOnboardingFinished: boolean;
     fiatCurrency: FiatCurrency;
+    isSatsEnabled: boolean;
 }
 
-type SettingsSliceRootState = {
+export type SettingsSliceRootState = {
     appSettings: AppSettingsState;
 };
 
 export const appSettingsInitialState: AppSettingsState = {
-    colorScheme: 'system',
     fiatCurrency: fiatCurrencies.usd,
     isOnboardingFinished: false,
+    isSatsEnabled: false,
 };
 
 export const appSettingsPersistWhitelist: Array<keyof AppSettingsState> = [
-    'colorScheme',
     'isOnboardingFinished',
     'fiatCurrency',
+    'isSatsEnabled',
 ];
 
 export const appSettingsSlice: Slice<
     AppSettingsState,
     {
-        setColorScheme: (state: AppSettingsState, action: PayloadAction<AppColorScheme>) => void;
         setFiatCurrency: (
             state: AppSettingsState,
             { payload }: PayloadAction<FiatCurrencyCode>,
         ) => void;
         setOnboardingFinished: (state: AppSettingsState, action: PayloadAction<boolean>) => void;
+        toggleIsSatsEnabled: (state: AppSettingsState) => void;
     },
     'appSettings'
 > = createSlice({
     name: 'appSettings',
     initialState: appSettingsInitialState,
     reducers: {
-        setColorScheme: (state, action: PayloadAction<AppColorScheme>) => {
-            state.colorScheme = action.payload;
-        },
         setFiatCurrency: (state, { payload }: PayloadAction<FiatCurrencyCode>) => {
             state.fiatCurrency = fiatCurrencies[payload];
         },
         setOnboardingFinished: (state, action: PayloadAction<boolean>) => {
             state.isOnboardingFinished = action.payload;
         },
+        toggleIsSatsEnabled: state => {
+            state.isSatsEnabled = !state.isSatsEnabled;
+        },
     },
 });
 
-export const selectColorScheme = (state: SettingsSliceRootState) => state.appSettings.colorScheme;
-export const selectIsColorSchemeActive =
-    (colorScheme: AppColorScheme) => (state: SettingsSliceRootState) =>
-        state.appSettings.colorScheme === colorScheme;
 export const selectFiatCurrency = (state: SettingsSliceRootState) => state.appSettings.fiatCurrency;
 export const selectFiatCurrencyCode = (state: SettingsSliceRootState) =>
     state.appSettings.fiatCurrency.label;
 export const selectIsOnboardingFinished = (state: SettingsSliceRootState) =>
     state.appSettings.isOnboardingFinished;
+export const selectIsSatsEnabled = (state: SettingsSliceRootState) =>
+    state.appSettings.isSatsEnabled;
 
-export const { setColorScheme, setOnboardingFinished, setFiatCurrency } = appSettingsSlice.actions;
+export const { setOnboardingFinished, setFiatCurrency, toggleIsSatsEnabled } =
+    appSettingsSlice.actions;
 export const appSettingsReducer = appSettingsSlice.reducer;

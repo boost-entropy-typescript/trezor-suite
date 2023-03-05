@@ -60,16 +60,16 @@ export const TransactionDetailParametersSheet = ({
                                 <IconButton
                                     iconName="copy"
                                     onPress={handleClickCopy}
-                                    colorScheme="tertiary"
+                                    colorScheme="tertiaryElevation1"
                                     size="medium"
                                 />
                             </Box>
                         </Box>
                     </TransactionDetailRow>
                     <TransactionDetailRow title="Confirmations">
-                        <Text color="gray1000">{confirmationsCount} </Text>
+                        <Text>{confirmationsCount} </Text>
                         <Box marginLeft="small">
-                            <Icon name="confirmation" color="gray1000" />
+                            <Icon name="confirmation" />
                         </Box>
                     </TransactionDetailRow>
                 </Card>
@@ -93,9 +93,13 @@ export const TransactionDetailParametersSheet = ({
                     </>
                 )} */}
 
-                    <TransactionDetailRow title="Fee rate">
-                        {`${getFeeRate(transaction)} ${getFeeUnits('bitcoin')}`}
-                    </TransactionDetailRow>
+                    {transaction.symbol === 'btc' && (
+                        // Note: Ethereum and tokens will have different fee rate units.
+                        // https://github.com/trezor/trezor-suite/issues/7729
+                        <TransactionDetailRow title="Fee rate">
+                            {`${getFeeRate(transaction)} ${getFeeUnits('bitcoin')}`}
+                        </TransactionDetailRow>
+                    )}
                     <TransactionDetailRow title="Broadcast">
                         {transaction.blockHeight ? 'Enabled' : 'Disabled'}
                     </TransactionDetailRow>

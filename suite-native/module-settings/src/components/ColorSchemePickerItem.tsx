@@ -1,13 +1,10 @@
 import React from 'react';
-import { TouchableOpacity, useColorScheme } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { TouchableOpacity } from 'react-native';
 
 import { Box, Text } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
-import { colorVariants, CSSColor, ThemeColorVariant } from '@trezor/theme';
-
-import { selectIsColorSchemeActive, setColorScheme } from '../slice';
-import { AppColorScheme } from '../types';
+import { colorVariants, CSSColor } from '@trezor/theme';
+import { useSystemColorScheme, useUserColorScheme, AppColorScheme } from '@suite-native/theme';
 
 type ColorSchemePickerItemProps = {
     colorScheme: AppColorScheme;
@@ -15,13 +12,15 @@ type ColorSchemePickerItemProps = {
 
 const pickerItemWrapperStyle = prepareNativeStyle<{ isColorSchemeActive: boolean }>(
     (utils, { isColorSchemeActive }) => ({
-        backgroundColor: utils.colors.gray100,
+        backgroundColor: utils.colors.backgroundSurfaceElevationNegative,
         borderRadius: utils.borders.radii.medium,
         height: 114,
         flex: 1,
         paddingTop: 33,
         borderWidth: utils.borders.widths.medium,
-        borderColor: isColorSchemeActive ? utils.colors.green : utils.colors.gray100,
+        borderColor: isColorSchemeActive
+            ? utils.colors.borderSecondary
+            : utils.colors.borderOnElevation0,
     }),
 );
 
@@ -51,25 +50,17 @@ const textStyle = prepareNativeStyle(utils => ({
     textTransform: 'capitalize',
 }));
 
-// TODO: this default color variants for dark/light mode should be probably defined in some config
-const useGetSystemColorVariant = (): ThemeColorVariant => {
-    const colorScheme = useColorScheme();
-    if (colorScheme === 'dark') {
-        return 'dark';
-    }
-    return 'standard';
-};
-
 export const ColorSchemePickerItem = ({ colorScheme }: ColorSchemePickerItemProps) => {
     const { applyStyle } = useNativeStyles();
-    const dispatch = useDispatch();
 
-    const isColorSchemeActive = useSelector(selectIsColorSchemeActive(colorScheme));
-    const systemColorVariant = useGetSystemColorVariant();
-    const colorVariant = colorScheme === 'system' ? systemColorVariant : colorScheme;
+    const { userColorScheme, setUserColorScheme } = useUserColorScheme();
+    const isColorSchemeActive = colorScheme === userColorScheme;
+    const systemColorScheme = useSystemColorScheme();
+
+    const colorVariant = colorScheme === 'system' ? systemColorScheme : colorScheme;
 
     const handleSchemePress = () => {
-        dispatch(setColorScheme(colorScheme));
+        setUserColorScheme(colorScheme);
     };
 
     return (
@@ -80,24 +71,27 @@ export const ColorSchemePickerItem = ({ colorScheme }: ColorSchemePickerItemProp
             <Box flexDirection="row" justifyContent="center">
                 <Box
                     style={applyStyle(pickerItemDotStyle, {
-                        backgroundColor: colorVariants[colorVariant].gray400,
+                        backgroundColor: colorVariants[colorVariant].backgroundSurfaceElevation0,
                         isFirstItem: true,
                     })}
                 />
                 <Box
                     style={applyStyle(pickerItemDotStyle, {
-                        backgroundColor: colorVariants[colorVariant].gray500,
+                        backgroundColor: colorVariants[colorVariant].backgroundNeutralSubdued,
                         isFirstItem: false,
                     })}
                 />
                 <Box
                     style={applyStyle(pickerItemDotStyle, {
-                        backgroundColor: colorVariants[colorVariant].gray1000,
+                        backgroundColor: colorVariants[colorVariant].backgroundNeutralBold,
                         isFirstItem: false,
                     })}
                 />
             </Box>
-            <Text style={applyStyle(textStyle)} color={isColorSchemeActive ? 'green' : 'gray600'}>
+            <Text
+                style={applyStyle(textStyle)}
+                color={isColorSchemeActive ? 'textSecondaryHighlight' : 'textSubdued'}
+            >
                 {colorScheme}
             </Text>
         </TouchableOpacity>

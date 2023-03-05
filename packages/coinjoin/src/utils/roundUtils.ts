@@ -1,12 +1,13 @@
 import { bufferutils } from '@trezor/utxo-lib';
 
 import {
-    COORDINATOR_FEE_RATE,
-    MAX_MINING_FEE,
-    MAX_ALLOWED_AMOUNT,
-    MIN_ALLOWED_AMOUNT,
-    PLEBS_DONT_PAY_THRESHOLD,
+    COORDINATOR_FEE_RATE_FALLBACK,
+    MAX_MINING_FEE_FALLBACK,
+    MAX_ALLOWED_AMOUNT_FALLBACK,
+    MIN_ALLOWED_AMOUNT_FALLBACK,
+    PLEBS_DONT_PAY_THRESHOLD_FALLBACK,
     ROUND_REGISTRATION_END_OFFSET,
+    MAX_MINING_FEE_MODIFIER,
 } from '../constants';
 import { RoundPhase } from '../enums';
 import {
@@ -151,12 +152,12 @@ const getDataFromRounds = (rounds: Round[]) => {
         coordinationFeeRate: {
             plebsDontPayThreshold:
                 roundParameters?.coordinationFeeRate.plebsDontPayThreshold ??
-                PLEBS_DONT_PAY_THRESHOLD,
-            rate: roundParameters?.coordinationFeeRate.rate ?? COORDINATOR_FEE_RATE,
+                PLEBS_DONT_PAY_THRESHOLD_FALLBACK,
+            rate: roundParameters?.coordinationFeeRate.rate ?? COORDINATOR_FEE_RATE_FALLBACK,
         },
         allowedInputAmounts: {
-            max: roundParameters?.allowedInputAmounts.max ?? MAX_ALLOWED_AMOUNT,
-            min: roundParameters?.allowedInputAmounts.min ?? MIN_ALLOWED_AMOUNT,
+            max: roundParameters?.allowedInputAmounts.max ?? MAX_ALLOWED_AMOUNT_FALLBACK,
+            min: roundParameters?.allowedInputAmounts.min ?? MIN_ALLOWED_AMOUNT_FALLBACK,
         },
     };
 };
@@ -172,11 +173,11 @@ export const transformStatus = ({
 }: CoinjoinStatus) => {
     const { allowedInputAmounts, coordinationFeeRate } = getDataFromRounds(rounds);
     // coinJoinFeeRateMedians include an array of medians per day, week and month - we take the second (week) median as the recommended fee rate
-    const recommendedMedian = coinJoinFeeRateMedians[1];
+    const weeklyMedian = coinJoinFeeRateMedians[1];
     // the value is converted from kvBytes (kilo virtual bytes) to vBytes (how the value is displayed in UI)
-    const maxMiningFee = recommendedMedian
-        ? Math.round(coinJoinFeeRateMedians[1].medianFeeRate / 1000)
-        : MAX_MINING_FEE;
+    const maxMiningFee = weeklyMedian
+        ? Math.round((coinJoinFeeRateMedians[1].medianFeeRate * MAX_MINING_FEE_MODIFIER) / 1000)
+        : MAX_MINING_FEE_FALLBACK;
 
     return {
         rounds,

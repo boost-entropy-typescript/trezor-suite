@@ -11,11 +11,9 @@ import {
 } from '@wallet-reducers/coinjoinReducer';
 import { selectSelectedAccount } from '@wallet-reducers/selectedAccountReducer';
 
-export const BalanceContainer = styled.div<{ isSessionRunning: boolean }>`
-    display: flex;
-    justify-content: space-between;
-    width: ${({ isSessionRunning }) => (isSessionRunning ? '100%' : '58%')};
-    max-width: ${({ isSessionRunning }) => (isSessionRunning ? '480px' : '400px')};
+const BalanceContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 `;
 
 const PrivateBalanceHeading = styled.span`
@@ -35,29 +33,41 @@ export const BalancePrivacyBreakdown = () => {
 
     const theme = useTheme();
 
-    const isSessionRunning = !!currentSession;
+    const hasSession = !!currentSession;
+
+    const getBalanceHeader = () => {
+        if (hasSession) {
+            if (currentSession.paused) {
+                return <Translation id="TR_ANONYMIZATION_PAUSED" />;
+            }
+
+            return <Translation id="TR_ANONYMIZING" />;
+        }
+
+        return <Translation id="TR_NOT_PRIVATE" />;
+    };
+
+    const getBalanceIcon = () => {
+        if (hasSession) {
+            if (currentSession.paused) {
+                return <Icon icon="PAUSE" size={12} />;
+            }
+
+            return <Icon icon="SHUFFLE" size={15} />;
+        }
+
+        return <Icon icon="CROSS" size={15} />;
+    };
 
     if (!currentAccount) {
         return null;
     }
 
     return (
-        <BalanceContainer isSessionRunning={isSessionRunning}>
+        <BalanceContainer>
             <CryptoAmountWithHeader
-                header={
-                    isSessionRunning ? (
-                        <Translation id="TR_ANONYMIZING" />
-                    ) : (
-                        <Translation id="TR_NOT_PRIVATE" />
-                    )
-                }
-                headerIcon={
-                    isSessionRunning ? (
-                        <Icon icon="SHUFFLE" size={15} />
-                    ) : (
-                        <Icon icon="CROSS" size={15} />
-                    )
-                }
+                header={getBalanceHeader()}
+                headerIcon={getBalanceIcon()}
                 value={notAnonymized}
                 symbol={currentAccount?.symbol}
                 color={!isZero(notAnonymized || '0') ? undefined : theme.TYPE_LIGHT_GREY}

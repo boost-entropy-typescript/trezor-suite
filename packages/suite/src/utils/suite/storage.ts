@@ -1,6 +1,7 @@
 import { AcquiredDevice } from '@suite-types';
 import { Discovery } from '@wallet-reducers/discoveryReducer';
 import { connectInitThunk } from '@suite-common/connect-init';
+import { CoinjoinAccount } from '@wallet-types/coinjoin';
 
 /**
  * Strip unserializable fields from Discovery (eg. promises)
@@ -23,6 +24,21 @@ export const serializeDevice = (device: AcquiredDevice, forceRemember?: true) =>
     };
     if (forceRemember) sd.forceRemember = true;
     return sd;
+};
+
+/**
+ * Serialize coinjoin session so that it is always saved as paused to prevent it from automatically restoring when Suite starts.
+ */
+export const serializeCoinjoinSession = (coinjoinAccount: CoinjoinAccount) => {
+    if (coinjoinAccount.session) {
+        const { interrupted, roundPhase, sessionDeadline, starting, ...pausedSession } = {
+            ...coinjoinAccount.session,
+            paused: true,
+            sessionPhaseQueue: [],
+        };
+        return { ...coinjoinAccount, session: pausedSession };
+    }
+    return coinjoinAccount;
 };
 
 /**

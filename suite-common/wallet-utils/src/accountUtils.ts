@@ -234,7 +234,7 @@ export const getAccountDecimals = (symbol: NetworkSymbol) => {
 export const stripNetworkAmount = (amount: string, decimals: number) =>
     new BigNumber(amount).toFixed(decimals, 1);
 
-export const formatAmount = (amount: string, decimals: number) => {
+export const formatAmount = (amount: BigNumber.Value, decimals: number) => {
     try {
         const bAmount = new BigNumber(amount);
         if (bAmount.isNaN()) {
@@ -246,7 +246,7 @@ export const formatAmount = (amount: string, decimals: number) => {
     }
 };
 
-export const amountToSatoshi = (amount: string, decimals: number) => {
+export const amountToSatoshi = (amount: BigNumber.Value, decimals: number) => {
     try {
         const bAmount = new BigNumber(amount);
         if (bAmount.isNaN()) {
@@ -259,7 +259,7 @@ export const amountToSatoshi = (amount: string, decimals: number) => {
     }
 };
 
-export const satoshiAmountToBtc = (amount: string) => {
+export const satoshiAmountToBtc = (amount: BigNumber.Value) => {
     try {
         const satsAmount = new BigNumber(amount);
         if (satsAmount.isNaN()) {
@@ -357,8 +357,6 @@ export const getAccountNetwork = ({
     accountType,
 }: Pick<Account, 'symbol' | 'accountType'>) =>
     NETWORKS.find(n => n.symbol === symbol && (n.accountType || 'normal') === accountType);
-
-export const isNetworkSymbol = (symbol: string): symbol is NetworkSymbol => !!getNetwork(symbol);
 
 /**
  * Returns a string used as an index to separate txs for given account inside a transactions reducer

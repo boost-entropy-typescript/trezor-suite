@@ -27,7 +27,7 @@ import {
     transformCoinjoinStatus,
 } from '@wallet-utils/coinjoinUtils';
 import {
-    DEFAULT_CLIENT_STATUS,
+    CLIENT_STATUS_FALLBACK,
     ESTIMATED_ANONYMITY_GAINED_PER_ROUND,
     MIN_ANONYMITY_GAINED_PER_ROUND,
     ESTIMATED_ROUNDS_FAIL_RATE_BUFFER,
@@ -269,7 +269,7 @@ const initClient = (
     const exists = draft.clients[payload.symbol];
     if (exists) return;
     draft.clients[payload.symbol] = {
-        ...DEFAULT_CLIENT_STATUS,
+        ...CLIENT_STATUS_FALLBACK,
         status: 'loading',
     };
 };
@@ -564,7 +564,7 @@ export const selectIsAccountWithSessionByAccountKey = memoizeWithArgs(
 export const selectMinAllowedInputWithFee = memoizeWithArgs(
     (state: CoinjoinRootState, accountKey: AccountKey) => {
         const coinjoinClient = selectCoinjoinClient(state, accountKey);
-        const status = coinjoinClient || DEFAULT_CLIENT_STATUS;
+        const status = coinjoinClient || CLIENT_STATUS_FALLBACK;
         const minAllowedInput = status.allowedInputAmounts.min;
         const txSize = getInputSize('Taproot') + getOutputSize('Taproot');
 
@@ -693,3 +693,51 @@ export const selectCoinjoinSessionBlockerByAccountKey = memoizeWithArgs(
         }
     },
 );
+
+// memoise() was causing incorrect return from the selector
+export const selectCurrentCoinjoinWheelStates = (state: CoinjoinRootState) => {
+    const { anonymized, notAnonymized } = selectCurrentCoinjoinBalanceBreakdown(state);
+    const session = selectCurrentCoinjoinSession(state);
+    const { key, balance } = selectSelectedAccount(state) || {};
+
+    const coinjoinSessionBlocker = selectCoinjoinSessionBlockerByAccountKey(state, key || '');
+
+    const { paused } = session || {};
+
+    // session states
+    const isSessionActive = !!session;
+    const isPaused = !!paused;
+    const isLoading = coinjoinSessionBlocker === 'SESSION_STARTING';
+
+    // account states
+    const isAccountEmpty = !balance || balance === '0';
+    const isNonePrivate = anonymized === '0';
+    const isAllPrivate = notAnonymized === '0';
+
+    // error state
+    const isResumeBlockedByLastingIssue =
+        !!coinjoinSessionBlocker &&
+        !['DEVICE_LOCKED', 'SESSION_STARTING'].includes(coinjoinSessionBlocker);
+
+    return {
+        isSessionActive,
+        isPaused,
+        isLoading,
+        isAccountEmpty,
+        isNonePrivate,
+        isAllPrivate,
+        isResumeBlockedByLastingIssue,
+    };
+};
+
+export const selectCurrentSessionDeadlineInfo = memoize((state: CoinjoinRootState) => {
+    const session = selectCurrentCoinjoinSession(state);
+
+    const { roundPhase, roundPhaseDeadline, sessionDeadline } = session || {};
+
+    return {
+        roundPhase,
+        roundPhaseDeadline,
+        sessionDeadline,
+    };
+});
