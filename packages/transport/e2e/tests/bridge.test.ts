@@ -1,9 +1,7 @@
-import fetch from 'node-fetch';
-
 // testing build. yarn workspace @trezor/transport build:lib is a required step therefore
 import TrezorLink from '../../lib';
 import messages from '../../messages.json';
-
+import fetch from 'cross-fetch';
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 const { BridgeV2 } = TrezorLink;

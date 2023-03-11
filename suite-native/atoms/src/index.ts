@@ -1,3 +1,4 @@
+export * from './AccordionItem';
 export * from './Text';
 export * from './Box';
 export * from './Hint';
@@ -13,6 +14,7 @@ export * from './DiscreetText';
 export * from './ListItem/ListItem';
 export * from './ListItem/SelectableListItem';
 export * from './Sheet/BottomSheet';
+export * from './Sheet/AlertSheet';
 export * from './Button/Button';
 export * from './Button/IconButton';
 export * from './Select/Select';

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import BigNumber from 'bignumber.js';
 import { variables } from '@trezor/components';
 import { getIsZeroValuePhishing } from '@suite-common/suite-utils';
 import { FiatValue, Translation, MetadataLabeling, FormattedCryptoAmount } from '@suite-components';
@@ -22,8 +23,9 @@ import { BaseTargetLayout } from './BaseTargetLayout';
 import { copyToClipboard } from '@trezor/dom-utils';
 import { AccountMetadata } from '@suite-types/metadata';
 import { ExtendedMessageDescriptor } from '@suite-types';
+import { SignOperator } from '@suite-common/suite-types';
 
-export const StyledCryptoAmount = styled(FormattedCryptoAmount)`
+export const StyledFormattedCryptoAmount = styled(FormattedCryptoAmount)`
     width: 100%;
     color: ${({ theme }) => theme.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
@@ -60,7 +62,7 @@ export const TokenTransfer = ({
             }
             amount={
                 !baseLayoutProps.singleRowLayout && (
-                    <StyledCryptoAmount
+                    <StyledFormattedCryptoAmount
                         value={formatAmount(transfer.amount, transfer.decimals)}
                         symbol={transfer.symbol}
                         signValue={operation}
@@ -143,7 +145,7 @@ export const Target = ({
             }
             amount={
                 targetAmount && !baseLayoutProps.singleRowLayout ? (
-                    <StyledCryptoAmount
+                    <StyledFormattedCryptoAmount
                         value={targetAmount}
                         symbol={transaction.symbol}
                         signValue={operation}
@@ -173,7 +175,7 @@ export const CustomRow = ({
     ...baseLayoutProps
 }: {
     amount: string;
-    sign: 'pos' | 'neg';
+    sign: SignOperator;
     title: ExtendedMessageDescriptor['id'];
     transaction: WalletAccountTransaction;
     useFiatValues?: boolean;
@@ -184,7 +186,13 @@ export const CustomRow = ({
     <BaseTargetLayout
         {...baseLayoutProps}
         addressLabel={<Translation id={title} />}
-        amount={<StyledCryptoAmount value={amount} symbol={transaction.symbol} signValue={sign} />}
+        amount={
+            <StyledFormattedCryptoAmount
+                value={amount}
+                symbol={transaction.symbol}
+                signValue={sign}
+            />
+        }
         fiatAmount={
             useFiatValues ? (
                 <FiatValue
@@ -214,7 +222,7 @@ export const FeeRow = ({
     <CustomRow
         {...baseLayoutProps}
         title="FEE"
-        sign="neg"
+        sign="negative"
         amount={fee}
         transaction={transaction}
         useFiatValues={useFiatValues}
@@ -235,7 +243,7 @@ export const WithdrawalRow = ({
     <CustomRow
         {...baseLayoutProps}
         title="TR_TX_WITHDRAWAL"
-        sign="pos"
+        sign="positive"
         amount={formatCardanoWithdrawal(transaction) ?? '0'}
         transaction={transaction}
         useFiatValues={useFiatValues}
@@ -256,7 +264,7 @@ export const DepositRow = ({
     <CustomRow
         {...baseLayoutProps}
         title="TR_TX_DEPOSIT"
-        sign="neg"
+        sign="negative"
         amount={formatCardanoDeposit(transaction) ?? '0'}
         transaction={transaction}
         useFiatValues={useFiatValues}
@@ -275,9 +283,7 @@ export const CoinjoinRow = ({
             useFiatValues ? (
                 <FiatValue
                     amount={formatNetworkAmount(
-                        transaction.amount.startsWith('-')
-                            ? transaction.amount.slice(1)
-                            : transaction.amount,
+                        new BigNumber(transaction.amount).abs().toString(),
                         transaction.symbol,
                     )}
                     symbol={transaction.symbol}
