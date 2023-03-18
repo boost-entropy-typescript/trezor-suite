@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { A } from '@mobily/ts-belt';
+
 import { Box, VStack, Text } from '@suite-native/atoms';
-import { TokenInfo } from '@trezor/blockchain-link';
-import { EthereumTokenSymbol } from '@suite-native/ethereum-tokens';
+import { EthereumTokenSymbol, filterTokenHasBalance } from '@suite-native/ethereum-tokens';
+import { TokenInfo } from '@trezor/blockchain-link-types';
 
 import { EthereumTokenInfo } from './EthereumTokenInfo';
 
@@ -11,7 +13,9 @@ type AccountImportEthereumTokensProps = {
 };
 
 export const AccountImportEthereumTokens = ({ tokens }: AccountImportEthereumTokensProps) => {
-    const tokensWithBalance = tokens.filter(token => !!token.balance && token.balance !== '0');
+    const tokensWithBalance = A.filter(tokens, filterTokenHasBalance);
+
+    if (A.isEmpty(tokensWithBalance)) return null;
 
     return (
         <Box>

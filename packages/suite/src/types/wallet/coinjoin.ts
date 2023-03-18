@@ -4,9 +4,9 @@ import { PartialRecord } from '@trezor/type-utils';
 // @trezor/coinjoin package is meant to be imported dynamically
 // importing types is safe, but importing an enum thru index will bundle whole lib
 import { RegisterAccountParams } from '@trezor/coinjoin';
-import { RoundPhase, SessionPhase } from '@trezor/coinjoin/src/enums';
+import { RoundPhase, SessionPhase, EndRoundState } from '@trezor/coinjoin/src/enums';
 
-export { RoundPhase, SessionPhase };
+export { RoundPhase, SessionPhase, EndRoundState };
 
 export interface CoinjoinSessionParameters {
     targetAnonymity: number;
@@ -20,6 +20,7 @@ export interface CoinjoinSession extends CoinjoinSessionParameters {
     timeCreated: number; // timestamp when was created
     timeEnded?: number; // timestamp when was finished
     paused?: boolean; // current state
+    isAutoPauseEnabled?: boolean; // auto pause after current round
     interrupted?: boolean; // it was paused by force
     starting?: boolean; // is coinjoin session (re)starting, i.e. initiated but not yet running
     sessionPhaseQueue: Array<SessionPhase>;
@@ -39,7 +40,10 @@ export interface CoinjoinDiscoveryCheckpoint {
 export interface CoinjoinAccount {
     key: string; // reference to wallet Account.key
     symbol: NetworkSymbol;
+    customSetup?: boolean;
     targetAnonymity: number; // anonymity set by the user
+    maxFeePerKvbyte: number;
+    skipRounds?: [number, number];
     rawLiquidityClue: RegisterAccountParams['rawLiquidityClue'];
     session?: CoinjoinSession; // current/active authorized session
     previousSessions: CoinjoinSession[]; // history

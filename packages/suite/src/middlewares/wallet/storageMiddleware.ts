@@ -164,7 +164,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 case SUITE.SET_AUTODETECT:
                     api.dispatch(storageActions.saveSuiteSettings());
                     break;
-                case SUITE.COINJOIN_CEX_WARNING: {
+                case SUITE.COINJOIN_RECEIVE_WARNING: {
                     const isWalletRemembered = api.getState().suite.device?.remember;
 
                     if (!isWalletRemembered) {
@@ -239,7 +239,10 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     break;
                 case COINJOIN.ACCOUNT_AUTHORIZE_SUCCESS:
                 case COINJOIN.ACCOUNT_UNREGISTER:
+                case COINJOIN.ACCOUNT_UPDATE_SETUP_OPTION:
                 case COINJOIN.ACCOUNT_UPDATE_TARGET_ANONYMITY:
+                case COINJOIN.ACCOUNT_UPDATE_MAX_MING_FEE:
+                case COINJOIN.ACCOUNT_TOGGLE_SKIP_ROUNDS:
                     api.dispatch(storageActions.saveCoinjoinAccount(action.payload.accountKey));
                     break;
                 case COINJOIN.ACCOUNT_REMOVE:

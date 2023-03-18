@@ -7,6 +7,8 @@ import { DISCOVERY_LOOKOUT } from '../constants';
 import { scanAccount } from './scanAccount';
 import { scanAddress } from './scanAddress';
 import { getAccountInfo } from './getAccountInfo';
+import { createPendingTransaction } from './createPendingTx';
+import { isTaprootTx } from './backendUtils';
 import { getNetwork } from '../utils/settingsUtils';
 import type { CoinjoinBackendSettings, LogEvent, Logger, LogLevel } from '../types';
 import type {
@@ -68,11 +70,10 @@ export class CoinjoinBackend extends EventEmitter {
         this.settings = Object.freeze(settings);
         this.network = getNetwork(settings.network);
         this.client = new CoinjoinBackendClient({ ...settings, logger: this.getLogger() });
-
-        this.mempool =
-            settings.network === 'btc' // mempool scanning is temporarily turned off for mainnet
-                ? undefined
-                : new CoinjoinMempoolController(this.client);
+        this.mempool = new CoinjoinMempoolController({
+            client: this.client,
+            filter: tx => isTaprootTx(tx, this.network),
+        });
     }
 
     scanAccount({ descriptor, progressHandle, checkpoints, cache }: ScanAccountParams) {
@@ -140,8 +141,17 @@ export class CoinjoinBackend extends EventEmitter {
         return Promise.resolve(addressInfo);
     }
 
+    createPendingTransaction(...args: Parameters<typeof createPendingTransaction>) {
+        return Promise.resolve(createPendingTransaction(...args));
+    }
+
     cancel() {
         this.abortController?.abort();
+    }
+
+    disable() {
+        this.abortController?.abort();
+        this.mempool.stop();
     }
 
     private getCheckpoints(checkpoints?: ScanAccountCheckpoint[]): ScanAccountCheckpoint[];

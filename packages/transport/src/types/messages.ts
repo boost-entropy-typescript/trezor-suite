@@ -624,10 +624,10 @@ export enum CardanoPoolRelayType {
 
 export enum CardanoTxAuxiliaryDataSupplementType {
     NONE = 0,
-    GOVERNANCE_REGISTRATION_SIGNATURE = 1,
+    CVOTE_REGISTRATION_SIGNATURE = 1,
 }
 
-export enum CardanoGovernanceRegistrationFormat {
+export enum CardanoCVoteRegistrationFormat {
     CIP15 = 0,
     CIP36 = 1,
 }
@@ -831,26 +831,27 @@ export type CardanoTxWithdrawal = {
     key_hash?: string;
 };
 
-// CardanoGovernanceRegistrationDelegation
-export type CardanoGovernanceRegistrationDelegation = {
-    voting_public_key: string;
+// CardanoCVoteRegistrationDelegation
+export type CardanoCVoteRegistrationDelegation = {
+    vote_public_key: string;
     weight: UintType;
 };
 
-// CardanoGovernanceRegistrationParametersType
-export type CardanoGovernanceRegistrationParametersType = {
-    voting_public_key?: string;
+// CardanoCVoteRegistrationParametersType
+export type CardanoCVoteRegistrationParametersType = {
+    vote_public_key?: string;
     staking_path: number[];
-    reward_address_parameters: CardanoAddressParametersType;
+    payment_address_parameters?: CardanoAddressParametersType;
     nonce: UintType;
-    format?: CardanoGovernanceRegistrationFormat;
-    delegations?: CardanoGovernanceRegistrationDelegation[];
+    format?: CardanoCVoteRegistrationFormat;
+    delegations?: CardanoCVoteRegistrationDelegation[];
     voting_purpose?: UintType;
+    payment_address?: string;
 };
 
 // CardanoTxAuxiliaryData
 export type CardanoTxAuxiliaryData = {
-    governance_registration_parameters?: CardanoGovernanceRegistrationParametersType;
+    cvote_registration_parameters?: CardanoCVoteRegistrationParametersType;
     hash?: string;
 };
 
@@ -884,7 +885,7 @@ export type CardanoTxItemAck = {};
 export type CardanoTxAuxiliaryDataSupplement = {
     type: CardanoTxAuxiliaryDataSupplementType;
     auxiliary_data_hash?: string;
-    governance_signature?: string;
+    cvote_registration_signature?: string;
 };
 
 // CardanoTxWitnessRequest
@@ -1423,6 +1424,11 @@ export enum Enum_SafetyCheckLevel {
 }
 export type SafetyCheckLevel = keyof typeof Enum_SafetyCheckLevel;
 
+export enum HomescreenFormat {
+    Toif144x144 = 1,
+    Jpeg240x240 = 2,
+}
+
 // Initialize
 export type Initialize = {
     session_id?: string;
@@ -1495,6 +1501,8 @@ export type Features = {
     display_rotation: number | null;
     experimental_features: boolean | null;
     busy?: boolean;
+    homescreen_format?: HomescreenFormat;
+    hide_passphrase_from_host?: boolean;
 };
 
 // LockDevice
@@ -1520,6 +1528,7 @@ export type ApplySettings = {
     passphrase_always_on_device?: boolean;
     safety_checks?: SafetyCheckLevel;
     experimental_features?: boolean;
+    hide_passphrase_from_host?: boolean;
 };
 
 // ApplyFlags
@@ -1830,6 +1839,12 @@ export type NEMDecryptMessage = {
 export type NEMDecryptedMessage = {
     payload: string;
 };
+
+// experimental_message
+export type experimental_message = {};
+
+// experimental_field
+export type experimental_field = {};
 
 // RippleGetAddress
 export type RippleGetAddress = {
@@ -2255,8 +2270,8 @@ export type MessageType = {
     CardanoPoolParametersType: CardanoPoolParametersType;
     CardanoTxCertificate: CardanoTxCertificate;
     CardanoTxWithdrawal: CardanoTxWithdrawal;
-    CardanoGovernanceRegistrationDelegation: CardanoGovernanceRegistrationDelegation;
-    CardanoGovernanceRegistrationParametersType: CardanoGovernanceRegistrationParametersType;
+    CardanoCVoteRegistrationDelegation: CardanoCVoteRegistrationDelegation;
+    CardanoCVoteRegistrationParametersType: CardanoCVoteRegistrationParametersType;
     CardanoTxAuxiliaryData: CardanoTxAuxiliaryData;
     CardanoTxMint: CardanoTxMint;
     CardanoTxCollateralInput: CardanoTxCollateralInput;
@@ -2387,6 +2402,8 @@ export type MessageType = {
     NEMSignedTx: NEMSignedTx;
     NEMDecryptMessage: NEMDecryptMessage;
     NEMDecryptedMessage: NEMDecryptedMessage;
+    experimental_message: experimental_message;
+    experimental_field: experimental_field;
     RippleGetAddress: RippleGetAddress;
     RippleAddress: RippleAddress;
     RipplePayment: RipplePayment;

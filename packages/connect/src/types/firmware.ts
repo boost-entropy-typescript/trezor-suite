@@ -24,15 +24,20 @@ export type FirmwareRelease = {
     url_bitcoinonly?: string;
     fingerprint_bitcoinonly?: string;
     notes?: string;
-    rollout?: number;
     channel?: string;
 };
+
+export type IntermediaryVersion = 1 | 2 | 3;
 
 export type ReleaseInfo = {
     changelog: FirmwareRelease[] | null;
     release: FirmwareRelease;
-    isLatest: boolean;
-    latest: FirmwareRelease;
     isRequired: boolean | null;
     isNewer: boolean | null;
+    /**
+     * v1 - bootloader < 1.8.0
+     * v2 - bootloader >= 1.8.0, < 1.12.0
+     * v3 - bootloader >= 1.12.0
+     */
+    intermediaryVersion?: IntermediaryVersion;
 };

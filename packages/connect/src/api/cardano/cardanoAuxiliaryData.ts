@@ -11,57 +11,85 @@ import type { Device } from '../../device/Device';
 import { ERRORS, PROTO } from '../../constants';
 import type {
     CardanoAuxiliaryData,
-    CardanoGovernanceRegistrationDelegation,
-    CardanoGovernanceRegistrationParameters,
+    CardanoCVoteRegistrationDelegation,
+    CardanoCVoteRegistrationParameters,
 } from '../../types/api/cardano';
 
 const MAX_DELEGATION_COUNT = 32;
 
 const transformDelegation = (
-    delegation: CardanoGovernanceRegistrationDelegation,
-): PROTO.CardanoGovernanceRegistrationDelegation => {
+    delegation: CardanoCVoteRegistrationDelegation,
+): PROTO.CardanoCVoteRegistrationDelegation => {
+    // @ts-expect-error votingPublicKey is a legacy param kept for backward compatibility (for now)
+    if (delegation.votingPublicKey) {
+        console.warn('Please use votePublicKey instead of votingPublicKey.');
+        // @ts-expect-error
+        delegation.votePublicKey = delegation.votingPublicKey;
+    }
+
     validateParams(delegation, [
-        { name: 'votingPublicKey', type: 'string', required: true },
+        { name: 'votePublicKey', type: 'string', required: true },
         { name: 'weight', type: 'uint', required: true },
     ]);
 
     return {
-        voting_public_key: delegation.votingPublicKey,
+        vote_public_key: delegation.votePublicKey,
         weight: delegation.weight,
     };
 };
 
-const transformGovernanceRegistrationParameters = (
-    governanceRegistrationParameters: CardanoGovernanceRegistrationParameters,
-): PROTO.CardanoGovernanceRegistrationParametersType => {
-    validateParams(governanceRegistrationParameters, [
-        { name: 'votingPublicKey', type: 'string' },
+const transformCvoteRegistrationParameters = (
+    cVoteRegistrationParameters: CardanoCVoteRegistrationParameters,
+): PROTO.CardanoCVoteRegistrationParametersType => {
+    // votingPublicKey and rewardAddressParameters
+    // are legacy params kept for backward compatibility (for now)
+    // @ts-expect-error
+    if (cVoteRegistrationParameters.votingPublicKey) {
+        console.warn('Please use votePublicKey instead of votingPublicKey.');
+        // @ts-expect-error
+        cVoteRegistrationParameters.votePublicKey = cVoteRegistrationParameters.votingPublicKey;
+    }
+    // @ts-expect-error
+    if (cVoteRegistrationParameters.rewardAddressParameters) {
+        console.warn('Please use paymentAddressParameters instead of rewardAddressParameters.');
+        cVoteRegistrationParameters.paymentAddressParameters =
+            // @ts-expect-error
+            cVoteRegistrationParameters.rewardAddressParameters;
+    }
+
+    validateParams(cVoteRegistrationParameters, [
+        { name: 'votePublicKey', type: 'string' },
         { name: 'stakingPath', required: true },
         { name: 'nonce', type: 'uint', required: true },
         { name: 'format', type: 'number' },
         { name: 'delegations', type: 'array', allowEmpty: true },
         { name: 'votingPurpose', type: 'uint' },
+        { name: 'address', type: 'string' },
     ]);
-    validateAddressParameters(governanceRegistrationParameters.rewardAddressParameters);
+    const { paymentAddressParameters } = cVoteRegistrationParameters;
+    if (paymentAddressParameters) {
+        validateAddressParameters(paymentAddressParameters);
+    }
 
-    const { delegations } = governanceRegistrationParameters;
+    const { delegations } = cVoteRegistrationParameters;
     if (delegations && delegations.length > MAX_DELEGATION_COUNT) {
         throw ERRORS.TypedError(
             'Method_InvalidParameter',
-            `At most ${MAX_DELEGATION_COUNT} delegations are allowed in a governance registration`,
+            `At most ${MAX_DELEGATION_COUNT} delegations are allowed in a CIP-36 registration`,
         );
     }
 
     return {
-        voting_public_key: governanceRegistrationParameters.votingPublicKey,
-        staking_path: validatePath(governanceRegistrationParameters.stakingPath, 3),
-        reward_address_parameters: addressParametersToProto(
-            governanceRegistrationParameters.rewardAddressParameters,
-        ),
-        nonce: governanceRegistrationParameters.nonce,
-        format: governanceRegistrationParameters.format,
+        vote_public_key: cVoteRegistrationParameters.votePublicKey,
+        staking_path: validatePath(cVoteRegistrationParameters.stakingPath, 3),
+        payment_address_parameters: paymentAddressParameters
+            ? addressParametersToProto(paymentAddressParameters)
+            : undefined,
+        nonce: cVoteRegistrationParameters.nonce,
+        format: cVoteRegistrationParameters.format,
         delegations: delegations?.map(transformDelegation),
-        voting_purpose: governanceRegistrationParameters.votingPurpose,
+        voting_purpose: cVoteRegistrationParameters.votingPurpose,
+        payment_address: cVoteRegistrationParameters.paymentAddress,
     };
 };
 
@@ -75,16 +103,16 @@ export const transformAuxiliaryData = (
         },
     ]);
 
-    let governanceRegistrationParameters;
-    if (auxiliaryData.governanceRegistrationParameters) {
-        governanceRegistrationParameters = transformGovernanceRegistrationParameters(
-            auxiliaryData.governanceRegistrationParameters,
+    let cVoteRegistrationParameters;
+    if (auxiliaryData.cVoteRegistrationParameters) {
+        cVoteRegistrationParameters = transformCvoteRegistrationParameters(
+            auxiliaryData.cVoteRegistrationParameters,
         );
     }
 
     return {
         hash: auxiliaryData.hash,
-        governance_registration_parameters: governanceRegistrationParameters,
+        cvote_registration_parameters: cVoteRegistrationParameters,
     };
 };
 
@@ -92,17 +120,17 @@ export const modifyAuxiliaryDataForBackwardsCompatibility = (
     device: Device,
     auxiliary_data: PROTO.CardanoTxAuxiliaryData,
 ): PROTO.CardanoTxAuxiliaryData => {
-    const { governance_registration_parameters } = auxiliary_data;
-    if (governance_registration_parameters) {
-        governance_registration_parameters.reward_address_parameters =
+    const { cvote_registration_parameters } = auxiliary_data;
+    if (cvote_registration_parameters?.payment_address_parameters) {
+        cvote_registration_parameters.payment_address_parameters =
             modifyAddressParametersForBackwardsCompatibility(
                 device,
-                governance_registration_parameters.reward_address_parameters,
+                cvote_registration_parameters.payment_address_parameters,
             );
 
         return {
             ...auxiliary_data,
-            governance_registration_parameters,
+            cvote_registration_parameters,
         };
     }
 

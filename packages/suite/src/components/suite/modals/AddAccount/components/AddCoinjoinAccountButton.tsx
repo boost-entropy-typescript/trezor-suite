@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Translation } from '@suite-components';
 import { useSelector, useActions, useDispatch } from '@suite-hooks';
 import { createCoinjoinAccount } from '@wallet-actions/coinjoinAccountActions';
-import { DEFAULT_TARGET_ANONYMITY } from '@suite/services/coinjoin';
 import * as suiteActions from '@suite-actions/suiteActions';
 import * as modalActions from '@suite-actions/modalActions';
 import { Account, Network, NetworkSymbol } from '@wallet-types';
@@ -13,24 +12,32 @@ import { isDevEnv } from '@suite-common/suite-utils';
 import { Dispatch } from '@suite-types';
 import { RequestEnableTorResponse } from '@suite-components/modals/RequestEnableTor';
 import { selectTorState } from '@suite-reducers/suiteReducer';
+import { DeviceModel, getDeviceModel } from '@trezor/device-utils';
 
 interface VerifyAvailabilityProps {
     coinjoinAccounts: Account[];
     symbol: NetworkSymbol;
     unavailableCapabilities?: UnavailableCapabilities;
+    showDebugMenu: boolean;
+    deviceModel: DeviceModel;
 }
 
 const verifyAvailability = ({
     coinjoinAccounts,
     symbol,
     unavailableCapabilities,
+    showDebugMenu,
+    deviceModel,
 }: VerifyAvailabilityProps) => {
     if (coinjoinAccounts.length > 0) {
         return <Translation id="MODAL_ADD_ACCOUNT_COINJOIN_LIMIT_EXCEEDED" />;
     }
     const capability = unavailableCapabilities?.coinjoin;
-    if (capability === 'no-support') {
-        return <Translation id="MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT" />;
+    if (deviceModel === DeviceModel.T1) {
+        // TODO: This condition is only temporary for testing purposes. Remove it when coinjoin on T1 is supported.
+        if (!showDebugMenu || capability === 'update-required') {
+            return <Translation id="MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT" />;
+        }
     }
     // regtest coinjoin account enabled in web app for development
     if (!isDesktop() && !(isDevEnv && symbol === 'regtest')) {
@@ -54,6 +61,7 @@ export const AddCoinjoinAccountButton = ({ network }: AddCoinjoinAccountProps) =
     const { isTorEnabled } = useSelector(selectTorState);
     const device = useSelector(state => state.suite.device);
     const accounts = useSelector(state => state.wallet.accounts);
+    const showDebugMenu = useSelector(state => state.suite.settings.debug.showDebugMenu);
 
     const action = useActions({
         createCoinjoinAccount,
@@ -78,11 +86,13 @@ export const AddCoinjoinAccountButton = ({ network }: AddCoinjoinAccountProps) =
         coinjoinAccounts,
         symbol: network.symbol,
         unavailableCapabilities: device.unavailableCapabilities,
+        showDebugMenu,
+        deviceModel: getDeviceModel(device),
     });
 
     const onCreateCoinjoinAccountClick = async () => {
         const createAccount = async () => {
-            await action.createCoinjoinAccount(network, DEFAULT_TARGET_ANONYMITY);
+            await action.createCoinjoinAccount(network);
             setIsLoading(false);
         };
 

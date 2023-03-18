@@ -6,11 +6,11 @@ import type {
     AccountAddresses,
     AccountInfo as AccountInfoBase,
     EnhancedVinVout,
-} from '@trezor/blockchain-link/lib/types';
+} from '@trezor/blockchain-link-types';
 import type {
     Transaction as BlockbookTransaction,
     VinVout,
-} from '@trezor/blockchain-link/lib/types/blockbook';
+} from '@trezor/blockchain-link-types/lib/blockbook';
 
 import type { CoinjoinBackendClient } from '../backend/CoinjoinBackendClient';
 import type { MempoolController } from '../backend/CoinjoinMempoolController';
@@ -132,7 +132,10 @@ export interface FilterController {
 
 export type FilterClient = Pick<CoinjoinBackendClient, 'fetchFilters'>;
 
-export type MempoolClient = Pick<CoinjoinBackendClient, 'fetchMempoolTxids' | 'fetchTransaction'>;
+export type MempoolClient = Pick<
+    CoinjoinBackendClient,
+    'fetchMempoolTxids' | 'fetchTransaction' | 'subscribeMempoolTxs' | 'unsubscribeMempoolTxs'
+>;
 
 export type AddressInfo = AccountInfoBase & {
     history: AccountInfoBase['history'] & {

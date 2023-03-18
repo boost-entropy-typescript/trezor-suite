@@ -2,7 +2,7 @@ import { TrezorConnect, PROTO } from '../../..';
 
 const {
     CardanoAddressType,
-    CardanoGovernanceRegistrationFormat,
+    CardanoCVoteRegistrationFormat,
     CardanoCertificateType,
     CardanoNativeScriptHashDisplayFormat,
     CardanoNativeScriptType,
@@ -322,10 +322,10 @@ export const cardanoSignTransaction = async (api: TrezorConnect) => {
         ],
         auxiliaryData: {
             hash: 'aaff00..',
-            governanceRegistrationParameters: {
-                votingPublicKey: 'aaff00..',
+            cVoteRegistrationParameters: {
+                votePublicKey: 'aaff00..',
                 stakingPath: 'm/44',
-                rewardAddressParameters: {
+                paymentAddressParameters: {
                     addressType: CardanoAddressType.REWARD,
                     path: 'm/44',
                     stakingPath: 'm/44',
@@ -337,14 +337,15 @@ export const cardanoSignTransaction = async (api: TrezorConnect) => {
                     },
                 },
                 nonce: '0',
-                format: CardanoGovernanceRegistrationFormat.CIP36,
+                format: CardanoCVoteRegistrationFormat.CIP36,
                 delegations: [
                     {
-                        votingPublicKey: 'aaff00..',
+                        votePublicKey: 'aaff00..',
                         weight: 1,
                     },
                 ],
                 votingPurpose: 0,
+                paymentAddress: 'Ae2..',
             },
         },
         additionalWitnessRequests: ['m/44'],
@@ -413,10 +414,10 @@ export const cardanoSignTransaction = async (api: TrezorConnect) => {
         });
         const { auxiliaryDataSupplement } = payload;
         if (auxiliaryDataSupplement) {
-            const { type, auxiliaryDataHash, governanceSignature } = auxiliaryDataSupplement;
+            const { type, auxiliaryDataHash, cVoteRegistrationSignature } = auxiliaryDataSupplement;
             type.toFixed();
             auxiliaryDataHash.toLowerCase();
-            governanceSignature?.toLowerCase();
+            cVoteRegistrationSignature?.toLowerCase();
         }
     }
 };

@@ -32,6 +32,10 @@ import {
     MIN_ANONYMITY_GAINED_PER_ROUND,
     ESTIMATED_ROUNDS_FAIL_RATE_BUFFER,
     ESTIMATED_HOURS_PER_ROUND,
+    UNECONOMICAL_COINJOIN_THRESHOLD,
+    DEFAULT_TARGET_ANONYMITY,
+    SKIP_ROUNDS_BY_DEFAULT,
+    SKIP_ROUNDS_VALUE_WHEN_ENABLED,
 } from '@suite/services/coinjoin';
 import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 import {
@@ -40,7 +44,10 @@ import {
     selectIsFeatureDisabled,
     selectFeatureConfig,
 } from '@suite-reducers/messageSystemReducer';
+import { MAX_MINING_FEE_FALLBACK } from '@trezor/coinjoin/src/constants';
 import { SelectedAccountRootState, selectSelectedAccount } from './selectedAccountReducer';
+
+const DEFAULT_SKIP_ROUNDS = SKIP_ROUNDS_BY_DEFAULT ? SKIP_ROUNDS_VALUE_WHEN_ENABLED : undefined;
 
 export interface CoinjoinClientInstance
     extends Pick<
@@ -85,7 +92,7 @@ type ExtractActionPayload<A> = Extract<Action, { type: A }> extends { type: A; p
 
 const createAccount = (
     draft: CoinjoinState,
-    { account, targetAnonymity }: ExtractActionPayload<typeof COINJOIN.ACCOUNT_CREATE>,
+    { account }: ExtractActionPayload<typeof COINJOIN.ACCOUNT_CREATE>,
 ) => {
     draft.isPreloading = false;
     const exists = draft.accounts.find(a => a.key === account.key);
@@ -94,7 +101,9 @@ const createAccount = (
         key: account.key,
         symbol: account.symbol,
         rawLiquidityClue: null, // NOTE: liquidity clue is calculated from tx history. default value is `null`
-        targetAnonymity,
+        targetAnonymity: DEFAULT_TARGET_ANONYMITY,
+        maxFeePerKvbyte: MAX_MINING_FEE_FALLBACK,
+        skipRounds: DEFAULT_SKIP_ROUNDS,
         previousSessions: [],
     });
 };
@@ -108,6 +117,21 @@ const setLiquidityClue = (
     account.rawLiquidityClue = payload.rawLiquidityClue;
 };
 
+const updateSetupOption = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.ACCOUNT_UPDATE_SETUP_OPTION>,
+) => {
+    const account = draft.accounts.find(a => a.key === payload.accountKey);
+    if (!account) return;
+    if (payload.isRecommended) {
+        const client = draft.clients[account.symbol];
+        account.targetAnonymity = DEFAULT_TARGET_ANONYMITY;
+        account.maxFeePerKvbyte = client?.maxMiningFee || MAX_MINING_FEE_FALLBACK;
+        account.skipRounds = DEFAULT_SKIP_ROUNDS;
+    }
+    account.customSetup = !payload.isRecommended;
+};
+
 const updateTargetAnonymity = (
     draft: CoinjoinState,
     payload: ExtractActionPayload<typeof COINJOIN.ACCOUNT_UPDATE_TARGET_ANONYMITY>,
@@ -115,6 +139,24 @@ const updateTargetAnonymity = (
     const account = draft.accounts.find(a => a.key === payload.accountKey);
     if (!account) return;
     account.targetAnonymity = payload.targetAnonymity;
+};
+
+const updateMaxMingFee = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.ACCOUNT_UPDATE_MAX_MING_FEE>,
+) => {
+    const account = draft.accounts.find(a => a.key === payload.accountKey);
+    if (!account) return;
+    account.maxFeePerKvbyte = payload.maxFeePerKvbyte;
+};
+
+const toggleSkipRounds = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.ACCOUNT_TOGGLE_SKIP_ROUNDS>,
+) => {
+    const account = draft.accounts.find(a => a.key === payload.accountKey);
+    if (!account) return;
+    account.skipRounds = account.skipRounds ? undefined : SKIP_ROUNDS_VALUE_WHEN_ENABLED;
 };
 
 const createSession = (
@@ -161,7 +203,7 @@ const updateSession = (
     }
 };
 
-const signSession = (
+const sessionTxSigned = (
     draft: CoinjoinState,
     payload: ExtractActionPayload<typeof COINJOIN.SESSION_TX_SIGNED>,
 ) => {
@@ -245,6 +287,7 @@ const restoreSession = (
 
     delete account.session.paused;
     delete account.session.interrupted;
+    delete account.session.isAutoPauseEnabled;
     delete account.session.timeEnded;
     account.session.timeCreated = Date.now();
 };
@@ -344,6 +387,19 @@ const updateDebugMode = (
     }
 };
 
+const enableSessionAutopause = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.SESSION_AUTOPAUSE>,
+) => {
+    const session = draft.accounts.find(a => a.key === payload.accountKey)?.session;
+
+    if (!session) {
+        return;
+    }
+
+    session.isAutoPauseEnabled = payload.isAutopaused;
+};
+
 export const coinjoinReducer = (
     state: CoinjoinState = initialState,
     action: Action,
@@ -368,8 +424,17 @@ export const coinjoinReducer = (
             case COINJOIN.ACCOUNT_REMOVE:
                 draft.accounts = draft.accounts.filter(a => a.key !== action.payload.accountKey);
                 break;
+            case COINJOIN.ACCOUNT_UPDATE_SETUP_OPTION:
+                updateSetupOption(draft, action.payload);
+                break;
             case COINJOIN.ACCOUNT_UPDATE_TARGET_ANONYMITY:
                 updateTargetAnonymity(draft, action.payload);
+                break;
+            case COINJOIN.ACCOUNT_UPDATE_MAX_MING_FEE:
+                updateMaxMingFee(draft, action.payload);
+                break;
+            case COINJOIN.ACCOUNT_TOGGLE_SKIP_ROUNDS:
+                toggleSkipRounds(draft, action.payload);
                 break;
             case COINJOIN.ACCOUNT_AUTHORIZE_SUCCESS:
                 createSession(draft, action.payload);
@@ -403,6 +468,9 @@ export const coinjoinReducer = (
             case COINJOIN.SESSION_PAUSE:
                 pauseSession(draft, action.payload);
                 break;
+            case COINJOIN.SESSION_AUTOPAUSE:
+                enableSessionAutopause(draft, action.payload);
+                break;
             case COINJOIN.SESSION_RESTORE:
                 restoreSession(draft, action.payload);
                 break;
@@ -413,7 +481,7 @@ export const coinjoinReducer = (
                 completeSession(draft, action.payload);
                 break;
             case COINJOIN.SESSION_TX_SIGNED:
-                signSession(draft, action.payload);
+                sessionTxSigned(draft, action.payload);
                 break;
             case COINJOIN.SESSION_STARTING:
                 updateSessionStarting(draft, action.payload);
@@ -487,10 +555,10 @@ export const selectCurrentCoinjoinBalanceBreakdown = memoize((state: CoinjoinRoo
 export const selectSessionProgressByAccountKey = memoizeWithArgs(
     (state: CoinjoinRootState, accountKey: AccountKey) => {
         const coinjoinAccount = selectCoinjoinAccountByKey(state, accountKey);
-        const relatedAccounts = selectAccountByKey(state, accountKey);
+        const relatedAccount = selectAccountByKey(state, accountKey);
 
         const { targetAnonymity } = coinjoinAccount || {};
-        const { addresses, balance, utxo: utxos } = relatedAccounts || {};
+        const { addresses, balance, utxo: utxos } = relatedAccount || {};
 
         if (!balance || !utxos) {
             return 0;
@@ -714,6 +782,7 @@ export const selectCurrentCoinjoinWheelStates = (state: CoinjoinRootState) => {
     const isAccountEmpty = !balance || balance === '0';
     const isNonePrivate = anonymized === '0';
     const isAllPrivate = notAnonymized === '0';
+    const isCoinjoinUneco = !!balance && new BigNumber(balance).lt(UNECONOMICAL_COINJOIN_THRESHOLD);
 
     // error state
     const isResumeBlockedByLastingIssue =
@@ -728,6 +797,7 @@ export const selectCurrentCoinjoinWheelStates = (state: CoinjoinRootState) => {
         isNonePrivate,
         isAllPrivate,
         isResumeBlockedByLastingIssue,
+        isCoinjoinUneco,
     };
 };
 
@@ -746,4 +816,12 @@ export const selectCurrentSessionDeadlineInfo = memoize((state: CoinjoinRootStat
 // Return true if it's not explicitly set to false in the message-system config.
 export const selectIsPublic = memoize(
     (state: CoinjoinRootState) => selectFeatureConfig(state, Feature.coinjoin)?.isPublic !== false,
+);
+
+export const selectIsSessionAutopaused = memoizeWithArgs(
+    (state: CoinjoinRootState, accountKey: string) => {
+        const currentState = selectSessionByAccountKey(state, accountKey);
+
+        return !!currentState?.isAutoPauseEnabled;
+    },
 );

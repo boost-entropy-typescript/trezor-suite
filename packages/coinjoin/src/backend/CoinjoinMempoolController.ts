@@ -1,40 +1,72 @@
-import { isNotUndefined, promiseAllSequence } from '@trezor/utils';
+/* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 
 import type { BlockbookTransaction, MempoolClient } from '../types/backend';
 import { doesTxContainAddress } from './backendUtils';
 
+type MempoolStatus = 'stopped' | 'running';
+
 export type MempoolController = {
+    get status(): MempoolStatus;
+    start(): Promise<void>;
     update(): Promise<void>;
     getTransactions(addresses: string[]): BlockbookTransaction[];
 };
 
+type CoinjoinMempoolControllerSettings = {
+    client: MempoolClient;
+    filter?: (tx: BlockbookTransaction) => boolean;
+};
+
 export class CoinjoinMempoolController implements MempoolController {
     private readonly client;
-    private mempool: { [txid: string]: BlockbookTransaction };
+    private readonly mempool;
+    private readonly filter;
+    private readonly onTx;
+    private _status: MempoolStatus;
 
-    constructor(client: MempoolClient) {
+    get status() {
+        return this._status;
+    }
+
+    constructor({ client, filter }: CoinjoinMempoolControllerSettings) {
         this.client = client;
-        this.mempool = {};
+        this.mempool = new Map<string, BlockbookTransaction>();
+        this.filter = filter;
+        this.onTx = this.onMempoolTx.bind(this);
+        this._status = 'stopped';
+    }
+
+    private onMempoolTx(tx: BlockbookTransaction) {
+        if (this.filter?.(tx) ?? true) {
+            this.mempool.set(tx.txid, tx);
+        }
+    }
+
+    async start() {
+        if (this._status === 'running') return;
+        await this.client.subscribeMempoolTxs(this.onTx);
+        this._status = 'running';
+    }
+
+    async stop() {
+        if (this._status === 'stopped') return;
+        await this.client.unsubscribeMempoolTxs(this.onTx);
+        this._status = 'stopped';
     }
 
     async update() {
-        const txids = await this.client.fetchMempoolTxids();
-        const entries = await promiseAllSequence(
-            txids.map(
-                txid => () =>
-                    this.mempool[txid]
-                        ? Promise.resolve(this.mempool[txid])
-                        : this.client.fetchTransaction(txid).catch(() => undefined),
-            ),
-        )
-            .then(txs => txs.filter(isNotUndefined)) // Failed fetchTransaction could be ignored
-            .then(txs => txs.map(tx => [tx.txid, tx] as const));
-        this.mempool = Object.fromEntries(entries);
+        const mempoolTxids = await this.client.fetchMempoolTxids();
+        const keepTxids = mempoolTxids.filter(txid => this.mempool.has(txid));
+        const removeTxids = Array.from(this.mempool.keys()).filter(
+            txid => !keepTxids.includes(txid),
+        );
+        removeTxids.forEach(txid => this.mempool.delete(txid));
     }
 
-    getTransactions(addresses: string[]) {
-        return Object.values(this.mempool).filter(tx =>
-            addresses.some(address => doesTxContainAddress(address)(tx)),
-        );
+    getTransactions(addresses?: string[]) {
+        const txs = Array.from(this.mempool.values());
+        return !addresses
+            ? txs
+            : txs.filter(tx => addresses.some(address => doesTxContainAddress(address)(tx)));
     }
 }

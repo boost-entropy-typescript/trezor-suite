@@ -9,13 +9,13 @@ type CryptoIconProps = {
     size?: CryptoIconSize;
 };
 
-const cryptoIconSizes = {
+export const cryptoIconSizes = {
     extraSmall: 16,
     small: 24,
     large: 42,
 } as const;
 
-type CryptoIconSize = keyof typeof cryptoIconSizes;
+export type CryptoIconSize = keyof typeof cryptoIconSizes;
 
 export const CryptoIcon = ({ name, size = 'small' }: CryptoIconProps) => {
     const svg = useSVG(cryptoIcons[name]);

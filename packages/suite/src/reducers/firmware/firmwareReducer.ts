@@ -29,6 +29,7 @@ type FirmwareUpdateCommon = {
     // todo: in the future we might implement additional check that will validate firmware after every connection
     firmwareHashInvalid: string[];
     isCustom: boolean;
+    useDevkit: boolean;
 };
 
 export type FirmwareStatus =
@@ -67,6 +68,7 @@ const initialState: FirmwareUpdateState = {
     subsequentInstalling: false,
     firmwareHashInvalid: [],
     isCustom: false,
+    useDevkit: false,
 };
 
 const firmwareUpdate = (
@@ -116,9 +118,7 @@ const firmwareUpdate = (
             case FIRMWARE.SET_INTERMEDIARY_INSTALLED:
                 draft.intermediaryInstalled = action.payload;
                 if (draft.targetRelease) {
-                    // intermediary is already installed so latest release has to be used as new target release
-                    draft.targetRelease.release = draft.targetRelease.latest;
-                    draft.targetRelease.isLatest = true;
+                    delete draft.targetRelease.intermediaryVersion;
                 }
                 break;
             case FIRMWARE.SET_TARGET_TYPE:
@@ -140,7 +140,14 @@ const firmwareUpdate = (
                 draft.isCustom = action.payload;
                 break;
             case FIRMWARE.RESET_REDUCER:
-                return { ...initialState, firmwareHashInvalid: draft.firmwareHashInvalid };
+                return {
+                    ...initialState,
+                    firmwareHashInvalid: draft.firmwareHashInvalid,
+                    useDevkit: draft.useDevkit,
+                };
+            case FIRMWARE.TOGGLE_USE_DEVKIT:
+                draft.useDevkit = action.payload;
+                break;
             default:
 
             // no default

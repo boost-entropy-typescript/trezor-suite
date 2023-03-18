@@ -6,7 +6,7 @@ import { Icon, Tooltip, variables } from '@trezor/components';
 import { Translation } from '@suite-components';
 import { getFirmwareType, getFirmwareVersion } from '@trezor/device-utils';
 import { getFwUpdateVersion, parseFirmwareChangelog } from '@suite-utils/device';
-import { useFirmware, useTranslation } from '@suite-hooks';
+import { useFirmware, useTranslation, useSelector } from '@suite-hooks';
 import { AcquiredDevice, FirmwareType } from '@suite-types';
 
 const FwVersionWrapper = styled.div`
@@ -49,6 +49,7 @@ export const FirmwareOffer = ({
     customFirmware,
     targetFirmwareType,
 }: FirmwareOfferProps) => {
+    const useDevkit = useSelector(state => state.firmware.useDevkit);
     const { targetType } = useFirmware();
     const { translationString } = useTranslation();
 
@@ -56,10 +57,13 @@ export const FirmwareOffer = ({
     const nextVersion = customFirmware
         ? translationString('TR_CUSTOM_FIRMWARE_VERSION')
         : getFwUpdateVersion(device);
-    const parsedChangelog = customFirmware ? null : parseFirmwareChangelog(device);
+    const parsedChangelog = customFirmware
+        ? null
+        : parseFirmwareChangelog(device.firmwareRelease?.release);
+
     const currentTypeAndVersion = `${getFirmwareType(device)} ${currentVersion ?? ''}`.trim();
-    const nextTypeAndVersion = `${(targetFirmwareType || targetType) ?? ''} ${
-        nextVersion ?? ''
+    const nextTypeAndVersion = `${(targetFirmwareType || targetType) ?? ''} ${nextVersion ?? ''}${
+        useDevkit ? ' DEVKIT' : ''
     }`.trim();
 
     const nextVersionElement = (

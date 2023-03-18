@@ -22,15 +22,17 @@ import {
 } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Screen, ScreenHeader } from '@suite-native/navigation';
-import { CryptoIcon, Icon, IconName, icons } from '@trezor/icons';
 import {
-    TransactionNotification,
-    ToastNotificationVariant,
-    ToastNotification,
-} from '@suite-native/notifications';
+    CryptoIcon,
+    EthereumTokenIcon,
+    EthereumTokenIconName,
+    ethereumTokenIcons,
+    Icon,
+    IconName,
+    icons,
+} from '@trezor/icons';
+import { ToastNotificationVariant, ToastNotification } from '@suite-native/notifications';
 import { CoinsSettings } from '@suite-native/module-settings';
-
-import { transactionNotifications } from '../fixtures';
 
 const inputStackStyle = prepareNativeStyle(utils => ({
     borderRadius: utils.borders.radii.medium,
@@ -75,23 +77,17 @@ export const DemoScreen = () => {
             <VStack spacing="medium">
                 <VStack>
                     <Text variant="titleSmall">Transaction Notifications:</Text>
-                    <VStack
-                        style={{ overflow: 'hidden', height: transactionNotifications.length * 60 }}
-                    >
-                        {transactionNotifications.map(notification => (
-                            <TransactionNotification
-                                {...notification}
-                                isHiddenAutomatically={false}
-                            />
-                        ))}
-                    </VStack>
                     <Text variant="titleSmall">Toast Notifications:</Text>
                     <VStack
                         justifyContent="center"
                         style={{ flexDirection: 'row', flexWrap: 'wrap' }}
                     >
                         {toastNotificationVariants.map(toastVariant => (
-                            <ToastNotification variant={toastVariant} title={toastVariant} />
+                            <ToastNotification
+                                key={toastVariant}
+                                variant={toastVariant}
+                                title={toastVariant}
+                            />
                         ))}
                     </VStack>
                 </VStack>
@@ -356,6 +352,23 @@ export const DemoScreen = () => {
                                     alignItems="center"
                                 >
                                     <Icon name={icon as IconName} />
+                                    <Text>{icon}</Text>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                    <Box marginTop="medium">
+                        <Text variant="titleMedium">Token Icons</Text>
+                        <Box flexWrap="wrap" flexDirection="row">
+                            {Object.keys(ethereumTokenIcons).map((icon: string) => (
+                                <Box
+                                    key={icon}
+                                    marginRight="large"
+                                    marginBottom="large"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                >
+                                    <EthereumTokenIcon name={icon as EthereumTokenIconName} />
                                     <Text>{icon}</Text>
                                 </Box>
                             ))}

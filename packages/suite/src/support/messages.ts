@@ -2224,7 +2224,7 @@ export default defineMessages({
         id: 'TR_CONTACT_SUPPORT',
     },
     TR_SECURITY_CHECK_CONTACT_SUPPORT: {
-        defaultMessage: 'If something seems off please contact support.',
+        defaultMessage: 'If something seems off, contact support.',
         description: 'Button to click to contact support',
         id: 'TR_SECURITY_CHECK_CONTACT_SUPPORT',
     },
@@ -5899,7 +5899,7 @@ export default defineMessages({
     },
     TR_YOUR_LABELING_IS_SYNCED: {
         defaultMessage:
-            'Your labeling is synced with cloud storage provider. Your data are safe, only your Trezor can decrypt them.',
+            'Your labeling is synced with a cloud storage provider. Your data are safe, only your Trezor can decrypt them.',
         id: 'TR_YOUR_LABELING_IS_SYNCED',
     },
     TR_YOUR_LABELING_IS_SYNCED_LOCALLY: {
@@ -5933,7 +5933,7 @@ export default defineMessages({
     },
     METADATA_MODAL_DESCRIPTION: {
         defaultMessage:
-            'Please select a cloud provider to save your labels to. Your data is encrypted by Trezor.',
+            'Please select a cloud provider for saving your labels. Your data is encrypted by Trezor.',
         id: 'METADATA_MODAL_DESCRIPTION',
     },
     TR_DISABLED_SWITCH_TOOLTIP: {
@@ -6298,6 +6298,10 @@ export default defineMessages({
         id: 'TR_UPDATE_MODAL_UPDATE_ON_QUIT',
         defaultMessage: 'Update on quit',
     },
+    TR_BACKGROUND_DOWNLOAD: {
+        id: 'TR_BACKGROUND_DOWNLOAD',
+        defaultMessage: 'Download in the background',
+    },
     TR_MANAGE: {
         id: 'TR_MANAGE',
         defaultMessage: 'manage',
@@ -6309,10 +6313,6 @@ export default defineMessages({
     TR_CHANGELOG_ON_GITHUB: {
         id: 'TR_CHANGELOG_ON_GITHUB',
         defaultMessage: 'Changelog on GitHub',
-    },
-    TR_UPDATE_MODAL_DOWNLOADING_UPDATE: {
-        id: 'TR_UPDATE_MODAL_DOWNLOADING_UPDATE',
-        defaultMessage: 'Downloading update',
     },
     TR_UPDATE_MODAL_UPDATE_DOWNLOADED: {
         id: 'TR_UPDATE_MODAL_UPDATE_DOWNLOADED',
@@ -6951,7 +6951,7 @@ export default defineMessages({
     TR_TROUBLESHOOTING_TIP_UDEV_INSTALL_DESCRIPTION: {
         id: 'TR_TROUBLESHOOTING_TIP_UDEV_INSTALL_DESCRIPTION',
         defaultMessage:
-            'Try installing <a>udev rules</a>. Make sure to first save them to desktop before opening.',
+            'Try installing <a>udev rules</a>. Make sure they are saved to the desktop before opening.',
     },
     TR_TROUBLESHOOTING_CLOSE_TABS: {
         defaultMessage: 'Close other tabs and windows that might be using your Trezor',
@@ -7361,6 +7361,21 @@ export default defineMessages({
         description: 'Heading in coin join settings',
         defaultMessage: 'Your coins will be mixed with other peoples’ to achieve privacy.',
     },
+    TR_COINJOIN_SETUP_HEADING: {
+        id: 'TR_COINJOIN_SETUP_HEADING',
+        description: 'Heading in coinjoin account details',
+        defaultMessage: 'Coinjoin setup',
+    },
+    TR_RECOMMENDED: {
+        id: 'TR_RECOMMENDED',
+        description: 'Coinjoin setup option',
+        defaultMessage: 'Recommended',
+    },
+    TR_CUSTOM: {
+        id: 'TR_CUSTOM',
+        description: 'Coinjoin setup option',
+        defaultMessage: 'Custom',
+    },
     TR_COINJOIN_TILE_1_TITLE: {
         id: 'TR_COINJOIN_TILE_1_TITLE',
         description: 'Tile in coinjoin settings',
@@ -7617,7 +7632,8 @@ export default defineMessages({
     },
     TR_COINJOIN_ANONYMITY_LEVEL_SETUP_DESCRIPTION: {
         id: 'TR_COINJOIN_ANONYMITY_LEVEL_SETUP_DESCRIPTION',
-        defaultMessage: 'Shows the number of people with whom your resources are indistinguishable',
+        defaultMessage:
+            'Shows the number of people with whom your resources are indistinguishable.',
     },
     TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING: {
         id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING',
@@ -7883,7 +7899,7 @@ export default defineMessages({
     },
     TR_DISABLED_ANONYMITY_CHANGE_MESSAGE: {
         id: 'TR_DISABLED_ANONYMITY_CHANGE_MESSAGE',
-        defaultMessage: 'Editing disabled while coinjoin is running',
+        defaultMessage: 'Editing disabled while coinjoin is running.',
     },
     TR_LOW_ANONYMITY_WARNING: {
         id: 'TR_LOW_ANONYMITY_WARNING',
@@ -8025,15 +8041,11 @@ export default defineMessages({
     },
     TR_COINJOIN_CEX_WARNING: {
         id: 'TR_COINJOIN_CEX_WARNING',
-        defaultMessage: 'Exchanges may not serve you if you use coinjoin.',
+        defaultMessage: 'Exchanges might reject CoinJoined funds.',
     },
     TR_COINJOIN_CEX_EXPLANATION: {
         id: 'TR_COINJOIN_CEX_EXPLANATION',
         defaultMessage: 'They may reject your deposits or withdrawals and blacklist you.',
-    },
-    TR_COINJOIN_CEX_DISMISS: {
-        id: 'TR_COINJOIN_CEX_DISMISS',
-        defaultMessage: 'I understand',
     },
     TR_ZERO_PHISHING_TOOLTIP: {
         id: 'TR_ZERO_PHISHING_TOOLTIP',
@@ -8064,5 +8076,44 @@ export default defineMessages({
     TR_ERROR: {
         id: 'TR_ERROR',
         defaultMessage: 'Error',
+    },
+    TR_COINJOIN_RECEIVE_WARNING_TITLE: {
+        id: 'TR_COINJOIN_RECEIVE_WARNING_TITLE',
+        defaultMessage: 'You should know',
+    },
+    TR_UNECO_COINJOIN_RECEIVE_WARNING: {
+        id: 'TR_UNECO_COINJOIN_RECEIVE_WARNING',
+        defaultMessage:
+            'CoinJoin at least {crypto} {isAccountWithRate, select, true {(~{fiat})} false {} other {}} for the best results.',
+    },
+    TR_UNECO_COINJOIN_AGREE: {
+        id: 'TR_UNECO_COINJOIN_AGREE',
+        defaultMessage: 'I understand',
+    },
+    TR_UNECO_COINJOIN_TITLE: {
+        id: 'TR_UNECO_COINJOIN_TITLE',
+        defaultMessage: 'Uneconomical coinjoin',
+    },
+    TR_UNECO_COINJOIN_WARNING: {
+        id: 'TR_UNECO_COINJOIN_WARNING',
+        defaultMessage:
+            'Coinjoining less than {crypto} {isAccountWithRate, select, true {(~{fiat})} false {} other {}} is not recommended',
+    },
+    TR_UNECO_COINJOIN_EXPLANATION: {
+        id: 'TR_UNECO_COINJOIN_EXPLANATION',
+        defaultMessage:
+            'If your account balance is below the recommended minimum ({crypto}) coinjoin may be uneconomical. Press <b>Cancel</b> to go back and add more funds, or <b>I understand</b> to proceed with the coinjoin.',
+    },
+    TR_ENABLE_AUTOPAUSE_COINJOIN: {
+        id: 'TR_ENABLE_AUTOPAUSE_COINJOIN',
+        defaultMessage: 'Pause Coinjoin after this round',
+    },
+    TR_AUTOPAUSE_COINJOIN_ENABLED: {
+        id: 'TR_AUTOPAUSE_COINJOIN_ENABLED',
+        defaultMessage: 'Coinjoin will be paused after this round',
+    },
+    TR_DISABLE_AUTOPAUSE_COINJOIN: {
+        id: 'TR_DISABLE_AUTOPAUSE_COINJOIN',
+        defaultMessage: "Don't pause",
     },
 });

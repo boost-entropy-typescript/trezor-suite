@@ -1,6 +1,9 @@
 export const ACCOUNT_CREATE = '@coinjoin/account-create';
 export const ACCOUNT_REMOVE = '@coinjoin/account-remove';
 export const ACCOUNT_UPDATE_TARGET_ANONYMITY = '@coinjoin/account-update-target-anonymity';
+export const ACCOUNT_UPDATE_MAX_MING_FEE = '@coinjoin/account-update-max-mining-fee';
+export const ACCOUNT_TOGGLE_SKIP_ROUNDS = '@coinjoin/account-toggle-skip-rounds';
+export const ACCOUNT_UPDATE_SETUP_OPTION = '@coinjoin/account-update-setup-option';
 export const ACCOUNT_AUTHORIZE = '@coinjoin/account-authorize';
 export const ACCOUNT_AUTHORIZE_SUCCESS = '@coinjoin/account-authorize-success';
 export const ACCOUNT_AUTHORIZE_FAILED = '@coinjoin/account-authorize-failed';
@@ -16,13 +19,16 @@ export const CLIENT_ENABLE_FAILED = '@coinjoin/client-enable-failed';
 export const CLIENT_STATUS = '@coinjoin/client-status';
 export const CLIENT_SESSION_PHASE = '@coinjoin/session-phase';
 
+export const SESSION_STARTING = '@coinjoin/session-starting';
 export const SESSION_PAUSE = '@coinjoin/session-pause';
+export const SESSION_AUTOPAUSE = '@coinjoin/session-autopause';
 export const SESSION_RESTORE = '@coinjoin/session-restore';
 export const SESSION_ROUND_CHANGED = '@coinjoin/session-round-changed';
 export const SESSION_COMPLETED = '@coinjoin/session-completed';
 export const SESSION_OWNERSHIP = '@coinjoin/session-ownership';
 export const SESSION_TX_SIGNED = '@coinjoin/session-tx-signed';
-export const SESSION_STARTING = '@coinjoin/session-starting';
+export const SESSION_TX_BROADCASTED = '@coinjoin/session-tx-broadcasted';
+export const SESSION_TX_FAILED = '@coinjoin/session-tx-failed';
 
 export const SET_DEBUG_SETTINGS = '@coinjoin/set-debug-settings';
 

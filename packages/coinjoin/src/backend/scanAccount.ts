@@ -1,4 +1,4 @@
-import { transformTransaction } from '@trezor/blockchain-link/lib/workers/blockbook/utils';
+import { transformTransaction } from '@trezor/blockchain-link-utils/lib/blockbook';
 
 import { getAddressScript, getFilter } from './filters';
 import { doesTxContainAddress, deriveAddresses } from './backendUtils';
@@ -118,7 +118,11 @@ export const scanAccount = async (
 
     let pending: Transaction[] = [];
     if (mempool) {
-        await mempool.update();
+        if (mempool.status === 'stopped') {
+            await mempool.start();
+        } else {
+            await mempool.update();
+        }
 
         pending = mempool
             .getTransactions(receive.concat(change).map(({ address }) => address))

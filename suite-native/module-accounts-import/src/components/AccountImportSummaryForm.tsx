@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { A } from '@mobily/ts-belt';
 import { useNavigation } from '@react-navigation/core';
 
 import { networks, NetworkSymbol } from '@suite-common/wallet-config';
@@ -21,6 +22,7 @@ import {
 } from '@suite-native/navigation';
 import { AccountInfo } from '@trezor/connect';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
+import { isEthereumAccountSymbol } from '@suite-native/ethereum-tokens';
 
 import { importAccountThunk } from '../accountsImportThunks';
 import { AccountImportOverview } from './AccountImportOverview';
@@ -83,6 +85,9 @@ export const AccountImportSummaryForm = ({
         });
     });
 
+    const shouldDisplayEthereumAccountTokens =
+        isEthereumAccountSymbol(networkSymbol) && A.isNotEmpty(accountInfo.tokens ?? []);
+
     return (
         <AccountImportSummarySection title="Asset imported">
             <Form form={form}>
@@ -90,8 +95,8 @@ export const AccountImportSummaryForm = ({
                     balance={accountInfo.availableBalance}
                     networkSymbol={networkSymbol}
                 />
-                {networkSymbol === 'eth' && accountInfo.tokens && (
-                    <AccountImportEthereumTokens tokens={accountInfo.tokens} />
+                {shouldDisplayEthereumAccountTokens && (
+                    <AccountImportEthereumTokens tokens={accountInfo.tokens ?? []} />
                 )}
                 <Divider marginBottom="small" />
                 <Button

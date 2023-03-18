@@ -27,7 +27,7 @@ export interface DebugModeOptions {
     oauthServerEnvironment?: OAuthServerEnvironment;
     showDebugMenu: boolean;
     checkFirmwareAuthenticity: boolean;
-    transports: ConnectSettings['transports'];
+    transports: Extract<NonNullable<ConnectSettings['transports']>[number], string>[];
 }
 
 export interface AutodetectSettings {
@@ -65,7 +65,7 @@ export interface SuiteSettings {
     };
     language: Locale;
     torOnionLinks: boolean;
-    isCoinjoinCexWarningHidden: boolean;
+    isCoinjoinReceiveWarningHidden: boolean;
     debug: DebugModeOptions;
     autodetect: AutodetectSettings;
 }
@@ -107,7 +107,7 @@ const initialState: SuiteState = {
         },
         language: ensureLocale('en'),
         torOnionLinks: isWeb(),
-        isCoinjoinCexWarningHidden: false,
+        isCoinjoinReceiveWarningHidden: false,
         debug: {
             invityServerEnvironment: undefined,
             showDebugMenu: false,
@@ -216,8 +216,8 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
                 draft.settings.torOnionLinks = action.payload;
                 break;
 
-            case SUITE.COINJOIN_CEX_WARNING:
-                draft.settings.isCoinjoinCexWarningHidden = action.payload;
+            case SUITE.COINJOIN_RECEIVE_WARNING:
+                draft.settings.isCoinjoinReceiveWarningHidden = action.payload;
                 break;
 
             case SUITE.LOCK_UI:

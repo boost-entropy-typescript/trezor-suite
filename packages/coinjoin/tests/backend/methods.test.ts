@@ -26,7 +26,6 @@ describe(`CoinjoinBackend methods`, () => {
     const client = new MockBackendClient();
     const fetchFiltersMock = jest.spyOn(client, 'fetchFilters');
     const fetchBlockMock = jest.spyOn(client, 'fetchBlock');
-    const fetchTxMock = jest.spyOn(client, 'fetchTransaction');
 
     const getRequestedFilters = () =>
         Promise.all(fetchFiltersMock.mock.results.map(res => res.value)).then(
@@ -42,12 +41,6 @@ describe(`CoinjoinBackend methods`, () => {
             .filter(arrayDistinct)
             .sort();
 
-    const getRequestedTxs = () =>
-        fetchTxMock.mock.calls
-            .map(call => call[0])
-            .filter(arrayDistinct)
-            .sort();
-
     const getContext = <T>(onProgress: (t: T) => void) => ({
         client,
         filters: new CoinjoinFilterController(client, {
@@ -55,7 +48,7 @@ describe(`CoinjoinBackend methods`, () => {
             baseBlockHash: FIXTURES.BASE_HASH,
             baseBlockHeight: FIXTURES.BASE_HEIGHT,
         }),
-        mempool: new CoinjoinMempoolController(client),
+        mempool: new CoinjoinMempoolController({ client }),
         network: networks.regtest,
         onProgress,
     });
@@ -63,7 +56,6 @@ describe(`CoinjoinBackend methods`, () => {
     beforeEach(() => {
         fetchFiltersMock.mockClear();
         fetchBlockMock.mockClear();
-        fetchTxMock.mockClear();
         client.setFixture(FIXTURES.BLOCKS);
     });
 
@@ -160,11 +152,6 @@ describe(`CoinjoinBackend methods`, () => {
         expect(halfBlocks).toEqual([1, 2, 4]);
         fetchBlockMock.mockClear();
 
-        // Should request only txid_4 transaction from mempool
-        const halfTxs = getRequestedTxs();
-        expect(halfTxs).toEqual([FIXTURES.TX_4_PENDING.txid]);
-        fetchTxMock.mockClear();
-
         // All blocks are known
         client.setFixture(FIXTURES.BLOCKS);
 
@@ -194,9 +181,54 @@ describe(`CoinjoinBackend methods`, () => {
         // Should request only blocks after the fourth one (except the fifth which is empty)
         const restBlocks = getRequestedBlocks();
         expect(restBlocks).toEqual([6, 7, 8]);
+    });
 
-        // Shouldn't request any transaction from mempool
-        const restTxs = getRequestedTxs();
-        expect(restTxs).toEqual([]);
+    it('scanAccount 1-block reorg', async () => {
+        const [PRELAST_BLOCK, LAST_BLOCK] = FIXTURES.BLOCKS.slice(-2);
+        const PRELAST_CP = { blockHeight: PRELAST_BLOCK.height, blockHash: PRELAST_BLOCK.hash };
+        const REORG_BLOCK = {
+            ...LAST_BLOCK,
+            hash: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+        };
+
+        // First scan, from initial checkpoint to end
+        const { checkpoint: cp1 } = await scanAccount(
+            { descriptor: FIXTURES.SEGWIT_XPUB, checkpoints: [EMPTY_CHECKPOINT] },
+            getContext(() => {}),
+        );
+
+        // First returned checkpoint corresponds to the last block
+        expect(cp1.blockHeight).toBe(LAST_BLOCK.height);
+        expect(cp1.blockHash).toBe(LAST_BLOCK.hash);
+
+        const progresses: (typeof PRELAST_CP)[] = [];
+
+        // Second scan, from last known checkpoint to end, same data, nothing should change
+        const { checkpoint: cp2 } = await scanAccount(
+            { descriptor: FIXTURES.SEGWIT_XPUB, checkpoints: [cp1, { ...cp1, ...PRELAST_CP }] },
+            getContext(progress => progresses.push(progress.checkpoint)),
+        );
+
+        // Second returned checkpoint should be exactly the same as the first one
+        expect(cp2.blockHeight).toBe(LAST_BLOCK.height);
+        expect(cp2.blockHash).toBe(LAST_BLOCK.hash);
+        // No progress should be emitted as nothing changed
+        expect(progresses).toHaveLength(0);
+
+        // REORG -> last block's hash changed
+        client.setFixture([...FIXTURES.BLOCKS.slice(0, -1), REORG_BLOCK]);
+
+        // Third scan, from last known checkpoint, should signalize last block reorg
+        const { checkpoint: cp3 } = await scanAccount(
+            { descriptor: FIXTURES.SEGWIT_XPUB, checkpoints: [cp2, { ...cp2, ...PRELAST_CP }] },
+            getContext(progress => progresses.push(progress.checkpoint)),
+        );
+
+        // Third returned checkpoint corresponds to the reorged last block
+        expect(cp3.blockHeight).toBe(REORG_BLOCK.height);
+        expect(cp3.blockHash).toBe(REORG_BLOCK.hash);
+        // Progress with reorged block should be emitted
+        expect(progresses).toHaveLength(1);
+        expect(progresses[0]).toEqual(cp3);
     });
 });

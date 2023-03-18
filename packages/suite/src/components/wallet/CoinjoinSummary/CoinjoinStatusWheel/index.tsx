@@ -2,16 +2,14 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { variables, Card } from '@trezor/components';
-import {
-    pauseCoinjoinSession,
-    restoreCoinjoinSession,
-} from '@wallet-actions/coinjoinAccountActions';
+import { restoreCoinjoinSession } from '@wallet-actions/coinjoinAccountActions';
 import { useCoinjoinSessionBlockers } from '@suite/hooks/coinjoin/useCoinjoinSessionBlockers';
 import { ProgressWheel } from './ProgressWheel';
-import { ProgressMessage } from './ProgressMessage';
+import { StatusMessage } from './StatusMessage';
 import { SessionControlsMenu } from './SessionControlsMenu';
 import { useSelector } from '@suite-hooks/useSelector';
 import { selectCurrentCoinjoinWheelStates } from '@wallet-reducers/coinjoinReducer';
+import { pauseCoinjoinSession } from '@wallet-actions/coinjoinClientActions';
 
 const Container = styled(Card)<{ isWide?: boolean }>`
     position: relative;
@@ -32,7 +30,9 @@ interface CoinjoinStatusWheelProps {
 }
 
 export const CoinjoinStatusWheel = ({ accountKey }: CoinjoinStatusWheelProps) => {
-    const { isPaused, isSessionActive } = useSelector(selectCurrentCoinjoinWheelStates);
+    const { isPaused, isSessionActive, isResumeBlockedByLastingIssue } = useSelector(
+        selectCurrentCoinjoinWheelStates,
+    );
 
     const { isCoinjoinSessionBlocked } = useCoinjoinSessionBlockers(accountKey);
 
@@ -58,7 +58,9 @@ export const CoinjoinStatusWheel = ({ accountKey }: CoinjoinStatusWheelProps) =>
 
             <ProgressWheel accountKey={accountKey} togglePause={togglePause} />
 
-            {isSessionActive && <ProgressMessage accountKey={accountKey} />}
+            {isSessionActive && !isResumeBlockedByLastingIssue && (
+                <StatusMessage accountKey={accountKey} />
+            )}
         </Container>
     );
 };

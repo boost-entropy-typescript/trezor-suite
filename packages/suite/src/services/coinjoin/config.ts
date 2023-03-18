@@ -134,6 +134,8 @@ export const ESTIMATED_ROUNDS_FAIL_RATE_BUFFER = 2.5;
 export const ESTIMATED_MIN_ROUNDS_NEEDED = 4;
 export const ESTIMATED_HOURS_PER_ROUND = 1;
 export const RECOMMENDED_SKIP_ROUNDS = undefined; // temporary disabled for testing purposes // [4, 5] as [number, number];
+export const UNECONOMICAL_COINJOIN_THRESHOLD = 1_000_000;
+
 export const CLIENT_STATUS_FALLBACK = {
     rounds: [],
     maxMiningFee: MAX_MINING_FEE_FALLBACK,
@@ -146,12 +148,13 @@ export const CLIENT_STATUS_FALLBACK = {
         max: MAX_ALLOWED_AMOUNT_FALLBACK,
     },
 };
+export const DEFAULT_TARGET_ANONYMITY = 5;
+export const SKIP_ROUNDS_BY_DEFAULT = false;
+export const SKIP_ROUNDS_VALUE_WHEN_ENABLED = [4, 5] as [number, number];
 
 // coordinator fee rate from status format (0.003)
 // firmware format (300 000 = 0.003 * 10 ** 8)
 export const COORDINATOR_FEE_RATE_MULTIPLIER = 10 ** 8;
-
-export const DEFAULT_TARGET_ANONYMITY = 5;
 
 export const getCoinjoinConfig = (
     network: NetworkSymbol,

@@ -948,7 +948,7 @@
                                     "type": "uint32",
                                     "id": 12,
                                     "options": {
-                                        "(experimental)": true
+                                        "(experimental_field)": true
                                     }
                                 }
                             }
@@ -1091,7 +1091,7 @@
                     "type": "uint32",
                     "id": 12,
                     "options": {
-                        "(experimental)": true
+                        "(experimental_field)": true
                     }
                 }
             }
@@ -1191,7 +1191,7 @@
         },
         "TxAckPaymentRequest": {
             "options": {
-                "(unstable)": true
+                "(experimental_message)": true
             },
             "fields": {
                 "nonce": {
@@ -1475,9 +1475,6 @@
             }
         },
         "AuthorizeCoinJoin": {
-            "options": {
-                "(unstable)": true
-            },
             "fields": {
                 "coordinator": {
                     "rule": "required",
@@ -1634,10 +1631,10 @@
         "CardanoTxAuxiliaryDataSupplementType": {
             "values": {
                 "NONE": 0,
-                "GOVERNANCE_REGISTRATION_SIGNATURE": 1
+                "CVOTE_REGISTRATION_SIGNATURE": 1
             }
         },
-        "CardanoGovernanceRegistrationFormat": {
+        "CardanoCVoteRegistrationFormat": {
             "values": {
                 "CIP15": 0,
                 "CIP36": 1
@@ -2245,9 +2242,9 @@
                 }
             }
         },
-        "CardanoGovernanceRegistrationDelegation": {
+        "CardanoCVoteRegistrationDelegation": {
             "fields": {
-                "voting_public_key": {
+                "vote_public_key": {
                     "rule": "required",
                     "type": "bytes",
                     "id": 1
@@ -2259,9 +2256,9 @@
                 }
             }
         },
-        "CardanoGovernanceRegistrationParametersType": {
+        "CardanoCVoteRegistrationParametersType": {
             "fields": {
-                "voting_public_key": {
+                "vote_public_key": {
                     "type": "bytes",
                     "id": 1
                 },
@@ -2273,8 +2270,7 @@
                         "packed": false
                     }
                 },
-                "reward_address_parameters": {
-                    "rule": "required",
+                "payment_address_parameters": {
                     "type": "CardanoAddressParametersType",
                     "id": 3
                 },
@@ -2284,7 +2280,7 @@
                     "id": 4
                 },
                 "format": {
-                    "type": "CardanoGovernanceRegistrationFormat",
+                    "type": "CardanoCVoteRegistrationFormat",
                     "id": 5,
                     "options": {
                         "default": "CIP15"
@@ -2292,19 +2288,23 @@
                 },
                 "delegations": {
                     "rule": "repeated",
-                    "type": "CardanoGovernanceRegistrationDelegation",
+                    "type": "CardanoCVoteRegistrationDelegation",
                     "id": 6
                 },
                 "voting_purpose": {
                     "type": "uint64",
                     "id": 7
+                },
+                "payment_address": {
+                    "type": "string",
+                    "id": 8
                 }
             }
         },
         "CardanoTxAuxiliaryData": {
             "fields": {
-                "governance_registration_parameters": {
-                    "type": "CardanoGovernanceRegistrationParametersType",
+                "cvote_registration_parameters": {
+                    "type": "CardanoCVoteRegistrationParametersType",
                     "id": 1
                 },
                 "hash": {
@@ -2380,7 +2380,7 @@
                     "type": "bytes",
                     "id": 2
                 },
-                "governance_signature": {
+                "cvote_registration_signature": {
                     "type": "bytes",
                     "id": 3
                 }
@@ -2805,10 +2805,12 @@
         "CosiCommitment": {
             "fields": {
                 "commitment": {
+                    "rule": "required",
                     "type": "bytes",
                     "id": 1
                 },
                 "pubkey": {
+                    "rule": "required",
                     "type": "bytes",
                     "id": 2
                 }
@@ -2825,14 +2827,17 @@
                     }
                 },
                 "data": {
+                    "rule": "required",
                     "type": "bytes",
                     "id": 2
                 },
                 "global_commitment": {
+                    "rule": "required",
                     "type": "bytes",
                     "id": 3
                 },
                 "global_pubkey": {
+                    "rule": "required",
                     "type": "bytes",
                     "id": 4
                 }
@@ -4103,6 +4108,12 @@
                 "PromptTemporarily": 2
             }
         },
+        "HomescreenFormat": {
+            "values": {
+                "Toif144x144": 1,
+                "Jpeg240x240": 2
+            }
+        },
         "Initialize": {
             "fields": {
                 "session_id": {
@@ -4292,6 +4303,14 @@
                 "busy": {
                     "type": "bool",
                     "id": 41
+                },
+                "homescreen_format": {
+                    "type": "HomescreenFormat",
+                    "id": 42
+                },
+                "hide_passphrase_from_host": {
+                    "type": "bool",
+                    "id": 43
                 }
             },
             "nested": {
@@ -4379,6 +4398,10 @@
                 "experimental_features": {
                     "type": "bool",
                     "id": 10
+                },
+                "hide_passphrase_from_host": {
+                    "type": "bool",
+                    "id": 11
                 }
             }
         },
@@ -4703,13 +4726,13 @@
         },
         "GetNonce": {
             "options": {
-                "(unstable)": true
+                "(experimental_message)": true
             },
             "fields": {}
         },
         "Nonce": {
             "options": {
-                "(unstable)": true
+                "(experimental_message)": true
             },
             "fields": {
                 "nonce": {
@@ -5808,10 +5831,7 @@
                         },
                         "payload": {
                             "type": "bytes",
-                            "id": 3,
-                            "options": {
-                                "default": ""
-                            }
+                            "id": 3
                         },
                         "public_key": {
                             "type": "bytes",
@@ -6153,7 +6173,7 @@
             "id": 51001,
             "extend": "google.protobuf.EnumOptions"
         },
-        "unstable": {
+        "experimental_message": {
             "type": "bool",
             "id": 52001,
             "extend": "google.protobuf.MessageOptions"
@@ -6163,7 +6183,7 @@
             "id": 52002,
             "extend": "google.protobuf.MessageOptions"
         },
-        "experimental": {
+        "experimental_field": {
             "type": "bool",
             "id": 53001,
             "extend": "google.protobuf.FieldOptions"

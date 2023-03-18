@@ -16,9 +16,15 @@ import {
     getEstimatedTimePerRound,
 } from '@wallet-utils/coinjoinUtils';
 import { CoinjoinService } from '@suite/services/coinjoin';
+import { selectAccountByKey } from '@suite-common/wallet-core';
 import { Dispatch, GetState } from '@suite-types';
 import { Account } from '@suite-common/wallet-types';
-import { RoundPhase, CoinjoinAccount, CoinjoinDebugSettings } from '@wallet-types/coinjoin';
+import {
+    RoundPhase,
+    CoinjoinAccount,
+    EndRoundState,
+    CoinjoinDebugSettings,
+} from '@wallet-types/coinjoin';
 import { onCancel as closeModal, openModal } from '@suite-actions/modalActions';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
@@ -101,16 +107,32 @@ const clientSessionOwnership = (accountKey: string, roundId: string) =>
         },
     } as const);
 
-export interface SessionSignTransactionPayload {
+const clientSessionTxSigned = (payload: {
     accountKey: string;
     roundId: string;
     rawLiquidityClue: CoinjoinAccount['rawLiquidityClue'];
-}
-
-const clientSessionSignTransaction = (payload: SessionSignTransactionPayload) =>
+}) =>
     ({
         type: COINJOIN.SESSION_TX_SIGNED,
         payload,
+    } as const);
+
+const clientSessionTxBroadcasted = (accountKeys: string[], round: SerializedCoinjoinRound) =>
+    ({
+        type: COINJOIN.SESSION_TX_BROADCASTED,
+        payload: {
+            accountKeys,
+            round,
+        },
+    } as const);
+
+const clientSessionTxFailed = (accountKeys: string[], round: SerializedCoinjoinRound) =>
+    ({
+        type: COINJOIN.SESSION_TX_FAILED,
+        payload: {
+            accountKeys,
+            round,
+        },
     } as const);
 
 const clientSessionPhase = (payload: CoinjoinClientEvents['session-phase']) =>
@@ -125,6 +147,15 @@ export const setDebugSettings = (payload: CoinjoinDebugSettings) =>
         payload,
     } as const);
 
+export const coinjoinSessionPause = (accountKey: string, interrupted: boolean) =>
+    ({
+        type: COINJOIN.SESSION_PAUSE,
+        payload: {
+            accountKey,
+            interrupted,
+        },
+    } as const);
+
 export type CoinjoinClientAction =
     | ReturnType<typeof setDebugSettings>
     | ReturnType<typeof clientEnable>
@@ -135,8 +166,12 @@ export type CoinjoinClientAction =
     | ReturnType<typeof clientSessionRoundChanged>
     | ReturnType<typeof clientSessionCompleted>
     | ReturnType<typeof clientSessionOwnership>
-    | ReturnType<typeof clientSessionSignTransaction>
-    | ReturnType<typeof clientSessionPhase>;
+    | ReturnType<typeof clientSessionPhase>
+    | ReturnType<typeof clientSessionTxSigned>
+    | ReturnType<typeof clientSessionTxBroadcasted>
+    | ReturnType<typeof clientSessionTxFailed>
+    | ReturnType<typeof clientSessionPhase>
+    | ReturnType<typeof coinjoinSessionPause>;
 
 // return only active instances
 export const getCoinjoinClient = (symbol: Account['symbol']) =>
@@ -211,6 +246,25 @@ export const closeCriticalPhaseModal = () => (dispatch: Dispatch, getState: GetS
     }
 };
 
+// called from coinjoin account UI or exceptions like device disconnection, forget wallet/account etc.
+export const pauseCoinjoinSession =
+    (accountKey: string, interrupted = false) =>
+    (dispatch: Dispatch, getState: GetState) => {
+        const account = selectAccountByKey(getState(), accountKey);
+
+        if (!account) {
+            return;
+        }
+        // get @trezor/coinjoin client if available
+        const client = getCoinjoinClient(account.symbol);
+
+        // unregister account in @trezor/coinjoin
+        client?.unregisterAccount(accountKey);
+
+        // dispatch data to reducer
+        dispatch(coinjoinSessionPause(accountKey, interrupted));
+    };
+
 export const onCoinjoinRoundChanged =
     ({ round }: CoinjoinRoundEvent) =>
     async (dispatch: Dispatch, getState: GetState) => {
@@ -268,6 +322,12 @@ export const onCoinjoinRoundChanged =
                 await dispatch(setBusyScreen(accountKeys));
                 dispatch(closeCriticalPhaseModal());
 
+                if (round.endRoundState === EndRoundState.TransactionBroadcasted) {
+                    dispatch(clientSessionTxBroadcasted(accountKeys, round));
+                } else {
+                    dispatch(clientSessionTxFailed(accountKeys, round));
+                }
+
                 const accountsReachingMaxRounds = coinjoinAccountsWithSession.filter(
                     ({ session }) => session?.signedRounds?.length === session?.maxRounds,
                 );
@@ -277,6 +337,16 @@ export const onCoinjoinRoundChanged =
                         dispatch(endCoinjoinSession(key));
                     });
                 }
+
+                const accountsWithAutopause = coinjoinAccountsWithSession.filter(
+                    ({ key, session }) =>
+                        !accountsReachingMaxRounds.find(accout => accout.key === key) &&
+                        session?.isAutoPauseEnabled,
+                );
+
+                accountsWithAutopause.forEach(({ key }) => {
+                    dispatch(pauseCoinjoinSession(key));
+                });
             }
         }
     };
@@ -460,7 +530,7 @@ export const signCoinjoinTx =
                     async () => {
                         // notify reducer before signing, failed signing are also counted in Trezor maxRound limit
                         dispatch(
-                            clientSessionSignTransaction({
+                            clientSessionTxSigned({
                                 accountKey: key,
                                 roundId,
                                 rawLiquidityClue:
