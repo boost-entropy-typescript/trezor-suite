@@ -8,6 +8,7 @@
 # @trezor/suite-web
 .e2e web:
   stage: integration testing
+  retry: 1
   dependencies:
     - install
   variables:
@@ -119,7 +120,7 @@ suite web 2-master manual:
 # @trezor/suite-desktop
 .e2e desktop:
   stage: integration testing
-  allow_failure: true # coinjoin test is unstable - there is rapid development
+  retry: 1
   dependencies:
     - install
   variables:
@@ -152,8 +153,9 @@ suite web 2-master manual:
         CONTAINERS: "trezor-user-env-unix"
       - TEST_FILE: ["electrum"]
         CONTAINERS: "trezor-user-env-unix electrum-regtest"
-      - TEST_FILE: ["coinjoin"]
-        CONTAINERS: "trezor-user-env-unix coinjoin-backend"
+      # commented out. coinjoin test is not adapted to current state of this feature
+      # - TEST_FILE: ["coinjoin"]
+      #   CONTAINERS: "trezor-user-env-unix coinjoin-backend"
 
 suite desktop:
   extends: .e2e desktop
@@ -196,6 +198,7 @@ transport manual:
 # @trezor/connect-popup (via @trezor/connect-explorer)
 .e2e connect-popup:
   stage: integration testing
+  retry: 1
   variables:
     COMPOSE_PROJECT_NAME: $CI_JOB_ID
     COMPOSE_FILE: ./docker/docker-compose.connect-popup-ci.yml
@@ -222,6 +225,7 @@ transport manual:
       - TEST_FILE: ["methods"]
       - TEST_FILE: ["popup-close"]
       - TEST_FILE: ["unchained"]
+      - TEST_FILE: ["browser-support"]
 
 connect-popup:
   extends: .e2e connect-popup
@@ -393,3 +397,39 @@ connect-web:
   extends: .e2e connect-web
   only:
     <<: *run_everything_rules
+
+.e2e connect-web-extension:
+  stage: integration testing
+  variables:
+    COMPOSE_PROJECT_NAME: $CI_JOB_ID
+    COMPOSE_FILE: ./docker/docker-compose.connect-webextension-test.yml
+    URL: ${DEV_SERVER_URL}/connect/${CI_BUILD_REF_NAME}/
+    HEADLESS: "true"
+  script:
+    - yarn install --immutable
+    - node ./packages/connect-examples/update-webextensions.js
+    - docker-compose pull
+    - docker-compose up -d trezor-user-env-unix
+    - docker-compose run test-run
+  after_script:
+    - docker-compose down
+    - docker network prune -f
+  artifacts:
+    expire_in: 7 days
+    when: always
+    paths:
+      - ./packages/integration-tests/screenshots
+      - ./packages/integration-tests/test-results
+  interruptible: true
+
+connect-web-extension:
+  extends: .e2e connect-web-extension
+  only:
+    <<: *run_everything_rules
+  when: always
+
+connect-web-extension manual:
+  extends: .e2e connect-web-extension
+  except:
+    <<: *run_everything_rules
+  when: manual

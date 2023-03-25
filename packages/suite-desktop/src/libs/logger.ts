@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { app } from 'electron';
 
 import { isDevEnv } from '@suite-common/suite-utils';
+import { ensureDirectoryExists } from '@trezor/node-utils';
 
 import { getBuildInfo, getComputerInfo } from './info';
 
@@ -23,7 +24,6 @@ export type Options = {
     logFormat?: string; // Output format of the log
 };
 
-const userDataDir = app?.getPath('userData');
 const logLevelSwitchValue = app?.commandLine.getSwitchValue('log-level');
 const logLevelByEnv = isDevEnv ? 'debug' : 'error';
 const logLevelDefault = isLogLevel(logLevelSwitchValue) ? logLevelSwitchValue : logLevelByEnv;
@@ -39,6 +39,8 @@ export class Logger implements ILogger {
         const logLevel = level || logLevelDefault;
 
         this.logLevel = logLevels.indexOf(logLevel);
+
+        const userDataDir = app?.getPath('userData');
 
         this.defaultOptions = {
             colors: true,
@@ -83,11 +85,7 @@ export class Logger implements ILogger {
                 return;
             }
 
-            try {
-                await fs.promises.access(outputPath, fs.constants.R_OK);
-            } catch {
-                await fs.promises.mkdir(outputPath);
-            }
+            await ensureDirectoryExists(outputPath);
 
             return fs.createWriteStream(path.join(outputPath, this.format(outputFile)));
         }

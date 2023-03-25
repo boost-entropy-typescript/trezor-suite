@@ -92,20 +92,21 @@ type ExtractActionPayload<A> = Extract<Action, { type: A }> extends { type: A; p
 
 const createAccount = (
     draft: CoinjoinState,
-    { account }: ExtractActionPayload<typeof COINJOIN.ACCOUNT_CREATE>,
+    { accountKey, symbol }: ExtractActionPayload<typeof COINJOIN.ACCOUNT_CREATE>,
 ) => {
     draft.isPreloading = false;
-    const exists = draft.accounts.find(a => a.key === account.key);
-    if (exists) return;
-    draft.accounts.push({
-        key: account.key,
-        symbol: account.symbol,
+    const coinjoinAccount = {
+        key: accountKey,
+        symbol,
         rawLiquidityClue: null, // NOTE: liquidity clue is calculated from tx history. default value is `null`
         targetAnonymity: DEFAULT_TARGET_ANONYMITY,
         maxFeePerKvbyte: MAX_MINING_FEE_FALLBACK,
         skipRounds: DEFAULT_SKIP_ROUNDS,
         previousSessions: [],
-    });
+    };
+    const index = draft.accounts.findIndex(a => a.key === accountKey);
+    if (index < 0) draft.accounts.push(coinjoinAccount);
+    else draft.accounts[index] = coinjoinAccount;
 };
 
 const setLiquidityClue = (
@@ -297,7 +298,7 @@ const saveCheckpoint = (
     draft: CoinjoinState,
     action: Extract<Action, { type: typeof COINJOIN.ACCOUNT_DISCOVERY_PROGRESS }>,
 ) => {
-    const account = draft.accounts.find(a => a.key === action.payload.account.key);
+    const account = draft.accounts.find(a => a.key === action.payload.accountKey);
     if (!account) return;
     const checkpointNew = action.payload.progress.checkpoint;
     const checkpoints = (account.checkpoints ?? [])

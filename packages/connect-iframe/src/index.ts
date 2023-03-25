@@ -11,7 +11,6 @@ import {
     IFRAME,
     UI,
     parseMessage,
-    parseConnectSettings,
     createResponseMessage,
     createIFrameMessage,
     createPopupMessage,
@@ -22,14 +21,14 @@ import {
 } from '@trezor/connect';
 import { Core, init as initCore, initTransport } from '@trezor/connect/src/core';
 import { DataManager } from '@trezor/connect/src/data/DataManager';
+import { config } from '@trezor/connect/src/data/config';
 import { initLog } from '@trezor/connect/src/utils/debug';
-import { sendMessage } from '@trezor/connect/src/utils/windowsUtils';
 import { getOrigin } from '@trezor/connect/src/utils/urlUtils';
-import {
-    suggestBridgeInstaller,
-    suggestUdevInstaller,
-} from '@trezor/connect/src/utils/browserUtils';
+import { suggestBridgeInstaller } from '@trezor/connect/src/data/transportInfo';
+import { suggestUdevInstaller } from '@trezor/connect/src/data/udevInfo';
 import { storage } from '@trezor/connect-common';
+import { parseConnectSettings, isOriginWhitelisted } from './connectSettings';
+import { getSystemInfo, getInstallerPackage } from './systemInfo';
 
 let _core: Core | undefined;
 
@@ -99,7 +98,7 @@ const handleMessage = (event: PostMessageEvent) => {
     }
 
     // is message from popup or extension
-    const whitelist = DataManager.isWhitelisted(event.origin);
+    const whitelist = isOriginWhitelisted(event.origin);
     const isTrustedDomain = event.origin === window.location.origin || !!whitelist;
 
     // ignore messages from domain other then parent.window or popup.window or chrome extension
@@ -152,8 +151,9 @@ const postMessage = (message: CoreMessage) => {
 
     if (message.event === TRANSPORT_EVENT) {
         // add preferred bridge installer
-        message.payload.bridge = suggestBridgeInstaller();
-        message.payload.udev = suggestUdevInstaller();
+        const platform = getInstallerPackage();
+        message.payload.bridge = suggestBridgeInstaller(platform);
+        message.payload.udev = suggestUdevInstaller(platform);
     }
 
     if (usingPopup && targetUiEvent(message)) {
@@ -163,7 +163,7 @@ const postMessage = (message: CoreMessage) => {
     } else {
         let origin = DataManager.getSettings('origin');
         if (!origin || origin.indexOf('file://') >= 0) origin = '*';
-        sendMessage(message, origin);
+        window.parent.postMessage(message, origin);
     }
 };
 
@@ -201,12 +201,13 @@ const filterDeviceEvent = (message: DeviceEvent) => {
 
 const init = async (payload: IFrameInit['payload'], origin: string) => {
     if (DataManager.getSettings('origin')) return; // already initialized
-    const parsedSettings = parseConnectSettings({
-        ...payload.settings,
-        extension: payload.extension,
-    });
-    // set origin manually
-    parsedSettings.origin = !origin || origin === 'null' ? payload.settings.origin : origin;
+    const parsedSettings = parseConnectSettings(
+        {
+            ...payload.settings,
+            extension: payload.extension,
+        },
+        origin,
+    );
 
     if (parsedSettings.popup && typeof BroadcastChannel !== 'undefined') {
         // && parsedSettings.env !== 'web'
@@ -231,7 +232,10 @@ const init = async (payload: IFrameInit['payload'], origin: string) => {
         // initialize transport and wait for the first transport event (start or error)
         await initTransport(parsedSettings);
         postMessage(
-            createIFrameMessage(IFRAME.LOADED, { useBroadcastChannel: !!_popupMessagePort }),
+            createIFrameMessage(IFRAME.LOADED, {
+                useBroadcastChannel: !!_popupMessagePort,
+                systemInfo: getSystemInfo(config.supportedBrowsers),
+            }),
         );
     } catch (error) {
         postMessage(createIFrameMessage(IFRAME.ERROR, { error }));

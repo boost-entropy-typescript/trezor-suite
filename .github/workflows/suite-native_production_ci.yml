@@ -28,7 +28,7 @@ jobs:
           ENCODED_STRING_KEYSTORE: ${{ secrets.PRODUCTION_KEYSTORE_FILE }}
           ENCODED_STRING_JSON_FILE: ${{secrets.PRODUCTION_GOOGLE_PLAY_JSON_KEY}}
         run: |
-          echo $ENCODED_STRING_KEYSTORE |  base64 -d > suite-native/app/android/prod-upload-key.keystore
+          echo $ENCODED_STRING_KEYSTORE |  base64 -d > suite-native/app/android/app/prod-upload-key.keystore
           echo $ENCODED_STRING_JSON_FILE > suite-native/app/android/google_play_key.json
 
       - name: Install dependecies

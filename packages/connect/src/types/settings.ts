@@ -30,9 +30,19 @@ export interface ConnectSettings {
     version: string;
     priority: number;
     trustedHost: boolean;
-    supportedBrowser?: boolean;
     extension?: string;
     env: 'node' | 'web' | 'webextension' | 'electron' | 'react-native';
     timestamp: number;
     proxy?: Proxy;
+}
+
+export interface SystemInfo {
+    os: {
+        family?: 'Linux' | 'MacOS' | 'Windows';
+        mobile: boolean;
+    };
+    browser: {
+        supported: boolean;
+        outdated: boolean;
+    };
 }

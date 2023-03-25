@@ -8,7 +8,6 @@
         { "path": "../helpers" },
         { "path": "../module-settings" },
         { "path": "../navigation" },
-        { "path": "../notifications" },
         { "path": "../storage" },
         { "path": "../../packages/icons" },
         { "path": "../../packages/styles" },
