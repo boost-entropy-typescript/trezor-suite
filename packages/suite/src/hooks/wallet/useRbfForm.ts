@@ -10,6 +10,7 @@ import { FormState, FeeInfo } from '@wallet-types/sendForm';
 import { useFees } from './form/useFees';
 import { useCompose } from './form/useCompose';
 import { useBitcoinAmountUnit } from './useBitcoinAmountUnit';
+import { selectCurrentTargetAnonymity } from '@wallet-reducers/coinjoinReducer';
 
 export type Props = {
     tx: WalletAccountTransaction;
@@ -58,8 +59,8 @@ const getFeeInfo = (
 
 const useRbfState = ({ tx, finalize, chainedTxs }: Props, currentState: boolean) => {
     const selectedAccount = useSelector(state => state.wallet.selectedAccount);
-    const coinjoinAccounts = useSelector(state => state.wallet.coinjoin.accounts);
     const fees = useSelector(state => state.wallet.fees);
+    const targetAnonymity = useSelector(selectCurrentTargetAnonymity);
 
     const { areSatsDisplayed } = useBitcoinAmountUnit();
 
@@ -117,14 +118,11 @@ const useRbfState = ({ tx, finalize, chainedTxs }: Props, currentState: boolean)
         baseFee,
     };
 
-    // find coinjoin account related to current account
-    const coinjoinAccount = coinjoinAccounts.find(a => a.key === selectedAccount.account.key);
-
     const excludedUtxos = getExcludedUtxos({
         utxos: rbfAccount.utxo,
         dustLimit: coinFees.dustLimit,
         anonymitySet: rbfAccount.addresses?.anonymitySet,
-        targetAnonymity: coinjoinAccount?.targetAnonymity,
+        targetAnonymity,
     });
 
     return {
@@ -158,7 +156,7 @@ export const useRbf = (props: Props) => {
 
     // react-hook-form
     const useFormMethods = useForm<FormState>({ mode: 'onChange', shouldUnregister: false });
-    const { reset, register, setValue, getValues, errors } = useFormMethods;
+    const { reset, register, control, setValue, getValues, errors } = useFormMethods;
 
     // react-hook-form auto register custom form fields (without HTMLElement)
     useEffect(() => {
@@ -230,6 +228,7 @@ export const useRbf = (props: Props) => {
         ...ctxState,
         isLoading,
         register: register as (rules?: TypedValidationRules) => (ref: any) => void,
+        control,
         errors,
         setValue,
         getValues,
