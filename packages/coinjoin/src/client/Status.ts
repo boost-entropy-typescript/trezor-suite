@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 
 import * as coordinator from './coordinator';
-import { findNearestDeadline, transformStatus } from '../utils/roundUtils';
+import { transformStatus } from '../utils/roundUtils';
 import { STATUS_TIMEOUT } from '../constants';
 import { RoundPhase } from '../enums';
 import { CoinjoinClientSettings, CoinjoinStatusEvent, LogEvent } from '../types';
@@ -15,6 +15,13 @@ interface StatusEvents {
     'affiliate-server': boolean;
 }
 
+// partial CoinjoinRound
+interface RegisteredRound {
+    id: string;
+    phaseDeadline: number;
+    inputs: { outpoint: string }[];
+}
+
 export declare interface Status {
     on<K extends keyof StatusEvents>(type: K, listener: (event: StatusEvents[K]) => void): this;
     off<K extends keyof StatusEvents>(type: K, listener: (event: StatusEvents[K]) => void): this;
@@ -26,6 +33,7 @@ export class Status extends EventEmitter {
     timestamp = 0;
     nextTimestamp = 0;
     rounds: Round[] = [];
+    private registeredRound: RegisteredRound[] = [];
     mode: StatusMode = 'idle';
     private settings: CoinjoinClientSettings;
     private abortController: AbortController;
@@ -38,6 +46,10 @@ export class Status extends EventEmitter {
         this.settings = settings;
         this.abortController = new AbortController();
         this.identities = ['Satoshi'];
+    }
+
+    private log(level: LogEvent['level'], payload: LogEvent['payload']) {
+        this.emit('log', { level, payload });
     }
 
     private compareStatus(next: Round[]) {
@@ -62,10 +74,16 @@ export class Status extends EventEmitter {
                 if (nextRound.phase === RoundPhase.Ended && known.phase !== RoundPhase.Ended)
                     return true; // round ended
                 if (nextRound.phase !== known.phase) {
-                    this.emit('log', {
-                        level: 'warn',
-                        payload: `Unexpected phase change: ${nextRound.id} ${known.phase} => ${nextRound.phase}`,
-                    });
+                    this.log(
+                        'warn',
+                        `Unexpected phase change: ${nextRound.id} ${known.phase} => ${nextRound.phase}`,
+                    );
+                    // possible corner-case:
+                    // - suite fetch the /status, next fetch will be in ~20 sec. + potential network delay
+                    // - round is currently in phase "0" but will be changed to "1" in few seconds,
+                    // - meanwhile all registered inputs sends /connection-confirmation, round phase on coordinator is changed to "2"
+                    // - suite fetch the /status, round phase is changed from 0 to 2
+                    return true;
                 }
                 return false;
             })
@@ -102,6 +120,18 @@ export class Status extends EventEmitter {
         this.identities = this.identities.filter(i => i !== id);
     }
 
+    startFollowRound(round: RegisteredRound) {
+        if (!this.registeredRound.find(r => r.id === round.id)) {
+            this.log('debug', `Status start following round ~~${round.id}~~`);
+            this.registeredRound.push(round);
+        }
+    }
+
+    stopFollowRound(id: string) {
+        this.log('debug', `Status stop following round ~${id}~`);
+        this.registeredRound = this.registeredRound.filter(r => r.id !== id);
+    }
+
     private clearStatusTimeout() {
         if (this.statusTimeout) clearTimeout(this.statusTimeout);
         this.statusTimeout = undefined;
@@ -110,14 +140,22 @@ export class Status extends EventEmitter {
     private setStatusTimeout() {
         if (!this.enabled) return;
 
-        const nearestDeadline = findNearestDeadline(this.rounds);
-        // TODO: add timeout randomness?
+        const defaultTimeout = STATUS_TIMEOUT[this.mode];
+        const half = defaultTimeout / 2;
+
+        // get deadlines from registered rounds
+        // set minimum deadline to half of defaultTimeout to avoid http request overflow
+        const nearestDeadlines = this.registeredRound
+            .map(r => r.phaseDeadline - Date.now())
+            .map(r => Math.max(r, half));
+
         const timeout =
-            this.mode !== 'idle' && nearestDeadline > 0
-                ? Math.min(nearestDeadline, STATUS_TIMEOUT[this.mode])
-                : STATUS_TIMEOUT[this.mode];
+            this.mode !== 'idle' ? Math.min(...nearestDeadlines, defaultTimeout) : defaultTimeout;
+
         this.timestamp = Date.now();
         this.nextTimestamp = this.timestamp + timeout;
+
+        this.log('debug', `Next status fetch in ${timeout}ms`);
 
         this.statusTimeout = setTimeout(() => {
             this.getStatus().then(() => {
@@ -176,11 +214,11 @@ export class Status extends EventEmitter {
                 try {
                     return this.processStatus(status);
                 } catch (error) {
-                    this.emit('log', { level: 'error', payload: `Status: ${error.message}` });
+                    this.log('error', `Status: ${error.message}`);
                 }
             })
             .catch(error => {
-                this.emit('log', { level: 'warn', payload: `Status: ${error.message}` });
+                this.log('warn', `Status: ${error.message}`);
             });
     }
 
