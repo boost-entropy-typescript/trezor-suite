@@ -146,7 +146,7 @@ export const createCoinjoinRound = (
 };
 
 export const STATUS_TRANSFORMED = {
-    maxMiningFee: 323,
+    weeklyFeeRateMedian: 129,
     allowedInputAmounts: {
         max: 134375000000,
         min: 5000,
