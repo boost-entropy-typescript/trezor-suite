@@ -1,81 +1,79 @@
 /* eslint-disable no-bitwise */
 import { DeviceModel } from '@trezor/device-utils';
-import * as pako from 'pako';
 
-const deviceModelDimensions = {
-    [DeviceModel.T1]: { width: 128, height: 64 },
-    [DeviceModel.TT]: { width: 144, height: 144 },
-    [DeviceModel.TR]: { width: 128, height: 64 },
-    [DeviceModel.UNKNOWN]: { width: 0, height: 0 },
+export const deviceModelInformation = {
+    [DeviceModel.T1]: { width: 128, height: 64, supports: ['png', 'jpeg'] },
+    [DeviceModel.TT]: { width: 240, height: 240, supports: ['jpeg'] },
+    [DeviceModel.TR]: { width: 128, height: 64, supports: ['png', 'jpeg'] },
+    [DeviceModel.UNKNOWN]: { width: 0, height: 0, supports: [] as string[] },
 };
 
-const canvasId = 'homescreen-canvas';
-const supportedDataUrlRE = /^data:image\/(jpeg|png)/;
+export const enum ImageValidationError {
+    InvalidFormatOnlyPngJpg = 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_PNG_JPG',
+    InvalidFormatOnlyJpg = 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_JPG',
+    InvalidDimensions = 'IMAGE_VALIDATION_ERROR_INVALID_DIMENSIONS',
+    InvalidSize = 'IMAGE_VALIDATION_ERROR_INVALID_SIZE',
+    ProgressiveJpgFormat = 'IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG',
+    UnexpectedAlpha = 'IMAGE_VALIDATION_ERROR_UNEXPECTED_ALPHA',
+    InvalidColorCombination = 'IMAGE_VALIDATION_ERROR_INVALID_COLOR_COMBINATION',
+}
 
 const range = (length: number) => [...Array(length).keys()];
 
-const byteArrayToHexString = (byteArray: Uint8Array) =>
-    Array.from(byteArray, byte => `0${(byte & 0xff).toString(16)}`.slice(-2)).join('');
+export const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-const rightPad = (len: number, val: string) => {
-    while (val.length < len) {
-        val = `${val}0`;
+        reader.onload = (e: ProgressEvent<FileReader>) => resolve(e.target?.result as string);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+    });
+
+export const fileToArrayBuffer = (file: File): Promise<ArrayBuffer> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = (e: ProgressEvent<FileReader>) => resolve(e.target?.result as ArrayBuffer);
+        reader.onerror = err => reject(err);
+        reader.readAsArrayBuffer(file);
+    });
+
+export const dataUrlToImage = (dataUrl: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+        const image = new Image();
+
+        image.onload = () => resolve(image);
+        image.onerror = e => reject(e);
+        image.src = dataUrl;
+    });
+
+const imageToCanvas = (image: HTMLImageElement, deviceModel: DeviceModel) => {
+    const { width, height } = deviceModelInformation[deviceModel];
+
+    const canvas = document.createElement('canvas');
+    canvas.height = height;
+    canvas.width = width;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx == null) {
+        throw new Error('2D context is null');
     }
-    return val;
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(image, 0, 0);
+
+    return { canvas, ctx };
 };
 
-const evenPad = (val: string) => {
-    if (val.length % 2 === 0) return val;
-    return `0${val}`;
-};
+const toig = (imageData: ImageData, deviceModel: DeviceModel) => {
+    const { width, height } = deviceModelInformation[deviceModel];
 
-const chunkString = (size: number, str: string) => {
-    const re = new RegExp(`.{1,${size}}`, 'g');
-    const result = str.match(re);
-    if (!result) return [];
-    return result;
-};
-
-const getCanvas = () => {
-    const canvas = document.getElementById(canvasId);
-    if (canvas != null && canvas instanceof HTMLCanvasElement) {
-        return canvas;
-    }
-    const newCanvas = document.createElement('canvas');
-    newCanvas.id = canvasId;
-    newCanvas.style.visibility = 'hidden';
-    newCanvas.style.position = 'absolute';
-    newCanvas.style.height = '0';
-    const { body } = document;
-    if (body == null) {
-        throw new Error('document.body is null');
-    }
-    body.appendChild(newCanvas);
-    return newCanvas;
-};
-
-const removeCanvas = () => {
-    const el = document.getElementById(canvasId);
-    if (el) {
-        el.remove();
-    }
-};
-
-// assuming max = x = y here
-const isOutsideCircle = (max: number, row: number, col: number) => {
-    const half = max / 2;
-    const dx = col - half;
-    const dy = row - half;
-    return Math.sqrt(dx ** 2 + dy ** 2) >= half;
-};
-
-const toig = (w: number, h: number, imageData: ImageData) => {
-    const homescreen = range(h)
+    const homescreen = range(height)
         .map(j =>
-            range(w / 8)
+            range(width / 8)
                 .map(i => {
                     const bytestr = range(8)
-                        .map(k => (j * w + i * 8 + k) * 4)
+                        .map(k => (j * width + i * 8 + k) * 4)
                         .map(index => (imageData.data[index] === 0 ? '0' : '1'))
                         .join('');
                     return String.fromCharCode(parseInt(bytestr, 2));
@@ -93,98 +91,60 @@ const toig = (w: number, h: number, imageData: ImageData) => {
     return hex;
 };
 
-const toif = (w: number, h: number, imageData: ImageData) => {
-    // flat does [[1, 2], [3, 4]] -> [1, 2, 3, 4] here
-    const pixels = range(h)
-        .map(row =>
-            range(w).map(col => {
-                const i = row * w + col;
-                // draw black outside the visible area for smaller image size
-                if (isOutsideCircle(w, row, col)) {
-                    return 0;
-                }
-                const r = imageData.data[4 * i];
-                const g = imageData.data[4 * i + 1];
-                const b = imageData.data[4 * i + 2];
-                return ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3);
-            }),
-        )
-        .flat();
+export const imageToImageData = (image: HTMLImageElement, deviceModel: DeviceModel) => {
+    const { width, height } = deviceModelInformation[deviceModel];
 
-    // Uint16Array -> Uint8Array
-    const bytes = pixels.map((p: number) => [Math.floor(p / 256), p % 256]).flat();
+    const { ctx } = imageToCanvas(image, deviceModel);
 
-    const packed = pako.deflateRaw(bytes, {
-        level: 9,
-        windowBits: 10,
-    });
+    // no quality param as it resize image
+    return ctx.getImageData(0, 0, width, height);
+};
 
-    // TOIf
-    let header = '544f4966';
-    // width
-    header += '9000';
-    // height
-    header += '9000';
-    let length = Number(packed.length).toString(16);
-    if (length.length % 2 > 0) {
-        length = evenPad(length);
+export const isValidImageFormat = (dataUrl: string, deviceModel: DeviceModel) => {
+    const supportedFormats = deviceModelInformation[deviceModel].supports.join('|');
+    const supportedDataUrlRE = new RegExp(`data:image/(${supportedFormats})`);
+
+    return !!dataUrl && supportedDataUrlRE.test(dataUrl);
+};
+
+export const isValidImageWidth = (image: HTMLImageElement, deviceModel: DeviceModel) => {
+    const { width } = deviceModelInformation[deviceModel];
+
+    return image.width === width;
+};
+
+export const isValidImageHeight = (image: HTMLImageElement, deviceModel: DeviceModel) => {
+    const { height } = deviceModelInformation[deviceModel];
+
+    return image.height === height;
+};
+
+export const isProgressiveJPG = (buffer: ArrayBuffer, deviceModel: DeviceModel) => {
+    if (deviceModel !== DeviceModel.TT) {
+        return false;
     }
-    length = chunkString(2, length).reverse().join('');
-    header += rightPad(8, length);
 
-    return header + byteArrayToHexString(packed);
-};
+    const data = new Uint8Array(buffer);
 
-export const fileToDataUrl = (file: File): Promise<string> => {
-    const reader = new FileReader();
-    return new Promise((resolve, reject) => {
-        reader.onload = e =>
-            // @ts-expect-error
-            resolve(e.target.result);
-        reader.onerror = err => {
-            reject(err);
-        };
-        reader.readAsDataURL(file);
-    });
-};
-
-const dataUrlToImage = (dataUrl: string): Promise<HTMLImageElement> => {
-    const image = new Image();
-    return new Promise((resolve, reject) => {
-        image.onload = () => {
-            resolve(image);
-        };
-        image.onerror = e => {
-            reject(e);
-        };
-        image.src = dataUrl;
-    });
-};
-
-export const elementToImageData = (element: HTMLImageElement, width: number, height: number) => {
-    const canvas = getCanvas();
-    const ctx = canvas.getContext('2d');
-    if (ctx == null) {
-        throw new Error('2D context is null');
+    for (let i = 0; i < data.length - 1; i++) {
+        if (data[i] === 0xff && data[i + 1] === 0xc2) {
+            return true;
+        }
     }
-    ctx.clearRect(0, 0, width, height);
-    ctx.drawImage(element, 0, 0);
 
-    const imageData = ctx.getImageData(0, 0, width, height);
-    return imageData;
+    return false;
 };
 
-export const enum ImageValidationError {
-    InvalidFormat = 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT',
-    InvalidHeight = 'IMAGE_VALIDATION_ERROR_INVALID_HEIGHT',
-    InvalidWidth = 'IMAGE_VALIDATION_ERROR_INVALID_WIDTH',
-    UnexpectedAlpha = 'IMAGE_VALIDATION_ERROR_UNEXPECTED_ALPHA',
-    InvalidColorCombination = 'IMAGE_VALIDATION_ERROR_INVALID_COLOR_COMBINATION',
-}
+export const isValidImageSize = (file: File, deviceModel: DeviceModel) => {
+    if (deviceModel !== DeviceModel.TT) {
+        return true;
+    }
+
+    return file.size <= 16384;
+};
 
 export const validateImageColors = (origImage: HTMLImageElement, deviceModel: DeviceModel) => {
-    const { width, height } = deviceModelDimensions[deviceModel];
-    const imageData = elementToImageData(origImage, width, height);
+    const imageData = imageToImageData(origImage, deviceModel);
 
     if ([DeviceModel.T1, DeviceModel.TR].includes(deviceModel)) {
         try {
@@ -212,69 +172,54 @@ export const validateImageColors = (origImage: HTMLImageElement, deviceModel: De
     }
 };
 
-export const validateImageDimensions = (origImage: HTMLImageElement, deviceModel: DeviceModel) => {
-    const { width, height } = deviceModelDimensions[deviceModel];
+export const validateImage = async (file: File, deviceModel: DeviceModel) => {
+    const dataUrl = await fileToDataUrl(file);
+    const arrayBuffer = await fileToArrayBuffer(file);
+    const image = await dataUrlToImage(dataUrl);
 
-    if (origImage.height !== height) {
-        return ImageValidationError.InvalidHeight;
+    if (!isValidImageFormat(dataUrl, deviceModel)) {
+        const { supports } = deviceModelInformation[deviceModel];
+
+        if (supports.includes('png') && supports.includes('jpeg')) {
+            return ImageValidationError.InvalidFormatOnlyPngJpg;
+        }
+        return ImageValidationError.InvalidFormatOnlyJpg;
     }
-    if (origImage.width !== width) {
-        return ImageValidationError.InvalidWidth;
+    if (!isValidImageWidth(image, deviceModel) || !isValidImageHeight(image, deviceModel)) {
+        return ImageValidationError.InvalidDimensions;
     }
+    if (isProgressiveJPG(arrayBuffer, deviceModel)) {
+        return ImageValidationError.ProgressiveJpgFormat;
+    }
+    if (!isValidImageSize(file, deviceModel)) {
+        return ImageValidationError.InvalidSize;
+    }
+
+    const imageColorsError = validateImageColors(image, deviceModel);
+
+    return imageColorsError || undefined;
 };
 
-export const validateImageFormat = (dataUrl: string) =>
-    !!dataUrl && supportedDataUrlRE.test(dataUrl) ? undefined : ImageValidationError.InvalidFormat;
+export const imagePathToHex = async (imagePath: string, deviceModel: DeviceModel) => {
+    const response = await fetch(imagePath);
 
-export const validate = (dataUrl: string, deviceModel: DeviceModel) =>
-    validateImageFormat(dataUrl) ||
-    dataUrlToImage(dataUrl).then(
-        image =>
-            validateImageDimensions(image, deviceModel) ||
-            validateImageColors(image, deviceModel) ||
-            undefined,
-    );
-
-export const imageDataToHex = (imageData: ImageData, deviceModel: DeviceModel) => {
-    const { width, height } = deviceModelDimensions[deviceModel];
-
+    // image can be loaded to device without modifications -> it is in original quality
     if (deviceModel === DeviceModel.TT) {
-        return toif(width, height, imageData);
-    }
-    return toig(width, height, imageData);
-};
+        const arrayBuffer = await response.arrayBuffer();
 
-export const elementToHomescreen = (
-    element: HTMLImageElement,
-    deviceModel: DeviceModel,
-    customElToDataFn?: typeof elementToImageData | undefined,
-) => {
-    // customElToDataFn needed for injecting mocked elementToImageData function in jest tests
-    const { width, height } = deviceModelDimensions[deviceModel];
-
-    const imageData = customElToDataFn
-        ? customElToDataFn(element, width, height)
-        : elementToImageData(element, width, height);
-    const hex = imageDataToHex(imageData, deviceModel);
-    removeCanvas();
-    return hex;
-};
-
-export const getImageResolution = (url: string): Promise<{ width: number; height: number }> =>
-    new Promise(resolve => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () =>
-            resolve({
-                width: img.width,
-                height: img.height,
-            });
-    });
-
-export const getDeviceModelImageType = (deviceModel: DeviceModel) => {
-    if ([DeviceModel.T1, DeviceModel.TR].includes(deviceModel)) {
-        return `BW_64x128`;
+        return Buffer.from(arrayBuffer).toString('hex');
     }
 
-    return `COLOR_128x128`;
+    /* 
+    - Image has to be modified by 'toig' method
+    - However, this method accepts the Canvas format which changes the quality of image
+    */
+    const blob = await response.blob();
+
+    const element = await dataUrlToImage(URL.createObjectURL(blob));
+
+    const { canvas, ctx } = imageToCanvas(element, deviceModel);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    return toig(imageData, deviceModel);
 };

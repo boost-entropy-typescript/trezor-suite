@@ -22,7 +22,6 @@ import {
     fiatRatesActions,
     selectAccountByKey,
 } from '@suite-common/wallet-core';
-import { FormDraftPrefixKeyValues } from '@suite-common/wallet-constants';
 import { findAccountDevice } from '@suite-common/wallet-utils';
 import { analyticsActions } from '@suite-common/analytics';
 
@@ -46,19 +45,12 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 // update only transactions for remembered device
                 if (isDeviceRemembered(device)) {
                     storageActions.saveAccounts([payload]);
+                    api.dispatch(storageActions.saveCoinjoinAccount(payload.key));
                 }
             }
 
             if (accountsActions.removeAccount.match(action)) {
-                action.payload.forEach(account => {
-                    FormDraftPrefixKeyValues.map(prefix =>
-                        storageActions.removeAccountFormDraft(prefix, account.key),
-                    );
-                    storageActions.removeAccountDraft(account);
-                    storageActions.removeAccountTransactions(account);
-                    storageActions.removeAccountGraph(account);
-                    storageActions.removeAccount(account);
-                });
+                action.payload.forEach(storageActions.removeAccountWithDependencies(api.getState));
             }
 
             if (isAnyOf(metadataActions.setAccountLoaded, metadataActions.setAccountAdd)(action)) {
@@ -231,7 +223,6 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     api.dispatch(storageActions.saveFirmware());
                     break;
 
-                case COINJOIN.ACCOUNT_CREATE:
                 case COINJOIN.ACCOUNT_DISCOVERY_PROGRESS:
                 case COINJOIN.ACCOUNT_AUTHORIZE_SUCCESS:
                 case COINJOIN.ACCOUNT_UNREGISTER:
@@ -246,9 +237,6 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     }
                     break;
                 }
-                case COINJOIN.ACCOUNT_REMOVE:
-                    storageActions.removeCoinjoinAccount(action.payload.accountKey, api.getState());
-                    break;
 
                 default:
                     break;

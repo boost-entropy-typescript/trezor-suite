@@ -2043,9 +2043,9 @@ export default defineMessages({
         description: 'Should start with dot, continuation of TR_BACKEND_DISCONNECTED',
         id: 'TR_BACKEND_RECONNECTING',
     },
-    TR_BACKGROUND_GALLERY: {
-        defaultMessage: 'Homescreen background gallery',
-        id: 'TR_BACKGROUND_GALLERY',
+    TR_HOMESCREEN_GALLERY: {
+        defaultMessage: 'Homescreen gallery',
+        id: 'TR_HOMESCREEN_GALLERY',
     },
     TR_BACKUP: {
         defaultMessage: 'Wallet backup',
@@ -2349,16 +2349,16 @@ export default defineMessages({
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW_128x64: {
         defaultMessage:
-            'Supports PNG or JPG, 128 x 64 pixels, and using only black and white (not grayscale).',
+            'Supports PNG or JPG, 128 x 64 px, and using only black and white (not grayscale).',
         id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW_128x64',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_EDITOR: {
         defaultMessage: 'Homescreen editor',
         id: 'TR_DEVICE_SETTINGS_HOMESCREEN_EDITOR',
     },
-    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_144x144: {
-        defaultMessage: 'Supports PNG or JPG, 144 x 144 pixels',
-        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_144x144',
+    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_240x240: {
+        defaultMessage: 'Supports JPG, 240 x 240 px, maximum allowed size is 16 KB.',
+        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_240x240',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_SELECT_FROM_GALLERY: {
         defaultMessage: 'Choose from gallery',
@@ -5195,17 +5195,25 @@ export default defineMessages({
         id: 'TR_CUSTOM_HOMESCREEN',
         defaultMessage: 'Custom homescreen uploaded',
     },
-    IMAGE_VALIDATION_ERROR_INVALID_FORMAT: {
-        id: 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT',
+    IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_PNG_JPG: {
+        id: 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_PNG_JPG',
         defaultMessage: 'Invalid file selected. Must be .jpg or .png',
     },
-    IMAGE_VALIDATION_ERROR_INVALID_HEIGHT: {
-        id: 'IMAGE_VALIDATION_ERROR_INVALID_HEIGHT',
-        defaultMessage: 'Invalid height.',
+    IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_JPG: {
+        id: 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_JPG',
+        defaultMessage: 'Invalid file selected. Must be .jpg',
     },
-    IMAGE_VALIDATION_ERROR_INVALID_WIDTH: {
-        id: 'IMAGE_VALIDATION_ERROR_INVALID_WIDTH',
-        defaultMessage: 'Invalid width.',
+    IMAGE_VALIDATION_ERROR_INVALID_DIMENSIONS: {
+        id: 'IMAGE_VALIDATION_ERROR_INVALID_DIMENSIONS',
+        defaultMessage: 'Invalid dimensions (Image must be {width} x {height} px)',
+    },
+    IMAGE_VALIDATION_ERROR_INVALID_SIZE: {
+        id: 'IMAGE_VALIDATION_ERROR_INVALID_SIZE_JPG',
+        defaultMessage: 'Invalid size (Image must be less than 16KB)',
+    },
+    IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG: {
+        id: 'IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG',
+        defaultMessage: 'Progressive JPG image format is not supported.',
     },
     IMAGE_VALIDATION_ERROR_UNEXPECTED_ALPHA: {
         id: 'IMAGE_VALIDATION_ERROR_UNEXPECTED_ALPHA',
@@ -5833,6 +5841,10 @@ export default defineMessages({
     TR_DISABLED_SWITCH_TOOLTIP: {
         id: 'TR_DISABLED_SWITCH_TOOLTIP',
         defaultMessage: 'Connect & Unlock device to edit',
+    },
+    TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP: {
+        id: 'TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP',
+        defaultMessage: 'Upgrade your firmware to change your homescreen',
     },
     TR_LABELING_FEATURE_ALLOWS: {
         id: 'TR_LABELING_FEATURE_ALLOWS',

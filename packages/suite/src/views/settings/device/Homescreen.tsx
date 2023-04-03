@@ -1,24 +1,25 @@
 import React, { createRef, useState } from 'react';
 import styled from 'styled-components';
 import { HOMESCREEN_EDITOR_URL } from '@trezor/urls';
-import { analytics, EventType } from '@trezor/suite-analytics';
 
 import { Translation } from '@suite-components';
 import { ActionButton, ActionColumn, SectionItem, TextColumn } from '@suite-components/Settings';
-import { variables } from '@trezor/components';
+import { Tooltip, variables } from '@trezor/components';
 import { useDevice, useActions } from '@suite-hooks';
 import * as modalActions from '@suite-actions/modalActions';
 import * as deviceSettingsActions from '@settings-actions/deviceSettingsActions';
 import { DeviceModel, getDeviceModel } from '@trezor/device-utils';
 import {
-    elementToHomescreen,
+    deviceModelInformation,
+    imagePathToHex,
     fileToDataUrl,
-    getImageResolution,
     ImageValidationError,
-    validate,
+    validateImage,
+    dataUrlToImage,
 } from '@suite-utils/homescreen';
 import { useAnchor } from '@suite-hooks/useAnchor';
 import { SettingsAnchor } from '@suite-constants/anchors';
+import { analytics, EventType } from '@trezor/suite-analytics';
 
 const StyledActionButton = styled(ActionButton)`
     &:not(:first-of-type) {
@@ -42,6 +43,20 @@ const ValidationMessage = styled.div`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
+export const reportImageUploadToAnalytics = async (dataUrl: string, file: File) => {
+    const image = await dataUrlToImage(dataUrl);
+
+    analytics.report({
+        type: EventType.SettingsDeviceBackground,
+        payload: {
+            format: file.type,
+            size: file.size,
+            resolutionWidth: image.width,
+            resolutionHeight: image.height,
+        },
+    });
+};
+
 interface HomescreenProps {
     isDeviceLocked: boolean;
 }
@@ -64,36 +79,38 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
 
     const deviceModel = getDeviceModel(device);
 
-    const onUploadHomescreen = async (files: FileList | null) => {
-        if (!files || !files.length) return;
-        const image = files[0];
-        const dataUrl = await fileToDataUrl(image);
-
-        const validationResult = await validate(dataUrl, deviceModel);
-        setValidationError(validationResult);
-
-        setCustomHomescreen(dataUrl);
-
-        const imageResolution = await getImageResolution(dataUrl);
-        analytics.report({
-            type: EventType.SettingsDeviceBackground,
-            payload: {
-                format: image.type,
-                size: image.size,
-                resolutionWidth: imageResolution.width,
-                resolutionHeight: imageResolution.height,
-            },
-        });
-    };
-
-    const onSelectCustomHomescreen = async () => {
-        const element = document.getElementById('custom-image');
-        if (element instanceof HTMLImageElement) {
-            const hex = elementToHomescreen(element, deviceModel);
-            await applySettings({ homescreen: hex });
-            setCustomHomescreen('');
+    const resetUpload = () => {
+        setCustomHomescreen('');
+        if (fileInputElement.current) {
+            fileInputElement.current.value = '';
         }
     };
+
+    const onUploadHomescreen = async (files: FileList | null) => {
+        if (!files || !files.length) return;
+        const file = files[0];
+
+        const validationResult = await validateImage(file, deviceModel);
+        setValidationError(validationResult);
+
+        const dataUrl = await fileToDataUrl(file);
+        setCustomHomescreen(dataUrl);
+
+        reportImageUploadToAnalytics(dataUrl, file);
+    };
+
+    const onChangeHomescreen = async () => {
+        const hex = await imagePathToHex(customHomescreen, deviceModel);
+
+        await applySettings({
+            homescreen: hex,
+        });
+        resetUpload();
+    };
+
+    const isSupportedHomescreen =
+        deviceModel !== DeviceModel.TT ||
+        (deviceModel === DeviceModel.TT && device.features.homescreen_format === 'Jpeg240x240');
 
     return (
         <>
@@ -117,7 +134,7 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                     <TextColumn
                         title={<Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_TITLE" />}
                         description={
-                            <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_144x144" />
+                            <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_240x240" />
                         }
                     />
                 )}
@@ -125,35 +142,49 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                     <HiddenInput
                         ref={fileInputElement}
                         type="file"
-                        accept=".png, .jpg"
-                        onChange={e => {
-                            onUploadHomescreen(e.target.files);
-                        }}
+                        accept={deviceModelInformation[deviceModel].supports
+                            .map(format => `image/${format}`)
+                            .join(', ')}
+                        onChange={e => onUploadHomescreen(e.target.files)}
                     />
-                    <StyledActionButton
-                        onClick={() => {
-                            if (fileInputElement.current) {
-                                fileInputElement.current.click();
-                            }
-                        }}
-                        isDisabled={isDeviceLocked}
-                        variant="secondary"
-                    >
-                        <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_UPLOAD_IMAGE" />
-                    </StyledActionButton>
-                    <StyledActionButton
-                        onClick={() =>
-                            openModal({
-                                type: 'device-background-gallery',
-                                device,
-                            })
+                    <Tooltip
+                        maxWidth={285}
+                        content={
+                            !isSupportedHomescreen && (
+                                <Translation id="TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP" />
+                            )
                         }
-                        isDisabled={isDeviceLocked}
-                        data-test="@settings/device/select-from-gallery"
-                        variant="secondary"
                     >
-                        <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_SELECT_FROM_GALLERY" />
-                    </StyledActionButton>
+                        <StyledActionButton
+                            onClick={() => fileInputElement?.current?.click()}
+                            isDisabled={isDeviceLocked || !isSupportedHomescreen}
+                            variant="secondary"
+                            data-test="@settings/device/homescreen-upload"
+                        >
+                            <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_UPLOAD_IMAGE" />
+                        </StyledActionButton>
+                    </Tooltip>
+                    <Tooltip
+                        maxWidth={285}
+                        content={
+                            !isSupportedHomescreen && (
+                                <Translation id="TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP" />
+                            )
+                        }
+                    >
+                        <StyledActionButton
+                            onClick={() =>
+                                openModal({
+                                    type: 'device-background-gallery',
+                                })
+                            }
+                            isDisabled={isDeviceLocked || !isSupportedHomescreen}
+                            data-test="@settings/device/homescreen-gallery"
+                            variant="secondary"
+                        >
+                            <Translation id="TR_DEVICE_SETTINGS_HOMESCREEN_SELECT_FROM_GALLERY" />
+                        </StyledActionButton>
+                    </Tooltip>
                 </ActionColumn>
             </SectionItem>
             {customHomescreen && !validationError && (
@@ -168,12 +199,12 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                     </Col>
 
                     <ActionColumn>
-                        <ActionButton onClick={() => onSelectCustomHomescreen()}>
+                        <ActionButton onClick={onChangeHomescreen}>
                             <Translation id="TR_CHANGE_HOMESCREEN" />
                         </ActionButton>
                         <ActionButton
                             variant="secondary"
-                            onClick={() => setCustomHomescreen('')}
+                            onClick={resetUpload}
                             isDisabled={isDeviceLocked}
                         >
                             <Translation id="TR_DROP_IMAGE" />
@@ -187,16 +218,25 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                         title={<Translation id="TR_CUSTOM_HOMESCREEN" />}
                         description={
                             <ValidationMessage>
-                                <Translation id={validationError} />
+                                <Translation
+                                    id={validationError}
+                                    values={{
+                                        width: deviceModelInformation[deviceModel].width,
+                                        height: deviceModelInformation[deviceModel].height,
+                                    }}
+                                />
                             </ValidationMessage>
                         }
                     />
 
-                    {validationError !== ImageValidationError.InvalidFormat && (
+                    {![
+                        ImageValidationError.InvalidFormatOnlyJpg,
+                        ImageValidationError.InvalidFormatOnlyPngJpg,
+                    ].includes(validationError) && (
                         <Col>
                             <img
-                                width="144px"
-                                alt="custom homescreen"
+                                width={`${deviceModelInformation[deviceModel].width}px`}
+                                alt="Custom homescreen"
                                 id="custom-image"
                                 src={customHomescreen}
                             />
@@ -205,7 +245,7 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                     <ActionColumn>
                         <ActionButton
                             variant="secondary"
-                            onClick={() => setCustomHomescreen('')}
+                            onClick={resetUpload}
                             isDisabled={isDeviceLocked}
                         >
                             <Translation id="TR_DROP_IMAGE" />

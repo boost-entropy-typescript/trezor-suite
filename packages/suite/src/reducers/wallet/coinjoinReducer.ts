@@ -38,7 +38,7 @@ import {
     SKIP_ROUNDS_BY_DEFAULT,
     WEEKLY_FEE_RATE_MEDIAN_FALLBACK,
 } from '@suite/services/coinjoin';
-import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
+import { accountsActions, AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 import {
     Feature,
     MessageSystemRootState,
@@ -93,16 +93,16 @@ const getAccount = (draft: CoinjoinState, accountKey: string) =>
 
 const createAccount = (
     draft: CoinjoinState,
-    { accountKey, symbol }: ExtractActionPayload<typeof COINJOIN.ACCOUNT_CREATE>,
+    account: ExtractActionPayload<typeof accountsActions.createAccount.type>,
 ) => {
     draft.isPreloading = false;
     const coinjoinAccount = {
-        key: accountKey,
-        symbol,
+        key: account.key,
+        symbol: account.symbol,
         rawLiquidityClue: null, // NOTE: liquidity clue is calculated from tx history. default value is `null`
         previousSessions: [],
     };
-    const index = draft.accounts.findIndex(a => a.key === accountKey);
+    const index = draft.accounts.findIndex(a => a.key === account.key);
     if (index < 0) draft.accounts.push(coinjoinAccount);
     else draft.accounts[index] = coinjoinAccount;
 };
@@ -418,14 +418,18 @@ export const coinjoinReducer = (
                 updateDebugMode(draft, action.payload);
                 break;
 
-            case COINJOIN.ACCOUNT_CREATE:
-                createAccount(draft, action.payload);
+            case accountsActions.createAccount.type:
+                if (action.payload.accountType === 'coinjoin') {
+                    createAccount(draft, action.payload);
+                }
                 break;
             case COINJOIN.ACCOUNT_SET_LIQUIDITY_CLUE:
                 setLiquidityClue(draft, action.payload);
                 break;
-            case COINJOIN.ACCOUNT_REMOVE:
-                draft.accounts = draft.accounts.filter(a => a.key !== action.payload.accountKey);
+            case accountsActions.removeAccount.type:
+                draft.accounts = draft.accounts.filter(
+                    a => !action.payload.some(acc => a.key === acc.key),
+                );
                 break;
             case COINJOIN.ACCOUNT_UPDATE_SETUP_OPTION:
                 updateSetupOption(draft, action.payload);
@@ -595,14 +599,14 @@ export const selectCurrentCoinjoinSession = memoize((state: CoinjoinRootState) =
     return session;
 });
 
-export const selectCurrentTargetAnonymity = memoize((state: CoinjoinRootState) => {
+export const selectCurrentTargetAnonymity = (state: CoinjoinRootState) => {
     const selectedAccount = selectSelectedAccount(state);
     const targetAnonymity = selectedAccount
         ? selectTargetAnonymityByAccountKey(state, selectedAccount.key)
         : undefined;
 
     return targetAnonymity;
-});
+};
 
 export const selectIsCoinjoinBlockedByTor = memoize((state: CoinjoinRootState) => {
     const { isTorEnabled } = selectTorState(state);
