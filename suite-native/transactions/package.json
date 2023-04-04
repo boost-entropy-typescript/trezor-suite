@@ -21,10 +21,12 @@
         "@suite-common/wallet-types": "workspace:*",
         "@suite-common/wallet-utils": "workspace:*",
         "@suite-native/atoms": "workspace:*",
+        "@suite-native/ethereum-tokens": "workspace:*",
         "@suite-native/formatters": "workspace:*",
         "@suite-native/helpers": "workspace:*",
         "@suite-native/module-settings": "workspace:*",
         "@suite-native/navigation": "workspace:*",
+        "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/icons": "workspace:*",
         "@trezor/styles": "workspace:*",
         "@trezor/theme": "workspace:*",
@@ -32,7 +34,7 @@
         "react": "18.2.0",
         "react-native": "0.71.5",
         "react-native-gesture-handler": "^2.9.0",
-        "react-native-reanimated": "3.0.1",
+        "react-native-reanimated": "3.0.2",
         "react-redux": "8.0.5",
         "web3-utils": "^1.8.2"
     }
