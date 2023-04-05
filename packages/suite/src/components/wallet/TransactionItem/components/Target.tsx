@@ -1,18 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
-import BigNumber from 'bignumber.js';
-import { variables } from '@trezor/components';
 import { getIsZeroValuePhishing } from '@suite-common/suite-utils';
-import { FiatValue, Translation, MetadataLabeling, FormattedCryptoAmount } from '@suite-components';
+import { FiatValue, Translation, MetadataLabeling, AddressLabeling } from '@suite-components';
 import { ArrayElement } from '@trezor/type-utils';
 import {
     getTxOperation,
     getTargetAmount,
     isTestnet,
     formatAmount,
-    formatCardanoWithdrawal,
-    formatCardanoDeposit,
     formatNetworkAmount,
+    isNftTokenTransfer,
 } from '@suite-common/wallet-utils';
 import { WalletAccountTransaction } from '@wallet-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -22,24 +18,18 @@ import { TargetAddressLabel } from './TargetAddressLabel';
 import { BaseTargetLayout } from './BaseTargetLayout';
 import { copyToClipboard } from '@trezor/dom-utils';
 import { AccountMetadata } from '@suite-types/metadata';
-import { ExtendedMessageDescriptor } from '@suite-types';
-import { SignOperator } from '@suite-common/suite-types';
+import { StyledFormattedCryptoAmount, StyledFormattedNftAmount } from './CommonComponents';
 
-export const StyledFormattedCryptoAmount = styled(FormattedCryptoAmount)`
-    width: 100%;
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
-    font-size: ${variables.FONT_SIZE.NORMAL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    white-space: nowrap;
-`;
-
-interface TokenTransferProps {
-    transfer: ArrayElement<WalletAccountTransaction['tokens']>;
-    transaction: WalletAccountTransaction;
+interface BaseTransfer {
     singleRowLayout?: boolean;
     useAnimation?: boolean;
     isFirst?: boolean;
     isLast?: boolean;
+}
+
+interface TokenTransferProps extends BaseTransfer {
+    transfer: ArrayElement<WalletAccountTransaction['tokens']>;
+    transaction: WalletAccountTransaction;
 }
 
 export const TokenTransfer = ({
@@ -47,7 +37,8 @@ export const TokenTransfer = ({
     transaction,
     ...baseLayoutProps
 }: TokenTransferProps) => {
-    const operation = getTxOperation(transfer);
+    const operation = getTxOperation(transfer.type);
+    const isNft = isNftTokenTransfer(transfer);
     const isZeroValuePhishing = getIsZeroValuePhishing(transaction);
 
     return (
@@ -61,7 +52,9 @@ export const TokenTransfer = ({
                 />
             }
             amount={
-                !baseLayoutProps.singleRowLayout && (
+                isNft ? (
+                    <StyledFormattedNftAmount transfer={transfer} signValue={operation} />
+                ) : (
                     <StyledFormattedCryptoAmount
                         value={formatAmount(transfer.amount, transfer.decimals)}
                         symbol={transfer.symbol}
@@ -73,13 +66,49 @@ export const TokenTransfer = ({
     );
 };
 
-interface TargetProps {
+interface InternalTransferProps extends BaseTransfer {
+    transfer: ArrayElement<WalletAccountTransaction['internalTransfers']>;
+    transaction: WalletAccountTransaction;
+}
+
+export const InternalTransfer = ({
+    transfer,
+    transaction,
+    ...baseLayoutProps
+}: InternalTransferProps) => {
+    const amount = transfer.amount && formatNetworkAmount(transfer.amount, transaction.symbol);
+    const operation = getTxOperation(transfer.type);
+
+    return (
+        <BaseTargetLayout
+            {...baseLayoutProps}
+            addressLabel={<AddressLabeling address={transfer.to} />}
+            amount={
+                !baseLayoutProps.singleRowLayout && (
+                    <StyledFormattedCryptoAmount
+                        value={amount}
+                        symbol={transaction.symbol}
+                        signValue={operation}
+                    />
+                )
+            }
+            fiatAmount={
+                !isTestnet(transaction.symbol) && amount ? (
+                    <FiatValue
+                        amount={amount}
+                        symbol={transaction.symbol}
+                        source={transaction.rates}
+                        useCustomSource
+                    />
+                ) : undefined
+            }
+        />
+    );
+};
+
+interface TargetProps extends BaseTransfer {
     target: ArrayElement<WalletAccountTransaction['targets']>;
     transaction: WalletAccountTransaction;
-    singleRowLayout?: boolean;
-    useAnimation?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
     accountKey: string;
     accountMetadata?: AccountMetadata;
     isActionDisabled?: boolean;
@@ -94,7 +123,7 @@ export const Target = ({
     ...baseLayoutProps
 }: TargetProps) => {
     const targetAmount = getTargetAmount(target, transaction);
-    const operation = getTxOperation(transaction);
+    const operation = getTxOperation(transaction.type);
     const { addNotification } = useActions({ addNotification: notificationsActions.addToast });
     const targetMetadata = accountMetadata?.outputLabels?.[transaction.txid]?.[target.n];
 
@@ -165,145 +194,3 @@ export const Target = ({
         />
     );
 };
-
-export const CustomRow = ({
-    transaction,
-    title,
-    amount,
-    sign,
-    useFiatValues,
-    ...baseLayoutProps
-}: {
-    amount: string;
-    sign: SignOperator;
-    title: ExtendedMessageDescriptor['id'];
-    transaction: WalletAccountTransaction;
-    useFiatValues?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
-    className?: string;
-}) => (
-    <BaseTargetLayout
-        {...baseLayoutProps}
-        addressLabel={<Translation id={title} />}
-        amount={
-            <StyledFormattedCryptoAmount
-                value={amount}
-                symbol={transaction.symbol}
-                signValue={sign}
-            />
-        }
-        fiatAmount={
-            useFiatValues ? (
-                <FiatValue
-                    amount={amount}
-                    symbol={transaction.symbol}
-                    source={transaction.rates}
-                    useCustomSource
-                />
-            ) : undefined
-        }
-    />
-);
-
-export const FeeRow = ({
-    fee,
-    transaction,
-    useFiatValues,
-    ...baseLayoutProps
-}: {
-    fee: string;
-    transaction: WalletAccountTransaction;
-    useFiatValues?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
-    className?: string;
-}) => (
-    <CustomRow
-        {...baseLayoutProps}
-        title="FEE"
-        sign="negative"
-        amount={fee}
-        transaction={transaction}
-        useFiatValues={useFiatValues}
-    />
-);
-
-export const WithdrawalRow = ({
-    transaction,
-    useFiatValues,
-    ...baseLayoutProps
-}: {
-    transaction: WalletAccountTransaction;
-    useFiatValues?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
-    className?: string;
-}) => (
-    <CustomRow
-        {...baseLayoutProps}
-        title="TR_TX_WITHDRAWAL"
-        sign="positive"
-        amount={formatCardanoWithdrawal(transaction) ?? '0'}
-        transaction={transaction}
-        useFiatValues={useFiatValues}
-    />
-);
-
-export const DepositRow = ({
-    transaction,
-    useFiatValues,
-    ...baseLayoutProps
-}: {
-    transaction: WalletAccountTransaction;
-    useFiatValues?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
-    className?: string;
-}) => (
-    <CustomRow
-        {...baseLayoutProps}
-        title="TR_TX_DEPOSIT"
-        sign="negative"
-        amount={formatCardanoDeposit(transaction) ?? '0'}
-        transaction={transaction}
-        useFiatValues={useFiatValues}
-    />
-);
-
-export const CoinjoinRow = ({
-    transaction,
-    useFiatValues,
-}: {
-    transaction: WalletAccountTransaction;
-    useFiatValues?: boolean;
-}) => (
-    <BaseTargetLayout
-        fiatAmount={
-            useFiatValues ? (
-                <FiatValue
-                    amount={formatNetworkAmount(
-                        new BigNumber(transaction.amount).abs().toString(),
-                        transaction.symbol,
-                    )}
-                    symbol={transaction.symbol}
-                    source={transaction.rates}
-                    useCustomSource
-                />
-            ) : undefined
-        }
-        addressLabel={
-            <Translation
-                id="TR_JOINT_TRANSACTION_TARGET"
-                values={{
-                    in: transaction.details.vin.length,
-                    inMy: transaction.details.vin.filter(v => v.isAccountOwned).length,
-                    out: transaction.details.vout.length,
-                    outMy: transaction.details.vout.filter(v => v.isAccountOwned).length,
-                }}
-            />
-        }
-        isFirst
-        isLast
-    />
-);

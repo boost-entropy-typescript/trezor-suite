@@ -10,12 +10,17 @@ import { ChainedTxs } from './ChainedTxs';
 
 const Wrapper = styled.div`
     padding: 0px 24px 10px;
+
+    ${variables.SCREEN_QUERY.MOBILE} {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 `;
 
 const TabSelector = styled.div`
     width: 100%;
     text-align: left;
-    margin-bottom: 6px;
+    margin-bottom: 16px;
     border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
 `;
 

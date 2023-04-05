@@ -7,19 +7,13 @@ import { getIsZeroValuePhishing } from '@suite-common/suite-utils';
 import { Translation } from '@suite-components';
 import { useActions } from '@suite-hooks';
 import * as modalActions from '@suite-actions/modalActions';
-import { formatNetworkAmount, isTestnet, isTxUnknown } from '@suite-common/wallet-utils';
+import { formatNetworkAmount, isTestnet } from '@suite-common/wallet-utils';
 import { AccountMetadata } from '@suite-types/metadata';
 import { Network, WalletAccountTransaction } from '@wallet-types';
 import { TransactionTypeIcon } from './components/TransactionTypeIcon';
 import { TransactionHeading } from './components/TransactionHeading';
-import {
-    Target,
-    TokenTransfer,
-    FeeRow,
-    WithdrawalRow,
-    DepositRow,
-    CoinjoinRow,
-} from './components/Target';
+import { Target, TokenTransfer, InternalTransfer } from './components/Target';
+import { FeeRow, WithdrawalRow, DepositRow, CoinjoinRow } from './components/Row';
 import {
     Content,
     Description,
@@ -74,10 +68,11 @@ const Body = styled.div`
 const ExpandButton = styled(Button)`
     justify-content: flex-start;
     align-self: flex-start;
+    margin-top: 8px;
 `;
 
-const StyledFeeRow = styled(FeeRow)<{ $isFailed?: boolean }>`
-    margin-top: ${({ $isFailed }) => ($isFailed ? '20px' : '0px')};
+const StyledFeeRow = styled(FeeRow)<{ $noInputsOutputs?: boolean }>`
+    margin-top: ${({ $noInputsOutputs }) => ($noInputsOutputs ? '0px' : '20px')};
 `;
 
 const DEFAULT_LIMIT = 3;
@@ -104,15 +99,19 @@ const TransactionItem = React.memo(
         className,
         index,
     }: TransactionItemProps) => {
-        const { type, targets, tokens } = transaction;
+        const { type, targets, tokens, internalTransfers } = transaction;
         const [limit, setLimit] = useState(0);
-        const isUnknown = isTxUnknown(transaction);
+        const isUnknown = type === 'unknown';
         const useFiatValues = !isTestnet(transaction.symbol);
         const useSingleRowLayout =
             !isUnknown &&
-            (targets.length + tokens.length === 1 || transaction.type === 'self') &&
+            (targets.length === 1 || transaction.type === 'self') &&
+            !tokens.length &&
+            !internalTransfers.length &&
             transaction.cardanoSpecific?.subtype !== 'withdrawal' &&
             transaction.cardanoSpecific?.subtype !== 'stake_registration';
+        const noInputsOutputs =
+            (!tokens.length && !internalTransfers.length && !targets.length) || type === 'failed';
 
         const fee = formatNetworkAmount(transaction.fee, transaction.symbol);
         const showFeeRow = !isUnknown && type !== 'recv' && type !== 'joint' && fee !== '0';
@@ -124,17 +123,19 @@ const TransactionItem = React.memo(
             `${AccountTransactionBaseAnchor}/${transaction.txid}`,
         );
 
-        // join together regular targets and token transfers
+        // join together regular targets, internal and token transfers
         // ethereum tx has either targets or transfers
         // cardano tx can have both at the same time
         const allOutputs: (
             | { type: 'token'; payload: (typeof tokens)[number] }
+            | { type: 'internal'; payload: (typeof internalTransfers)[number] }
             | { type: 'target'; payload: WalletAccountTransaction['targets'][number] }
         )[] =
             transaction.type === 'self'
                 ? [...targets.map(t => ({ type: 'target' as const, payload: t }))]
                 : [
                       ...targets.map(t => ({ type: 'target' as const, payload: t })),
+                      ...internalTransfers.map(t => ({ type: 'internal' as const, payload: t })),
                       ...tokens.map(t => ({ type: 'token' as const, payload: t })),
                   ];
         const previewTargets = allOutputs.slice(0, DEFAULT_LIMIT);
@@ -178,10 +179,7 @@ const TransactionItem = React.memo(
                         onMouseLeave={() => setNestedItemIsHovered(false)}
                         onClick={() => openTxDetailsModal()}
                     >
-                        <TransactionTypeIcon
-                            type={transaction.tokens.length ? transaction.tokens[0].type : type}
-                            isPending={isPending}
-                        />
+                        <TransactionTypeIcon type={transaction.type} isPending={isPending} />
                     </TxTypeIconWrapper>
 
                     <Content>
@@ -209,7 +207,7 @@ const TransactionItem = React.memo(
                                     <>
                                         {previewTargets.map((t, i) => (
                                             <React.Fragment key={i}>
-                                                {t.type === 'target' ? (
+                                                {t.type === 'target' && (
                                                     <Target
                                                         // render first n targets, n = DEFAULT_LIMIT
                                                         target={t.payload}
@@ -225,8 +223,22 @@ const TransactionItem = React.memo(
                                                         accountKey={accountKey}
                                                         isActionDisabled={isActionDisabled}
                                                     />
-                                                ) : (
+                                                )}
+                                                {t.type === 'token' && (
                                                     <TokenTransfer
+                                                        transfer={t.payload}
+                                                        transaction={transaction}
+                                                        singleRowLayout={useSingleRowLayout}
+                                                        isFirst={i === 0}
+                                                        isLast={
+                                                            limit > 0
+                                                                ? false
+                                                                : i === previewTargets.length - 1
+                                                        }
+                                                    />
+                                                )}
+                                                {t.type === 'internal' && (
+                                                    <InternalTransfer
                                                         transfer={t.payload}
                                                         transaction={transaction}
                                                         singleRowLayout={useSingleRowLayout}
@@ -246,7 +258,7 @@ const TransactionItem = React.memo(
                                                     .slice(DEFAULT_LIMIT, DEFAULT_LIMIT + limit)
                                                     .map((t, i) => (
                                                         <React.Fragment key={i}>
-                                                            {t.type === 'target' ? (
+                                                            {t.type === 'target' && (
                                                                 <Target
                                                                     target={t.payload}
                                                                     transaction={transaction}
@@ -267,8 +279,22 @@ const TransactionItem = React.memo(
                                                                     }
                                                                     accountKey={accountKey}
                                                                 />
-                                                            ) : (
+                                                            )}
+                                                            {t.type === 'token' && (
                                                                 <TokenTransfer
+                                                                    transfer={t.payload}
+                                                                    transaction={transaction}
+                                                                    useAnimation
+                                                                    isLast={
+                                                                        i ===
+                                                                        allOutputs.length -
+                                                                            DEFAULT_LIMIT -
+                                                                            1
+                                                                    }
+                                                                />
+                                                            )}
+                                                            {t.type === 'internal' && (
+                                                                <InternalTransfer
                                                                     transfer={t.payload}
                                                                     transaction={transaction}
                                                                     useAnimation
@@ -316,7 +342,7 @@ const TransactionItem = React.memo(
                                         fee={fee}
                                         transaction={transaction}
                                         useFiatValues={useFiatValues}
-                                        $isFailed={type !== 'failed'}
+                                        $noInputsOutputs={noInputsOutputs}
                                         isFirst
                                         isLast
                                     />

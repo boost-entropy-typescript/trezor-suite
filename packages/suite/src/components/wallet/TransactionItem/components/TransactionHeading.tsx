@@ -102,8 +102,8 @@ export const TransactionHeading = ({
                 ? getTargetAmount(target, transaction)
                 : formatAmount(transfer.amount, transfer.decimals);
         const operation = !isTokenTransaction
-            ? getTxOperation(transaction)
-            : getTxOperation(transfer);
+            ? getTxOperation(transaction.type)
+            : getTxOperation(transfer.type);
 
         amount = targetAmount && (
             <StyledCryptoAmount
@@ -124,17 +124,6 @@ export const TransactionHeading = ({
                 value={formatNetworkAmount(abs, transaction.symbol)}
                 symbol={transaction.symbol}
                 signValue={transactionAmount}
-                isZeroValuePhishing={isZeroValuePhishing}
-            />
-        );
-    }
-
-    if (transaction.type === 'failed') {
-        amount = (
-            <StyledCryptoAmount
-                value={formatNetworkAmount(transaction.fee, transaction.symbol)}
-                symbol={transaction.symbol}
-                signValue="negative"
                 isZeroValuePhishing={isZeroValuePhishing}
             />
         );
@@ -184,7 +173,7 @@ export const TransactionHeading = ({
                 </ChevronIconWrapper>
             </Wrapper>
 
-            {amount}
+            {transaction.type !== 'failed' && amount}
         </>
     );
 };

@@ -8,7 +8,12 @@ import {
     WalletAccountTransaction,
 } from '@suite-common/wallet-types';
 import { AccountMetadata } from '@suite-common/metadata-types';
-import { AccountAddress, AccountTransaction } from '@trezor/connect';
+import {
+    AccountAddress,
+    AccountTransaction,
+    TokenTransfer,
+    InternalTransfer,
+} from '@trezor/connect';
 import { SignOperator } from '@suite-common/suite-types';
 import { arrayPartition } from '@trezor/utils';
 
@@ -152,6 +157,17 @@ export const sumTransactions = (transactions: WalletAccountTransaction[]) => {
         if (tx.type === 'failed') {
             totalAmount = totalAmount.minus(fee);
         }
+
+        tx.internalTransfers.forEach(internalTx => {
+            const amountInternal = formatNetworkAmount(internalTx.amount, tx.symbol);
+
+            if (internalTx.type === 'sent') {
+                totalAmount = totalAmount.minus(amountInternal);
+            }
+            if (internalTx.type === 'recv') {
+                totalAmount = totalAmount.plus(amountInternal);
+            }
+        });
     });
     return totalAmount;
 };
@@ -196,6 +212,19 @@ export const sumTransactionsFiat = (
         if (tx.type === 'failed') {
             totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
         }
+
+        tx.internalTransfers.forEach(internalTx => {
+            const amountInternal = formatNetworkAmount(internalTx.amount, tx.symbol);
+            const amountInternalFiat =
+                toFiatCurrency(amountInternal, fiatCurrency, tx.rates, -1) ?? 0;
+
+            if (internalTx.type === 'sent') {
+                totalAmount = totalAmount.minus(amountInternalFiat);
+            }
+            if (internalTx.type === 'recv') {
+                totalAmount = totalAmount.plus(amountInternalFiat);
+            }
+        });
     });
     return totalAmount;
 };
@@ -364,25 +393,34 @@ export const analyzeTransactions = (
     });
 };
 
-// getTxOperation is used with types WalletAccountTransaction and ArrayElement<WalletAccountTransaction['tokens']
-// the only interesting field is 'type', which has compatible string literal union in both types
-export const getTxOperation = (tx: {
-    type: WalletAccountTransaction['type'];
-}): SignOperator | null => {
-    if (tx.type === 'sent' || tx.type === 'self' || tx.type === 'failed') {
+export const getTxOperation = (
+    type: WalletAccountTransaction['type'] | TokenTransfer['type'] | InternalTransfer['type'],
+    ignoreSelf = false,
+): SignOperator | null => {
+    if (type === 'sent' || (!ignoreSelf && type === 'self')) {
         return 'negative';
     }
-    if (tx.type === 'recv') {
+    if (type === 'recv') {
         return 'positive';
     }
     return null;
 };
+
+export const isNftTokenTransfer = (transfer: TokenTransfer) =>
+    ['ERC1155', 'ERC721'].includes(transfer.standard || '');
+
+export const getNftTokenId = (transfer: TokenTransfer) =>
+    // use 0 index, haven't found an example where multiTokenValues.length > 1
+    transfer.standard === 'ERC1155' && transfer.multiTokenValues?.length
+        ? transfer.multiTokenValues[0].id
+        : transfer.amount;
 
 export const getTxIcon = (txType: WalletAccountTransaction['type']) => {
     switch (txType) {
         case 'recv':
             return 'RECEIVE';
         case 'sent':
+        case 'contract':
         case 'self':
             return 'SEND';
         case 'failed':
@@ -426,22 +464,6 @@ export const getTargetAmount = (
     // "sent to self" target while other non-self targets are also present
     return null;
 };
-
-export const isTxUnknown = (transaction: WalletAccountTransaction) => {
-    // blockbook cannot parse some txs
-    // eg. tx with eth smart contract that creates a new token has no valid target
-    const isTokenTransaction = transaction.tokens.length > 0;
-    return (
-        (!isTokenTransaction &&
-            transaction.type !== 'joint' && // coinjoin txs don't have any target
-            !transaction.cardanoSpecific && // cardano staking txs (de/registration of staking key, stake delegation) don't need to have any target
-            !transaction.targets.find(t => t.addresses)) ||
-        transaction.type === 'unknown'
-    );
-};
-
-export const isTxFailed = (tx: AccountTransaction | WalletAccountTransaction) =>
-    !isPending(tx) && tx.ethereumSpecific?.status === 0;
 
 export const getFeeRate = (tx: AccountTransaction) =>
     // calculate fee rate, TODO: add this to blockchain-link tx details
@@ -581,24 +603,18 @@ export const getRbfParams = (
 export const enhanceTransaction = (
     origTx: AccountTransaction,
     account: Account,
-): WalletAccountTransaction => {
-    const tx = {
-        ...origTx,
-        type: isTxFailed(origTx) ? 'failed' : origTx.type,
-    };
-    return {
-        descriptor: account.descriptor,
-        deviceState: account.deviceState,
-        symbol: account.symbol,
-        ...tx,
-        // https://bitcoin.stackexchange.com/questions/23061/ripple-ledger-time-format/23065#23065
-        blockTime:
-            account.networkType === 'ripple' && tx.blockTime
-                ? tx.blockTime + 946684800
-                : tx.blockTime,
-        rbfParams: getRbfParams(tx, account),
-    };
-};
+): WalletAccountTransaction => ({
+    descriptor: account.descriptor,
+    deviceState: account.deviceState,
+    symbol: account.symbol,
+    ...origTx,
+    // https://bitcoin.stackexchange.com/questions/23061/ripple-ledger-time-format/23065#23065
+    blockTime:
+        account.networkType === 'ripple' && origTx.blockTime
+            ? origTx.blockTime + 946684800
+            : origTx.blockTime,
+    rbfParams: getRbfParams(origTx, account),
+});
 
 export const getOriginalTransaction = ({
     descriptor,
@@ -685,7 +701,7 @@ const numberSearchFilter = (
     operator: (typeof searchOperators)[number],
 ) => {
     const targetAmounts = getTargetAmounts(transaction);
-    const op = getTxOperation(transaction);
+    const op = getTxOperation(transaction.type);
     if (!op) {
         return false;
     }

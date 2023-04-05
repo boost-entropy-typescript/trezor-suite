@@ -3460,6 +3460,10 @@ export default defineMessages({
         defaultMessage: 'Unknown transaction',
         id: 'TR_UNKNOWN_TRANSACTION',
     },
+    TR_CONTRACT_TRANSACTION: {
+        defaultMessage: 'Contract transaction',
+        id: 'TR_CONTRACT_TRANSACTION',
+    },
     TR_FAILED_TRANSACTION: {
         defaultMessage: 'Failed transaction',
         id: 'TR_FAILED_TRANSACTION',
@@ -6459,6 +6463,27 @@ export default defineMessages({
         id: 'TR_TRANSACTIONS_SEARCH_TIP_10',
         defaultMessage:
             'Tip: You can combine AND (&) and OR (|) operators for more complex searches. For example <strong>> 2020-01-01 & < 2020-01-31 | > 2020-12-01 & < 2020-12-31</strong> will show all all transactions in January 2020 or December 2020.',
+    },
+    TR_INTERNAL_TRANSACTIONS: {
+        id: 'TR_INTERNAL_TRANSACTIONS',
+        defaultMessage: 'Internal Transfers',
+    },
+    TR_TOKEN_TRANSFERS: {
+        id: 'TR_TOKEN_TRANSFERS',
+        defaultMessage: '{standard} Token Transfers',
+    },
+    TR_ANALYZE_IN_BLOCKBOOK: {
+        id: 'TR_ANALYZE_IN_BLOCKBOOK',
+        defaultMessage: 'Analyze in Blockbook',
+    },
+    TR_ANALYZE_IN_BLOCKBOOK_DESC: {
+        id: 'TR_ANALYZE_IN_BLOCKBOOK_DESC',
+        defaultMessage:
+            'See inputs and outputs in Blockbook as it might be easier to analyze there',
+    },
+    TR_ANALYZE_IN_BLOCKBOOK_OPEN: {
+        id: 'TR_ANALYZE_IN_BLOCKBOOK_OPEN',
+        defaultMessage: 'Open',
     },
     TR_PAGINATION_NEWER: {
         id: 'TR_PAGINATION_NEWER',

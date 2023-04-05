@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Button, variables } from '@trezor/components';
+import { variables } from '@trezor/components';
 import { Translation, FormattedCryptoAmount, FiatValue, FormattedDate } from '@suite-components';
 import { AmountRow } from './AmountRow';
 import { NetworkSymbol, WalletAccountTransaction } from '@wallet-types';
@@ -9,12 +9,11 @@ import {
     formatCardanoDeposit,
     formatCardanoWithdrawal,
     formatNetworkAmount,
-    getNetwork,
+    getTxOperation,
+    isNftTokenTransfer,
 } from '@suite-common/wallet-utils';
-
-// define these attributes as a constant because we will use the same values in two different styled components
-const ROW_HEIGHT = '36px';
-const GRID_GAP = '5px';
+import BigNumber from 'bignumber.js';
+import { FormattedNftAmount } from '@suite-components/FormattedNftAmount';
 
 const MainContainer = styled.div`
     display: flex;
@@ -23,7 +22,7 @@ const MainContainer = styled.div`
 
 const AmountWrapper = styled.div`
     display: grid;
-    grid-gap: ${GRID_GAP};
+    grid-gap: 5px;
 
     /* columns: 1. title, 2. crypto amount, 3. fiat amount old, 4. fiat amount now */
     grid-template-columns: 140px minmax(110px, auto) minmax(100px, auto) minmax(100px, auto);
@@ -41,64 +40,23 @@ const AmountWrapper = styled.div`
     }
 `;
 
-const ShowFiatButtonWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    /* NOTE about the following two properties:
-    It's important to use the same values as in <AmountWrapper> because we want the height of
-    <ShowFiatButtonWrapper> to be the same as the height of a row in <AmountWrapper>. This is because we don't want to component
-    jump in height when we click "show fiat" button (the button is replaced with dates) */
-    height: ${ROW_HEIGHT};
-    margin-bottom: ${GRID_GAP};
-`;
-
 interface AmountDetailsProps {
     tx: WalletAccountTransaction;
     isTestnet: boolean;
 }
 
+// TODO: Do not show FEE for sent but not mine transactions
 export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
-    const [showFiat, setShowFiat] = useState(false);
-
-    const tokenTransfer = tx.tokens.length > 0 ? tx.tokens[0] : undefined;
-    const txAmount = formatNetworkAmount(tx.amount, tx.symbol);
-    const amount = tokenTransfer
-        ? formatAmount(tokenTransfer.amount, tokenTransfer.decimals)
-        : txAmount;
-    const assetSymbol = tokenTransfer ? tokenTransfer.symbol : tx.symbol;
-
-    const network = getNetwork(tx.symbol);
-    const hideTotalIORows =
-        network?.networkType === 'ripple' || network?.networkType === 'ethereum'; // don't show for eth, xrp
-
-    const showHistoricalRates = showFiat && !tokenTransfer;
-    const totalInput = formatNetworkAmount(tx.details.totalInput, tx.symbol);
-    const totalOutput = formatNetworkAmount(tx.details.totalOutput, tx.symbol);
+    const amount = new BigNumber(formatNetworkAmount(tx.amount, tx.symbol));
     const fee = formatNetworkAmount(tx.fee, tx.symbol);
     const cardanoWithdrawal = formatCardanoWithdrawal(tx);
     const cardanoDeposit = formatCardanoDeposit(tx);
 
     return (
         <MainContainer>
-            {/* ROW CONTAINING "SHOW FIAT" BUTTON */}
-            {!showFiat && !isTestnet && (
-                <ShowFiatButtonWrapper>
-                    <Button
-                        variant="tertiary"
-                        onClick={() => {
-                            setShowFiat(true);
-                        }}
-                    >
-                        <Translation id="TR_SHOW_FIAT" />
-                    </Button>
-                </ShowFiatButtonWrapper>
-            )}
-
             <AmountWrapper>
                 {/* ROW CONTAINING DATES FOR FIAT VALUES */}
-                {showFiat && (
+                {!isTestnet && (
                     <AmountRow
                         // keep the first two columns empty for the first row
                         thirdColumn={
@@ -126,87 +84,35 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                                 }}
                             />
                         }
-                        color="light"
                     />
-                )}
-
-                {!hideTotalIORows && (
-                    <>
-                        {/* TOTAL INPUT */}
-                        <AmountRow
-                            firstColumn={<Translation id="TR_TOTAL_INPUT" />}
-                            secondColumn={
-                                <FormattedCryptoAmount value={totalInput} symbol={tx.symbol} />
-                            }
-                            thirdColumn={
-                                showHistoricalRates &&
-                                totalInput && (
-                                    <FiatValue
-                                        amount={totalInput}
-                                        symbol={tx.symbol}
-                                        source={tx.rates}
-                                        useCustomSource
-                                    />
-                                )
-                            }
-                            fourthColumn={
-                                showFiat &&
-                                totalInput && <FiatValue amount={totalInput} symbol={tx.symbol} />
-                            }
-                            color="dark"
-                        />
-
-                        {/* TOTAL OUTPUT */}
-                        <AmountRow
-                            firstColumn={<Translation id="TR_TOTAL_OUTPUT" />}
-                            secondColumn={
-                                <FormattedCryptoAmount value={totalOutput} symbol={tx.symbol} />
-                            }
-                            thirdColumn={
-                                showHistoricalRates &&
-                                totalOutput && (
-                                    <FiatValue
-                                        amount={totalOutput}
-                                        symbol={tx.symbol}
-                                        source={tx.rates}
-                                        useCustomSource
-                                    />
-                                )
-                            }
-                            fourthColumn={
-                                showFiat &&
-                                totalOutput && <FiatValue amount={totalOutput} symbol={tx.symbol} />
-                            }
-                            color="dark"
-                        />
-                    </>
                 )}
 
                 {/* AMOUNT */}
                 {(tx.targets.length || tx.type === 'joint') && (
                     <AmountRow
                         firstColumn={<Translation id="AMOUNT" />}
-                        secondColumn={<FormattedCryptoAmount value={txAmount} symbol={tx.symbol} />}
+                        secondColumn={
+                            <FormattedCryptoAmount
+                                value={amount.abs().toString()}
+                                symbol={tx.symbol}
+                                signValue={
+                                    getTxOperation(tx.type, true) || amount.isLessThan(0)
+                                        ? 'negative'
+                                        : 'positive'
+                                }
+                            />
+                        }
                         thirdColumn={
-                            showHistoricalRates && (
-                                <FiatValue
-                                    amount={amount}
-                                    symbol={assetSymbol}
-                                    source={tx.rates}
-                                    useCustomSource
-                                />
-                            )
+                            <FiatValue
+                                amount={amount.abs().toString()}
+                                symbol={tx.symbol}
+                                source={tx.rates}
+                                useCustomSource
+                            />
                         }
                         fourthColumn={
-                            showFiat && (
-                                <FiatValue
-                                    amount={amount}
-                                    symbol={assetSymbol}
-                                    tokenAddress={tokenTransfer?.address}
-                                />
-                            )
+                            <FiatValue amount={amount.abs().toString()} symbol={tx.symbol} />
                         }
-                        color="light"
                     />
                 )}
 
@@ -214,22 +120,21 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                     <AmountRow
                         firstColumn={<Translation id="TR_TX_WITHDRAWAL" />}
                         secondColumn={
-                            <FormattedCryptoAmount value={cardanoWithdrawal} symbol={tx.symbol} />
+                            <FormattedCryptoAmount
+                                value={cardanoWithdrawal}
+                                symbol={tx.symbol}
+                                signValue="negative"
+                            />
                         }
                         thirdColumn={
-                            showHistoricalRates && (
-                                <FiatValue
-                                    amount={cardanoWithdrawal}
-                                    symbol={tx.symbol}
-                                    source={tx.rates}
-                                    useCustomSource
-                                />
-                            )
+                            <FiatValue
+                                amount={cardanoWithdrawal}
+                                symbol={tx.symbol}
+                                source={tx.rates}
+                                useCustomSource
+                            />
                         }
-                        fourthColumn={
-                            showFiat && <FiatValue amount={cardanoWithdrawal} symbol={tx.symbol} />
-                        }
-                        color="light"
+                        fourthColumn={<FiatValue amount={cardanoWithdrawal} symbol={tx.symbol} />}
                     />
                 )}
 
@@ -237,78 +142,113 @@ export const AmountDetails = ({ tx, isTestnet }: AmountDetailsProps) => {
                     <AmountRow
                         firstColumn={<Translation id="TR_TX_DEPOSIT" />}
                         secondColumn={
-                            <FormattedCryptoAmount value={cardanoDeposit} symbol={tx.symbol} />
+                            <FormattedCryptoAmount
+                                value={cardanoDeposit}
+                                symbol={tx.symbol}
+                                signValue="positive"
+                            />
                         }
                         thirdColumn={
-                            showHistoricalRates && (
-                                <FiatValue
-                                    amount={cardanoDeposit}
-                                    symbol={tx.symbol}
-                                    source={tx.rates}
-                                    useCustomSource
-                                />
-                            )
+                            <FiatValue
+                                amount={cardanoDeposit}
+                                symbol={tx.symbol}
+                                source={tx.rates}
+                                useCustomSource
+                            />
                         }
-                        fourthColumn={
-                            showFiat && <FiatValue amount={cardanoDeposit} symbol={tx.symbol} />
-                        }
-                        color="light"
+                        fourthColumn={<FiatValue amount={cardanoDeposit} symbol={tx.symbol} />}
                     />
                 )}
 
-                {tx.tokens.map((t, i) => (
+                {tx.internalTransfers.map((transfer, i) => (
                     <AmountRow
                         // eslint-disable-next-line react/no-array-index-key
                         key={i}
                         firstColumn={
-                            tx.targets.length === 0 ? <Translation id="AMOUNT" /> : undefined
+                            !tx.targets.length && i === 0 ? <Translation id="AMOUNT" /> : undefined
                         }
                         secondColumn={
                             <FormattedCryptoAmount
-                                value={formatAmount(t.amount, t.decimals)}
-                                symbol={t.symbol as NetworkSymbol}
+                                value={formatNetworkAmount(transfer.amount, tx.symbol)}
+                                symbol={tx.symbol}
+                                signValue={getTxOperation(transfer.type, true)}
                             />
                         }
                         thirdColumn={
-                            showHistoricalRates && (
-                                <FiatValue
-                                    amount={amount}
-                                    symbol={assetSymbol}
-                                    source={tx.rates}
-                                    useCustomSource
-                                />
-                            )
+                            <FiatValue
+                                amount={formatNetworkAmount(transfer.amount, tx.symbol)}
+                                symbol={tx.symbol}
+                                source={tx.rates}
+                                useCustomSource
+                            />
                         }
                         fourthColumn={
-                            showFiat && (
-                                <FiatValue
-                                    amount={amount}
-                                    symbol={assetSymbol}
-                                    tokenAddress={tokenTransfer?.address}
+                            <FiatValue
+                                amount={formatNetworkAmount(transfer.amount, tx.symbol)}
+                                symbol={tx.symbol}
+                            />
+                        }
+                    />
+                ))}
+
+                {tx.tokens.map((transfer, i) => (
+                    <AmountRow
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={i}
+                        firstColumn={
+                            !tx.targets.length && !tx.internalTransfers.length && i === 0 ? (
+                                <Translation id="AMOUNT" />
+                            ) : undefined
+                        }
+                        secondColumn={
+                            isNftTokenTransfer(transfer) ? (
+                                <FormattedNftAmount
+                                    transfer={transfer}
+                                    isWithLink
+                                    signValue={getTxOperation(transfer.type, true)}
+                                />
+                            ) : (
+                                <FormattedCryptoAmount
+                                    value={formatAmount(transfer.amount, transfer.decimals)}
+                                    symbol={transfer.symbol as NetworkSymbol}
+                                    signValue={getTxOperation(transfer.type, true)}
                                 />
                             )
                         }
-                        color="light"
+                        // no history rates available for tokens
+                        thirdColumn={null}
+                        fourthColumn={
+                            <FiatValue
+                                amount={formatAmount(transfer.amount, transfer.decimals)}
+                                symbol={transfer.symbol}
+                                tokenAddress={transfer.address}
+                            />
+                        }
                     />
                 ))}
 
                 {/* TX FEE */}
-                <AmountRow
-                    firstColumn={<Translation id="TR_TX_FEE" />}
-                    secondColumn={<FormattedCryptoAmount value={fee} symbol={tx.symbol} />}
-                    thirdColumn={
-                        showHistoricalRates && (
+                {tx.type !== 'recv' && (
+                    <AmountRow
+                        firstColumn={<Translation id="TR_TX_FEE" />}
+                        secondColumn={
+                            <FormattedCryptoAmount
+                                value={fee}
+                                symbol={tx.symbol}
+                                signValue="negative"
+                            />
+                        }
+                        thirdColumn={
                             <FiatValue
                                 amount={fee}
                                 symbol={tx.symbol}
                                 source={tx.rates}
                                 useCustomSource
                             />
-                        )
-                    }
-                    fourthColumn={showFiat && <FiatValue amount={fee} symbol={tx.symbol} />}
-                    color="light"
-                />
+                        }
+                        fourthColumn={<FiatValue amount={fee} symbol={tx.symbol} />}
+                    />
+                )}
             </AmountWrapper>
         </MainContainer>
     );
