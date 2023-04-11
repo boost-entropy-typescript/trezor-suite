@@ -1,9 +1,11 @@
 export * from './AccordionItem';
+export * from './AlertBox';
 export * from './Text';
 export * from './Box';
 export * from './Hint';
 export * from './Radio';
 export * from './NumPadButton';
+export * from './Image';
 export * from './Input/InputWrapper';
 export * from './Input/SearchInput';
 export * from './Input/Input';
@@ -20,6 +22,7 @@ export * from './Button/IconButton';
 export * from './Select/Select';
 export * from './Select/SelectItem';
 export * from './Stack';
+export * from './Badge';
 
 export * from './Divider';
 export * from './TextDivider';

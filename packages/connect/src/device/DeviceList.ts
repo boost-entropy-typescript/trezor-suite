@@ -19,8 +19,6 @@ import { initLog } from '../utils/debug';
 import { resolveAfter } from '../utils/promiseUtils';
 
 import { WebUsbPlugin, ReactNativeUsbPlugin } from '../workers/workers';
-import { getAbortController } from './AbortController';
-import type { Controller } from './AbortController';
 
 const { BridgeV2, Fallback } = TrezorLink;
 
@@ -77,7 +75,7 @@ export class DeviceList extends EventEmitter {
 
     penalizedDevices: { [deviceID: string]: number } = {};
 
-    fetchController?: Controller | null;
+    fetchController?: AbortController | null;
 
     constructor() {
         super();
@@ -101,7 +99,7 @@ export class DeviceList extends EventEmitter {
             const bridge = new BridgeV2(undefined, undefined);
             bridge.setBridgeLatestVersion(bridgeLatestVersion);
 
-            this.fetchController = getAbortController();
+            this.fetchController = new AbortController();
             const { signal } = this.fetchController;
             // @ts-expect-error TODO: https://github.com/trezor/trezor-suite/issues/5332
             const fetchWithSignal = (args, options = {}) => fetch(args, { ...options, signal });
@@ -381,7 +379,7 @@ class CreateDeviceHandler {
         } catch (error) {
             _log.debug('Cannot create device', error);
 
-            if (error.code === 'Device_NotFound') {
+            if (error.code === 'Device_NotFound' || error.message === 'device not found') {
                 // do nothing
                 // it's a race condition between "device_changed" and "device_disconnected"
             } else if (
@@ -390,7 +388,7 @@ class CreateDeviceHandler {
             ) {
                 this.list.enumerate();
                 this._handleUsedElsewhere();
-            } else if (error.message.indexOf(ERRORS.LIBUSB_ERROR_MESSAGE) >= 0) {
+            } else if (error.message?.indexOf(ERRORS.LIBUSB_ERROR_MESSAGE) >= 0) {
                 // catch one of trezord LIBUSB_ERRORs
                 const device = this.list._createUnreadableDevice(
                     this.list.creatingDevicesDescriptors[this.path],
@@ -405,7 +403,7 @@ class CreateDeviceHandler {
                 // most common error - someone else took the device at the same time
                 this._handleUsedElsewhere();
             } else {
-                await resolveAfter(501, null);
+                await resolveAfter(501, null).promise;
                 await this.handle();
             }
         }
@@ -499,7 +497,7 @@ class DiffHandler {
             const penalty = this.list.getAuthPenalty();
             _log.debug('Connected', priority, penalty, descriptor.session, this.list.devices);
             if (priority || penalty) {
-                await resolveAfter(501 + penalty + 100 * priority, null);
+                await resolveAfter(501 + penalty + 100 * priority, null).promise;
             }
             if (descriptor.session == null) {
                 await this.list._createAndSaveDevice(descriptor);
@@ -528,7 +526,7 @@ class DiffHandler {
             if (device) {
                 if (device.isUnacquired() && !device.isInconsistent()) {
                     // wait for publish changes
-                    await resolveAfter(501, null);
+                    await resolveAfter(501, null).promise;
                     _log.debug('Create device from unacquired', device);
                     await this.list._createAndSaveDevice(descriptor);
                 }
