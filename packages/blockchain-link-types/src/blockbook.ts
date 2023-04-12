@@ -7,33 +7,20 @@ import type {
     AccountInfoParams,
 } from './params';
 import type { AccountBalanceHistory, FiatRates, TokenStandard } from './common';
+import { Vin, Vout, Utxo as BlockbookUtxo, WsInfoRes, WsBlockHashRes } from './blockbook-api';
+
+type OptionalKey<M, K extends keyof M> = Omit<M, K> & Partial<Pick<M, K>>;
+type RequiredKey<M, K extends keyof M> = Omit<M, K> & Required<Pick<M, K>>;
+
+export type AccountUtxo = RequiredKey<BlockbookUtxo, 'address' | 'height' | 'value' | 'path'>[];
 
 export interface Subscribe {
     subscribed: boolean;
 }
 
-export interface ServerInfo {
-    bestHash: string;
-    bestHeight: number;
-    block0Hash: string;
-    decimals: number;
-    name: string;
-    shortcut: string;
-    testnet: boolean;
-    version: string;
-    backend?: {
-        subversion: string;
-        version: string;
-        consensus?: {
-            chaintip: string;
-            nextblock: string;
-        };
-    };
-}
+export type ServerInfo = WsInfoRes;
 
-export interface BlockHash {
-    hash: string;
-}
+export type BlockHash = WsBlockHashRes;
 
 export interface Block {
     page: number;
@@ -86,28 +73,7 @@ export interface AccountUtxoParams {
     descriptor: string;
 }
 
-export type AccountUtxo = {
-    txid: string;
-    vout: number;
-    value: string;
-    height: number;
-    address: string;
-    path: string;
-    confirmations: number;
-    coinbase?: boolean;
-}[];
-
-export interface VinVout {
-    n: number;
-    addresses?: string[];
-    isAddress: boolean;
-    value?: string;
-    coinbase?: string;
-    txid?: string;
-    vout?: number;
-    sequence?: number;
-    hex?: string;
-}
+export type VinVout = OptionalKey<Vin & Vout, 'addresses'>;
 
 export interface EthereumInternalTransfer {
     type: number;
