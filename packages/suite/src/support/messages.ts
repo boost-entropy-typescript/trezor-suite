@@ -139,6 +139,10 @@ export default defineMessages({
         defaultMessage: 'In the meantime, make sure you have completed all security steps below.',
         id: 'TR_ADDITIONAL_SECURITY_FEATURES',
     },
+    TR_CONTRACT: {
+        defaultMessage: 'Contract',
+        id: 'TR_CONTRACT',
+    },
     TR_ADDRESS: {
         defaultMessage: 'Address',
         description: 'Used as label for receive/send address input',
@@ -2883,10 +2887,6 @@ export default defineMessages({
         defaultMessage: 'Ethereum Classic',
         id: 'TR_NETWORK_ETHEREUM_CLASSIC',
     },
-    TR_NETWORK_ETHEREUM_TESTNET: {
-        defaultMessage: 'Ethereum Testnet',
-        id: 'TR_NETWORK_ETHEREUM_TESTNET',
-    },
     TR_NETWORK_ETHEREUM_GOERLI: {
         defaultMessage: 'Ethereum Goerli',
         id: 'TR_NETWORK_ETHEREUM_GOERLI',
@@ -2986,10 +2986,6 @@ export default defineMessages({
     TR_FW_INSTALLATION_FAILED: {
         defaultMessage: 'Installation failed',
         id: 'TR_FW_INSTALLATION_FAILED',
-    },
-    TR_OPEN_IN_BLOCK_EXPLORER: {
-        defaultMessage: 'Open in Block Explorer',
-        id: 'TR_OPEN_IN_BLOCK_EXPLORER',
     },
     TR_OUTGOING: {
         defaultMessage: 'Outgoing',
@@ -3413,14 +3409,6 @@ export default defineMessages({
     TR_TOTAL: {
         defaultMessage: 'Total',
         id: 'TR_TOTAL',
-    },
-    TR_TOTAL_INPUT: {
-        defaultMessage: 'Total input',
-        id: 'TR_TOTAL_INPUT',
-    },
-    TR_TOTAL_OUTPUT: {
-        defaultMessage: 'Total output',
-        id: 'TR_TOTAL_OUTPUT',
     },
     TR_TRANSACTION_DETAILS: {
         defaultMessage: 'Details',
@@ -6170,10 +6158,6 @@ export default defineMessages({
         id: 'TR_TX_TAB_AMOUNT',
         defaultMessage: 'Amount',
         description: 'Title of a tab in a transaction detail modal',
-    },
-    TR_SHOW_FIAT: {
-        id: 'TR_SHOW_FIAT',
-        defaultMessage: 'Show FIAT',
     },
     TR_TODAY_DATE: {
         id: 'TR_TODAY_DATE',
