@@ -7145,6 +7145,7 @@ __metadata:
     "@trezor/icons": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
+    expo-navigation-bar: ^2.1.1
     expo-system-ui: 2.2.1
     react: 18.2.0
     react-native: 0.71.5
@@ -7185,8 +7186,10 @@ __metadata:
   resolution: "@suite-native/qr-code@workspace:suite-native/qr-code"
   dependencies:
     "@react-navigation/core": ^6.4.6
+    "@suite-common/wallet-config": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/helpers": "workspace:*"
+    "@trezor/icons": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
     expo-barcode-scanner: ^12.3.1
@@ -8182,6 +8185,7 @@ __metadata:
     expo-barcode-scanner: ^12.3.1
     expo-clipboard: ^4.1.1
     expo-localization: ^14.1.1
+    expo-navigation-bar: ^2.1.1
     expo-random: ^13.1.1
     expo-secure-store: ^12.1.1
     expo-splash-screen: 0.18.1
@@ -8386,6 +8390,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/theme@workspace:packages/theme"
   dependencies:
+    "@mobily/ts-belt": ^3.13.1
     csstype: ^3.1.2
     jest: ^26.6.3
     prettier: 2.8.7
@@ -17339,6 +17344,18 @@ __metadata:
     compare-versions: ^3.4.0
     invariant: ^2.2.4
   checksum: 7f0e18c33151dced735e30513b62b389211dc6c8e734fbbb2625427733dd76a53594fda792569778ce07493255657e0106c2d51b11407c474146b4e44ab582cc
+  languageName: node
+  linkType: hard
+
+"expo-navigation-bar@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "expo-navigation-bar@npm:2.1.1"
+  dependencies:
+    "@react-native/normalize-color": ^2.0.0
+    debug: ^4.3.2
+  peerDependencies:
+    expo: "*"
+  checksum: 5b58145c28816523dc1bcb9413352718e75fdd4b5af30d0ac0d0a7c99a2dacfbbfaf6ed64a6f037621692fc1db817b19a00fc0d80b6b95a2da816cc327f2e26e
   languageName: node
   linkType: hard
 
