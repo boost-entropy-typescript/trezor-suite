@@ -6689,10 +6689,13 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/ethereum-tokens": "workspace:*"
+    "@suite-native/fiat-rates": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/forms": "workspace:*"
+    "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -6726,8 +6729,8 @@ __metadata:
     "@suite-common/suite-config": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
     "@suite-native/config": "workspace:*"
-    "@suite-native/ethereum-tokens": "workspace:*"
     "@trezor/analytics": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -6763,7 +6766,6 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": ^3.13.1
     "@shopify/react-native-skia": 0.1.173
-    "@suite-native/analytics": "workspace:*"
     "@suite-native/storage": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/icons": "workspace:*"
@@ -6801,6 +6803,9 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
+    "@suite-native/fiat-rates": "workspace:*"
+    "@suite-native/module-settings": "workspace:*"
     "@trezor/blockchain-link": "workspace:*"
     "@trezor/icons": "workspace:*"
     proxy-memoize: ^2.0.2
@@ -7157,7 +7162,6 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/ethereum-tokens": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -7502,7 +7506,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/blockchain-link-types@workspace:*, @trezor/blockchain-link-types@workspace:1.0.0, @trezor/blockchain-link-types@workspace:packages/blockchain-link-types":
+"@trezor/blockchain-link-types@workspace:*, @trezor/blockchain-link-types@workspace:1.0.1, @trezor/blockchain-link-types@workspace:packages/blockchain-link-types":
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link-types@workspace:packages/blockchain-link-types"
   dependencies:
@@ -7510,16 +7514,17 @@ __metadata:
     rimraf: ^4.4.1
     ripple-lib: ^1.10.1
     socks-proxy-agent: 6.1.1
+    tsx: ^3.12.6
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
 
-"@trezor/blockchain-link-utils@workspace:*, @trezor/blockchain-link-utils@workspace:1.0.0, @trezor/blockchain-link-utils@workspace:packages/blockchain-link-utils":
+"@trezor/blockchain-link-utils@workspace:*, @trezor/blockchain-link-utils@workspace:1.0.1, @trezor/blockchain-link-utils@workspace:packages/blockchain-link-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link-utils@workspace:packages/blockchain-link-utils"
   dependencies:
-    "@trezor/blockchain-link-types": "workspace:1.0.0"
-    "@trezor/type-utils": "workspace:1.0.0"
+    "@trezor/blockchain-link-types": "workspace:1.0.1"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:9.0.7"
     bignumber.js: ^9.1.1
     jest: ^26.6.3
@@ -7529,12 +7534,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/blockchain-link@workspace:*, @trezor/blockchain-link@workspace:2.1.9, @trezor/blockchain-link@workspace:packages/blockchain-link":
+"@trezor/blockchain-link@workspace:*, @trezor/blockchain-link@workspace:packages/blockchain-link":
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link@workspace:packages/blockchain-link"
   dependencies:
-    "@trezor/blockchain-link-types": "workspace:1.0.0"
-    "@trezor/blockchain-link-utils": "workspace:1.0.0"
+    "@trezor/blockchain-link-types": "workspace:1.0.1"
+    "@trezor/blockchain-link-utils": "workspace:1.0.1"
     "@trezor/utils": "workspace:9.0.7"
     "@trezor/utxo-lib": "workspace:1.0.5"
     "@types/web": ^0.0.99
@@ -7814,7 +7819,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/connect@workspace:packages/connect"
   dependencies:
-    "@trezor/blockchain-link": "workspace:2.1.9"
+    "@trezor/blockchain-link": "workspace:*"
     "@trezor/connect-analytics": "workspace:*"
     "@trezor/connect-common": "workspace:0.0.13"
     "@trezor/transport": "workspace:1.1.9"
@@ -8470,7 +8475,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/type-utils@workspace:*, @trezor/type-utils@workspace:1.0.0, @trezor/type-utils@workspace:packages/type-utils":
+"@trezor/type-utils@workspace:*, @trezor/type-utils@workspace:packages/type-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/type-utils@workspace:packages/type-utils"
   dependencies:
