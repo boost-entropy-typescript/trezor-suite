@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import TrezorConnect from '@trezor/connect';
 import * as STEP from '@onboarding-constants/steps';
 import {
     OnboardingButtonBack,
@@ -8,12 +7,12 @@ import {
     OptionWrapper,
     OptionsDivider,
     OnboardingStepBox,
-    OnboardingButtonCta,
 } from '@onboarding-components';
 import { Translation } from '@suite-components';
 import { useActions, useSelector, useOnboarding } from '@suite-hooks';
 import * as deviceSettingsActions from '@settings-actions/deviceSettingsActions';
 import { getDeviceModel } from '@trezor/device-utils';
+import { selectIsActionAbortable } from '@suite-reducers/suiteReducer';
 
 export const ResetDeviceStep = () => {
     const [submitted, setSubmitted] = useState(false);
@@ -24,6 +23,7 @@ export const ResetDeviceStep = () => {
 
     const device = useSelector(state => state.suite.device);
     const deviceModel = getDeviceModel(device);
+    const isActionAbortable = useSelector(selectIsActionAbortable);
 
     // this step expects device
     if (!device || !device.features) {
@@ -73,17 +73,7 @@ export const ResetDeviceStep = () => {
             heading={<Translation id="TR_ONBOARDING_GENERATE_SEED" />}
             description={<Translation id="TR_ONBOARDING_GENERATE_SEED_DESCRIPTION" />}
             deviceModel={isWaitingForConfirmation ? deviceModel : undefined}
-            innerActions={
-                isWaitingForConfirmation && (
-                    <OnboardingButtonCta
-                        onClick={() => TrezorConnect.cancel()}
-                        icon="CANCEL"
-                        variant="danger"
-                    >
-                        <Translation id="TR_ABORT" />
-                    </OnboardingButtonCta>
-                )
-            }
+            isActionAbortable={isActionAbortable}
             outerActions={
                 !isWaitingForConfirmation ? (
                     // There is no point to show back button if user can't click it because confirmOnDevice bubble is active

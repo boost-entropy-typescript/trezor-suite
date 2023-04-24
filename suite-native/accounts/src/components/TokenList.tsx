@@ -8,8 +8,7 @@ import {
     EthereumTokenSymbol,
     selectEthereumAccountsTokensWithFiatRates,
 } from '@suite-native/ethereum-tokens';
-import { AccountsRootState, selectAccountLabel } from '@suite-common/wallet-core';
-import { AccountKey, TokenSymbol } from '@suite-common/wallet-types';
+import { AccountKey } from '@suite-common/wallet-types';
 import { FiatRatesRootState } from '@suite-native/fiat-rates';
 import { SettingsSliceRootState } from '@suite-native/module-settings';
 
@@ -24,9 +23,6 @@ export const TokenList = ({ accountKey, onSelectAccount }: TokenListProps) => {
     const accountTokens = useSelector((state: FiatRatesRootState & SettingsSliceRootState) =>
         selectEthereumAccountsTokensWithFiatRates(state, accountKey),
     );
-    const accountLabel = useSelector((state: AccountsRootState) =>
-        selectAccountLabel(state, accountKey),
-    );
 
     if (A.isEmpty(accountTokens)) return null;
 
@@ -35,11 +31,12 @@ export const TokenList = ({ accountKey, onSelectAccount }: TokenListProps) => {
             {accountTokens.map((token, index) => (
                 <TokenListItem
                     key={token.contract}
+                    contract={token.contract}
                     accountKey={accountKey}
-                    symbol={token.symbol as TokenSymbol}
+                    symbol={token.symbol}
                     onSelectAccount={onSelectAccount}
                     balance={token.balance}
-                    label={`${accountLabel} ${token.name}`}
+                    label={token.name ?? 'Unknown token'}
                     isLast={accountTokens?.length - 1 === index}
                 />
             ))}

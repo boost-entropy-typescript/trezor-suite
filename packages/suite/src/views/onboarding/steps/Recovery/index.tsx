@@ -1,5 +1,4 @@
 import React from 'react';
-import TrezorConnect from '@trezor/connect';
 import { OnboardingButtonCta } from '@onboarding-components';
 import { SelectWordCount, SelectRecoveryType, SelectRecoveryWord } from '@recovery-components';
 import { Translation } from '@suite-components';
@@ -7,12 +6,20 @@ import * as onboardingActions from '@onboarding-actions/onboardingActions';
 import { useActions, useRecovery, useSelector } from '@suite-hooks';
 import RecoveryStepBox from './RecoveryStepBox';
 import { DeviceModel, getDeviceModel, pickByDeviceModel } from '@trezor/device-utils';
+import { selectIsActionAbortable } from '@suite-reducers/suiteReducer';
+import styled from 'styled-components';
+
+const InProgressRecoveryStepBox = styled(RecoveryStepBox)`
+    min-height: 475px;
+`;
 
 export const RecoveryStep = () => {
     const { goToNextStep, updateAnalytics } = useActions({
         goToNextStep: onboardingActions.goToNextStep,
         updateAnalytics: onboardingActions.updateAnalytics,
     });
+
+    const isActionAbortable = useSelector(selectIsActionAbortable);
 
     const { device } = useSelector(state => ({
         device: state.suite.device,
@@ -113,6 +120,7 @@ export const RecoveryStep = () => {
                     [DeviceModel.TR]: <Translation id="TR_RECOVER_SUBHEADING_BUTTONS" />,
                 })}
                 deviceModel={deviceModel}
+                isActionAbortable={isActionAbortable}
             />
         );
     }
@@ -134,28 +142,20 @@ export const RecoveryStep = () => {
         };
 
         return (
-            <RecoveryStepBox
+            <InProgressRecoveryStepBox
                 key={status} // to properly rerender in translation mode
                 heading={<Translation id="TR_RECOVER_YOUR_WALLET_FROM" />}
                 deviceModel={deviceModel}
-                innerActions={
-                    <OnboardingButtonCta
-                        onClick={() => TrezorConnect.cancel()}
-                        icon="CANCEL"
-                        variant="danger"
-                    >
-                        <Translation id="TR_ABORT" />
-                    </OnboardingButtonCta>
-                }
                 description={pickByDeviceModel(deviceModel, {
                     default: undefined,
                     [DeviceModel.T1]: getModel1Description(),
                     [DeviceModel.TT]: <Translation id="TR_RECOVER_SUBHEADING_TOUCH" />,
                     [DeviceModel.TR]: <Translation id="TR_RECOVER_SUBHEADING_BUTTONS" />,
                 })}
+                isActionAbortable
             >
                 <SelectRecoveryWord />
-            </RecoveryStepBox>
+            </InProgressRecoveryStepBox>
         );
     }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import TrezorConnect from '@trezor/connect';
 import {
     ConfirmOnDevice,
     Backdrop,
@@ -44,6 +45,7 @@ export interface OnboardingStepBoxProps extends CollapsibleCardProps {
     deviceModel?: DeviceModel;
     disableConfirmWrapper?: boolean;
     nested?: boolean;
+    isActionAbortable?: boolean;
 }
 
 export const OnboardingStepBox = ({
@@ -53,9 +55,9 @@ export const OnboardingStepBox = ({
     innerActions,
     outerActions,
     deviceModel,
+    isActionAbortable,
     disableConfirmWrapper,
     nested,
-    className,
     children,
     ...rest
 }: OnboardingStepBoxProps) => (
@@ -67,6 +69,7 @@ export const OnboardingStepBox = ({
                     <ConfirmOnDevice
                         title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
                         deviceModel={deviceModel}
+                        onCancel={isActionAbortable ? () => TrezorConnect.cancel() : undefined}
                     />
                 )}
             </ConfirmWrapper>

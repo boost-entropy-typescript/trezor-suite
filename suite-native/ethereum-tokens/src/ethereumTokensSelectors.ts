@@ -7,7 +7,12 @@ import {
     selectAccountTransactions,
     TransactionsRootState,
 } from '@suite-common/wallet-core';
-import { AccountKey, TokenAddress, TokenSymbol } from '@suite-common/wallet-types';
+import {
+    AccountKey,
+    TokenAddress,
+    TokenInfoBranded,
+    TokenSymbol,
+} from '@suite-common/wallet-types';
 import { TokenInfo, TokenTransfer } from '@trezor/blockchain-link';
 import {
     FiatRatesRootState,
@@ -23,10 +28,15 @@ export const selectEthereumAccountToken = (
     state: AccountsRootState,
     accountKey: AccountKey,
     tokenSymbol?: EthereumTokenSymbol,
-): TokenInfo | null => {
+): TokenInfoBranded | null => {
     const account = selectAccountByKey(state, accountKey);
     if (!account || !account.tokens) return null;
-    return A.find(account.tokens, (token: TokenInfo) => token.symbol === tokenSymbol) ?? null;
+    return (
+        (A.find(
+            account.tokens,
+            (token: TokenInfo) => token.symbol === tokenSymbol,
+        ) as TokenInfoBranded) ?? null
+    );
 };
 
 export const selectEthereumAccountTokenTransactions = memoizeWithArgs(
@@ -70,10 +80,14 @@ export const selectEthereumTokenHasFiatRates = (
     return !!rates?.rate;
 };
 
+const isNotZeroAmountTranfer = (tokenTranfer: TokenTransfer) =>
+    tokenTranfer.amount !== '' && tokenTranfer.amount !== '0';
+
 const selectAccountTransactionsWithTokensWithFiatRates = memoizeWithArgs(
     (
         state: TransactionsRootState & FiatRatesRootState & SettingsSliceRootState,
         accountKey: AccountKey,
+        areTokenOnlyTransactionsIncluded: boolean,
     ): WalletAccountTransaction[] =>
         pipe(
             selectAccountTransactions(state, accountKey),
@@ -81,6 +95,7 @@ const selectAccountTransactionsWithTokensWithFiatRates = memoizeWithArgs(
                 ...transaction,
                 tokens: pipe(
                     transaction.tokens,
+                    A.filter(isNotZeroAmountTranfer),
                     A.filter(token =>
                         selectEthereumTokenHasFiatRates(
                             state,
@@ -94,6 +109,13 @@ const selectAccountTransactionsWithTokensWithFiatRates = memoizeWithArgs(
                     })),
                 ),
             })),
+            A.filter(
+                transaction =>
+                    transaction.amount !== '0' ||
+                    (areTokenOnlyTransactionsIncluded &&
+                        G.isArray(transaction.tokens) &&
+                        A.isNotEmpty(transaction.tokens)),
+            ),
         ) as WalletAccountTransaction[],
     { size: 500 },
 );
@@ -102,6 +124,7 @@ export const selectAccountOrTokenAccountTransactions = (
     state: TransactionsRootState & FiatRatesRootState & SettingsSliceRootState,
     accountKey: AccountKey,
     tokenSymbol: EthereumTokenSymbol | null,
+    areTokenOnlyTransactionsIncluded: boolean,
 ): WalletAccountTransaction[] => {
     if (tokenSymbol) {
         return selectEthereumAccountTokenTransactions(state, accountKey, tokenSymbol);
@@ -109,11 +132,15 @@ export const selectAccountOrTokenAccountTransactions = (
     return selectAccountTransactionsWithTokensWithFiatRates(
         state,
         accountKey,
+        areTokenOnlyTransactionsIncluded,
     ) as WalletAccountTransaction[];
 };
 
 export const selectEthereumAccountsTokensWithFiatRates = memoizeWithArgs(
-    (state: FiatRatesRootState & SettingsSliceRootState, ethereumAccountKey: string) => {
+    (
+        state: FiatRatesRootState & SettingsSliceRootState,
+        ethereumAccountKey: string,
+    ): readonly TokenInfoBranded[] => {
         const account = selectAccountByKey(state, ethereumAccountKey);
         if (!account || !isEthereumAccountSymbol(account.symbol)) return [];
         return A.filter(account.tokens ?? [], token =>
@@ -122,7 +149,7 @@ export const selectEthereumAccountsTokensWithFiatRates = memoizeWithArgs(
                 token.contract as TokenAddress,
                 token.symbol as TokenSymbol,
             ),
-        );
+        ) as TokenInfoBranded[];
     },
     { size: 50 },
 );

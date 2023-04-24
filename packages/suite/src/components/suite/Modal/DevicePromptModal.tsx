@@ -11,12 +11,12 @@ import {
     variables,
 } from '@trezor/components';
 import { Translation } from '..';
-import { useSelector } from '@suite-hooks/useSelector';
 import { ModalEnvironment } from './ModalEnvironment';
 import { useModalTarget } from '@suite-support/ModalContext';
 import { Modal } from '.';
-import { versionUtils } from '@trezor/utils';
 import { useDeviceModel } from '@suite-hooks/useDeviceModel';
+import { selectIsActionAbortable } from '@suite-reducers/suiteReducer';
+import { useSelector } from '@suite-hooks/useSelector';
 
 const StyledTrezorModal = styled(TrezorModal)`
     ${Modal.Header} {
@@ -96,15 +96,10 @@ interface AbortButtonProps {
 }
 
 export const AbortButton = ({ onAbort, className }: AbortButtonProps) => {
-    const transport = useSelector(state => state.suite.transport);
-
     const theme = useTheme();
 
     // checks compatability for use in other places
-    const isActionAbortable =
-        transport?.type === 'BridgeTransport'
-            ? versionUtils.isNewerOrEqual(transport?.version as string, '2.0.31')
-            : true; // Works via WebUSB
+    const isActionAbortable = useSelector(selectIsActionAbortable);
 
     if (!isActionAbortable) {
         return null;
@@ -144,14 +139,10 @@ const DevicePromptModalRenderer = ({
     ...rest
 }: DevicePromptModalProps) => {
     const deviceModel = useDeviceModel();
-    const transport = useSelector(state => state.suite.transport);
     const modalTarget = useModalTarget();
 
     // duplicated because headerComponents should receive undefined if isAbortable === false
-    const isActionAbortable =
-        transport?.type === 'BridgeTransport'
-            ? isAbortable && versionUtils.isNewerOrEqual(transport?.version as string, '2.0.31')
-            : isAbortable; // Works via WebUSB
+    const isActionAbortable = useSelector(selectIsActionAbortable) || isAbortable;
 
     if (!modalTarget) return null;
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import ReactSelect, {
     components as ReactSelectComponents,
     Props as ReactSelectProps,
@@ -25,6 +25,8 @@ import {
     INPUT_BORDER_WIDTH,
     getInputStateTextColor,
 } from '../InputStyles';
+
+const reactSelectClassNamePrefix = 'react-select';
 
 const selectStyle = (
     isSearchable: boolean,
@@ -55,10 +57,11 @@ const selectStyle = (
             cursor: hideTextCursor || !isSearchable ? 'pointer' : 'text',
         },
     }),
-    control: (base, { isDisabled }) => {
+    control: (base, { isDisabled, menuIsOpen }) => {
+        const borderColorBase = menuIsOpen ? theme.TYPE_LIGHT_GREY : theme.STROKE_GREY;
         const borderColor = inputState
             ? getInputStateTextColor(inputState, theme)
-            : theme.STROKE_GREY;
+            : borderColorBase;
 
         return {
             ...base,
@@ -77,9 +80,9 @@ const selectStyle = (
             '&:hover': {
                 borderColor: darken(
                     theme.HOVER_DARKEN_FILTER,
-                    inputState ? getInputStateTextColor(inputState, theme) : theme.STROKE_GREY,
+                    inputState ? getInputStateTextColor(inputState, theme) : borderColorBase,
                 ),
-                '.react-select__dropdown-indicator': {
+                [`.${reactSelectClassNamePrefix}__dropdown-indicator`]: {
                     color: darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_GREY),
                 },
             },
@@ -87,7 +90,7 @@ const selectStyle = (
                 borderColor: inputState
                     ? darken(theme.HOVER_DARKEN_FILTER, getInputStateTextColor(inputState, theme))
                     : theme.TYPE_LIGHT_GREY,
-                '.react-select__dropdown-indicator': {
+                [`.${reactSelectClassNamePrefix}__dropdown-indicator`]: {
                     color: theme.TYPE_LIGHT_GREY,
                 },
             },
@@ -123,7 +126,7 @@ const selectStyle = (
         minWidth: '100%',
         background: theme.BG_WHITE_ALT,
         margin: '5px 0',
-        boxShadow: `box-shadow: 0 4px 10px 0 ${theme.BOX_SHADOW_BLACK_20}`,
+        borderRadius: '4px',
         zIndex: Z_INDEX.BASE,
     }),
     menuPortal: base => ({
@@ -168,18 +171,16 @@ const selectStyle = (
             background: theme.BG_WHITE_ALT_HOVER,
         },
     }),
-    input: (base, props) => ({
+    input: base => ({
         ...base,
         width: hideTextCursor ? 2 : 'auto',
         margin: hideTextCursor ? 0 : 2,
-        paddingLeft: (props as any).value && 16,
-        fontSize: NEUE_FONT_SIZE.NORMAL,
+        fontSize: NEUE_FONT_SIZE.SMALL,
+        fontWeight: FONT_WEIGHT.MEDIUM,
+        padding: '2px 6px',
         color: hideTextCursor ? 'transparent' : theme.TYPE_DARK_GREY,
         '& input': {
             textShadow: hideTextCursor ? `0 0 0 ${theme.TYPE_DARK_GREY} !important` : 'none',
-        },
-        '&:focus': {
-            paddingLeft: 16,
         },
     }),
     placeholder: base => ({
@@ -187,13 +188,14 @@ const selectStyle = (
         fontWeight: FONT_WEIGHT.MEDIUM,
         fontSize: NEUE_FONT_SIZE.SMALL,
         padding: '0 6px',
+        position: 'absolute',
     }),
 });
 
 const Wrapper = styled.div<Pick<SelectProps, 'isClean'>>`
     width: 100%;
 
-    .react-select__menu {
+    .${reactSelectClassNamePrefix}__menu {
         animation: ${animations.DROPDOWN_MENU} 0.15s ease-in-out;
     }
 
@@ -262,31 +264,12 @@ export const Select = ({
     'data-test': dataTest,
     ...props
 }: SelectProps) => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
     const selectRef = useRef<SelectInstance<Option>>(null);
 
     const theme = useTheme();
 
     const lastKeyPressTimestamp = useRef(0);
     const searchedTerm = useRef('');
-
-    useEffect(() => {
-        if (!document.getElementById('layout-scroll')) {
-            return;
-        }
-
-        const select = selectRef.current;
-
-        const handleBlur = () => select?.blur();
-
-        if (isMenuOpen) {
-            document.getElementById('layout-scroll')?.addEventListener('scroll', handleBlur);
-        }
-
-        return () =>
-            document.getElementById('layout-scroll')?.removeEventListener('scroll', handleBlur);
-    }, [isMenuOpen, selectRef]);
 
     const findOption = useCallback((options: Options<Option>, query: string) => {
         let foundOption;
@@ -319,6 +302,11 @@ export const Select = ({
             });
         }
     }, []);
+
+    const closeMenuOnScroll = useCallback(
+        (e: Event) => !(e.target as Element)?.className.startsWith(reactSelectClassNamePrefix),
+        [],
+    );
 
     const onKeyDown = useCallback(
         async (event: React.KeyboardEvent) => {
@@ -441,9 +429,7 @@ export const Select = ({
             <ReactSelect
                 ref={selectRef}
                 onKeyDown={onKeyDown}
-                onMenuOpen={() => setIsMenuOpen(true)}
-                onMenuClose={() => setIsMenuOpen(false)}
-                classNamePrefix="react-select"
+                classNamePrefix={reactSelectClassNamePrefix}
                 openMenuOnFocus
                 menuPortalTarget={document.body}
                 styles={selectStyle(
@@ -458,6 +444,7 @@ export const Select = ({
                 )}
                 onChange={handleOnChange}
                 isSearchable={isSearchable}
+                closeMenuOnScroll={closeMenuOnScroll}
                 {...props}
                 components={{ Control, Option, GroupHeading, ...components }}
             />

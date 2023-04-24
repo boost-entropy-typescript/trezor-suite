@@ -1,33 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { MenuListProps, createFilter } from 'react-select';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { Select, variables } from '@trezor/components';
 import { bip39 } from '@trezor/crypto-utils';
 import { useTranslation } from '@suite-hooks/useTranslation';
+import { useKeyPress } from 'react-use';
 
 const options = bip39.map(item => ({ label: item, value: item }));
 
-const shake = keyframes`
-    10%, 90% {
-        transform: translate3d(-1px, 0, 0);
-    }
-
-    20%, 80% {
-        transform: translate3d(2px, 0, 0);
-    }
-
-    30%, 50%, 70% {
-        transform: translate3d(-4px, 0, 0);
-    }
-
-    40%, 60% {
-        transform: translate3d(4px, 0, 0);
-    }
-`;
-
 const SelectWrapper = styled.div`
-    animation: ${shake} 1.3s;
     margin: 12px auto 0px auto;
     text-align: left;
 
@@ -39,7 +21,6 @@ const SelectWrapper = styled.div`
 `;
 
 const StyledList = styled(List)`
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
     padding: 8px;
     position: static !important;
 
@@ -54,13 +35,17 @@ const MenuList = (props: MenuListProps<Option, boolean>) => {
     const listRef = useRef<List>(null);
 
     const children = React.Children.toArray(props.children) as React.ReactElement[];
+    const [arrowDownPress] = useKeyPress('ArrowDown');
+    const [arrowUpPress] = useKeyPress('ArrowUp');
 
     useEffect(() => {
-        if (listRef.current) {
+        // fix scroll on arrows
+        if (listRef.current && (arrowDownPress || arrowUpPress)) {
             const currentIndex = children.findIndex(child => child.props.isFocused === true);
+
             listRef.current.scrollToItem(currentIndex);
         }
-    }, [children]);
+    }, [children, arrowDownPress, arrowUpPress]);
 
     return (
         <StyledList
@@ -75,12 +60,11 @@ const MenuList = (props: MenuListProps<Option, boolean>) => {
     );
 };
 
-interface Props {
+interface WordInputProps {
     onSubmit: (word: string) => void;
 }
 
-const WordInput = React.memo((props: Props) => {
-    const { onSubmit } = props;
+export const WordInput = React.memo(({ onSubmit }: WordInputProps) => {
     const { translationString } = useTranslation();
 
     const MemoSelect = React.memo(() => (
@@ -88,7 +72,8 @@ const WordInput = React.memo((props: Props) => {
             autoFocus
             isSearchable
             isClearable={false}
-            controlShouldRenderValue={false}
+            menuIsOpen
+            withDropdownIndicator={false}
             noOptionsMessage={({ inputValue }: { inputValue: string }) =>
                 translationString('TR_WORD_DOES_NOT_EXIST', { word: inputValue })
             }
@@ -111,5 +96,3 @@ const WordInput = React.memo((props: Props) => {
         </SelectWrapper>
     );
 });
-
-export default WordInput;
