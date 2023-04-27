@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { WalletAccountTransaction } from '@suite-common/wallet-types/src';
+import { AccountKey, WalletAccountTransaction } from '@suite-common/wallet-types';
 import { Card, VStack } from '@suite-native/atoms';
 import { isTestnet } from '@suite-common/wallet-utils';
 import { analytics, EventType } from '@suite-native/analytics';
@@ -17,6 +17,8 @@ type TransactionSheetAnalyticsEventType =
 
 type TransactionDetailSheetsProps = {
     transaction: WalletAccountTransaction;
+    isTokenTransaction?: boolean;
+    accountKey: AccountKey;
 };
 
 const sheetToAnalyticsEventMap: Record<SheetType, TransactionSheetAnalyticsEventType> = {
@@ -25,7 +27,11 @@ const sheetToAnalyticsEventMap: Record<SheetType, TransactionSheetAnalyticsEvent
     inputs: EventType.TransactionDetailInputOutput,
 };
 
-export const TransactionDetailSheets = ({ transaction }: TransactionDetailSheetsProps) => {
+export const TransactionDetailSheets = ({
+    transaction,
+    isTokenTransaction = false,
+    accountKey,
+}: TransactionDetailSheetsProps) => {
     const [expandedSheet, setExpandedSheet] = useState<SheetType | null>(null);
 
     const toggleSheet = (sheetName: SheetType) => {
@@ -35,7 +41,7 @@ export const TransactionDetailSheets = ({ transaction }: TransactionDetailSheets
         setExpandedSheet(expandedSheet === sheetName ? null : sheetName);
     };
 
-    const isValuesSheetVisible = !isTestnet(transaction.symbol);
+    const isValuesSheetVisible = !isTestnet(transaction.symbol) && !isTokenTransaction;
 
     return (
         <Card>
@@ -44,6 +50,7 @@ export const TransactionDetailSheets = ({ transaction }: TransactionDetailSheets
                     isVisible={expandedSheet === 'parameters'}
                     transaction={transaction}
                     onSheetVisibilityChange={() => toggleSheet('parameters')}
+                    accountKey={accountKey}
                 />
 
                 {isValuesSheetVisible && (
