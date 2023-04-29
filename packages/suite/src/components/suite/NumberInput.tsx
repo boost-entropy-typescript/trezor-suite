@@ -21,29 +21,51 @@ const getLocaleSeparators = (locale: Locale) => {
     return { decimalSeparator, thousandsSeparator };
 };
 
-const getLocaleSeparatorCharCodes = (locale: Locale) => ({
-    groupSeparatorCharCode: getLocaleSeparators(locale).thousandsSeparator.charCodeAt(0),
-    decimalsSeparatorCharCode: getLocaleSeparators(locale).decimalSeparator.charCodeAt(0),
-});
+const isValidDecimalString = (value: string) => /^([^.]*)\.[^.]+$/.test(value);
+const hasLeadingZeroes = (value: string) => /^0+(\d+\.\d*|\d+)$/.test(value);
 
-const isDecimalString = (value: string) => value.includes('.');
+const removeLeadingZeroes = (value: string) => value.replace(/^0+(?!\.|$)/, '');
 
 const cleanValueString = (value: string, locale: Locale) => {
     const { decimalSeparator, thousandsSeparator } = getLocaleSeparators(locale);
+
+    // clean the entered number string if it's not convertable to Number or if it has a non-conventional format
+    if (
+        !Number.isNaN(Number(value)) &&
+        thousandsSeparator !== '.' &&
+        !hasLeadingZeroes(value) &&
+        value.at(0) !== '.' &&
+        value.at(-1) !== '.'
+    ) {
+        return value;
+    }
 
     let cleanedValue = value
         .replace(/\s/g, '')
         .replaceAll(thousandsSeparator, '')
         .replaceAll(decimalSeparator, '.');
 
-    if (cleanedValue.startsWith('.')) {
+    // allow inputs like '.031' or ',1'
+    if (!isValidDecimalString(cleanedValue.substring(1)) && cleanedValue.startsWith('.')) {
         cleanedValue = `0${cleanedValue}`;
+    }
+
+    // remove extra decimal separators when a number is already a decimal
+    if (!isValidDecimalString(cleanedValue) && cleanedValue.endsWith('.')) {
+        cleanedValue = cleanedValue.slice(0, cleanedValue.length - 1);
+    }
+
+    // if a value is not a valid decimal or integer, dont format it – let it be converted to NaN later
+    if (cleanedValue && isValidDecimalString(cleanedValue)) {
+        cleanedValue = parseFloat(cleanedValue).toString();
+    } else if (cleanedValue && !cleanedValue.slice(0, -1).includes('.')) {
+        cleanedValue = parseInt(cleanedValue, 10).toString();
     }
 
     return cleanedValue;
 };
 
-const DECIMAL_SEPARATOR_CODES = [44, 46]; // [",", "."]
+const DECIMAL_SEPARATORS = [',', '.'];
 
 type TypedMethods = {
     field: Omit<ControllerRenderProps<Record<string, unknown>>, 'ref' | 'value'> & {
@@ -89,7 +111,7 @@ export const NumberInput = ({
 
     // formats and sets the value visible in the input (not the form)
     const formatDisplayValue = useCallback(
-        (value: string) => {
+        (rawValue: string, cleanValue: string) => {
             const handleSetDisplayValue = (newDisplayValue: string) => {
                 setDisplayValue(newDisplayValue);
 
@@ -103,46 +125,32 @@ export const NumberInput = ({
                 return newDisplayValue;
             };
 
-            // don't include spaces at the start or the end of a number, for pasting mainly
-            value = value.trim();
-            const cleanValue = cleanValueString(value, locale);
-
             // don't localize when entering a separator or a 0 in decimals (e.g. 0.0000 -> 0.00001),
             // otherwise the separator might get removed
-            const lastSymbolCode = value.at(-1)?.charCodeAt(0);
-            const zeroCharCode = 48;
-            if (
-                (lastSymbolCode && [...DECIMAL_SEPARATOR_CODES].includes(lastSymbolCode)) ||
-                (isDecimalString(cleanValue) && zeroCharCode === lastSymbolCode)
-            ) {
-                // disallow entering more than one separator
-                const secondToLastSymbolCode = value.at(-2)?.charCodeAt(0);
-                if (
-                    lastSymbolCode !== zeroCharCode &&
-                    secondToLastSymbolCode &&
-                    DECIMAL_SEPARATOR_CODES.includes(secondToLastSymbolCode)
-                ) {
-                    return;
-                }
+            const lastSymbol = rawValue.at(-1);
 
-                // format a decimal separator to a locale-specific one to allow entering either one
-                const { decimalsSeparatorCharCode } = getLocaleSeparatorCharCodes(locale);
-                if (
-                    DECIMAL_SEPARATOR_CODES.includes(lastSymbolCode) &&
-                    lastSymbolCode !== decimalsSeparatorCharCode
-                ) {
+            if (lastSymbol && [...DECIMAL_SEPARATORS, '0'].includes(lastSymbol)) {
+                if (lastSymbol !== '0') {
+                    // disallow entering more than one separator
+                    const secondToLastSymbol = rawValue.at(-2);
+                    if (secondToLastSymbol && DECIMAL_SEPARATORS.includes(secondToLastSymbol)) {
+                        return;
+                    }
+
+                    // format a decimal separator to a locale-specific one to allow entering either one
                     const { decimalSeparator } = getLocaleSeparators(locale);
 
                     // ignore additional decimal separators when a number is already a decimal
-                    if (value.includes(decimalSeparator)) {
-                        value = value.slice(0, -1);
-                    } else {
-                        value = value.slice(0, -1) + decimalSeparator;
+                    if (rawValue.slice(0, -1).includes(decimalSeparator)) {
+                        rawValue = rawValue.slice(0, -1);
+                    } else if (lastSymbol !== decimalSeparator) {
+                        rawValue = rawValue.slice(0, -1) + decimalSeparator;
+                        // }
                     }
                 }
 
-                // the number is incomplere and not reazy do be localized (e.g. 1,234. or 1,0000)
-                return handleSetDisplayValue(value);
+                // the number is incomplete and not ready do be localized (e.g. 1,234. or 1,0000)
+                return handleSetDisplayValue(removeLeadingZeroes(rawValue));
             }
 
             // clean so that it's compatible with Number() and localize
@@ -152,13 +160,16 @@ export const NumberInput = ({
         [inputRef, locale],
     );
 
+    // react to form data changes
     useLayoutEffect(() => {
         const cleanPrevFormValue = cleanValueString(previousFormValueRef.current ?? '', locale);
         const cleanFormValue = cleanValueString(value ?? '', locale);
         const cleanPrevDisplayValue = cleanValueString(previousDisplayValueRef.current, locale);
         const cleanDisplayValue = cleanValueString(displayValue, locale);
+
         if (cleanPrevFormValue !== cleanFormValue && cleanPrevDisplayValue === cleanDisplayValue) {
-            formatDisplayValue(value ?? '');
+            // since the value comes from and is valid, repeated formatting might case errors for some locales
+            formatDisplayValue(value ?? '', value ?? '');
             previousFormValueRef.current = cleanFormValue;
         }
     }, [formatDisplayValue, displayValue, value, locale]);
@@ -173,7 +184,7 @@ export const NumberInput = ({
             let { selectionStart: cursorPosition } = inputRef.current;
             if (cursorPosition === null) return;
 
-            const { groupSeparatorCharCode } = getLocaleSeparatorCharCodes(locale);
+            const { thousandsSeparator } = getLocaleSeparators(locale);
             const previousDisplayValue = previousDisplayValueRef.current;
             // Ctrl+D on Mac
             const isDeleteKeyUsed =
@@ -181,49 +192,54 @@ export const NumberInput = ({
             // handle deleting a thousands separator with a DEL key,
             // otherwise the number instantly gets formatted back to having that separator
             if (inputValue.length < previousDisplayValue.length && isDeleteKeyUsed) {
-                const deletedCharacterCode = previousDisplayValue.charCodeAt(cursorPosition);
+                const deletedCharacter = previousDisplayValue.at(cursorPosition);
                 // is not needed for numbers without group separators (≤3 chars)
-                if (deletedCharacterCode === groupSeparatorCharCode && inputValue.length > 3) {
+                if (deletedCharacter === thousandsSeparator && inputValue.length > 3) {
                     inputValue =
                         previousDisplayValue.substring(0, cursorPosition) +
                         previousDisplayValue.substring(cursorPosition + 2);
                 }
             }
 
-            // make the string compliant with Number
             const cleanInput = cleanValueString(inputValue, locale);
 
             // allow inputs like '.031' or ',1' and disallow anything non-numerical
-            if (
-                !DECIMAL_SEPARATOR_CODES.includes(inputValue.charCodeAt(0)) &&
-                Number.isNaN(Number(cleanInput))
-            ) {
+            if (!(cleanInput === '.') && Number.isNaN(Number(cleanInput))) {
+                // avoid cursor moving when typing in additional decimal separators
+                formatDisplayValue(
+                    previousDisplayValue,
+                    cleanValueString(previousDisplayValue, locale),
+                );
+                inputRef.current.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+
                 return;
             }
 
             // format and set display value
             const currentValueLength = inputRef.current?.value.length || 0;
-            const formattedValue = formatDisplayValue(inputValue);
+            const formattedValue = formatDisplayValue(inputValue, cleanInput);
             if (formattedValue === undefined) return;
             const formattedValueLength = formattedValue.length;
 
-            // pass cleaned value to the form
-            previousFormValueRef.current = cleanInput;
-            onChange(cleanInput);
+            if (previousFormValueRef.current !== cleanInput) {
+                // pass cleaned value to the form
+                previousFormValueRef.current = cleanInput;
+                onChange(cleanInput);
 
-            // get the latest error state
-            const hasError = !!rules?.validate?.(cleanInput);
-            // because the form is not updated yet after calling `onChange()`,
-            // the value of `invalid` here is the one before this change has been handled
-            const hasErrorStateChanged = hasError !== invalid;
-            if (hasErrorStateChanged) {
-                // delaying it becase the form needs some time to update the error state
-                // TODO: get rid of `onChangeCallback()` entirely and use the `watch` method from react-hook form
-                setTimeout(() => {
+                // get the latest error state
+                const hasError = !!rules?.validate?.(cleanInput);
+                // because the form is not updated yet after calling `onChange()`,
+                // the value of `invalid` here is the one before this change has been handled
+                const hasErrorStateChanged = hasError !== invalid;
+                if (hasErrorStateChanged) {
+                    // delaying it becase the form needs some time to update the error state
+                    // TODO: get rid of `onChangeCallback()` entirely and use the `watch` method from react-hook form
+                    setTimeout(() => {
+                        onChangeCallback?.(cleanInput);
+                    }, 0);
+                } else {
                     onChangeCallback?.(cleanInput);
-                }, 0);
-            } else {
-                onChangeCallback?.(cleanInput);
+                }
             }
 
             // detect if separators have been added/removed
@@ -232,7 +248,7 @@ export const NumberInput = ({
             if (
                 lengthDelta > 0 &&
                 cursorPosition !== 1 &&
-                formattedValue.charCodeAt(cursorPosition) !== groupSeparatorCharCode
+                formattedValue.at(cursorPosition) !== thousandsSeparator
             ) {
                 cursorPosition += lengthDelta;
                 // do not move the cursor if it was at the beginning already
@@ -240,7 +256,7 @@ export const NumberInput = ({
                 cursorPosition += lengthDelta;
                 // handle some undesirable cases when deleting with delete key
             } else if (
-                formattedValue.charCodeAt(cursorPosition - 1) === groupSeparatorCharCode &&
+                formattedValue.at(cursorPosition - 1) === thousandsSeparator &&
                 isDeleteKeyUsed
             ) {
                 cursorPosition += 1;
@@ -328,10 +344,10 @@ export const NumberInput = ({
                 return;
             }
 
-            const { groupSeparatorCharCode } = getLocaleSeparatorCharCodes(locale);
+            const { thousandsSeparator } = getLocaleSeparators(locale);
             const characterBeforeCursor = value[cursorPosition + cursorCharacterOffset];
 
-            if (characterBeforeCursor?.charCodeAt(0) === groupSeparatorCharCode) {
+            if (characterBeforeCursor?.at(0) === thousandsSeparator) {
                 const newPosition = cursorPosition + cursorPositionOffset;
                 inputRef.current.setSelectionRange(newPosition, newPosition);
             }
@@ -354,9 +370,9 @@ export const NumberInput = ({
             return;
         }
         const selectedPart = value.substring(selectionStart, selectionEnd);
-        const { groupSeparatorCharCode } = getLocaleSeparatorCharCodes(locale);
+        const { thousandsSeparator } = getLocaleSeparators(locale);
         // do not allow selecting group separators to avoid unwanted behavior
-        if (selectedPart.length === 1 && selectedPart.charCodeAt(0) === groupSeparatorCharCode) {
+        if (selectedPart.length === 1 && selectedPart.at(0) === thousandsSeparator) {
             inputRef.current.selectionEnd = selectionStart;
         }
     }, [handleCursorShift, inputRef, locale]);

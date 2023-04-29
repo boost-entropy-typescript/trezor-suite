@@ -26,9 +26,8 @@ import { initLog } from '@trezor/connect/src/utils/debug';
 import { getOrigin } from '@trezor/connect/src/utils/urlUtils';
 import { suggestBridgeInstaller } from '@trezor/connect/src/data/transportInfo';
 import { suggestUdevInstaller } from '@trezor/connect/src/data/udevInfo';
-import { storage } from '@trezor/connect-common';
+import { storage, getSystemInfo, getInstallerPackage } from '@trezor/connect-common';
 import { parseConnectSettings, isOriginWhitelisted } from './connectSettings';
-import { getSystemInfo, getInstallerPackage } from './systemInfo';
 
 let _core: Core | undefined;
 
@@ -122,7 +121,7 @@ const handleMessage = (event: PostMessageEvent) => {
     }
 };
 
-// communication with parent window
+// Communication with 3rd party window and Trezor Popup.
 const postMessage = (message: CoreMessage) => {
     _log.debug('postMessage', message);
 
@@ -156,7 +155,7 @@ const postMessage = (message: CoreMessage) => {
         message.payload.udev = suggestUdevInstaller(platform);
     }
 
-    if (usingPopup && targetUiEvent(message)) {
+    if (usingPopup && shouldUiEventBeSentToPopup(message)) {
         if (_popupMessagePort) {
             _popupMessagePort.postMessage(message);
         }
@@ -167,7 +166,8 @@ const postMessage = (message: CoreMessage) => {
     }
 };
 
-const targetUiEvent = (message: CoreMessage) => {
+const shouldUiEventBeSentToPopup = (message: CoreMessage) => {
+    // whitelistedMessages are messages that are sent to 3rd party/host/parent.
     const whitelistedMessages: CoreMessage['type'][] = [
         IFRAME.LOADED,
         IFRAME.ERROR,
