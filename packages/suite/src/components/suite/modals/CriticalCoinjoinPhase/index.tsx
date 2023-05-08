@@ -52,8 +52,8 @@ interface CriticalCoinjoinPhaseProps {
 }
 
 export const CriticalCoinjoinPhase = ({ relatedAccountKey }: CriticalCoinjoinPhaseProps) => {
-    // coinjoin available only on T and R
-    const deviceModel = useDeviceModel() as DeviceModel.TR | DeviceModel.TT;
+    // coinjoin available only on T and T2B1
+    const deviceModel = useDeviceModel() as DeviceModel.T2B1 | DeviceModel.TT;
     const relatedCoinjoinAccount = useSelector(state =>
         selectCoinjoinAccountByKey(state, relatedAccountKey),
     );
@@ -69,7 +69,7 @@ export const CriticalCoinjoinPhase = ({ relatedAccountKey }: CriticalCoinjoinPha
     return (
         <StyledModal>
             <Content>
-                <Image image={`DONT_DISCONNECT_${deviceModel}`} />
+                <Image image={`DONT_DISCONNECT_TREZOR_T${deviceModel}`} />
 
                 <TextContainer>
                     <CoinjoinText>

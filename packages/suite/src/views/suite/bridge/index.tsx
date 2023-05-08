@@ -7,6 +7,7 @@ import * as routerActions from '@suite-actions/routerActions';
 import { isDesktop, isWeb } from '@suite-utils/env';
 import { useSelector, useActions } from '@suite-hooks';
 import { selectTorState } from '@suite-reducers/suiteReducer';
+import { DeviceModel } from '@trezor/device-utils';
 
 const Content = styled.div`
     display: flex;
@@ -147,7 +148,7 @@ export const InstallBridge = () => {
                         </BridgeDesktopNote>
                     )}
                 </Version>
-                <StyledImage image="BRIDGE_CHECK_TT" />
+                <StyledImage image={`BRIDGE_CHECK_TREZOR_T${DeviceModel.TT}`} />
                 {isLoading ? (
                     <LoaderWrapper data-test="@bridge/loading">
                         <CenteredLoader size={50} strokeWidth={2} />

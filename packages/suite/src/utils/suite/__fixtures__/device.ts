@@ -166,12 +166,12 @@ const isSelectedInstance = [
 
 const getDeviceModel = [
     {
-        description: `model T`,
+        description: `TT`,
         device: getSuiteDevice(undefined, { model: DeviceModel.TT }),
         result: DeviceModel.TT,
     },
     {
-        description: `model 1`,
+        description: `T1`,
         device: getSuiteDevice(undefined, { model: DeviceModel.T1 }),
         result: DeviceModel.T1,
     },
@@ -553,7 +553,7 @@ const getChangelogUrl = [
         device: {
             ...SUITE_DEVICE,
             features: {
-                model: DeviceModel.TR,
+                model: DeviceModel.T2B1,
             },
         } as TrezorDevice,
         revision: 'ab12cd',
@@ -592,10 +592,10 @@ const getCheckBackupUrl = [
         device: {
             ...SUITE_DEVICE,
             features: {
-                model: DeviceModel.TR,
+                model: DeviceModel.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_DRY_RUN_T${DeviceModel.TR}_URL`],
+        result: URLS[`HELP_CENTER_DRY_RUN_T${DeviceModel.T2B1}_URL`],
     },
 ];
 
@@ -610,10 +610,10 @@ const getPackagingUrl = [
         device: {
             ...SUITE_DEVICE,
             features: {
-                model: DeviceModel.TR,
+                model: DeviceModel.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_PACKAGING_T${DeviceModel.TR}_URL`],
+        result: URLS[`HELP_CENTER_PACKAGING_T${DeviceModel.T2B1}_URL`],
     },
 ];
 
@@ -628,10 +628,10 @@ const getFirmwareDowngradeUrl = [
         device: {
             ...SUITE_DEVICE,
             features: {
-                model: DeviceModel.TR,
+                model: DeviceModel.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_FW_DOWNGRADE_T${DeviceModel.TR}_URL`],
+        result: URLS[`HELP_CENTER_FW_DOWNGRADE_T${DeviceModel.T2B1}_URL`],
     },
 ];
 
