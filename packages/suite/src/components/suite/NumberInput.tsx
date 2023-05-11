@@ -5,22 +5,14 @@ import {
     useController,
     UseControllerOptions,
 } from 'react-hook-form';
+import BigNumber from 'bignumber.js';
+
 import { Input, InputProps } from '@trezor/components';
 import { TypedValidationRules } from '@suite-common/wallet-types';
 import { localizeNumber } from '@suite-common/wallet-utils';
-import { useSelector } from '@trezor/suite/src/hooks/suite';
 import { Locale } from '@suite-config/languages';
-import BigNumber from 'bignumber.js';
-
-const getLocaleSeparators = (locale: Locale) => {
-    const numberFormat = new Intl.NumberFormat(locale);
-    const parts = numberFormat.formatToParts(10000.1);
-
-    const decimalSeparator = parts.find(({ type }) => type === 'decimal')?.value as string;
-    const thousandsSeparator = parts.find(({ type }) => type === 'group')?.value as string;
-
-    return { decimalSeparator, thousandsSeparator };
-};
+import { useSelector } from '@trezor/suite/src/hooks/suite';
+import { getLocaleSeparators } from '@trezor/utils';
 
 const isValidDecimalString = (value: string) => /^([^.]*)\.[^.]+$/.test(value);
 const hasLeadingZeroes = (value: string) => /^0+(\d+\.\d*|\d+)$/.test(value);
@@ -58,8 +50,7 @@ const cleanValueString = (value: string, locale: Locale) => {
 
     if (cleanedValue) {
         // do not convert to the exponential format to avoid unexpected results
-        // 18 is the max amount of decimals used by a network
-        BigNumber.config({ EXPONENTIAL_AT: 20, DECIMAL_PLACES: 18 });
+        BigNumber.config({ EXPONENTIAL_AT: 20 });
 
         cleanedValue = new BigNumber(cleanedValue).toFixed();
     }
