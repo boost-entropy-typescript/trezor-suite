@@ -708,6 +708,8 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
                     // @ts-expect-error
                     delete token.address;
                 });
+                // eslint-disable-next-line no-await-in-loop
+                await txsCursor.update(tx);
             }
 
             // eslint-disable-next-line no-await-in-loop
@@ -731,6 +733,8 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
                     // @ts-expect-error
                     delete token.address;
                 });
+                // eslint-disable-next-line no-await-in-loop
+                await accountsCursor.update(account);
             }
 
             // eslint-disable-next-line no-await-in-loop
@@ -771,5 +775,10 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
             // eslint-disable-next-line no-await-in-loop
             discoveryCursor = await discoveryCursor.continue();
         }
+
+        // remove trop from backend settings
+        const backendSettings = transaction.objectStore('backendSettings');
+        // @ts-expect-error
+        backendSettings.delete('trop');
     }
 };

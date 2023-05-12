@@ -1,3 +1,5 @@
+import { networks } from '@trezor/utxo-lib';
+
 import { CoinjoinMempoolController } from '../../src/backend/CoinjoinMempoolController';
 import { MockMempoolClient } from '../mocks/MockMempoolClient';
 import { BLOCKS, SEGWIT_RECEIVE_ADDRESSES } from '../fixtures/methods.fixture';
@@ -12,7 +14,7 @@ describe('CoinjoinMempoolController', () => {
 
     beforeEach(() => {
         client.clear();
-        mempool = new CoinjoinMempoolController({ client });
+        mempool = new CoinjoinMempoolController({ client, network: networks.regtest });
     });
 
     it('All at once', async () => {
@@ -20,7 +22,7 @@ describe('CoinjoinMempoolController', () => {
         TXS.forEach(client.fireTx.bind(client));
         expect(mempool.getTransactions()).toEqual(TXS);
         expect(mempool.getTransactions([ADDRESS])).toEqual(TXS_MATCH);
-        await mempool.update();
+        await mempool.update(true);
         expect(mempool.getTransactions()).toEqual([]);
     });
 
@@ -33,27 +35,33 @@ describe('CoinjoinMempoolController', () => {
         expect(mempool.getTransactions()).toEqual([TXS[2], TXS[3]]);
 
         client.setMempoolTxs([TXS[1], TXS[2], TXS[3]]);
-        await mempool.update();
+        await mempool.update(true);
         expect(mempool.getTransactions()).toEqual([TXS[2], TXS[3]]);
 
         [TXS[4]].forEach(client.fireTx.bind(client));
         client.setMempoolTxs([TXS[3], TXS[4], TXS[5]]);
-        await mempool.update();
+        await mempool.update(true);
         expect(mempool.getTransactions()).toEqual([TXS[3], TXS[4]]);
 
         [TXS[5]].forEach(client.fireTx.bind(client));
-        await mempool.update();
+        await mempool.update(true);
         expect(mempool.getTransactions()).toEqual([TXS[3], TXS[4], TXS[5]]);
 
         client.setMempoolTxs([TXS[0], TXS[1]]);
-        await mempool.update();
+        await mempool.update(true);
         expect(mempool.getTransactions()).toEqual([]);
     });
 
     it('Filtering', async () => {
         mempool = new CoinjoinMempoolController({
             client,
-            filter: ({ txid }) => ['txid_2', 'txid_4', 'txid_5'].includes(txid),
+            network: networks.regtest,
+            filter: ({ txid }) =>
+                [
+                    '22222222222222222222222222222222',
+                    '44444444444444444444444444444444',
+                    '55555555555555555555555555555555',
+                ].includes(txid),
         });
         await mempool.start();
         TXS.forEach(client.fireTx.bind(client));
