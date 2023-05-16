@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button, H2, Icon, Image, P, motionEasing } from '@trezor/components';
+import { analytics, EventType } from '@trezor/suite-analytics';
 import { SUITE_URL } from '@trezor/urls';
 import { useDispatch } from '@suite-hooks/useDispatch';
 import TrezorLink from '@suite-components/TrezorLink';
@@ -18,6 +19,7 @@ const Container = styled(motion.div)`
     padding: 12px 20px;
     border-radius: 12px;
     background: ${({ theme }) => theme.BG_GREEN};
+    overflow: hidden;
 `;
 
 const CloseButton = styled(Icon)`
@@ -32,7 +34,7 @@ const CloseButton = styled(Icon)`
     cursor: pointer;
 
     path {
-        fill: ${({ theme }) => theme.STROKE_GREY_ALT};
+        fill: ${({ theme }) => theme.BG_WHITE};
     }
 
     :hover {
@@ -135,7 +137,15 @@ export const DesktopSuiteBanner = () => {
                             </P>
                         </TextContainer>
 
-                        <TrezorLink href={SUITE_URL} variant="nostyle">
+                        <TrezorLink
+                            href={SUITE_URL}
+                            variant="nostyle"
+                            onClick={() =>
+                                analytics.report({
+                                    type: EventType.GetDesktopApp,
+                                })
+                            }
+                        >
                             <StyledButton>
                                 <Translation id="TR_DESKTOP_APP_PROMO_GET" />
                             </StyledButton>
