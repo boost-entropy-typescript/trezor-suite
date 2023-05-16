@@ -1,4 +1,4 @@
-import { coordinatorRequest as request, RequestOptions } from '../utils/http';
+import { coordinatorRequest as request, RequestOptions } from './coordinatorRequest';
 import {
     CoinjoinStatus,
     ZeroCredentials,
@@ -141,6 +141,8 @@ export const transactionSignature = (
         },
         options,
     );
+
+export { WabiSabiProtocolException } from './coordinatorRequest';
 
 // reexport all coordinator types
 export * from '../types/coordinator';
