@@ -119,8 +119,8 @@ export const formatCardanoDeposit = (tx: WalletAccountTransaction) =>
         ? formatNetworkAmount(tx.cardanoSpecific.deposit, tx.symbol)
         : undefined;
 
-export const isTxOwned = (tx: WalletAccountTransaction) =>
-    !!tx.details.vin.find(vin => vin.isOwn || vin.isAccountOwned);
+export const isTxFeePaid = (tx: WalletAccountTransaction) =>
+    !!tx.details.vin.find(vin => vin.isOwn || vin.isAccountOwned) && tx.type !== 'joint';
 
 /**
  * Returns a sum of sent/recv txs amounts as a BigNumber.
@@ -135,10 +135,6 @@ export const sumTransactions = (transactions: WalletAccountTransaction[]) => {
         const fee = formatNetworkAmount(tx.fee, tx.symbol);
 
         if (tx.type === 'self') {
-            // in sent to self tx all we spent is just a fee
-            // (tx.amount is set to the fee in blockchain-link)
-            totalAmount = totalAmount.minus(fee);
-
             const cardanoWithdrawal = formatCardanoWithdrawal(tx);
             if (cardanoWithdrawal) {
                 totalAmount = totalAmount.plus(cardanoWithdrawal);
@@ -151,15 +147,15 @@ export const sumTransactions = (transactions: WalletAccountTransaction[]) => {
         }
 
         // count in only if Inputs/Outputs includes my account (EVM does not need to)
-        if (tx.targets.length) {
-            if (tx.type === 'sent') {
-                totalAmount = totalAmount.minus(amount);
-            }
-            if (tx.type === 'recv' || tx.type === 'joint') {
-                totalAmount = totalAmount.plus(amount);
-            }
+        if (tx.targets.length && tx.type === 'sent') {
+            totalAmount = totalAmount.minus(amount);
         }
-        if (isTxOwned(tx)) {
+
+        if (tx.type === 'recv' || tx.type === 'joint') {
+            totalAmount = totalAmount.plus(amount);
+        }
+
+        if (isTxFeePaid(tx)) {
             totalAmount = totalAmount.minus(fee);
         }
 
@@ -187,10 +183,6 @@ export const sumTransactionsFiat = (
         const fee = formatNetworkAmount(tx.fee, tx.symbol);
 
         if (tx.type === 'self') {
-            // in sent to self tx all we spent is just a fee
-            // (tx.amount is set to the fee in blockchain-link)
-            totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
-
             const cardanoWithdrawal = formatCardanoWithdrawal(tx);
             if (cardanoWithdrawal) {
                 totalAmount = totalAmount.plus(
@@ -207,19 +199,17 @@ export const sumTransactionsFiat = (
         }
 
         // count in only if Inputs/Outputs includes my account (EVM does not need to)
-        if (tx.targets.length) {
-            if (tx.type === 'sent') {
-                totalAmount = totalAmount.minus(
-                    toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0,
-                );
-            }
-            if (tx.type === 'recv' || tx.type === 'joint') {
-                totalAmount = totalAmount.plus(
-                    toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0,
-                );
-            }
+        if (tx.targets.length && tx.type === 'sent') {
+            totalAmount = totalAmount.minus(
+                toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0,
+            );
         }
-        if (isTxOwned(tx)) {
+
+        if (tx.type === 'recv' || tx.type === 'joint') {
+            totalAmount = totalAmount.plus(toFiatCurrency(amount, fiatCurrency, tx.rates, -1) ?? 0);
+        }
+
+        if (isTxFeePaid(tx)) {
             totalAmount = totalAmount.minus(toFiatCurrency(fee, fiatCurrency, tx.rates, -1) ?? 0);
         }
 
