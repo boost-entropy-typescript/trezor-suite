@@ -3,12 +3,12 @@ import { TypedEmitter } from '@trezor/utils/lib/typedEventEmitter';
 import { CoinjoinBackendClient } from './CoinjoinBackendClient';
 import { CoinjoinFilterController } from './CoinjoinFilterController';
 import { CoinjoinMempoolController } from './CoinjoinMempoolController';
-import { DISCOVERY_LOOKOUT } from '../constants';
+import { DISCOVERY_LOOKOUT, DISCOVERY_LOOKOUT_EXTENDED } from '../constants';
 import { scanAccount } from './scanAccount';
 import { scanAddress } from './scanAddress';
 import { getAccountInfo } from './getAccountInfo';
 import { createPendingTransaction } from './createPendingTx';
-import { deriveAddresses, isTaprootTx } from './backendUtils';
+import { deriveAddresses, isTaprootAddress } from './backendUtils';
 import { getNetwork } from '../utils/settingsUtils';
 import type { CoinjoinBackendSettings, LogEvent, Logger, LogLevel } from '../types';
 import type {
@@ -44,7 +44,7 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
         this.mempool = new CoinjoinMempoolController({
             client: this.client,
             network: this.network,
-            filter: tx => isTaprootTx(tx, this.network),
+            filter: address => isTaprootAddress(address, this.network),
             logger,
         });
     }
@@ -154,7 +154,7 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
                 blockHash: this.settings.baseBlockHash,
                 blockHeight: this.settings.baseBlockHeight,
                 receiveCount: DISCOVERY_LOOKOUT,
-                changeCount: DISCOVERY_LOOKOUT,
+                changeCount: DISCOVERY_LOOKOUT_EXTENDED,
             });
     }
 
@@ -167,7 +167,7 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
                 blockHash: networkInfo.bestHash,
                 blockHeight: networkInfo.bestHeight,
                 receiveCount: DISCOVERY_LOOKOUT,
-                changeCount: DISCOVERY_LOOKOUT,
+                changeCount: DISCOVERY_LOOKOUT_EXTENDED,
             };
         }
 
@@ -185,7 +185,7 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
             blockHash,
             blockHeight,
             receiveCount: DISCOVERY_LOOKOUT,
-            changeCount: DISCOVERY_LOOKOUT,
+            changeCount: DISCOVERY_LOOKOUT_EXTENDED,
         };
     }
 
