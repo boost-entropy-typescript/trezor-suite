@@ -314,7 +314,43 @@ describe('selectRound', () => {
                     utxos: [{ outpoint: 'AA', amount: 1001, anonymityLevel: 1 }],
                 },
             ],
-            options: { ...server?.requestOptions, logger: console },
+            options: server?.requestOptions,
+        });
+
+        expect(spy).toBeCalledTimes(1); // middleware was called once
+        expect(result).toBeUndefined();
+    });
+
+    it('Skipping round when selected utxo effective value < allowedOutputAmounts.min', async () => {
+        const spy = jest.fn();
+        server?.addListener('test-request', ({ url, resolve }) => {
+            if (url.endsWith('/select-inputs-for-round')) {
+                spy();
+                resolve({ indices: [0] });
+            }
+            resolve();
+        });
+
+        const result = await selectInputsForRound({
+            aliceGenerator,
+            roundCandidates: [
+                {
+                    ...DEFAULT_ROUND,
+                    inputs: [],
+                    roundParameters: {
+                        ...ROUND_CREATION_EVENT.roundParameters,
+                        miningFeeRate: 20000,
+                    },
+                } as any,
+            ],
+            accountCandidates: [
+                {
+                    ...ACCOUNT,
+                    accountKey: 'account1',
+                    utxos: [{ outpoint: 'AA', amount: 6561, anonymityLevel: 1 }],
+                },
+            ],
+            options: server?.requestOptions,
         });
 
         expect(spy).toBeCalledTimes(1); // middleware was called once
@@ -410,6 +446,10 @@ describe('selectRound', () => {
                         roundParameters: {
                             ...ROUND_CREATION_EVENT.roundParameters,
                             miningFeeRate,
+                            allowedOutputAmounts: {
+                                min: 1000, // custom min allowed output amount
+                                max: 1000000000,
+                            },
                         },
                     },
                 ],
