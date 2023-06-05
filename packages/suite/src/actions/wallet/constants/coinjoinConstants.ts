@@ -6,6 +6,7 @@ export const ACCOUNT_AUTHORIZE = '@coinjoin/account-authorize';
 export const ACCOUNT_AUTHORIZE_SUCCESS = '@coinjoin/account-authorize-success';
 export const ACCOUNT_AUTHORIZE_FAILED = '@coinjoin/account-authorize-failed';
 export const ACCOUNT_UNREGISTER = '@coinjoin/account-unregister';
+export const ACCOUNT_DISCOVERY_RESET = '@coinjoin/account-discovery-reset';
 export const ACCOUNT_DISCOVERY_PROGRESS = '@coinjoin/account-discovery-progress';
 export const ACCOUNT_PRELOADING = '@coinjoin/account-preloading';
 export const ACCOUNT_SET_LIQUIDITY_CLUE = '@coinjoin/account-set-liquidity-clue';
@@ -28,6 +29,7 @@ export const SESSION_ROUND_CHANGED = '@coinjoin/session-round-changed';
 export const SESSION_COMPLETED = '@coinjoin/session-completed';
 export const SESSION_OWNERSHIP = '@coinjoin/session-ownership';
 export const SESSION_TX_SIGNED = '@coinjoin/session-tx-signed';
+export const SESSION_TX_CANDIDATE = '@coinjoin/session-tx-candidate';
 export const SESSION_TX_BROADCASTED = '@coinjoin/session-tx-broadcasted';
 export const SESSION_TX_FAILED = '@coinjoin/session-tx-failed';
 

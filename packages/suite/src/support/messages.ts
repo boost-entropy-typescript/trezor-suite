@@ -7552,6 +7552,19 @@ export default defineMessages({
         description: 'value including unit i.e. 5 hours 15 minutes, firstValue for handling plural',
         defaultMessage: '{value} {firstValue, plural, one {left} other {left}}',
     },
+    TR_COINJOIN_ACCOUNT_RESCAN_TITLE: {
+        id: 'TR_COINJOIN_ACCOUNT_RESCAN_TITLE',
+        defaultMessage: 'Rescan account',
+    },
+    TR_COINJOIN_ACCOUNT_RESCAN_DESCRIPTION: {
+        id: 'TR_COINJOIN_ACCOUNT_RESCAN_DESCRIPTION',
+        defaultMessage:
+            'In case of incorrect transaction history, you can fully rescan the account without optimizations. It may take more time than usual.',
+    },
+    TR_COINJOIN_ACCOUNT_RESCAN_ACTION: {
+        id: 'TR_COINJOIN_ACCOUNT_RESCAN_ACTION',
+        defaultMessage: 'Rescan account',
+    },
     TR_LOADING_FUNDS: {
         id: 'TR_LOADING_FUNDS',
         defaultMessage: 'Loading Funds...',
@@ -7979,5 +7992,22 @@ export default defineMessages({
     TR_MOBILE_APP_PROMO_TEXT_FOOTER: {
         id: 'TR_MOBILE_APP_PROMO_TEXT_FOOTER',
         defaultMessage: 'Sync & track on your phone with <b>Trezor Suite Lite</b>',
+    },
+    TR_CANDIDATE_TRANSACTION_HEADER: {
+        id: 'TR_CANDIDATE_TRANSACTION_HEADER',
+        defaultMessage: 'Candidate Transactions',
+    },
+    TR_CANDIDATE_TRANSACTION: {
+        id: 'TR_CANDIDATE_TRANSACTION',
+        defaultMessage: 'Coinjoin Candidate',
+    },
+    TR_CANDIDATE_TRANSACTION_DESCRIPTION: {
+        id: 'TR_CANDIDATE_TRANSACTION_DESCRIPTION',
+        defaultMessage: 'Signed by you, waiting for others',
+    },
+    TR_CANDIDATE_TRANSACTION_EXPLANATION: {
+        id: 'TR_CANDIDATE_TRANSACTION_EXPLANATION',
+        defaultMessage:
+            "You've signed the transaction, but it still needs signatures from all participants. We can't guarantee transaction processing unless everyone signs.",
     },
 });
