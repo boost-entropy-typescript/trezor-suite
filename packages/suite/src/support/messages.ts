@@ -3276,6 +3276,10 @@ export default defineMessages({
         defaultMessage: 'Show address anyway',
         id: 'TR_SHOW_ADDRESS_ANYWAY',
     },
+    TR_SHOW_XPUB_ANYWAY: {
+        defaultMessage: 'Show public key anyway',
+        id: 'TR_SHOW_XPUB_ANYWAY',
+    },
     TR_SHOW_DETAILS: {
         defaultMessage: 'Update now',
         id: 'TR_SHOW_DETAILS',
@@ -3291,6 +3295,10 @@ export default defineMessages({
     TR_SHOW_UNVERIFIED_ADDRESS: {
         defaultMessage: 'Show unverified address',
         id: 'TR_SHOW_UNVERIFIED_ADDRESS',
+    },
+    TR_SHOW_UNVERIFIED_XPUB: {
+        defaultMessage: 'Show unverified public key',
+        id: 'TR_SHOW_UNVERIFIED_XPUB',
     },
     TR_SIGN: {
         defaultMessage: 'Sign',
@@ -3393,10 +3401,15 @@ export default defineMessages({
         defaultMessage: 'Trezor is running a coin discovery check to find your accounts and funds.',
         id: 'TR_TO_FIND_YOUR_ACCOUNTS_AND',
     },
-    TR_TO_PREVENT_PHISHING_ATTACKS_COMMA: {
+    TR_ADDRESS_PHISHING_WARNING: {
         defaultMessage:
             'To prevent phishing attacks, you should verify the address on your Trezor. {claim}',
-        id: 'TR_TO_PREVENT_PHISHING_ATTACKS_COMMA',
+        id: 'TR_ADDRESS_PHISHING_WARNING',
+    },
+    TR_XPUB_PHISHING_WARNING: {
+        defaultMessage:
+            'To prevent phishing attacks, you should verify the public key on your Trezor. {claim}',
+        id: 'TR_XPUB_PHISHING_WARNING',
     },
     TR_TOO_LONG: {
         id: 'TR_TOO_LONG',
@@ -3831,6 +3844,10 @@ export default defineMessages({
     TOAST_VERIFY_ADDRESS_ERROR: {
         id: 'TOAST_VERIFY_ADDRESS_ERROR',
         defaultMessage: 'Address verification error: {error}',
+    },
+    TOAST_VERIFY_XPUB_ERROR: {
+        id: 'TOAST_VERIFY_XPUB_ERROR',
+        defaultMessage: 'Public key verification error: {error}',
     },
     TOAST_SIGN_MESSAGE_SUCCESS: {
         id: 'TOAST_SIGN_MESSAGE_SUCCESS',
