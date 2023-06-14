@@ -26,7 +26,14 @@ const config: webpack.Configuration = {
                 }))
                 .concat([
                     {
-                        from: path.join(__dirname, '..', '..', 'message-system', 'files'),
+                        from: path.join(
+                            __dirname,
+                            '../../../',
+                            'suite-common',
+                            'message-system',
+                            'files',
+                            'config.v1.ts',
+                        ),
                         to: path.join(baseDir, 'build', 'static', 'message-system'),
                     },
                 ])

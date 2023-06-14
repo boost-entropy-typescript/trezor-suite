@@ -16,23 +16,22 @@ import type { WalletAction } from '@wallet-types';
 import type { BackupAction } from '@backup-actions/backupActions';
 import type { RecoveryAction } from '@recovery-actions/recoveryActions';
 import type { SUITE } from '@suite-actions/constants';
-import type { MessageSystemAction } from '@suite-actions/messageSystemActions';
 import type { GuideAction } from '@suite-actions/guideActions';
 import type { Route } from '@suite-constants/routes';
 
 import { analyticsActions } from '@suite-common/analytics';
-import { Environment } from '@trezor/analytics';
 import type { ObjectValues } from '@trezor/type-utils';
 import type { UiEvent, DeviceEvent, TransportEvent, BlockchainEvent } from '@trezor/connect';
 import { transactionsActions } from '@suite-common/wallet-core';
 import { notificationsActions } from '@suite-common/toast-notifications';
+import { messageSystemActions } from '@suite-common/message-system';
 
 // reexport
 export type { ExtendedMessageDescriptor } from '@suite-components/Translation/components/BaseTranslation';
 export type { AppState } from '@suite/reducers/store';
 export type { SuiteThemeColors } from '@trezor/components';
 export type { PrerequisiteType } from '@suite-utils/prerequisites';
-export type { Route, Environment as EnvironmentType };
+export type { Route };
 export type {
     ButtonRequest,
     ExtendedDevice,
@@ -49,6 +48,9 @@ export type TransactionAction = ReturnType<
 >;
 export type NotificationAction = ReturnType<
     (typeof notificationsActions)[keyof typeof notificationsActions]
+>;
+export type MessageSystemAction = ReturnType<
+    (typeof messageSystemActions)[keyof typeof messageSystemActions]
 >;
 type AnalyticsAction = ReturnType<(typeof analyticsActions)[keyof typeof analyticsActions]>;
 

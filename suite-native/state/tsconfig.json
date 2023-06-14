@@ -7,6 +7,9 @@
         },
         { "path": "../../suite-common/logger" },
         {
+            "path": "../../suite-common/message-system"
+        },
+        {
             "path": "../../suite-common/redux-utils"
         },
         {
@@ -21,6 +24,7 @@
         { "path": "../config" },
         { "path": "../fiat-rates" },
         { "path": "../logger" },
+        { "path": "../message-system" },
         { "path": "../module-devices" },
         { "path": "../module-settings" },
         { "path": "../storage" },

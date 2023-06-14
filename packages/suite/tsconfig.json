@@ -29,6 +29,9 @@
         { "path": "../../suite-common/invity" },
         { "path": "../../suite-common/logger" },
         {
+            "path": "../../suite-common/message-system"
+        },
+        {
             "path": "../../suite-common/metadata-types"
         },
         {
@@ -75,7 +78,6 @@
         { "path": "../device-utils" },
         { "path": "../dom-utils" },
         { "path": "../env-utils" },
-        { "path": "../message-system" },
         { "path": "../react-utils" },
         { "path": "../suite-analytics" },
         { "path": "../suite-data" },

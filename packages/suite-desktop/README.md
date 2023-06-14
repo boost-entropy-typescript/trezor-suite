@@ -20,7 +20,6 @@ Prerequisites:
 
 ```
 yarn && yarn build:libs
-yarn workspace @trezor/message-system sign-config
 ```
 
 ### Linux

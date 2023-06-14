@@ -1,10 +1,14 @@
 import { MiddlewareAPI } from 'redux';
 import { TRANSPORT, DEVICE } from '@trezor/connect';
 
-import { MESSAGE_SYSTEM, SUITE } from '@suite-actions/constants';
-import { getValidMessages } from '@suite-utils/messageSystem';
+import { SUITE } from '@suite-actions/constants';
+import {
+    messageSystemActions,
+    categorizeMessages,
+    getValidMessages,
+} from '@suite-common/message-system';
+
 import * as walletSettingsActions from '@settings-actions/walletSettingsActions';
-import { saveValidMessages, ValidMessagesPayload } from '@suite-actions/messageSystemActions';
 import { getIsTorEnabled } from '@suite-utils/tor';
 
 import type { AppState, Action, Dispatch } from '@suite-types';
@@ -13,7 +17,7 @@ import type { AppState, Action, Dispatch } from '@suite-types';
 const actions = [
     SUITE.SELECT_DEVICE,
     SUITE.TOR_STATUS,
-    MESSAGE_SYSTEM.FETCH_CONFIG_SUCCESS_UPDATE,
+    messageSystemActions.fetchSuccessUpdate.type,
     walletSettingsActions.changeNetworks.type,
     TRANSPORT.START,
     DEVICE.CONNECT,
@@ -30,7 +34,7 @@ const messageSystemMiddleware =
             const { device, transport, torStatus } = api.getState().suite;
             const { enabledNetworks } = api.getState().wallet.settings;
 
-            const messages = getValidMessages(config, {
+            const validMessages = getValidMessages(config, {
                 device,
                 transport,
                 settings: {
@@ -39,24 +43,9 @@ const messageSystemMiddleware =
                 },
             });
 
-            const payload: ValidMessagesPayload = {
-                banner: [],
-                modal: [],
-                context: [],
-                feature: [],
-            };
+            const categorizedValidMessages = categorizeMessages(validMessages);
 
-            messages.forEach(message => {
-                let { category: categories } = message;
-
-                if (typeof categories === 'string') {
-                    categories = [categories];
-                }
-
-                categories.forEach(category => payload[category]?.push(message.id));
-            });
-
-            api.dispatch(saveValidMessages(payload));
+            api.dispatch(messageSystemActions.updateValidMessages(categorizedValidMessages));
         }
 
         return action;

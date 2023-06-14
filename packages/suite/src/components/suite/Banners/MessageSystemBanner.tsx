@@ -3,12 +3,12 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { variables } from '@trezor/components';
 import * as routerActions from '@suite-actions/routerActions';
-import * as messageSystemActions from '@suite-actions/messageSystemActions';
+import { messageSystemActions } from '@suite-common/message-system';
+import { Message } from '@suite-common/suite-types';
 import { useActions, useSelector } from '@suite-hooks';
 import { getTorUrlIfAvailable } from '@suite-utils/tor';
 import { Banner } from './Banner';
 
-import type { Message } from '@trezor/message-system';
 import { selectTorState } from '@suite-reducers/suiteReducer';
 
 const BannerOnTop = styled(Banner)`
@@ -62,7 +62,7 @@ const MessageSystemBanner = ({ message }: Props) => {
         if (!dismissible) return undefined;
 
         return {
-            onClick: () => dismissNotification(id, 'banner'),
+            onClick: () => dismissNotification({ id, category: 'banner' }),
             'data-test': `@message-system/${id}/dismiss`,
         };
     }, [id, dismissible, dismissNotification]);

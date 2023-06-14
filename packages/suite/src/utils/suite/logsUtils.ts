@@ -2,23 +2,25 @@ import { Account, Discovery } from '@wallet-types';
 import { DISCOVERY } from '@wallet-actions/constants';
 import { SUITE } from '@suite-actions/constants';
 import { AppState, TrezorDevice } from '@suite-types';
-import { getEnvironment } from '@suite-utils/env';
-import { getIsTorEnabled } from '@suite-utils/tor';
-
-import { LogEntry } from '@suite-common/logger';
-import { DEVICE } from '@trezor/connect';
-import { getCustomBackends } from '@suite-common/wallet-utils';
 import {
+    getEnvironment,
     getBrowserName,
     getBrowserVersion,
+    getCommitHash,
     getOsName,
     getOsVersion,
     getPlatformLanguages,
     getScreenHeight,
     getScreenWidth,
+    getSuiteVersion,
     getWindowHeight,
     getWindowWidth,
 } from '@trezor/env-utils';
+import { getIsTorEnabled } from '@suite-utils/tor';
+
+import { LogEntry } from '@suite-common/logger';
+import { DEVICE } from '@trezor/connect';
+import { getCustomBackends } from '@suite-common/wallet-utils';
 import {
     getBootloaderHash,
     getBootloaderVersion,
@@ -168,8 +170,8 @@ export const getApplicationLog = (log: LogEntry[], redactSensitiveData = false) 
 
 export const getApplicationInfo = (state: AppState, hideSensitiveInfo: boolean) => ({
     environment: getEnvironment(),
-    suiteVersion: process.env.VERSION || '',
-    commitHash: process.env.COMMITHASH || '',
+    suiteVersion: getSuiteVersion(),
+    commitHash: getCommitHash(),
     startTime,
     isDev: !process.env.CODESIGN_BUILD,
     debugMenu: state.suite.settings.debug.showDebugMenu,

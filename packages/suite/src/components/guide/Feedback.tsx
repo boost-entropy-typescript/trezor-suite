@@ -9,8 +9,15 @@ import { useActions, useDevice, useSelector } from '@suite-hooks';
 import * as guideActions from '@suite-actions/guideActions';
 import { ViewWrapper, Header, Content } from '@guide-components';
 import { Rating, FeedbackCategory, FeedbackType, UserData } from '@suite-common/suite-types';
-import { getEnvironment } from '@suite-utils/env';
-import { getUserAgent, getWindowHeight, getWindowWidth, getOsName } from '@trezor/env-utils';
+import {
+    getEnvironment,
+    getUserAgent,
+    getWindowHeight,
+    getWindowWidth,
+    getOsName,
+    getCommitHash,
+    getSuiteVersion,
+} from '@trezor/env-utils';
 
 const Headline = styled.div`
     font-size: ${variables.FONT_SIZE.TINY};
@@ -181,8 +188,8 @@ export const Feedback = ({ type }: FeedbackProps) => {
             platform: getEnvironment(),
             os: getOsName(),
             user_agent: getUserAgent(),
-            suite_version: process.env.VERSION || '',
-            suite_revision: process.env.COMMITHASH || '',
+            suite_version: getSuiteVersion(),
+            suite_revision: getCommitHash(),
             window_dimensions: `${getWindowWidth()}x${getWindowHeight()}`,
             device_model: getDeviceModel(device),
             firmware_version: device?.features ? getFirmwareVersion(device) : '',
