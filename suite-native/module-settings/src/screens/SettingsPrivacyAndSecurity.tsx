@@ -26,13 +26,15 @@ const DiscreetTextExample = () => {
     const { utils } = useNativeStyles();
 
     return (
-        <DiscreetCanvas
-            text="$100"
-            color="textSubdued"
-            width={30}
-            fontSize={utils.typography.hint.fontSize}
-            height={utils.typography.hint.lineHeight}
-        />
+        <Box style={{ height: utils.typography.hint.lineHeight }}>
+            <DiscreetCanvas
+                text="$100"
+                color="textSubdued"
+                width={30}
+                fontSize={utils.typography.hint.fontSize}
+                height={utils.typography.hint.lineHeight}
+            />
+        </Box>
     );
 };
 
@@ -49,7 +51,7 @@ const DiscreetModeSwitchRow = () => {
 
     return (
         <TouchableSwitchRow
-            text="Hide balances"
+            text="Discreet mode"
             description={
                 <Box flexDirection="row" alignItems="center">
                     <RowDescription>{`$100 -> `}</RowDescription>
@@ -80,7 +82,7 @@ const AnalyticsSwitchRow = () => {
             iconName="database"
             description={
                 <RowDescription>
-                    All data is kept strictly anonymous; we only use it to improve the Trezor
+                    All collected data is anonymous and is only used to improve the Trezor
                     ecosystem.
                 </RowDescription>
             }
