@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from '@trezor/components';
-import { Translation } from '@suite-components';
+import { Translation } from 'src/components/suite';
 
 const Wrapper = styled.div`
     display: flex;
@@ -28,7 +28,7 @@ interface Props {
     disabled?: boolean;
 }
 
-const FractionButtons = ({ disabled, onFractionClick, onAllClick }: Props) => (
+export const FractionButtons = ({ disabled, onFractionClick, onAllClick }: Props) => (
     <Wrapper>
         <Left>
             <SmallButton isDisabled={disabled} onClick={() => onFractionClick(4)}>
@@ -46,5 +46,3 @@ const FractionButtons = ({ disabled, onFractionClick, onAllClick }: Props) => (
         </Left>
     </Wrapper>
 );
-
-export default FractionButtons;
