@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
+import { EventType } from '@trezor/suite-analytics';
+import { ExtractByEventType, Requests } from '../../support/types';
 
 // @group:device-management
 // @retry=2
 
-// @ts-ignore
+let requests: Requests;
+
 describe('Backup fail', () => {
     beforeEach(() => {
         cy.task('startEmu', { wipe: true });
@@ -12,6 +14,9 @@ describe('Backup fail', () => {
         cy.viewport(1080, 1440).resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
+
+        requests = [];
+        cy.interceptDataTrezorIo(requests);
     });
 
     it('Backup failed - device disconnected during action', () => {
@@ -37,6 +42,18 @@ describe('Backup fail', () => {
         cy.getTestElement('@dashboard/security-card/backup/button', { timeout: 30000 }).should(
             'be.disabled',
         );
+
+        cy.findAnalyticsEventByType<ExtractByEventType<EventType.CreateBackup>>(
+            requests,
+            EventType.CreateBackup,
+        ).then(createBackupEvent => {
+            expect(createBackupEvent.status).to.equal('error');
+            expect(createBackupEvent.error).to.be.oneOf([
+                'device+disconnected+during+action',
+                'Device+disconnected',
+                'session+not+found',
+            ]);
+        });
     });
 });
 

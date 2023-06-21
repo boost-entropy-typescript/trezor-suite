@@ -1,6 +1,11 @@
 // @group:settings
 // @retry=2
 
+import { EventType } from '@trezor/suite-analytics';
+import { ExtractByEventType, Requests } from '../../support/types';
+
+let requests: Requests;
+
 describe('Coin Settings', () => {
     beforeEach(() => {
         cy.task('startEmu', { wipe: true });
@@ -9,9 +14,12 @@ describe('Coin Settings', () => {
         cy.viewport(1080, 1440).resetDb();
         cy.prefixedVisit('/settings/coins');
         cy.passThroughInitialRun();
+
+        requests = [];
+        cy.interceptDataTrezorIo(requests);
     });
 
-    it('go to wallet settings page, check BTC, activate all coins, deactivate all coins and check dashboard', () => {
+    it('go to wallet settings page, check BTC, activate all coins, deactivate all coins, set custom backend', () => {
         const defaultUnchecked = [
             'ltc',
             'eth',
@@ -81,6 +89,31 @@ describe('Coin Settings', () => {
                 'data-active',
                 'true',
             );
+        });
+
+        cy.findAnalyticsEventByType<ExtractByEventType<EventType.SettingsCoins>>(
+            requests,
+            EventType.SettingsCoins,
+        ).then(settingsCoinsEvent => {
+            expect(settingsCoinsEvent.symbol).to.be.oneOf(['btc', ...defaultUnchecked]);
+            expect(settingsCoinsEvent.value).to.be.oneOf(['true', 'false']);
+        });
+
+        // custom eth backend
+        cy.getTestElement('@settings/wallet/network/eth/advance').click();
+        cy.getTestElement('@settings/advance/select-type/input').click();
+        cy.getTestElement('@settings/advance/select-type/option/blockbook').click();
+        cy.getTestElement('@settings/advance/url').type('https://eth.marek.pl/');
+        cy.getTestElement('@settings/advance/button/save').click();
+
+        cy.findAnalyticsEventByType<ExtractByEventType<EventType.SettingsCoinsBackend>>(
+            requests,
+            EventType.SettingsCoinsBackend,
+        ).then(settingsCoinsBackendEvent => {
+            expect(settingsCoinsBackendEvent.symbol).to.equal('eth');
+            expect(settingsCoinsBackendEvent.type).to.equal('blockbook');
+            expect(settingsCoinsBackendEvent.totalRegular).to.equal('1');
+            expect(settingsCoinsBackendEvent.totalOnion).to.equal('0');
         });
     });
 });

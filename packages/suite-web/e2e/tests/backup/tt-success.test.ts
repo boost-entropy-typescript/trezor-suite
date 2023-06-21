@@ -1,4 +1,10 @@
+import { EventType } from '@trezor/suite-analytics';
+import { ExtractByEventType, Requests } from '../../support/types';
+
 // @group:device-management
+// @retry=2
+
+let requests: Requests;
 
 describe('Backup success', () => {
     beforeEach(() => {
@@ -12,6 +18,9 @@ describe('Backup success', () => {
         cy.viewport(1080, 1440).resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
+
+        requests = [];
+        cy.interceptDataTrezorIo(requests);
     });
 
     it('Successful backup happy path', () => {
@@ -44,6 +53,14 @@ describe('Backup success', () => {
         cy.getTestElement('@backup/check-item/made-no-digital-copy').click();
         cy.getTestElement('@backup/check-item/will-hide-seed').click();
         cy.getTestElement('@backup/continue-to-pin-button').should('not.be.disabled');
+
+        cy.findAnalyticsEventByType<ExtractByEventType<EventType.CreateBackup>>(
+            requests,
+            EventType.CreateBackup,
+        ).then(createBackupEvent => {
+            expect(createBackupEvent.status).to.equal('finished');
+            expect(createBackupEvent.error).to.equal('');
+        });
     });
 });
 
