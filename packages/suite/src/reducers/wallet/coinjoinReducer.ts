@@ -375,6 +375,26 @@ const updateClientStatus = (
     };
 };
 
+const updateAccountPrison = (
+    draft: CoinjoinState,
+    payload: ExtractActionPayload<typeof COINJOIN.CLIENT_PRISON_EVENT>,
+) => {
+    draft.accounts.forEach(account => {
+        const accountPrison = payload.filter(inmate => inmate.accountKey === account.key);
+        account.prison = accountPrison.reduce<NonNullable<CoinjoinAccount['prison']>>(
+            (prison, inmate) => {
+                if (['input', 'output'].includes(inmate.type)) {
+                    // remove duplicated info (id, accountKey)
+                    const { id, accountKey, ...rest } = inmate;
+                    prison[id] = rest;
+                }
+                return prison;
+            },
+            {},
+        );
+    });
+};
+
 const updateSessionPhase = (
     draft: CoinjoinState,
     payload: ExtractActionPayload<typeof COINJOIN.CLIENT_SESSION_PHASE>,
@@ -534,6 +554,9 @@ export const coinjoinReducer = (
             case COINJOIN.CLIENT_STATUS:
                 updateClientStatus(draft, action.payload);
                 break;
+            case COINJOIN.CLIENT_PRISON_EVENT:
+                updateAccountPrison(draft, action.payload);
+                break;
             case COINJOIN.CLIENT_SESSION_PHASE:
                 updateSessionPhase(draft, action.payload);
                 break;
@@ -644,6 +667,28 @@ export const selectCurrentCoinjoinBalanceBreakdown = (state: CoinjoinRootState) 
     });
 
     return balanceBreakdown;
+};
+
+export const selectPrisonByAccountKey = (state: CoinjoinRootState, accountKey: AccountKey) => {
+    const coinjoinAccount = selectCoinjoinAccountByKey(state, accountKey);
+    if (!coinjoinAccount) return;
+    return coinjoinAccount.prison;
+};
+
+export const selectBlockedUtxosByAccountKey = (
+    state: CoinjoinRootState,
+    accountKey: AccountKey,
+) => {
+    const prison = selectPrisonByAccountKey(state, accountKey);
+    if (!prison) return;
+    return Object.keys(prison).reduce<typeof prison>((result, key) => {
+        const inmate = prison[key];
+        // select **only** inmates with assigned roundId (signed in current round or promised to future blaming round)
+        if (inmate.roundId) {
+            result[key] = inmate;
+        }
+        return result;
+    }, {});
 };
 
 export const selectSessionProgressByAccountKey = (

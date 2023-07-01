@@ -5,6 +5,16 @@ export interface TorConnectionOptions {
     torDataDir: string;
 }
 
+export type TorCommandResponse =
+    | {
+          success: true;
+          payload: string;
+      }
+    | {
+          success: false;
+          payload: string;
+      };
+
 export type BootstrapEvent =
     | {
           type: 'slow';
@@ -29,6 +39,10 @@ export type InterceptedEvent =
       }
     | {
           type: 'NETWORK_MISBEHAVING';
+      }
+    | {
+          type: 'CIRCUIT_MISBEHAVING';
+          identity?: string;
       }
     | {
           type: 'ERROR';

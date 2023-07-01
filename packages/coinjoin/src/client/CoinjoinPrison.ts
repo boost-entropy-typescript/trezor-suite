@@ -1,48 +1,109 @@
+import { TypedEmitter } from '@trezor/utils/lib/typedEventEmitter';
+
+import { CoinjoinPrisonInmate, CoinjoinPrisonEvents } from '../types/client';
 import { WabiSabiProtocolErrorCode } from '../enums';
 
-export interface PrisonInmate {
-    id: string; // AccountUtxo/Alice.outpoint or AccountAddress scriptPubKey
-    sentenceStart: number;
-    sentenceEnd: number;
-    errorCode?: WabiSabiProtocolErrorCode | 'blameOf';
-    reason?: string;
-    roundId?: string;
-}
+export type DetainObject =
+    | {
+          outpoint: string;
+          accountKey: string;
+      }
+    | {
+          address: string;
+          accountKey: string;
+      }
+    | {
+          accountKey: string;
+      };
 
-export interface PrisonOptions {
+export interface DetainOptions {
     roundId?: string;
-    errorCode?: PrisonInmate['errorCode'];
-    reason?: PrisonInmate['reason'];
+    errorCode?: CoinjoinPrisonInmate['errorCode'];
+    reason?: CoinjoinPrisonInmate['reason'];
     sentenceEnd?: number;
 }
 
 // Errored or currently registered inputs and addresses are sent here
 // inspiration: WalletWasabi/WabiSabi/Backend/Banning/Prison.cs
 
-export class CoinjoinPrison {
-    inmates: PrisonInmate[] = [];
+export class CoinjoinPrison extends TypedEmitter<CoinjoinPrisonEvents> {
+    inmates: CoinjoinPrisonInmate[] = [];
+    private changeEventThrottle:
+        | ReturnType<typeof setImmediate>
+        | ReturnType<typeof setTimeout>
+        | undefined;
 
-    detain(id: string, options: PrisonOptions = {}) {
+    constructor(initialState: CoinjoinPrisonInmate[] = []) {
+        super();
+        this.inmates = initialState;
+    }
+
+    private dispatchChange() {
+        // throttle change events. might be emitted one after another (example: multiple detentions in loop after round end)
+        const emitFn = () => {
+            this.changeEventThrottle = undefined;
+            this.emit('change', { prison: this.inmates });
+        };
+
+        if (typeof setImmediate !== 'undefined') {
+            clearImmediate(this.changeEventThrottle as NodeJS.Immediate);
+            this.changeEventThrottle = setImmediate(emitFn);
+        } else {
+            clearTimeout(this.changeEventThrottle as NodeJS.Timeout);
+            this.changeEventThrottle = setTimeout(emitFn, 0);
+        }
+    }
+
+    detain(inmate: DetainObject, options: DetainOptions = {}) {
         const sentenceStart = Date.now();
         const sentenceEnd = Date.now() + (options.sentenceEnd ? options.sentenceEnd : 6 * 60000);
 
-        this.inmates.push({
-            id,
-            sentenceEnd,
-            sentenceStart,
-            errorCode: options.errorCode,
-            reason: options.reason,
-            roundId: options.roundId,
-        });
+        let id: string;
+        let type: CoinjoinPrisonInmate['type'];
+        if ('outpoint' in inmate) {
+            type = 'input';
+            id = inmate.outpoint;
+        } else if ('address' in inmate) {
+            type = 'output';
+            id = inmate.address;
+        } else {
+            type = 'account';
+            id = inmate.accountKey;
+        }
+
+        this.inmates = this.inmates
+            .filter(i => i.id !== id)
+            .concat({
+                id,
+                type,
+                accountKey: inmate.accountKey,
+                sentenceEnd,
+                sentenceStart,
+                errorCode: options.errorCode,
+                reason: options.reason,
+                roundId: options.roundId,
+            });
+
+        this.dispatchChange();
     }
 
-    isDetained(id: string) {
+    isDetained(inmate: string | DetainObject) {
+        let id: string;
+        if (typeof inmate === 'string') {
+            id = inmate;
+        } else if ('outpoint' in inmate) {
+            id = inmate.outpoint;
+        } else if ('address' in inmate) {
+            id = inmate.address;
+        } else {
+            id = inmate.accountKey;
+        }
         return this.inmates.find(i => i.id === id);
     }
 
-    detainForBlameRound(ids: string[], roundId: string) {
-        ids.forEach(id => {
-            this.detain(id, {
+    detainForBlameRound(inmates: DetainObject[], roundId: string) {
+        inmates.forEach(inmate => {
+            this.detain(inmate, {
                 errorCode: 'blameOf',
                 roundId,
             });
@@ -55,6 +116,8 @@ export class CoinjoinPrison {
 
     releaseBlameOfInmates(roundId: string) {
         this.inmates = this.inmates.filter(inmate => inmate.roundId !== roundId);
+
+        this.dispatchChange();
     }
 
     // release inputs detained by successful input-registration
@@ -66,11 +129,18 @@ export class CoinjoinPrison {
                     inmate.errorCode === WabiSabiProtocolErrorCode.AliceAlreadyRegistered
                 ),
         );
+
+        this.dispatchChange();
     }
 
     // called on each status change before rounds are processed
     release() {
         const now = Date.now();
+        const prevLen = this.inmates.length;
         this.inmates = this.inmates.filter(inmate => inmate.sentenceEnd > now);
+
+        if (prevLen !== this.inmates.length) {
+            this.dispatchChange();
+        }
     }
 }
