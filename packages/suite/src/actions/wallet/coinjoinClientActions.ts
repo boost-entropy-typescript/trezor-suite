@@ -163,12 +163,11 @@ export const setDebugSettings = (payload: CoinjoinDebugSettings) =>
         payload,
     } as const);
 
-export const coinjoinSessionPause = (accountKey: string, interrupted: boolean) =>
+export const coinjoinSessionPause = (accountKey: string) =>
     ({
         type: COINJOIN.SESSION_PAUSE,
         payload: {
             accountKey,
-            interrupted,
         },
     } as const);
 
@@ -270,8 +269,7 @@ export const closeCriticalPhaseModal = () => (dispatch: Dispatch) => {
 
 // called from coinjoin account UI or exceptions like device disconnection, forget wallet/account etc.
 export const pauseCoinjoinSession =
-    (accountKey: string, interrupted = false) =>
-    (dispatch: Dispatch, getState: GetState) => {
+    (accountKey: string) => (dispatch: Dispatch, getState: GetState) => {
         const account = selectAccountByKey(getState(), accountKey);
 
         if (!account) {
@@ -284,7 +282,52 @@ export const pauseCoinjoinSession =
         client?.unregisterAccount(accountKey);
 
         // dispatch data to reducer
-        dispatch(coinjoinSessionPause(accountKey, interrupted));
+        dispatch(coinjoinSessionPause(accountKey));
+    };
+
+// called from coinjoin account UI or exceptions like device disconnection, forget wallet/account etc.
+export const stopCoinjoinSession =
+    (accountKey: string) => async (dispatch: Dispatch, getState: GetState) => {
+        const account = selectAccountByKey(getState(), accountKey);
+
+        if (!account) {
+            return;
+        }
+
+        // get @trezor/coinjoin client if available
+        const client = getCoinjoinClient(account.symbol);
+        if (!client) {
+            return;
+        }
+
+        const { device } = getState().suite;
+
+        const result = await TrezorConnect.cancelCoinjoinAuthorization({
+            device,
+            useEmptyPassphrase: device?.useEmptyPassphrase,
+        });
+
+        if (!result.success) {
+            dispatch(
+                notificationsActions.addToast({
+                    type: 'error',
+                    error: `Coinjoin session not stopped: ${result.payload.error}`,
+                }),
+            );
+
+            return;
+        }
+
+        // unregister account in @trezor/coinjoin
+        client.unregisterAccount(account.key);
+
+        // dispatch data to reducer
+        dispatch({
+            type: COINJOIN.ACCOUNT_UNREGISTER,
+            payload: {
+                accountKey,
+            },
+        });
     };
 
 export const onCoinjoinRoundChanged =
@@ -349,14 +392,14 @@ export const onCoinjoinRoundChanged =
                     });
                 }
 
-                const accountsWithAutopause = coinjoinAccountsWithSession.filter(
+                const accountsWithAutostop = coinjoinAccountsWithSession.filter(
                     ({ key, session }) =>
                         !accountsReachingMaxRounds.find(accout => accout.key === key) &&
-                        session?.isAutoPauseEnabled,
+                        session?.isAutoStopEnabled,
                 );
 
-                accountsWithAutopause.forEach(({ key }) => {
-                    dispatch(pauseCoinjoinSession(key));
+                accountsWithAutostop.forEach(({ key }) => {
+                    dispatch(stopCoinjoinSession(key));
                 });
             } else if (
                 round.phase > RoundPhase.InputRegistration &&

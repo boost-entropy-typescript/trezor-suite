@@ -77,7 +77,6 @@ const STATE_WITH_INTERRUPTED_SESSION = {
                     ...DEFAULT_STATE.wallet.coinjoin.accounts[0],
                     session: {
                         ...DEFAULT_STATE.wallet.coinjoin.accounts[0].session,
-                        paused: true,
                     } as CoinjoinSession,
                 },
                 {
@@ -85,7 +84,6 @@ const STATE_WITH_INTERRUPTED_SESSION = {
                     session: {
                         ...DEFAULT_STATE.wallet.coinjoin.accounts[1].session,
                         paused: true,
-                        interrupted: true,
                     } as CoinjoinSession,
                 },
             ],
@@ -98,14 +96,12 @@ const PAUSE_ALL_INTERRUPTED_SESSIONS_ACTIONS = [
         type: COINJOIN.SESSION_PAUSE,
         payload: {
             accountKey: 'account-A-key',
-            interrupted: true,
         },
     },
     {
         type: COINJOIN.SESSION_PAUSE,
         payload: {
             accountKey: 'account-B-key',
-            interrupted: true,
         },
     },
 ];
@@ -135,8 +131,9 @@ const RESTORE_SESSION_B_ACTIONS = [
 
 export const fixtures = [
     {
-        description: 'pause coinjoin session when remembered device disconnects',
+        description: 'stopping coinjoin session when remembered device disconnects',
         state: DEFAULT_STATE,
+        client: 'btc' as NetworkSymbol,
         action: {
             type: DEVICE.DISCONNECT,
             payload: {
@@ -145,10 +142,9 @@ export const fixtures = [
         },
         expectedActions: [
             {
-                type: COINJOIN.SESSION_PAUSE,
+                type: COINJOIN.ACCOUNT_UNREGISTER,
                 payload: {
                     accountKey: 'account-A-key',
-                    interrupted: false,
                 },
             },
         ],
@@ -191,7 +187,6 @@ export const fixtures = [
                 type: COINJOIN.SESSION_PAUSE,
                 payload: {
                     accountKey: 'account-B-key',
-                    interrupted: true,
                 },
             },
         ],
@@ -230,7 +225,6 @@ export const fixtures = [
                 type: COINJOIN.SESSION_PAUSE,
                 payload: {
                     accountKey: 'account-B-key',
-                    interrupted: true,
                 },
             },
         ],

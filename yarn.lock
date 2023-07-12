@@ -1980,9 +1980,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/request@npm:^2.88.10":
-  version: 2.88.10
-  resolution: "@cypress/request@npm:2.88.10"
+"@cypress/request@npm:^2.88.11":
+  version: 2.88.11
+  resolution: "@cypress/request@npm:2.88.11"
   dependencies:
     aws-sign2: ~0.7.0
     aws4: ^1.8.0
@@ -1997,12 +1997,12 @@ __metadata:
     json-stringify-safe: ~5.0.1
     mime-types: ~2.1.19
     performance-now: ^2.1.0
-    qs: ^6.10.0
+    qs: ~6.10.3
     safe-buffer: ^5.1.2
     tough-cookie: ~2.5.0
     tunnel-agent: ^0.6.0
     uuid: ^8.3.2
-  checksum: 69c3e3b332e9be4866a900f6bcca5d274d8cea6c99707fbcce061de8dbab11c9b1e39f4c017f6e83e6e682717781d4f6106fd6b7cf9546580fcfac353b6676cf
+  checksum: e4b3f62e0c41c4ccca6c942828461d8ea717e752fd918d685e9f74e2ebcfa8b7942427f7ce971e502635c3bf3d40011476db84dc753d3dc360c6d08350da6f93
   languageName: node
   linkType: hard
 
@@ -6566,7 +6566,7 @@ __metadata:
     json-schema-to-typescript: ^13.0.2
     jws: ^4.0.0
     proxy-memoize: 2.0.2
-    semver: ^7.5.2
+    semver: ^7.5.3
     tsx: ^3.12.7
     typescript: 4.9.5
   languageName: unknown
@@ -6698,7 +6698,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@trezor/connect": "workspace:*"
     jest: ^26.6.3
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -6747,7 +6747,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     date-fns: ^2.30.0
     jest: ^26.6.3
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -6883,7 +6883,7 @@ __metadata:
     "@trezor/styles": "workspace:*"
     bignumber.js: ^9.1.1
     jest: ^26.6.3
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
     react: ^18.2.0
     react-native: 0.71.8
     react-redux: 8.0.7
@@ -6957,7 +6957,7 @@ __metadata:
     "@suite-native/fiat-rates": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@trezor/blockchain-link": "workspace:*"
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
     react: 18.2.0
   languageName: unknown
   linkType: soft
@@ -6977,7 +6977,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
     date-fns: ^2.30.0
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
   languageName: unknown
   linkType: soft
 
@@ -7568,7 +7568,7 @@ __metadata:
     "@trezor/theme": "workspace:*"
     jest: ^26.6.3
     jotai: 1.9.1
-    proxy-memoize: 2.0.2
+    proxy-memoize: ^2.0.4
     react: 18.2.0
     react-native: 0.71.8
     react-native-gesture-handler: ^2.9.0
@@ -8515,7 +8515,7 @@ __metadata:
     "@types/react-router-dom": ^5.1.7
     "@types/styled-components": ^5.1.26
     chrome-remote-interface: ^0.32.2
-    cypress: ^12.16.0
+    cypress: ^12.17.1
     cypress-file-upload: ^5.0.8
     cypress-image-snapshot: ^4.0.1
     jest: ^26.6.3
@@ -8628,7 +8628,6 @@ __metadata:
     pdfmake: ^0.2.7
     polished: ^4.2.2
     prettier: 2.8.8
-    proxy-memoize: 2.0.2
     qrcode.react: ^3.1.0
     react: 18.2.0
     react-dom: 18.2.0
@@ -8652,7 +8651,7 @@ __metadata:
     redux-logger: ^3.0.6
     redux-mock-store: ^1.5.4
     redux-thunk: ^2.4.2
-    semver: ^7.5.2
+    semver: ^7.5.3
     styled-components: ^5.3.10
     stylelint: 14.16.1
     stylelint-config-recommended: ^9.0.0
@@ -14813,11 +14812,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^12.16.0":
-  version: 12.16.0
-  resolution: "cypress@npm:12.16.0"
+"cypress@npm:^12.17.1":
+  version: 12.17.1
+  resolution: "cypress@npm:12.17.1"
   dependencies:
-    "@cypress/request": ^2.88.10
+    "@cypress/request": ^2.88.11
     "@cypress/xvfb": ^1.2.4
     "@types/node": ^14.14.31
     "@types/sinonjs__fake-timers": 8.1.1
@@ -14854,14 +14853,14 @@ __metadata:
     pretty-bytes: ^5.6.0
     proxy-from-env: 1.0.0
     request-progress: ^3.0.0
-    semver: ^7.3.2
+    semver: ^7.5.3
     supports-color: ^8.1.1
     tmp: ~0.2.1
     untildify: ^4.0.0
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 551e2ec372f56a39a22526575b39bf9c6a110e5648ac1bf1c76460dfaebc3ca57d5537e7c206316284fe796ec76fa18f0493f3e040c92bd39c3720c9136fd5e4
+  checksum: 1f042e3e5931498bdf826cba09060939349e677fca8654c9695760acbec5a424cb69d3445ace57cf80deb496d770ffe571ef791dff72af24e7f560ee43986ee4
   languageName: node
   linkType: hard
 
@@ -27968,6 +27967,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"proxy-compare@npm:2.5.1":
+  version: 2.5.1
+  resolution: "proxy-compare@npm:2.5.1"
+  checksum: c7cc151ac255150bcb24becde6495b3e399416c31991af377ce082255b51f07eaeb5d861bf8bf482703e92f88b90a5892ad57d3153ea29450d03ef921683d9fa
+  languageName: node
+  linkType: hard
+
 "proxy-from-env@npm:1.0.0":
   version: 1.0.0
   resolution: "proxy-from-env@npm:1.0.0"
@@ -27988,6 +27994,15 @@ __metadata:
   dependencies:
     proxy-compare: 2.4.0
   checksum: 3cfb54fdd3032959de0c4da7bb7c85713bfa92d442841a6882a5ed20bd2dab0c629194615988e9b7dfdb8885183b8ab28817ed7205e912e7e285f031efdb8443
+  languageName: node
+  linkType: hard
+
+"proxy-memoize@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "proxy-memoize@npm:2.0.4"
+  dependencies:
+    proxy-compare: 2.5.1
+  checksum: d97b5cf6c50ebe050c5ff7ecd0bb040423d0ba41deb5795d421a34159deb12fbd9d99792fb9108ffe03e6ada225d863b2d31f51f2230bf4fcb2761f30987c7d7
   languageName: node
   linkType: hard
 
@@ -28104,6 +28119,15 @@ __metadata:
   dependencies:
     side-channel: ^1.0.4
   checksum: 6e1f29dd5385f7488ec74ac7b6c92f4d09a90408882d0c208414a34dd33badc1a621019d4c799a3df15ab9b1d0292f97c1dd71dc7c045e69f81a8064e5af7297
+  languageName: node
+  linkType: hard
+
+"qs@npm:~6.10.3":
+  version: 6.10.4
+  resolution: "qs@npm:6.10.4"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
   languageName: node
   linkType: hard
 
@@ -30473,14 +30497,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.2":
-  version: 7.5.2
-  resolution: "semver@npm:7.5.2"
+"semver@npm:7.x, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.3":
+  version: 7.5.4
+  resolution: "semver@npm:7.5.4"
   dependencies:
     lru-cache: ^6.0.0
   bin:
     semver: bin/semver.js
-  checksum: 3fdf5d1e6f170fe8bcc41669e31787649af91af7f54f05c71d0865bb7aa27e8b92f68b3e6b582483e2c1c648008bc84249d2cd86301771fe5cbf7621d1fe5375
+  checksum: 12d8ad952fa353b0995bf180cdac205a4068b759a140e5d3c608317098b3575ac2f1e09182206bf2eb26120e1c0ed8fb92c48c592f6099680de56bb071423ca3
   languageName: node
   linkType: hard
 
@@ -32829,7 +32853,7 @@ __metadata:
     prettier: 2.8.8
     prettier-eslint: ^15.0.1
     rimraf: ^5.0.1
-    semver: ^7.5.2
+    semver: ^7.5.3
     ts-jest: ^26.5.6
     ts-node: ^10.9.1
     tsconfig-paths: ^4.2.0

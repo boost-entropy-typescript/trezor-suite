@@ -164,12 +164,12 @@ const coinjoinSessionStarting = (accountKey: string, isStarting: boolean) =>
         },
     } as const);
 
-const coinjoinSessionAutopause = (accountKey: string, isAutopaused: boolean) =>
+const coinjoinSessionAutostop = (accountKey: string, isAutostopped: boolean) =>
     ({
-        type: COINJOIN.SESSION_AUTOPAUSE,
+        type: COINJOIN.SESSION_AUTOSTOP,
         payload: {
             accountKey,
-            isAutopaused,
+            isAutostopped,
         },
     } as const);
 
@@ -228,7 +228,7 @@ export type CoinjoinAccountAction =
     | ReturnType<typeof coinjoinAccountPreloading>
     | ReturnType<typeof coinjoinSessionRestore>
     | ReturnType<typeof coinjoinSessionStarting>
-    | ReturnType<typeof coinjoinSessionAutopause>
+    | ReturnType<typeof coinjoinSessionAutostop>
     | ReturnType<typeof updateLastAnonymityReportTimestamp>
     | ReturnType<typeof coinjoinAccountUpdateAnonymityLevels>;
 
@@ -750,42 +750,6 @@ export const startCoinjoinSession =
         dispatch(coinjoinSessionStarting(account.key, false));
     };
 
-export const pauseCoinjoinSessionByDeviceId =
-    (deviceID: string) => (dispatch: Dispatch, getState: GetState) => {
-        const state = getState();
-
-        const disconnectedDevices = state.devices.filter(d => d.id === deviceID && d.remember);
-        const affectedAccounts = disconnectedDevices.flatMap(d =>
-            state.wallet.accounts.filter(
-                a => a.accountType === 'coinjoin' && a.deviceState === d.state,
-            ),
-        );
-
-        affectedAccounts.forEach(account => {
-            const isAccountWithSession = selectIsAccountWithSessionByAccountKey(state, account.key);
-            if (isAccountWithSession) {
-                // log exception in critical phase
-                if (selectIsAccountWithSessionInCriticalPhaseByAccountKey(state, account.key)) {
-                    dispatch(
-                        coinjoinClientActions.clientEmitException(
-                            `Device disconnected in critical phase`,
-                            {
-                                symbol: account.symbol,
-                            },
-                        ),
-                    );
-                }
-                const hasRunningSession = selectIsAccountWithSessionByAccountKey(
-                    state,
-                    account.key,
-                );
-                if (hasRunningSession) {
-                    dispatch(coinjoinClientActions.pauseCoinjoinSession(account.key));
-                }
-            }
-        });
-    };
-
 // called from coinjoin account UI
 // try to restore current paused CoinjoinSession
 // use same parameters as in startCoinjoinSession but recalculate maxRounds value
@@ -860,7 +824,7 @@ export const restoreCoinjoinSession =
             dispatch(
                 notificationsActions.addToast({
                     type: 'error',
-                    error: `Coinjoin not authorized: ${auth.payload.error}`,
+                    error: `Coinjoin not authorized: `,
                 }),
             );
         }
@@ -868,73 +832,32 @@ export const restoreCoinjoinSession =
         dispatch(coinjoinSessionStarting(accountKey, false));
     };
 
-export const interruptAllCoinjoinSessions = () => (dispatch: Dispatch, getState: GetState) => {
+export const pauseAllCoinjoinSessions = () => (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const coinjoinAccounts = selectCoinjoinAccounts(state);
 
     coinjoinAccounts.forEach(account => {
         const hasRunningSession = selectIsAccountWithSessionByAccountKey(state, account.key);
         if (hasRunningSession) {
-            dispatch(coinjoinClientActions.pauseCoinjoinSession(account.key, true));
+            dispatch(coinjoinClientActions.pauseCoinjoinSession(account.key));
         }
     });
 };
 
 // check for blocking conditions of interrupted sessions and restore those eligible
-export const restoreInterruptedCoinjoinSessions =
-    () => (dispatch: Dispatch, getState: GetState) => {
-        const state = getState();
-        const coinjoinAccounts = selectCoinjoinAccounts(state);
-        const eligibleAccounts = coinjoinAccounts.filter(({ key, session }) => {
-            const hasSendFormOpen =
-                state.router.route?.name === 'wallet-send' &&
-                key === state.wallet.selectedAccount.account?.key;
-            const blocker = selectCoinjoinSessionBlockerByAccountKey(state, key);
-            return session?.interrupted && !hasSendFormOpen && !blocker;
-        });
+export const restorePausedCoinjoinSessions = () => (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const coinjoinAccounts = selectCoinjoinAccounts(state);
+    const eligibleAccounts = coinjoinAccounts.filter(({ key, session }) => {
+        const hasSendFormOpen =
+            state.router.route?.name === 'wallet-send' &&
+            key === state.wallet.selectedAccount.account?.key;
+        const blocker = selectCoinjoinSessionBlockerByAccountKey(state, key);
+        return !hasSendFormOpen && !blocker && session?.paused;
+    });
 
-        eligibleAccounts.forEach(account => dispatch(restoreCoinjoinSession(account.key)));
-    };
-
-// called from coinjoin account UI or exceptions like device disconnection, forget wallet/account etc.
-export const stopCoinjoinSession =
-    (accountKey: string) => async (dispatch: Dispatch, getState: GetState) => {
-        const account = selectAccountByKey(getState(), accountKey);
-
-        if (!account) {
-            return;
-        }
-
-        // get @trezor/coinjoin client if available
-        const client = coinjoinClientActions.getCoinjoinClient(account.symbol);
-        if (!client) {
-            return;
-        }
-
-        const { device } = getState().suite;
-
-        const result = await TrezorConnect.cancelCoinjoinAuthorization({
-            device,
-            useEmptyPassphrase: device?.useEmptyPassphrase,
-        });
-
-        if (!result.success) {
-            dispatch(
-                notificationsActions.addToast({
-                    type: 'error',
-                    error: `Coinjoin session not stopped: ${result.payload.error}`,
-                }),
-            );
-
-            return;
-        }
-
-        // unregister account in @trezor/coinjoin
-        client.unregisterAccount(account.key);
-
-        // dispatch data to reducer
-        dispatch(coinjoinAccountUnregister(account.key));
-    };
+    eligibleAccounts.forEach(account => dispatch(restoreCoinjoinSession(account.key)));
+};
 
 export const stopCoinjoinAccount =
     (account: Account) => (dispatch: Dispatch, getState: GetState) => {
@@ -948,8 +871,40 @@ export const stopCoinjoinAccount =
                     }),
                 );
             }
-            dispatch(stopCoinjoinSession(cjAccount.key));
+            dispatch(coinjoinClientActions.stopCoinjoinSession(cjAccount.key));
         }
+    };
+
+export const stopCoinjoinSessionByDeviceId =
+    (deviceID: string) => (dispatch: Dispatch, getState: GetState) => {
+        const state = getState();
+
+        const disconnectedDevices = state.devices.filter(d => d.id === deviceID && d.remember);
+        const affectedAccounts = disconnectedDevices.flatMap(d =>
+            state.wallet.accounts.filter(
+                a => a.accountType === 'coinjoin' && a.deviceState === d.state,
+            ),
+        );
+
+        affectedAccounts.forEach(account => {
+            const isAccountWithSession = selectIsAccountWithSessionByAccountKey(state, account.key);
+
+            if (isAccountWithSession) {
+                // log exception in critical phase
+                if (selectIsAccountWithSessionInCriticalPhaseByAccountKey(state, account.key)) {
+                    dispatch(
+                        coinjoinClientActions.clientEmitException(
+                            `Device disconnected in critical phase`,
+                            {
+                                symbol: account.symbol,
+                            },
+                        ),
+                    );
+                }
+
+                dispatch(coinjoinClientActions.stopCoinjoinSession(account.key));
+            }
+        });
     };
 
 export const restoreCoinjoinAccounts = () => (dispatch: Dispatch, getState: GetState) => {
@@ -978,7 +933,7 @@ export const restoreCoinjoinAccounts = () => (dispatch: Dispatch, getState: GetS
     );
 };
 
-export const toggleAutopauseCoinjoin =
+export const toggleAutostopCoinjoin =
     (accountKey: string) => (dispatch: Dispatch, getState: GetState) => {
         const currentAccountState = selectSessionByAccountKey(getState(), accountKey);
 
@@ -986,9 +941,9 @@ export const toggleAutopauseCoinjoin =
             return;
         }
 
-        const newState = !currentAccountState.isAutoPauseEnabled;
+        const newState = !currentAccountState.isAutoStopEnabled;
 
-        dispatch(coinjoinSessionAutopause(accountKey, newState));
+        dispatch(coinjoinSessionAutostop(accountKey, newState));
     };
 
 export const logCoinjoinAccounts = () => (_: Dispatch, getState: GetState) => {
