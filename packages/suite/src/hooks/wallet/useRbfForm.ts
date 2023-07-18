@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { fromWei } from 'web3-utils';
 import { useSelector } from 'src/hooks/suite';
 import { DEFAULT_PAYMENT, DEFAULT_OPRETURN, DEFAULT_VALUES } from '@suite-common/wallet-constants';
-import { TypedValidationRules } from '@suite-common/wallet-types';
 import { getExcludedUtxos, getFeeLevels } from '@suite-common/wallet-utils';
 import { Account, WalletAccountTransaction } from 'src/types/wallet';
 import { FormState, FeeInfo } from 'src/types/wallet/sendForm';
@@ -168,14 +167,14 @@ export const useRbf = (props: UseRbfProps) => {
     }, [state, initState]);
 
     // react-hook-form
-    const useFormMethods = useForm<FormState>({ mode: 'onChange', shouldUnregister: false });
-    const { reset, register, control, setValue, getValues, errors } = useFormMethods;
+    const useFormMethods = useForm<FormState>({ mode: 'onChange' });
+    const { reset, register, control, setValue, getValues, formState } = useFormMethods;
 
     // react-hook-form auto register custom form fields (without HTMLElement)
     useEffect(() => {
-        register({ name: 'outputs', type: 'custom' });
-        register({ name: 'setMaxOutputId', type: 'custom' });
-        register({ name: 'options', type: 'custom' });
+        register('outputs');
+        register('setMaxOutputId');
+        register('options');
     }, [register]);
 
     // react-hook-form reset, set default values
@@ -240,9 +239,9 @@ export const useRbf = (props: UseRbfProps) => {
     return {
         ...ctxState,
         isLoading,
-        register: register as (rules?: TypedValidationRules) => (ref: any) => void,
+        register,
         control,
-        errors,
+        formState,
         setValue,
         getValues,
         composedLevels,
