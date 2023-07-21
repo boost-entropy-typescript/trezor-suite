@@ -982,10 +982,6 @@ export default defineMessages({
         defaultMessage: 'Pending',
         id: 'TR_BUY_STATUS_PENDING',
     },
-    TR_P2P_VALIDATION_ERROR_EMPTY: {
-        defaultMessage: 'Required',
-        id: 'TR_P2P_VALIDATION_ERROR_EMPTY',
-    },
     TR_P2P_WORTH_OF: {
         defaultMessage: 'worth of',
         id: 'TR_P2P_WORTH_OF',
@@ -4237,9 +4233,9 @@ export default defineMessages({
     },
     FW_CAPABILITY_NO_SUPPORT: {
         id: 'FW_CAPABILITY_NO_SUPPORT',
-        defaultMessage: 'Not supported on Model One',
+        defaultMessage: 'Not supported on {deviceDisplayName}',
         description:
-            'Similar to missing capability but tested on different level (coin info is missing in trezor-connect)',
+            'Similar to missing capability but tested on different level (coin info is missing in trezor-connect). {deviceDisplayName} can be e.g. Trezor Model One, so make the translation accordingly',
     },
     FW_CAPABILITY_UPDATE_REQUIRED: {
         id: 'FW_CAPABILITY_UPDATE_REQUIRED',
@@ -4278,7 +4274,6 @@ export default defineMessages({
     MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT: {
         id: 'MODAL_ADD_ACCOUNT_COINJOIN_NO_SUPPORT',
         defaultMessage: 'Coinjoin is supported only on Trezor Model T',
-        description: 'TODO Model R',
     },
     MODAL_ADD_ACCOUNT_COINJOIN_UPDATE_REQUIRED: {
         id: 'MODAL_ADD_ACCOUNT_COINJOIN_UPDATE_REQUIRED',
@@ -5415,10 +5410,6 @@ export default defineMessages({
         defaultMessage: 'Amount is not an integer',
         id: 'AMOUNT_IS_NOT_INTEGER',
     },
-    AMOUNT_IS_NOT_NUMBER: {
-        defaultMessage: 'Enter a number (e.g. 1.5)',
-        id: 'AMOUNT_IS_NOT_NUMBER',
-    },
     AMOUNT_IS_NOT_SET: {
         defaultMessage: 'Amount is not set',
         id: 'AMOUNT_IS_NOT_SET',
@@ -5662,10 +5653,6 @@ export default defineMessages({
     CUSTOM_FEE_IS_NOT_SET: {
         defaultMessage: 'How much do you want to spend on fee to make this transaction go through.',
         id: 'CUSTOM_FEE_IS_NOT_SET',
-    },
-    CUSTOM_FEE_IS_NOT_NUMBER: {
-        defaultMessage: 'Enter a number',
-        id: 'CUSTOM_FEE_IS_NOT_NUMBER',
     },
     CUSTOM_FEE_IS_NOT_INTEGER: {
         defaultMessage: 'Enter a whole number',
@@ -6884,7 +6871,6 @@ export default defineMessages({
         id: 'TR_TROUBLESHOOTING_TIP_CABLE_DESCRIPTION',
         defaultMessage:
             'The cable must be fully inserted. If you have a Model T, the cable should "click" into place.',
-        description: 'TODO Model T2B1',
     },
     TR_TROUBLESHOOTING_TIP_USB_PORT_TITLE: {
         id: 'TR_TROUBLESHOOTING_TIP_USB_PORT_TITLE',
@@ -7383,10 +7369,6 @@ export default defineMessages({
         description: 'As in "{time} Left"',
         defaultMessage: 'left',
     },
-    TR_PAUSE: {
-        id: 'TR_PAUSE',
-        defaultMessage: 'Pause',
-    },
     TR_STOP: {
         id: 'TR_STOP',
         defaultMessage: 'Stop',
@@ -7410,10 +7392,6 @@ export default defineMessages({
     TR_PAUSED: {
         id: 'TR_PAUSED',
         defaultMessage: 'Paused',
-    },
-    TR_RESUME: {
-        id: 'TR_RESUME',
-        defaultMessage: 'Resume',
     },
     TR_ANONYMIZATION_PAUSED: {
         id: 'TR_ANONYMIZATION_PAUSED',
