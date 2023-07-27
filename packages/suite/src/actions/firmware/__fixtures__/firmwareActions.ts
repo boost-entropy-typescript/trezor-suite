@@ -1,9 +1,9 @@
-import { UI } from '@trezor/connect';
-import { FIRMWARE } from 'src/actions/firmware/constants';
 import { SUITE } from 'src/actions/suite/constants';
-import * as firmwareActions from 'src/actions/firmware/firmwareActions';
+import { firmwareActions } from 'src/actions/firmware/firmwareActions';
+import { firmwareUpdate } from 'src/actions/firmware/firmwareThunks';
 import { FirmwareType } from 'src/types/suite';
-import { DeviceModel } from '@trezor/device-utils';
+
+import { UI, DeviceModelInternal } from '@trezor/connect';
 
 const { getSuiteDevice, getDeviceFeatures, getFirmwareRelease } = global.JestMocks;
 
@@ -15,7 +15,7 @@ const bootloaderDeviceNeedsIntermediary = {
             connected: true,
             firmwareRelease: { ...getFirmwareRelease(), intermediaryVersion: 1 },
         },
-        { major_version: 1, model: DeviceModel.T1 },
+        { major_version: 1, internal_model: DeviceModelInternal.T1B1 },
     ),
 };
 const firmwareUpdateResponsePayload = {
@@ -26,7 +26,7 @@ const firmwareUpdateResponsePayload = {
 export const actions = [
     {
         description: 'Success TT',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         mocks: {
             connect: {
                 success: true,
@@ -41,17 +41,17 @@ export const actions = [
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_HASH, payload: firmwareUpdateResponsePayload },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setHash.type, payload: firmwareUpdateResponsePayload },
                 // todo: waiting-for-confirmation and installing is not tested
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'wait-for-reboot' },
+                { type: firmwareActions.setStatus.type, payload: 'wait-for-reboot' },
             ],
             state: { firmware: { status: 'wait-for-reboot' } },
         },
     },
     {
         description: 'Success TT - install Bitcoin-only firmware',
-        action: () => firmwareActions.firmwareUpdate(FirmwareType.BitcoinOnly),
+        action: () => firmwareUpdate(FirmwareType.BitcoinOnly),
         mocks: {
             connect: {
                 success: true,
@@ -66,18 +66,18 @@ export const actions = [
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_TARGET_TYPE, payload: FirmwareType.BitcoinOnly },
-                { type: FIRMWARE.SET_HASH, payload: firmwareUpdateResponsePayload },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setTargetType.type, payload: FirmwareType.BitcoinOnly },
+                { type: firmwareActions.setHash.type, payload: firmwareUpdateResponsePayload },
                 // todo: waiting-for-confirmation and installing is not tested
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'wait-for-reboot' },
+                { type: firmwareActions.setStatus.type, payload: 'wait-for-reboot' },
             ],
             state: { firmware: { status: 'wait-for-reboot' } },
         },
     },
     {
         description: 'Success T1 (with intermediary)',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         mocks: {
             connect: {
                 success: true,
@@ -92,17 +92,17 @@ export const actions = [
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_INTERMEDIARY_INSTALLED, payload: true },
-                { type: FIRMWARE.SET_HASH, payload: firmwareUpdateResponsePayload },
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'unplug' },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setIntermediaryInstalled.type, payload: true },
+                { type: firmwareActions.setHash.type, payload: firmwareUpdateResponsePayload },
+                { type: firmwareActions.setStatus.type, payload: 'unplug' },
             ],
             state: { firmware: { status: 'unplug', error: undefined } },
         },
     },
     {
         description: 'Success T1 (without intermediary)',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         mocks: {
             connect: {
                 success: true,
@@ -114,29 +114,35 @@ export const actions = [
                 device: getSuiteDevice({
                     connected: true,
                     mode: 'bootloader',
-                    features: getDeviceFeatures({ major_version: 1, model: DeviceModel.T1 }),
+                    features: getDeviceFeatures({
+                        major_version: 1,
+                        internal_model: DeviceModelInternal.T1B1,
+                    }),
                 }),
             },
             devices: [
                 getSuiteDevice({
                     connected: true,
                     mode: 'bootloader',
-                    features: getDeviceFeatures({ major_version: 1, model: DeviceModel.T1 }),
+                    features: getDeviceFeatures({
+                        major_version: 1,
+                        internal_model: DeviceModelInternal.T1B1,
+                    }),
                 }),
             ],
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_HASH, payload: firmwareUpdateResponsePayload },
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'unplug' },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setHash.type, payload: firmwareUpdateResponsePayload },
+                { type: firmwareActions.setStatus.type, payload: 'unplug' },
             ],
             state: { firmware: { status: 'unplug', error: undefined } },
         },
     },
     {
         description: 'Success T1 (without intermediary) - install Universal firmware',
-        action: () => firmwareActions.firmwareUpdate(FirmwareType.Universal),
+        action: () => firmwareUpdate(FirmwareType.Universal),
         mocks: {
             connect: {
                 success: true,
@@ -148,30 +154,36 @@ export const actions = [
                 device: getSuiteDevice({
                     connected: true,
                     mode: 'bootloader',
-                    features: getDeviceFeatures({ major_version: 1, model: DeviceModel.T1 }),
+                    features: getDeviceFeatures({
+                        major_version: 1,
+                        internal_model: DeviceModelInternal.T1B1,
+                    }),
                 }),
             },
             devices: [
                 getSuiteDevice({
                     connected: true,
                     mode: 'bootloader',
-                    features: getDeviceFeatures({ major_version: 1, model: DeviceModel.T1 }),
+                    features: getDeviceFeatures({
+                        major_version: 1,
+                        internal_model: DeviceModelInternal.T1B1,
+                    }),
                 }),
             ],
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_TARGET_TYPE, payload: FirmwareType.Universal },
-                { type: FIRMWARE.SET_HASH, payload: firmwareUpdateResponsePayload },
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'unplug' },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setTargetType.type, payload: FirmwareType.Universal },
+                { type: firmwareActions.setHash.type, payload: firmwareUpdateResponsePayload },
+                { type: firmwareActions.setStatus.type, payload: 'unplug' },
             ],
             state: { firmware: { status: 'unplug', error: undefined } },
         },
     },
     {
         description: 'Fails for missing device',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         initialState: {
             suite: {
                 device: undefined,
@@ -183,7 +195,7 @@ export const actions = [
     },
     {
         description: 'Fails for device not in bootloader',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         initialState: {
             suite: {
                 device: getSuiteDevice({ connected: true, mode: 'normal' }),
@@ -198,7 +210,7 @@ export const actions = [
     },
     {
         description: 'FirmwareUpdate call to connect fails',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         initialState: {
             suite: {
                 device: bootloaderDevice,
@@ -215,14 +227,14 @@ export const actions = [
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_ERROR, payload: 'foo' },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setError.type, payload: 'foo' },
             ],
         },
     },
     {
         description: 'FirmwareUpdate call to connect fails due to cancelling on device',
-        action: () => firmwareActions.firmwareUpdate(),
+        action: () => firmwareUpdate(),
         initialState: {
             suite: {
                 device: bootloaderDevice,
@@ -239,8 +251,8 @@ export const actions = [
         },
         result: {
             actions: [
-                { type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' },
-                { type: FIRMWARE.SET_ERROR },
+                { type: firmwareActions.setStatus.type, payload: 'started' },
+                { type: firmwareActions.setError.type },
             ],
         },
     },
@@ -249,7 +261,7 @@ export const actions = [
         action: () => firmwareActions.toggleHasSeed(),
         initialState: {},
         result: {
-            actions: [{ type: FIRMWARE.TOGGLE_HAS_SEED }],
+            actions: [{ type: firmwareActions.toggleHasSeed.type }],
         },
     },
     {
@@ -257,10 +269,9 @@ export const actions = [
         action: () => firmwareActions.setTargetRelease(getSuiteDevice().firmwareRelease),
         initialState: {},
         result: {
-            actions: [{ type: FIRMWARE.SET_TARGET_RELEASE }],
+            actions: [{ type: firmwareActions.setTargetRelease.type }],
         },
     },
-
     {
         description: 'resetReducer',
         action: () => firmwareActions.resetReducer(),
@@ -268,7 +279,7 @@ export const actions = [
             firmware: { hasSeed: true },
         },
         result: {
-            actions: [{ type: FIRMWARE.RESET_REDUCER }],
+            actions: [{ type: firmwareActions.resetReducer.type }],
             state: {
                 firmware: { hasSeed: false },
             },
@@ -283,7 +294,7 @@ export const reducerActions = [
         initialState: {},
         action: {
             type: SUITE.ADD_BUTTON_REQUEST,
-            payload: { code: 'ButtonRequest_FirmwareUpdate' },
+            payload: { buttonRequest: { code: 'ButtonRequest_FirmwareUpdate' } },
         },
         result: {
             state: {

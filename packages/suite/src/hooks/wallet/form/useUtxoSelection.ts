@@ -9,7 +9,7 @@ import {
     FormState,
 } from '@suite-common/wallet-types';
 import type { AccountUtxo, PROTO } from '@trezor/connect';
-import { getUtxoOutpoint } from '@suite-common/wallet-utils';
+import { getUtxoOutpoint, isSameUtxo } from '@suite-common/wallet-utils';
 
 interface UtxoSelectionContextProps
     extends UseFormReturn<FormState>,
@@ -41,7 +41,23 @@ export const useUtxoSelection = ({
     // confirmation of spending low-anonymity UTXOs - only relevant for coinjoin account
     const anonymityWarningChecked = !!watch('anonymityWarningChecked');
     // manually selected UTXOs
-    const selectedUtxos: AccountUtxo[] = watch('selectedUtxos') || [];
+    const selectedUtxos = watch('selectedUtxos', []);
+
+    // watch changes of account utxos, exclude spent utxos from the subset of selectedUtxos
+    useEffect(() => {
+        if (isCoinControlEnabled && selectedUtxos.length > 0) {
+            const spentUtxos = selectedUtxos.filter(
+                selected => !account.utxo?.some(utxo => isSameUtxo(selected, utxo)),
+            );
+            if (spentUtxos.length > 0) {
+                setValue(
+                    'selectedUtxos',
+                    selectedUtxos.filter(u => !spentUtxos.includes(u)),
+                );
+                composeRequest();
+            }
+        }
+    }, [isCoinControlEnabled, selectedUtxos, account.utxo, setValue, composeRequest]);
 
     const spendableUtxos: AccountUtxo[] = [];
     const lowAnonymityUtxos: AccountUtxo[] = [];
@@ -64,10 +80,12 @@ export const useUtxoSelection = ({
         [spendableUtxos, lowAnonymityUtxos, dustUtxos].find(utxoCategory => utxoCategory.length) ||
         [];
 
-    // are all UTXOs in the top category selected?
-    const allUtxosSelected = !!topCategory?.every((utxo: AccountUtxo) =>
-        selectedUtxos.some(selected => selected.txid === utxo.txid && selected.vout === utxo.vout),
-    );
+    // is there at least one UTXO and are all UTXOs in the top category selected?
+    const allUtxosSelected =
+        !!topCategory.length &&
+        !!topCategory?.every((utxo: AccountUtxo) =>
+            selectedUtxos.some(selected => isSameUtxo(selected, utxo)),
+        );
 
     // transaction composed for the fee level chosen by the user
     const composedLevel = composedLevels?.[selectedFee || 'normal'];
@@ -91,7 +109,7 @@ export const useUtxoSelection = ({
         [account.utxo, composedInputs],
     );
 
-    // at least one of the selected UTXOs does not comply to targe anonymity
+    // at least one of the selected UTXOs does not comply to target anonymity
     const isLowAnonymityUtxoSelected =
         account.accountType === 'coinjoin' &&
         selectedUtxos.some(
@@ -113,7 +131,7 @@ export const useUtxoSelection = ({
         } else {
             // check top category and keep any already checked UTXOs from other categories
             const selectedUtxosFromLowerCategories = selectedUtxos.filter(
-                utxo => !topCategory?.find(u => u.txid === utxo.txid && u.vout === utxo.vout),
+                selected => !topCategory?.find(utxo => isSameUtxo(selected, utxo)),
             );
             setValue('selectedUtxos', topCategory.concat(selectedUtxosFromLowerCategories));
             setValue('isCoinControlEnabled', true);
@@ -130,9 +148,7 @@ export const useUtxoSelection = ({
 
     // uncheck a UTXO or check it and enable coin control
     const toggleUtxoSelection = (utxo: AccountUtxo) => {
-        const isSameUtxo = (u: AccountUtxo) => u.txid === utxo.txid && u.vout === utxo.vout;
-
-        const alreadySelectedUtxo = selectedUtxos.find(isSameUtxo);
+        const alreadySelectedUtxo = selectedUtxos.find(selected => isSameUtxo(selected, utxo));
         if (alreadySelectedUtxo) {
             // uncheck the UTXO if already selected
             setValue(
@@ -143,7 +159,7 @@ export const useUtxoSelection = ({
             // check the UTXO
             // however, in case the coin control has not been enabled and the UTXO has been preselected, do not check it
             const selectedUtxosOld = !isCoinControlEnabled ? preselectedUtxos : selectedUtxos;
-            const selectedUtxosNew = preselectedUtxos.some(isSameUtxo)
+            const selectedUtxosNew = preselectedUtxos.some(selected => isSameUtxo(selected, utxo))
                 ? preselectedUtxos
                 : [...selectedUtxosOld, utxo];
 

@@ -7,7 +7,6 @@ import { useDevice, useSelector } from 'src/hooks/suite';
 import { getCoinUnavailabilityMessage } from 'src/utils/suite/device';
 import type { Network } from 'src/types/wallet';
 import {
-    getDeviceModel,
     getDeviceDisplayName,
     getFirmwareVersion,
     isDeviceInBootloaderMode,
@@ -38,7 +37,7 @@ const CoinsList = ({
 
     const { device, isLocked } = useDevice();
     const locked = !!device && isLocked();
-    const deviceModel = getDeviceModel(device);
+    const deviceModelInternal = device?.features?.internal_model;
 
     return (
         <Wrapper>
@@ -53,7 +52,7 @@ const CoinsList = ({
 
                 const firmwareVersion = getFirmwareVersion(device);
 
-                const supportField = deviceModel && support?.[deviceModel];
+                const supportField = deviceModelInternal && support?.[deviceModelInternal];
                 const supportedBySuite =
                     !firmwareVersion ||
                     !supportField ||
@@ -87,7 +86,8 @@ const CoinsList = ({
                                 <Translation
                                     id={tooltipString}
                                     values={{
-                                        deviceDisplayName: getDeviceDisplayName(deviceModel),
+                                        deviceDisplayName:
+                                            getDeviceDisplayName(deviceModelInternal),
                                     }}
                                 />
                             )

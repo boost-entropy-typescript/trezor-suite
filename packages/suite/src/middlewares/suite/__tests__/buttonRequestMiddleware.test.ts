@@ -2,27 +2,23 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { configureStore } from 'src/support/tests/configureStore';
-
-import { UI_EVENT, UI } from '@trezor/connect';
-
 import { SUITE } from 'src/actions/suite/constants';
 import routerReducer from 'src/reducers/suite/routerReducer';
 import suiteReducer from 'src/reducers/suite/suiteReducer';
-
 import * as deviceSettingsActions from 'src/actions/settings/deviceSettingsActions';
-import { connectInitThunk } from '@suite-common/connect-init';
-
 import suiteMiddleware from 'src/middlewares/suite/suiteMiddleware';
 import buttonRequestMiddleware from 'src/middlewares/suite/buttonRequestMiddleware';
-
 import { Action } from 'src/types/suite';
+
+import { connectInitThunk } from '@suite-common/connect-init';
+import { UI_EVENT, UI } from '@trezor/connect';
 
 const { getSuiteDevice } = global.JestMocks;
 
 jest.mock('@trezor/connect', () => {
     const callbacks: { [key: string]: (e: string) => any } = {};
 
-    const { PROTO } = jest.requireActual('@trezor/connect');
+    const { PROTO, DeviceModelInternal } = jest.requireActual('@trezor/connect');
 
     return {
         __esModule: true, // this property makes it work
@@ -52,6 +48,7 @@ jest.mock('@trezor/connect', () => {
             });
         },
         PROTO,
+        DeviceModelInternal,
     };
 });
 
@@ -82,6 +79,7 @@ const initStore = (state: State) => {
 describe('buttonRequest middleware', () => {
     it('see what happens on pin change call', async () => {
         require('@trezor/connect');
+
         const store = initStore(getInitialState());
         await store.dispatch(connectInitThunk());
         const call = store.dispatch(deviceSettingsActions.changePin({ remove: false }));
@@ -104,17 +102,15 @@ describe('buttonRequest middleware', () => {
             { type: UI.REQUEST_BUTTON, payload: { code: 'ButtonRequest_ProtectCall' } },
             {
                 type: SUITE.ADD_BUTTON_REQUEST,
-                payload: { code: 'ButtonRequest_ProtectCall' },
-                device,
+                payload: { buttonRequest: { code: 'ButtonRequest_ProtectCall' }, device },
             },
             { type: UI.REQUEST_PIN, payload: { type: 'PinMatrixRequestType_NewFirst', device } },
             {
                 type: SUITE.ADD_BUTTON_REQUEST,
-                payload: { code: 'PinMatrixRequestType_NewFirst' },
-                device,
+                payload: { buttonRequest: { code: 'PinMatrixRequestType_NewFirst' }, device },
             },
             { type: SUITE.LOCK_DEVICE, payload: false },
-            { type: SUITE.ADD_BUTTON_REQUEST, device },
+            { type: SUITE.ADD_BUTTON_REQUEST, payload: { device } },
         ]);
     });
 });
