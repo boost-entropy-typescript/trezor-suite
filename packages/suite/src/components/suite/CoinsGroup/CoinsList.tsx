@@ -16,6 +16,7 @@ const Wrapper = styled.div`
     width: 100%;
     display: flex;
     flex-flow: wrap;
+    gap: 16px 12px;
 `;
 
 interface CoinsListProps {
@@ -26,7 +27,7 @@ interface CoinsListProps {
     onToggle: (symbol: Network['symbol'], toggled: boolean) => void;
 }
 
-const CoinsList = ({
+export const CoinsList = ({
     networks,
     selectedNetworks,
     settingsMode = false,
@@ -57,11 +58,9 @@ const CoinsList = ({
                     !firmwareVersion ||
                     !supportField ||
                     versionUtils.isNewerOrEqual(firmwareVersion, supportField);
-
-                let unavailable = device?.unavailableCapabilities?.[symbol];
-                if (!supportedBySuite) {
-                    unavailable = 'update-required';
-                }
+                const unavailable = supportedBySuite
+                    ? device?.unavailableCapabilities?.[symbol]
+                    : 'update-required';
 
                 // Coin is not available because:
                 // - connect reports this in device.unavailableCapabilities (not supported by fw, not supported by connect)
@@ -69,6 +68,13 @@ const CoinsList = ({
                 // - suite does not support it which is defined in network.ts
                 // When in bootloader mode we cannot check version of firmware so we do not know if coin is available.
                 // In order to achieve consistency between devices we do not use it when in bootloader mode.
+
+                // In case the device or firmware type does not support the coin, irrespective of firware/connect version, we do not show the coin.
+                // This is because we want to avoid displaying deprecated coins if possible. We also do not want to show altcoins on bitcoin-only FW.
+                if (unavailable && ['no-support', 'no-capability'].includes(unavailable)) {
+                    return null;
+                }
+
                 const disabled =
                     (!settingsMode && !!unavailable && !isBootloaderMode) ||
                     locked ||
@@ -111,5 +117,3 @@ const CoinsList = ({
         </Wrapper>
     );
 };
-
-export default CoinsList;

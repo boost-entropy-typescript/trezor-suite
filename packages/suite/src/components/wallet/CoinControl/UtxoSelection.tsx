@@ -1,5 +1,4 @@
 import React from 'react';
-import BigNumber from 'bignumber.js';
 import styled, { css } from 'styled-components';
 import { darken } from 'polished';
 
@@ -10,13 +9,14 @@ import {
     MetadataLabeling,
     Translation,
 } from 'src/components/suite';
-import { formatNetworkAmount } from '@suite-common/wallet-utils';
+import { formatNetworkAmount, isSameUtxo } from '@suite-common/wallet-utils';
 import { useActions, useSelector } from 'src/hooks/suite';
 import { useTheme, Checkbox, FluidSpinner, Tooltip, variables } from '@trezor/components';
 import type { AccountUtxo } from '@trezor/connect';
 import { TransactionTimestamp, UtxoAnonymity } from 'src/components/wallet';
 import { UtxoTag } from 'src/components/wallet/CoinControl/UtxoTag';
 import { useSendFormContext } from 'src/hooks/wallet';
+import { useCoinjoinUnavailableUtxos } from 'src/hooks/wallet/form/useCoinjoinUnavailableUtxos';
 import { WalletAccountTransaction } from 'src/types/wallet';
 
 const VisibleOnHover = styled.div<{ alwaysVisible?: boolean }>`
@@ -39,7 +39,7 @@ const StyledCheckbox = styled(Checkbox)<{ isChecked: boolean; $isGrey: boolean }
         `};
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isDisabled: boolean }>`
     align-items: flex-start;
     border-radius: 8px;
     display: flex;
@@ -47,12 +47,23 @@ const Wrapper = styled.div`
     padding: 12px 12px 8px;
     transition: background 0.25s ease-out;
     cursor: pointer;
+    ${({ isDisabled }) =>
+        isDisabled &&
+        css`
+            color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+            cursor: default;
+        `};
 
     &:hover {
-        background: ${({ theme }) => theme.BG_GREY};
-        ${StyledCheckbox} > :first-child {
-            border-color: ${({ theme }) => darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_GREY)};
-        }
+        ${({ isDisabled }) =>
+            !isDisabled &&
+            css`
+                background: ${({ theme }) => theme.BG_GREY};
+                ${StyledCheckbox} > :first-child {
+                    border-color: ${({ theme }) =>
+                        darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_GREY)};
+                }
+            `};
         ${VisibleOnHover} {
             display: contents;
         }
@@ -124,19 +135,23 @@ const StyledFiatValue = styled(FiatValue)`
 `;
 
 interface UtxoSelectionProps {
-    isChecked: boolean;
     transaction?: WalletAccountTransaction;
     utxo: AccountUtxo;
 }
 
-export const UtxoSelection = ({ isChecked, transaction, utxo }: UtxoSelectionProps) => {
+export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
     const {
         account,
         network,
-        utxoSelection: { selectedUtxos, toggleUtxoSelection },
+        utxoSelection: {
+            selectedUtxos,
+            coinjoinRegisteredUtxos,
+            composedInputs,
+            toggleUtxoSelection,
+            isCoinControlEnabled,
+        },
     } = useSendFormContext();
 
-    const coordinatorData = useSelector(state => state.wallet.coinjoin.clients[account.symbol]);
     const device = useSelector(state => state.suite.device);
     // selecting metadata from store rather than send form context which does not update on metadata change
     const outputLabels = useSelector(
@@ -148,22 +163,18 @@ export const UtxoSelection = ({ isChecked, transaction, utxo }: UtxoSelectionPro
 
     const theme = useTheme();
 
-    const amountTooSmallForCoinjoin =
-        coordinatorData && new BigNumber(utxo.amount).lt(coordinatorData.allowedInputAmounts.min);
-    const amountTooBigForCoinjoin =
-        coordinatorData && new BigNumber(utxo.amount).gt(coordinatorData.allowedInputAmounts.max);
-    const isUnavailableForCoinjoin =
-        account.accountType === 'coinjoin' &&
-        (amountTooSmallForCoinjoin || amountTooBigForCoinjoin);
-    const unavailableMessage = amountTooSmallForCoinjoin
-        ? 'TR_AMOUNT_TOO_SMALL_FOR_COINJOIN'
-        : 'TR_AMOUNT_TOO_BIG_FOR_COINJOIN';
+    const coinjoinUnavailableMessage = useCoinjoinUnavailableUtxos({ account, utxo });
     const isPendingTransaction = utxo.confirmations === 0;
     const isChangeAddress = utxo.path.split('/').at(-2) === '1'; // change address always has a 1 on the penultimate level of the derivation path
-    const amountInBtc = (Number(utxo.amount) / 10 ** network.decimals).toString();
     const outputLabel = outputLabels?.[utxo.txid]?.[utxo.vout];
     const isLabelingPossible = device?.metadata.status === 'enabled' || device?.connected;
     const anonymity = account.addresses?.anonymitySet?.[utxo.address];
+
+    const isChecked = isCoinControlEnabled
+        ? selectedUtxos.some(selected => isSameUtxo(selected, utxo))
+        : composedInputs.some(u => u.prev_hash === utxo.txid && u.prev_index === utxo.vout);
+    const isDisabled = coinjoinRegisteredUtxos.includes(utxo);
+    const utxoTagIconColor = isDisabled ? theme.TYPE_LIGHT_GREY : theme.TYPE_DARK_GREY;
 
     const handleCheckbox = () => toggleUtxoSelection(utxo);
     const showTransactionDetail: React.MouseEventHandler = e => {
@@ -174,22 +185,37 @@ export const UtxoSelection = ({ isChecked, transaction, utxo }: UtxoSelectionPro
     };
 
     return (
-        <Wrapper onClick={handleCheckbox}>
-            <StyledCheckbox
-                $isGrey={!selectedUtxos.length}
-                isChecked={isChecked}
-                onClick={handleCheckbox}
-            />
+        <Wrapper isDisabled={isDisabled} onClick={isDisabled ? undefined : handleCheckbox}>
+            <Tooltip content={isDisabled && <Translation id="TR_UTXO_REGISTERED_IN_COINJOIN" />}>
+                <StyledCheckbox
+                    $isGrey={!selectedUtxos.length}
+                    isChecked={isChecked}
+                    isDisabled={isDisabled}
+                    onClick={handleCheckbox}
+                />
+            </Tooltip>
             <Body>
                 <Row>
                     {isPendingTransaction && (
-                        <UtxoTag tooltipMessage="TR_IN_PENDING_TRANSACTION" icon="CLOCK" />
+                        <UtxoTag
+                            tooltipMessage={<Translation id="TR_IN_PENDING_TRANSACTION" />}
+                            icon="CLOCK"
+                            iconColor={utxoTagIconColor}
+                        />
                     )}
-                    {isUnavailableForCoinjoin && (
-                        <UtxoTag tooltipMessage={unavailableMessage} icon="BLOCKED" />
+                    {coinjoinUnavailableMessage && (
+                        <UtxoTag
+                            tooltipMessage={coinjoinUnavailableMessage}
+                            icon="BLOCKED"
+                            iconColor={utxoTagIconColor}
+                        />
                     )}
                     {isChangeAddress && (
-                        <UtxoTag tooltipMessage="TR_CHANGE_ADDRESS_TOOLTIP" icon="CHANGE_ADDRESS" />
+                        <UtxoTag
+                            tooltipMessage={<Translation id="TR_CHANGE_ADDRESS_TOOLTIP" />}
+                            icon="CHANGE_ADDRESS"
+                            iconColor={utxoTagIconColor}
+                        />
                     )}
                     <Address>{utxo.address}</Address>
                     <StyledCryptoAmount
@@ -239,7 +265,10 @@ export const UtxoSelection = ({ isChecked, transaction, utxo }: UtxoSelectionPro
                             </TransactionDetail>
                         </VisibleOnHover>
                     )}
-                    <StyledFiatValue amount={amountInBtc} symbol={network.symbol} />
+                    <StyledFiatValue
+                        amount={formatNetworkAmount(utxo.amount, account.symbol, false)}
+                        symbol={network.symbol}
+                    />
                 </BottomRow>
             </Body>
         </Wrapper>

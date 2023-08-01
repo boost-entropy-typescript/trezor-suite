@@ -53,11 +53,8 @@ export type UseSendFormState = {
     network: Network;
     coinFees: FeeInfo;
     feeInfo: FeeInfo;
-    feeOutdated: boolean;
     fiatRates: CoinFiatRates | undefined;
     localCurrencyOption: CurrencyOption;
-    isLoading: boolean;
-    isDirty: boolean;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
     online: boolean;
     metadataEnabled: boolean;
@@ -80,6 +77,7 @@ export interface UtxoSelectionContext {
     lowAnonymityUtxos: AccountUtxo[];
     selectedUtxos: AccountUtxo[];
     spendableUtxos: AccountUtxo[];
+    coinjoinRegisteredUtxos: AccountUtxo[];
     isLowAnonymityUtxoSelected: boolean;
     anonymityWarningChecked: boolean;
     toggleAnonymityWarning: () => void;
@@ -100,6 +98,7 @@ export interface GetDefaultValue {
 export type SendContextValues<TFormValues extends FormState = FormState> =
     UseFormReturn<TFormValues> &
         UseSendFormState & {
+            isLoading: boolean;
             // additional fields
             outputs: Partial<Output & { id: string }>[]; // useFieldArray fields
             updateContext: (value: Partial<UseSendFormState>) => void;

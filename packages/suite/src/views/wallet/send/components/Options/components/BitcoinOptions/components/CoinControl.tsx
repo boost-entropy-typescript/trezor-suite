@@ -12,6 +12,7 @@ import { UtxoSelectionList } from 'src/components/wallet/CoinControl/UtxoSelecti
 import { useSendFormContext } from 'src/hooks/wallet';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { selectCurrentTargetAnonymity } from 'src/reducers/wallet/coinjoinReducer';
+import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
 
 const Row = styled.div`
     align-items: center;
@@ -75,6 +76,7 @@ export const CoinControl = ({ close }: CoinControlProps) => {
         getDefaultValue,
         network,
         outputs,
+        isLoading,
         utxoSelection: {
             allUtxosSelected,
             composedInputs,
@@ -111,10 +113,11 @@ export const CoinControl = ({ close }: CoinControlProps) => {
     const missingAmountTooBig = missingToInput > Number.MAX_SAFE_INTEGER;
     const amountHasError = errors.outputs?.some?.(error => error?.amount); // relevant when input is a number, but there is an error, e.g. decimals in sats
     const notEnoughFundsSelectedError = !!errors.outputs?.some?.(
-        error => error?.amount?.type === 'coinControl',
+        error => error?.amount?.type === COMPOSE_ERROR_TYPES.COIN_CONTROL,
     );
     const isMissingVisible =
         isCoinControlEnabled &&
+        !isLoading &&
         !missingAmountTooBig &&
         !(amountHasError && !notEnoughFundsSelectedError) &&
         (isMissingToAmount || notEnoughFundsSelectedError);

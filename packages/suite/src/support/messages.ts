@@ -4222,17 +4222,6 @@ export default defineMessages({
         id: 'TR_SELECT_COIN_FOR_SETTINGS',
         defaultMessage: 'Select active coin to change settings',
     },
-    FW_CAPABILITY_NO_CAPABILITY: {
-        id: 'FW_CAPABILITY_NO_CAPABILITY',
-        defaultMessage: 'Not supported',
-        description: 'Firmware with missing capability (eg: LTC on Bitcoin-only FW, XRP on T1...)',
-    },
-    FW_CAPABILITY_NO_SUPPORT: {
-        id: 'FW_CAPABILITY_NO_SUPPORT',
-        defaultMessage: 'Not supported on {deviceDisplayName}',
-        description:
-            'Similar to missing capability but tested on different level (coin info is missing in trezor-connect). {deviceDisplayName} can be e.g. Trezor Model One, so make the translation accordingly',
-    },
     FW_CAPABILITY_UPDATE_REQUIRED: {
         id: 'FW_CAPABILITY_UPDATE_REQUIRED',
         defaultMessage: 'Update required',
@@ -5733,6 +5722,21 @@ export default defineMessages({
     TR_AMOUNT_TOO_BIG_FOR_COINJOIN: {
         id: 'TR_AMOUNT_TOO_BIG_FOR_COINJOIN',
         defaultMessage: 'Not suitable for coinjoin - amount too high',
+        description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_UTXO_REGISTERED_IN_COINJOIN: {
+        id: 'TR_UTXO_REGISTERED_IN_COINJOIN',
+        defaultMessage: 'Registered in coinjoin',
+        description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_UTXO_SHORT_BANNED_IN_COINJOIN: {
+        id: 'TR_UTXO_SHORT_BANNED_IN_COINJOIN',
+        defaultMessage: 'Temporarily banned from coinjoin',
+        description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_UTXO_LONG_BANNED_IN_COINJOIN: {
+        id: 'TR_UTXO_LONG_BANNED_IN_COINJOIN',
+        defaultMessage: 'Rejected by coordinator',
         description: 'Tooltip over an icon in Coin control section',
     },
     TR_CHANGE_ADDRESS_TOOLTIP: {

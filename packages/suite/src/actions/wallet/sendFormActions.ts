@@ -170,6 +170,7 @@ export const composeTransaction =
         if (account.networkType === 'cardano') {
             return dispatch(sendFormCardanoActions.composeTransaction(formValues, formState));
         }
+        return Promise.resolve(undefined);
     };
 
 // this is only a wrapper for `openDeferredModal` since it doesn't work with `bindActionCreators`
@@ -246,7 +247,13 @@ const pushTransaction =
                 // notification from the backend may be delayed.
                 // modify affected transaction(s) in the reducer until the real account update occurs.
                 // this will update transaction details (like time, fee etc.)
-                dispatch(replaceTransactionThunk({ tx: precomposedTx, newTxid: txid }));
+                dispatch(
+                    replaceTransactionThunk({
+                        precomposedTx,
+                        newTxid: txid,
+                        signedTransaction,
+                    }),
+                );
             }
 
             // notification from the backend may be delayed.
