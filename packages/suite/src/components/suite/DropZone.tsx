@@ -5,7 +5,7 @@ import { Translation } from 'src/components/suite';
 import type { ExtendedMessageDescriptor } from 'src/types/suite';
 import { IconType } from '@trezor/components/src/support/types';
 
-interface Props {
+interface DropZoneProps {
     // 'accept' attribute for underlying HTML file input
     accept?: string;
     // icon displayed inside Dropzone
@@ -15,7 +15,7 @@ interface Props {
     className?: string;
 }
 
-export const useDropZone = ({ accept, onSelect, className }: Props) => {
+export const useDropZone = ({ accept, onSelect, className }: DropZoneProps) => {
     const available = useRef(window.File && window.FileReader && window.FileList && window.Blob);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -144,14 +144,14 @@ const Wrapper = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 2px dashed ${props => props.theme.STROKE_GREY};
+    border: 2px dashed ${({ theme }) => theme.STROKE_GREY};
     border-radius: 8px;
     cursor: pointer;
     min-height: 250px;
     transition: background-color 0.3s;
     &:hover,
     &.dragging {
-        background: ${props => props.theme.BG_GREY};
+        background: ${({ theme }) => theme.BG_GREY};
     }
     * {
         pointer-events: none;
@@ -171,7 +171,7 @@ const Label = styled.div`
     align-items: center;
 `;
 
-export const DropZone = (props: Props) => {
+export const DropZone = (props: DropZoneProps) => {
     const { getWrapperProps, getInputProps, error, filename } = useDropZone(props);
 
     return (

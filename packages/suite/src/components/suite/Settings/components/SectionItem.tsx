@@ -13,7 +13,7 @@ const Wrapper = styled.div<{ shouldHighlight?: boolean }>`
 
     &:not(:first-child) {
         > div {
-            border-top: 1px solid ${props => props.theme.STROKE_GREY};
+            border-top: 1px solid ${({ theme }) => theme.STROKE_GREY};
         }
     }
 
@@ -42,11 +42,11 @@ const Content = styled.div`
     }
 `;
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface SectionItemProps extends React.HTMLAttributes<HTMLDivElement> {
     shouldHighlight?: boolean;
 }
 
-export const SectionItem = React.forwardRef<HTMLDivElement, Props>(
+export const SectionItem = React.forwardRef<HTMLDivElement, SectionItemProps>(
     ({ children, shouldHighlight, ...rest }, ref) => (
         <Wrapper ref={ref} shouldHighlight={shouldHighlight} {...rest}>
             <Content>{children}</Content>

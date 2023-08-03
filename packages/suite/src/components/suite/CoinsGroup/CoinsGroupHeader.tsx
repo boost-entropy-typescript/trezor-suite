@@ -30,15 +30,12 @@ const SettingsWrapper = styled.div<{ disabled: boolean }>`
             visibility: hidden;
         `}
     &:hover {
-        background-color: ${props =>
-            transparentize(
-                props.theme.HOVER_TRANSPARENTIZE_FILTER,
-                props.theme.HOVER_PRIMER_COLOR,
-            )};
+        background-color: ${({ theme }) =>
+            transparentize(theme.HOVER_TRANSPARENTIZE_FILTER, theme.HOVER_PRIMER_COLOR)};
     }
 `;
 
-interface Props {
+interface CoinsGroupHeaderProps {
     isAtLeastOneActive: boolean;
     settingsMode: boolean;
     toggleSettingsMode?: () => void;
@@ -48,7 +45,7 @@ export const CoinsGroupHeader = ({
     isAtLeastOneActive,
     settingsMode,
     toggleSettingsMode,
-}: Props) => (
+}: CoinsGroupHeaderProps) => (
     <Wrapper>
         {settingsMode && <Translation id="TR_SELECT_COIN_FOR_SETTINGS" />}
         <SettingsWrapper onClick={toggleSettingsMode} disabled={!isAtLeastOneActive}>

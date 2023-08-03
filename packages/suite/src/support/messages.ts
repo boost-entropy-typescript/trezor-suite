@@ -1850,10 +1850,6 @@ export default defineMessages({
         defaultMessage: 'Go to payment gateway',
         id: 'TR_BUY_DETAIL_SUBMITTED_GATE',
     },
-    TR_BUY_DETAIL_SUBMITTED_CANCEL: {
-        defaultMessage: 'Cancel transaction',
-        id: 'TR_BUY_DETAIL_SUBMITTED_CANCEL',
-    },
     TR_BUY_DETAIL_WAITING_FOR_USER_TITLE: {
         defaultMessage: 'Complete your transaction',
         id: 'TR_BUY_DETAIL_WAITING_FOR_USER_TITLE',
@@ -7373,6 +7369,23 @@ export default defineMessages({
     TR_STOP: {
         id: 'TR_STOP',
         defaultMessage: 'Stop',
+    },
+    TR_AUTO_STOP_TOOLTIP: {
+        id: 'TR_AUTO_STOP_TOOLTIP',
+        defaultMessage: 'Coinjoin is in signing phase. Click to stop it after this round.',
+        description: 'Tooltip for TR_AUTO_STOP button',
+    },
+    TR_STOPPING: {
+        id: 'TR_STOPPING',
+        defaultMessage: 'Stopping',
+        description:
+            'Button in coinjoin summary. Session is not in critical phase and auto stop is enabled',
+    },
+    TR_RESUME: {
+        id: 'TR_RESUME',
+        defaultMessage: 'Resume',
+        description:
+            'Button hover in coinjoin summary. Session is not in critical phase and auto stop is enabled',
     },
     TR_CANCEL_COINJOIN: {
         id: 'TR_CANCEL_COINJOIN',

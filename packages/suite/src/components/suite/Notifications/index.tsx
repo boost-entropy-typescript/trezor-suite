@@ -15,7 +15,7 @@ const Header = styled.div`
     margin-top: -8px;
     padding: 0 22px;
     align-items: center;
-    border-bottom: 1px solid ${props => props.theme.STROKE_GREY_ALT};
+    border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY_ALT};
 `;
 const TabSelector = styled.div`
     display: flex;
@@ -32,9 +32,9 @@ const TabButton = styled.button<{ selected: boolean }>`
     margin-right: 24px;
     cursor: pointer;
     /* change styles if the button is selected*/
-    color: ${props => (props.selected ? props.theme.TYPE_DARK_GREY : props.theme.TYPE_LIGHT_GREY)};
+    color: ${({ selected, theme }) => (selected ? theme.TYPE_DARK_GREY : theme.TYPE_LIGHT_GREY)};
     border-bottom: 2px solid;
-    border-color: ${props => (props.selected ? props.theme.TYPE_DARK_GREY : 'transparent')};
+    border-color: ${({ selected, theme }) => (selected ? theme.TYPE_DARK_GREY : 'transparent')};
     transition: border-color 0.1s;
 
     :hover {
@@ -54,11 +54,11 @@ const Content = styled.div`
         max-height: 100%;
     }
 `;
-interface Props {
+interface NotificationsProps {
     onCancel?: () => void;
 }
 
-const Notifications = (props: Props) => {
+const Notifications = (props: NotificationsProps) => {
     const notifications = useSelector(state => state.notifications);
     const [selectedTab, setSelectedTab] = useState<'important' | 'all'>('important');
     const theme = useTheme();

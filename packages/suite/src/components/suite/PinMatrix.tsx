@@ -4,8 +4,8 @@ import { HELP_CENTER_PIN_URL } from '@trezor/urls';
 import { variables, useTheme } from '@trezor/components';
 import { DeviceMatrixExplanation, PinInput, Translation, TrezorLink } from 'src/components/suite';
 import { TrezorDevice } from 'src/types/suite';
-import * as modalActions from 'src/actions/suite/modalActions';
-import { useActions } from 'src/hooks/suite';
+import { onPinSubmit } from 'src/actions/suite/modalActions';
+import { useDispatch } from 'src/hooks/suite';
 import { DeviceModelInternal } from '@trezor/connect';
 
 export const PIN_MATRIX_MAX_WIDTH = '316px';
@@ -32,16 +32,17 @@ const Col = styled.div`
     width: 100%;
     max-width: ${PIN_MATRIX_MAX_WIDTH};
 `;
-interface Props {
+interface PinMatrixProps {
     device: TrezorDevice;
     hideExplanation?: boolean;
     invalid?: boolean;
 }
 
-export const PinMatrix = ({ device, hideExplanation, invalid }: Props) => {
+export const PinMatrix = ({ device, hideExplanation, invalid }: PinMatrixProps) => {
     const theme = useTheme();
     const [submitted, setSubmitted] = useState(false);
-    const { onPinSubmit } = useActions({ onPinSubmit: modalActions.onPinSubmit });
+    const dispatch = useDispatch();
+
     const pinRequestType = device.buttonRequests[device.buttonRequests.length - 1];
 
     useEffect(() => {
@@ -60,7 +61,7 @@ export const PinMatrix = ({ device, hideExplanation, invalid }: Props) => {
     if (!device.features) return null;
 
     const submit = (pin: string) => {
-        onPinSubmit(pin);
+        dispatch(onPinSubmit(pin));
         setSubmitted(true);
     };
 

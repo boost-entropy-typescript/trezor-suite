@@ -7,17 +7,17 @@ import * as deviceUtils from 'src/utils/suite/device';
 import { TrezorDevice } from 'src/types/suite';
 
 const GrayNotificationCard = styled(NotificationCard)`
-    background: ${props => props.theme.BG_GREY};
+    background: ${({ theme }) => theme.BG_GREY};
     margin-bottom: 0px;
 `;
-interface Props {
+interface DeviceHeaderButtonProps {
     needsAttention: boolean;
     device: TrezorDevice;
     onSolveIssueClick: () => void;
     onDeviceSettingsClick: () => void;
 }
 
-const DeviceHeaderButton = (props: Props) => {
+const DeviceHeaderButton = (props: DeviceHeaderButtonProps) => {
     const { device } = props;
     const theme = useTheme();
     const deviceStatus = deviceUtils.getStatus(device);

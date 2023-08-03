@@ -9,7 +9,7 @@ const Wrapper = styled.div`
 `;
 
 const Bg = styled.div`
-    background: ${props => props.theme.BG_ICON};
+    background: ${({ theme }) => theme.BG_ICON};
     display: flex;
     align-items: center;
     border-radius: 4px;
@@ -30,11 +30,11 @@ const Text = styled.div`
     padding-left: 5px;
     align-items: center;
     font-size: ${variables.FONT_SIZE.NORMAL};
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
-interface Props {
+interface CoinmarketProviderInfoProps {
     exchange?: string;
     providers?: {
         [name: string]: {
@@ -44,7 +44,7 @@ interface Props {
     };
 }
 
-const CoinmarketProviderInfo = ({ exchange, providers }: Props) => {
+const CoinmarketProviderInfo = ({ exchange, providers }: CoinmarketProviderInfoProps) => {
     const provider = providers && exchange ? providers[exchange] : null;
     return (
         <Wrapper>

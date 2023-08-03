@@ -6,20 +6,25 @@ import { Tooltip, variables } from '@trezor/components';
 const NoRatesMessage = styled.div`
     display: flex;
     align-items: center;
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.REGULAR};
     text-transform: none;
 `;
 
-interface Props extends Partial<typeof Tooltip> {
+interface NoRatesTooltipProps extends Partial<typeof Tooltip> {
     customText?: React.ComponentProps<typeof Translation>['id'];
     customTooltip?: React.ComponentProps<typeof Translation>['id'];
     iconOnly?: boolean;
     className?: string;
 }
 
-const NoRatesTooltip = ({ customText, iconOnly, customTooltip, className }: Props) => (
+const NoRatesTooltip = ({
+    customText,
+    iconOnly,
+    customTooltip,
+    className,
+}: NoRatesTooltipProps) => (
     <NoRatesMessage className={className}>
         {!iconOnly && <Translation id={customText || 'TR_FIAT_RATES_NOT_AVAILABLE'} />}
         <TooltipSymbol

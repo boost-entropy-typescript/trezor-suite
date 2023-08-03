@@ -11,7 +11,7 @@ const SectionHeadline = styled.div`
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     text-transform: uppercase;
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     height: 16px;
     line-height: 1.33;
     letter-spacing: 0.2px;
@@ -31,10 +31,10 @@ const EmptyHeadline = styled.div`
 const EmptyDescriptionP = styled(P)`
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
-interface Props {
+interface NotificationGroupProps {
     notifications: AppState['notifications'];
 }
-const NotificationGroup = (props: Props) => {
+const NotificationGroup = (props: NotificationGroupProps) => {
     const { seenNotifications, unseenNotifications } = getSeenAndUnseenNotifications(
         props.notifications,
     );

@@ -8,7 +8,7 @@ import { useFastAccounts } from 'src/hooks/wallet';
 
 import { useFormatters } from '@suite-common/formatters';
 import { H2, Button, LoadingContent } from '@trezor/components';
-import { GraphRange } from '../../../../../types/wallet/graph';
+import { GraphRange } from 'src/types/wallet/graph';
 
 const Wrapper = styled.div<{ hideBorder: boolean }>`
     display: flex;
@@ -18,12 +18,12 @@ const Wrapper = styled.div<{ hideBorder: boolean }>`
     ${props =>
         !props.hideBorder &&
         css`
-            border-bottom: solid 1px ${props => props.theme.STROKE_GREY};
+            border-bottom: solid 1px ${({ theme }) => theme.STROKE_GREY};
         `}
 `;
 
 const ValueWrapper = styled(H2)`
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     font-variant-numeric: tabular-nums;
 `;
 

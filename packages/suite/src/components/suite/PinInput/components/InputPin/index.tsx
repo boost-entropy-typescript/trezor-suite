@@ -9,17 +9,17 @@ const StyledInput = styled(Input)`
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     font-size: ${variables.FONT_SIZE.SMALL};
     padding: 0 32px 0 20px;
-    color: ${props => props.theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
     background: transparent;
     box-sizing: border-box;
 `;
 
-interface Props {
+interface InputPinProps {
     value: string;
     onDeleteClick: (event?: React.MouseEvent<any>) => void;
 }
 
-const InputPin = ({ value, onDeleteClick }: Props) => {
+const InputPin = ({ value, onDeleteClick }: InputPinProps) => {
     const theme = useTheme();
 
     return (

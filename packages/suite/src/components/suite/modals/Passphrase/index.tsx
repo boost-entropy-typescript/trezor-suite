@@ -33,7 +33,7 @@ const WalletsWrapper = styled.div`
 const Divider = styled.div`
     margin: 16px 16px;
     height: 1px;
-    background: ${props => props.theme.STROKE_GREY};
+    background: ${({ theme }) => theme.STROKE_GREY};
 `;
 
 const TinyModal = styled(Modal)`
@@ -44,11 +44,11 @@ const SmallModal = styled(Modal)`
     width: 600px;
 `;
 
-type Props = {
+interface PassphraseProps {
     device: TrezorDevice;
-};
+}
 
-export const Passphrase = ({ device }: Props) => {
+export const Passphrase = ({ device }: PassphraseProps) => {
     const [submitted, setSubmitted] = useState(false);
     const devices = useSelector(state => state.devices);
     const authConfirmation =

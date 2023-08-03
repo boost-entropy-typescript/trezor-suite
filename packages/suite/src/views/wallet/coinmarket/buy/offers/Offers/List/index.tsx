@@ -10,11 +10,6 @@ import { InvityAPIReloadQuotesAfterSeconds } from 'src/constants/wallet/coinmark
 import { CoinmarketCryptoAmount } from 'src/views/wallet/coinmarket/common/CoinmarketCryptoAmount';
 import { CoinmarketFiatAmount } from 'src/views/wallet/coinmarket/common/CoinmarketFiatAmount';
 
-interface Props {
-    isAlternative?: boolean;
-    quotes: BuyTrade[];
-}
-
 const Wrapper = styled.div``;
 const Quotes = styled.div``;
 
@@ -51,7 +46,7 @@ const SummaryRow = styled.div`
 `;
 
 const OrigAmount = styled.div`
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.SMALL};
 `;
 
@@ -79,7 +74,12 @@ const NoQuotes = styled.div`
     flex: 1;
 `;
 
-const List = ({ isAlternative, quotes }: Props) => {
+interface ListProps {
+    isAlternative?: boolean;
+    quotes: BuyTrade[];
+}
+
+const List = ({ isAlternative, quotes }: ListProps) => {
     const { account, quotesRequest, timer } = useCoinmarketBuyOffersContext();
 
     if (!quotesRequest) return null;

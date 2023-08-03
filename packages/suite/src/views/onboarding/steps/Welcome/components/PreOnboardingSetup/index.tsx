@@ -9,17 +9,14 @@ import TrezorLink from 'src/components/suite/TrezorLink';
 import styled from 'styled-components';
 
 const StyledTrezorLink = styled(TrezorLink)`
-    color: ${props => props.theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
 const PreOnboardingSetup = () => {
-    const { activeSubStep } = useOnboarding();
-    const { confirmed } = useSelector(state => ({
-        confirmed: state.analytics.confirmed,
-    }));
-
-    const { goToSubStep, rerun } = useOnboarding();
+    const confirmed = useSelector(state => state.analytics.confirmed);
     const recovery = useSelector(state => state.recovery);
+
+    const { activeSubStep, goToSubStep, rerun } = useOnboarding();
 
     const onConfirm = (trackingEnabled: boolean) => {
         if (trackingEnabled) {

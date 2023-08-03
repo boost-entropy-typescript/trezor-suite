@@ -2,9 +2,14 @@ import { createContext, useContext, useCallback, useState, useEffect } from 'rea
 import { useForm, useWatch } from 'react-hook-form';
 import { isChanged } from 'src/utils/suite/comparisonUtils';
 import useDebounce from 'react-use/lib/useDebounce';
-import * as coinmarketBuyActions from 'src/actions/wallet/coinmarketBuyActions';
-import { useActions, useSelector } from 'src/hooks/suite';
-import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
+import {
+    clearQuotes,
+    saveCachedAccountInfo,
+    saveQuoteRequest,
+    saveQuotes,
+} from 'src/actions/wallet/coinmarketBuyActions';
+import { useDispatch, useSelector } from 'src/hooks/suite';
+import { loadInvityData } from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
 import type { BuyTradeQuoteRequest } from 'invity-api';
 import invityAPI from 'src/services/suite/invityAPI';
 import { getAmountLimits, processQuotes } from 'src/utils/wallet/coinmarket/buyUtils';
@@ -25,39 +30,25 @@ import { AmountLimits } from 'src/types/wallet/coinmarketCommonTypes';
 export const BuyFormContext = createContext<BuyFormContextValues | null>(null);
 BuyFormContext.displayName = 'CoinmarketBuyContext';
 
-export const useCoinmarketBuyForm = (props: UseCoinmarketBuyFormProps): BuyFormContextValues => {
-    const {
-        saveQuoteRequest,
-        saveQuotes,
-        clearQuotes,
-        saveCachedAccountInfo,
-        saveTrade,
-        loadInvityData,
-    } = useActions({
-        saveQuoteRequest: coinmarketBuyActions.saveQuoteRequest,
-        saveQuotes: coinmarketBuyActions.saveQuotes,
-        clearQuotes: coinmarketBuyActions.clearQuotes,
-        saveCachedAccountInfo: coinmarketBuyActions.saveCachedAccountInfo,
-        saveTrade: coinmarketBuyActions.saveTrade,
-        loadInvityData: coinmarketCommonActions.loadInvityData,
-    });
+export const useCoinmarketBuyForm = ({
+    selectedAccount,
+}: UseCoinmarketBuyFormProps): BuyFormContextValues => {
+    const buyInfo = useSelector(state => state.wallet.coinmarket.buy.buyInfo);
+    const exchangeCoinInfo = useSelector(
+        state => state.wallet.coinmarket.exchange.exchangeCoinInfo,
+    );
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        loadInvityData();
-    }, [loadInvityData]);
+        dispatch(loadInvityData());
+    }, [dispatch]);
 
-    const { selectedAccount } = props;
     const { account, network } = selectedAccount;
     const { navigateToBuyOffers } = useCoinmarketNavigation(account);
     const [amountLimits, setAmountLimits] = useState<AmountLimits | undefined>(undefined);
     const { saveDraft, getDraft, removeDraft } = useFormDraft<FormState>('coinmarket-buy');
     const draft = getDraft(account.key);
     const isDraft = !!draft;
-
-    const { buyInfo, exchangeCoinInfo } = useSelector(state => ({
-        buyInfo: state.wallet.coinmarket.buy.buyInfo,
-        exchangeCoinInfo: state.wallet.coinmarket.exchange.exchangeCoinInfo,
-    }));
 
     const { shouldSendInSats } = useBitcoinAmountUnit(account.symbol);
     const { defaultValues, defaultCountry, defaultCurrency } = useCoinmarketBuyFormDefaultValues(
@@ -139,8 +130,8 @@ export const useCoinmarketBuyForm = (props: UseCoinmarketBuyFormProps): BuyFormC
             fiatStringAmount,
             cryptoStringAmount,
         };
-        saveQuoteRequest(request);
-        saveCachedAccountInfo(account.symbol, account.index, account.accountType);
+        dispatch(saveQuoteRequest(request));
+        dispatch(saveCachedAccountInfo(account.symbol, account.index, account.accountType));
         const allQuotes = await invityAPI.getBuyQuotes(request);
         if (Array.isArray(allQuotes)) {
             const [quotes, alternativeQuotes] = processQuotes(allQuotes);
@@ -148,11 +139,11 @@ export const useCoinmarketBuyForm = (props: UseCoinmarketBuyFormProps): BuyFormC
             if (limits) {
                 setAmountLimits(limits);
             } else {
-                saveQuotes(quotes, alternativeQuotes);
+                dispatch(saveQuotes(quotes, alternativeQuotes));
                 navigateToBuyOffers();
             }
         } else {
-            clearQuotes();
+            dispatch(clearQuotes());
             navigateToBuyOffers();
         }
     };
@@ -172,8 +163,6 @@ export const useCoinmarketBuyForm = (props: UseCoinmarketBuyFormProps): BuyFormC
         register,
         buyInfo,
         exchangeCoinInfo,
-        saveQuotes,
-        saveTrade,
         amountLimits,
         setAmountLimits,
         isLoading,
