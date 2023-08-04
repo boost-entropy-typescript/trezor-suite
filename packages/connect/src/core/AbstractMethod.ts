@@ -50,7 +50,9 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     payload: Payload<Name>; // method payload
 
-    info = ''; // method info, displayed in popup info-panel
+    get info() {
+        return '';
+    } // method info, displayed in popup info-panel
 
     useUi: boolean; // should use popup?
 
@@ -94,6 +96,8 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
     ) => UiPromise<T>;
     // @ts-expect-error: strictPropertyInitialization
     removeUiPromise: (promise: Deferred<any>) => void;
+
+    initAsync?(): Promise<void>;
 
     constructor(message: { id?: number; payload: Payload<Name> }) {
         const { payload } = message;
