@@ -1,35 +1,22 @@
 import * as BN from 'bn.js';
 import { split as bitcoinJsSplit } from '../coinselect/outputs/split';
 import { coinselect as bitcoinJsCoinselect } from '../coinselect';
-import { transactionBytes } from '../coinselect/utils';
-import * as utils from './utils';
-import type { ComposeRequest } from './request';
-import type { CoinSelectInput, CoinSelectOutputFinal, CoinSelectOptions } from '../coinselect';
+import { transactionBytes } from '../coinselect/coinselectUtils';
+import { convertInputs, convertOutputs } from './composeUtils';
+import {
+    ComposeInput,
+    ComposeOutput,
+    CoinSelectPaymentType,
+    CoinSelectOptions,
+    CoinSelectSuccess,
+    CoinSelectFailure,
+} from '../types';
 import type { Network } from '../networks';
 
-export type CompleteResult = {
-    type: 'true';
-    result: {
-        inputs: CoinSelectInput[];
-        outputs: CoinSelectOutputFinal[];
-        max?: string;
-        totalSpent: string;
-        fee: number;
-        feePerByte: number;
-        bytes: number;
-    };
-};
-
-type Result =
-    | CompleteResult
-    | {
-          type: 'false';
-      };
-
 export function coinselect(
-    txType: NonNullable<ComposeRequest['txType']>,
-    utxos: ComposeRequest['utxos'],
-    rOutputs: ComposeRequest['outputs'],
+    txType: CoinSelectPaymentType,
+    utxos: ComposeInput[],
+    rOutputs: ComposeOutput[],
     height: number,
     feeRate: number,
     countMax: boolean,
@@ -40,9 +27,9 @@ export function coinselect(
     floorBaseFee?: boolean,
     dustOutputFee?: number,
     skipPermutation?: boolean,
-): Result {
-    const inputs0 = utils.convertInputs(utxos, height, txType);
-    const outputs0 = utils.convertOutputs(rOutputs, network, txType);
+): CoinSelectSuccess | CoinSelectFailure {
+    const inputs0 = convertInputs(utxos, height, txType);
+    const outputs0 = convertOutputs(rOutputs, network, txType);
     const options: CoinSelectOptions = {
         txType,
         dustThreshold,
@@ -56,9 +43,7 @@ export function coinselect(
     // finalize using requested custom inputs or use coin select algorithm
     const result = algorithm(inputs0, outputs0, feeRate, options);
     if (!result.inputs || !result.outputs) {
-        return {
-            type: 'false',
-        };
+        return { success: false };
     }
 
     const { fee, inputs, outputs } = result;
@@ -75,8 +60,8 @@ export function coinselect(
     const feePerByte = fee / bytes;
 
     return {
-        type: 'true',
-        result: {
+        success: true,
+        payload: {
             inputs,
             outputs,
             fee,

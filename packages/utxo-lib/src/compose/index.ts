@@ -1,8 +1,9 @@
 import * as request from './request';
 import * as result from './result';
 import * as transaction from './transaction';
-import { convertFeeRate } from './utils';
+import { convertFeeRate } from './composeUtils';
 import { coinselect } from './coinselect';
+import { ComposeRequest, ComposeResult } from '../types';
 
 export function composeTx({
     txType,
@@ -19,7 +20,7 @@ export function composeTx({
     floorBaseFee,
     dustOutputFee,
     skipPermutation,
-}: request.ComposeRequest): result.ComposeResult {
+}: ComposeRequest): ComposeResult {
     if (outputs.length === 0) {
         return result.empty;
     }
@@ -46,7 +47,7 @@ export function composeTx({
 
     const splitOutputs = request.splitByCompleteness(outputs);
 
-    let csResult: ReturnType<typeof coinselect> = { type: 'false' };
+    let csResult: ReturnType<typeof coinselect> = { success: false };
     try {
         csResult = coinselect(
             txType || 'p2pkh',
@@ -71,7 +72,7 @@ export function composeTx({
         return { type: 'error', error: `${e}` };
     }
 
-    if (csResult.type === 'false') {
+    if (!csResult.success) {
         return { type: 'error', error: 'NOT-ENOUGH-FUNDS' };
     }
 
@@ -81,9 +82,9 @@ export function composeTx({
 
     const resTransaction = transaction.createTransaction(
         utxos,
-        csResult.result.inputs,
+        csResult.payload.inputs,
         splitOutputs.complete,
-        csResult.result.outputs,
+        csResult.payload.outputs,
         basePath,
         changeId,
         changeAddress,
