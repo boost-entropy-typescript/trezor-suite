@@ -308,6 +308,24 @@ export const networks = {
             },
         },
     },
+    tsep: {
+        name: 'Ethereum Sepolia',
+        networkType: 'ethereum',
+        bip43Path: "m/44'/1'/0'/0/i",
+        chainId: 11155111,
+        decimals: 18,
+        testnet: true,
+        label: 'TR_TESTNET_COINS_LABEL',
+        explorer: {
+            tx: 'https://sepolia1.trezor.io/tx/',
+            account: 'https://sepolia1.trezor.io/address/',
+            nft: 'https://sepolia1.trezor.io/nft/',
+            address: 'https://sepolia1.trezor.io/address/',
+        },
+        features: ['rbf', 'sign-verify', 'tokens'],
+        customBackends: ['blockbook'],
+        accountTypes: {},
+    },
     tgor: {
         name: 'Ethereum Goerli',
         networkType: 'ethereum',
@@ -454,3 +472,8 @@ export const getTestnets = (debug = false) =>
     networksCompatibility.filter(
         n => !n.accountType && n.testnet === true && (n.symbol !== 'regtest' || debug),
     );
+
+export const getEthereumTypeNetworkSymbols = () =>
+    networksCompatibility.filter(n => n.networkType === 'ethereum').map(n => n.symbol);
+
+export const getTestnetSymbols = () => getTestnets().map(n => n.symbol);

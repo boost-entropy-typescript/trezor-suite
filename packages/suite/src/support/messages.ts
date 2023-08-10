@@ -2851,6 +2851,10 @@ export default defineMessages({
         defaultMessage: 'Ethereum Classic',
         id: 'TR_NETWORK_ETHEREUM_CLASSIC',
     },
+    TR_NETWORK_ETHEREUM_SEPOLIA: {
+        defaultMessage: 'Ethereum Sepolia',
+        id: 'TR_NETWORK_ETHEREUM_SEPOLIA',
+    },
     TR_NETWORK_ETHEREUM_GOERLI: {
         defaultMessage: 'Ethereum Goerli',
         id: 'TR_NETWORK_ETHEREUM_GOERLI',
@@ -3113,7 +3117,8 @@ export default defineMessages({
     TR_RECOVERY_TYPES_DESCRIPTION: {
         defaultMessage:
             'Both methods are secure; advanced recovery allows you to input your recovery seed using your Trezor screen and takes longer.',
-        description: 'There are two methods of recovery for T1. This is a short explanation text.',
+        description:
+            'There are two methods of recovery for T1B1. This is a short explanation text.',
         id: 'TR_RECOVERY_TYPES_DESCRIPTION',
     },
     TR_REMEMBER_ALLOWS_YOU_TO: {
