@@ -9,11 +9,11 @@ export * from './support/types';
 
 export * from './utils/hooks';
 
-export * from './components/buttons/Button';
-export * from './components/Flag';
-export * from './components/buttons/Pin';
-export * from './components/buttons/TooltipButton.tsx';
-export * from './components/Dropdown';
+export * from './components/buttons/Button/Button';
+export * from './components/buttons/PinButton/PinButton';
+export * from './components/buttons/TooltipButton/TooltipButton';
+export * from './components/Flag/Flag';
+export * from './components/Dropdown/Dropdown';
 export * from './components/form/Input';
 export * from './components/form/Textarea';
 export * from './components/form/Select';
@@ -22,7 +22,7 @@ export * from './components/form/RadioButton';
 export * from './components/form/Range/Range';
 export * from './components/form/Switch';
 export * from './components/form/InputStyles';
-export * from './components/Icon';
+export * from './components/Icon/Icon';
 export * from './components/typography/Heading';
 export * from './components/typography/Paragraph';
 export * from './components/typography/Link';

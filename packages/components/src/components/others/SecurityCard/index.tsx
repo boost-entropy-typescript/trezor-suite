@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CardProps, Card } from '../Card';
-import { IconProps, Icon } from '../../Icon';
-import { Button } from '../../buttons/Button';
+import { IconProps, Icon } from '../../Icon/Icon';
+import { Button } from '../../buttons/Button/Button';
 import { useTheme } from '../../../utils/hooks';
 import * as variables from '../../../config/variables';
 
