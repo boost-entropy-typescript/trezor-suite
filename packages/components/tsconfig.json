@@ -4,9 +4,7 @@
         "plugins": [
             { "name": "typescript-styled-plugin" }
         ],
-        "outDir": "./libDev",
-        "noUnusedLocals": false,
-        "noUnusedParameters": false
+        "outDir": "./libDev"
     },
     "include": ["."],
     "references": [
