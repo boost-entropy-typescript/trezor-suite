@@ -1,10 +1,15 @@
 import { Middleware } from 'redux';
 
-import { disableAccountsThunk, transactionsActions } from '@suite-common/wallet-core';
+import * as discoveryActions from '@suite-common/wallet-core';
+import {
+    prepareDiscoveryReducer,
+    disableAccountsThunk,
+    transactionsActions,
+    createDiscoveryThunk,
+} from '@suite-common/wallet-core';
 import { getAccountTransactions, getAccountIdentifier } from '@suite-common/wallet-utils';
 
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
-import * as discoveryActions from 'src/actions/wallet/discoveryActions';
 import * as SUITE from 'src/actions/suite/constants/suiteConstants';
 import { accountsReducer, fiatRatesReducer, transactionsReducer } from 'src/reducers/wallet';
 import walletSettingsReducer from 'src/reducers/wallet/settingsReducer';
@@ -18,7 +23,6 @@ import { configureStore } from 'src/support/tests/configureStore';
 import { AppState } from 'src/types/suite';
 import { SETTINGS } from 'src/config/suite';
 import { preloadStore } from 'src/support/suite/preloadStore';
-import { prepareDiscoveryReducer } from 'src/reducers/wallet/discoveryReducer';
 import { extraDependencies } from 'src/support/extraDependencies';
 
 import * as suiteActions from '../suiteActions';
@@ -245,14 +249,10 @@ describe('Storage actions', () => {
         updateStore(store);
 
         // create discovery objects
+        store.dispatch(createDiscoveryThunk({ deviceState: dev1.state!, device: dev1 }));
+        store.dispatch(createDiscoveryThunk({ deviceState: dev2.state!, device: dev2 }));
         store.dispatch(
-            discoveryActions.createDiscoveryThunk({ deviceState: dev1.state!, device: dev1 }),
-        );
-        store.dispatch(
-            discoveryActions.createDiscoveryThunk({ deviceState: dev2.state!, device: dev2 }),
-        );
-        store.dispatch(
-            discoveryActions.createDiscoveryThunk({
+            createDiscoveryThunk({
                 deviceState: dev2Instance1.state!,
                 device: dev2Instance1,
             }),

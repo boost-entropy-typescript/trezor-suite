@@ -1,8 +1,8 @@
 import { valid, satisfies } from 'semver';
 import { getFirmwareVersion } from '@trezor/device-utils';
 
-import type { AppState, TrezorDevice, ExtendedMessageDescriptor } from 'src/types/suite';
-import { DeviceModelInternal } from '@trezor/connect';
+import { type AppState, type TrezorDevice, type ExtendedMessageDescriptor } from 'src/types/suite';
+import { DeviceModelInternal, FirmwareType } from '@trezor/connect';
 
 export const getFormattedFingerprint = (fingerprint: string) =>
     [
@@ -107,5 +107,16 @@ export const validateFirmware = (
     }
     if (!isT1V2 && firmwareFormat === FirmwareFormat.T1_V2) {
         return 'TR_FIRMWARE_VALIDATION_T1_V2';
+    }
+};
+
+export const getSuiteFirmwareTypeString = (firmwareType?: FirmwareType) => {
+    switch (firmwareType) {
+        case FirmwareType.BitcoinOnly:
+            return 'TR_FIRMWARE_TYPE_BITCOIN_ONLY';
+        case FirmwareType.Regular:
+            return 'TR_FIRMWARE_TYPE_REGULAR';
+        default:
+            return undefined;
     }
 };

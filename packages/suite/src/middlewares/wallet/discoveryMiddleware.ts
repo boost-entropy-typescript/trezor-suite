@@ -1,4 +1,12 @@
-import { accountsActions, disableAccountsThunk } from '@suite-common/wallet-core';
+import * as discoveryActions from '@suite-common/wallet-core';
+import {
+    accountsActions,
+    disableAccountsThunk,
+    createDiscoveryThunk,
+    startDiscoveryThunk,
+    stopDiscoveryThunk,
+    updateNetworkSettingsThunk,
+} from '@suite-common/wallet-core';
 import TrezorConnect, { UI } from '@trezor/connect';
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
@@ -6,7 +14,6 @@ import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
 import { SUITE, ROUTER, MODAL } from 'src/actions/suite/constants';
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
 import * as suiteActions from 'src/actions/suite/suiteActions';
-import * as discoveryActions from 'src/actions/wallet/discoveryActions';
 import { selectDiscoveryForDevice } from 'src/reducers/suite/suiteReducer';
 import { getApp } from 'src/utils/suite/router';
 
@@ -58,7 +65,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
         // discovery interruption ends after DISCOVERY.STOP action
         // action which triggers this interruption will be propagated AFTER stop
         if (interruptionIntent && discoveryIsRunning) {
-            await dispatch(discoveryActions.stopDiscoveryThunk());
+            await dispatch(stopDiscoveryThunk());
         }
 
         // pass action
@@ -66,7 +73,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
 
         if (walletSettingsActions.changeNetworks.match(action)) {
             // update Discovery fields
-            dispatch(discoveryActions.updateNetworkSettingsThunk());
+            dispatch(updateNetworkSettingsThunk());
             // remove accounts which are no longer part of Discovery
             dispatch(disableAccountsThunk());
         }
@@ -119,7 +126,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             // `device` is always present here
             // to avoid typescript conditioning use device from action as a fallback (never used)
             dispatch(
-                discoveryActions.createDiscoveryThunk({
+                createDiscoveryThunk({
                     deviceState: action.state,
                     device: device || action.payload,
                 }),
@@ -157,7 +164,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
                 (discovery.status === DiscoveryStatus.IDLE ||
                     discovery.status >= DiscoveryStatus.STOPPED)
             ) {
-                dispatch(discoveryActions.startDiscoveryThunk());
+                dispatch(startDiscoveryThunk());
             }
         }
 

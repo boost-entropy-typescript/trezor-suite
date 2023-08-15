@@ -8,8 +8,9 @@ import { goto } from 'src/actions/suite/routerActions';
 import { Button } from '@trezor/components';
 import { useAnchor } from 'src/hooks/suite/useAnchor';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
-import { getFirmwareType, getFirmwareVersion } from '@trezor/device-utils';
+import { getFirmwareVersion, hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 import { HELP_FIRMWARE_TYPE } from '@trezor/urls';
+import { getSuiteFirmwareTypeString } from 'src/utils/firmware';
 
 const Version = styled.div`
     span {
@@ -36,9 +37,10 @@ export const FirmwareTypeChange = ({ isDeviceLocked }: FirmwareTypeProps) => {
     }
 
     const currentFwVersion = getFirmwareVersion(device);
-    const currentFwType = getFirmwareType(device);
-    const actionButtonId =
-        device.firmwareType === 'bitcoin-only' ? 'TR_SWITCH_TO_UNIVERSAL' : 'TR_SWITCH_TO_BITCOIN';
+    const currentFwType = getSuiteFirmwareTypeString(device.firmwareType);
+    const actionButtonId = hasBitcoinOnlyFirmware(device)
+        ? 'TR_SWITCH_TO_REGULAR'
+        : 'TR_SWITCH_TO_BITCOIN_ONLY';
 
     const handleAction = () => dispatch(goto('firmware-type', { params: { cancelable: true } }));
 
@@ -51,7 +53,7 @@ export const FirmwareTypeChange = ({ isDeviceLocked }: FirmwareTypeProps) => {
             <TextColumn
                 title={<Translation id="TR_FIRMWARE_TYPE" />}
                 description={
-                    currentFwVersion ? (
+                    currentFwVersion && currentFwType ? (
                         <Version>
                             <Translation
                                 id="TR_YOUR_FIRMWARE_TYPE"
@@ -63,7 +65,7 @@ export const FirmwareTypeChange = ({ isDeviceLocked }: FirmwareTypeProps) => {
                                                 icon="EXTERNAL_LINK"
                                                 alignIcon="right"
                                             >
-                                                {currentFwType}
+                                                <Translation id={currentFwType} />
                                             </Button>
                                         </TrezorLink>
                                     ),
@@ -82,7 +84,13 @@ export const FirmwareTypeChange = ({ isDeviceLocked }: FirmwareTypeProps) => {
                     data-test="@settings/device/switch-fw-type-button"
                     isDisabled={isDeviceLocked}
                 >
-                    <Translation id={actionButtonId} />
+                    <Translation
+                        id={actionButtonId}
+                        values={{
+                            bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                            regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
+                        }}
+                    />
                 </ActionButton>
             </ActionColumn>
         </SectionItem>

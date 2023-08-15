@@ -1,13 +1,17 @@
 import React from 'react';
+
 import styled from 'styled-components';
 
-import { FirmwareChangelog } from 'src/components/firmware';
 import { Icon, Tooltip, variables } from '@trezor/components';
+import { getFirmwareVersion } from '@trezor/device-utils';
+import { AcquiredDevice } from '@suite-common/suite-types';
+import { FirmwareType } from '@trezor/connect';
+
 import { Translation } from 'src/components/suite';
-import { getFirmwareType, getFirmwareVersion } from '@trezor/device-utils';
+import { FirmwareChangelog } from 'src/components/firmware';
 import { getFwUpdateVersion, parseFirmwareChangelog } from 'src/utils/suite/device';
 import { useFirmware, useTranslation, useSelector } from 'src/hooks/suite';
-import { AcquiredDevice, FirmwareType } from 'src/types/suite';
+import { getSuiteFirmwareTypeString } from 'src/utils/firmware';
 
 const FwVersionWrapper = styled.div`
     display: flex;
@@ -61,14 +65,18 @@ export const FirmwareOffer = ({
         ? null
         : parseFirmwareChangelog(device.firmwareRelease?.release);
 
-    const currentTypeAndVersion = `${getFirmwareType(device)} ${currentVersion ?? ''}`.trim();
-    const nextTypeAndVersion = `${(targetFirmwareType || targetType) ?? ''} ${nextVersion ?? ''}${
-        useDevkit ? ' DEVKIT' : ''
-    }`.trim();
+    const currentFirmwareType = getSuiteFirmwareTypeString(device.firmwareType);
+
+    // firmware type is undefined in bootloader, regular type will be installed by default
+    const futureFirmwareType = getSuiteFirmwareTypeString(
+        targetFirmwareType || targetType || FirmwareType.Regular,
+    );
 
     const nextVersionElement = (
         <Version isNew data-test="@firmware/offer-version/new">
-            {nextTypeAndVersion}
+            <Translation id={futureFirmwareType!} />
+            {nextVersion ? ` ${nextVersion}` : ''}
+            {useDevkit ? ' DEVKIT' : ''}
         </Version>
     );
 
@@ -80,7 +88,10 @@ export const FirmwareOffer = ({
                         <Label>
                             <Translation id="TR_ONBOARDING_CURRENT_VERSION" />
                         </Label>
-                        <Version>{currentTypeAndVersion}</Version>
+                        <Version>
+                            {currentFirmwareType ? translationString(currentFirmwareType) : ''}
+                            {currentVersion ? ` ${currentVersion}` : ''}
+                        </Version>
                     </FwVersion>
                     <Icon icon="ARROW_RIGHT_LONG" size={16} />
                 </>

@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable global-require */
 
-import { configureStore } from 'src/support/tests/configureStore';
+import { ArrayElement } from '@trezor/type-utils';
+import { DeviceModelInternal } from '@trezor/connect';
+
+import { configureStore, filterThunkActionTypes } from 'src/support/tests/configureStore';
 import { prepareFirmwareReducer } from 'src/reducers/firmware/firmwareReducer';
 import suiteReducer from 'src/reducers/suite/suiteReducer';
 import { TrezorDevice } from 'src/types/suite';
 import { extraDependencies } from 'src/support/extraDependencies';
 
-import { ArrayElement } from '@trezor/type-utils';
-
 import { actions, reducerActions } from '../__fixtures__/firmwareActions';
-import { DeviceModelInternal } from '@trezor/connect';
 
 const firmwareReducer = prepareFirmwareReducer(extraDependencies);
 
@@ -37,7 +37,7 @@ jest.mock('@trezor/connect', () => {
         return Promise.resolve(fixture.mocks.connect);
     };
 
-    const { PROTO, DeviceModelInternal } = jest.requireActual('@trezor/connect');
+    const { PROTO, DeviceModelInternal, FirmwareType } = jest.requireActual('@trezor/connect');
 
     return {
         __esModule: true, // this property makes it work
@@ -60,6 +60,7 @@ jest.mock('@trezor/connect', () => {
         },
         PROTO,
         DeviceModelInternal,
+        FirmwareType,
     };
 });
 
@@ -135,7 +136,9 @@ describe('Firmware Actions', () => {
                     expect(result).toMatchObject(f.result.state);
                 }
                 if (f.result.actions) {
-                    expect(store.getActions()).toMatchObject(f.result.actions);
+                    expect(filterThunkActionTypes(store.getActions())).toMatchObject(
+                        f.result.actions,
+                    );
                 }
             }
         });

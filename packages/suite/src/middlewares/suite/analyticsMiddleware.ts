@@ -1,11 +1,7 @@
 import { MiddlewareAPI } from 'redux';
 import BigNumber from 'bignumber.js';
-import { SUITE, ROUTER } from 'src/actions/suite/constants';
-import { COINJOIN } from 'src/actions/wallet/constants';
-import { getPhysicalDeviceCount } from 'src/utils/suite/device';
-import { getSuiteReadyPayload, redactTransactionIdFromAnchor } from 'src/utils/suite/analytics';
-import type { AppState, Action, Dispatch } from 'src/types/suite';
 
+import { discoveryActions } from '@suite-common/wallet-core';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { TRANSPORT, DEVICE } from '@trezor/connect';
 import {
@@ -13,15 +9,21 @@ import {
     getBootloaderVersion,
     getFirmwareRevision,
     getFirmwareVersion,
+    hasBitcoinOnlyFirmware,
     isDeviceInBootloaderMode,
 } from '@trezor/device-utils';
 import { analyticsActions } from '@suite-common/analytics';
+
+import { SUITE, ROUTER } from 'src/actions/suite/constants';
+import { COINJOIN } from 'src/actions/wallet/constants';
+import { getPhysicalDeviceCount } from 'src/utils/suite/device';
+import { getSuiteReadyPayload, redactTransactionIdFromAnchor } from 'src/utils/suite/analytics';
+import type { AppState, Action, Dispatch } from 'src/types/suite';
 import {
     selectAnonymityGainToReportByAccountKey,
     selectCoinjoinAccountByKey,
 } from 'src/reducers/wallet/coinjoinReducer';
 import { updateLastAnonymityReportTimestamp } from 'src/actions/wallet/coinjoinAccountActions';
-import { discoveryActions } from 'src/actions/wallet/discoveryActions';
 
 /*
     In analytics middleware we may intercept actions we would like to log. For example:
@@ -81,7 +83,7 @@ const analyticsMiddleware =
                             pin_protection: features.pin_protection,
                             passphrase_protection: features.passphrase_protection,
                             totalInstances: state.devices.length,
-                            isBitcoinOnly: action.payload.firmwareType === 'bitcoin-only',
+                            isBitcoinOnly: hasBitcoinOnlyFirmware(action.payload),
                             totalDevices: getPhysicalDeviceCount(state.devices),
                             language: features.language,
                             model: features.internal_model,

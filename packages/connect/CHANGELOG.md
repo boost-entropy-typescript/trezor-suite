@@ -1,3 +1,8 @@
+# unreleased
+
+-   fix: FirmwareType is undefined in case of bootloader mode
+-   change: FirmwareType changed from type to enum
+
 # 9.1.1
 
 -   feat(connect-popup): added device model_internal in features

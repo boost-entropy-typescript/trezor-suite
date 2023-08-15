@@ -1,3 +1,5 @@
+import { FirmwareType } from '@trezor/connect';
+
 import { PartialDevice } from './types';
 import { isDeviceInBootloaderMode } from './modeUtils';
 
@@ -18,9 +20,5 @@ export const getFirmwareVersion = (device?: PartialDevice) => {
     return `${features.major_version}.${features.minor_version}.${features.patch_version}`;
 };
 
-export const getFirmwareType = (device?: PartialDevice) => {
-    if (isDeviceInBootloaderMode(device)) {
-        return '';
-    }
-    return device?.firmwareType === 'bitcoin-only' ? 'Bitcoin-only' : 'Universal';
-};
+export const hasBitcoinOnlyFirmware = (device?: PartialDevice) =>
+    device?.firmwareType === FirmwareType.BitcoinOnly;

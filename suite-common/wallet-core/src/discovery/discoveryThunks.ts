@@ -1,58 +1,53 @@
-import { createAction } from '@reduxjs/toolkit';
-
-import { getDerivationType, isTrezorConnectBackendType } from '@suite-common/wallet-utils';
-import { DiscoveryItem, Account } from '@suite-common/wallet-types';
-import { accountsActions, selectAccounts } from '@suite-common/wallet-core';
-import { notificationsActions } from '@suite-common/toast-notifications';
-import { getFirmwareVersion } from '@trezor/device-utils';
-import TrezorConnect, { BundleProgress, AccountInfo, UI } from '@trezor/connect';
-import { versionUtils } from '@trezor/utils';
-import { DiscoveryStatus } from '@suite-common/wallet-constants';
-import { settingsCommonConfig } from '@suite-common/suite-config';
-import { TrezorDevice } from '@suite-common/suite-types';
-import { networksCompatibility } from '@suite-common/wallet-config';
 import { createThunk } from '@suite-common/redux-utils';
+import { DiscoveryStatus } from '@suite-common/wallet-constants';
+import { notificationsActions } from '@suite-common/toast-notifications';
+import TrezorConnect, { AccountInfo, BundleProgress, UI } from '@trezor/connect';
+import { TrezorDevice } from '@suite-common/suite-types';
+import { getDerivationType, isTrezorConnectBackendType } from '@suite-common/wallet-utils';
+import { Account, Discovery, DiscoveryItem, PartialDiscovery } from '@suite-common/wallet-types';
+import { settingsCommonConfig } from '@suite-common/suite-config';
+import { networksCompatibility } from '@suite-common/wallet-config';
+import { getFirmwareVersion } from '@trezor/device-utils';
+import { versionUtils } from '@trezor/utils';
 
 import {
-    Discovery,
-    PartialDiscovery,
-    selectDiscovery,
-    selectDiscoveryByDeviceState,
-} from 'src/reducers/wallet/discoveryReducer';
+    completeDiscovery,
+    createDiscovery,
+    interruptDiscovery,
+    MODULE_PREFIX,
+    startDiscovery,
+    stopDiscovery,
+    updateDiscovery,
+} from './discoveryActions';
 
-const MODULE_PREFIX = '@common/wallet-core/discovery';
+import { selectDiscoveryByDeviceState, selectDiscovery } from './discoveryReducer';
+import { selectAccounts } from '../accounts/accountsReducer';
+import { accountsActions } from '../accounts/accountsActions';
 
 type ProgressEvent = BundleProgress<AccountInfo | null>['payload'];
 
 const LIMIT = 10;
 
-export const createDiscovery = createAction(`${MODULE_PREFIX}/create`, payload => ({ payload }));
+const filterUnavailableNetworks = (enabledNetworks: Account['symbol'][], device?: TrezorDevice) =>
+    networksCompatibility.filter(n => {
+        const firmwareVersion = getFirmwareVersion(device);
+        const internalModel = device?.features?.internal_model;
 
-export const startDiscovery = createAction(`${MODULE_PREFIX}/start`, payload => ({ payload }));
+        const isSupportedInSuite =
+            !n.support || // support is not defined => is supported
+            !internalModel || // typescript. device undefined. => supported
+            (n.support[internalModel] && // support is defined for current device
+                versionUtils.isNewerOrEqual(firmwareVersion, n.support[internalModel])); // device version is newer or equal to support field in networks => supported
 
-export const interruptDiscovery = createAction(`${MODULE_PREFIX}/interrupt`, payload => ({
-    payload,
-}));
-
-export const completeDiscovery = createAction(`${MODULE_PREFIX}/complete`, payload => ({
-    payload,
-}));
-
-export const stopDiscovery = createAction(`${MODULE_PREFIX}/stop`, payload => ({
-    payload,
-}));
-
-export const removeDiscovery = createAction(
-    `${MODULE_PREFIX}/remove`,
-    (deviceState: string): { payload: string } => ({
-        payload: deviceState,
-    }),
-);
-
-export const updateDiscovery = createAction(
-    `${MODULE_PREFIX}/update`,
-    (payload: PartialDiscovery) => ({ payload }),
-);
+        return (
+            isTrezorConnectBackendType(n.backendType) && // exclude accounts with unsupported backend type
+            enabledNetworks.includes(n.symbol) &&
+            !n.isHidden &&
+            !device?.unavailableCapabilities?.[n.accountType!] && // exclude by account types (ex: taproot)
+            !device?.unavailableCapabilities?.[n.symbol] && // exclude by network symbol (ex: xrp on T1B1)
+            isSupportedInSuite
+        );
+    });
 
 const calculateProgress =
     (discovery: Discovery) =>
@@ -149,26 +144,26 @@ const handleProgressThunk = createThunk(
     },
 );
 
-const filterUnavailableNetworks = (enabledNetworks: Account['symbol'][], device?: TrezorDevice) =>
-    networksCompatibility.filter(n => {
-        const firmwareVersion = getFirmwareVersion(device);
-        const internalModel = device?.features?.internal_model;
+export const stopDiscoveryThunk = createThunk(
+    `${MODULE_PREFIX}/stop`,
+    (_, { dispatch, getState, extra }) => {
+        const {
+            selectors: { selectDiscoveryForDevice },
+        } = extra;
+        const discovery = selectDiscoveryForDevice(getState());
+        if (discovery && discovery.running) {
+            dispatch(
+                interruptDiscovery({
+                    deviceState: discovery.deviceState,
+                    status: DiscoveryStatus.STOPPING,
+                }),
+            );
+            TrezorConnect.cancel('discovery_interrupted');
 
-        const isSupportedInSuite =
-            !n.support || // support is not defined => is supported
-            !internalModel || // typescript. device undefined. => supported
-            (n.support[internalModel] && // support is defined for current device
-                versionUtils.isNewerOrEqual(firmwareVersion, n.support[internalModel])); // device version is newer or equal to support field in networks => supported
-
-        return (
-            isTrezorConnectBackendType(n.backendType) && // exclude accounts with unsupported backend type
-            enabledNetworks.includes(n.symbol) &&
-            !n.isHidden &&
-            !device?.unavailableCapabilities?.[n.accountType!] && // exclude by account types (ex: taproot)
-            !device?.unavailableCapabilities?.[n.symbol] && // exclude by network symbol (ex: xrp on T1B1)
-            isSupportedInSuite
-        );
-    });
+            return discovery.running.promise;
+        }
+    },
+);
 
 const getBundleThunk = createThunk(
     `${MODULE_PREFIX}/getBundle`,
@@ -231,38 +226,6 @@ const getBundleThunk = createThunk(
             }
         });
         return bundle;
-    },
-);
-
-export const updateNetworkSettingsThunk = createThunk(
-    `${MODULE_PREFIX}/updateNetworkSettings`,
-    (_, { dispatch, getState, extra }) => {
-        const {
-            selectors: { selectEnabledNetworks, selectDevices },
-        } = extra;
-        const enabledNetworks = selectEnabledNetworks(getState());
-        const discovery = selectDiscovery(getState());
-
-        discovery.forEach(d => {
-            const devices = selectDevices(getState());
-            const device = devices.find(dev => dev.state === d.deviceState);
-            const networks = filterUnavailableNetworks(enabledNetworks, device).map(n => n.symbol);
-
-            const progress = dispatch(
-                calculateProgress({
-                    ...d,
-                    networks,
-                    failed: [],
-                }),
-            );
-            dispatch(
-                updateDiscovery({
-                    ...progress,
-                    networks,
-                    failed: [],
-                }),
-            );
-        });
     },
 );
 
@@ -341,35 +304,6 @@ const getAvailableCardanoDerivationsThunk = createThunk(
 
         // each pub key is different
         return ['normal', 'legacy', 'ledger'];
-    },
-);
-
-export const createDiscoveryThunk = createThunk(
-    `${MODULE_PREFIX}/create`,
-    (
-        { deviceState, device }: { deviceState: string; device: TrezorDevice },
-        { dispatch, getState, extra },
-    ) => {
-        const {
-            selectors: { selectEnabledNetworks },
-        } = extra;
-        const enabledNetworks = selectEnabledNetworks(getState());
-        const networks = filterUnavailableNetworks(enabledNetworks, device).map(n => n.symbol);
-
-        dispatch({
-            type: createDiscovery.type,
-            payload: {
-                deviceState,
-                authConfirm: !device.useEmptyPassphrase,
-                index: 0,
-                status: DiscoveryStatus.IDLE,
-                total: LIMIT * networks.length,
-                bundleSize: 0,
-                loaded: 0,
-                failed: [],
-                networks,
-            },
-        });
     },
 );
 
@@ -644,24 +578,64 @@ export const startDiscoveryThunk = createThunk(
     },
 );
 
-export const stopDiscoveryThunk = createThunk(
-    `${MODULE_PREFIX}/stop`,
+export const createDiscoveryThunk = createThunk(
+    `${MODULE_PREFIX}/create`,
+    (
+        { deviceState, device }: { deviceState: string; device: TrezorDevice },
+        { dispatch, getState, extra },
+    ) => {
+        const {
+            selectors: { selectEnabledNetworks },
+        } = extra;
+        const enabledNetworks = selectEnabledNetworks(getState());
+        const networks = filterUnavailableNetworks(enabledNetworks, device).map(n => n.symbol);
+
+        dispatch({
+            type: createDiscovery.type,
+            payload: {
+                deviceState,
+                authConfirm: !device.useEmptyPassphrase,
+                index: 0,
+                status: DiscoveryStatus.IDLE,
+                total: LIMIT * networks.length,
+                bundleSize: 0,
+                loaded: 0,
+                failed: [],
+                networks,
+            },
+        });
+    },
+);
+
+export const updateNetworkSettingsThunk = createThunk(
+    `${MODULE_PREFIX}/updateNetworkSettings`,
     (_, { dispatch, getState, extra }) => {
         const {
-            selectors: { selectDiscoveryForDevice },
+            selectors: { selectEnabledNetworks, selectDevices },
         } = extra;
-        const discovery = selectDiscoveryForDevice(getState());
-        if (discovery && discovery.running) {
-            dispatch(
-                interruptDiscovery({
-                    deviceState: discovery.deviceState,
-                    status: DiscoveryStatus.STOPPING,
+        const enabledNetworks = selectEnabledNetworks(getState());
+        const discovery = selectDiscovery(getState());
+
+        discovery.forEach(d => {
+            const devices = selectDevices(getState());
+            const device = devices.find(dev => dev.state === d.deviceState);
+            const networks = filterUnavailableNetworks(enabledNetworks, device).map(n => n.symbol);
+
+            const progress = dispatch(
+                calculateProgress({
+                    ...d,
+                    networks,
+                    failed: [],
                 }),
             );
-            TrezorConnect.cancel('discovery_interrupted');
-
-            return discovery.running.promise;
-        }
+            dispatch(
+                updateDiscovery({
+                    ...progress,
+                    networks,
+                    failed: [],
+                }),
+            );
+        });
     },
 );
 
@@ -688,13 +662,3 @@ export const restartDiscoveryThunk = createThunk(
         await dispatch(startDiscoveryThunk());
     },
 );
-
-export const discoveryActions = {
-    createDiscovery,
-    startDiscovery,
-    removeDiscovery,
-    updateDiscovery,
-    completeDiscovery,
-    stopDiscovery,
-    interruptDiscovery,
-};

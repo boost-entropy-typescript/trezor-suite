@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
+
 import styled from 'styled-components';
 
 import { Note } from '@trezor/components';
+import { TrezorDevice } from '@suite-common/suite-types';
+import { getFirmwareVersion, hasBitcoinOnlyFirmware } from '@trezor/device-utils';
+import { FirmwareType } from '@trezor/connect';
+
 import {
     ConnectDevicePromptManager,
     OnboardingStepBox,
@@ -10,9 +15,7 @@ import {
 import { Translation } from 'src/components/suite';
 import { useDevice, useFirmware, useOnboarding, useSelector } from 'src/hooks/suite';
 import { ReconnectDevicePrompt, InstallButton, FirmwareOffer } from 'src/components/firmware';
-import { FirmwareType, TrezorDevice } from 'src/types/suite';
 import { getFwUpdateVersion } from 'src/utils/suite/device';
-import { getFirmwareVersion } from '@trezor/device-utils';
 
 const Description = styled.div`
     align-items: center;
@@ -50,19 +53,21 @@ interface FirmwareInitialProps {
     onClose?: () => void;
 }
 
+interface GetDescriptionProps {
+    required: boolean;
+    standaloneFwUpdate: boolean;
+    reinstall: boolean;
+    shouldSwitchFirmwareType?: boolean;
+    isBitcoinOnlyAvailable?: boolean;
+}
+
 const getDescription = ({
     required,
     standaloneFwUpdate,
     reinstall,
     shouldSwitchFirmwareType,
     isBitcoinOnlyAvailable,
-}: {
-    required: boolean;
-    standaloneFwUpdate: boolean;
-    reinstall: boolean;
-    shouldSwitchFirmwareType?: boolean;
-    isBitcoinOnlyAvailable?: boolean;
-}) => {
+}: GetDescriptionProps) => {
     if (shouldSwitchFirmwareType) {
         return isBitcoinOnlyAvailable
             ? 'TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION'
@@ -133,15 +138,15 @@ export const FirmwareInitial = ({
         currentFwVersion &&
         availableFwVersion === currentFwVersion
     );
-    const isCurrentlyBitcoinOnly = device.firmwareType === 'bitcoin-only';
+    const isCurrentlyBitcoinOnly = hasBitcoinOnlyFirmware(device);
     const targetFirmwareType =
-        // switching to Universal
+        // switching to Regular
         (isCurrentlyBitcoinOnly && shouldSwitchFirmwareType) ||
-        // updating Universal
+        // updating Regular
         (!isCurrentlyBitcoinOnly && !shouldSwitchFirmwareType) ||
         // attempting to switch to Bitcoin-only from old firmware
         (!isCurrentlyBitcoinOnly && shouldSwitchFirmwareType && !isBitcoinOnlyAvailable)
-            ? FirmwareType.Universal
+            ? FirmwareType.Regular
             : FirmwareType.BitcoinOnly;
 
     const installFirmware = (type: FirmwareType) => {
@@ -152,7 +157,14 @@ export const FirmwareInitial = ({
     if (bitcoinOnlyOffer) {
         // Installing Bitcoin-only firmware in onboarding
         content = {
-            heading: <Translation id="TR_INSTALL_BITCOIN_FW" />,
+            heading: (
+                <Translation
+                    id="TR_INSTALL_BITCOIN_ONLY_FW"
+                    values={{
+                        bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                    }}
+                />
+            ),
             description: (
                 <Description>
                     <Translation id="TR_FIRMWARE_SUBHEADING_BITCOIN" />
@@ -168,17 +180,27 @@ export const FirmwareInitial = ({
                 <ButtonRow>
                     <InstallButton
                         variant="secondary"
-                        onClick={() => installFirmware(FirmwareType.Universal)}
+                        onClick={() => installFirmware(FirmwareType.Regular)}
                         multipleDevicesConnected={multipleDevicesConnected}
                     >
-                        <Translation id="TR_INSTALL_UNIVERSAL" />
+                        <Translation
+                            id="TR_INSTALL_REGULAR"
+                            values={{
+                                regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
+                            }}
+                        />
                     </InstallButton>
 
                     <InstallButton
                         onClick={() => installFirmware(FirmwareType.BitcoinOnly)}
                         multipleDevicesConnected={multipleDevicesConnected}
                     >
-                        <Translation id="TR_INSTALL_BITCOIN_ONLY" />
+                        <Translation
+                            id="TR_INSTALL_BITCOIN_ONLY"
+                            values={{
+                                bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                            }}
+                        />
                     </InstallButton>
                 </ButtonRow>
             ),
@@ -202,6 +224,7 @@ export const FirmwareInitial = ({
                                 {chunks}
                             </TextButton>
                         ),
+                        bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
                     }}
                 />
             ),
@@ -210,7 +233,7 @@ export const FirmwareInitial = ({
             ) : undefined,
             innerActions: (
                 <InstallButton
-                    onClick={() => installFirmware(FirmwareType.Universal)}
+                    onClick={() => installFirmware(FirmwareType.Regular)}
                     multipleDevicesConnected={multipleDevicesConnected}
                 />
             ),
@@ -248,6 +271,10 @@ export const FirmwareInitial = ({
                         shouldSwitchFirmwareType,
                         isBitcoinOnlyAvailable,
                     })}
+                    values={{
+                        bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                        regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
+                    }}
                 />
             ),
             body: <FirmwareOffer device={device} targetFirmwareType={targetFirmwareType} />,
