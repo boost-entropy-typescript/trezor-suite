@@ -1,8 +1,8 @@
 import { createDeferred, Deferred } from '@trezor/utils';
 
 import { AbstractTransport, AcquireInput, ReleaseInput } from './abstract';
-import { buildAndSend } from '../lowlevel/send';
-import { receiveAndParse } from '../lowlevel/receive';
+import { buildAndSend } from '../utils/send';
+import { receiveAndParse } from '../utils/receive';
 import { SessionsClient } from '../sessions/client';
 import * as ERRORS from '../errors';
 import type { UsbInterface } from '../interfaces/usb';
@@ -48,7 +48,7 @@ export abstract class AbstractUsbTransport extends AbstractTransport {
         this.transportInterface.on('transport-interface-change', devices => {
             // 2. we signal this to sessions background
             this.sessionsClient.enumerateDone({
-                paths: devices.map(d => d.path),
+                paths: devices,
             });
         });
         // 3. based on 2.sessions background distributes information about descriptors change to all clients
