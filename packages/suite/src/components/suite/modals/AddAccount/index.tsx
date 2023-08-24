@@ -16,6 +16,9 @@ import { AccountTypeSelect } from './components/AccountTypeSelect';
 import { SelectNetwork } from './components/SelectNetwork';
 import { EnableNetwork } from './components/EnableNetwork';
 import { AddAccountButton } from './components/AddAccountButton';
+import { useEnabledNetworks } from 'src/hooks/settings/useEnabledNetworks';
+import { FirmwareType } from '@trezor/connect';
+import { selectSupportedNetworks } from 'src/reducers/suite/suiteReducer';
 
 const StyledModal = styled(Modal)`
     width: 560px;
@@ -37,20 +40,47 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
     const accounts = useSelector(state => state.wallet.accounts);
     const app = useSelector(state => state.router.app);
     const debug = useSelector(state => state.suite.settings.debug);
-    const enabledNetworksSymbols = useSelector(state => state.wallet.settings.enabledNetworks);
     const isCoinjoinPublic = useSelector(selectIsPublic);
     const dispatch = useDispatch();
+
+    const { mainnets, testnets, enabledNetworks: enabledNetworksSymbols } = useEnabledNetworks();
+
+    const mainnetSymbols = mainnets.map(mainnet => mainnet.symbol);
+    const testnetSymbols = testnets.map(testnet => testnet.symbol);
+
+    const supportedNetworks = useSelector(selectSupportedNetworks);
+    const supportedMainnetNetworks = supportedNetworks.filter(network =>
+        mainnetSymbols.includes(network),
+    );
+
+    const hasMainnetNetworksToEnable = supportedMainnetNetworks.some(
+        network => !enabledNetworksSymbols.includes(network),
+    );
+
+    const allTestnetNetworksDisabled = !supportedNetworks.some(
+        network => testnetSymbols.includes(network) && enabledNetworksSymbols.includes(network),
+    );
 
     const isCoinjoinVisible = isCoinjoinPublic || debug.showDebugMenu;
 
     // Collect all Networks without "accountType" (normal)
     const internalNetworks = NETWORKS.filter(n => !n.accountType && !n.isHidden);
 
-    // applied only when changing account in coinmarket exchange receive options context so far
+    // applied when changing account in coinmarket exchange receive options context
     const networkPinned = !!symbol;
     const preselectedNetwork = symbol && internalNetworks.find(n => n.symbol === symbol);
+    // or in case of only btc is enabled on bitcoin-only firmware
+    const bitcoinNetwork = NETWORKS.find(n => n.symbol === 'btc');
+    const bitcoinOnlyDefaultNetworkSelection =
+        device.firmwareType === FirmwareType.BitcoinOnly &&
+        supportedMainnetNetworks.length === 1 &&
+        allTestnetNetworksDisabled
+            ? bitcoinNetwork
+            : undefined;
 
-    const [selectedNetwork, selectNetwork] = useState<Network | undefined>(preselectedNetwork);
+    const [selectedNetwork, setSelectedNetwork] = useState<Network | undefined>(
+        preselectedNetwork || bitcoinOnlyDefaultNetworkSelection,
+    );
 
     const selectedNetworkEnabled =
         !!selectedNetwork && enabledNetworksSymbols.includes(selectedNetwork.symbol);
@@ -58,7 +88,6 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
     const [enabledNetworks, disabledNetworks] = arrayPartition(internalNetworks, network =>
         enabledNetworksSymbols.includes(network.symbol),
     );
-    const hasDisabledNetworks = !!disabledNetworks?.length;
 
     const [disabledMainnetNetworks, disabledTestnetNetworks] = arrayPartition(
         disabledNetworks,
@@ -78,10 +107,10 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
                 !!networkToSelect && networkToSelect?.symbol === selectedNetwork?.symbol;
 
             if (networkToSelect && !networkPinned && !alreadySelected) {
-                selectNetwork(networkToSelect);
+                setSelectedNetwork(networkToSelect);
             }
         } else {
-            selectNetwork(undefined);
+            setSelectedNetwork(undefined);
         }
     };
 
@@ -152,7 +181,7 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
             isCancelable
             onCancel={onCancel}
             onBackClick={
-                selectedNetwork && !networkPinned ? () => selectNetwork(undefined) : undefined
+                selectedNetwork && !networkPinned ? () => setSelectedNetwork(undefined) : undefined
             }
             heading={<Translation id="MODAL_ADD_ACCOUNT_TITLE" />}
             bottomBar={
@@ -181,7 +210,7 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
                 selectedNetworks={selectedNetworks}
                 handleNetworkSelection={handleNetworkSelection}
             />
-            {!selectedNetworkEnabled && hasDisabledNetworks && (
+            {hasMainnetNetworksToEnable && !selectedNetworkEnabled && (
                 <EnableNetwork
                     networks={disabledMainnetNetworks}
                     testnetNetworks={availableDisabledTestnetNetworks}
@@ -195,7 +224,7 @@ export const AddAccount = ({ device, onCancel, symbol, noRedirect }: AddAccountP
                         <AccountTypeSelect
                             network={selectedNetwork}
                             accountTypes={accountTypes}
-                            onSelectAccountType={selectNetwork}
+                            onSelectAccountType={setSelectedNetwork}
                         />
                     )}
 
