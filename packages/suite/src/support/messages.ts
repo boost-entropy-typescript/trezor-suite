@@ -2707,7 +2707,7 @@ export default defineMessages({
     },
     TR_LANGUAGE_DESCRIPTION: {
         defaultMessage:
-            'The Trezor community translated Czech, and we are thankful for their contributions. Ensure language consistency by referring to our official languages for verification.',
+            'A big thanks to the Trezor community for helping out with this translation. You can always refer to one of the official languages if needed.',
         id: 'TR_LANGUAGE_DESCRIPTION',
     },
     TR_LANGUAGE_CREDITS: {
@@ -7523,6 +7523,17 @@ export default defineMessages({
         description: 'Warning in coinjoin send form',
         defaultMessage:
             'Not enough private funds. You can either make more coins private, manually select UTXOs in Coin Control, or lower the privacy level.',
+    },
+    TR_NOT_ENOUGH_ANONYMIZED_FUNDS_RBF_WARNING: {
+        id: 'TR_NOT_ENOUGH_ANONYMIZED_FUNDS_RBF_WARNING',
+        description: 'Warning in coinjoin rbf form',
+        defaultMessage:
+            'Not enough private funds. You can either make more coins private or lower the privacy level.',
+    },
+    TR_UTXO_REGISTERED_IN_COINJOIN_RBF_WARNING: {
+        id: 'TR_UTXO_REGISTERED_IN_COINJOIN_RBF_WARNING',
+        description: 'Warning in coinjoin rbf form',
+        defaultMessage: 'Your coins are in use. Please turn off the coinjoin first.',
     },
     TR_BREAKING_ANONYMITY_CHECKBOX: {
         id: 'TR_BREAKING_ANONYMITY_CHECKBOX',
