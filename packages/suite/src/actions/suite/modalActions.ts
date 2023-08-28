@@ -2,8 +2,7 @@ import TrezorConnect, { UI } from '@trezor/connect';
 import { createDeferred, Deferred, DeferredResponse } from '@trezor/utils';
 import { MODAL, SUITE } from 'src/actions/suite/constants';
 import { Route, Dispatch, GetState, TrezorDevice } from 'src/types/suite';
-import { AccountLabels } from 'src/types/suite/metadata';
-import { Account, NetworkSymbol, WalletAccountTransaction } from 'src/types/wallet';
+import { Account, WalletAccountTransaction } from 'src/types/wallet';
 import { RequestEnableTorResponse } from 'src/components/suite/modals/RequestEnableTor';
 
 export type UserContextPayload =
@@ -22,23 +21,13 @@ export type UserContextPayload =
       }
     | {
           type: 'address';
-          device: TrezorDevice;
           value: string;
           addressPath: string;
-          symbol: NetworkSymbol;
-          networkType: Account['networkType'];
           isConfirmed?: boolean;
-          isCancelable?: boolean;
       }
     | {
           type: 'xpub';
-          device: TrezorDevice;
-          value: string;
-          accountIndex: number;
-          symbol: NetworkSymbol;
-          accountLabel: AccountLabels['accountLabel'];
           isConfirmed?: boolean;
-          isCancelable?: boolean;
       }
     | {
           type: 'passphrase-duplicate';

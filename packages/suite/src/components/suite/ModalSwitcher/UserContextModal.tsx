@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
-import { onCancel as onCancelAction } from 'src/actions/suite/modalActions';
+import { onCancel as onCancelAction, UserContextPayload } from 'src/actions/suite/modalActions';
 import { MODAL } from 'src/actions/suite/constants';
 import { useDispatch } from 'src/hooks/suite';
 import {
@@ -35,7 +35,7 @@ import { DisableTorStopCoinjoin } from 'src/components/suite/modals/DisableTorSt
 import { UnecoCoinjoinWarning } from 'src/components/suite/modals/UnecoCoinjoinWarning';
 import type { AcquiredDevice } from 'src/types/suite';
 import { openXpubModal, showXpub } from 'src/actions/wallet/publicKeyActions';
-import { showAddress, showUnverifiedAddress } from 'src/actions/wallet/receiveActions';
+import { showAddress, openAddressModal } from 'src/actions/wallet/receiveActions';
 import type { ReduxModalProps } from './types';
 
 /** Modals opened as a result of user action */
@@ -44,6 +44,14 @@ export const UserContextModal = ({
     renderer,
 }: ReduxModalProps<typeof MODAL.CONTEXT_USER>) => {
     const dispatch = useDispatch();
+
+    const verifyAddress = useCallback(() => {
+        const { addressPath, value } = payload as Extract<
+            UserContextPayload,
+            { type: 'unverified-address' }
+        >;
+        return showAddress(addressPath, value);
+    }, [payload]);
 
     const onCancel = () => dispatch(onCancelAction());
 
@@ -62,8 +70,10 @@ export const UserContextModal = ({
                 <ConfirmUnverified
                     showUnverifiedButtonText="TR_SHOW_UNVERIFIED_ADDRESS"
                     warningText="TR_ADDRESS_PHISHING_WARNING"
-                    verify={() => showAddress(payload.addressPath, payload.value)}
-                    showUnverified={() => showUnverifiedAddress(payload.addressPath, payload.value)}
+                    verify={verifyAddress}
+                    showUnverified={() =>
+                        openAddressModal({ addressPath: payload.addressPath, value: payload.value })
+                    }
                     onCancel={onCancel}
                 />
             );
@@ -73,7 +83,7 @@ export const UserContextModal = ({
                     showUnverifiedButtonText="TR_SHOW_UNVERIFIED_XPUB"
                     warningText="TR_XPUB_PHISHING_WARNING"
                     verify={showXpub}
-                    showUnverified={() => openXpubModal()}
+                    showUnverified={openXpubModal}
                     onCancel={onCancel}
                 />
             );

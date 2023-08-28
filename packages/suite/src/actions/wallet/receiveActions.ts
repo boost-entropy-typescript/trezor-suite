@@ -21,26 +21,24 @@ export const dispose = (): ReceiveAction => ({
     type: RECEIVE.DISPOSE,
 });
 
-export const showUnverifiedAddress =
-    (path: string, address: string) => (dispatch: Dispatch, getState: GetState) => {
-        const { device } = getState().suite;
-        const { account } = getState().wallet.selectedAccount;
-        if (!device || !account) return;
+export const openAddressModal =
+    (
+        params: Pick<
+            Extract<modalActions.UserContextPayload, { type: 'address' }>,
+            'addressPath' | 'value' | 'isConfirmed'
+        >,
+    ) =>
+    (dispatch: Dispatch) => {
         dispatch(
             modalActions.openModal({
                 type: 'address',
-                device,
-                value: address,
-                addressPath: path,
-                networkType: account.networkType,
-                symbol: account.symbol,
-                isCancelable: true,
+                ...params,
             }),
         );
         dispatch({
-            type: RECEIVE.SHOW_UNVERIFIED_ADDRESS,
-            path,
-            address,
+            type: params.isConfirmed ? RECEIVE.SHOW_ADDRESS : RECEIVE.SHOW_UNVERIFIED_ADDRESS,
+            path: params.addressPath,
+            address: params.value,
         });
     };
 
@@ -51,11 +49,8 @@ export const showAddress =
         if (!device || !account) return;
 
         const modalPayload = {
-            device,
             value: address,
             addressPath: path,
-            networkType: account.networkType,
-            symbol: account.symbol,
         };
 
         // Show warning when device is not connected
@@ -114,19 +109,7 @@ export const showAddress =
 
         if (response.success) {
             // show second part of the "confirm address" modal
-            dispatch(
-                modalActions.openModal({
-                    type: 'address',
-                    ...modalPayload,
-                    isConfirmed: true,
-                    isCancelable: true,
-                }),
-            );
-            dispatch({
-                type: RECEIVE.SHOW_ADDRESS,
-                path,
-                address,
-            });
+            dispatch(openAddressModal({ ...modalPayload, isConfirmed: true }));
         } else {
             dispatch(modalActions.onCancel());
             // special case: device no-backup permissions not granted
