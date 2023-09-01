@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Textarea, Icon } from '@trezor/components';
 import { QuestionTooltip } from 'src/components/suite';
@@ -35,6 +35,8 @@ export const Data = ({ close }: DataProps) => {
         setValue,
         setAmount,
         composeTransaction,
+        resetDefaultValue,
+        trigger,
         watch,
     } = useSendFormContext();
     const { translationString } = useTranslation();
@@ -44,41 +46,54 @@ export const Data = ({ close }: DataProps) => {
     const asciiError = errors.ethereumDataAscii;
     const hexError = errors.ethereumDataHex;
 
-    const { ref: asciiRef, ...asciiField } = register(inputAsciiName, {
-        required: translationString('DATA_NOT_SET'),
-        onChange: event => {
-            setValue(inputHexName, Buffer.from(event.target.value, 'ascii').toString('hex'), {
-                shouldValidate: true,
-            });
-            if (!amount) {
+    const handleClose = () => {
+        resetDefaultValue(inputAsciiName);
+        resetDefaultValue(inputHexName);
+        if (amount === '0') {
+            setAmount(0, '');
+        }
+        close();
+    };
+
+    const getChangeHandler =
+        (isHex: boolean) => (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+            setValue(
+                isHex ? inputAsciiName : inputHexName,
+                Buffer.from(event.target.value, isHex ? 'hex' : 'ascii').toString(
+                    isHex ? 'ascii' : 'hex',
+                ),
+                { shouldValidate: true },
+            );
+            if (!event.target.value && amount === '0') {
+                setAmount(0, '');
+            } else if (event.target.value && amount === '') {
                 setAmount(0, '0');
             }
-            if ((event.target.value === '' || asciiError) && amount === '0') {
-                setAmount(0, '');
-            }
-            composeTransaction(inputAsciiName);
-        },
+            composeTransaction(isHex ? inputHexName : inputAsciiName);
+        };
+
+    const { ref: asciiRef, ...asciiField } = register(inputAsciiName, {
+        onChange: getChangeHandler(false),
     });
     const { ref: hexRef, ...hexField } = register(inputHexName, {
-        onChange: event => {
-            setValue(
-                inputAsciiName,
-                !hexError ? Buffer.from(event.target.value, 'hex').toString('ascii') : '',
-            );
-            if (!amount) {
-                setValue(inputAmountName, '0');
+        onChange: getChangeHandler(true),
+        validate: value => {
+            if (value && !isHexValid(value, '0x')) {
+                return translationString('DATA_NOT_VALID_HEX');
             }
-            if ((event.target.value === '' || hexError) && amount === '0') {
-                setValue(inputAmountName, '');
+            if (value && value.length > 8192 * 2) {
+                return translationString('DATA_HEX_TOO_BIG'); // 8192 bytes limit for protobuf single message encoding in FW
             }
-            composeTransaction(inputHexName);
-        },
-        required: translationString('DATA_NOT_SET'),
-        validate: (value = '') => {
-            if (!isHexValid(value, '0x')) return translationString('DATA_NOT_VALID_HEX');
-            if (value.length > 8192 * 2) return translationString('DATA_HEX_TOO_BIG'); // 8192 bytes limit for protobuf single message encoding in FW
         },
     });
+
+    // Trigger amount validation after data is set. This removes the validation message if amount is 0.
+    // A transaction with 0 amount is valid as long as it has data - this type of transaction can be used to interact with contract.
+    useEffect(() => {
+        if (amount === '0' && hexValue) {
+            trigger(inputAmountName);
+        }
+    }, [amount, hexValue, trigger]);
 
     return (
         <Wrapper>
@@ -106,12 +121,7 @@ export const Data = ({ close }: DataProps) => {
                         size={20}
                         icon="CROSS"
                         data-test="send/close-ethereum-data"
-                        onClick={() => {
-                            if (amount === '0') {
-                                setValue('outputs.0.amount', '');
-                            }
-                            close();
-                        }}
+                        onClick={handleClose}
                     />
                 }
                 innerRef={hexRef}
