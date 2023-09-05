@@ -25,6 +25,7 @@ import {
     UnavailableCapabilities,
     FirmwareType,
 } from '../types';
+import { models } from '../data/models';
 
 // custom log
 const _log = initLog('Device');
@@ -121,6 +122,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
     networkTypeState: NETWORK.NetworkType[] = [];
 
     firmwareType?: FirmwareType;
+
+    name = 'Trezor';
+
+    color?: string;
 
     constructor(transport: Transport, descriptor: Descriptor) {
         super();
@@ -545,6 +550,20 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     ? FirmwareType.BitcoinOnly
                     : FirmwareType.Regular;
         }
+
+        const deviceInfo = models[feat.internal_model];
+
+        this.name = deviceInfo.name;
+
+        if (feat?.unit_color) {
+            const deviceUnitColor = feat.unit_color.toString();
+
+            if (deviceUnitColor in deviceInfo.colors) {
+                this.color = (deviceInfo.colors as Record<string, string>)[
+                    deviceUnitColor
+                ].toLowerCase();
+            }
+        }
     }
 
     isUnacquired() {
@@ -680,6 +699,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 path: this.originalDescriptor.path,
                 error: this.unreadableError, // provide error details
                 label: 'Unreadable device',
+                name: this.name,
             };
         }
         if (this.isUnacquired()) {
@@ -687,6 +707,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 type: 'unacquired',
                 path: this.originalDescriptor.path,
                 label: 'Unacquired device',
+                name: this.name,
             };
         }
         const defaultLabel = 'My Trezor';
@@ -702,6 +723,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
             state: this.getExternalState(),
             status,
             mode: this.getMode(),
+            name: this.name,
+            color: this.color,
             firmware: this.firmwareStatus,
             firmwareRelease: this.firmwareRelease,
             firmwareType: this.firmwareType,

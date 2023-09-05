@@ -8,7 +8,7 @@ import { QrCode, QRCODE_PADDING, QRCODE_SIZE } from 'src/components/suite/QrCode
 import { Button, ConfirmOnDevice, ModalProps, variables } from '@trezor/components';
 import { copyToClipboard } from '@trezor/dom-utils';
 import DeviceDisconnected from './Address/components/DeviceDisconnected';
-import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
+import { selectDevice, selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
 import { MODAL } from 'src/actions/suite/constants';
 import { ThunkAction } from 'src/types/suite';
 
@@ -69,11 +69,14 @@ export const ConfirmValueOnDevice = ({
     value,
     valueDataTest,
 }: ConfirmDeviceScreenProps) => {
-    const device = useSelector(state => state.suite.device);
+    const device = useSelector(selectDevice);
     const modalContext = useSelector(state => state.modal.context);
+    const isActionAbortable = useSelector(selectIsActionAbortable);
     const dispatch = useDispatch();
-    const showCopyButton = isConfirmed || !device?.connected;
-    const isActionAbortable = useSelector(selectIsActionAbortable) || showCopyButton;
+
+    const canConfirmOnDevice = !!(device?.connected && device?.available);
+    const showCopyButton = isConfirmed || !canConfirmOnDevice;
+    const isCancelable = isActionAbortable || showCopyButton;
 
     const copy = () => {
         const result = copyToClipboard(value);
@@ -84,17 +87,17 @@ export const ConfirmValueOnDevice = ({
 
     // Device connected while the modal is open -> validate on device.
     useEffect(() => {
-        if (device?.connected && modalContext === MODAL.CONTEXT_USER && !isConfirmed) {
+        if (canConfirmOnDevice && modalContext === MODAL.CONTEXT_USER && !isConfirmed) {
             dispatch(validateOnDevice());
         }
-    }, [device?.connected, dispatch, isConfirmed, modalContext, validateOnDevice]);
+    }, [canConfirmOnDevice, dispatch, isConfirmed, modalContext, validateOnDevice]);
 
     return (
         <StyledModal
-            isCancelable={isActionAbortable}
+            isCancelable={isCancelable}
             heading={heading}
             modalPrompt={
-                device?.connected ? (
+                canConfirmOnDevice ? (
                     <ConfirmOnDevice
                         title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
                         deviceModelInternal={device.features?.internal_model}
@@ -105,7 +108,7 @@ export const ConfirmValueOnDevice = ({
             onCancel={onCancel}
         >
             <Wrapper>
-                {device?.connected === false && <StyledDeviceDisconnected label={device.label} />}
+                {device && !device?.connected && <StyledDeviceDisconnected label={device.label} />}
                 <QrCode value={value} />
                 <Value data-test={valueDataTest}>{value}</Value>
                 {showCopyButton && (
