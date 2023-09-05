@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 
 import styled from 'styled-components';
 
@@ -16,6 +16,8 @@ import { Translation } from 'src/components/suite';
 import { useDevice, useFirmware, useOnboarding, useSelector } from 'src/hooks/suite';
 import { ReconnectDevicePrompt, InstallButton, FirmwareOffer } from 'src/components/firmware';
 import { getFwUpdateVersion } from 'src/utils/suite/device';
+
+import { selectDevices } from '../../reducers/suite/deviceReducer';
 
 const Description = styled.div`
     align-items: center;
@@ -44,7 +46,7 @@ const StyledConnectDevicePrompt = styled(ConnectDevicePromptManager)`
 
 interface FirmwareInitialProps {
     cachedDevice?: TrezorDevice;
-    setCachedDevice: React.Dispatch<React.SetStateAction<TrezorDevice | undefined>>;
+    setCachedDevice: Dispatch<SetStateAction<TrezorDevice | undefined>>;
     // This component is shared between Onboarding flow and standalone fw update modal with few minor UI changes
     // If it is set to true, then you know it is being rendered in standalone fw update modal
     standaloneFwUpdate?: boolean;
@@ -98,7 +100,7 @@ export const FirmwareInitial = ({
     const { device: liveDevice } = useDevice();
     const { setStatus, status } = useFirmware();
     const { goToNextStep, updateAnalytics } = useOnboarding();
-    const devices = useSelector(state => state.devices);
+    const devices = useSelector(selectDevices);
 
     // todo: move to utils device.ts
     const devicesConnected = devices.filter(device => device?.connected);

@@ -1,9 +1,8 @@
-import React from 'react';
-
 import { configureStore } from 'src/support/tests/configureStore';
-import { renderWithProviders, findByTestId } from 'src/support/tests/hooksHelper';
 
 import * as envUtils from '@trezor/env-utils';
+
+import { renderWithProviders, findByTestId } from 'src/support/tests/hooksHelper';
 
 import Preloader from '..';
 
@@ -34,7 +33,7 @@ jest.mock('src/components/suite/Translation', () => ({
 //     default: () => ['ref', { height: 0 }],
 // }));
 
-export const getInitialState = ({ suite, router }: any = {}) => ({
+export const getInitialState = ({ suite, router, device }: any = {}) => ({
     suite: {
         lifecycle: {
             status: 'ready',
@@ -46,7 +45,10 @@ export const getInitialState = ({ suite, router }: any = {}) => ({
         flags: {},
         ...suite,
     },
-    devices: [],
+    device: {
+        devices: [],
+        ...device,
+    },
     resize: {
         size: 'LARGE',
     },
@@ -183,7 +185,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { type: 'unacquired' },
+                },
+                device: {
+                    selectedDevice: { type: 'unacquired' },
                 },
             }),
         );
@@ -200,7 +204,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'WebUsbTransport' },
-                    device: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
+                },
+                device: {
+                    selectedDevice: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
                 },
             }),
         );
@@ -219,7 +225,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
+                },
+                device: {
+                    selectedDevice: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
                 },
             }),
         );
@@ -238,7 +246,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
+                },
+                device: {
+                    selectedDevice: { type: 'unreadable', error: 'LIBUSB_ERROR_ACCESS' },
                 },
             }),
         );
@@ -255,7 +265,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { type: 'unreadable', error: 'Unexpected error' },
+                },
+                device: {
+                    selectedDevice: { type: 'unreadable', error: 'Unexpected error' },
                 },
             }),
         );
@@ -272,7 +284,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { features: null },
+                },
+                device: {
+                    selectedDevice: { features: null },
                 },
             }),
         );
@@ -289,7 +303,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { mode: 'seedless', features: {} },
+                },
+                device: {
+                    selectedDevice: { mode: 'seedless', features: {} },
                 },
             }),
         );
@@ -307,7 +323,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { features: { recovery_mode: true } },
+                },
+                device: {
+                    selectedDevice: { features: { recovery_mode: true } },
                 },
             }),
         );
@@ -325,7 +343,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { mode: 'initialize', features: {} },
+                },
+                device: {
+                    selectedDevice: { mode: 'initialize', features: {} },
                 },
             }),
         );
@@ -343,7 +363,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { mode: 'bootloader', features: { firmware_present: true } },
+                },
+                device: {
+                    selectedDevice: { mode: 'bootloader', features: { firmware_present: true } },
                 },
             }),
         );
@@ -361,7 +383,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { mode: 'bootloader', features: { firmware_present: false } },
+                },
+                device: {
+                    selectedDevice: { mode: 'bootloader', features: { firmware_present: false } },
                 },
             }),
         );
@@ -379,7 +403,9 @@ describe('Preloader component', () => {
             getInitialState({
                 suite: {
                     transport: { type: 'BridgeTransport' },
-                    device: { firmware: 'required', features: {} },
+                },
+                device: {
+                    selectedDevice: { firmware: 'required', features: {} },
                 },
             }),
         );

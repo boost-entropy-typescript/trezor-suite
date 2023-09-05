@@ -1,8 +1,10 @@
-import React from 'react';
-import { filterThunkActionTypes } from 'src/support/tests/configureStore';
-import { configureMockStore, initPreloadedState } from '@suite-common/test-utils';
+import { useState, useEffect } from 'react';
 import { DeepPartial } from 'react-hook-form';
+
+import { configureMockStore, initPreloadedState } from '@suite-common/test-utils';
 import { PROTO } from '@trezor/connect';
+
+import { filterThunkActionTypes } from 'src/support/tests/configureStore';
 import {
     renderWithProviders,
     waitForLoader,
@@ -10,9 +12,9 @@ import {
     UserAction,
     actionSequence,
 } from 'src/support/tests/hooksHelper';
-
 import { FormState, SendContextValues } from 'src/types/wallet/sendForm';
 import SendIndex from 'src/views/wallet/send';
+
 import * as fixtures from '../__fixtures__/useSendForm';
 import { useSendFormContext } from '../useSendForm';
 
@@ -74,8 +76,8 @@ const Component = ({ callback }: { callback: TestCallback }) => {
     // sendForm.state.isLoading field is updated **BEFORE** last render of react-hook-form
     // results are verified **BEFORE** components are finally rerendered.
     // force additional re-render here (using state update) before removing loader from the view
-    const [loading, setLoading] = React.useState(false);
-    React.useEffect(() => {
+    const [loading, setLoading] = useState(false);
+    useEffect(() => {
         setLoading(values.isLoading);
     }, [loading, values.isLoading]);
 
