@@ -5,8 +5,8 @@ import { getFirmwareVersion } from '@trezor/device-utils';
 import { OnboardingButtonBack, OnboardingStepBox } from 'src/components/onboarding';
 import { Translation } from 'src/components/suite';
 import {
-    ContinueButton,
-    RetryButton,
+    FirmwareContinueButton,
+    FirmwareRetryButton,
     FirmwareInstallation,
     FirmwareInitial,
     Fingerprint,
@@ -65,12 +65,8 @@ const FirmwareStep = () => {
                 image="FIRMWARE"
                 heading={<Translation id="TR_FW_INSTALLATION_FAILED" />}
                 description={<Translation id="TOAST_GENERIC_ERROR" values={{ error }} />}
-                innerActions={<RetryButton onClick={() => firmwareUpdate(targetType)} />}
-                outerActions={
-                    <OnboardingButtonBack onClick={() => resetReducer()}>
-                        <Translation id="TR_BACK" />
-                    </OnboardingButtonBack>
-                }
+                innerActions={<FirmwareRetryButton onClick={() => firmwareUpdate(targetType)} />}
+                outerActions={<OnboardingButtonBack onClick={() => resetReducer()} />}
             />
         );
     }
@@ -101,7 +97,7 @@ const FirmwareStep = () => {
                     />
                 }
                 innerActions={
-                    <ContinueButton
+                    <FirmwareContinueButton
                         onClick={() => {
                             goToNextStep();
                             updateAnalytics({ firmware: 'up-to-date' });
