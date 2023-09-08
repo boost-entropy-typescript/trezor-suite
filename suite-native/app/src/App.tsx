@@ -10,13 +10,14 @@ import * as Sentry from '@sentry/react-native';
 // FIXME this is only temporary until Intl refactor will be finished
 import enMessages from '@trezor/suite-data/files/translations/en.json';
 import { selectIsAppReady, selectIsConnectInitialized, StoreProvider } from '@suite-native/state';
-import { NotificationRenderer } from '@suite-native/notifications';
+// import { NotificationRenderer } from '@suite-native/notifications';
 import { ToastRenderer } from '@suite-native/toasts';
 import { FormatterProvider } from '@suite-common/formatters';
 import { AlertRenderer } from '@suite-native/alerts';
 import { NavigationContainerWithAnalytics } from '@suite-native/navigation';
 import { AuthenticatorProvider } from '@suite-native/biometrics';
 import { MessageSystemRenderer } from '@suite-native/message-system';
+import { ScreenshotProvider, ScreenshotCapturer } from '@suite-native/screen-overlay';
 
 import { RootStackNavigator } from './navigation/RootStackNavigator';
 import { StylesProvider } from './StylesProvider';
@@ -57,16 +58,22 @@ const AppComponent = () => {
 
     return (
         <FormatterProvider config={formattersConfig}>
-            <AuthenticatorProvider>
-                <AlertRenderer>
-                    <MessageSystemRenderer />
-                    <NotificationRenderer>
+            <ScreenshotProvider>
+                <AuthenticatorProvider>
+                    <AlertRenderer>
+                        <MessageSystemRenderer />
+                        {/* Notifications are disabled until the problem with after-import notifications flooding is solved. */}
+                        {/* More here: https://github.com/trezor/trezor-suite/issues/7721  */}
+                        {/* <NotificationRenderer> */}
                         <ToastRenderer>
-                            <RootStackNavigator />
+                            <ScreenshotCapturer>
+                                <RootStackNavigator />
+                            </ScreenshotCapturer>
                         </ToastRenderer>
-                    </NotificationRenderer>
-                </AlertRenderer>
-            </AuthenticatorProvider>
+                        {/* </NotificationRenderer> */}
+                    </AlertRenderer>
+                </AuthenticatorProvider>
+            </ScreenshotProvider>
         </FormatterProvider>
     );
 };
