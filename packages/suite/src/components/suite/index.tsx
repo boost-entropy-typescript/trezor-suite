@@ -1,5 +1,6 @@
 import { AccountLabel } from './AccountLabel';
-import DeviceIcon from './images/DeviceIcon';
+import { DeviceConfirmImage } from './DeviceConfirmImage';
+import { DeviceIcon } from './DeviceIcon';
 import { CheckItem } from './CheckItem';
 import { PrerequisitesGuide } from './PrerequisitesGuide';
 import { WelcomeLayout } from './WelcomeLayout';
@@ -9,35 +10,36 @@ import PinInput from './PinInput';
 import NoRatesTooltip from './NoRatesTooltip';
 import { WordInput } from './WordInput';
 import { WordInputAdvanced } from './WordInputAdvanced';
-import Loading from './Loading';
-import BundleLoader from './BundleLoader';
+import { Loading } from './Loading';
+import { BundleLoader } from './BundleLoader';
 import { FiatValue } from './FiatValue';
 import { WebUsbButton } from './WebUsbButton';
 import { HiddenPlaceholder } from './HiddenPlaceholder';
 import { QuestionTooltip } from './QuestionTooltip';
 import TransactionsGraph from './TransactionsGraph';
-import DeviceInvalidModeLayout from './DeviceInvalidModeLayout';
+import { DeviceInvalidModeLayout } from './DeviceInvalidModeLayout';
 import { AppNavigationPanel } from './AppNavigationPanel';
 import { AppNavigationTooltip } from './AppNavigationTooltip';
 import { AppNavigation } from './AppNavigation';
 import Ticker from './Ticker';
 import { Translation } from './Translation';
-import { AccountLabeling, AddressLabeling, WalletLabeling, MetadataLabeling } from './Labeling';
+import { AccountLabeling, AddressLabeling, WalletLabeling, MetadataLabeling } from './labeling';
 import { FormattedCryptoAmount } from './FormattedCryptoAmount';
 import { FormattedNftAmount } from './FormattedNftAmount';
 import { Sign } from './Sign';
-import AddAccountButton from './AddAccountButton';
+import { AddAccountButton } from './AddAccountButton';
 import { ToastContainer } from './ToastContainer';
 import TrezorLink from './TrezorLink';
 import { ReadMoreLink } from './ReadMoreLink';
 import { Modal, ModalProps } from './Modal';
 import { SkeletonRectangle, SkeletonCircle } from './Skeleton';
 import Notifications from './Notifications';
-import FormattedDate, { FormattedDateWithBullet } from './FormattedDate';
-import Metadata from './Metadata';
+import { FormattedDate } from './FormattedDate';
+import { FormattedDateWithBullet } from './FormattedDateWithBullet';
+import { Metadata } from './Metadata';
 import { HomescreenGallery } from './HomescreenGallery';
-import DeviceMatrixExplanation from './DeviceMatrixExplanation';
-import AccountFormCloseButton from './AccountFormCloseButton';
+import { DeviceMatrixExplanation } from './DeviceMatrixExplanation';
+import { AccountFormCloseButton } from './AccountFormCloseButton';
 import { TroubleshootingTips } from './TroubleshootingTips';
 import { ConnectDevicePrompt } from './ConnectDevicePrompt';
 import { DeviceButton } from './DeviceButton';
@@ -45,7 +47,7 @@ import { Coin } from './Coin';
 import { CoinsGroup } from './CoinsGroup/CoinsGroup';
 import { CoinsList } from './CoinsGroup/CoinsList';
 import CharacterCount from './CharacterCount';
-import CloseButton from './CloseButton';
+import { CloseButton } from './CloseButton';
 import TooltipSymbol from './TooltipSymbol';
 import StatusLight from './StatusLight';
 import { AmountUnitSwitchWrapper } from './AmountUnitSwitchWrapper';
@@ -60,6 +62,7 @@ import { CoinBalance } from './CoinBalance';
 
 export {
     AccountLabel,
+    DeviceConfirmImage,
     DeviceIcon,
     CheckItem,
     DeviceInvalidModeLayout,
