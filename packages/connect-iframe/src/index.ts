@@ -32,11 +32,16 @@ import { suggestUdevInstaller } from '@trezor/connect/src/data/udevInfo';
 import { storage, getSystemInfo, getInstallerPackage } from '@trezor/connect-common';
 import { parseConnectSettings, isOriginWhitelisted } from './connectSettings';
 import { analytics, EventType } from '@trezor/connect-analytics';
+import { logWriterFactory } from './logWriter';
 
 let _core: Core | undefined;
 
 // custom log
 const _log = initLog('IFrame');
+// `connectWebLog` does not log in original console, used just as proxy to shared logger
+// that's why it is not enabled.
+const connectWebLog = initLog('@trezor/connect-web', false);
+
 let _popupMessagePort: (MessagePort | BroadcastChannel) | undefined;
 
 // Wrapper which listens to events from Core
@@ -54,6 +59,16 @@ const handleMessage = (event: PostMessageEvent) => {
         postMessage(createResponseMessage(id, false, { error }));
         postMessage(createPopupMessage(POPUP.CANCEL_POPUP_REQUEST));
     };
+
+    if (data.type === IFRAME.LOG && data.payload.prefix === '@trezor/connect-web') {
+        const { level, prefix, message } = data.payload;
+        if (Array.isArray(message)) {
+            connectWebLog.addMessage(level, prefix, ...message);
+        } else {
+            connectWebLog.addMessage(level, message);
+        }
+        return;
+    }
 
     // respond to call
     // TODO: instead of error _core should be initialized automatically
@@ -293,7 +308,7 @@ const init = async (payload: IFrameInit['payload'], origin: string) => {
 
     try {
         // initialize core
-        _core = await initCore(parsedSettings);
+        _core = await initCore(parsedSettings, logWriterFactory);
         _core.on(CORE_EVENT, postMessage);
 
         // initialize transport and wait for the first transport event (start or error)

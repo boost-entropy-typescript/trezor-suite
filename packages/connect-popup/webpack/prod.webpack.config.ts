@@ -17,6 +17,7 @@ const config: webpack.Configuration = {
     mode: 'production',
     entry: {
         popup: path.resolve(__dirname, '../src/index.tsx'),
+        log: path.resolve(__dirname, '../src/log.tsx'),
     },
     output: {
         filename: 'js/[name].[contenthash].js',
@@ -81,6 +82,14 @@ const config: webpack.Configuration = {
             chunks: ['popup'],
             template: `${STATIC_SRC}/popup.html`,
             filename: 'popup.html',
+            inject: false,
+            minify: false,
+            urls: URLS,
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['log'],
+            template: `${STATIC_SRC}/log.html`,
+            filename: 'log.html',
             inject: false,
             minify: false,
             urls: URLS,
