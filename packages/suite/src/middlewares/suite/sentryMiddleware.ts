@@ -14,6 +14,7 @@ import {
 } from '@trezor/device-utils';
 import { DEVICE, TRANSPORT } from '@trezor/connect';
 import { analyticsActions } from '@suite-common/analytics';
+import { deviceAuthenticityActions } from '@suite-common/device-authenticity';
 
 import { WALLET_SETTINGS } from 'src/actions/settings/constants';
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
@@ -26,7 +27,13 @@ import {
     PROTOCOL,
 } from 'src/actions/suite/constants';
 import { getSuiteReadyPayload } from 'src/utils/suite/analytics';
-import { addSentryBreadcrumb, setSentryContext, setSentryTag } from 'src/utils/suite/sentry';
+import {
+    addSentryBreadcrumb,
+    setSentryContext,
+    setSentryTag,
+    withSentryScope,
+    captureSentryMessage,
+} from 'src/utils/suite/sentry';
 import { AppState, Action, Dispatch } from 'src/types/suite';
 
 const deviceContextName = 'trezor-device';
@@ -119,6 +126,20 @@ const sentryMiddleware =
                 setSentryContext('transport', {
                     name: type /* type key is used internally by Sentry so it's not allowed */,
                     version: version || 'not-available',
+                });
+                break;
+            }
+            case deviceAuthenticityActions.result.type: {
+                if (action.payload.result.valid) return;
+
+                withSentryScope(scope => {
+                    scope.setLevel('error');
+                    scope.setTag('deviceAuthenticityError', action.payload.result.error);
+                    captureSentryMessage(
+                        `Device authenticity invalid!
+                        ${JSON.stringify(action.payload.result, null, 2)}`,
+                        scope,
+                    );
                 });
                 break;
             }

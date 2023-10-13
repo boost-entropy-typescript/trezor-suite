@@ -108,6 +108,9 @@ export type UserContextPayload =
           type: 'wipe-device';
       }
     | {
+          type: 'device-authenticity-opt-out';
+      }
+    | {
           type: 'disconnect-device';
       }
     | {
@@ -156,4 +159,10 @@ export type UserContextPayload =
       }
     | {
           type: 'uneco-coinjoin-warning';
+      }
+    | {
+          type: 'authenticate-device';
+      }
+    | {
+          type: 'authenticate-device-fail';
       };

@@ -1,5 +1,5 @@
 import { DeviceModelInternal, type TransportInfo } from '@trezor/connect';
-import { pickByDeviceModel } from '@trezor/device-utils';
+import { isBitcoinOnlyDevice, pickByDeviceModel } from '@trezor/device-utils';
 import { isDeviceRemembered } from '@suite-common/suite-utils';
 
 import { SettingsLayout } from 'src/components/settings';
@@ -23,15 +23,15 @@ import { DisplayRotation } from './DisplayRotation';
 import { AutoLock } from './AutoLock';
 import { WipeDevice } from './WipeDevice';
 import { CustomFirmware } from './CustomFirmware';
+import { AuthenticateDevice } from './AuthenticateDevice';
+import { DeviceAuthenticityOptOut } from './DeviceAuthenticityOptOut';
 
 const deviceSettingsUnavailable = (device?: TrezorDevice, transport?: Partial<TransportInfo>) => {
     const noTransportAvailable = transport && !transport.type;
     const wrongDeviceType = device?.type && ['unacquired', 'unreadable'].includes(device.type);
     const wrongDeviceMode =
-        (device?.mode && ['seedless', 'initialize'].includes(device.mode)) ||
-        device?.features?.recovery_mode;
+        (device?.mode && ['seedless'].includes(device.mode)) || device?.features?.recovery_mode;
     const firmwareUpdateRequired = device?.firmware === 'required';
-
     return noTransportAvailable || wrongDeviceType || wrongDeviceMode || firmwareUpdateRequired;
 };
 
@@ -42,8 +42,12 @@ export const SettingsDevice = () => {
     const deviceUnavailable = !device?.features;
     const isDeviceLocked = isLocked();
     const bootloaderMode = device?.mode === 'bootloader';
+    const initializeMode = device?.mode === 'initialize';
     const deviceRemembered = isDeviceRemembered(device) && !device?.connected;
     const deviceModelInternal = device?.features?.internal_model;
+    const bitcoinOnlyDevice = isBitcoinOnlyDevice(device);
+    const supportsDeviceAuthentication = deviceModelInternal === DeviceModelInternal.T2B1;
+    const supportsDisplayRotation = deviceModelInternal === DeviceModelInternal.T2T1;
 
     if (deviceSettingsUnavailable(device, transport)) {
         return (
@@ -98,7 +102,7 @@ export const SettingsDevice = () => {
                 />
             )}
 
-            {!bootloaderMode && (
+            {!bootloaderMode && !initializeMode && (
                 <SettingsSection title={<Translation id="TR_BACKUP" />} icon="NEWSPAPER">
                     {unfinishedBackup ? (
                         <BackupFailed />
@@ -113,10 +117,12 @@ export const SettingsDevice = () => {
 
             <SettingsSection title={<Translation id="TR_FIRMWARE" />} icon="FIRMWARE">
                 <FirmwareVersion isDeviceLocked={isDeviceLocked} />
-                {!bootloaderMode && <FirmwareTypeChange isDeviceLocked={isDeviceLocked} />}
+                {(!bootloaderMode || bitcoinOnlyDevice) && (
+                    <FirmwareTypeChange isDeviceLocked={isDeviceLocked} />
+                )}
             </SettingsSection>
 
-            {!bootloaderMode && (
+            {!bootloaderMode && !initializeMode && (
                 <>
                     <SettingsSection
                         title={<Translation id="TR_DEVICE_SECURITY" />}
@@ -126,12 +132,13 @@ export const SettingsDevice = () => {
                         {pinProtection && <ChangePin isDeviceLocked={isDeviceLocked} />}
                         <Passphrase isDeviceLocked={isDeviceLocked} />
                         {safetyChecks && <SafetyChecks isDeviceLocked={isDeviceLocked} />}
+                        {supportsDeviceAuthentication && <AuthenticateDevice />}
                     </SettingsSection>
 
                     <SettingsSection title={<Translation id="TR_PERSONALIZATION" />} icon="PALETTE">
                         <DeviceLabel isDeviceLocked={isDeviceLocked} />
                         <Homescreen isDeviceLocked={isDeviceLocked} />
-                        {deviceModelInternal === DeviceModelInternal.T2T1 && (
+                        {supportsDisplayRotation && (
                             <DisplayRotation isDeviceLocked={isDeviceLocked} />
                         )}
                         {pinProtection && <AutoLock isDeviceLocked={isDeviceLocked} />}
@@ -142,6 +149,7 @@ export const SettingsDevice = () => {
             <SettingsSection title={<Translation id="TR_ADVANCED" />} icon="GHOST">
                 <WipeDevice isDeviceLocked={isDeviceLocked} />
                 <CustomFirmware />
+                {supportsDeviceAuthentication && <DeviceAuthenticityOptOut />}
             </SettingsSection>
         </SettingsLayout>
     );

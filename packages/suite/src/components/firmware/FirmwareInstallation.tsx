@@ -31,7 +31,6 @@ export const FirmwareInstallation = ({
     const { device } = useDevice();
     const { status, installingProgress, resetReducer, isWebUSB, subsequentInstalling } =
         useFirmware();
-    const deviceModelInternal = device?.features?.internal_model;
     const cachedDeviceModelInternal = cachedDevice?.features?.internal_model;
     const isActionAbortable = useSelector(selectIsActionAbortable);
 
@@ -66,10 +65,6 @@ export const FirmwareInstallation = ({
 
             case 'done':
             case 'partially-done':
-                if (status === 'done' && deviceModelInternal === DeviceModelInternal.T2B1) {
-                    return;
-                }
-
                 return (
                     <Button
                         variant="primary"
@@ -82,7 +77,7 @@ export const FirmwareInstallation = ({
             default:
                 return undefined;
         }
-    }, [status, isWebUSB, getContinueAction, standaloneFwUpdate, deviceModelInternal]);
+    }, [status, isWebUSB, getContinueAction, standaloneFwUpdate]);
 
     return (
         <>
@@ -103,9 +98,7 @@ export const FirmwareInstallation = ({
                         <Translation id="TR_INSTALL_FIRMWARE" />
                     )
                 }
-                deviceModelInternal={
-                    status === 'waiting-for-confirmation' ? deviceModelInternal : undefined
-                }
+                device={status === 'waiting-for-confirmation' ? device : undefined}
                 isActionAbortable={isActionAbortable}
                 innerActions={InnerActionComponent}
                 nested={!!standaloneFwUpdate}

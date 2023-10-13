@@ -7656,6 +7656,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/device-authenticity@workspace:*, @suite-common/device-authenticity@workspace:suite-common/device-authenticity":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/device-authenticity@workspace:suite-common/device-authenticity"
+  dependencies:
+    "@reduxjs/toolkit": 1.9.5
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/toast-notifications": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    jest: ^26.6.3
+    tsx: ^3.12.7
+    typescript: 4.9.5
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/fiat-services@workspace:*, @suite-common/fiat-services@workspace:suite-common/fiat-services":
   version: 0.0.0-use.local
   resolution: "@suite-common/fiat-services@workspace:suite-common/fiat-services"
@@ -7957,6 +7972,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": ^3.13.1
     "@reduxjs/toolkit": 1.9.5
+    "@suite-common/device-authenticity": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-config": "workspace:*"
@@ -10069,6 +10085,7 @@ __metadata:
     "@sentry/core": ^7.56.0
     "@suite-common/analytics": "workspace:*"
     "@suite-common/connect-init": "workspace:*"
+    "@suite-common/device-authenticity": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/intl-types": "workspace:*"

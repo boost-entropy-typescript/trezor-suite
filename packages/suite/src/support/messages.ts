@@ -2166,19 +2166,22 @@ export default defineMessages({
         description: 'Button to click to contact support',
         id: 'TR_CONTACT_SUPPORT',
     },
-    TR_SECURITY_CHECK_CONTACT_SUPPORT: {
-        defaultMessage: 'If something seems off, contact support.',
-        description: 'Button to click to contact support',
-        id: 'TR_SECURITY_CHECK_CONTACT_SUPPORT',
-    },
     TR_CONTINUE: {
         defaultMessage: 'Continue',
         description: 'Generic continue button',
         id: 'TR_CONTINUE',
     },
-    TR_ONBOARDING_START_CTA: {
-        defaultMessage: 'Setup Trezor',
-        id: 'TR_ONBOARDING_START_CTA',
+    TR_YES_CONTINUE: {
+        defaultMessage: 'Yes, continue',
+        id: 'TR_YES_CONTINUE',
+    },
+    TR_SETUP_MY_TREZOR: {
+        defaultMessage: 'Set up my Trezor',
+        id: 'TR_SETUP_MY_TREZOR',
+    },
+    TR_YES_SETUP_MY_TREZOR: {
+        defaultMessage: 'Yes, set up my Trezor',
+        id: 'TR_YES_SETUP_MY_TREZOR',
     },
     TR_COPY_TO_CLIPBOARD: {
         defaultMessage: 'Copy',
@@ -2195,7 +2198,7 @@ export default defineMessages({
     },
     TR_DEVICE: {
         defaultMessage: 'Device',
-        description: 'Category in Settings',
+        description: 'Category in Settings, step in Onboarding',
         id: 'TR_DEVICE',
     },
     TR_DEVICE_DISCONNECTED_DURING_ACTION_DESCRIPTION: {
@@ -2539,6 +2542,12 @@ export default defineMessages({
         description: 'Main text on firmware page for devices without firmware',
         id: 'TR_FIRMWARE_SUBHEADING_NONE',
     },
+    TR_FIRMWARE_SUBHEADING_NONE_BITCOIN_ONLY_DEVICE: {
+        defaultMessage:
+            'Your device is ready to receive the latest firmware in order to be used safely. For Bitcoin enthusiasts, a Bitcoin-only firmware is available.',
+        description: 'Main text on firmware page for Bitcoin-only devices without firmware',
+        id: 'TR_FIRMWARE_SUBHEADING_NONE_BITCOIN_ONLY_DEVICE',
+    },
     TR_FIRMWARE_SUBHEADING_UNKNOWN: {
         defaultMessage:
             'Your device is ready to receive the latest full-featured firmware in order to be used safely. If you use only bitcoin, we recommend installing <button>{bitcoinOnly} firmware</button>.',
@@ -2550,6 +2559,11 @@ export default defineMessages({
         defaultMessage: 'Lightweight firmware supporting only Bitcoin operations.',
         description: 'Explanation of Bitcoin-only firmware in onboarding',
         id: 'TR_FIRMWARE_SUBHEADING_BITCOIN',
+    },
+    TR_FIRMWARE_SUBHEADING_UNKNOWN_BITCOIN_ONLY_DEVICE: {
+        defaultMessage: 'A lightweight firmware supporting Bitcoin-only operations.',
+        description: 'Explanation of Bitcoin-only firmware in onboarding for Bitcoin-only devices',
+        id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN_BITCOIN_ONLY_DEVICE',
     },
     TR_CHANGE_FIRMWARE_TYPE_ANYTIME: {
         defaultMessage: 'You can change your firmware type in Settings anytime.',
@@ -6041,7 +6055,7 @@ export default defineMessages({
     },
     TR_TAKES_N_MINUTES: {
         id: 'TR_TAKES_N_MINUTES',
-        defaultMessage: 'Takes ~{n} mins',
+        defaultMessage: 'Usually takes <{n} mins',
     },
     TR_INPUTS_OUTPUTS: {
         id: 'TR_INPUTS_OUTPUTS',
@@ -6592,21 +6606,9 @@ export default defineMessages({
         id: 'TR_GUIDE_FEEDBACK_ERROR',
         defaultMessage: 'A server error has occurred. Please try again later.',
     },
-    TR_ONBOARDING_STEP_FIRMWARE: {
-        id: 'TR_ONBOARDING_STEP_FIRMWARE',
-        defaultMessage: 'Firmware',
-    },
     TR_ONBOARDING_STEP_WALLET: {
         id: 'TR_ONBOARDING_STEP_WALLET',
         defaultMessage: 'Wallet',
-    },
-    TR_ONBOARDING_STEP_PIN: {
-        id: 'TR_ONBOARDING_STEP_PIN',
-        defaultMessage: 'PIN',
-    },
-    TR_ONBOARDING_STEP_COINS: {
-        id: 'TR_ONBOARDING_STEP_COINS',
-        defaultMessage: 'Coins',
     },
     TR_ONBOARDING_CURRENT_VERSION: {
         id: 'TR_ONBOARDING_CURRENT_VERSION',
@@ -6656,11 +6658,23 @@ export default defineMessages({
         id: 'TR_WIPE_OR_UPDATE_DESCRIPTION',
         defaultMessage: 'Go to device settings',
     },
+    TR_YOU_HAVE_CONNECTED: {
+        id: 'TR_YOU_HAVE_CONNECTED',
+        defaultMessage: "You've connected a",
+    },
+    TR_CONNECTED_DIFFERENT_DEVICE: {
+        id: 'TR_CONNECTED_DIFFERENT_DEVICE',
+        defaultMessage: 'Connected a different device?',
+    },
     TR_ONBOARDING_DEVICE_CHECK: {
         id: 'TR_ONBOARDING_DEVICE_CHECK',
-        defaultMessage: 'Security check',
+        defaultMessage: 'Device security check',
         description:
             'Heading for an onboarding step where we ask the user to verify authenticity of his device',
+    },
+    TR_USED_TREZOR_BEFORE: {
+        id: 'TR_USED_TREZOR_BEFORE',
+        defaultMessage: 'Have you used this Trezor before?',
     },
     TR_ONBOARDING_DEVICE_CHECK_1: {
         id: 'TR_ONBOARDING_DEVICE_CHECK_1',
@@ -6679,6 +6693,144 @@ export default defineMessages({
         description: 'Shown only if device has firmware already installed',
         defaultMessage:
             'Firmware is already installed on the connected Trezor. Only continue with setup if you have used this Trezor before.',
+    },
+    TR_I_HAVE_NOT_USED_IT: {
+        id: 'TR_I_HAVE_NOT_USED_IT',
+        defaultMessage: "No, I haven't",
+    },
+    TR_I_HAVE_DOUBTS: {
+        id: 'TR_I_HAVE_DOUBTS',
+        defaultMessage: 'I have doubts',
+    },
+    TR_DEVICE_COMPROMISED_HEADING: {
+        id: 'TR_DEVICE_COMPROMISED_HEADING',
+        defaultMessage: 'Your device may have been compromised',
+    },
+    TR_DEVICE_COMPROMISED_TEXT: {
+        id: 'TR_DEVICE_COMPROMISED_TEXT',
+        defaultMessage:
+            "Contact Trezor Support to figure out what's going on with your device and what to do next.",
+    },
+    TR_DISCONNECT_DEVICE: {
+        id: 'TR_DISCONNECT_DEVICE',
+        defaultMessage: 'Disconnect your device from your laptop or computer.',
+    },
+    TR_AVOID_USING_DEVICE: {
+        id: 'TR_AVOID_USING_DEVICE',
+        defaultMessage: 'Avoid using this device or sending any funds to it.',
+    },
+    TR_USE_CHAT: {
+        id: 'TR_USE_CHAT',
+        defaultMessage: 'Click below and use the <b>Chat</b> option on the next page.',
+    },
+    TR_CONTACT_TREZOR_SUPPORT: {
+        id: 'TR_CONTACT_TREZOR_SUPPORT',
+        defaultMessage: 'Contact Trezor Support',
+    },
+    TR_LETS_CHECK_YOUR_DEVICE: {
+        id: 'TR_LETS_CHECK_YOUR_DEVICE',
+        defaultMessage: 'Let’s check your device',
+    },
+    TR_CHECKING_YOUR_DEVICE: {
+        id: 'TR_CHECKING_YOUR_DEVICE',
+        defaultMessage: 'Checking your device',
+    },
+    TR_AUTHENTICATE_DEVICE_DESCRIPTION: {
+        id: 'TR_AUTHENTICATE_DEVICE_DESCRIPTION',
+        defaultMessage: 'We just want to make sure that your Trezor is legit.',
+    },
+    TR_DEVICE_AUTHENTICITY_ITEM_1: {
+        id: 'TR_DEVICE_AUTHENTICITY_ITEM_1',
+        defaultMessage:
+            "This check is a must-do step to ensure your device's reliability, integrity, and secure use.",
+    },
+    TR_DEVICE_AUTHENTICITY_ITEM_2: {
+        id: 'TR_DEVICE_AUTHENTICITY_ITEM_2',
+        defaultMessage:
+            'This confirms that the chip inside your hardware wallet is genuine and from Trezor.',
+    },
+    TR_DEVICE_AUTHENTICITY_ITEM_3: {
+        id: 'TR_DEVICE_AUTHENTICITY_ITEM_3',
+        defaultMessage:
+            'Once your device has been given a clean bill of health, you’re all set to Trezor with confidence.',
+    },
+    TR_START_CHECK: {
+        id: 'TR_START_CHECK',
+        defaultMessage: 'Start',
+    },
+    TR_CONGRATS: {
+        id: 'TR_CONGRATS',
+        defaultMessage: 'Congrats!',
+    },
+    TR_DEVICE_AUTHENTICITY_SUCCESS_DESCRIPTION: {
+        id: 'TR_DEVICE_AUTHENTICITY_SUCCESS_DESCRIPTION',
+        defaultMessage: 'Your {deviceName} is ready to go!',
+    },
+    TR_CHECK_DEVICE_ORIGIN_TITLE: {
+        id: 'TR_CHECK_DEVICE_ORIGIN_TITLE',
+        defaultMessage: 'Check device',
+    },
+    TR_CHECK_DEVICE_ORIGIN_DESCRIPTION: {
+        id: 'TR_CHECK_DEVICE_ORIGIN_DESCRIPTION',
+        defaultMessage:
+            "We'll verify the integrity of your Trezor device, ensuring its safety and confirming the authenticity of the chip.",
+    },
+    TR_CHECK_ORIGIN: {
+        id: 'TR_CHECK_ORIGIN',
+        defaultMessage: 'Check device',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE',
+        defaultMessage: 'Disable device check',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE_DISABLED: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE_DISABLED',
+        defaultMessage: 'Enable device check',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION',
+        defaultMessage:
+            'Device check is a vital security feature that keeps you safe from potentially using a fake or compromised device. We don’t recommend turning it off.',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION_DISABLED: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION_DISABLED',
+        defaultMessage:
+            'Device check is a vital security feature that keeps you safe from potentially using a fake or compromised device. We strongly recommend turning it on.',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON',
+        defaultMessage: 'Turn off',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON_DISABLED: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON_DISABLED',
+        defaultMessage: 'Turn on',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_HEADING: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_HEADING',
+        defaultMessage: 'Essential to understand',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_BUTTON: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_BUTTON',
+        defaultMessage: 'Turn off',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_CHECKBOX_TITLE: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_CHECKBOX_TITLE',
+        defaultMessage: 'I’ve read and understood the above ',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_1: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_1',
+        defaultMessage:
+            "Only turn off the device check if you're fully aware of what you're doing and have clear reasons for doing so. If you're uncertain, contact Trezor Support for assistance.",
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_2: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_2',
+        defaultMessage:
+            'Don’t turn off this feature unless your device has successfully passed the check beforehand. Using an unverified device may lead to the loss of your funds.',
+    },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_3: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_DESCRIPTION_3',
+        defaultMessage:
+            'Trezor Support will never ask you to turn off the device check. This feature has been designed to ensure your security.',
     },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
@@ -7130,6 +7282,14 @@ export default defineMessages({
     TR_FIRMWARE_CHECK_AUTHENTICITY_SUCCESS: {
         id: 'TR_FIRMWARE_CHECK_AUTHENTICITY_SUCCESS',
         defaultMessage: 'Firmware authentic',
+    },
+    TR_DEVICE_AUTHENTICITY_SUCCESS: {
+        id: 'TR_DEVICE_AUTHENTICITY_SUCCESS',
+        defaultMessage: 'Device is genuine',
+    },
+    TR_DEVICE_AUTHENTICITY_ERROR: {
+        id: 'TR_DEVICE_AUTHENTICITY_ERROR',
+        defaultMessage: "Device isn't genuine",
     },
     TR_FEE_ROUNDING_WARNING: {
         id: 'TR_FEE_ROUNDING_WARNING',

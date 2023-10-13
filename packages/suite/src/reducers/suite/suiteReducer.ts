@@ -25,6 +25,7 @@ export interface DebugModeOptions {
     showDebugMenu: boolean;
     checkFirmwareAuthenticity: boolean;
     transports: Extract<NonNullable<ConnectSettings['transports']>[number], string>[];
+    isUnlockedBootloaderAllowed: boolean;
 }
 
 export interface AutodetectSettings {
@@ -66,6 +67,7 @@ export interface SuiteSettings {
     isDesktopSuitePromoHidden: boolean;
     debug: DebugModeOptions;
     autodetect: AutodetectSettings;
+    isDeviceAuthenticityCheckDisabled: boolean;
 }
 
 export interface SuiteState {
@@ -106,11 +108,13 @@ const initialState: SuiteState = {
         torOnionLinks: isWeb(),
         isCoinjoinReceiveWarningHidden: false,
         isDesktopSuitePromoHidden: false,
+        isDeviceAuthenticityCheckDisabled: false,
         debug: {
             invityServerEnvironment: undefined,
             showDebugMenu: false,
             checkFirmwareAuthenticity: false,
             transports: [],
+            isUnlockedBootloaderAllowed: false,
         },
         autodetect: {
             language: true,
@@ -215,7 +219,9 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
             case SUITE.DESKTOP_SUITE_PROMO:
                 draft.settings.isDesktopSuitePromoHidden = action.payload;
                 break;
-
+            case SUITE.DEVICE_AUTHENTICITY_OPT_OUT:
+                draft.settings.isDeviceAuthenticityCheckDisabled = action.payload;
+                break;
             case SUITE.LOCK_UI:
                 changeLock(draft, SUITE.LOCK_TYPE.UI, action.payload);
                 break;
@@ -254,7 +260,9 @@ export const selectTorState = (state: SuiteRootState) => {
     };
 };
 
-export const selectDebug = (state: SuiteRootState) => state.suite.settings.debug;
+// TODO: use this selector in all places where we need to check if debug mode is active
+export const selectIsDebugModeActive = (state: SuiteRootState) =>
+    state.suite.settings.debug.showDebugMenu;
 
 export const selectLanguage = (state: SuiteRootState) => state.suite.settings.language;
 

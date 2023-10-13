@@ -55,6 +55,7 @@ const Header = styled.div`
     max-width: ${MAX_WIDTH};
     background: ${({ theme }) => theme.BG_LIGHT_GREY};
     box-shadow: 0px 14px 10px 4px ${({ theme }) => theme.BG_LIGHT_GREY};
+    margin-bottom: 14px;
     z-index: ${variables.Z_INDEX.BASE};
 
     ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
@@ -106,8 +107,8 @@ const Content = styled.div`
 
 const progressBarSteps = [
     {
-        key: 'fw',
-        label: <Translation id="TR_ONBOARDING_STEP_FIRMWARE" />,
+        key: 'device',
+        label: <Translation id="TR_DEVICE" />,
     },
     {
         key: 'wallet',
@@ -115,11 +116,11 @@ const progressBarSteps = [
     },
     {
         key: 'pin',
-        label: <Translation id="TR_ONBOARDING_STEP_PIN" />,
+        label: <Translation id="TR_PIN" />,
     },
     {
         key: 'coins',
-        label: <Translation id="TR_ONBOARDING_STEP_COINS" />,
+        label: <Translation id="TR_COINS" />,
     },
     {
         key: 'final',
