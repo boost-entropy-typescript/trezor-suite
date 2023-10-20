@@ -18,7 +18,7 @@ export type LabelableEntityKeysByVersion = DeviceEntityKeys | AccountEntityKeys;
 export type MetadataAddPayload =
     | {
           type: 'outputLabel';
-          accountKey: string;
+          entityKey: string;
           txid: string;
           outputIndex: number;
           defaultValue: string;
@@ -26,19 +26,19 @@ export type MetadataAddPayload =
       }
     | {
           type: 'addressLabel';
-          accountKey: string;
+          entityKey: string;
           defaultValue: string;
           value?: string;
       }
     | {
           type: 'accountLabel';
-          accountKey: string;
+          entityKey: string;
           defaultValue: string;
           value?: string;
       }
     | {
           type: 'walletLabel';
-          deviceState: string;
+          entityKey: string;
           defaultValue: string;
           value?: string;
       };
@@ -187,13 +187,7 @@ export interface WalletLabels {
 
 export type Labels = AccountLabels | WalletLabels;
 
-export type DeviceMetadata =
-    | {
-          status: 'disabled' | 'cancelled'; // user rejects "Enable labeling" on device
-      }
-    | ({
-          status: 'enabled';
-      } & DeviceEntityKeys);
+export type DeviceMetadata = DeviceEntityKeys;
 
 type Data = Record<
     LabelableEntityKeys['fileName'], // unique "id" for mapping with labelable entitties
@@ -234,6 +228,12 @@ export interface MetadataState {
     // field shall hold default value for which user may add metadata (address, txId, etc...);
     editing?: string;
     initiating?: boolean;
+    /**
+     * error, typical reasons:
+     * - user clicked cancel button on device when "Enable labeling" was shown.
+     * - device disconnected
+     */
+    error?: { [deviceState: string]: boolean };
 }
 
 export type OAuthServerEnvironment = 'production' | 'staging' | 'localhost';

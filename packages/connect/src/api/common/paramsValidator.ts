@@ -4,7 +4,7 @@ import { versionUtils } from '@trezor/utils';
 import { ERRORS } from '../../constants';
 import { fromHardened } from '../../utils/pathUtils';
 import { config } from '../../data/config';
-import type { CoinInfo, FirmwareRange } from '../../types';
+import type { CoinInfo, FirmwareRange, DeviceModelInternal } from '../../types';
 
 type ParamType = 'string' | 'number' | 'array' | 'array-buffer' | 'boolean' | 'uint' | 'object';
 
@@ -102,33 +102,26 @@ export const getFirmwareRange = (
     coinInfo: CoinInfo | null | undefined,
     currentRange: FirmwareRange,
 ) => {
-    const current: FirmwareRange = JSON.parse(JSON.stringify(currentRange));
+    const range = JSON.parse(JSON.stringify(currentRange)) as FirmwareRange;
+    const models = Object.keys(range) as DeviceModelInternal[];
     // set minimum required firmware from coins.json (coinInfo)
     if (coinInfo) {
-        if (!coinInfo.support || typeof coinInfo.support.trezor1 !== 'string') {
-            current['1'].min = '0';
-        } else if (
-            current['1'].min !== '0' &&
-            versionUtils.isNewer(coinInfo.support.trezor1, current['1'].min)
-        ) {
-            current['1'].min = coinInfo.support.trezor1;
-        }
-
-        if (!coinInfo.support || typeof coinInfo.support.trezor2 !== 'string') {
-            current['2'].min = '0';
-        } else if (
-            current['2'].min !== '0' &&
-            versionUtils.isNewer(coinInfo.support.trezor2, current['2'].min)
-        ) {
-            current['2'].min = coinInfo.support.trezor2;
-        }
+        models.forEach(model => {
+            if (!coinInfo.support || typeof coinInfo.support[model] !== 'string') {
+                range[model].min = '0';
+            } else if (
+                range[model].min !== '0' &&
+                versionUtils.isNewer(coinInfo.support[model], range[model].min)
+            ) {
+                range[model].min = coinInfo.support[model];
+            }
+        });
     }
 
-    const coinType = coinInfo ? coinInfo.type : null;
-    const shortcut = coinInfo ? coinInfo.shortcut.toLowerCase() : null;
+    const coinType = coinInfo?.type;
+    const shortcut = coinInfo?.shortcut.toLowerCase();
     // find firmware range in config.json
-    const { supportedFirmware } = config;
-    const ranges = supportedFirmware
+    const configRules = config.supportedFirmware
         .filter(rule => {
             // check if rule applies to requested method
             if (rule.methods) {
@@ -142,64 +135,58 @@ export const getFirmwareRange = (
             // it may be a global rule for coin or coinType
             return true;
         })
-        .filter(c => {
+        .filter(rule => {
             // REF_TODO: there is no coinType in config. possibly obsolete code?
             // probably still useful, we just need to define type for config and not infer it.
             // @ts-expect-error
-            if (c.coinType) {
+            if (rule.coinType) {
                 // rule for coin type
                 // @ts-expect-error
-                return c.coinType === coinType;
+                return rule.coinType === coinType;
             }
-            if (c.coin) {
+            if (rule.coin) {
                 // rule for coin shortcut
                 // @ts-expect-error
-                return (typeof c.coin === 'string' ? [c.coin] : c.coin).includes(shortcut!);
+                return (typeof rule.coin === 'string' ? [rule.coin] : rule.coin).includes(shortcut);
             }
             // rule for method
-            return c.methods || c.capabilities;
+            return rule.methods || rule.capabilities;
         });
 
-    ranges.forEach(range => {
-        const { min, max } = range;
+    configRules.forEach(rule => {
         // override defaults
         // NOTE:
         // 0 may be confusing. means: no-support for "min" and unlimited support for "max"
-        if (min) {
-            const [t1, t2] = min;
-            if (
-                t1 === '0' ||
-                current['1'].min === '0' ||
-                !versionUtils.isNewerOrEqual(current['1'].min, t1)
-            ) {
-                current['1'].min = t1;
-            }
-            if (
-                t2 === '0' ||
-                current['2'].min === '0' ||
-                !versionUtils.isNewerOrEqual(current['2'].min, t2)
-            ) {
-                current['2'].min = t2;
-            }
+        if (rule.min) {
+            models.forEach(model => {
+                const modelMin = rule.min[model];
+                if (modelMin) {
+                    if (
+                        modelMin === '0' ||
+                        range[model].min === '0' ||
+                        !versionUtils.isNewerOrEqual(range[model].min, modelMin)
+                    ) {
+                        range[model].min = modelMin;
+                    }
+                }
+            });
         }
-        if (max) {
-            const [t1, t2] = max as [string, string];
-            if (
-                t1 === '0' ||
-                current['1'].max === '0' ||
-                !versionUtils.isNewerOrEqual(current['1'].max, t1)
-            ) {
-                current['1'].max = t1;
-            }
-            if (
-                t2 === '0' ||
-                current['2'].max === '0' ||
-                !versionUtils.isNewerOrEqual(current['2'].max, t2)
-            ) {
-                current['2'].max = t2;
-            }
+        if (rule.max) {
+            models.forEach(model => {
+                // @ts-expect-error same issue as in coinType above, config needs to be typed not inferred.
+                const modelMax = rule.max[model];
+                if (modelMax) {
+                    if (
+                        modelMax === '0' ||
+                        range[model].max === '0' ||
+                        !versionUtils.isNewerOrEqual(range[model].max, modelMax)
+                    ) {
+                        range[model].max = modelMax;
+                    }
+                }
+            });
         }
     });
 
-    return current;
+    return range;
 };

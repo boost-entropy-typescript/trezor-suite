@@ -1,21 +1,26 @@
 import produce from 'immer';
 
 import {
+    AccountsRootState,
     selectAccountByKey,
     DeviceRootState,
     selectDevice,
     selectDevices,
     State,
+    selectDeviceByState,
+    deviceActions,
 } from '@suite-common/wallet-core';
 
 import { STORAGE, METADATA } from 'src/actions/suite/constants';
-import { Action } from 'src/types/suite';
+import { Action, TrezorDevice } from 'src/types/suite';
 import { MetadataState, WalletLabels, AccountLabels } from 'src/types/suite/metadata';
 import { Account } from 'src/types/wallet';
 import {
     DEFAULT_ACCOUNT_METADATA,
     DEFAULT_WALLET_METADATA,
 } from 'src/actions/suite/constants/metadataConstants';
+
+import { SuiteRootState } from './suiteReducer';
 
 export const initialState: MetadataState = {
     // is Suite trying to load metadata (get master key -> sync cloud)?
@@ -25,11 +30,14 @@ export const initialState: MetadataState = {
     selectedProvider: {
         labels: '',
     },
+    error: {},
 };
 
 type MetadataRootState = {
     metadata: MetadataState;
-} & DeviceRootState;
+} & DeviceRootState &
+    SuiteRootState &
+    AccountsRootState;
 
 const metadataReducer = (state = initialState, action: Action): MetadataState =>
     produce(state, draft => {
@@ -46,7 +54,9 @@ const metadataReducer = (state = initialState, action: Action): MetadataState =>
                 draft.providers.push(action.payload);
                 break;
             case METADATA.REMOVE_PROVIDER:
-                draft.providers = draft.providers.filter(p => p.type !== action.payload.type);
+                draft.providers = draft.providers.filter(
+                    p => p.clientId !== action.payload.clientId,
+                );
                 break;
             case METADATA.SET_SELECTED_PROVIDER:
                 draft.selectedProvider[action.payload.dataType] = action.payload.clientId;
@@ -74,6 +84,19 @@ const metadataReducer = (state = initialState, action: Action): MetadataState =>
 
                 break;
             }
+            case METADATA.SET_ERROR_FOR_DEVICE:
+                if (action.payload.failed) {
+                    if (!draft.error) draft.error = {};
+                    draft.error[action.payload.deviceState] = action.payload.failed;
+                } else {
+                    delete draft.error?.[action.payload.deviceState];
+                }
+                break;
+            case deviceActions.forgetDevice.type:
+                if (action.payload.state) {
+                    delete draft.error?.[action.payload.state];
+                }
+
             // no default
         }
     });
@@ -154,7 +177,7 @@ export const selectLabelingDataForWallet = (
     const provider = selectSelectedProviderForLabels(state);
     const devices = selectDevices(state);
     const device = devices.find(d => d.state === deviceState);
-    if (device?.metadata.status !== 'enabled') {
+    if (!device?.metadata[METADATA.ENCRYPTION_VERSION]) {
         return DEFAULT_WALLET_METADATA;
     }
     const metadataKeys = device?.metadata[METADATA.ENCRYPTION_VERSION];
@@ -165,13 +188,87 @@ export const selectLabelingDataForWallet = (
     return DEFAULT_WALLET_METADATA;
 };
 
-// is everything ready (more or less) to add label?
+export const selectLabelableEntities = (state: MetadataRootState, deviceState: string) => {
+    const { wallet, device } = state;
+    const { devices } = device;
+    const { accounts } = wallet;
+    return [
+        ...accounts
+            .filter(a => a.deviceState === deviceState)
+            .map(account => ({
+                ...account.metadata,
+                key: account.key,
+                type: 'account' as const,
+            })),
+        ...devices
+            .filter((device: TrezorDevice) => device.state === deviceState)
+            .map((device: TrezorDevice) => ({
+                ...device.metadata,
+                state: device.state,
+                type: 'device' as const,
+            })),
+    ];
+};
+
+const selectLabelableEntityByKey = (
+    state: MetadataRootState,
+    deviceState: string,
+    entityKey: string,
+) =>
+    selectLabelableEntities(state, deviceState).find(e => {
+        if ('key' in e) {
+            return e.key === entityKey;
+        }
+        if ('state' in e) {
+            return e.state === entityKey;
+        }
+        return false;
+    });
+
+/**
+ * Is everything ready to add label?
+ */
 export const selectIsLabelingAvailable = (state: MetadataRootState) => {
-    const { enabled } = selectMetadata(state);
+    const { enabled, error } = selectMetadata(state);
     const provider = selectSelectedProviderForLabels(state);
     const device = selectDevice(state);
 
-    return !!(enabled && device?.metadata?.status === 'enabled' && provider);
+    return (
+        enabled &&
+        device?.metadata?.[METADATA.ENCRYPTION_VERSION] &&
+        !!provider &&
+        device.state &&
+        !error?.[device.state]
+    );
+};
+
+/**
+ it is possible to initiate metadata 
+ */
+export const selectIsLabelingInitPossible = (state: MetadataRootState) => {
+    const device = selectDevice(state);
+
+    return (
+        // device already has keys or it is at least connected and authorized
+        (device?.metadata?.[METADATA.ENCRYPTION_VERSION] || (device?.connected && device.state)) &&
+        // storage provider is connected or we are at least able to connect to it
+        (selectSelectedProviderForLabels(state) || state.suite.online)
+    );
+};
+
+export const selectIsLabelingAvailableForEntity = (
+    state: MetadataRootState,
+    entityKey: string,
+    deviceState?: string,
+) => {
+    const device = deviceState ? selectDeviceByState(state, deviceState) : selectDevice(state);
+    if (!device?.state) return false;
+    const entity = selectLabelableEntityByKey(state, device.state, entityKey);
+    return (
+        selectIsLabelingAvailable(state) &&
+        entity &&
+        entity?.[METADATA.ENCRYPTION_VERSION]?.fileName
+    );
 };
 
 export default metadataReducer;

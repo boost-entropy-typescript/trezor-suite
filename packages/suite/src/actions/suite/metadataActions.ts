@@ -5,7 +5,7 @@ import TrezorConnect from '@trezor/connect';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { createDeferred, cloneObject } from '@trezor/utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { selectDevices, selectDevice } from '@suite-common/wallet-core';
+import { selectDevices, selectDevice, selectDeviceByState } from '@suite-common/wallet-core';
 
 import { METADATA } from 'src/actions/suite/constants';
 import { Dispatch, GetState, TrezorDevice } from 'src/types/suite';
@@ -30,7 +30,11 @@ import * as modalActions from 'src/actions/suite/modalActions';
 import DropboxProvider from 'src/services/suite/metadata/DropboxProvider';
 import GoogleProvider from 'src/services/suite/metadata/GoogleProvider';
 import FileSystemProvider from 'src/services/suite/metadata/FileSystemProvider';
-import { selectSelectedProviderForLabels } from 'src/reducers/suite/metadataReducer';
+import {
+    selectLabelableEntities,
+    selectMetadata,
+    selectSelectedProviderForLabels,
+} from 'src/reducers/suite/metadataReducer';
 
 export const setAccountAdd = createAction(METADATA.ACCOUNT_ADD, (payload: Account) => ({
     payload,
@@ -66,6 +70,10 @@ export type MetadataAction =
               dataType: DataType;
               clientId: string;
           };
+      }
+    | {
+          type: typeof METADATA.SET_ERROR_FOR_DEVICE;
+          payload: { deviceState: string; failed: boolean };
       }
     | ReturnType<typeof setAccountAdd>;
 
@@ -130,7 +138,7 @@ export const disposeMetadata = (keys?: boolean) => (dispatch: Dispatch, getState
                     type: METADATA.SET_DEVICE_METADATA,
                     payload: {
                         deviceState: device.state,
-                        metadata: { status: 'disabled' },
+                        metadata: {},
                     },
                 });
             }
@@ -307,31 +315,12 @@ const setMetadata =
     };
 
 export const getLabelableEntities =
-    (deviceState: string) => (_dispatch: Dispatch, getState: GetState) => {
-        const { accounts } = getState().wallet;
-        const devices = selectDevices(getState());
-
-        return [
-            ...accounts
-                .filter(a => a.deviceState === deviceState)
-                .map(account => ({
-                    ...account.metadata,
-                    key: account.key,
-                    type: 'account' as const,
-                })),
-            ...devices
-                .filter((device: TrezorDevice) => device.state === deviceState)
-                .map((device: TrezorDevice) => ({
-                    ...device.metadata,
-                    state: device.state,
-                    type: 'device' as const,
-                })),
-        ];
-    };
+    (deviceState: string) => (_dispatch: Dispatch, getState: GetState) =>
+        selectLabelableEntities(getState(), deviceState);
 
 type LabelableEntity = ReturnType<ReturnType<typeof getLabelableEntities>>[number];
 
-export const fetchMetadata =
+const fetchMetadata =
     ({
         provider,
         entity,
@@ -350,10 +339,6 @@ export const fetchMetadata =
 
         if (!providerInstance) {
             throw new Error('no provider instance');
-        }
-
-        if (entity.type === 'device' && entity.status !== 'enabled') {
-            throw new Error('metadata not enabled'); // because of ts
         }
 
         const entityMetadata = entity[encryptionVersion];
@@ -403,12 +388,11 @@ export const fetchAndSaveMetadata =
         const provider = selectSelectedProviderForLabels(getState());
         if (!provider) return;
 
-        const selectedDeviceState = selectDevice(getState())?.state;
-        const deviceState = deviceStateArg || selectedDeviceState;
+        let device = deviceStateArg
+            ? selectDeviceByState(getState(), deviceStateArg)
+            : selectDevice(getState());
 
-        if (!deviceState) {
-            return;
-        }
+        if (!device?.state || !device?.metadata?.[METADATA.ENCRYPTION_VERSION]) return;
 
         const providerInstance = dispatch(
             getProviderInstance({
@@ -419,13 +403,17 @@ export const fetchAndSaveMetadata =
             return;
         }
 
-        const devices = selectDevices(getState());
-        const device = devices.find(d => d.state === deviceState);
-
         try {
             // this triggers renewal of access token if needed. Otherwise multiple requests
             // to renew access token are issued by every provider.getFileContent
             const response = await providerInstance.getProviderDetails();
+
+            device = deviceStateArg
+                ? selectDeviceByState(getState(), deviceStateArg)
+                : selectDevice(getState());
+            if (!device?.state || !device?.metadata?.[METADATA.ENCRYPTION_VERSION]) return;
+
+            dispatch(syncMetadataKeys(device));
 
             if (!response.success) {
                 dispatch(
@@ -435,20 +423,21 @@ export const fetchAndSaveMetadata =
                         clientId: provider.clientId,
                     }),
                 );
+
                 return;
             }
 
             // device is disconnected or something is wrong with it
-            if (device?.metadata?.status !== 'enabled') {
-                if (fetchIntervals[deviceState]) {
-                    clearInterval(fetchIntervals[deviceState]);
-                    delete fetchIntervals[deviceState];
+            if (!device?.metadata?.[METADATA.ENCRYPTION_VERSION]) {
+                if (fetchIntervals[device.state]) {
+                    clearInterval(fetchIntervals[device.state]);
+                    delete fetchIntervals[device.state];
                 }
+
                 return;
             }
 
-            const labelableEntities = dispatch(getLabelableEntities(deviceState));
-
+            const labelableEntities = dispatch(getLabelableEntities(device.state));
             const promises = labelableEntities.map(entity =>
                 dispatch(fetchMetadata({ provider, entity })).then(result => {
                     if (result) {
@@ -463,7 +452,7 @@ export const fetchAndSaveMetadata =
             // it expires, we want them to silently disconnect provider, keep metadata in place.
             // So that users will not notice that token expired until they will try to add or edit
             // already existing label
-            if (fetchIntervals[deviceState]) {
+            if (device?.state && fetchIntervals[device.state]) {
                 return dispatch(
                     disconnectProvider({ removeMetadata: false, clientId: provider.clientId }),
                 );
@@ -480,23 +469,27 @@ export const fetchAndSaveMetadata =
         }
     };
 
+export const fetchAndSaveMetadataForAllDevices = () => (dispatch: Dispatch, getState: GetState) => {
+    const metadata = selectMetadata(getState());
+    if (!metadata.enabled) {
+        return;
+    }
+    const devices = selectDevices(getState());
+    devices.forEach(device => {
+        if (!device.state || !device.metadata[METADATA.ENCRYPTION_VERSION]) return;
+        dispatch(fetchAndSaveMetadata(device.state));
+    });
+};
+
 export const setAccountMetadataKey =
     (account: Account, encryptionVersion = METADATA.ENCRYPTION_VERSION) =>
     (dispatch: Dispatch, getState: GetState) => {
-        const devices = selectDevices(getState());
-        const device = devices.find(d => d.state === account.deviceState);
-        if (
-            !device ||
-            device.metadata.status !== 'enabled' ||
-            !device.metadata[METADATA.ENCRYPTION_VERSION]?.key
-        ) {
-            return account;
-        }
-
-        const deviceMetaKey = device.metadata[encryptionVersion]?.key;
+        const device = selectDeviceByState(getState(), account.deviceState);
+        const deviceMetaKey = device?.metadata[encryptionVersion]?.key;
 
         if (!deviceMetaKey) {
-            throw new Error('device meta key is missing');
+            // account keys can't be set without device keys
+            return account;
         }
         try {
             const metaKey = metadataUtils.deriveMetadataKey(deviceMetaKey, account.metadata.key);
@@ -520,14 +513,17 @@ export const setAccountMetadataKey =
  * Fill any record in reducer that may have metadata with metadata keys (not values).
  */
 const syncMetadataKeys =
-    (encryptionVersion = METADATA.ENCRYPTION_VERSION) =>
+    (device: TrezorDevice, encryptionVersion = METADATA.ENCRYPTION_VERSION) =>
     (dispatch: Dispatch, getState: GetState) => {
-        const accountsWithoutKeys = getState().wallet.accounts.filter(
-            acc => !acc.metadata[encryptionVersion]?.fileName,
+        if (!device.metadata[METADATA.ENCRYPTION_VERSION]) {
+            return;
+        }
+        const targetAccounts = getState().wallet.accounts.filter(
+            acc => !acc.metadata[encryptionVersion]?.fileName && acc.deviceState === device.state,
         );
 
-        accountsWithoutKeys.forEach(account => {
-            const accountWithMetadata = dispatch(setAccountMetadataKey(account));
+        targetAccounts.forEach(account => {
+            const accountWithMetadata = dispatch(setAccountMetadataKey(account, encryptionVersion));
             dispatch(setAccountAdd(accountWithMetadata));
         });
         // note that devices are intentionally omitted here - device receives metadata
@@ -599,17 +595,21 @@ export const addDeviceMetadata =
     (payload: Extract<MetadataAddPayload, { type: 'walletLabel' }>) =>
     (dispatch: Dispatch, getState: GetState) => {
         const devices = selectDevices(getState());
-        const device = devices.find(d => d.state === payload.deviceState);
+        const device = devices.find(d => d.state === payload.entityKey);
         const provider = selectSelectedProviderForLabels(getState());
 
-        if (!device || device.metadata.status !== 'enabled') return Promise.resolve(false);
+        if (!provider)
+            return Promise.resolve({
+                success: false,
+                error: 'provider missing',
+            });
 
-        if (!provider) return Promise.resolve(false);
-
-        const { fileName, aesKey } = device.metadata[METADATA.ENCRYPTION_VERSION] || {};
+        const { fileName, aesKey } = device?.metadata[METADATA.ENCRYPTION_VERSION] || {};
         if (!fileName || !aesKey) {
-            console.error('fileName or aesKey is missing for device', device.state);
-            return Promise.resolve(false);
+            return Promise.resolve({
+                success: false,
+                error: `fileName or aesKey is missing for device ${device?.state}`,
+            });
         }
 
         // todo: not danger overwrite empty?
@@ -651,19 +651,21 @@ export const addDeviceMetadata =
  */
 export const addAccountMetadata =
     (payload: Exclude<MetadataAddPayload, { type: 'walletLabel' }>, save = true) =>
-    async (dispatch: Dispatch, getState: GetState) => {
-        const account = getState().wallet.accounts.find(a => a.key === payload.accountKey);
+    (dispatch: Dispatch, getState: GetState) => {
+        const account = getState().wallet.accounts.find(a => a.key === payload.entityKey);
         const provider = selectSelectedProviderForLabels(getState());
 
-        if (!account || !provider) return false;
+        if (!account || !provider)
+            return Promise.resolve({ success: false, error: 'account or provider missing' });
 
         // todo: not danger overwrite empty?
         const { fileName, aesKey } = account.metadata?.[METADATA.ENCRYPTION_VERSION] || {};
 
         if (!fileName || !aesKey) {
-            throw new Error(
-                `filename of version ${METADATA.ENCRYPTION_VERSION} does not exist for account ${account.path}`,
-            );
+            return Promise.resolve({
+                success: false,
+                error: `filename of version ${METADATA.ENCRYPTION_VERSION} does not exist for account ${account.path}`,
+            });
         }
         const data = provider.data[fileName];
 
@@ -673,7 +675,8 @@ export const addAccountMetadata =
 
         if (payload.type === 'outputLabel') {
             if (typeof payload.value !== 'string' || payload.value.length === 0) {
-                if (!nextMetadata.outputLabels[payload.txid]) return false;
+                if (!nextMetadata.outputLabels[payload.txid])
+                    return Promise.resolve({ success: false });
                 delete nextMetadata.outputLabels[payload.txid][payload.outputIndex];
                 if (Object.keys(nextMetadata.outputLabels[payload.txid]).length === 0) {
                     delete nextMetadata.outputLabels[payload.txid];
@@ -718,9 +721,9 @@ export const addAccountMetadata =
         );
 
         // we might intentionally skip saving metadata content to persistent storage.
-        if (!save) return true;
+        if (!save) return Promise.resolve({ success: true });
 
-        await dispatch(
+        return dispatch(
             encryptAndSaveMetadata({
                 data: {
                     accountLabel: nextMetadata.accountLabel,
@@ -732,8 +735,6 @@ export const addAccountMetadata =
                 provider,
             }),
         );
-
-        return true;
     };
 
 const encryptAndSaveMetadata =
@@ -753,52 +754,27 @@ const encryptAndSaveMetadata =
 
         if (!providerInstance) {
             // provider should always be set here
-            return false;
+            return Promise.resolve({ success: false, error: 'no provider instance' });
         }
 
-        try {
-            const encrypted = await metadataUtils.encrypt(
-                {
-                    version: METADATA.FORMAT_VERSION,
-                    ...data,
-                },
-                aesKey,
-            );
+        const encrypted = await metadataUtils.encrypt(
+            {
+                version: METADATA.FORMAT_VERSION,
+                ...data,
+            },
+            aesKey,
+        );
 
-            const result = await providerInstance.setFileContent(fileName, encrypted);
-            if (!result.success) {
-                dispatch(
-                    handleProviderError({
-                        error: result,
-                        action: ProviderErrorAction.SAVE,
-                        clientId: provider.clientId,
-                    }),
-                );
-                return false;
-            }
-        } catch (err) {
-            const error = providerInstance.error('OTHER_ERROR', err.message);
-            dispatch(
-                handleProviderError({
-                    error,
-                    action: ProviderErrorAction.SAVE,
-                    clientId: provider.clientId,
-                }),
-            );
-            return false;
-        }
+        return providerInstance.setFileContent(fileName, encrypted);
     };
 
 /**
  * Generate device master-key
  * */
 export const setDeviceMetadataKey =
-    (encryptionVersion = METADATA.ENCRYPTION_VERSION) =>
+    (device: TrezorDevice, encryptionVersion = METADATA.ENCRYPTION_VERSION) =>
     async (dispatch: Dispatch, getState: GetState) => {
-        const device = selectDevice(getState());
-        if (!device || !device.state || !device.connected) return;
-
-        if (device.metadata.status === 'enabled') return;
+        if (!device.state || !device.connected) return;
 
         const result = await TrezorConnect.cipherKeyValue({
             device: {
@@ -828,7 +804,6 @@ export const setDeviceMetadataKey =
                     deviceState: device.state,
                     metadata: {
                         ...device.metadata,
-                        status: 'enabled',
                         [encryptionVersion]: {
                             fileName,
                             aesKey,
@@ -837,40 +812,51 @@ export const setDeviceMetadataKey =
                     },
                 },
             });
-        } else {
-            // TODO: After metadata migration is implemented, I am not sure that 'cancelled' state makes sense
-            // anymore. With version 2 encryption user does not even have the option to cancel metadata on device
-            // user only has option to cancel labeling during migration. How should we handle this?
-            dispatch({
-                type: METADATA.SET_DEVICE_METADATA,
-                payload: {
-                    deviceState: device.state,
-                    metadata: {
-                        status: 'cancelled',
-                    },
-                },
-            });
 
-            // in effort to resolve https://github.com/trezor/trezor-suite/issues/2315
-            // also turn of global metadata.enabled setting
-            // pros:
-            // - user without saved device is not bothered with labeling when reloading page
-            // cons:
-            // - it makes concept device.metadata.status "cancelled" useless
-            // - new device will not be prompted with metadata when connected so even when there is
-            //   existing metadata for this device, user will not see it until he clicks "add label" button
-            dispatch({
-                type: METADATA.DISABLE,
-            });
+            return { success: true };
         }
+
+        return { success: false };
     };
 
-export const addMetadata = (payload: MetadataAddPayload) => (dispatch: Dispatch) => {
-    if (payload.type === 'walletLabel') {
-        return dispatch(addDeviceMetadata(payload));
-    }
-    return dispatch(addAccountMetadata(payload));
-};
+export const addMetadata =
+    (payload: MetadataAddPayload) => (dispatch: Dispatch, getState: GetState) =>
+        (payload.type === 'walletLabel'
+            ? dispatch(addDeviceMetadata(payload))
+            : dispatch(addAccountMetadata(payload))
+        ).then(result => {
+            if (!result.success) {
+                if ('code' in result) {
+                    dispatch(
+                        handleProviderError({
+                            error: result,
+                            action: ProviderErrorAction.SAVE,
+                            clientId: getState().metadata.providers[0]?.clientId,
+                        }),
+                    );
+                } else {
+                    const providerInstance = dispatch(
+                        getProviderInstance({
+                            clientId: getState().metadata.providers[0].clientId,
+                        }),
+                    );
+                    if (providerInstance) {
+                        dispatch(
+                            handleProviderError({
+                                error: providerInstance.error(
+                                    'OTHER_ERROR',
+                                    'error' in result ? result.error : '',
+                                ),
+                                action: ProviderErrorAction.SAVE,
+                                clientId: getState().metadata.providers[0]?.clientId,
+                            }),
+                        );
+                    }
+                }
+            }
+
+            return result.success;
+        });
 
 /**
  * init - prepare everything needed to load + decrypt and upload + decrypt metadata. Note that this method
@@ -882,73 +868,93 @@ export const addMetadata = (payload: MetadataAddPayload) => (dispatch: Dispatch)
  * tries to add new label.
  */
 export const init =
-    (force = false) =>
-    async (dispatch: Dispatch, getState: GetState) => {
-        const device = selectDevice(getState());
+    (force: boolean, deviceState?: string) => async (dispatch: Dispatch, getState: GetState) => {
+        let device = deviceState
+            ? selectDeviceByState(getState(), deviceState)
+            : selectDevice(getState());
+
+        if (!device?.state) {
+            return false;
+        }
+
+        if (!force && getState().metadata.error?.[device.state]) {
+            return false;
+        }
+
+        dispatch({ type: METADATA.SET_INITIATING, payload: true });
+        if (getState().metadata.error?.[device.state]) {
+            // remove error note about failed migration potentially set in a previous run
+            dispatch({
+                type: METADATA.SET_ERROR_FOR_DEVICE,
+                payload: {
+                    deviceState: device.state,
+                    failed: false,
+                },
+            });
+        }
 
         // 1. set metadata enabled globally
         if (!getState().metadata.enabled) {
             dispatch(enableMetadata());
         }
 
-        if (!device?.state) {
-            return false;
-        }
-
-        // 2. set device metadata key (master key). Sometimes, if state is not present
-        if (
-            device.metadata.status === 'disabled' ||
-            (device.metadata.status === 'cancelled' && force && device?.connected)
-        ) {
-            dispatch({ type: METADATA.SET_INITIATING, payload: true });
-            await dispatch(setDeviceMetadataKey());
-        }
-
-        // did user confirm labeling on device? or maybe device was not connected
-        // so suite does not have keys and needs to stop here
-        if (getState().device.selectedDevice?.metadata.status !== 'enabled') {
-            // if no, end here
-            dispatch({ type: METADATA.SET_INITIATING, payload: false });
-            dispatch({ type: METADATA.SET_EDITING, payload: undefined });
-
-            return false;
-        }
-
-        // if yes, add metadata keys to accounts
-        if (getState().metadata.initiating) {
-            dispatch(syncMetadataKeys());
-        }
-
-        // 3. connect to provider
-        if (
-            getState().device.selectedDevice?.metadata.status === 'enabled' &&
-            !getState().metadata.providers?.length
-        ) {
-            if (!getState().metadata.initiating) {
-                dispatch({ type: METADATA.SET_INITIATING, payload: true });
+        if (!device.metadata?.[METADATA.ENCRYPTION_VERSION]) {
+            const result = await dispatch(
+                setDeviceMetadataKey(device, METADATA.ENCRYPTION_VERSION),
+            );
+            if (!result?.success) {
+                dispatch({ type: METADATA.SET_INITIATING, payload: false });
+                dispatch({ type: METADATA.SET_EDITING, payload: undefined });
+                dispatch({
+                    type: METADATA.SET_ERROR_FOR_DEVICE,
+                    payload: {
+                        deviceState: device.state!,
+                        failed: true,
+                    },
+                });
+                return false;
             }
+        }
 
+        // 3. we have master key. use it to derive account keys
+        dispatch(syncMetadataKeys(device, METADATA.ENCRYPTION_VERSION));
+
+        device = deviceState
+            ? selectDeviceByState(getState(), deviceState)
+            : selectDevice(getState());
+
+        if (!device) return false;
+
+        // 4. connect to provider
+        if (!selectSelectedProviderForLabels(getState())) {
             const providerResult = await dispatch(initProvider());
             if (!providerResult) {
                 dispatch({ type: METADATA.SET_INITIATING, payload: false });
                 dispatch({ type: METADATA.SET_EDITING, payload: undefined });
-
                 return false;
             }
         }
+
+        // todo: 5. migration
+
+        // 6. fetch metadata
         await dispatch(fetchAndSaveMetadata(device.state));
-        dispatch({ type: METADATA.SET_INITIATING, payload: false });
+
+        // now we may allow user to edit labels. everything is ready, local data is synced with provider
+        if (getState().metadata.initiating) {
+            dispatch({ type: METADATA.SET_INITIATING, payload: false });
+        }
 
         // 7. if interval for watching provider is not set, create it
         if (device.state && !fetchIntervals[device.state]) {
             // todo: possible race condition that has been around since always
             // user is editing label and at that very moment update arrives. updates to specific entities should be probably discarded in such case?
             fetchIntervals[device.state] = setInterval(() => {
-                const selectedDevice = selectDevice(getState());
-                if (!getState().suite.online || !selectedDevice?.state) {
+                const device = selectDevice(getState());
+                if (!getState().suite.online || !device?.state) {
                     return;
                 }
-                dispatch(fetchAndSaveMetadata(selectedDevice.state));
+                dispatch(fetchAndSaveMetadata(device.state));
             }, METADATA.FETCH_INTERVAL);
         }
 
