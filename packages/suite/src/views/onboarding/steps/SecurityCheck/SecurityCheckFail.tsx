@@ -6,6 +6,7 @@ import { TREZOR_SUPPORT_URL } from '@trezor/urls';
 import { Translation, TrezorLink } from 'src/components/suite';
 import { SecurityChecklist } from './SecurityChecklist';
 import { SecurityCheckButton } from './SecurityCheckButton';
+import { SecurityCheckLayout } from './SecurityCheckLayout';
 
 const TopSection = styled.div`
     border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
@@ -57,34 +58,55 @@ const checklistItems = [
     },
 ] as const;
 
+const softChecklistItems = [
+    {
+        icon: 'PLUGS',
+        content: <Translation id="TR_DISCONNECT_DEVICE_SOFT" />,
+    },
+    {
+        icon: 'HAND',
+        content: <Translation id="TR_AVOID_USING_DEVICE_SOFT" />,
+    },
+    {
+        icon: 'CHAT',
+        content: <Translation id="TR_USE_CHAT_SOFT" values={{ b: chunks => <b>{chunks}</b> }} />,
+    },
+] as const;
+
 const supportChatUrl = `${TREZOR_SUPPORT_URL}#open-chat`;
 
 interface SecurityCheckFailProps {
     goBack?: () => void;
 }
 
-export const SecurityCheckFail = ({ goBack }: SecurityCheckFailProps) => (
-    <>
-        <TopSection>
-            <StyledH1>
-                <Translation id="TR_DEVICE_COMPROMISED_HEADING" />
-            </StyledH1>
-            <Text>
-                <Translation id="TR_DEVICE_COMPROMISED_TEXT" />
-            </Text>
-        </TopSection>
-        <SecurityChecklist items={checklistItems} />
-        <Buttons>
-            {goBack && (
-                <SecurityCheckButton variant="secondary" onClick={goBack}>
-                    <Translation id="TR_BACK" />
-                </SecurityCheckButton>
-            )}
-            <StyledTrezorLink variant="nostyle" href={supportChatUrl}>
-                <StyledSecurityCheckButton>
-                    <Translation id="TR_CONTACT_TREZOR_SUPPORT" />
-                </StyledSecurityCheckButton>
-            </StyledTrezorLink>
-        </Buttons>
-    </>
-);
+export const SecurityCheckFail = ({ goBack }: SecurityCheckFailProps) => {
+    const heading = goBack ? 'TR_DEVICE_COMPROMISED_HEADING_SOFT' : 'TR_DEVICE_COMPROMISED_HEADING';
+    const text = goBack ? 'TR_DEVICE_COMPROMISED_TEXT_SOFT' : 'TR_DEVICE_COMPROMISED_TEXT';
+    const items = goBack ? softChecklistItems : checklistItems;
+
+    return (
+        <SecurityCheckLayout isFailed>
+            <TopSection>
+                <StyledH1>
+                    <Translation id={heading} />
+                </StyledH1>
+                <Text>
+                    <Translation id={text} />
+                </Text>
+            </TopSection>
+            <SecurityChecklist items={items} />
+            <Buttons>
+                {goBack && (
+                    <SecurityCheckButton variant="secondary" onClick={goBack}>
+                        <Translation id="TR_BACK" />
+                    </SecurityCheckButton>
+                )}
+                <StyledTrezorLink variant="nostyle" href={supportChatUrl}>
+                    <StyledSecurityCheckButton>
+                        <Translation id="TR_CONTACT_TREZOR_SUPPORT" />
+                    </StyledSecurityCheckButton>
+                </StyledTrezorLink>
+            </Buttons>
+        </SecurityCheckLayout>
+    );
+};

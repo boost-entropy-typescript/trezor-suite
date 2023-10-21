@@ -34,10 +34,13 @@ const StyledImage = styled(Image)`
 
 const Content = styled.div`
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 `;
 
 interface SecurityCheckLayoutProps {
-    isFailed: boolean;
+    isFailed?: boolean;
     children: React.ReactNode;
 }
 
