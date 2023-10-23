@@ -8228,6 +8228,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/accounts": "workspace:*"
+    "@suite-native/config": "workspace:*"
     "@trezor/connect": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -8257,6 +8258,7 @@ __metadata:
     "@suite-native/config": "workspace:*"
     "@suite-native/storage": "workspace:*"
     jotai: 1.9.1
+    react-native: 0.71.8
   languageName: unknown
   linkType: soft
 
@@ -8450,6 +8452,7 @@ __metadata:
     "@suite-native/fiat-rates": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/forms": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
@@ -8494,6 +8497,7 @@ __metadata:
     "@suite-native/formatters": "workspace:*"
     "@suite-native/forms": "workspace:*"
     "@suite-native/graph": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
@@ -8548,8 +8552,10 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
+    "@suite-native/discovery": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/helpers": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -8635,6 +8641,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/ethereum-tokens": "workspace:*"
     "@suite-native/formatters": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
@@ -8666,6 +8673,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/biometrics": "workspace:*"
     "@suite-native/config": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -8785,6 +8793,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/ethereum-tokens": "workspace:*"
     "@suite-native/formatters": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
