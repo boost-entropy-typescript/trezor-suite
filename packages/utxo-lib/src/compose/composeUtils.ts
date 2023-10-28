@@ -1,4 +1,5 @@
 import * as BitcoinJsAddress from '../address';
+import { p2data } from '../payments/embed';
 import {
     INPUT_SCRIPT_LENGTH,
     OUTPUT_SCRIPT_LENGTH,
@@ -16,7 +17,6 @@ import type { Network } from '../networks';
 
 export function convertInputs(
     inputs: ComposeInput[],
-    height = 0,
     txType: CoinSelectPaymentType,
 ): CoinSelectInput[] {
     return inputs
@@ -24,19 +24,13 @@ export function convertInputs(
             type: txType,
             i,
             script: { length: INPUT_SCRIPT_LENGTH[txType] },
-            value: input.value,
+            value: input.amount,
             own: input.own,
             coinbase: input.coinbase,
-            confirmations: input.height == null ? 0 : 1 + height - input.height,
+            confirmations: input.confirmations,
             required: input.required,
         }))
         .map(input => Object.assign(input, { weight: inputWeight(input) }));
-}
-
-export function getScriptFromAddress(address: string, network: Network) {
-    return {
-        length: BitcoinJsAddress.toOutputScript(address, network).length,
-    };
 }
 
 export function convertOutputs(
@@ -47,13 +41,13 @@ export function convertOutputs(
     const script = { length: OUTPUT_SCRIPT_LENGTH[txType] };
     return outputs
         .map(output => {
-            if (output.type === 'complete') {
+            if (output.type === 'payment') {
                 return {
                     value: output.amount,
-                    script: getScriptFromAddress(output.address, network),
+                    script: BitcoinJsAddress.toOutputScript(output.address, network),
                 };
             }
-            if (output.type === 'noaddress') {
+            if (output.type === 'payment-noaddress') {
                 return {
                     value: output.amount,
                     script,
@@ -62,12 +56,12 @@ export function convertOutputs(
             if (output.type === 'opreturn') {
                 return {
                     value: '0',
-                    script: { length: 2 + output.dataHex.length / 2 },
+                    script: p2data({ data: [Buffer.from(output.dataHex, 'hex')] }).output as Buffer,
                 };
             }
             if (output.type === 'send-max') {
                 return {
-                    script: getScriptFromAddress(output.address, network),
+                    script: BitcoinJsAddress.toOutputScript(output.address, network),
                 };
             }
             if (output.type === 'send-max-noaddress') {
@@ -75,7 +69,7 @@ export function convertOutputs(
                     script,
                 };
             }
-            throw new Error('WRONG-OUTPUT-TYPE');
+            throw new Error('INCORRECT-OUTPUT-TYPE');
         })
         .map(output => Object.assign(output, { weight: outputWeight(output) }));
 }

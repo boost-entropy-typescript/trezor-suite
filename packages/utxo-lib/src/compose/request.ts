@@ -1,26 +1,4 @@
-import { ComposeOutput, ComposeFinalOutput, ComposeNotFinalOutput } from '../types';
-
-export function splitByCompleteness(outputs: ComposeOutput[]) {
-    const complete: ComposeFinalOutput[] = [];
-    const incomplete: ComposeNotFinalOutput[] = [];
-
-    outputs.forEach(output => {
-        if (
-            output.type === 'complete' ||
-            output.type === 'send-max' ||
-            output.type === 'opreturn'
-        ) {
-            complete.push(output);
-        } else {
-            incomplete.push(output);
-        }
-    });
-
-    return {
-        complete,
-        incomplete,
-    };
-}
+import { ComposeOutput } from '../types';
 
 export function getMax(outputs: ComposeOutput[]) {
     // first, call coinselect - either sendMax or bnb
