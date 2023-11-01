@@ -2539,6 +2539,14 @@ export default defineMessages({
         description: 'Heading in onboarding when user is about to install a new firmware',
         id: 'TR_INSTALL_FIRMWARE',
     },
+    TR_SWITCH_FIRMWARE: {
+        defaultMessage: 'Switch firmware',
+        id: 'TR_SWITCH_FIRMWARE',
+    },
+    TR_SWITCH_FIRMWARE_TO: {
+        defaultMessage: 'Switch firmware to {firmwareType}',
+        id: 'TR_SWITCH_FIRMWARE_TO',
+    },
     TR_INSTALL_BITCOIN_ONLY_FW: {
         defaultMessage: 'Install {bitcoinOnly} firmware',
         description: 'Heading in onboarding when user is about to install Bitcoin-only firmware',
@@ -4692,6 +4700,57 @@ export default defineMessages({
         defaultMessage:
             'Although unlikely, there might be a situation where you have to access your recovery seed in case of a firmware update issue.',
     },
+    TR_CONTINUE_ONLY_WITH_SEED: {
+        id: 'TR_CONTINUE_ONLY_WITH_SEED',
+        defaultMessage: 'Continue only if you have your recovery seed',
+    },
+    TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION: {
+        id: 'TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION',
+        defaultMessage:
+            "If you don't have your recovery seed, not even Trezor Support can help you recover your funds if your device is reset. If you have multiple recovery seeds, please make sure that you have the correct one ready and easily accessible to recover this specific Trezor device.",
+    },
+    TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION_2: {
+        id: 'TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION_2',
+        defaultMessage:
+            'Before you continue, <button>check your backup in Settings</button>. This is an easy way to check and verify your recovery seed.',
+    },
+    TR_SWITCH_FIRMWARE_NO_BACKUP: {
+        id: 'TR_SWITCH_FIRMWARE_NO_BACKUP',
+        defaultMessage:
+            "If you don't have your recovery seed, not even Trezor Support can help you recover your funds if your device is reset. If you have multiple recovery seeds, please make sure that you have the correct one ready and easily accessible to recover this specific Trezor device.",
+    },
+    TR_SWITCH_FIRMWARE_NO_BACKUP_2: {
+        id: 'TR_SWITCH_FIRMWARE_NO_BACKUP_2',
+        defaultMessage:
+            'Before you continue, <button>check your backup in Settings</button>. This is an easy way to check and verify your recovery seed.',
+    },
+    TR_IMPORTANT: {
+        id: 'TR_IMPORTANT',
+        defaultMessage: 'Important!',
+    },
+    TR_FIRMWARE_SWITCH_WARNING_1: {
+        id: 'TR_FIRMWARE_SWITCH_WARNING_1',
+        defaultMessage:
+            'Switching firmware <b>wipes all your device data</b>, including wallets, keys, and accounts.',
+    },
+    TR_FIRMWARE_SWITCH_WARNING_2: {
+        id: 'TR_FIRMWARE_SWITCH_WARNING_2',
+        defaultMessage:
+            'To regain access to your coins, you must <b>recover your wallet using your recovery seed</b>. Ensure your recovery seed is accessible and legible.',
+    },
+    TR_FIRMWARE_SWITCH_WARNING_3: {
+        id: 'TR_FIRMWARE_SWITCH_WARNING_3',
+        defaultMessage:
+            "If you don't have your recovery seed, there's no way to recover your coins!",
+    },
+    TR_READ_AND_UNDERSTOOD: {
+        id: 'TR_READ_AND_UNDERSTOOD',
+        defaultMessage: "I've read and understood the above",
+    },
+    TR_WIPE_AND_REINSTALL: {
+        id: 'TR_WIPE_AND_REINSTALL',
+        defaultMessage: 'Wipe device & reinstall',
+    },
     TR_FIRMWARE_PARTIALLY_UPDATED: {
         id: 'TR_FIRMWARE_PARTIALLY_UPDATED',
         defaultMessage: 'Firmware partially updated',
@@ -4917,10 +4976,15 @@ export default defineMessages({
         defaultMessage:
             'Your device is already updated to the latest firmware. You may reinstall the firmware if needed.',
     },
-    TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION: {
-        id: 'TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION',
+    TR_SWITCH_TO_BITCOIN_ONLY_DESCRIPTION: {
+        id: 'TR_SWITCH_TO_BITCOIN_ONLY_DESCRIPTION',
         defaultMessage:
-            '{bitcoinOnly} firmware is a lightweight option for users only using bitcoin. {regular} firmware enables all supported coins and features. Do you want to switch firmware type?',
+            '{bitcoinOnly} firmware only works with Bitcoin transactions. If you want to access and manage all of your coins, just switch your device firmware back to {regular} anytime by using your recovery seed.',
+    },
+    TR_SWITCH_TO_REGULAR_DESCRIPTION: {
+        id: 'TR_SWITCH_TO_REGULAR_DESCRIPTION',
+        defaultMessage:
+            "{regular} firmware allows your device to access and manage all of your coins. {bitcoinOnly} firmware only works with Bitcoin transactions. You can change your device's firmware at anytime by using your recovery seed.",
     },
     TR_BITCOIN_ONLY_UNAVAILABLE: {
         id: 'TR_BITCOIN_ONLY_UNAVAILABLE',

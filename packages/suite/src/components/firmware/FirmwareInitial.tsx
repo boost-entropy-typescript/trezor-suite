@@ -1,9 +1,9 @@
 import { useEffect, useState, Dispatch, SetStateAction } from 'react';
-
 import styled from 'styled-components';
 
+import { ExtendedMessageDescriptor } from '@suite-common/intl-types';
 import { getFwUpdateVersion } from '@suite-common/suite-utils';
-import { Note } from '@trezor/components';
+import { Note, variables } from '@trezor/components';
 import { AcquiredDevice, TrezorDevice } from '@suite-common/suite-types';
 import {
     getFirmwareVersion,
@@ -25,17 +25,14 @@ import {
     FirmwareInstallButton,
     FirmwareOffer,
 } from 'src/components/firmware';
+import { FirmwareButtonsRow } from './Buttons/FirmwareButtonsRow';
+import { FirmwareSwitchWarning } from './FirmwareSwitchWarning';
 
 const Description = styled.div`
     align-items: center;
     display: flex;
     flex-direction: column;
     gap: 16px;
-`;
-
-const ButtonRow = styled.div`
-    display: flex;
-    gap: 20px;
 `;
 
 const TextButton = styled.button`
@@ -51,21 +48,33 @@ const StyledConnectDevicePrompt = styled(ConnectDevicePromptManager)`
     margin-top: 120px;
 `;
 
-interface FirmwareInitialProps {
-    cachedDevice?: TrezorDevice;
-    setCachedDevice: Dispatch<SetStateAction<TrezorDevice | undefined>>;
-    // This component is shared between Onboarding flow and standalone fw update modal with few minor UI changes
-    // If it is set to true, then you know it is being rendered in standalone fw update modal
-    standaloneFwUpdate?: boolean;
-    onInstall: (firmwareType?: FirmwareType) => void;
-    shouldSwitchFirmwareType?: boolean;
-    onClose?: () => void;
-}
+const WarningListWrapper = styled.div`
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+    border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+`;
+
+const Important = styled.div`
+    align-self: flex-start;
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    text-transform: uppercase;
+`;
+
+const EmphasizedText = styled.b`
+    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
+`;
 
 interface GetDescriptionProps {
     required: boolean;
     standaloneFwUpdate: boolean;
     reinstall: boolean;
+    targetFirmwareType: FirmwareType;
     shouldSwitchFirmwareType?: boolean;
     isBitcoinOnlyAvailable?: boolean;
 }
@@ -74,13 +83,17 @@ const getDescription = ({
     required,
     standaloneFwUpdate,
     reinstall,
+    targetFirmwareType,
     shouldSwitchFirmwareType,
     isBitcoinOnlyAvailable,
 }: GetDescriptionProps) => {
     if (shouldSwitchFirmwareType) {
-        return isBitcoinOnlyAvailable
-            ? 'TR_SWITCH_FIRMWARE_TYPE_DESCRIPTION'
-            : 'TR_BITCOIN_ONLY_UNAVAILABLE';
+        if (!isBitcoinOnlyAvailable) {
+            return 'TR_BITCOIN_ONLY_UNAVAILABLE';
+        }
+        return targetFirmwareType === FirmwareType.BitcoinOnly
+            ? 'TR_SWITCH_TO_BITCOIN_ONLY_DESCRIPTION'
+            : 'TR_SWITCH_TO_REGULAR_DESCRIPTION';
     }
 
     if (required) {
@@ -108,6 +121,18 @@ const getNoFirmwareInstalledSubheading = (device: AcquiredDevice) => {
         : 'TR_FIRMWARE_SUBHEADING_UNKNOWN';
 };
 
+interface FirmwareInitialProps {
+    cachedDevice?: TrezorDevice;
+    setCachedDevice: Dispatch<SetStateAction<TrezorDevice | undefined>>;
+    // This component is shared between Onboarding flow and standalone fw update modal with few minor UI changes
+    // If it is set to true, then you know it is being rendered in standalone fw update modal
+    standaloneFwUpdate?: boolean;
+    onInstall: (firmwareType?: FirmwareType) => void;
+    shouldSwitchFirmwareType?: boolean;
+    onClose?: () => void;
+    willBeWiped?: boolean;
+}
+
 export const FirmwareInitial = ({
     cachedDevice,
     setCachedDevice,
@@ -115,6 +140,7 @@ export const FirmwareInitial = ({
     standaloneFwUpdate = false,
     shouldSwitchFirmwareType,
     onClose,
+    willBeWiped,
 }: FirmwareInitialProps) => {
     const [bitcoinOnlyOffer, setBitcoinOnlyOffer] = useState(false);
     const { device: liveDevice } = useDevice();
@@ -201,7 +227,7 @@ export const FirmwareInitial = ({
                 />
             ) : undefined,
             innerActions: (
-                <ButtonRow>
+                <FirmwareButtonsRow>
                     <FirmwareInstallButton
                         variant="secondary"
                         onClick={() => installFirmware(FirmwareType.Regular)}
@@ -226,7 +252,7 @@ export const FirmwareInitial = ({
                             }}
                         />
                     </FirmwareInstallButton>
-                </ButtonRow>
+                </FirmwareButtonsRow>
             ),
         };
     } else if (['none', 'unknown'].includes(device.firmware)) {
@@ -274,8 +300,29 @@ export const FirmwareInitial = ({
         device.firmware === 'outdated' ||
         standaloneFwUpdate
     ) {
+        const warningTranslationValues: ExtendedMessageDescriptor['values'] = {
+            b: chunks => <EmphasizedText>{chunks}</EmphasizedText>,
+        };
+
         content = {
-            heading: <Translation id="TR_INSTALL_FIRMWARE" />,
+            heading: shouldSwitchFirmwareType ? (
+                <Translation
+                    id="TR_SWITCH_FIRMWARE_TO"
+                    values={{
+                        firmwareType: (
+                            <Translation
+                                id={
+                                    targetFirmwareType === FirmwareType.BitcoinOnly
+                                        ? 'TR_FIRMWARE_TYPE_BITCOIN_ONLY'
+                                        : 'TR_FIRMWARE_TYPE_REGULAR'
+                                }
+                            />
+                        ),
+                    }}
+                />
+            ) : (
+                <Translation id="TR_INSTALL_FIRMWARE" />
+            ),
             description: (
                 <Translation
                     id={getDescription({
@@ -290,6 +337,7 @@ export const FirmwareInitial = ({
                         required: device.firmware === 'required',
                         standaloneFwUpdate,
                         reinstall: device.firmware === 'valid' || hasLatestAvailableFw,
+                        targetFirmwareType,
                         shouldSwitchFirmwareType,
                         isBitcoinOnlyAvailable,
                     })}
@@ -299,15 +347,42 @@ export const FirmwareInitial = ({
                     }}
                 />
             ),
-            body: <FirmwareOffer device={device} targetFirmwareType={targetFirmwareType} />,
+            body: (
+                <>
+                    {willBeWiped && (
+                        <WarningListWrapper>
+                            <Important>
+                                <Translation id="TR_IMPORTANT" />
+                            </Important>
+                            <FirmwareSwitchWarning>
+                                <Translation
+                                    id="TR_FIRMWARE_SWITCH_WARNING_1"
+                                    values={warningTranslationValues}
+                                />
+                            </FirmwareSwitchWarning>
+                            <FirmwareSwitchWarning>
+                                <Translation
+                                    id="TR_FIRMWARE_SWITCH_WARNING_2"
+                                    values={warningTranslationValues}
+                                />
+                            </FirmwareSwitchWarning>
+                        </WarningListWrapper>
+                    )}
+                    <FirmwareOffer device={device} targetFirmwareType={targetFirmwareType} />
+                </>
+            ),
             innerActions: (
-                <FirmwareInstallButton
-                    onClick={() => {
-                        setStatus(standaloneFwUpdate ? 'check-seed' : 'waiting-for-bootloader');
-                        updateAnalytics({ firmware: 'update' });
-                    }}
-                    multipleDevicesConnected={multipleDevicesConnected}
-                />
+                <FirmwareButtonsRow withCancelButton={willBeWiped} onClose={onClose}>
+                    <FirmwareInstallButton
+                        onClick={() => {
+                            setStatus(standaloneFwUpdate ? 'check-seed' : 'waiting-for-bootloader');
+                            updateAnalytics({ firmware: 'update' });
+                        }}
+                        multipleDevicesConnected={multipleDevicesConnected}
+                    >
+                        <Translation id={willBeWiped ? 'TR_CONTINUE' : 'TR_INSTALL'} />
+                    </FirmwareInstallButton>
+                </FirmwareButtonsRow>
             ),
             outerActions:
                 device.firmware === 'outdated' && !standaloneFwUpdate ? (
