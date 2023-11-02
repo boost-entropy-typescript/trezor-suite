@@ -2246,6 +2246,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0":
+  version: 11.0.0
+  resolution: "@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0"
+  checksum: b22b707e83ecd254a9888e24ada14d07fa8d37c749bd49e67b4b9ca13a3a42cc1b5198b1118d751cee94b479d5b7addd15af5d875cb5c91418f69f3a98d5276e
+  languageName: node
+  linkType: hard
+
 "@esbuild-kit/cjs-loader@npm:^2.4.2":
   version: 2.4.2
   resolution: "@esbuild-kit/cjs-loader@npm:2.4.2"
@@ -3240,12 +3247,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fivebinaries/coin-selection@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@fivebinaries/coin-selection@npm:2.1.0"
+"@fivebinaries/coin-selection@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@fivebinaries/coin-selection@npm:2.2.0"
   dependencies:
     "@emurgo/cardano-serialization-lib-browser": ^11.0.0
-  checksum: cc1bba39deeac04648d313d76f434418f24afd8a6f5d3b9c8a3589840937521c50c9013a91fd4fb2e8bfe05b9bd2bf0d57d6fa6b3e457795ad1a389584baa11a
+    "@emurgo/cardano-serialization-lib-nodejs": 11.0.0
+  checksum: 11ebafb4dae5fcd735723f288f1b3f3486e86df8f24b543b3baf52278fe7138d321b8662b4029c8e2e0c39be5bfcacbefbb1e320500221fddc41d9050420496c
   languageName: node
   linkType: hard
 
@@ -7538,7 +7546,7 @@ __metadata:
     "@suite-common/icons": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
-    "@suite-native/intl": "workspace:^"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/screen-overlay": "workspace:*"
     "@suite-native/storage": "workspace:*"
     "@trezor/env-utils": "workspace:*"
@@ -7755,7 +7763,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-native/intl@workspace:*, @suite-native/intl@workspace:^, @suite-native/intl@workspace:suite-native/intl":
+"@suite-native/intl@workspace:*, @suite-native/intl@workspace:suite-native/intl":
   version: 0.0.0-use.local
   resolution: "@suite-native/intl@workspace:suite-native/intl"
   dependencies:
@@ -7945,6 +7953,7 @@ __metadata:
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/helpers": "workspace:*"
     "@suite-native/intl": "workspace:*"
+    "@suite-native/link": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -8237,6 +8246,7 @@ __metadata:
     "@trezor/protobuf": "workspace:*"
     "@trezor/transport-native": "workspace:*"
     "@trezor/utils": "workspace:*"
+    expo-device: 5.6.0
     react: 18.2.0
     react-native: 0.71.7
     react-redux: 8.0.7
@@ -8326,6 +8336,7 @@ __metadata:
     "@suite-common/icons": "workspace:*"
     "@suite-common/suite-config": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -8336,6 +8347,8 @@ __metadata:
     "@suite-native/fiat-rates": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/helpers": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/link": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
@@ -9009,6 +9022,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/connect@workspace:packages/connect"
   dependencies:
+    "@fivebinaries/coin-selection": 2.2.0
     "@trezor/blockchain-link": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect-analytics": "workspace:*"
@@ -9352,8 +9366,10 @@ __metadata:
     openpgp: ^5.11.0
     rimraf: ^5.0.5
     systeminformation: ^5.21.15
+    terser-webpack-plugin: ^5.3.9
     tsx: ^3.12.7
     typescript: 4.9.5
+    webpack: ^5.87.0
     xvfb-maybe: ^0.2.1
   languageName: unknown
   linkType: soft
@@ -9573,7 +9589,6 @@ __metadata:
     "@crowdin/cli": ^3.13.0
     "@ethereumjs/common": ^3.1.2
     "@ethereumjs/tx": ^4.1.2
-    "@fivebinaries/coin-selection": 2.1.0
     "@formatjs/cli": ^6.1.3
     "@formatjs/intl": 2.9.0
     "@hookform/resolvers": 3.1.0
@@ -18663,6 +18678,17 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 647fda433b302780eae453a6dc58ea6da4aed42753729b04fd3ecaca277cc1979a67cfeaea2c6a60b82ca5d79f139b08b94576986264a1f13b0ef1bfc2911d01
+  languageName: node
+  linkType: hard
+
+"expo-device@npm:5.6.0":
+  version: 5.6.0
+  resolution: "expo-device@npm:5.6.0"
+  dependencies:
+    ua-parser-js: ^0.7.33
+  peerDependencies:
+    expo: "*"
+  checksum: d30bf016da78bc5f5d163e9583fb3199d273a33bce800f7b3d28212925f08be5a9dd89df3d19fe4449ebfa31c12fe3dd7b7b2270bf302abcce9e0da52f2ca639
   languageName: node
   linkType: hard
 
@@ -34050,10 +34076,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^0.7.30":
-  version: 0.7.31
-  resolution: "ua-parser-js@npm:0.7.31"
-  checksum: e2f8324a83d1715601576af85b2b6c03890699aaa7272950fc77ea925c70c5e4f75060ae147dc92124e49f7f0e3d6dd2b0a91e7f40d267e92df8894be967ba8b
+"ua-parser-js@npm:^0.7.30, ua-parser-js@npm:^0.7.33":
+  version: 0.7.37
+  resolution: "ua-parser-js@npm:0.7.37"
+  checksum: 9e91a66171aa16c74680cfac84af6ed7ecdeb508ff7c90a55222f56c63172da2d98d2478763e9469c940415fe29c45a56ae51fec1c19a498e7a3b293f7b3b874
   languageName: node
   linkType: hard
 
