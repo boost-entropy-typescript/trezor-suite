@@ -7,15 +7,15 @@ import {
     getAccountTypeDesc,
 } from '@suite-common/wallet-utils';
 import { P, variables } from '@trezor/components';
-import { HELP_CENTER_XPUB_URL } from '@trezor/urls';
 
-import { WalletLayout } from 'src/components/wallet';
-import { useDevice, useDispatch, useSelector } from 'src/hooks/suite';
 import { ActionButton, ActionColumn, Card, TextColumn, Translation } from 'src/components/suite';
 
-import { CARD_PADDING_SIZE } from 'src/constants/suite/layout';
+import { HELP_CENTER_BIP32_URL, HELP_CENTER_XPUB_URL } from '@trezor/urls';
 import { showXpub } from 'src/actions/wallet/publicKeyActions';
+import { WalletLayout } from 'src/components/wallet';
 import { NETWORKS } from 'src/config/wallet';
+import { CARD_PADDING_SIZE } from 'src/constants/suite/layout';
+import { useDevice, useDispatch, useSelector } from 'src/hooks/suite';
 import { CoinjoinLogs } from './CoinjoinLogs';
 import { CoinjoinSetup } from './CoinjoinSetup/CoinjoinSetup';
 import { RescanAccount } from './RescanAccount';
@@ -43,10 +43,7 @@ const AccountTypeLabel = styled.div`
     line-height: 20px;
     text-align: center;
     min-width: 170px;
-
-    div:first-child {
-        margin-bottom: 8px;
-    }
+    gap: 8px;
 `;
 
 const StyledCard = styled(Card)`
@@ -129,6 +126,18 @@ const Details = () => {
                             )}
                             <P size="tiny">
                                 (<Translation id={accountTypeTech} />)
+                            </P>
+                        </AccountTypeLabel>
+                    </Row>
+                    <Row>
+                        <TextColumn
+                            title={<Translation id="TR_ACCOUNT_DETAILS_PATH_HEADER" />}
+                            description={<Translation id="TR_ACCOUNT_DETAILS_PATH_DESC" />}
+                            buttonLink={HELP_CENTER_BIP32_URL}
+                        />
+                        <AccountTypeLabel>
+                            <P size="small" weight="medium">
+                                {account.path}
                             </P>
                         </AccountTypeLabel>
                     </Row>
