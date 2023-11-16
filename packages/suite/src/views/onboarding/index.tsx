@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import { OnboardingLayout } from 'src/components/onboarding';
-import { WelcomeLayout } from 'src/components/suite';
 import { ReduxModal } from 'src/components/suite/modals/ReduxModal/ReduxModal';
-import WelcomeStep from 'src/views/onboarding/steps/Welcome';
 import CreateOrRecover from 'src/views/onboarding/steps/CreateOrRecover';
 import { FirmwareStep } from 'src/views/onboarding/steps/FirmwareStep';
 import { DeviceAuthenticity } from './steps/SecurityCheck/DeviceAuthenticity';
@@ -17,56 +15,48 @@ import UnexpectedState from 'src/views/onboarding/UnexpectedState';
 import { useOnboarding, useFilteredModal } from 'src/hooks/suite';
 import { MODAL } from 'src/actions/suite/constants';
 import * as STEP from 'src/constants/onboarding/steps';
-import type { PrerequisiteType } from 'src/types/suite';
 import { DeviceTutorial } from './steps/DeviceTutorial';
 
-type OnboardingProps = {
-    prerequisite?: PrerequisiteType;
-};
-
-export const Onboarding = ({ prerequisite }: OnboardingProps) => {
+export const Onboarding = () => {
     const { activeStepId } = useOnboarding();
 
-    const [StepComponent, LayoutComponent] = useMemo(() => {
+    const StepComponent = useMemo(() => {
         switch (activeStepId) {
-            case STEP.ID_WELCOME_STEP:
-                // Welcome Layout with Connect device prompt and Analytics toggle
-                return [WelcomeStep, WelcomeLayout];
             case STEP.ID_FIRMWARE_STEP:
                 // Firmware installation
-                return [FirmwareStep, OnboardingLayout];
+                return FirmwareStep;
             case STEP.ID_AUTHENTICATE_DEVICE_STEP:
                 // Device authenticity check
-                return [DeviceAuthenticity, OnboardingLayout];
+                return DeviceAuthenticity;
             case STEP.ID_TUTORIAL_STEP:
                 // Device tutorial
-                return [DeviceTutorial, OnboardingLayout];
+                return DeviceTutorial;
             case STEP.ID_CREATE_OR_RECOVER:
                 // Selection between a new seed or seed recovery
-                return [CreateOrRecover, OnboardingLayout];
+                return CreateOrRecover;
             case STEP.ID_RESET_DEVICE_STEP:
                 // a) Generating a new seed, selection between single seed or shamir seed (only T2T1 supported)
-                return [ResetDeviceStep, OnboardingLayout];
+                return ResetDeviceStep;
             case STEP.ID_RECOVERY_STEP:
                 // b) Seed recovery
-                return [RecoveryStep, OnboardingLayout];
+                return RecoveryStep;
             case STEP.ID_SECURITY_STEP:
                 // Security intro (BACKUP, PIN), option to skip them
-                return [SecurityStep, OnboardingLayout];
+                return SecurityStep;
             case STEP.ID_BACKUP_STEP:
                 // Seed backup
-                return [BackupStep, OnboardingLayout];
+                return BackupStep;
             case STEP.ID_SET_PIN_STEP:
                 // Pin setup
-                return [SetPinStep, OnboardingLayout];
+                return SetPinStep;
             case STEP.ID_COINS_STEP:
                 // Suite settings
-                return [BasicSettingsStep, OnboardingLayout];
+                return BasicSettingsStep;
             case STEP.ID_FINAL_STEP:
-                return [FinalStep, OnboardingLayout];
+                return FinalStep;
             default:
                 console.error('no corresponding component found');
-                return [() => null, WelcomeStep];
+                return () => null;
         }
     }, [activeStepId]);
 
@@ -76,11 +66,12 @@ export const Onboarding = ({ prerequisite }: OnboardingProps) => {
     );
 
     return (
-        <LayoutComponent>
+        <OnboardingLayout>
             {allowedModal && <ReduxModal {...allowedModal} />}
-            <UnexpectedState prerequisite={prerequisite}>
+
+            <UnexpectedState>
                 <StepComponent />
             </UnexpectedState>
-        </LayoutComponent>
+        </OnboardingLayout>
     );
 };
