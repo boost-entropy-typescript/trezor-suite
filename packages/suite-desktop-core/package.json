@@ -7,9 +7,7 @@
     "homepage": "https://trezor.io/",
     "main": "src/app.ts",
     "scripts": {
-        "build:app": "yarn tsx scripts/build.ts",
-        "build:connect": "TS_NODE_PROJECT=\"tsconfig.json\" yarn webpack --config ./webpack/connect.webpack.config.ts",
-        "build:core": "rimraf dist && yarn build:app && yarn build:connect",
+        "build:core": "rimraf dist && TS_NODE_PROJECT=\"tsconfig.json\" yarn webpack --config ./webpack/core.webpack.config.ts",
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "type-check": "tsc --build tsconfig.json && tsc --build scripts/tsconfig.json",
         "test:unit": "jest",
@@ -47,7 +45,6 @@
         "@types/electron-localshortcut": "^3.1.3",
         "cross-fetch": "^4.0.0",
         "electron": "27.0.4",
-        "esbuild": "^0.19.5",
         "glob": "^10.3.10",
         "jest": "^26.6.3",
         "rimraf": "^5.0.5",
