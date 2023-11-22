@@ -25,23 +25,22 @@ import {
 import { Core, initCore, initTransport } from '@trezor/connect/src/core';
 import { DataManager } from '@trezor/connect/src/data/DataManager';
 import { config } from '@trezor/connect/src/data/config';
-import { initLog } from '@trezor/connect/src/utils/debug';
+import { initLog, LogWriter } from '@trezor/connect/src/utils/debug';
 import { getOrigin } from '@trezor/connect/src/utils/urlUtils';
 import { suggestBridgeInstaller } from '@trezor/connect/src/data/transportInfo';
 import { suggestUdevInstaller } from '@trezor/connect/src/data/udevInfo';
 import { storage, getSystemInfo, getInstallerPackage } from '@trezor/connect-common';
 import { parseConnectSettings, isOriginWhitelisted } from './connectSettings';
 import { analytics, EventType } from '@trezor/connect-analytics';
-import { logWriterFactory } from './logWriter';
+// @ts-expect-error (typescript does not know this is worker constructor, this is done by webpack)
+import LogWorker from './sharedLoggerWorker';
+import { initLogWriterWithWorker } from './sharedLoggerUtils';
 
 let _core: Core | undefined;
 
 // custom log
 const _log = initLog('IFrame');
-// `logWriterProxy` is used here to pass to shared logger worker logs from
-// environments that do not have access to it, like connect-web, webextension.
-// It does not log anything in this environment, just used as proxy.
-const logWriterProxy = logWriterFactory();
+let logWriterProxy: LogWriter | undefined;
 
 let _popupMessagePort: (MessagePort | BroadcastChannel) | undefined;
 
@@ -304,6 +303,15 @@ const init = async (payload: IFrameInit['payload'], origin: string) => {
         } catch (error) {
             // tell the popup to use MessageChannel fallback communication (thru IFRAME.LOADED > POPUP.INIT)
         }
+    }
+
+    let logWriterFactory;
+    if (parsedSettings.sharedLogger !== false) {
+        logWriterFactory = initLogWriterWithWorker(LogWorker);
+        // `logWriterProxy` is used here to pass to shared logger worker logs from
+        // environments that do not have access to it, like connect-web, webextension.
+        // It does not log anything in this environment, just used as proxy.
+        logWriterProxy = logWriterFactory();
     }
 
     _log.enabled = !!parsedSettings.debug;
