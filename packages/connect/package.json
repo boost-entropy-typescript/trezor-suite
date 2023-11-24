@@ -49,6 +49,8 @@
         "prepublish": "yarn tsx ../../scripts/prepublish.js"
     },
     "dependencies": {
+        "@ethereumjs/common": "^3.1.2",
+        "@ethereumjs/tx": "^4.1.2",
         "@fivebinaries/coin-selection": "2.2.0",
         "@trezor/blockchain-link": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
@@ -70,6 +72,7 @@
         "@trezor/trezor-user-env-link": "workspace:*",
         "@types/karma": "^6.3.6",
         "@types/parse-uri": "^1.0.2",
+        "ethereum-cryptography": "^2.0.0",
         "jest": "29.5.0",
         "jest-environment-jsdom": "^29.5.0",
         "karma": "^6.4.2",
