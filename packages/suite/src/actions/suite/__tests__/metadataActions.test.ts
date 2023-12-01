@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { prepareDeviceReducer } from '@suite-common/wallet-core';
+import { testMocks } from '@suite-common/test-utils';
 
 import { configureStore } from 'src/support/tests/configureStore';
 import metadataReducer from 'src/reducers/suite/metadataReducer';
@@ -17,53 +18,23 @@ import * as fixtures from '../__fixtures__/metadataActions';
 
 const deviceReducer = prepareDeviceReducer(extraDependencies);
 
-jest.mock('@trezor/connect', () => {
-    let fixture: any;
+const TrezorConnect = testMocks.getTrezorConnectMock();
 
-    const { PROTO } = jest.requireActual('@trezor/connect');
+jest.spyOn(TrezorConnect, 'cipherKeyValue').mockImplementation(() =>
+    Promise.resolve({
+        success: true,
+        payload: {
+            value: '20c8bf0701213cdcf4c2f56fd0096c1772322d42fb9c4d0ddf6bb122d713d2f3',
+        } as any, // typings expect bundle response
+    }),
+);
 
-    return {
-        __esModule: true, // this property makes it work
-        default: {
-            cipherKeyValue: () =>
-                fixture || {
-                    success: true,
-                    payload: {
-                        value: '20c8bf0701213cdcf4c2f56fd0096c1772322d42fb9c4d0ddf6bb122d713d2f3',
-                    },
-                },
-        },
-        setTestFixtures: (f: any) => {
-            fixture = f;
-        },
-        DEVICE: {
-            CONNECT_UNACQUIRED: 'device-connect-unacquired',
-            CHANGED: 'device-changed',
-            DISCONNECT: 'device-disconnect',
-        },
-        BLOCKCHAIN: {},
-        TRANSPORT: {},
-        UI: {},
-        PROTO,
-        DeviceModelInternal: {
-            T2T1: 'T2T1',
-        },
-    };
-});
+jest.doMock('@trezor/suite-analytics', () => testMocks.getAnalytics());
 
-jest.mock('@trezor/suite-analytics', () => global.JestMocks.getAnalytics());
-
-jest.mock('dropbox', () => {
-    const { Dropbox, DropboxAuth } = jest.requireActual('dropbox');
-    return {
-        __esModule: true,
-        Dropbox,
-        DropboxAuth,
-    };
-});
-
-// @ts-expect-error declare fetch (used in Dropbox constructor)
-global.fetch = () => {};
+// use real package
+jest.unmock('dropbox');
+// use fetch mock (used in Dropbox constructor, requesting to https://api.dropboxapi.com/)
+jest.spyOn(global, 'fetch').mockImplementation(() => Promise.resolve<any>({}));
 
 type MetadataState = ReturnType<typeof metadataReducer>;
 interface InitialState {

@@ -527,7 +527,7 @@ export const selectDeviceType = (state: DeviceRootState) => state.device.selecte
 export const selectDeviceFeatures = (state: DeviceRootState) =>
     state.device.selectedDevice?.features;
 
-export const selectHasDeviceRequestedPin = (state: DeviceRootState) => {
+export const selectIsDeviceProtectedByPin = (state: DeviceRootState) => {
     const features = selectDeviceFeatures(state);
     return !!features?.pin_protection;
 };
@@ -544,7 +544,7 @@ export const selectDeviceMode = (state: DeviceRootState) => state.device.selecte
 
 export const selectDeviceRequestedPin = (state: DeviceRootState) => {
     const buttonRequestsCodes = selectDeviceButtonRequestsCodes(state);
-    const isDeviceProtectedByPin = selectHasDeviceRequestedPin(state);
+    const isDeviceProtectedByPin = selectIsDeviceProtectedByPin(state);
 
     if (!isDeviceProtectedByPin) return false;
 
@@ -554,6 +554,12 @@ export const selectDeviceRequestedPin = (state: DeviceRootState) => {
 export const selectIsUnacquiredDevice = (state: DeviceRootState) => {
     const deviceType = selectDeviceType(state);
     return deviceType === 'unacquired';
+};
+
+export const selectIsDeviceInBootloader = (state: DeviceRootState) => {
+    const mode = selectDeviceMode(state);
+
+    return mode === 'bootloader';
 };
 
 export const selectIsDeviceInitialized = (state: DeviceRootState) => {
@@ -650,9 +656,9 @@ export const selectDeviceNameById = (
     return device?.name ?? null;
 };
 
-export const selectSelectedDeviceName = (state: DeviceRootState) => {
+export const selectSelectedDeviceLabel = (state: DeviceRootState) => {
     const selectedDevice = selectDevice(state);
-    return selectDeviceNameById(state, selectedDevice?.id);
+    return selectDeviceLabelById(state, selectedDevice?.id);
 };
 
 export const selectDeviceId = (state: DeviceRootState) => {
@@ -688,4 +694,14 @@ export const selectPersistedDevicesStates = (state: DeviceRootState) => {
 export const selectIsNoPhysicalDeviceConnected = (state: DeviceRootState) => {
     const devices = selectDevices(state);
     return devices.length === 1 && devices[0].id === PORTFOLIO_TRACKER_DEVICE_ID;
+};
+
+export const selectIsDeviceBitcoinOnly = (state: DeviceRootState) => {
+    const features = selectDeviceFeatures(state);
+    return features?.unit_btconly ?? false;
+};
+
+export const selectDeviceLanguage = (state: DeviceRootState) => {
+    const features = selectDeviceFeatures(state);
+    return features?.language ?? null;
 };

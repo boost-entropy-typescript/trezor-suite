@@ -11,11 +11,12 @@ import {
 import { ChangeFee } from 'src/components/suite/modals/ReduxModal/UserContextModal/TxDetailModal/ChangeFee/ChangeFee';
 import { useRbfContext } from '../useRbfForm';
 
+// do not mock
+jest.unmock('@trezor/connect');
+
 jest.mock('src/actions/suite/routerActions', () => ({
     goto: () => ({ type: 'mock-redirect' }),
 }));
-
-jest.mock('react-svg', () => ({ ReactSVG: () => 'SVG' }));
 
 // render only Translation['id']
 jest.mock('src/components/suite/Translation', () => ({ Translation: ({ id }: any) => id }));
@@ -26,16 +27,20 @@ jest.mock('@trezor/blockchain-link', () => ({
     __esModule: true,
     default: class BlockchainLink {
         name = 'jest-mocked-module';
+        listeners: Record<string, () => void> = {};
         constructor(args: any) {
             this.name = args.name;
         }
-
-        on() {}
-
-        connect() {}
-
+        on(...args: any[]) {
+            const [type, fn] = args;
+            this.listeners[type] = fn;
+        }
+        connect() {
+            this.listeners.connected();
+        }
+        disconnect() {}
+        removeAllListeners() {}
         dispose() {}
-
         getInfo() {
             return {
                 url: this,
@@ -46,6 +51,9 @@ jest.mock('@trezor/blockchain-link', () => ({
                 blockHeight: 10000000,
                 blockHash: 'abcd',
             };
+        }
+        estimateFee(params: { blocks: number[] }) {
+            return params.blocks.map(() => ({ feePerUnit: '-1' }));
         }
     },
 }));
@@ -95,7 +103,6 @@ describe('useRbfForm hook', () => {
                 appUrl: '@trezor/suite',
             },
         });
-
         jest.spyOn(window, 'scrollTo').mockImplementation(() => {});
     });
     afterAll(async () => {

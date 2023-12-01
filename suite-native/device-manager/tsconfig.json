@@ -9,12 +9,12 @@
         {
             "path": "../../suite-common/wallet-core"
         },
+        { "path": "../analytics" },
         { "path": "../atoms" },
         { "path": "../feature-flags" },
         { "path": "../intl" },
         { "path": "../link" },
         { "path": "../navigation" },
-        { "path": "../screen-overlay" },
         { "path": "../theme" },
         { "path": "../../packages/connect" },
         { "path": "../../packages/styles" },

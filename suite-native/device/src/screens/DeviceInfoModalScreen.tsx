@@ -22,7 +22,7 @@ import {
     selectDeviceModel,
     selectDeviceReleaseInfo,
     selectIsSelectedDeviceImported,
-    selectSelectedDeviceName,
+    selectSelectedDeviceLabel,
 } from '@suite-common/wallet-core';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { useTranslate } from '@suite-native/intl';
@@ -31,10 +31,16 @@ import { useOpenLink } from '@suite-native/link';
 
 import { HowToUpdateBottomSheet } from '../components/HowToUpdateBottomSheet';
 
-const deviceImage = {
+const deviceImageMap = {
     [DeviceModelInternal.T1B1]: require('../assets/t1.png'),
     [DeviceModelInternal.T2T1]: require('../assets/tt.png'),
     [DeviceModelInternal.T2B1]: require('../assets/ts3.png'),
+} as const satisfies Record<DeviceModelInternal, string>;
+
+const deviceModelNameMap = {
+    [DeviceModelInternal.T1B1]: 'Trezor Model One',
+    [DeviceModelInternal.T2T1]: 'Trezor Model T',
+    [DeviceModelInternal.T2B1]: 'Trezor Safe 3',
 } as const satisfies Record<DeviceModelInternal, string>;
 
 const emptyBoxStyle = prepareNativeStyle(() => ({
@@ -51,7 +57,7 @@ export const DeviceInfoModalScreen = () => {
     const openLink = useOpenLink();
 
     const deviceModel = useSelector(selectDeviceModel);
-    const deviceName = useSelector(selectSelectedDeviceName);
+    const deviceLabel = useSelector(selectSelectedDeviceLabel);
     const device = useSelector(selectDevice);
     const isPortfolioTrackerDevice = useSelector(selectIsSelectedDeviceImported);
     const deviceReleaseInfo = useSelector(selectDeviceReleaseInfo);
@@ -130,15 +136,18 @@ export const DeviceInfoModalScreen = () => {
             <Box style={applyStyle(contentStyle)}>
                 <Card {...cardAlertProps}>
                     <HStack spacing="large">
-                        <Image width={92} height={151} source={deviceImage[deviceModel]} />
-                        <Box justifyContent="center">
-                            <Text variant="titleSmall">{deviceName}</Text>
+                        <Image width={92} height={151} source={deviceImageMap[deviceModel]} />
+                        <VStack spacing="extraSmall" justifyContent="center">
+                            <Text variant="titleSmall">{deviceLabel}</Text>
+                            <Text variant="label" color="textSubdued">
+                                {deviceModelNameMap[deviceModel]}
+                            </Text>
                             <Text variant="hint">
                                 {translate('deviceInfo.installedFw', {
                                     version: currentFwVersion,
                                 })}
                             </Text>
-                        </Box>
+                        </VStack>
                     </HStack>
                 </Card>
             </Box>

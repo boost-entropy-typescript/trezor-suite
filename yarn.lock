@@ -2193,17 +2193,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emurgo/cardano-serialization-lib-browser@npm:^11.0.0":
-  version: 11.1.0
-  resolution: "@emurgo/cardano-serialization-lib-browser@npm:11.1.0"
-  checksum: b2182e35296d8239d7c1bc6d5b3e8b6b5dec4838372df6bceb5f49c140adf9e2c004751a7d2c76acf8f2fd87343cc4be5f411e9d8eaa9342559c178b9d54922d
+"@emurgo/cardano-serialization-lib-browser@npm:^11.5.0":
+  version: 11.5.0
+  resolution: "@emurgo/cardano-serialization-lib-browser@npm:11.5.0"
+  checksum: e4d74d20a59ebc20671363fa357c526c10f2f13c9f36fd34b2d269f1c6f3d637be62fe31ea89641cd90a1410aaf5f9613dfe7f3e616cff606ea8f63a7296ecb3
   languageName: node
   linkType: hard
 
-"@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0":
-  version: 11.0.0
-  resolution: "@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0"
-  checksum: 9809436e6df1c4d3f7a7df87ede2cf84f5ab75e284dc5ef85be082cc3c719ab2382ae3c05126d754fdf2c3a0b4e079d9c22da5a2abc771b87dc8d92505f4afb4
+"@emurgo/cardano-serialization-lib-nodejs@npm:11.5.0":
+  version: 11.5.0
+  resolution: "@emurgo/cardano-serialization-lib-nodejs@npm:11.5.0"
+  checksum: 3fff8448001c6d70807ef8e1a80a663ef60381e55bfd26c0f1b644e096895da7298fb991ac86670d4c5aee2e3e417e44ac80ab59080f7af107d8fa89906f9075
   languageName: node
   linkType: hard
 
@@ -2996,13 +2996,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fivebinaries/coin-selection@npm:2.2.0":
-  version: 2.2.0
-  resolution: "@fivebinaries/coin-selection@npm:2.2.0"
+"@fivebinaries/coin-selection@npm:2.2.1":
+  version: 2.2.1
+  resolution: "@fivebinaries/coin-selection@npm:2.2.1"
   dependencies:
-    "@emurgo/cardano-serialization-lib-browser": "npm:^11.0.0"
-    "@emurgo/cardano-serialization-lib-nodejs": "npm:11.0.0"
-  checksum: 49a1b508f2cf0f9ee0d3dcfc069433063a072eb73fb3bb11651605a6e2999a57095b565989799b029c3eab55c94c398df623f42a0266e701dd353d9b301a2585
+    "@emurgo/cardano-serialization-lib-browser": "npm:^11.5.0"
+    "@emurgo/cardano-serialization-lib-nodejs": "npm:11.5.0"
+  checksum: 3b5a45c9cf978978f96b781a994faf3e09d3cfe88f4f337205385caa1ba11f117d67fc059f09674a2a8064ccdde66bed69a2cb1182686bf83cbb9bdb13365d47
   languageName: node
   linkType: hard
 
@@ -7183,7 +7183,6 @@ __metadata:
   dependencies:
     "@suite-common/icons": "workspace:*"
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/screen-overlay": "workspace:*"
     "@trezor/styles": "workspace:*"
     jotai: "npm:1.9.1"
     react: "npm:18.2.0"
@@ -7204,6 +7203,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@trezor/analytics": "workspace:*"
+    "@trezor/connect": "workspace:*"
     "@trezor/env-utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -7248,8 +7248,7 @@ __metadata:
     "@suite-common/icons": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
-    "@suite-native/intl": "workspace:*"
-    "@suite-native/screen-overlay": "workspace:*"
+    "@suite-native/intl": "workspace:^"
     "@suite-native/storage": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -7275,7 +7274,6 @@ __metadata:
     "@suite-native/alerts": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/screen-overlay": "workspace:*"
     "@suite-native/storage": "workspace:*"
     "@trezor/styles": "workspace:*"
     expo-local-authentication: "npm:13.7.0"
@@ -7306,12 +7304,12 @@ __metadata:
     "@suite-common/icons": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
-    "@suite-native/screen-overlay": "workspace:*"
     "@suite-native/theme": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -7344,6 +7342,7 @@ __metadata:
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/alerts": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/helpers": "workspace:*"
@@ -7521,7 +7520,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-native/intl@workspace:*, @suite-native/intl@workspace:suite-native/intl":
+"@suite-native/intl@workspace:*, @suite-native/intl@workspace:^, @suite-native/intl@workspace:suite-native/intl":
   version: 0.0.0-use.local
   resolution: "@suite-native/intl@workspace:suite-native/intl"
   dependencies:
@@ -7689,6 +7688,7 @@ __metadata:
     "@suite-native/device": "workspace:*"
     "@suite-native/forms": "workspace:*"
     "@suite-native/intl": "workspace:*"
+    "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -7741,9 +7741,11 @@ __metadata:
     "@suite-common/graph": "workspace:*"
     "@suite-common/icons": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/assets": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/biometrics": "workspace:*"
+    "@suite-native/device": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/formatters": "workspace:*"
@@ -7984,18 +7986,6 @@ __metadata:
     react-native-gesture-handler: "npm:^2.9.0"
     react-native-reanimated: "npm:3.5.4"
     react-redux: "npm:8.0.7"
-  languageName: unknown
-  linkType: soft
-
-"@suite-native/screen-overlay@workspace:*, @suite-native/screen-overlay@workspace:suite-native/screen-overlay":
-  version: 0.0.0-use.local
-  resolution: "@suite-native/screen-overlay@workspace:suite-native/screen-overlay"
-  dependencies:
-    "@react-navigation/native": "npm:^6.1.3"
-    "@shopify/react-native-skia": "npm:0.1.214"
-    "@trezor/styles": "workspace:*"
-    react: "npm:18.2.0"
-    react-native: "npm:0.71.8"
   languageName: unknown
   linkType: soft
 
@@ -8838,7 +8828,7 @@ __metadata:
   dependencies:
     "@ethereumjs/common": "npm:^3.1.2"
     "@ethereumjs/tx": "npm:^4.1.2"
-    "@fivebinaries/coin-selection": "npm:2.2.0"
+    "@fivebinaries/coin-selection": "npm:2.2.1"
     "@trezor/blockchain-link": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect-analytics": "workspace:*"
@@ -9292,7 +9282,6 @@ __metadata:
     "@suite-native/navigation": "workspace:*"
     "@suite-native/notifications": "workspace:*"
     "@suite-native/receive": "workspace:*"
-    "@suite-native/screen-overlay": "workspace:*"
     "@suite-native/state": "workspace:*"
     "@suite-native/storage": "workspace:*"
     "@suite-native/theme": "workspace:*"

@@ -127,7 +127,7 @@ suite web canary fws:
     refs:
       - schedules
   variables:
-    FIRMWARE: 2-master
+    FIRMWARE: 2-main
 
 suite web canary fws manual:
   extends: .suite web base
@@ -137,7 +137,7 @@ suite web canary fws manual:
       - schedules
   when: manual
   variables:
-    FIRMWARE: 2-master
+    FIRMWARE: 2-main
 
 # TODO scheduled jobs against beta chrome channel
 # TODO scheduled jobs against suite.trezor.io
@@ -174,7 +174,7 @@ suite web canary fws manual:
   interruptible: true
   parallel:
     matrix:
-      - TEST_FILE: ["spawn-tor", "spawn-bridge"]
+      - TEST_FILE: ["spawn-tor", "spawn-bridge", "bug-report"]
         CONTAINERS: "trezor-user-env-unix"
       - TEST_FILE: ["electrum"]
         CONTAINERS: "trezor-user-env-unix electrum-regtest"
@@ -274,7 +274,7 @@ connect-popup manual:
     <<: *run_everything_rules
   when: manual
 
-connect-popup legacy npm package:
+.connect-popup legacy npm package base:
   extends: .e2e connect-popup
   stage: legacy testing
   needs:
@@ -289,11 +289,25 @@ connect-popup legacy npm package:
     TEST_FILE: $TEST_FILE
   parallel:
     matrix:
-      - CONNECT_VERSION: "9.0.11"
-        TEST_FILE: ["methods.test", "browser-support.test", "popup-close-legacy.test"]
+      - CONNECT_VERSION: "9.0.10"
+        TEST_FILE: [
+            "browser-support.test",
+            "popup-close-legacy.test",
+            # Test methods commented until we make it work with legacy connect due to trustHost in old connect-explorer
+            # "methods.test",
+          ]
+
+connect-popup legacy npm package manual:
+  extends: .connect-popup legacy npm package base
   except:
     <<: *run_everything_rules
   when: manual
+
+connect-popup legacy npm package:
+  extends: .connect-popup legacy npm package base
+  only:
+    refs:
+      - schedules
 
 .e2e connect-popup-webextension:
   stage: integration testing
@@ -427,7 +441,7 @@ connect legacy fws manual:
   extends: .connect matrix
   stage: canary testing
   variables:
-    TESTS_FIRMWARE: "2-master"
+    TESTS_FIRMWARE: "2-main"
 
 connect canary fws:
   extends: .connect canary fws base

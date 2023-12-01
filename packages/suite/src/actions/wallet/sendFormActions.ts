@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js';
 
 import TrezorConnect, { PROTO, SignedTransaction } from '@trezor/connect';
-import { getEthereumDefinitions } from '@trezor/connect/src/api/ethereum/ethereumDefinitions';
 import {
     accountsActions,
     addFakePendingCardanoTxThunk,
@@ -400,11 +399,15 @@ export const signTransaction =
         }
 
         if (account.networkType === 'ethereum' && !isCardanoTx(account, enhancedTxInfo)) {
-            const definitions = await getEthereumDefinitions({
-                chainId: network?.chainId,
-                contractAddress: enhancedTxInfo.token?.contract.substring(2),
-            });
-            enhancedTxInfo.isTokenKnown = !!definitions?.encoded_token;
+            const isTokenKnown = await fetch(
+                `https://data.trezor.io/firmware/eth-definitions/chain-id/${network?.chainId}/token-${enhancedTxInfo.token?.contract
+                    .substring(2)
+                    .toLowerCase()}.dat`,
+            )
+                .then(response => response.ok)
+                .catch(() => false);
+
+            enhancedTxInfo.isTokenKnown = isTokenKnown;
         }
 
         // store formValues and transactionInfo in send reducer to be used by TransactionReviewModal

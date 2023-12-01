@@ -1,9 +1,7 @@
-/* eslint-disable global-require */
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 import { deviceActions } from '@suite-common/wallet-core';
 import { connectInitThunk } from '@suite-common/connect-init';
 import { UI_EVENT, UI } from '@trezor/connect';
+import { testMocks } from '@suite-common/test-utils';
 
 import { configureStore } from 'src/support/tests/configureStore';
 import { SUITE } from 'src/actions/suite/constants';
@@ -14,44 +12,7 @@ import suiteMiddleware from 'src/middlewares/suite/suiteMiddleware';
 import buttonRequestMiddleware from 'src/middlewares/suite/buttonRequestMiddleware';
 import { Action } from 'src/types/suite';
 
-const { getSuiteDevice } = global.JestMocks;
-
-jest.mock('@trezor/connect', () => {
-    const callbacks: { [key: string]: (e: string) => any } = {};
-
-    const { PROTO, DeviceModelInternal } = jest.requireActual('@trezor/connect');
-
-    return {
-        __esModule: true, // this property makes it work
-        default: {
-            init: () => {},
-            on: (event: string, cb: (e: string) => any) => {
-                callbacks[event] = cb;
-            },
-            changePin: () => ({
-                success: true,
-                payload: {
-                    message: 'great success',
-                },
-            }),
-        },
-        DEVICE: {},
-        BLOCKCHAIN: {},
-        TRANSPORT: {},
-        UI: {
-            REQUEST_PIN: 'ui-request_pin',
-            REQUEST_BUTTON: 'ui-request_button',
-        },
-        emit: (event: string, data: any) => {
-            callbacks[event].call(undefined, {
-                event,
-                ...data,
-            });
-        },
-        PROTO,
-        DeviceModelInternal,
-    };
-});
+const { getSuiteDevice } = testMocks;
 
 const device = getSuiteDevice();
 
@@ -81,15 +42,16 @@ const initStore = (state: State) => {
 
 describe('buttonRequest middleware', () => {
     it('see what happens on pin change call', async () => {
-        require('@trezor/connect');
-
         const store = initStore(getInitialState());
         await store.dispatch(connectInitThunk());
         const call = store.dispatch(deviceSettingsActions.changePin({ remove: false }));
+        const { emitTestEvent } = testMocks.getTrezorConnectMock();
         // fake few ui events, just like when user is changing PIN
-        const { emit } = require('@trezor/connect');
-        emit(UI_EVENT, { type: UI.REQUEST_BUTTON, payload: { code: 'ButtonRequest_ProtectCall' } });
-        emit(UI_EVENT, {
+        emitTestEvent(UI_EVENT, {
+            type: UI.REQUEST_BUTTON,
+            payload: { code: 'ButtonRequest_ProtectCall' },
+        });
+        emitTestEvent(UI_EVENT, {
             type: UI.REQUEST_PIN,
             payload: { type: 'PinMatrixRequestType_NewFirst', device },
         });

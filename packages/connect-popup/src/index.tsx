@@ -41,7 +41,7 @@ import { isPhishingDomain } from './utils/isPhishingDomain';
 import { initLog, setLogWriter, LogWriter } from '@trezor/connect/lib/utils/debug';
 
 const log = initLog('@trezor/connect-popup');
-let logWriterProxy: LogWriter | undefined;
+const proxyLogger = initLog('@trezor/connect-webextension');
 
 let handshakeTimeout: ReturnType<typeof setTimeout>;
 let renderConnectUIPromise: Promise<void> | undefined;
@@ -61,6 +61,12 @@ const escapeHtml = (payload: any) => {
 export const handleUIAffectingMessage = (message: CoreMessage) => {
     switch (message.type) {
         case POPUP.METHOD_INFO:
+            setState({
+                method: message.payload.method,
+                info: message.payload.info,
+            });
+            reactEventBus.dispatch({ type: 'state-update', payload: getState() });
+            return;
         case UI_REQUEST.TRANSPORT:
         case UI_REQUEST.FIRMWARE_OUTDATED:
         case UI_REQUEST.DEVICE_NEEDS_BACKUP:
@@ -150,7 +156,10 @@ export const handleUIAffectingMessage = (message: CoreMessage) => {
 
 const handleResponseEvent = (data: any) => {
     if (data.type === RESPONSE_EVENT) {
-        postMessageToParent(data);
+        if (getState().core) {
+            // If we send this event to parent when iframe mode it gets duplicated in connect-web.
+            postMessageToParent(data);
+        }
 
         // When success we can close popup.
         if (data.success) {
@@ -202,13 +211,6 @@ const handleInitMessage = (event: MessageEvent<PopupEvent | IFrameLogRequest>) =
             },
         });
         reactEventBus.dispatch({ type: 'state-update', payload: getState() });
-        return;
-    }
-
-    if (data.type === IFRAME.LOG) {
-        if (logWriterProxy) {
-            logWriterProxy.add(data.payload);
-        }
         return;
     }
 
@@ -288,14 +290,6 @@ const handleMessageInCoreMode = (
 
     if (disposed) return;
 
-    if (data.type === IFRAME.LOG) {
-        if (logWriterProxy) {
-            logWriterProxy.add(data.payload);
-        }
-
-        return;
-    }
-
     if (data.type === POPUP.HANDSHAKE) {
         handshake(data, getState().settings?.origin || '');
         const core = ensureCore();
@@ -329,6 +323,22 @@ const handleMessageInCoreMode = (
     handleUIAffectingMessage(message);
 };
 
+const handleLogMessage = (event: MessageEvent<IFrameLogRequest>) => {
+    const { data } = event;
+    if (!data) return;
+
+    if (data.type === IFRAME.LOG) {
+        proxyLogger.addMessage(
+            {
+                level: data.payload.level,
+                prefix: data.payload.prefix,
+                timestamp: data.payload.timestamp,
+            },
+            ...data.payload.message,
+        );
+    }
+};
+
 // handle POPUP.INIT message from window.opener
 const init = async (payload: PopupInit['payload']) => {
     log.debug('popup init', payload);
@@ -356,7 +366,6 @@ const init = async (payload: PopupInit['payload']) => {
         if (payload.settings.sharedLogger !== false) {
             logWriterFactory = initLogWriterWithSrcPath('./workers/shared-logger-worker.js');
             setLogWriter(logWriterFactory);
-            logWriterProxy = logWriterFactory();
         }
 
         if (payload.useCore) {
@@ -513,6 +522,7 @@ const fail = (error: ErrorViewProps) => {
 
 addWindowEventListener('load', onLoad, false);
 addWindowEventListener('message', handleInitMessage, false);
+addWindowEventListener('message', handleLogMessage, false);
 
 // global method used in html-inline elements
 // @ts-expect-error not defined in window
