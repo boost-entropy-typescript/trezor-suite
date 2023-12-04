@@ -35,6 +35,11 @@ export interface AutodetectSettings {
     theme: boolean;
 }
 
+export enum AddressDisplayOptions {
+    ORIGINAL = 'original',
+    CHUNKED = 'chunked',
+}
+
 export type SuiteLifecycle =
     | { status: 'initial' }
     | { status: 'loading' }
@@ -70,6 +75,7 @@ export interface SuiteSettings {
     debug: DebugModeOptions;
     autodetect: AutodetectSettings;
     isDeviceAuthenticityCheckDisabled: boolean;
+    addressDisplayType: AddressDisplayOptions;
 }
 
 export interface SuiteState {
@@ -122,6 +128,7 @@ const initialState: SuiteState = {
             language: true,
             theme: true,
         },
+        addressDisplayType: AddressDisplayOptions.CHUNKED,
     },
 };
 
@@ -179,6 +186,10 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
 
             case SUITE.SET_THEME:
                 draft.settings.theme.variant = action.variant;
+                break;
+
+            case SUITE.SET_ADDRESS_DISPLAY_TYPE:
+                draft.settings.addressDisplayType = action.option;
                 break;
 
             case SUITE.SET_AUTODETECT:
@@ -267,6 +278,9 @@ export const selectIsDebugModeActive = (state: SuiteRootState) =>
     state.suite.settings.debug.showDebugMenu;
 
 export const selectLanguage = (state: SuiteRootState) => state.suite.settings.language;
+
+export const selectAddressDisplayType = (state: SuiteRootState) =>
+    state.suite.settings.addressDisplayType;
 
 export const selectLocks = (state: SuiteRootState) => state.suite.locks;
 

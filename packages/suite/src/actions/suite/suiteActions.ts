@@ -52,6 +52,10 @@ export type SuiteAction =
           variant: AppState['suite']['settings']['theme']['variant'];
       }
     | {
+          type: typeof SUITE.SET_ADDRESS_DISPLAY_TYPE;
+          option: AppState['suite']['settings']['addressDisplayType'];
+      }
+    | {
           type: typeof SUITE.SET_AUTODETECT;
           payload: Partial<AutodetectSettings>;
       }
@@ -76,6 +80,13 @@ export const setTheme = (
 ): SuiteAction => ({
     type: SUITE.SET_THEME,
     variant,
+});
+
+export const setAddressDisplayType = (
+    option: AppState['suite']['settings']['addressDisplayType'],
+): SuiteAction => ({
+    type: SUITE.SET_ADDRESS_DISPLAY_TYPE,
+    option,
 });
 
 export const setAutodetect = (payload: Partial<AutodetectSettings>): SuiteAction => ({

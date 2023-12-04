@@ -135,6 +135,7 @@ export const signTransaction =
 
         if (account.networkType !== 'cardano') return;
 
+        // todo: add chunkify once we allow it for Cardano
         const res = await TrezorConnect.cardanoSignTransaction({
             signingMode: PROTO.CardanoTxSigningMode.ORDINARY_TRANSACTION,
             device: {

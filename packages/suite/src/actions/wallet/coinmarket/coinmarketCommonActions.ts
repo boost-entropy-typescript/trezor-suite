@@ -29,6 +29,7 @@ import {
     COINMARKET_SAVINGS,
     COINMARKET_COMMON,
 } from '../constants';
+import { AddressDisplayOptions, selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
 
 export type CoinmarketCommonAction =
     | {
@@ -67,6 +68,8 @@ export const verifyAddress =
         path = path ?? accountAddress.path;
         if (!path || !address) return;
 
+        const addressDisplayType = selectAddressDisplayType(getState());
+
         const { useEmptyPassphrase, connected, available } = device;
 
         // Show warning when device is not connected
@@ -86,6 +89,7 @@ export const verifyAddress =
             path,
             useEmptyPassphrase,
             coin: account.symbol,
+            chunkify: addressDisplayType === AddressDisplayOptions.CHUNKED,
         };
 
         let response;
@@ -94,6 +98,7 @@ export const verifyAddress =
                 response = await TrezorConnect.ethereumGetAddress(params);
                 break;
             case 'cardano':
+                // todo: add chunkify once we allow it for Cardano
                 response = await TrezorConnect.cardanoGetAddress({
                     device,
                     useEmptyPassphrase: device.useEmptyPassphrase,

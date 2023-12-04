@@ -2,40 +2,65 @@ import { useEffect, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { Button, ConfirmOnDevice, ModalProps, variables } from '@trezor/components';
+import {
+    Button,
+    ConfirmOnDevice,
+    ModalProps,
+    Tooltip,
+    useTheme,
+    variables,
+} from '@trezor/components';
 import { copyToClipboard } from '@trezor/dom-utils';
 import { selectDevice } from '@suite-common/wallet-core';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
-import { QrCode, QRCODE_PADDING, QRCODE_SIZE } from 'src/components/suite/QrCode';
+import { QrCode } from 'src/components/suite/QrCode';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { Translation, Modal } from 'src/components/suite';
 import { MODAL } from 'src/actions/suite/constants';
 import { ThunkAction } from 'src/types/suite';
 import { DeviceDisconnected } from './DeviceDisconnected';
+import { TransactionReviewStepIndicator } from '../TransactionReviewModal/TransactionReviewOutputList/TransactionReviewStepIndicator';
+import { TransactionReviewOutputElement } from '../TransactionReviewModal/TransactionReviewOutputList/TransactionReviewOutputElement';
+import { Account } from '@suite-common/wallet-types';
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
-    align-self: center;
-    gap: 20px;
+    gap: 21px;
 `;
 
-const Value = styled.div`
-    font-size: ${variables.FONT_SIZE.NORMAL};
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    font-variant-numeric: tabular-nums slashed-zero;
-    width: 100%;
-    background: ${({ theme }) => theme.BG_LIGHT_GREY};
-    border: 1px solid ${({ theme }) => theme.STROKE_GREY};
-    border-radius: 8px;
-    word-break: break-all;
-    padding: 10px;
-    max-width: calc(${QRCODE_SIZE}px + ${QRCODE_PADDING * 2}px);
+const Content = styled.div`
+    display: flex;
+    gap: 21px;
+
+    ${variables.SCREEN_QUERY.BELOW_TABLET} {
+        flex-direction: column;
+    }
+`;
+
+const Right = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 300px;
+
+    ${variables.SCREEN_QUERY.BELOW_TABLET} {
+        width: 100%;
+    }
+`;
+
+const StyledQrCode = styled(QrCode)`
+    border-radius: 12px;
+    background: ${({ theme }) => theme.BG_GREY};
+    padding: 32px;
+    max-height: 100%;
+    width: 300px;
 `;
 
 const StyledButton = styled(Button)`
-    align-self: center;
+    width: 100%;
+    margin-top: 24px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -47,11 +72,8 @@ const StyledModal = styled(Modal)`
     }
 `;
 
-const StyledDeviceDisconnected = styled(DeviceDisconnected)`
-    max-width: calc(${QRCODE_SIZE}px + ${QRCODE_PADDING * 2}px);
-`;
-
 export interface ConfirmValueModalProps extends Pick<ModalProps, 'onCancel' | 'heading'> {
+    account: Account;
     copyButtonText: ReactNode;
     copyButtonDataTest?: string;
     isConfirmed?: boolean;
@@ -61,6 +83,7 @@ export interface ConfirmValueModalProps extends Pick<ModalProps, 'onCancel' | 'h
 }
 
 export const ConfirmValueModal = ({
+    account,
     copyButtonText,
     copyButtonDataTest,
     heading,
@@ -74,16 +97,34 @@ export const ConfirmValueModal = ({
     const modalContext = useSelector(state => state.modal.context);
     const isActionAbortable = useSelector(selectIsActionAbortable);
     const dispatch = useDispatch();
+    const theme = useTheme();
 
     const canConfirmOnDevice = !!(device?.connected && device?.available);
-    const showCopyButton = isConfirmed || !canConfirmOnDevice;
-    const isCancelable = isActionAbortable || showCopyButton;
+    const addressConfirmed = isConfirmed || !canConfirmOnDevice;
+    const isCancelable = isActionAbortable || addressConfirmed;
+    const state = addressConfirmed ? 'success' : 'active';
+    const outputLines = [
+        {
+            id: 'address',
+            label: <Translation id="TR_RECEIVE_ADDRESS" />,
+            value,
+            plainValue: true,
+            confirmLabel: <Translation id="TR_RECEIVE_ADDRESS_MATCH" />,
+        },
+    ];
 
     const copy = () => {
         const result = copyToClipboard(value);
         if (typeof result !== 'string') {
             dispatch(notificationsActions.addToast({ type: 'copy-to-clipboard' }));
         }
+    };
+
+    const buttonTooltipContent = () => {
+        if (!addressConfirmed) {
+            return <Translation id="TR_CONFIRM_BEFORE_COPY" />;
+        }
+        return null;
     };
 
     // Device connected while the modal is open -> validate on device.
@@ -110,14 +151,33 @@ export const ConfirmValueModal = ({
             onCancel={onCancel}
         >
             <Wrapper>
-                {device && !device?.connected && <StyledDeviceDisconnected label={device.label} />}
-                <QrCode value={value} />
-                <Value data-test={valueDataTest}>{value}</Value>
-                {showCopyButton && (
-                    <StyledButton variant="tertiary" onClick={copy} data-test={copyButtonDataTest}>
-                        {copyButtonText}
-                    </StyledButton>
-                )}
+                {device && !device?.connected && <DeviceDisconnected label={device.label} />}
+                <Content>
+                    <StyledQrCode
+                        value={value}
+                        bgColor="transparent"
+                        fgColor={addressConfirmed ? theme.TYPE_DARK_GREY : theme.TYPE_LIGHT_GREY}
+                        showMessage={!addressConfirmed}
+                    />
+                    <Right>
+                        <TransactionReviewOutputElement
+                            indicator={<TransactionReviewStepIndicator state={state} size={16} />}
+                            lines={outputLines}
+                            state={state}
+                            account={account}
+                            valueDataTest={valueDataTest}
+                        />
+                        <Tooltip content={buttonTooltipContent()}>
+                            <StyledButton
+                                isDisabled={!addressConfirmed}
+                                onClick={copy}
+                                data-test={copyButtonDataTest}
+                            >
+                                {copyButtonText}
+                            </StyledButton>
+                        </Tooltip>
+                    </Right>
+                </Content>
             </Wrapper>
         </StyledModal>
     );

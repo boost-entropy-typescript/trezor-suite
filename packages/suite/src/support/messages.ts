@@ -142,10 +142,26 @@ export default defineMessages({
         defaultMessage: 'Contract',
         id: 'TR_CONTRACT',
     },
+    TR_RECIPIENT_ADDRESS: {
+        defaultMessage: 'Recipient address',
+        description: 'Used as label for send address input',
+        id: 'TR_RECIPIENT_ADDRESS',
+    },
+    TR_RECIPIENT_ADDRESS_MATCH: {
+        defaultMessage: 'Recipient address match?',
+        id: 'TR_RECIPIENT_ADDRESS_MATCH',
+    },
+    TR_RECEIVE_ADDRESS_MATCH: {
+        defaultMessage: 'Receive address match?',
+        id: 'TR_RECEIVE_ADDRESS_MATCH',
+    },
+    TR_RECEIVE_ADDRESS: {
+        defaultMessage: 'Receive address',
+        id: 'TR_RECEIVE_ADDRESS',
+    },
     TR_ADDRESS: {
+        id: 'TR_ADDRESSES',
         defaultMessage: 'Address',
-        description: 'Used as label for receive/send address input',
-        id: 'TR_ADDRESS',
     },
     TR_ADDRESSES_FRESH: {
         id: 'TR_ADDRESSES_FRESH',
@@ -1975,6 +1991,22 @@ export default defineMessages({
         defaultMessage:
             'All data is kept strictly anonymous; we only use it to improve the Trezor ecosystem.',
         id: 'TR_ALLOW_ANALYTICS_DESCRIPTION',
+    },
+    TR_ADDRESS_DISPLAY: {
+        defaultMessage: 'Address display',
+        id: 'TR_ADDRESS_DISPLAY',
+    },
+    TR_ADDRESS_DISPLAY_DESCRIPTION: {
+        defaultMessage: 'Show address in list: bc1wetes...v54d8d or chunks: bc1w etes ... v54d 8d.',
+        id: 'TR_ADDRESS_DISPLAY_DESCRIPTION',
+    },
+    TR_ORIGINAL_ADDRESS: {
+        defaultMessage: 'Continuous',
+        id: 'TR_ORIGINAL_ADDRESS',
+    },
+    TR_CHUNKED_ADDRESS: {
+        defaultMessage: 'Spaced',
+        id: 'TR_CHUNKED_ADDRESS',
     },
     TR_ASSETS: {
         defaultMessage: 'Coin',
@@ -5212,6 +5244,14 @@ export default defineMessages({
         id: 'TR_CONFIRM_ON_TREZOR',
         defaultMessage: 'Confirm on Trezor',
     },
+    TR_CONFIRM_BEFORE_COPY: {
+        id: 'TR_CONFIRM_BEFORE_COPY',
+        defaultMessage: 'Confirm on Trezor before copying',
+    },
+    TR_QR_RECEIVE_ADDRESS_CONFIRM: {
+        id: 'TR_QR_RECEIVE_ADDRESS_CONFIRM',
+        defaultMessage: 'Confirm on device before scanning',
+    },
     TR_MY_ASSETS: {
         id: 'TR_MY_ASSETS',
         defaultMessage: 'Assets',
@@ -7647,6 +7687,10 @@ export default defineMessages({
         id: 'TR_OK',
         description: 'Button text',
         defaultMessage: 'OK',
+    },
+    NEXT_PAGE: {
+        id: 'NEXT_PAGE',
+        defaultMessage: 'Next page',
     },
     TR_COINJOIN_ANONYMITY_LEVEL_SETUP_TITLE: {
         id: 'TR_COINJOIN_ANONYMITY_LEVEL_SETUP_TITLE',
