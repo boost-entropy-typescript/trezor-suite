@@ -767,6 +767,10 @@ export default defineMessages({
         defaultMessage: 'Required',
         id: 'TR_REQUIRED_FIELD',
     },
+    TR_SHOP_NOW: {
+        defaultMessage: 'Shop Now',
+        id: 'TR_SHOP_NOW',
+    },
     TR_SELL_VALIDATION_ERROR_MINIMUM_FIAT: {
         defaultMessage: 'Minimum is {minimum} {currency}',
         id: 'TR_SELL_VALIDATION_ERROR_MINIMUM_FIAT',
@@ -2935,6 +2939,10 @@ export default defineMessages({
     TR_NETWORK_ETHEREUM_GOERLI: {
         defaultMessage: 'Ethereum Goerli',
         id: 'TR_NETWORK_ETHEREUM_GOERLI',
+    },
+    TR_NETWORK_ETHEREUM_HOLESKY: {
+        defaultMessage: 'Ethereum Holesky',
+        id: 'TR_NETWORK_ETHEREUM_HOLESKY',
     },
     TR_NETWORK_LITECOIN: {
         defaultMessage: 'Litecoin',

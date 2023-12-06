@@ -233,6 +233,8 @@ const initialRun = [
                 dashboardGraphHidden: false,
                 securityStepsHidden: false,
                 dashboardAssetsGridMode: false,
+                showDashboardT2B1PromoBanner: false,
+                showSettingsDesktopAppPromoBanner: true,
             },
         },
     },
