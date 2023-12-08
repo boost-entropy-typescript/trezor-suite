@@ -2996,6 +2996,19 @@ export default defineMessages({
         defaultMessage: 'Coinjoin Regtest',
         id: 'TR_NETWORK_COINJOIN_BITCOIN_REGTEST',
     },
+    TR_NETWORK_SOLANA_MAINNET: {
+        defaultMessage: 'Solana',
+        id: 'TR_NETWORK_SOLANA_MAINNET',
+    },
+    TR_NETWORK_SOLANA_DEVNET: {
+        defaultMessage: 'Solana Devnet',
+        id: 'TR_NETWORK_SOLANA_DEVNET',
+    },
+    TR_SOLANA_DEVNET_SHORTCUT_WARNING: {
+        defaultMessage:
+            "DSOL will show as 'SOL' on your Trezor due to network limitations.\nCheck the provided blockhash on devnet explorer if you want to verify the transaction network. ",
+        id: 'TR_SOLANA_DEVNET_SHORTCUT_WARNING',
+    },
     TR_NEW_COMMUNICATION_TOOL: {
         defaultMessage:
             'New communication tool to facilitate the connection between your Trezor and your internet browser.',
@@ -3787,6 +3800,21 @@ export default defineMessages({
     TR_ACCOUNT_TYPE_BIP44_TECH: {
         id: 'TR_ACCOUNT_TYPE_BIP44_TECH',
         defaultMessage: 'BIP44, P2PKH, Base58',
+    },
+    TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_NAME: {
+        id: 'TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_NAME',
+        defaultMessage: 'Bip44Change',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_TECH: {
+        id: 'TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_TECH',
+        defaultMessage: 'BIP44, Base58',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_DESC: {
+        id: 'TR_ACCOUNT_TYPE_SOLANA_BIP44_CHANGE_DESC',
+        defaultMessage: 'Bip44Change account',
+        dynamic: true,
     },
     TR_ACCOUNT_TYPE_SLIP25_NAME: {
         id: 'TR_ACCOUNT_TYPE_SLIP25_NAME',
@@ -5328,6 +5356,10 @@ export default defineMessages({
         id: 'TR_ALL_TRANSACTIONS',
         defaultMessage: 'Transactions',
     },
+    TR_TOKEN: {
+        id: 'TR_TOKEN',
+        defaultMessage: 'Token',
+    },
     TR_TOKENS: {
         id: 'TR_TOKENS',
         defaultMessage: 'Tokens',
@@ -5681,6 +5713,11 @@ export default defineMessages({
         defaultMessage: 'Maximum fee',
         description: 'Label in Send form for Ethereum network type',
         id: 'MAX_FEE',
+    },
+    EXPECTED_FEE: {
+        defaultMessage: 'Expected Fee',
+        description: 'Label in Send form for Solana network type',
+        id: 'EXPECTED_FEE',
     },
     FEE_LEVEL_CUSTOM: {
         defaultMessage: 'Custom',
@@ -6200,6 +6237,19 @@ export default defineMessages({
     TR_AFFECTED_TXS: {
         id: 'TR_AFFECTED_TXS',
         defaultMessage: 'This operation will remove the following transactions from the mempool',
+    },
+    TR_AFFECTED_TXS_HEADER: {
+        id: 'TR_AFFECTED_TXS_HEADER',
+        defaultMessage:
+            'Chained transactions are created from the output of this initial transaction',
+    },
+    TR_AFFECTED_TXS_OWN: {
+        id: 'TR_AFFECTED_TXS_OWN',
+        defaultMessage: 'Your transactions',
+    },
+    TR_AFFECTED_TXS_OTHERS: {
+        id: 'TR_AFFECTED_TXS_OTHERS',
+        defaultMessage: 'Transactions created from other accounts',
     },
     TR_OUTPUTS: {
         id: 'TR_OUTPUTS',
@@ -7439,6 +7489,17 @@ export default defineMessages({
     TR_FEE_ROUNDING_WARNING: {
         id: 'TR_FEE_ROUNDING_WARNING',
         defaultMessage: 'Your Trezor may display a different rate caused by fee rounding.',
+        description:
+            'Removed in favor of TR_FEE_ROUNDING_DEFAULT_WARNING and TR_FEE_ROUNDING_BASEFEE_WARNING',
+    },
+    TR_FEE_ROUNDING_DEFAULT_WARNING: {
+        id: 'TR_FEE_ROUNDING_DEFAULT_WARNING',
+        defaultMessage: 'The fee rate of {feeRate} has been increased due to fee rounding',
+    },
+    TR_FEE_ROUNDING_BASEFEE_WARNING: {
+        id: 'TR_FEE_ROUNDING_BASEFEE_WARNING',
+        defaultMessage:
+            'The fee rate of {feeRate} has been increased to pay for the chained transactions within the mempool',
     },
     TR_FEE_RATE_CHANGED: {
         id: 'TR_FEE_RATE_CHANGED',

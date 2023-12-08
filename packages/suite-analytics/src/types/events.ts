@@ -123,6 +123,13 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
+          type: EventType.AccountsActions;
+          payload: {
+              action: string;
+              symbol: string;
+          };
+      }
+    | {
           type: EventType.AddToken;
           payload: {
               networkSymbol: string;
@@ -354,7 +361,14 @@ export type SuiteAnalyticsEvent =
           type: EventType.SettingsCoinsBackend;
           payload: {
               symbol: string;
-              type: 'blockbook' | 'electrum' | 'ripple' | 'blockfrost' | 'coinjoin' | 'default';
+              type:
+                  | 'blockbook'
+                  | 'electrum'
+                  | 'ripple'
+                  | 'blockfrost'
+                  | 'coinjoin'
+                  | 'default'
+                  | 'solana';
               totalRegular: number;
               totalOnion: number;
           };

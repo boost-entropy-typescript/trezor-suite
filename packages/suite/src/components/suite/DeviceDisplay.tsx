@@ -31,7 +31,11 @@ const Text = styled.div<{ isPixelType: boolean; isWithIndentation?: boolean }>`
     word-break: break-word;
     max-width: 216px;
     display: inline;
-    text-indent: ${({ isWithIndentation }) => (isWithIndentation ? '28px' : '0')};
+    ${({ isWithIndentation, isPixelType }) =>
+        isWithIndentation &&
+        `
+            text-indent: ${isPixelType ? '36px' : '28px'};
+    `}
 `;
 
 const Row = styled.div<{ isAlignedRight?: boolean }>`
@@ -84,7 +88,7 @@ const StyledNextIcon = styled(Icon)<{ isPixelType: boolean }>`
 const StyledContinuesIcon = styled(Icon)<{ isPixelType: boolean }>`
     position: relative;
     top: ${({ isPixelType }) => (isPixelType ? '10' : '25')}px;
-    right: ${({ isPixelType }) => (isPixelType ? '82' : '97')}px;
+    right: ${({ isPixelType }) => (isPixelType ? '84' : '97')}px;
 `;
 
 export interface DeviceDisplayProps {
@@ -105,7 +109,8 @@ export const DeviceDisplay = ({ address, network, valueDataTest }: DeviceDisplay
         addressDisplayType === AddressDisplayOptions.CHUNKED &&
         !unavailableCapabilities?.chunkify &&
         valueDataTest !== '@xpub-modal/xpub-field' &&
-        network !== 'cardano';
+        network !== 'cardano' &&
+        (network !== 'solana' || valueDataTest === '@modal/confirm-address/address-field');
     const isPixelType = selectedDeviceInternalModel !== DeviceModelInternal.T2T1;
     const iconNextName = isPixelType ? 'ADDRESS_PIXEL_NEXT' : 'ADDRESS_NEXT';
     const iconContinuesName = isPixelType ? 'ADDRESS_PIXEL_CONTINUES' : 'ADDRESS_CONTINUES';

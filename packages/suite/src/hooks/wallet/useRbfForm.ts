@@ -9,7 +9,7 @@ import {
     SelectedAccountLoaded,
     Account,
     RbfTransactionParams,
-    WalletAccountTransaction,
+    ChainedTransactions,
 } from '@suite-common/wallet-types';
 import { FormState, FeeInfo } from 'src/types/wallet/sendForm';
 import { useFees } from './form/useFees';
@@ -22,12 +22,11 @@ export type UseRbfProps = {
     selectedAccount: SelectedAccountLoaded;
     rbfParams: RbfTransactionParams;
     finalize: boolean;
-    chainedTxs: WalletAccountTransaction[];
+    chainedTxs?: ChainedTransactions;
 };
 
 const getBitcoinFeeInfo = (info: FeeInfo, feeRate: string) => {
-    // increase FeeLevels for visual purpose (old rate + defined rate)
-    // it will be decreased in sendFormAction before composing
+    // increase FeeLevels (old rate + defined rate)
     const levels = getFeeLevels('bitcoin', info).map(l => ({
         ...l,
         feePerUnit: new BigNumber(l.feePerUnit).plus(feeRate).toString(),
@@ -141,12 +140,13 @@ const useRbfState = ({ selectedAccount, rbfParams, finalize, chainedTxs }: UseRb
             availableUtxo.length < 1
                 ? outputs.findIndex(o => o.type === 'payment')
                 : undefined;
-
-        let { baseFee } = rbfParams;
-        if (chainedTxs.length > 0) {
-            // increase baseFee, pay for all child chained transactions
-            baseFee = chainedTxs.reduce((f, ctx) => f + parseFloat(ctx.fee), baseFee);
-        }
+        // set baseFee only if chainedTxs are present.
+        // try to overprice them. offer fee higher than sum of both:
+        // - current tx with higher feeRate
+        // - sum of all fees of all chainedTxs
+        const baseFee =
+            chainedTxs &&
+            chainedTxs.own.concat(chainedTxs.others).reduce((f, ctx) => f + parseFloat(ctx.fee), 0);
 
         return {
             account: rbfAccount,
@@ -162,10 +162,8 @@ const useRbfState = ({ selectedAccount, rbfParams, finalize, chainedTxs }: UseRb
                 setMaxOutputId,
                 options: finalize ? ['broadcast'] : ['bitcoinRBF', 'broadcast'],
                 ethereumDataHex: rbfParams.ethereumData,
-                rbfParams: {
-                    ...rbfParams,
-                    baseFee,
-                },
+                rbfParams,
+                baseFee,
             } as FormState, // TODO: remove type casting (options string[])
         };
     }, [

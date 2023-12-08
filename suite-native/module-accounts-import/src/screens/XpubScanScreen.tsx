@@ -31,6 +31,7 @@ const networkTypeToInputLabelMap: Record<NetworkType, string> = {
     cardano: 'Enter public key (XPUB) manually',
     ethereum: 'Enter receive address manually',
     ripple: 'Enter receive address manually',
+    solana: 'Enter receive address manually',
 };
 
 const FORM_BUTTON_FADE_IN_DURATION = 200;
@@ -79,6 +80,7 @@ export const XpubScanScreen = ({
         if (
             xpubAddress &&
             networkType !== 'ethereum' &&
+            networkType !== 'ripple' &&
             isAddressValid(xpubAddress, networkSymbol)
         ) {
             // we need to set timeout to avoid showing alert during screen transition, otherwise it will freeze the app
