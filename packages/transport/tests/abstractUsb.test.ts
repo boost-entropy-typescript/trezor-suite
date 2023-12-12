@@ -1,3 +1,4 @@
+import { v1 as v1Protocol } from '@trezor/protocol';
 import { AbstractTransport } from '../src/transports/abstract';
 import { AbstractApiTransport } from '../src/transports/abstractApi';
 import { UsbApi } from '../src/api/usb';
@@ -277,8 +278,12 @@ describe('Usb', () => {
         });
 
         it('call error - called without acquire.', async () => {
-            const res = await transport.call({ name: 'GetAddress', data: {}, session: '1' })
-                .promise;
+            const res = await transport.call({
+                name: 'GetAddress',
+                data: {},
+                session: '1',
+                protocol: v1Protocol,
+            }).promise;
             expect(res).toEqual({ success: false, error: 'device disconnected during action' });
         });
 
@@ -298,6 +303,7 @@ describe('Usb', () => {
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
+                protocol: v1Protocol,
             }).promise;
             expect(res).toEqual({
                 success: true,
@@ -324,6 +330,7 @@ describe('Usb', () => {
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
+                protocol: v1Protocol,
             }).promise;
             expect(sendRes).toEqual({
                 success: true,
@@ -331,6 +338,7 @@ describe('Usb', () => {
             });
             const receiveRes = await transport.receive({
                 session: acquireRes.payload,
+                protocol: v1Protocol,
             }).promise;
             expect(receiveRes).toEqual({
                 success: true,
@@ -341,6 +349,49 @@ describe('Usb', () => {
                     },
                 },
             });
+        });
+
+        it('send protocol-v1 with custom chunkSize', async () => {
+            await transport.enumerate().promise;
+            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
+                .promise;
+            expect(acquireRes.success).toEqual(true);
+            if (!acquireRes.success) return;
+
+            const writeSpy = jest
+                .spyOn(testUsbApi, 'write')
+                .mockImplementation(() => Promise.resolve({ success: true, payload: undefined }));
+
+            // override protocol options
+            const overrideProtocol = (protocol: typeof v1Protocol, chunkSize: number) =>
+                ({
+                    ...protocol,
+                    encode: (...[data, options]: Parameters<typeof protocol.encode>) =>
+                        protocol.encode(data, { ...options, chunkSize }),
+                }) as typeof protocol;
+
+            const send = (chunkSize: number) =>
+                transport.send({
+                    name: 'SignMessage',
+                    data: {
+                        message: '00'.repeat(200),
+                    },
+                    session: acquireRes.payload,
+                    protocol: overrideProtocol(v1Protocol, chunkSize),
+                }).promise;
+
+            // count encoded/sent chunks
+            await send(64); // default usb
+            expect(writeSpy).toBeCalledTimes(4);
+            writeSpy.mockClear();
+
+            await send(16); // smaller chunks
+            expect(writeSpy).toBeCalledTimes(15);
+            writeSpy.mockClear();
+
+            await send(128); // bigger chunks
+            expect(writeSpy).toBeCalledTimes(2);
+            writeSpy.mockClear();
         });
 
         it('release', async () => {
@@ -374,6 +425,7 @@ describe('Usb', () => {
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
+                protocol: v1Protocol,
             });
             abort();
 
@@ -386,6 +438,7 @@ describe('Usb', () => {
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
+                protocol: v1Protocol,
             });
             // await promise2;
             expect(promise2).resolves.toEqual({
