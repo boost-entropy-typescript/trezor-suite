@@ -9,7 +9,7 @@ import {
     PrecomposedLevels,
 } from '@suite-common/wallet-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { selectBlockchainBlockHashBySymbol, selectDevice } from '@suite-common/wallet-core';
+import { selectBlockchainBlockInfoBySymbol, selectDevice } from '@suite-common/wallet-core';
 import { Dispatch, GetState } from 'src/types/suite';
 import {
     amountToSatoshi,
@@ -125,7 +125,10 @@ export const composeTransaction =
 
         let fetchedFee: string | undefined;
 
-        const blockhash = selectBlockchainBlockHashBySymbol(getState(), account.symbol);
+        const { blockhash, blockHeight: lastValidBlockHeight } = selectBlockchainBlockInfoBySymbol(
+            getState(),
+            account.symbol,
+        );
 
         const [recipientAccountOwner, recipientTokenAccount] = tokenInfo
             ? await fetchAccountOwnerAndTokenInfoForAddress(
@@ -150,7 +153,7 @@ export const composeTransaction =
                       tokenInfo.accounts,
                       recipientTokenAccount,
                       blockhash,
-                      50,
+                      lastValidBlockHeight,
                   )
                 : undefined;
 
@@ -166,14 +169,15 @@ export const composeTransaction =
                       formValues.outputs[0].address || account.descriptor,
                       formValues.outputs[0].amount || '0',
                       blockhash,
-                      50,
+                      lastValidBlockHeight,
                   )
         ).compileMessage();
 
         const isCreatingAccount =
             tokenInfo &&
             recipientTokenAccount === undefined &&
-            recipientAccountOwner === SYSTEM_PROGRAM_PUBLIC_KEY;
+            // if the recipient account has no owner, it means it's a new account and needs the token account to be created
+            (recipientAccountOwner === SYSTEM_PROGRAM_PUBLIC_KEY || recipientAccountOwner == null);
 
         const estimatedFee = await TrezorConnect.blockchainEstimateFee({
             coin: account.symbol,
@@ -245,7 +249,10 @@ export const signTransaction =
         if (account.networkType !== 'solana') return;
         const { token } = transactionInfo;
 
-        const blockhash = selectBlockchainBlockHashBySymbol(getState(), account.symbol);
+        const { blockhash, blockHeight: lastValidBlockHeight } = selectBlockchainBlockInfoBySymbol(
+            getState(),
+            account.symbol,
+        );
 
         const [recipientAccountOwner, recipientTokenAccounts] = token
             ? await fetchAccountOwnerAndTokenInfoForAddress(
@@ -255,12 +262,7 @@ export const signTransaction =
               )
             : [undefined, undefined];
 
-        if (token && !token.accounts && !recipientAccountOwner) return;
-
-        // The last block height for which the transaction will be considered valid, after which it can no longer be processed.
-        // The current block time is set to 800ms, meaning this transaction should be valid when submitted within for 40 seconds
-        // For more information see: https://docs.solana.com/cluster/synchronization
-        const lastValidBlockHeight = 50;
+        if (token && !token.accounts) return;
 
         const tokenTransferTxAndDestinationAddress =
             token && token.accounts
@@ -274,20 +276,21 @@ export const signTransaction =
                       token.accounts,
                       recipientTokenAccounts,
                       blockhash,
-                      50,
+                      lastValidBlockHeight,
                   )
                 : undefined;
 
-        const tx =
-            tokenTransferTxAndDestinationAddress && recipientAccountOwner
-                ? tokenTransferTxAndDestinationAddress.transaction
-                : await buildTransferTransaction(
-                      account.descriptor,
-                      formValues.outputs[0].address,
-                      formValues.outputs[0].amount,
-                      blockhash,
-                      lastValidBlockHeight,
-                  );
+        if (token && !tokenTransferTxAndDestinationAddress) return;
+
+        const tx = tokenTransferTxAndDestinationAddress
+            ? tokenTransferTxAndDestinationAddress.transaction
+            : await buildTransferTransaction(
+                  account.descriptor,
+                  formValues.outputs[0].address,
+                  formValues.outputs[0].amount,
+                  blockhash,
+                  lastValidBlockHeight,
+              );
 
         const serializedTx = tx.serializeMessage().toString('hex');
 
@@ -301,7 +304,6 @@ export const signTransaction =
             serializedTx,
             additionalInfo:
                 tokenTransferTxAndDestinationAddress &&
-                recipientAccountOwner &&
                 tokenTransferTxAndDestinationAddress.tokenAccountInfo
                     ? {
                           tokenAccountsInfos: [
