@@ -42,9 +42,9 @@ export const EmptyPortfolioCrossroads = () => {
 
     const image = useMemo(() => {
         if (colorScheme === 'dark') {
-            return require('../assets/darkConnectTrezor.svg');
+            return require('../../../assets/darkConnectTrezor.svg');
         }
-        return require('../assets/connectTrezor.svg');
+        return require('../../../assets/connectTrezor.svg');
     }, [colorScheme]);
 
     const handleSyncMyCoins = () => {

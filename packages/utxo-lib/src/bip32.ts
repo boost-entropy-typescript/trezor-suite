@@ -5,9 +5,9 @@
 // - `identifier` method is using different hashing for Decred.
 // - `fromBase58` and `toBase58` methods are using additional "network" param in bs58check.encode/decode (Decred support).
 
-import * as ecc from 'tiny-secp256k1';
-import * as wif from 'wif';
-import * as typeforce from 'typeforce';
+import ecc from 'tiny-secp256k1';
+import wif from 'wif';
+import { typeforce } from './types/typeforce';
 import * as bs58check from './bs58check';
 import * as crypto from './crypto';
 import { bitcoin as BITCOIN, isNetworkType } from './networks';

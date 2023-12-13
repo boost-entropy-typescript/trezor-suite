@@ -6,11 +6,10 @@
 // - `BufferWritter.writeUInt64` is accepting string or number.
 
 // eslint-disable-next-line max-classes-per-file
-import * as BN from 'bn.js';
-import * as pushdata from 'pushdata-bitcoin';
-import * as varuint from 'varuint-bitcoin';
+import BN from 'bn.js';
+import pushdata from 'pushdata-bitcoin';
+import varuint from 'varuint-bitcoin';
 import { Int64LE } from 'int64-buffer';
-import * as typeforce from 'typeforce';
 import { bufferUtils } from '@trezor/utils';
 import * as types from './types';
 
@@ -128,7 +127,7 @@ export class BufferWriter {
         public buffer: Buffer,
         public offset: number = 0,
     ) {
-        typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+        types.typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
     }
 
     writeUInt8(i: number): void {
@@ -189,7 +188,7 @@ export class BufferReader {
         public buffer: Buffer,
         public offset: number = 0,
     ) {
-        typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
+        types.typeforce(types.tuple(types.Buffer, types.UInt32), [buffer, offset]);
     }
 
     readUInt8(): number {

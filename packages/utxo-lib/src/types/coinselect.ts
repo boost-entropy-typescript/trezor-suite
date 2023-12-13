@@ -37,17 +37,12 @@ export interface CoinSelectOutputFinal {
     value: string;
 }
 
-export type CoinSelectResult =
-    | {
-          fee: number;
-          inputs?: typeof undefined;
-          outputs?: typeof undefined;
-      }
-    | {
-          fee: number;
-          inputs: CoinSelectInput[];
-          outputs: CoinSelectOutputFinal[];
-      };
+export interface CoinSelectRequest extends CoinSelectOptions {
+    inputs: CoinSelectInput[];
+    outputs: CoinSelectOutput[];
+    sendMaxOutputIndex: number;
+    feeRate: number;
+}
 
 export type CoinSelectAlgorithm = (
     inputs: CoinSelectInput[],
@@ -57,18 +52,15 @@ export type CoinSelectAlgorithm = (
 ) => CoinSelectResult;
 
 export interface CoinSelectSuccess {
-    success: true;
-    payload: {
-        inputs: CoinSelectInput[];
-        outputs: CoinSelectOutputFinal[];
-        max?: string;
-        totalSpent: string;
-        fee: number;
-        feePerByte: number;
-        bytes: number;
-    };
+    fee: number;
+    inputs: CoinSelectInput[];
+    outputs: CoinSelectOutputFinal[];
 }
 
 export interface CoinSelectFailure {
-    success: false;
+    fee: number;
+    inputs?: typeof undefined;
+    outputs?: typeof undefined;
 }
+
+export type CoinSelectResult = CoinSelectSuccess | CoinSelectFailure;
