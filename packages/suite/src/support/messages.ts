@@ -1929,7 +1929,7 @@ export default defineMessages({
         id: 'TR_ADDRESS_MODAL_TITLE',
     },
     TR_XPUB_MODAL_CLIPBOARD: {
-        defaultMessage: 'Copy public key (XPUB)',
+        defaultMessage: 'Copy public key',
         id: 'TR_XPUB_MODAL_CLIPBOARD',
     },
     TR_XPUB_MODAL_TITLE: {
@@ -1960,6 +1960,14 @@ export default defineMessages({
     TR_IMPORT_CSV_MODAL_DELIMITER_CUSTOM: {
         defaultMessage: 'Custom delimiter',
         id: 'TR_IMPORT_CSV_MODAL_DELIMITER_CUSTOM',
+    },
+    TR_IMPORT_CSV_FROM_FILE: {
+        defaultMessage: 'Import from file',
+        id: 'TR_IMPORT_CSV_FROM_FILE',
+    },
+    TR_IMPORT_CSV_FROM_TEXT: {
+        defaultMessage: 'Import as text',
+        id: 'TR_IMPORT_CSV_FROM_TEXT',
     },
     TR_DROPZONE: {
         defaultMessage: 'Drag and drop file here or click to select from files',
@@ -2457,12 +2465,12 @@ export default defineMessages({
         id: 'TR_DEVICE_SETTINGS_CHANGE_PIN_TITLE',
     },
     TR_DEVICE_SETTINGS_WIPE_CODE_TITLE: {
-        defaultMessage: 'Setup wipe code',
+        defaultMessage: 'Set up wipe code',
         id: 'TR_DEVICE_SETTINGS_WIPE_CODE_TITLE',
     },
     TR_DEVICE_SETTINGS_WIPE_CODE_DESC: {
         defaultMessage:
-            'The wipe code is an advanced feature that allows the user to set, and later enter, a "self-destruct" PIN code.',
+            'The wipe code is an advanced feature that enables you to create a “self-destruct” code, which can be entered at a later time.',
         id: 'TR_DEVICE_SETTINGS_WIPE_CODE_DESC',
     },
     TR_DEVICE_SETTINGS_AUTO_LOCK: {
@@ -3907,6 +3915,10 @@ export default defineMessages({
         id: 'TOAST_WIPE_CODE_CHANGED',
         defaultMessage: 'Wipe code changed successfully',
     },
+    TOAST_WIPE_CODE_REMOVED: {
+        id: 'TOAST_WIPE_CODE_REMOVED',
+        defaultMessage: 'Wipe code removed successfully',
+    },
     TOAST_DEVICE_WIPED: {
         id: 'TOAST_DEVICE_WIPED',
         defaultMessage: 'Device wiped successfully',
@@ -4354,7 +4366,7 @@ export default defineMessages({
     },
     FW_CAPABILITY_UPDATE_REQUIRED: {
         id: 'FW_CAPABILITY_UPDATE_REQUIRED',
-        defaultMessage: 'Update required',
+        defaultMessage: 'Firmware update required',
         description: 'Firmware is too OLD use this coin',
     },
     FW_CAPABILITY_CONNECT_OUTDATED: {
@@ -4564,9 +4576,17 @@ export default defineMessages({
         defaultMessage: 'Change PIN',
         description: 'Button that initiates pin change',
     },
-    TR_WIPE_CODE: {
-        id: 'TR_WIPE_CODE',
+    TR_SETUP_WIPE_CODE: {
+        id: 'TR_SETUP_WIPE_CODE',
         defaultMessage: 'Setup wipe code',
+    },
+    TR_CHANGE_WIPE_CODE: {
+        id: 'TR_CHANGE_WIPE_CODE',
+        defaultMessage: 'Change wipe code',
+    },
+    TR_REMOVE_WIPE_CODE: {
+        id: 'TR_REMOVE_WIPE_CODE',
+        defaultMessage: 'Remove wipe code',
     },
     TR_DEVICE_PIN_PROTECTION_ENABLED: {
         id: 'TR_DEVICE_PIN_PROTECTION_ENABLED',

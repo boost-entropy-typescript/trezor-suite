@@ -130,10 +130,12 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
     }
 
     if (oldVersion < 19) {
-        // no longer uses keyPath to generate primary key
+        // @ts-expect-error fiatRates doesn't exists anymore
         if (db.objectStoreNames.contains('fiatRates')) {
+            // @ts-expect-error fiatRates doesn't exists anymore
             db.deleteObjectStore('fiatRates');
         }
+        // @ts-expect-error fiatRates doesn't exists anymore
         db.createObjectStore('fiatRates');
     }
 
@@ -704,8 +706,23 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
 
     if (oldVersion < 41) {
         await updateAll(transaction, 'metadata', metadata => {
-            metadata.selectedProvider.passwords = '';
+            // although selectedProvider is added in version 39 I saw a report by QA that
+            // migration was trying to set 'passwords' of undefined here.
+            if (!metadata.selectedProvider) {
+                metadata.selectedProvider = { labels: '', passwords: '' };
+            }
+            if (!metadata.selectedProvider.passwords) {
+                metadata.selectedProvider.passwords = '';
+            }
             return metadata;
         });
+    }
+
+    if (oldVersion < 42) {
+        // @ts-expect-error fiatRates doesn't exists anymore
+        if (db.objectStoreNames.contains('fiatRates')) {
+            // @ts-expect-error fiatRates doesn't exists anymore
+            db.deleteObjectStore('fiatRates');
+        }
     }
 };
