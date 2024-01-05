@@ -7160,6 +7160,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@suite-common/wallet-config": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
     jest: "npm:29.5.0"
     react-native-config: "npm:^1.5.0"
     typescript: "npm:5.3.2"
@@ -7283,7 +7284,6 @@ __metadata:
   resolution: "@suite-native/feature-flags@workspace:suite-native/feature-flags"
   dependencies:
     "@reduxjs/toolkit": "npm:1.9.5"
-    "@suite-native/config": "workspace:*"
     react-native: "npm:0.71.8"
     react-redux: "npm:8.0.7"
   languageName: unknown
