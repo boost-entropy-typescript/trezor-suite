@@ -275,11 +275,11 @@ export const getTargets = (
         });
 
 const getTokenTransferTxType = (transfers: TokenTransfer[]) => {
-    if (transfers.find(({ type }) => type === 'recv')) {
+    if (transfers.some(({ type }) => type === 'recv')) {
         return 'recv';
     }
 
-    if (transfers.find(({ type }) => type === 'sent')) {
+    if (transfers.some(({ type }) => type === 'sent')) {
         return 'sent';
     }
 
@@ -301,11 +301,11 @@ const getNativeTransferTxType = (
 
     const [senders, receivers] = arrayPartition(effects, ({ amount }) => amount.isNegative());
 
-    if (senders.find(({ address }) => address === accountAddress)) {
+    if (senders.some(({ address }) => address === accountAddress)) {
         return 'sent';
     }
 
-    if (receivers.find(({ address }) => address === accountAddress)) {
+    if (receivers.some(({ address }) => address === accountAddress)) {
         return 'recv';
     }
 
@@ -413,6 +413,7 @@ type TokenTransferInstruction = {
         info: {
             destination: string;
             authority: string;
+            multisigAuthority?: string;
             source: string;
             mint?: string;
             tokenAmount?: {
@@ -442,8 +443,9 @@ const isTokenTransferInstruction = (
         (parsed.type === 'transferChecked' || parsed.type === 'transfer') &&
         'info' in parsed &&
         typeof parsed.info === 'object' &&
-        'authority' in parsed.info &&
-        typeof parsed.info.authority === 'string' &&
+        (('authority' in parsed.info && typeof parsed.info.authority === 'string') ||
+            ('multisigAuthority' in parsed.info &&
+                typeof parsed.info.multisigAuthority === 'string')) &&
         'source' in parsed.info &&
         typeof parsed.info.source === 'string' &&
         'destination' in parsed.info &&
@@ -470,7 +472,7 @@ export const getTokens = (
         const isAccountDestination = accountAddresses.includes(parsed.info.destination);
 
         const isAccountSource = accountAddresses.includes(
-            parsed.info.authority || parsed.info.source,
+            parsed.info.multisigAuthority || parsed.info.authority || parsed.info.source,
         );
 
         if (isAccountDestination && isAccountSource) {
