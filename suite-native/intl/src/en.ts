@@ -209,17 +209,6 @@ export const en = {
             },
         },
         bottomSheets: {
-            verificationWalkthrough: {
-                title: {
-                    step1: 'What should I do next?',
-                    step2: 'Why is it important?',
-                },
-                description: {
-                    step1: 'Confirm that the address on your Trezor display matches the one on the following screen.',
-                    step2: 'No one can hack the Trezor device and change what the display is showing you.',
-                },
-                dontShowAgainButton: 'Don’t show again and continue',
-            },
             confirmOnTrezor: {
                 title: 'Confirm on Trezor',
                 description:
@@ -392,6 +381,12 @@ export const en = {
     moduleAccounts: {
         accountDetail: {
             accountLabelBadge: 'Run on {accountLabel}',
+        },
+        emptyState: {
+            title: 'No assets',
+            subtitle: 'Connect your Trezor or sync coins to view and track assets.',
+            receiveSubtitle: 'Connect your Trezor or sync coins to view and receive assets.',
+            searchAgain: 'Search again',
         },
     },
     transactions: {
