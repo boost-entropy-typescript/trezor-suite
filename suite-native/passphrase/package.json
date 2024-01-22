@@ -1,5 +1,5 @@
 {
-    "name": "@suite-native/biometrics",
+    "name": "@suite-native/passphrase",
     "version": "1.0.0",
     "private": true,
     "license": "See LICENSE.md in repo root",
@@ -7,23 +7,17 @@
     "main": "src/index",
     "scripts": {
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
-        "test:unit": "jest -c ../../jest.config.native.js --passWithNoTests",
+        "test:unit": "jest -c ../../jest.config.base.js --passWithNoTests",
         "type-check": "tsc --build"
     },
     "dependencies": {
-        "@mobily/ts-belt": "^3.13.1",
-        "@suite-common/icons": "workspace:*",
-        "@suite-native/alerts": "workspace:*",
-        "@suite-native/analytics": "workspace:*",
         "@suite-native/atoms": "workspace:*",
-        "@suite-native/storage": "workspace:*",
+        "@suite-native/forms": "workspace:*",
+        "@suite-native/intl": "workspace:*",
         "@trezor/styles": "workspace:*",
-        "expo-local-authentication": "13.7.0",
+        "@trezor/validation": "workspace:*",
         "jotai": "1.9.1",
         "react": "18.2.0",
         "react-native": "0.71.8"
-    },
-    "devDependencies": {
-        "jest": "29.5.0"
     }
 }
