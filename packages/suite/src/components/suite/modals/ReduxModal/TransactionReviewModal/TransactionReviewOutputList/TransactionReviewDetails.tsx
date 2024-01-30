@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
 import { Translation } from 'src/components/suite';
-import { Icon, useTheme, Box, variables } from '@trezor/components';
+import { Icon, Box, variables } from '@trezor/components';
 import { PrecomposedTransactionFinal, TxFinalCardano } from 'src/types/wallet/sendForm';
+import { borders, zIndices } from '@trezor/theme';
 
 const TransactionDetailsWrapper = styled.div`
     display: flex;
@@ -14,11 +15,11 @@ const TransactionDetailsWrapper = styled.div`
     position: absolute;
     top: -15px;
     left: -20px;
-    border-radius: 8px;
+    border-radius: ${borders.radii.xs};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 
     /* stay above OutputElement_MultiIndicatorWrapper */
-    z-index: ${variables.Z_INDEX.EXPANDABLE_NAVIGATION};
+    z-index: ${zIndices.expandableNavigation};
 `;
 
 const DetailsHeader = styled.div`

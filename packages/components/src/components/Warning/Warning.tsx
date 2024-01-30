@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
-import styled from 'styled-components';
-import { transparentize } from 'polished';
+import styled, { useTheme } from 'styled-components';
 
 import { Icon } from '../assets/Icon/Icon';
-import { useTheme } from '../../utils';
 import { variables } from '../../config';
+import { borders, spacingsPx, typography } from '@trezor/theme';
 
 type Variant = 'learn' | 'info' | 'warning' | 'critical';
 
@@ -23,35 +22,31 @@ const getIcon = (variant: Variant) => {
 const Wrapper = styled.div<{ variant: Variant; withIcon?: boolean }>`
     align-items: center;
     background: ${({ variant, theme }) =>
-        transparentize(
-            0.9,
-            getColor(variant, {
-                learn: theme.BG_GREEN,
-                info: theme.TYPE_BLUE,
-                warning: theme.TYPE_DARK_ORANGE,
-                critical: theme.BG_RED,
-            }),
-        )};
-    border-radius: 8px;
+        getColor(variant, {
+            learn: theme.backgroundPrimarySubtleOnElevation0,
+            info: theme.backgroundAlertBlueSubtleOnElevation0,
+            warning: theme.backgroundAlertYellowSubtleOnElevation0,
+            critical: theme.backgroundAlertRedSubtleOnElevation0,
+        })};
+    border-radius: ${borders.radii.xs};
     color: ${({ variant, theme }) =>
         getColor(variant, {
-            learn: theme.TYPE_DARK_GREY,
-            info: theme.TYPE_BLUE,
-            warning: theme.TYPE_DARK_ORANGE,
-            critical: theme.TYPE_DARK_GREY,
+            learn: theme.textPrimaryDefault,
+            info: theme.textAlertBlue,
+            warning: theme.textAlertYellow,
+            critical: theme.textAlertRed,
         })};
     display: flex;
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    gap: 14px;
+    ${typography.hint}
+    gap: ${spacingsPx.sm};
     justify-content: ${({ withIcon }) => !withIcon && 'center'};
-    padding: 14px 20px;
+    padding: ${spacingsPx.sm} ${spacingsPx.lg};
     width: 100%;
 
     ${variables.SCREEN_QUERY.MOBILE} {
         align-items: stretch;
         flex-direction: column;
-        gap: 8px;
+        gap: ${spacingsPx.xs};
     }
 `;
 
@@ -66,10 +61,10 @@ export const Warning = ({ children, className, variant = 'warning', withIcon }: 
     const theme = useTheme();
 
     const iconColor = getColor(variant, {
-        learn: theme.TYPE_GREEN,
-        info: theme.TYPE_BLUE,
-        warning: theme.TYPE_ORANGE,
-        critical: theme.TYPE_RED,
+        learn: theme.iconPrimaryDefault,
+        info: theme.iconAlertBlue,
+        warning: theme.iconAlertYellow,
+        critical: theme.iconAlertRed,
     });
     const icon = getIcon(variant);
 

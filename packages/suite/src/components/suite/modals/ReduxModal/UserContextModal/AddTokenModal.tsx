@@ -96,7 +96,6 @@ export const AddTokenModal = ({ onCancel }: AddTokenModalProps) => {
     };
     const getInputState = () => {
         if (error) return 'error';
-        if (contractAddress && !isFetching) return 'success';
         return undefined;
     };
     const handleAddTokenButtonClick = () => {
@@ -120,7 +119,7 @@ export const AddTokenModal = ({ onCancel }: AddTokenModalProps) => {
             isCancelable
             onCancel={onCancel}
             heading={<Translation id="TR_ADD_TOKEN_TITLE" />}
-            bottomBar={
+            bottomBarComponents={
                 <Button
                     onClick={handleAddTokenButtonClick}
                     isDisabled={!tokenInfo || !!error}
@@ -139,7 +138,7 @@ export const AddTokenModal = ({ onCancel }: AddTokenModalProps) => {
                     }
                     placeholder={translationString('TR_ADD_TOKEN_PLACEHOLDER')}
                     value={contractAddress}
-                    bottomText={error}
+                    bottomText={error || null}
                     inputState={getInputState()}
                     onChange={onChange}
                 />

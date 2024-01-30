@@ -2,11 +2,20 @@ import { ImgHTMLAttributes } from 'react';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { COINS } from './coins';
-import { CoinType } from '../../../support/types';
+
+export type CoinType = keyof typeof COINS;
+
+export interface CoinLogoProps extends ImgHTMLAttributes<HTMLImageElement> {
+    symbol: CoinType;
+    className?: string;
+    size?: number;
+    index?: number;
+}
 
 const SvgWrapper = styled.div<Omit<CoinLogoProps, 'symbol'>>`
     display: inline-block;
     height: ${props => props.size}px;
+    width: ${props => props.size}px;
 
     div {
         height: ${props => props.size}px;
@@ -14,13 +23,7 @@ const SvgWrapper = styled.div<Omit<CoinLogoProps, 'symbol'>>`
     }
 `;
 
-export interface CoinLogoProps extends ImgHTMLAttributes<HTMLImageElement> {
-    symbol: CoinType;
-    className?: string;
-    size?: number;
-}
-
-const CoinLogo = ({ symbol, className, size = 32, ...rest }: CoinLogoProps) => (
+export const CoinLogo = ({ symbol, className, size = 32, ...rest }: CoinLogoProps) => (
     <SvgWrapper className={className} size={size} {...rest}>
         <ReactSVG
             src={COINS[symbol]}
@@ -32,5 +35,3 @@ const CoinLogo = ({ symbol, className, size = 32, ...rest }: CoinLogoProps) => (
         />
     </SvgWrapper>
 );
-
-export { CoinLogo };

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { P, Button, Image } from '@trezor/components';
+import { Paragraph, Button, Image } from '@trezor/components';
 import { HELP_CENTER_FAILED_BACKUP_URL } from '@trezor/urls';
 import { selectDevice } from '@suite-common/wallet-core';
 
@@ -19,7 +19,7 @@ const StyledButton = styled(Button)`
     width: 224px;
 `;
 
-const StyledP = styled(P)`
+const StyledP = styled(Paragraph)`
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
@@ -120,7 +120,7 @@ export const Backup = ({ cancelable, onCancel }: ForegroundAppProps) => {
                 isCancelable
                 onCancel={onCancel}
                 heading={getEdgeCaseModalHeading(device.features.unfinished_backup)}
-                bottomBar={<CloseButton onClick={onCancel} variant="TR_CLOSE" />}
+                bottomBarComponents={<CloseButton onClick={onCancel} variant="TR_CLOSE" />}
             >
                 {device.features.unfinished_backup ? (
                     <VerticalCenter>
@@ -152,7 +152,7 @@ export const Backup = ({ cancelable, onCancel }: ForegroundAppProps) => {
             heading={getModalHeading(backup.status)}
             totalProgressBarSteps={nonErrorBackupStatuses.length}
             currentProgressBarStep={currentProgressBarStep}
-            bottomBar={
+            bottomBarComponents={
                 <>
                     {backup.status === 'initial' && (
                         <>
@@ -202,7 +202,7 @@ export const Backup = ({ cancelable, onCancel }: ForegroundAppProps) => {
         >
             {backup.status === 'initial' && (
                 <>
-                    <StyledP size="small">
+                    <StyledP type="hint">
                         <Translation id="TR_BACKUP_SUBHEADING_1" />
                     </StyledP>
                     <PreBackupCheckboxes />
@@ -213,7 +213,7 @@ export const Backup = ({ cancelable, onCancel }: ForegroundAppProps) => {
 
             {backup.status === 'finished' && (
                 <>
-                    <StyledP size="small" data-test="@backup/success-message">
+                    <StyledP type="hint" data-test="@backup/success-message">
                         <Translation id="TR_BACKUP_FINISHED_TEXT" />
                     </StyledP>
                     <AfterBackupCheckboxes />

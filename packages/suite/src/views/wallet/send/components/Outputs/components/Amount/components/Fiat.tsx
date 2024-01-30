@@ -101,7 +101,7 @@ export const Fiat = ({ output, outputId }: FiatProps) => {
     const errorToDisplay = !error && fiatValue && amountError ? amountError : error;
 
     const isLowAnonymity = isLowAnonymityWarning(outputError);
-    const inputState = isLowAnonymity ? 'warning' : getInputState(errorToDisplay, fiatValue);
+    const inputState = isLowAnonymity ? 'warning' : getInputState(errorToDisplay);
     const bottomText = isLowAnonymity ? null : errorToDisplay?.message;
 
     const handleChange = useCallback(
@@ -182,8 +182,7 @@ export const Fiat = ({ output, outputId }: FiatProps) => {
             value={value}
             isClearable={false}
             isSearchable
-            hideTextCursor
-            minWidth="58px"
+            minValueWidth="58px"
             isClean
             data-test={currencyInputName}
             onChange={async (selected: CurrencyOption) => {
@@ -214,14 +213,13 @@ export const Fiat = ({ output, outputId }: FiatProps) => {
             <NumberInput
                 control={control}
                 inputState={inputState}
-                isMonospace
                 onChange={handleChange}
                 name={fiatInputName}
                 data-test={fiatInputName}
                 defaultValue={fiatValue}
                 maxLength={formInputsMaxLength.fiat}
                 rules={rules}
-                bottomText={bottomText}
+                bottomText={bottomText || null}
                 innerAddon={
                     <Controller
                         control={control}

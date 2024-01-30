@@ -2,7 +2,14 @@ import styled from 'styled-components';
 
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { isTestnet } from '@suite-common/wallet-utils';
-import { CoinLogo, H1, H3 } from '@trezor/components';
+import {
+    CoinLogo,
+    H2,
+    H3,
+    SkeletonCircle,
+    SkeletonRectangle,
+    SkeletonStack,
+} from '@trezor/components';
 
 import { Account } from 'src/types/wallet';
 import {
@@ -13,15 +20,14 @@ import {
     FormattedCryptoAmount,
     MetadataLabeling,
     AmountUnitSwitchWrapper,
-    SkeletonCircle,
-    SkeletonRectangle,
-    SkeletonStack,
+    AccountLabel,
 } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
 import { AccountNavigation } from './AccountNavigation';
 import { selectLabelingDataForSelectedAccount } from 'src/reducers/suite/metadataReducer';
+import { useAccountLabel } from '../../../suite/AccountLabel';
 
-const Balance = styled(H1)`
+const Balance = styled(H2)`
     height: 32px;
     white-space: nowrap;
     margin-left: 8px;
@@ -41,7 +47,6 @@ interface AccountTopPanelSkeletonProps {
 
 const AccountTopPanelSkeleton = ({ animate, account, symbol }: AccountTopPanelSkeletonProps) => (
     <AppNavigationPanel
-        maxWidth="small"
         title={
             account ? (
                 <AccountLabeling account={account} />
@@ -54,7 +59,7 @@ const AccountTopPanelSkeleton = ({ animate, account, symbol }: AccountTopPanelSk
         <SkeletonStack alignItems="center">
             {symbol ? <CoinLogo size={24} symbol={symbol} /> : <SkeletonCircle size="24px" />}
 
-            <Balance noMargin>
+            <Balance>
                 <SkeletonRectangle width="160px" height="32px" animate={animate} />
             </Balance>
         </SkeletonStack>
@@ -64,6 +69,8 @@ const AccountTopPanelSkeleton = ({ animate, account, symbol }: AccountTopPanelSk
 export const AccountTopPanel = () => {
     const { account, loader, status } = useSelector(state => state.wallet.selectedAccount);
     const selectedAccountLabels = useSelector(selectLabelingDataForSelectedAccount);
+    const { defaultAccountLabelString } = useAccountLabel();
+
     if (status !== 'loaded' || !account) {
         return (
             <AccountTopPanelSkeleton
@@ -74,20 +81,27 @@ export const AccountTopPanel = () => {
         );
     }
 
-    const { symbol, formattedBalance } = account;
+    const { symbol, formattedBalance, index, accountType } = account;
 
     return (
         <AppNavigationPanel
-            maxWidth="small"
             title={
                 <MetadataLabeling
-                    defaultVisibleValue={<AccountLabeling account={account} />}
+                    defaultVisibleValue={
+                        <AccountLabel
+                            accountLabel={selectedAccountLabels.accountLabel}
+                            accountType={accountType}
+                            symbol={symbol}
+                            index={index}
+                        />
+                    }
                     payload={{
                         type: 'accountLabel',
                         entityKey: account.key,
                         defaultValue: account.path,
                         value: selectedAccountLabels.accountLabel,
                     }}
+                    defaultEditableValue={defaultAccountLabelString({ accountType, symbol, index })}
                 />
             }
             navigation={<AccountNavigation />}
@@ -98,7 +112,7 @@ export const AccountTopPanel = () => {
             <AmountUnitSwitchWrapper symbol={symbol}>
                 <CoinLogo size={24} symbol={symbol} />
 
-                <Balance noMargin>
+                <Balance>
                     <FormattedCryptoAmount value={formattedBalance} symbol={symbol} />
                 </Balance>
 
@@ -108,7 +122,7 @@ export const AccountTopPanel = () => {
                     showApproximationIndicator
                 >
                     {({ value }) =>
-                        value ? <FiatBalanceWrapper noMargin>{value}</FiatBalanceWrapper> : null
+                        value ? <FiatBalanceWrapper>{value}</FiatBalanceWrapper> : null
                     }
                 </FiatValue>
             </AmountUnitSwitchWrapper>

@@ -32,7 +32,6 @@ const ContentWrapper = styled.div`
 const GraphWrapper = styled(Card)`
     flex-direction: row;
     display: flex;
-    padding: 14px 16px;
     height: 320px;
 `;
 
@@ -111,7 +110,7 @@ export const TransactionSummary = ({ account }: TransactionSummaryProps) => {
     return (
         <Wrapper>
             <Actions>
-                <GraphRangeSelector onSelectedRange={onSelectedRange} align="left" />
+                <GraphRangeSelector onSelectedRange={onSelectedRange} align="bottom-left" />
                 <TransactionSummaryDropdown />
             </Actions>
             <ContentWrapper>
@@ -125,7 +124,7 @@ export const TransactionSummary = ({ account }: TransactionSummaryProps) => {
                         </ErrorMessage>
                     </GraphWrapper>
                 ) : (
-                    <HiddenPlaceholder intensity={7}>
+                    <HiddenPlaceholder enforceIntensity={8}>
                         <GraphWrapper>
                             <TransactionsGraph
                                 hideToolbar

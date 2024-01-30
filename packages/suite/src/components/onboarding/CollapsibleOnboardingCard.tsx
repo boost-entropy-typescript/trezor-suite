@@ -1,7 +1,8 @@
 import { ReactNode, HTMLAttributes } from 'react';
 import styled, { css } from 'styled-components';
 import { motion } from 'framer-motion';
-import { H1, Icon, Image, ImageType, motionEasing, variables } from '@trezor/components';
+import { borders, zIndices } from '@trezor/theme';
+import { H2, Icon, Image, ImageType, motionEasing, variables } from '@trezor/components';
 
 const headerVariants = {
     closed: {
@@ -36,9 +37,9 @@ const CardWrapper = styled(
     position: relative;
     padding: ${({ variant }) => (variant === 'large' ? '40px 80px' : '20px 30px')};
     width: ${({ variant }) => (variant === 'large' ? '100%' : 'auto')};
-    border-radius: 16px;
-    background: ${({ theme }) => theme.BG_WHITE};
-    z-index: ${variables.Z_INDEX.BASE};
+    border-radius: ${borders.radii.md};
+    background: ${({ theme }) => theme.backgroundTertiaryDefaultOnElevation0};
+    z-index: ${zIndices.base};
     cursor: ${({ expanded }) => !expanded && 'pointer'};
 
     ${({ expandable, variant }) =>
@@ -83,7 +84,7 @@ const CardWrapper = styled(
             : css`
                   box-shadow: 0 2px 5px 0 ${theme.BOX_SHADOW_BLACK_20};
               `}
-              
+
     ${({ withImage }) =>
         withImage &&
         css`
@@ -125,7 +126,7 @@ const ChildrenWrapper = styled.div`
     align-items: center;
 `;
 
-const Heading = styled(H1)<{ withDescription?: boolean }>`
+const Heading = styled(H2)<{ withDescription?: boolean }>`
     font-size: 28px;
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     margin-bottom: ${({ withDescription }) => (withDescription ? '16px' : '36px')};

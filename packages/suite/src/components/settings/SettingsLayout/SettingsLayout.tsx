@@ -1,17 +1,13 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
-
-import { variables } from '@trezor/components';
-
-import { useLayout } from 'src/hooks/suite';
-
+import { useDiscovery, useLayout } from 'src/hooks/suite';
 import { SettingsMenu } from './SettingsMenu';
+import { SettingsLoading } from 'src/views/settings/SettingsLoader';
 
 const Wrapper = styled.div`
     display: flex;
     flex: 1;
     flex-direction: column;
-    max-width: ${variables.SCREEN_SIZE.MD};
     margin-top: 8px;
 `;
 
@@ -22,12 +18,19 @@ type SettingsLayoutProps = {
     className?: string;
 };
 
-export const SettingsLayout = (props: SettingsLayoutProps) => {
-    useLayout(props.title || 'Settings', SettingsMenu);
+export const SettingsLayout = ({
+    title,
+    children,
+    className,
+    'data-test': dataTest,
+}: SettingsLayoutProps) => {
+    useLayout(title || 'Settings', SettingsMenu);
+    const { isDiscoveryRunning } = useDiscovery();
 
     return (
-        <Wrapper className={props.className} data-test={props['data-test']}>
-            {props.children}
+        <Wrapper className={className} data-test={dataTest}>
+            <SettingsLoading isPresent={isDiscoveryRunning} />
+            <>{children}</>
         </Wrapper>
     );
 };

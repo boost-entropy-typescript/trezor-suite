@@ -286,7 +286,6 @@ export const Feedback = ({ type }: FeedbackProps) => {
                     onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                         setDescription(e.target.value)
                     }
-                    noTopLabel
                     characterCount
                     data-test="@guide/feedback/suggestion-form"
                     maxLength={MESSAGE_CHARACTER_LIMIT}
@@ -305,9 +304,8 @@ export const Feedback = ({ type }: FeedbackProps) => {
                 </Submit>
 
                 <CollapsibleBox
-                    heading={<Translation id="TR_GUIDE_FEEDBACK_SYSTEM_INFO_NOTICE" />}
-                    headerJustifyContent="center"
-                    variant="tiny"
+                    subHeading={<Translation id="TR_GUIDE_FEEDBACK_SYSTEM_INFO_NOTICE" />}
+                    variant="small"
                 >
                     <AnonymousDataList>
                         <AnonymousDataItem>

@@ -1,28 +1,45 @@
 import { ReactNode, HTMLAttributes } from 'react';
-import styled, { css } from 'styled-components';
-import { getInputStateTextColor } from '../form/InputStyles';
+import styled, { DefaultTheme, css } from 'styled-components';
+import { borders, spacingsPx } from '@trezor/theme';
 
+// TODO: since the fate of Box is unclear, decouple it from the input state
+// later those "state" styles should be unified across components
+export const getBoxStateBorderColor = (
+    state: BoxProps['state'] | undefined,
+    theme: DefaultTheme,
+) => {
+    switch (state) {
+        case 'warning':
+            return theme.textAlertYellow;
+        case 'error':
+            return theme.borderAlertRed;
+        case 'success':
+            return theme.borderSecondary;
+        default:
+            return 'transparent';
+    }
+};
 export interface BoxProps extends HTMLAttributes<HTMLDivElement> {
-    state?: 'success' | 'error' | 'warning';
+    state?: 'warning' | 'error' | 'success';
     children: ReactNode;
 }
 
 const Wrapper = styled.div<{ state: BoxProps['state'] }>`
     display: flex;
     flex: 1;
-    border-radius: 8px;
-    padding: 16px 14px;
-    border: solid 1px ${({ theme }) => theme.STROKE_GREY};
+    border-radius: ${borders.radii.sm};
+    padding: ${spacingsPx.md};
+    border: solid 1px ${({ theme }) => theme.borderOnElevation0};
 
     ${({ state, theme }) =>
         state &&
         css`
-            border-left: 6px solid ${getInputStateTextColor(state, theme)};
+            border-left: 6px solid ${getBoxStateBorderColor(state, theme)};
         `}
     ${({ state }) =>
         !state &&
         css`
-            padding-left: 20px;
+            padding-left: ${spacingsPx.lg};
         `}
 `;
 

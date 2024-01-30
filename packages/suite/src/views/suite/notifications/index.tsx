@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import { Card } from '@trezor/components';
 
-import { Card, Notifications, Translation } from 'src/components/suite';
+import { Notifications, Translation } from 'src/components/suite';
 import { DashboardSection } from 'src/components/dashboard';
 
 const StyledSection = styled(DashboardSection)`
@@ -9,7 +10,7 @@ const StyledSection = styled(DashboardSection)`
 
 const NotificationsView = () => (
     <StyledSection heading={<Translation id="NOTIFICATIONS_TITLE" />}>
-        <Card noPadding>
+        <Card paddingType="none">
             <Notifications />
         </Card>
     </StyledSection>

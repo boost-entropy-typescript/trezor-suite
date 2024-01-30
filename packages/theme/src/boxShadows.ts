@@ -1,14 +1,20 @@
 import { CSSColor } from './types';
 
 export const boxShadows = {
-    small: '0px 2px 4px rgba(0, 0, 0, 0.04)',
-    // TODO: next shadows needs to be defined
-    medium: '0px 2px 4px rgba(0, 0, 0, 0.04)',
-    big: '0px 2px 4px rgba(0, 0, 0, 0.04)',
+    standard: {
+        boxShadowFocused: '0px 0px 0px 3px rgba(0, 120, 172, 0.25)',
+        boxShadowBase: '0px 2px 4px 0px rgba(0, 0, 0, 0.04)',
+        boxShadowElevated: '0px 16px 32px -16px rgba(0, 0, 0, 0.16)',
+    },
+    dark: {
+        boxShadowFocused: '0px 0px 0px 3px rgba(89, 175, 211, 0.42)',
+        boxShadowBase: '0px 2px 4px 0px rgba(255, 255, 255, 0.04)',
+        boxShadowElevated: '0px 16px 32px -16px rgba(255, 255, 255, 0.16)',
+    },
 };
 
-export type BoxShadow = keyof typeof boxShadows;
-export type BoxShadows = typeof boxShadows;
+export type BoxShadow = keyof typeof boxShadows.standard;
+export type BoxShadows = Record<BoxShadow, string>;
 
 interface NativeBoxShadowDefinition {
     elevation: number;

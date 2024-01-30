@@ -55,8 +55,7 @@ const Info = styled.div`
 const LeftColumn = styled.div`
     display: flex;
     flex: 1;
-    text-transform: uppercase;
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    text-transform: capitalize;
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     align-self: center;
 `;

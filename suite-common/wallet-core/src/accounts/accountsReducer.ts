@@ -203,6 +203,14 @@ export const selectDeviceAccountsByNetworkSymbol = memoizeWithArgs(
     },
 );
 
+export const selectVisibleNonEmptyDeviceAccountsByNetworkSymbol = (
+    state: AccountsRootState & DeviceRootState,
+    networkSymbol: NetworkSymbol | null,
+) =>
+    selectDeviceAccountsByNetworkSymbol(state, networkSymbol).filter(
+        account => !account.empty || account.visible,
+    );
+
 export const selectAccountsByNetworkAndDeviceState = memoizeWithArgs(
     (state: AccountsRootState, deviceState: string, networkSymbol: NetworkSymbol) => {
         const accounts = selectAccounts(state);

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Meta, StoryObj } from '@storybook/react';
 import { Box as BoxComponent } from './Box';
 import { FONT_WEIGHT } from '../../config/variables';
 
@@ -18,16 +19,16 @@ const StyledRow = styled(BoxComponent)`
 
 export default {
     title: 'Misc/Box',
-};
+} as Meta;
 
-export const Box = {
+export const Box: StoryObj = {
     render: () => (
         <>
             <Wrapper>
                 <StyledRow>
                     <Text>No state</Text>
                 </StyledRow>
-                <StyledRow state="success">
+                <StyledRow>
                     <Text>Success</Text>
                 </StyledRow>
                 <StyledRow state="error">

@@ -50,8 +50,6 @@ const Inputs = () => {
         buyInfo,
         setAmountLimits,
         defaultCurrency,
-        cryptoInputValue,
-        getValues,
         exchangeCoinInfo,
     } = useCoinmarketBuyFormContext();
     const { shouldSendInSats } = useBitcoinAmountUnit(account.symbol);
@@ -70,8 +68,6 @@ const Inputs = () => {
             trigger([cryptoInput, fiatInput]);
         }
     }, [amountLimits, trigger]);
-
-    const fiatInputValue = getValues(fiatInput);
 
     const fiatInputRules = {
         validate: {
@@ -113,16 +109,15 @@ const Inputs = () => {
             <Left>
                 <NumberInput
                     control={control}
-                    noTopLabel
                     rules={fiatInputRules}
                     onChange={() => {
                         setValue(cryptoInput, '');
                         clearErrors(cryptoInput);
                     }}
-                    inputState={getInputState(errors.fiatInput, fiatInputValue)}
+                    inputState={getInputState(errors.fiatInput)}
                     name={fiatInput}
                     maxLength={formInputsMaxLength.amount}
-                    bottomText={errors[fiatInput]?.message}
+                    bottomText={errors[fiatInput]?.message || null}
                     innerAddon={
                         <Controller
                             control={control}
@@ -137,9 +132,8 @@ const Inputs = () => {
                                     data-test="@coinmarket/buy/fiat-currency-select"
                                     value={value}
                                     isClearable={false}
-                                    minWidth="58px"
+                                    minValueWidth="58px"
                                     isClean
-                                    hideTextCursor
                                     onChange={(selected: any) => {
                                         onChange(selected);
                                         setAmountLimits(undefined);
@@ -161,12 +155,11 @@ const Inputs = () => {
                         setValue(fiatInput, '');
                         clearErrors(fiatInput);
                     }}
-                    inputState={getInputState(errors.cryptoInput, cryptoInputValue)}
+                    inputState={getInputState(errors.cryptoInput)}
                     name={cryptoInput}
-                    noTopLabel
                     maxLength={formInputsMaxLength.amount}
                     rules={cryptoInputRules}
-                    bottomText={errors[cryptoInput]?.message}
+                    bottomText={errors[cryptoInput]?.message || null}
                     innerAddon={
                         <Controller
                             control={control}
@@ -205,9 +198,8 @@ const Inputs = () => {
                                         </Option>
                                     )}
                                     isClean
-                                    hideTextCursor
                                     isDisabled={account.networkType !== 'ethereum'}
-                                    minWidth="100px"
+                                    minValueWidth="100px"
                                 />
                             )}
                         />

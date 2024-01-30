@@ -20,7 +20,7 @@ const Right = styled.div`
     display: flex;
     flex: 1;
     align-items: center;
-    margin-bottom: 22px;
+    padding-bottom: 22px;
 `;
 
 const TextLabel = styled.div`
@@ -38,14 +38,12 @@ export const Inputs = () => {
         formState: { errors },
         defaultCurrency,
         p2pInfo,
-        getValues,
     } = useCoinmarketP2pFormContext();
 
     const { translationString } = useTranslation();
 
     const fiatInput = 'fiatInput';
     const currencySelect = 'currencySelect';
-    const fiatInputValue = getValues(fiatInput);
 
     const fiatInputRules = {
         validate: {
@@ -59,12 +57,11 @@ export const Inputs = () => {
             <Left>
                 <NumberInput
                     control={control}
-                    noTopLabel
                     rules={fiatInputRules}
-                    inputState={getInputState(errors.fiatInput, fiatInputValue)}
+                    inputState={getInputState(errors.fiatInput)}
                     name={fiatInput}
                     maxLength={formInputsMaxLength.amount}
-                    bottomText={errors[fiatInput]?.message}
+                    bottomText={errors[fiatInput]?.message || null}
                     innerAddon={
                         <Controller
                             control={control}
@@ -78,9 +75,8 @@ export const Inputs = () => {
                                     isSearchable
                                     value={value}
                                     isClearable={false}
-                                    minWidth="58px"
+                                    minValueWidth="58px"
                                     isClean
-                                    hideTextCursor
                                     onChange={(selected: any) => {
                                         onChange(selected);
                                     }}

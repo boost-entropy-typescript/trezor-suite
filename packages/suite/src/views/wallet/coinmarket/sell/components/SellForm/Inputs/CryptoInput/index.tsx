@@ -50,7 +50,6 @@ const CryptoInput = () => {
         control,
         amountLimits,
         onCryptoAmountChange,
-        getValues,
         sellInfo,
         setValue,
         setAmountLimits,
@@ -70,7 +69,6 @@ const CryptoInput = () => {
     };
 
     const { tokens } = account;
-    const cryptoInputValue = getValues(CRYPTO_INPUT);
 
     const cryptoInputRules = {
         validate: {
@@ -92,12 +90,11 @@ const CryptoInput = () => {
             control={control}
             onChange={onCryptoAmountChange}
             defaultValue=""
-            inputState={getInputState(errors.cryptoInput, cryptoInputValue)}
+            inputState={getInputState(errors.cryptoInput)}
             name={CRYPTO_INPUT}
-            noTopLabel
             maxLength={formInputsMaxLength.amount}
             rules={cryptoInputRules}
-            bottomText={errors[CRYPTO_INPUT]?.message}
+            bottomText={errors[CRYPTO_INPUT]?.message || null}
             innerAddon={
                 <Controller
                     control={control}
@@ -138,9 +135,8 @@ const CryptoInput = () => {
                                 tokensFiatValue,
                             )}
                             isClean
-                            hideTextCursor
                             isDisabled={account.networkType !== 'ethereum'}
-                            minWidth="100px"
+                            minValueWidth="100px"
                             formatOptionLabel={(option: any) => (
                                 <Option>
                                     {account.symbol === option.value.toLowerCase() ? (

@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { Icon, useTheme, variables, CoinLogo, H3 } from '@trezor/components';
+import styled, { useTheme } from 'styled-components';
+import { Icon, variables, CoinLogo, H3 } from '@trezor/components';
 import { Translation, FormattedDateWithBullet } from 'src/components/suite';
 import { WalletAccountTransaction, Network } from 'src/types/wallet';
 import {
@@ -12,11 +12,12 @@ import {
 import { TransactionHeader } from 'src/components/wallet/TransactionItem/TransactionHeader';
 import { fromWei } from 'web3-utils';
 import { IOAddress } from './IOAddress';
+import { borders } from '@trezor/theme';
 
 const Wrapper = styled.div`
     background-color: ${({ theme }) => theme.BG_GREY};
     padding: 18px;
-    border-radius: 8px;
+    border-radius: ${borders.radii.xs};
 `;
 
 const Confirmations = styled.div`
@@ -53,7 +54,7 @@ const Grid = styled.div<{ showRbfCols?: boolean }>`
     border-top: 1px solid ${({ theme }) => theme.STROKE_GREY};
     grid-gap: 12px;
     grid-template-columns: 105px minmax(0, 2.5fr) 90px minmax(0, 2.5fr); /* title value title value */
-    font-size: ${variables.NEUE_FONT_SIZE.SMALL};
+    font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     padding: 28px 6px 10px;
     text-align: left;
@@ -135,8 +136,7 @@ const ConfirmationStatus = styled.div<{ confirmed: boolean; tiny?: boolean }>`
     color: ${({ confirmed, theme }) => (confirmed ? theme.TYPE_GREEN : theme.TYPE_ORANGE)};
     font-weight: ${({ tiny }) =>
         tiny ? variables.FONT_WEIGHT.MEDIUM : variables.FONT_WEIGHT.DEMI_BOLD};
-    font-size: ${({ tiny }) =>
-        tiny ? variables.NEUE_FONT_SIZE.TINY : variables.NEUE_FONT_SIZE.SMALL};
+    font-size: ${({ tiny }) => (tiny ? variables.FONT_SIZE.TINY : variables.FONT_SIZE.SMALL)};
 `;
 
 const Circle = styled.div`

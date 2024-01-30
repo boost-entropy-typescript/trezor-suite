@@ -19,18 +19,18 @@ import { DEFAULT_LABEL } from 'src/constants/suite/device';
 import { isHomescreenSupportedOnDevice } from 'src/utils/suite/homescreen';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
 import { ChangeDeviceLabel } from 'src/components/suite/ChangeDeviceLabel';
+import { borders, spacingsPx, typography } from '@trezor/theme';
 
 const StyledButton = styled(Button)`
     display: flex;
-    padding: 10px 16px;
+    padding: ${spacingsPx.sm} ${spacingsPx.md};
     height: 42px;
-    border: 1px solid ${({ theme }) => theme.STROKE_GREY};
-    border-radius: 4px;
+    border: 1px solid ${({ theme }) => theme.borderOnElevation1};
+    border-radius: ${borders.radii.xxs};
     align-items: center;
     cursor: pointer;
     background-color: transparent;
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    ${typography.hint}
 
     :not(:disabled) {
         color: ${({ theme }) => theme.TYPE_DARK_GREY};
@@ -44,10 +44,10 @@ const StyledButton = styled(Button)`
 `;
 
 const StyledIcon = styled(Icon)`
-    margin-right: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: auto ${spacingsPx.md} auto 0;
 `;
 
 const Content = styled.div`
@@ -58,7 +58,7 @@ const Content = styled.div`
 
 const GalleryWrapper = styled.div`
     width: 330px;
-    padding: 8px 0;
+    padding: ${spacingsPx.xs} 0;
     height: 200px;
     overflow-y: auto;
     border: 1px solid ${({ theme }) => theme.STROKE_GREY};
@@ -70,7 +70,7 @@ const DeviceImageWrapper = styled.div`
     align-items: center;
     width: 400px;
     height: 400px;
-    margin: 0 20px 0 -60px;
+    margin: 0 ${spacingsPx.lg} 0 -60px;
 
     @media (max-width: ${variables.SCREEN_SIZE.SM}) {
         margin: 0;
@@ -80,33 +80,31 @@ const DeviceImageWrapper = styled.div`
 `;
 
 const Heading = styled.div`
-    font-size: 48px;
-    font-weight: ${variables.FONT_WEIGHT.BOLD};
-    margin-bottom: 32px;
+    ${typography.titleLarge}
+    margin-bottom: ${spacingsPx.xxl};
 
     @media screen and (max-width: ${variables.SCREEN_SIZE.MD}) {
-        font-size: 32px;
+        ${typography.titleMedium}
     }
 `;
 
 const SetupActions = styled.div`
     display: flex;
     align-items: flex-start;
-    margin-bottom: 32px;
-    padding-bottom: 32px;
+    margin-bottom: ${spacingsPx.xxl};
+    padding-bottom: ${spacingsPx.xxl};
     border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
     width: fit-content;
-    gap: 16px;
+    gap: ${spacingsPx.md};
 `;
 
 const EnterSuiteButton = styled(Button)`
     height: 64px;
     min-width: 280px;
-    font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     align-self: flex-start;
     justify-content: space-between;
-    padding-left: 26px;
-    padding-right: 26px;
+    padding-left: ${spacingsPx.xl};
+    padding-right: ${spacingsPx.xl};
 `;
 
 const Wrapper = styled.div<{ shouldWrap?: boolean }>`
@@ -122,7 +120,7 @@ const Wrapper = styled.div<{ shouldWrap?: boolean }>`
             flex-direction: column;
 
             ${DeviceImageWrapper} {
-                margin: 0 0 20px;
+                margin: 0 0 ${spacingsPx.lg};
             }
 
             ${Heading} {
@@ -206,31 +204,17 @@ export const FinalStep = () => {
                             >
                                 <Dropdown
                                     ref={dropdownRef}
-                                    alignMenu="right"
-                                    offset={16}
+                                    alignMenu="bottom-right"
                                     isDisabled={!shouldOfferChangeHomescreen || isWaitingForConfirm}
-                                    items={[
-                                        {
-                                            key: 'dropdown',
-                                            options: [
-                                                {
-                                                    key: 'gallery',
-                                                    label: (
-                                                        <GalleryWrapper>
-                                                            <HomescreenGallery
-                                                                onConfirm={() => {
-                                                                    dropdownRef.current?.close();
-                                                                }}
-                                                            />
-                                                        </GalleryWrapper>
-                                                    ),
-                                                    noPadding: true,
-                                                    noHover: true, // no hover effect
-                                                    callback: () => false, // don't close Dropdown on mouse click automatically
-                                                },
-                                            ],
-                                        },
-                                    ]}
+                                    content={
+                                        <GalleryWrapper>
+                                            <HomescreenGallery
+                                                onConfirm={() => {
+                                                    dropdownRef.current?.close();
+                                                }}
+                                            />
+                                        </GalleryWrapper>
+                                    }
                                 >
                                     <StyledButton onClick={() => setState(null)}>
                                         <StyledIcon size={16} icon="DASHBOARD" />
@@ -269,8 +253,9 @@ export const FinalStep = () => {
                             });
                         }}
                         icon="ARROW_RIGHT_LONG"
-                        alignIcon="right"
+                        iconAlignment="right"
                         isDisabled={isWaitingForConfirm}
+                        size="large"
                     >
                         <Translation id="TR_GO_TO_SUITE" />
                     </EnterSuiteButton>

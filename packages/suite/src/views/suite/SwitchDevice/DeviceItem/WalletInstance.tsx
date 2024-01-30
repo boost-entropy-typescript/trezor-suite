@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
 import {
     toggleRememberDevice,
@@ -7,9 +7,10 @@ import {
     selectCoinsLegacy,
 } from '@suite-common/wallet-core';
 import { useFormatters } from '@suite-common/formatters';
-import { Switch, Box, Icon, useTheme, variables } from '@trezor/components';
+import { Switch, Box, Icon, variables } from '@trezor/components';
 import { getAllAccounts, getTotalFiatBalance } from '@suite-common/wallet-utils';
 import { analytics, EventType } from '@trezor/suite-analytics';
+import { spacingsPx } from '@trezor/theme';
 
 import {
     WalletLabeling,
@@ -21,6 +22,7 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { TrezorDevice, AcquiredDevice } from 'src/types/suite';
 import { selectLabelingDataForWallet } from 'src/reducers/suite/metadataReducer';
 import { METADATA } from 'src/actions/suite/constants';
+import { useWalletLabeling } from '../../../../components/suite/labeling/WalletLabeling';
 
 const InstanceType = styled.div`
     display: flex;
@@ -40,7 +42,7 @@ const Wrapper = styled(Box)`
     display: flex;
     width: 100%;
     align-items: center;
-    background: ${({ theme }) => theme.BG_WHITE};
+    background: ${({ theme }) => theme.backgroundSurfaceElevation1};
 
     & + & {
         margin-top: 10px;
@@ -48,7 +50,7 @@ const Wrapper = styled(Box)`
 
     :hover,
     :focus-within {
-        background: ${({ theme }) => theme.BG_WHITE_ALT_HOVER};
+        background: ${({ theme }) => theme.backgroundSurfaceElevation0};
 
         ${InstanceType} > span {
             text-decoration: underline;
@@ -80,12 +82,12 @@ const Col = styled.div<{ grow?: number; centerItems?: boolean }>`
 `;
 
 const ColEject = styled(Col)`
-    margin: 0 22px;
+    margin-left: ${spacingsPx.xxxl};
+    margin-right: ${spacingsPx.sm};
 `;
 
 const SwitchCol = styled.div`
     display: flex;
-    margin-right: 46px;
 `;
 
 const LockIcon = styled(Icon)`
@@ -119,6 +121,7 @@ export const WalletInstance = ({
     const discoveryProcess = useSelector(state =>
         selectDiscoveryByDeviceState(state, instance.state),
     );
+    const { defaultAccountLabelString } = useWalletLabeling();
 
     const deviceAccounts = getAllAccounts(instance.state, accounts);
     const accountsCount = deviceAccounts.length;
@@ -137,6 +140,8 @@ export const WalletInstance = ({
         });
     };
 
+    const defaultWalletLabel = defaultAccountLabelString({ device: instance });
+
     return (
         <Wrapper
             data-test={dataTestBase}
@@ -152,7 +157,11 @@ export const WalletInstance = ({
                         )}
                         {instance.state ? (
                             <MetadataLabeling
-                                defaultVisibleValue={<WalletLabeling device={instance} />}
+                                defaultVisibleValue={
+                                    walletLabel === undefined || walletLabel.trim() === ''
+                                        ? defaultWalletLabel
+                                        : walletLabel
+                                }
                                 payload={{
                                     type: 'walletLabel',
                                     entityKey: instance.state,
@@ -161,6 +170,7 @@ export const WalletInstance = ({
                                         ? walletLabel
                                         : '',
                                 }}
+                                defaultEditableValue={defaultWalletLabel}
                             />
                         ) : (
                             <WalletLabeling device={instance} />

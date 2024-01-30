@@ -167,10 +167,9 @@ export const TokenSelect = ({ output, outputId }: TokenSelectProps) => {
             render={({ field: { onChange } }) => (
                 <Select
                     options={options}
-                    minWidth="58px"
+                    minValueWidth="58px"
                     isSearchable
                     isDisabled={options.length === 1} // disable when account has no tokens to choose from
-                    hideTextCursor
                     value={options.find(o => o.value === tokenValue)}
                     isClearable={false}
                     components={customComponents}

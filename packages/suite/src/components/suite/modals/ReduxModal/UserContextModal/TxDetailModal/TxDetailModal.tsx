@@ -20,6 +20,7 @@ import { WalletAccountTransaction } from 'src/types/wallet';
 import { BasicTxDetails } from './BasicTxDetails';
 import { AdvancedTxDetails, TabID } from './AdvancedTxDetails/AdvancedTxDetails';
 import { ChangeFee } from './ChangeFee/ChangeFee';
+import { borders } from '@trezor/theme';
 
 const StyledModal = styled(Modal)`
     width: 755px;
@@ -32,7 +33,7 @@ const StyledModal = styled(Modal)`
 const PhishingBanner = styled.div`
     margin-bottom: 6px;
     padding: 6px 0;
-    border-radius: 8px;
+    border-radius: ${borders.radii.xs};
     background: ${({ theme }) => theme.BG_RED};
     color: ${({ theme }) => theme.TYPE_WHITE};
     font-size: ${variables.FONT_SIZE.SMALL};
@@ -52,7 +53,7 @@ const SectionActions = styled.div`
 
 const SectionTitle = styled.div`
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
-    font-size: ${variables.NEUE_FONT_SIZE.NORMAL};
+    font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
 `;
 

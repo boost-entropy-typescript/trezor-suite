@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import BigNumber from 'bignumber.js';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
-import { Icon, Switch, Warning, variables, useTheme } from '@trezor/components';
+import { Icon, Switch, Warning, variables } from '@trezor/components';
 import { FiatValue, Translation, NumberInput, HiddenPlaceholder } from 'src/components/suite';
 import {
     amountToSatoshi,
@@ -25,32 +25,29 @@ import {
     validateMin,
     validateReserveOrBalance,
 } from 'src/utils/suite/validation';
+import { spacingsPx } from '@trezor/theme';
+import { breakpointMediaQueries } from '@trezor/styles';
 
 const Row = styled.div`
+    position: relative;
     display: flex;
     flex: 1;
 
-    @media screen and (max-width: ${variables.SCREEN_SIZE.LG}) {
+    ${breakpointMediaQueries.below_lg} {
         flex-direction: column;
+        gap: ${spacingsPx.sm};
     }
+`;
+
+const Heading = styled.p`
+    position: absolute;
 `;
 
 const Text = styled.div`
     margin-right: 3px;
 `;
 
-const SwitchWrapper = styled.div`
-    align-items: center;
-    display: flex;
-    gap: 4px;
-`;
-
-const SwitchLabel = styled.label`
-    font-size: 14px;
-    font-weight: 500;
-`;
-
-const StyledInput = styled(NumberInput)`
+const AmountInput = styled(NumberInput)`
     display: flex;
     flex: 1;
 ` as typeof NumberInput; // Styled wrapper doesn't preserve type argument, see https://github.com/styled-components/styled-components/issues/1803#issuecomment-857092410
@@ -68,7 +65,7 @@ const Left = styled.div`
 
 const TokenBalance = styled.div`
     padding: 0 6px;
-    font-size: ${variables.NEUE_FONT_SIZE.TINY};
+    font-size: ${variables.FONT_SIZE.TINY};
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
@@ -77,24 +74,19 @@ const TokenBalanceValue = styled.span`
 `;
 
 const StyledTransferIcon = styled(Icon)`
-    @media all and (max-width: ${variables.SCREEN_SIZE.LG}) {
-        transform: rotate(90deg);
-    }
-`;
-const TransferIconWrapper = styled.div`
-    margin: 45px 20px 0;
+    margin: 50px 20px 0;
 
     @media all and (max-width: ${variables.SCREEN_SIZE.LG}) {
-        /* transform: rotate(90deg); */
         align-self: center;
         margin: 0;
+        transform: rotate(90deg);
     }
 `;
 
 const Right = styled.div`
     display: flex;
     flex: 1;
-    align-items: flex-start;
+    align-items: end;
 `;
 
 const Symbol = styled.span`
@@ -164,7 +156,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
     const withTokens = hasNetworkFeatures(account, 'tokens');
     const symbolToUse = shouldSendInSats ? 'sat' : symbol.toUpperCase();
     const isLowAnonymity = isLowAnonymityWarning(outputError);
-    const inputState = isLowAnonymity ? 'warning' : getInputState(error, amountValue);
+    const inputState = isLowAnonymity ? 'warning' : getInputState(error);
     const bottomText = isLowAnonymity ? undefined : error?.message;
 
     const handleInputChange = useCallback(
@@ -215,36 +207,38 @@ export const Amount = ({ output, outputId }: AmountProps) => {
         },
     };
 
+    const SendMaxSwitch = () => (
+        <Switch
+            labelPosition="left"
+            isChecked={isSetMaxActive}
+            dataTest={maxSwitchId}
+            isSmall
+            onChange={() => {
+                setMax(outputId, isSetMaxActive);
+                composeTransaction(inputName);
+            }}
+            label={<Translation id="AMOUNT_SEND_MAX" />}
+        />
+    );
+
     return (
         <>
             <Row>
+                <Heading>
+                    <Translation id="AMOUNT" />
+                </Heading>
+
                 <Left>
-                    <StyledInput
+                    <AmountInput
                         inputState={inputState}
-                        isMonospace
-                        labelAddonIsVisible={isSetMaxVisible}
-                        labelAddon={
-                            <SwitchWrapper>
-                                <Switch
-                                    isSmall
-                                    isChecked={isSetMaxActive}
-                                    id={maxSwitchId}
-                                    dataTest={maxSwitchId}
-                                    onChange={() => {
-                                        setMax(outputId, isSetMaxActive);
-                                        composeTransaction(inputName);
-                                    }}
-                                />
-                                <SwitchLabel htmlFor={maxSwitchId}>
-                                    <Translation id="AMOUNT_SEND_MAX" />
-                                </SwitchLabel>
-                            </SwitchWrapper>
-                        }
+                        labelHoverAddon={!isSetMaxVisible ? <SendMaxSwitch /> : undefined}
+                        labelRight={isSetMaxVisible ? <SendMaxSwitch /> : undefined}
                         label={
                             <Label>
                                 <Text>
                                     <Translation id="AMOUNT" />
                                 </Text>
+
                                 {tokenBalance && (
                                     <TokenBalance>
                                         <Translation
@@ -255,7 +249,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                                 )}
                             </Label>
                         }
-                        bottomText={bottomText}
+                        bottomText={bottomText || null}
                         onChange={handleInputChange}
                         name={inputName}
                         data-test={inputName}
@@ -273,19 +267,16 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                     />
                 </Left>
 
-                {/* TODO: token FIAT rates calculation */}
                 {!token && (
                     <FiatValue amount="1" symbol={symbol} fiatCurrency={localCurrencyOption.value}>
                         {({ rate }) =>
                             rate && (
                                 <>
-                                    <TransferIconWrapper>
-                                        <StyledTransferIcon
-                                            icon="TRANSFER"
-                                            size={16}
-                                            color={theme.TYPE_LIGHT_GREY}
-                                        />
-                                    </TransferIconWrapper>
+                                    <StyledTransferIcon
+                                        icon="TRANSFER"
+                                        size={16}
+                                        color={theme.TYPE_LIGHT_GREY}
+                                    />
 
                                     <Right>
                                         <Fiat output={output} outputId={outputId} />
@@ -296,6 +287,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                     </FiatValue>
                 )}
             </Row>
+
             {isLowAnonymity && (
                 <StyledWarning withIcon>
                     <Translation id="TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING" />

@@ -1,20 +1,22 @@
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import BigNumber from 'bignumber.js';
 import { transparentize, darken } from 'polished';
 import { getFeeUnits, formatNetworkAmount, formatAmount } from '@suite-common/wallet-utils';
-import { Icon, useTheme, CoinLogo, variables } from '@trezor/components';
+import { Icon, CoinLogo, variables } from '@trezor/components';
 import { Translation, FormattedCryptoAmount, AccountLabel } from 'src/components/suite';
 import { Account, Network } from 'src/types/wallet';
 import { formatDuration, isFeatureFlagEnabled } from '@suite-common/suite-utils';
 import { PrecomposedTransactionFinal, TxFinalCardano } from 'src/types/wallet/sendForm';
 import { useSelector } from 'src/hooks/suite/useSelector';
 import { selectLabelingDataForSelectedAccount } from 'src/reducers/suite/metadataReducer';
+import { mediaQueries } from '@trezor/styles';
+import { borders } from '@trezor/theme';
 
 const Wrapper = styled.div`
     padding: 20px 15px 12px;
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
+    border-radius: ${borders.radii.xs};
     background: ${({ theme }) => theme.BG_GREY};
     min-width: 190px;
     width: 225px;
@@ -135,7 +137,7 @@ const TxDetailsButton = styled.button<{ detailsOpen: boolean }>`
         detailsOpen && darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_LIGHT_GREY)};
     cursor: pointer;
 
-    ${variables.MEDIA_QUERY.DARK_THEME} {
+    ${mediaQueries.dark_theme} {
         background: ${({ theme, detailsOpen }) =>
             detailsOpen
                 ? darken(theme.HOVER_DARKEN_FILTER, theme.STROKE_LIGHT_GREY)

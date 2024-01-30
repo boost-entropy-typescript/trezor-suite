@@ -1,70 +1,57 @@
-import { forwardRef, Ref, MouseEventHandler } from 'react';
+import { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
 
 import { isTestnet } from '@suite-common/wallet-utils';
-import { CoinLogo, variables } from '@trezor/components';
+import { spacingsPx, typography } from '@trezor/theme';
+import { CoinLogo, SkeletonRectangle, SkeletonStack } from '@trezor/components';
 
-import {
-    AccountLabel,
-    CoinBalance,
-    FiatValue,
-    SkeletonStack,
-    SkeletonRectangle,
-} from 'src/components/suite';
+import { AccountLabel, CoinBalance, FiatValue } from 'src/components/suite';
 import { useDispatch, useLoadingSkeleton } from 'src/hooks/suite';
 import { Account } from 'src/types/wallet';
 import { goto } from 'src/actions/suite/routerActions';
+import { NavigationItemBase } from 'src/components/suite/Preloader/SuiteLayout/Sidebar/NavigationItem';
 
-import { TokensCount } from './TokensCount';
-
-const activeClassName = 'selected';
 interface WrapperProps {
     selected: boolean;
     type: string;
 }
 
-// position: inherit - get position from parent (AccountGroup), it will be set after animation ends
-// sticky top: 34, sticky header
-const Wrapper = styled.div.attrs((props: WrapperProps) => ({
-    className: props.selected ? activeClassName : '',
-}))<WrapperProps>`
+const Wrapper = styled(NavigationItemBase)<WrapperProps>`
+    background: ${({ theme, selected }) => selected && theme.backgroundSurfaceElevation1};
+    gap: 0;
     display: flex;
-    flex-direction: column;
-    transition: background 0.15s;
+    justify-content: space-between;
 
     & + & {
-        margin-top: 3px;
+        margin-top: ${spacingsPx.xxs};
     }
 
-    &:first-of-type {
-        padding-top: 0;
-    }
-    &:hover,
-    &.${activeClassName} {
-        border-radius: 4px;
-        background: ${({ theme }) => theme.BG_GREY_ALT};
-        position: inherit;
-        top: ${({ type }) =>
-            type !== 'normal'
-                ? '50px'
-                : '0px'}; /* when scrolling keep some space above to fit account group (50px is the height of acc group container)  */
-        bottom: 0;
-        padding: 0;
+    :hover {
+        position: relative;
+        z-index: 2;
+        background: ${({ theme, selected }) =>
+            !selected && theme.backgroundTertiaryPressedOnElevation0};
     }
 `;
 
 export const Left = styled.div`
-    display: flex;
     padding-top: 3px;
-`;
-
-export const Right = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
-    padding-left: 8px;
+    align-items: center;
+`;
+
+export const Center = styled.div`
+    flex: 1;
+    flex-direction: column;
+    padding-left: ${spacingsPx.md};
+    padding-right: ${spacingsPx.xxs};
     overflow: hidden;
-    padding-right: 10px;
-    margin-right: -10px;
+`;
+export const Right = styled.div`
+    overflow: hidden;
+    text-align: right;
 `;
 
 const Row = styled.div`
@@ -79,39 +66,35 @@ const AccountName = styled.div`
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: ${variables.FONT_SIZE.NORMAL};
-    font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    ${typography.highlight};
+    color: ${({ theme }) => theme.textDefault};
     line-height: 1.5;
     font-variant-numeric: tabular-nums;
 `;
 
 const Balance = styled.div`
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    ${typography.hint};
+    color: ${({ theme }) => theme.textSubdued};
     line-height: 1.57;
 `;
 
 const FiatValueWrapper = styled.div`
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    ${typography.hint};
+    color: ${({ theme }) => theme.textSubdued};
     line-height: 1.57;
 `;
 
-export const AccountHeader = styled.div`
-    display: flex;
-    padding: 10px 16px;
-    border-radius: 4px;
-    cursor: pointer;
+const TokensCount = styled.div`
+    ${typography.label};
+    color: ${({ theme }) => theme.textSubdued};
+    line-height: 1.57;
 `;
 
 interface AccountItemProps {
     account: Account;
     accountLabel?: string;
     selected: boolean;
-    closeMenu: () => void;
+    closeMenu?: () => void;
 }
 
 // Using `forwardRef` to be able to pass `ref` (item) TO parent (Menu/index)
@@ -132,13 +115,8 @@ export const AccountItem = forwardRef(
             accountType,
         };
 
-        const handleClickOnTokens: MouseEventHandler = event => {
-            event.stopPropagation();
-            closeMenu();
-            dispatch(goto('wallet-tokens', { params: accountRouteParams }));
-        };
         const handleHeaderClick = () => {
-            closeMenu();
+            closeMenu?.();
             dispatch(goto('wallet-index', { params: accountRouteParams }));
         };
 
@@ -152,73 +130,63 @@ export const AccountItem = forwardRef(
         const dataTestKey = `@account-menu/${symbol}/${accountType}/${index}`;
 
         return (
-            <Wrapper selected={selected} type={accountType} ref={ref}>
-                <AccountHeader onClick={handleHeaderClick} data-test={dataTestKey}>
-                    <Left>
-                        <CoinLogo size={16} symbol={symbol} />
-                    </Left>
-                    <Right>
-                        <Row>
-                            <AccountName data-test={`${dataTestKey}/label`}>
-                                <AccountLabel
-                                    accountLabel={accountLabel}
-                                    accountType={accountType}
-                                    symbol={symbol}
-                                    index={index}
-                                />
-                            </AccountName>
-                        </Row>
-                        {isBalanceShown && (
-                            <>
-                                <Row>
-                                    <Balance>
-                                        <CoinBalance value={formattedBalance} symbol={symbol} />
-                                    </Balance>
-                                    {isTokensCountShown && (
-                                        <TokensCount
-                                            count={tokens.length}
-                                            onClick={handleClickOnTokens}
-                                        />
-                                    )}
-                                </Row>
-                                <Row>
-                                    <FiatValue
-                                        amount={formattedBalance}
-                                        symbol={symbol}
-                                        showApproximationIndicator
-                                    >
-                                        {({ value }) =>
-                                            value ? (
-                                                <FiatValueWrapper>{value}</FiatValueWrapper>
-                                            ) : null
-                                        }
-                                    </FiatValue>
-                                </Row>
-                            </>
-                        )}
-                        {!isBalanceShown && (
-                            <SkeletonStack
-                                col
-                                margin="6px 0px 0px 0px"
-                                childMargin="0px 0px 8px 0px"
-                            >
+            <Wrapper
+                selected={selected}
+                type={accountType}
+                ref={ref}
+                onClick={handleHeaderClick}
+                data-test={dataTestKey}
+                tabIndex={0}
+            >
+                <Left>
+                    <CoinLogo size={24} symbol={symbol} />
+                    {isTokensCountShown && <TokensCount>{tokens.length}</TokensCount>}
+                </Left>
+                <Center>
+                    <Row>
+                        <AccountName data-test={`${dataTestKey}/label`}>
+                            <AccountLabel
+                                accountLabel={accountLabel}
+                                accountType={accountType}
+                                symbol={symbol}
+                                index={index}
+                            />
+                        </AccountName>
+                    </Row>
+                    {isBalanceShown && (
+                        <>
+                            <Row>
+                                <Balance>
+                                    <CoinBalance value={formattedBalance} symbol={symbol} />
+                                </Balance>
+                            </Row>
+                        </>
+                    )}
+                    {!isBalanceShown && (
+                        <SkeletonStack col margin="6px 0px 0px 0px" childMargin="0px 0px 8px 0px">
+                            <SkeletonRectangle
+                                width="100px"
+                                height="16px"
+                                animate={shouldAnimate}
+                            />
+
+                            {!isTestnet(account.symbol) && (
                                 <SkeletonRectangle
                                     width="100px"
                                     height="16px"
                                     animate={shouldAnimate}
                                 />
-
-                                {!isTestnet(account.symbol) && (
-                                    <SkeletonRectangle
-                                        width="100px"
-                                        height="16px"
-                                        animate={shouldAnimate}
-                                    />
-                                )}
-                            </SkeletonStack>
-                        )}
-                    </Right>
-                </AccountHeader>
+                            )}
+                        </SkeletonStack>
+                    )}
+                </Center>
+                <Right>
+                    <FiatValue amount={formattedBalance} symbol={symbol}>
+                        {({ value }) =>
+                            value ? <FiatValueWrapper>{value}</FiatValueWrapper> : null
+                        }
+                    </FiatValue>
+                </Right>
             </Wrapper>
         );
     },

@@ -1,12 +1,12 @@
 import { ReactElement, ReactNode } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 
 import { WalletAccountTransaction } from '@suite-common/wallet-types';
 import { formatAmount, formatNetworkAmount, isNftTokenTransfer } from '@suite-common/wallet-utils';
 import { FormattedCryptoAmount, Translation } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite/useSelector';
 import { AnonymitySet, TokenTransfer } from '@trezor/blockchain-link';
-import { Icon, useTheme, variables, CollapsibleBox } from '@trezor/components';
+import { Icon, variables, CollapsibleBox } from '@trezor/components';
 import { UtxoAnonymity } from 'src/components/wallet';
 import { AnalyzeInExplorerBanner } from './AnalyzeInExplorerBanner';
 import { FormattedNftAmount } from 'src/components/suite/FormattedNftAmount';
@@ -53,7 +53,7 @@ const StyledCollapsibleBox = styled(CollapsibleBox)`
 
     ${CollapsibleBox.Heading} {
         color: ${({ theme }) => theme.TYPE_DARK_GREY};
-        font-size: ${variables.NEUE_FONT_SIZE.NORMAL};
+        font-size: ${variables.FONT_SIZE.NORMAL};
     }
 
     ${CollapsibleBox.Content} {
@@ -75,7 +75,7 @@ const RowGrid = styled(Grid)`
 
 const GridItem = styled.div<{ isAccountOwned?: boolean }>`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    font-size: ${variables.NEUE_FONT_SIZE.TINY};
+    font-size: ${variables.FONT_SIZE.TINY};
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     max-width: 290px;
 
@@ -101,7 +101,7 @@ const RowGridItem = styled(GridItem)`
 
 const GridGroupHeading = styled.div`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    font-size: ${variables.NEUE_FONT_SIZE.SMALL};
+    font-size: ${variables.FONT_SIZE.SMALL};
     color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
     margin-bottom: 10px;
 `;
@@ -434,7 +434,7 @@ const CollapsibleIOSection = ({
     opened,
 }: CollapsibleIOSectionProps) =>
     inputs?.length || outputs?.length ? (
-        <StyledCollapsibleBox heading={heading} opened={opened} variant="large">
+        <StyledCollapsibleBox heading={heading} isOpen={opened} variant="large">
             <IOSectionColumn tx={tx} inputs={inputs} outputs={outputs} />
         </StyledCollapsibleBox>
     ) : null;

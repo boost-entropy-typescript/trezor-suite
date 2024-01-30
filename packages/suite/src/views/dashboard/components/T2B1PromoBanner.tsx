@@ -7,18 +7,27 @@ import { TREZOR_URL } from '@trezor/urls';
 
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectIsDashboardT2B1PromoBannerShown } from 'src/reducers/suite/suiteReducer';
-import { Button, Image, SVG_IMAGES, SVG_PATH, motionEasing, variables } from '@trezor/components';
+import {
+    Button,
+    IconButton,
+    Image,
+    SVG_IMAGES,
+    SVG_PATH,
+    motionEasing,
+    variables,
+} from '@trezor/components';
 import { setFlag } from 'src/actions/suite/suiteActions';
 import { Translation, TrezorLink } from 'src/components/suite';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolveStaticPath } from '@suite-common/suite-utils';
+import { colorVariants } from '@trezor/theme';
 
 const BannerWrapper = styled(motion.div)`
     display: grid;
     grid-template-columns: 338px 1fr minmax(109px, 145px) 42px;
     grid-template-rows: 42px 1fr 0;
     column-gap: 8px;
-    background-color: #0f6148;
+    background-color: ${colorVariants.standard.backgroundPrimaryDefault};
     height: 168px;
     width: 100%;
     border-radius: 12px;
@@ -80,15 +89,15 @@ const NextGenerationText = styled.p`
 `;
 
 const NextGenerationTextBlock = styled.span`
-    color: ${({ theme }) => theme.TYPE_WHITE};
+    color: ${colorVariants.standard.textOnPrimary};
 `;
+
+const imgUrl = resolveStaticPath(`${SVG_PATH}/${SVG_IMAGES.TREZOR_SAFE_PROMO_UNDERLINE}`);
 
 const NextGenerationTextBlockHighlight = styled(NextGenerationTextBlock)`
     color: #9be887;
     white-space: nowrap;
-    background-image: url(${resolveStaticPath(
-        `${SVG_PATH}/${SVG_IMAGES.TREZOR_SAFE_PROMO_UNDERLINE}`,
-    )});
+    background-image: url(${imgUrl});
     display: inline-block;
     background-position: 0 100%;
     background-repeat: no-repeat;
@@ -163,7 +172,7 @@ const ButtonShopNow = styled(Button)`
     }
 `;
 
-const ButtonClose = styled(Button)`
+const ButtonClose = styled(IconButton)`
     grid-column: 4;
     grid-row: 2;
     margin-bottom: 24px;
@@ -171,7 +180,7 @@ const ButtonClose = styled(Button)`
     z-index: 1;
 
     /* stylelint-disable color-function-notation */
-    background: ${({ theme }) => rgba(theme.TYPE_WHITE, 0.16)};
+    background: ${rgba(colorVariants.standard.textOnPrimary, 0.16)};
     /* stylelint-enable color-function-notation */
     height: 42px;
     width: 42px;
@@ -184,7 +193,7 @@ const ButtonClose = styled(Button)`
     svg {
         height: 24px;
         width: 24px;
-        fill: ${({ theme }) => theme.TYPE_WHITE};
+        fill: ${colorVariants.standard.textOnPrimary};
     }
 
     ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
@@ -279,12 +288,7 @@ export const T2B1PromoBanner = () => {
                             <Translation id="TR_SHOP_NOW" />
                         </ButtonShopNow>
                     </LinkButtonShopNow>
-                    <ButtonClose
-                        icon="CROSS_LIGHT"
-                        color="white"
-                        variant="secondary"
-                        onClick={onCloseBanner}
-                    />
+                    <ButtonClose icon="CROSS_LIGHT" variant="secondary" onClick={onCloseBanner} />
                 </BannerWrapper>
             )}
         </AnimatePresence>

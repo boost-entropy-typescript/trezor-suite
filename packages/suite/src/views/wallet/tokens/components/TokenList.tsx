@@ -1,6 +1,6 @@
 import { useMemo, Fragment } from 'react';
-import styled, { css } from 'styled-components';
-import { variables, useTheme, Icon, Card } from '@trezor/components';
+import styled, { css, useTheme } from 'styled-components';
+import { variables, Icon, Card } from '@trezor/components';
 import { FiatValue, FormattedCryptoAmount, TrezorLink } from 'src/components/suite';
 import { Account } from 'src/types/wallet';
 import { useSelector } from 'src/hooks/suite';
@@ -95,7 +95,7 @@ export const TokenList = ({
     if (!tokens || tokens.length === 0) return null;
 
     return (
-        <Wrapper isTestnet={isTestnet} noPadding>
+        <Wrapper isTestnet={isTestnet} paddingType="none">
             {sortedTokens.map(t => {
                 // In Cardano token name is optional and in there is no symbol.
                 // However, if Cardano token doesn't have a name on blockchain, its TokenInfo has both name

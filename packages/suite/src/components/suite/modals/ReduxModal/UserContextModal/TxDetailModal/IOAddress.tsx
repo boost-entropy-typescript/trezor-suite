@@ -1,8 +1,8 @@
 import { HiddenPlaceholder } from 'src/components/suite/HiddenPlaceholder';
-import { Icon, Link, useTheme } from '@trezor/components';
+import { Icon, Link } from '@trezor/components';
 import { useState } from 'react';
 import { copyToClipboard } from '@trezor/dom-utils';
-import styled, { css } from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 
 const IconWrapper = styled.div`
     display: none;
@@ -99,7 +99,7 @@ export const IOAddress = ({ txAddress, explorerUrl, explorerUrlQueryString }: IO
                 {explorerUrl ? (
                     <IconWrapper>
                         <Link
-                            size="tiny"
+                            type="label"
                             variant="nostyle"
                             href={`${explorerUrl}${txAddress}${explorerUrlQueryString}`}
                         >

@@ -107,7 +107,7 @@ const ReceiveCryptoSelect = () => {
         return false;
     };
 
-    const { outputs, receiveCryptoSelect } = getValues();
+    const { outputs } = getValues();
     const token = outputs?.[0]?.token;
     const tokenData = account.tokens?.find(t => t.contract === token);
 
@@ -118,10 +118,7 @@ const ReceiveCryptoSelect = () => {
                 name="receiveCryptoSelect"
                 render={({ field: { onChange, value } }) => (
                     <Select
-                        inputState={getInputState(
-                            errors.receiveCryptoSelect,
-                            receiveCryptoSelect?.value,
-                        )}
+                        inputState={getInputState(errors.receiveCryptoSelect)}
                         onChange={(selected: any) => {
                             onChange(selected);
                             setAmountLimits(undefined);
@@ -136,7 +133,7 @@ const ReceiveCryptoSelect = () => {
                             tokenData?.symbol,
                         )}
                         data-test="@coinmarket/exchange/receive-crypto-select"
-                        minWidth="70px"
+                        minValueWidth="70px"
                         formatOptionLabel={(option: any) => (
                             <Option>
                                 <CoinLogo

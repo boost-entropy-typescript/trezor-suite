@@ -2,8 +2,7 @@ import { AccountLabel } from './AccountLabel';
 import { DeviceConfirmImage } from './DeviceConfirmImage';
 import { CheckItem } from './CheckItem';
 import { PrerequisitesGuide } from './PrerequisitesGuide/PrerequisitesGuide';
-import { WelcomeLayout } from './WelcomeLayout';
-import { CardWithHeader } from './CardWithHeader';
+import { WelcomeLayout } from './WelcomeLayout/WelcomeLayout';
 import { NotificationCard } from './NotificationCard';
 import { WordInput } from './WordInput';
 import { WordInputAdvanced } from './WordInputAdvanced';
@@ -17,6 +16,8 @@ import { DeviceInvalidModeLayout } from './DeviceInvalidModeLayout';
 import { AppNavigationPanel } from './AppNavigationPanel';
 import { AppNavigation } from './AppNavigation/AppNavigation';
 import { Ticker } from './Ticker/Ticker';
+import { TrendTicker } from './Ticker/TrendTicker';
+import { PriceTicker } from './Ticker/PriceTicker';
 import { Translation } from './Translation';
 import { AccountLabeling, AddressLabeling, WalletLabeling, MetadataLabeling } from './labeling';
 import { FormattedCryptoAmount } from './FormattedCryptoAmount';
@@ -57,7 +58,6 @@ export {
     DeviceInvalidModeLayout,
     PrerequisitesGuide,
     WelcomeLayout,
-    CardWithHeader as Card,
     NotificationCard,
     FiatValue,
     Translation,
@@ -77,6 +77,8 @@ export {
     FormattedCryptoAmount,
     FormattedNftAmount,
     Ticker,
+    TrendTicker,
+    PriceTicker,
     Sign,
     ReadMoreLink,
     TrezorLink,
@@ -109,5 +111,4 @@ export {
 export * from './graph';
 export * from './notifications';
 export * from './section';
-export * from './skeletons';
 export type { ModalProps, NumberInputProps };

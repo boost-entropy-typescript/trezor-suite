@@ -1,8 +1,7 @@
 import { memo, useMemo } from 'react';
 import styled from 'styled-components';
-import { Dropdown } from '@trezor/components';
+import { Dropdown, Card } from '@trezor/components';
 import {
-    Card,
     GraphScaleDropdownItem,
     GraphSkeleton,
     QuestionTooltip,
@@ -19,10 +18,6 @@ import { Header } from './components/Header';
 import { Exception } from './components/Exception';
 import { EmptyWallet } from './components/EmptyWallet';
 import { DashboardGraph } from './components/DashboardGraph';
-
-const StyledCard = styled(Card)`
-    flex-direction: column;
-`;
 
 const Body = styled.div`
     align-items: center;
@@ -105,17 +100,16 @@ const PortfolioCard = memo(() => {
             actions={
                 !isWalletEmpty && !isWalletLoading && !isWalletError ? (
                     <Dropdown
-                        alignMenu="right"
+                        alignMenu="bottom-right"
                         items={[
                             {
                                 key: 'group1',
                                 label: 'Graph View',
                                 options: [
                                     {
-                                        noHover: true,
                                         key: 'graphView',
                                         label: <GraphScaleDropdownItem />,
-                                        callback: () => false,
+                                        shouldCloseOnClick: false,
                                     },
                                     {
                                         key: 'hide',
@@ -125,15 +119,14 @@ const PortfolioCard = memo(() => {
                                         ) : (
                                             <Translation id="TR_HIDE_GRAPH" />
                                         ),
-                                        callback: () => {
+                                        shouldCloseOnClick: false,
+                                        onClick: () =>
                                             dispatch(
                                                 setFlag(
                                                     'dashboardGraphHidden',
                                                     !dashboardGraphHidden,
                                                 ),
-                                            );
-                                            return true;
-                                        },
+                                            ),
                                     },
                                 ],
                             },
@@ -142,7 +135,7 @@ const PortfolioCard = memo(() => {
                 ) : undefined
             }
         >
-            <StyledCard noPadding>
+            <Card paddingType="none">
                 {discoveryStatus && discoveryStatus.status === 'exception' ? null : (
                     <Header
                         showGraphControls={showGraphControls}
@@ -157,8 +150,9 @@ const PortfolioCard = memo(() => {
                         buyClickHandler={goToBuy}
                     />
                 )}
+
                 {body && <Body>{body}</Body>}
-            </StyledCard>
+            </Card>
         </DashboardSection>
     );
 });

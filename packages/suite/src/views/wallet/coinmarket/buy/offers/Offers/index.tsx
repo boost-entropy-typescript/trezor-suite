@@ -10,8 +10,8 @@ import { Translation } from 'src/components/suite';
 import { useLayout } from 'src/hooks/suite';
 import { useCoinmarketBuyOffersContext } from 'src/hooks/wallet/useCoinmarketBuyOffers';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
-import List from './List';
 import SelectedOffer from './SelectedOffer';
+import { BuyQuoteList } from './List/BuyQuoteList';
 
 const Wrapper = styled.div`
     padding: 16px 32px 32px;
@@ -84,7 +84,7 @@ const Offers = () => {
                         />
                     ) : (
                         <>
-                            <List quotes={quotes} />
+                            <BuyQuoteList quotes={quotes} />
                             {alternativeQuotes.length > 0 && (
                                 <>
                                     <Divider>
@@ -95,7 +95,7 @@ const Offers = () => {
                                         </DividerMiddle>
                                         <DividerRight />
                                     </Divider>
-                                    <List isAlternative quotes={alternativeQuotes} />
+                                    <BuyQuoteList isAlternative quotes={alternativeQuotes} />
                                 </>
                             )}
                         </>

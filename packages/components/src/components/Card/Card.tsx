@@ -1,46 +1,70 @@
-import { forwardRef, ReactNode, HTMLAttributes } from 'react';
-import styled from 'styled-components';
+import { forwardRef, ReactNode } from 'react';
+import styled, { css } from 'styled-components';
+import { borders, spacings, Elevation, mapElevationToBackground } from '@trezor/theme';
+import { ElevationContext, useElevation } from '../ElevationContext/ElevationContext';
 
-const Wrapper = styled.div<{ paddingSize: string }>`
+const Wrapper = styled.div<{ $elevation: Elevation; $paddingSize: number }>`
     display: flex;
     flex-direction: column;
-    border-radius: 12px;
-    padding: ${props => props.paddingSize};
-    background: ${({ theme }) => theme.BG_WHITE};
+    padding: ${({ $paddingSize }) => $paddingSize}px;
+    background: ${({ theme, $elevation }) => theme[mapElevationToBackground[$elevation]]};
+    border-radius: ${borders.radii.md};
+    box-shadow: ${({ theme, $elevation }) => $elevation === 1 && theme.boxShadowBase};
+
+    ${({ onClick, theme }) =>
+        onClick !== undefined
+            ? css`
+                  :hover {
+                      cursor: pointer;
+
+                      box-shadow: ${() => theme.boxShadowElevated};
+                  }
+              `
+            : ''}
+
+    /* when theme changes from light to dark */
+    transition: background 0.3s, box-shadow 0.2s;
 `;
 
-const getPaddingSize = (
-    largePadding?: boolean,
-    noPadding?: boolean,
-    noVerticalPadding?: boolean,
-) => {
-    if (noPadding) return '0px';
-    if (noVerticalPadding) {
-        if (largePadding) return `0px 26px`;
-        return `0px 20px`;
+const getPaddingSize = (paddingType?: PaddingType) => {
+    switch (paddingType) {
+        case 'small':
+            return spacings.sm;
+        case 'none':
+            return 0;
+        case 'normal':
+        default:
+            return spacings.lg;
     }
-    if (largePadding) return '26px';
-    return '20px';
 };
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+type PaddingType = 'small' | 'none' | 'normal';
+
+export interface CardProps {
+    paddingType?: PaddingType;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    onClick?: () => void;
+
     children?: ReactNode;
-    largePadding?: boolean;
-    noPadding?: boolean;
-    noVerticalPadding?: boolean;
-    customPadding?: string;
+    className?: string;
+
+    forceElevation?: Elevation;
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-    ({ children, largePadding, noPadding, noVerticalPadding, customPadding, ...rest }, ref) => (
-        <Wrapper
-            ref={ref}
-            paddingSize={
-                customPadding || getPaddingSize(largePadding, noPadding, noVerticalPadding)
-            }
-            {...rest}
-        >
-            {children}
-        </Wrapper>
-    ),
+    ({ paddingType = 'normal', children, forceElevation, ...rest }, ref) => {
+        const { elevation } = useElevation(forceElevation);
+
+        return (
+            <Wrapper
+                ref={ref}
+                $elevation={elevation}
+                $paddingSize={getPaddingSize(paddingType)}
+                {...rest}
+            >
+                <ElevationContext baseElevation={elevation}>{children}</ElevationContext>
+            </Wrapper>
+        );
+    },
 );

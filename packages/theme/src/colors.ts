@@ -1,23 +1,68 @@
 // If you want to add of modify colors, please read README.md to find out more.
 
+import { Elevation } from './elevation';
 import { CSSColor } from './types';
 
-export const colorVariants = {
+/**
+ * Never use directly, use ElevationContext.
+ */
+const backgroundElevationColors = {
     standard: {
-        transparent: '#00000000',
         backgroundSurfaceElevationNegative: '#eeeeeeff',
         backgroundSurfaceElevation0: '#f6f6f6ff',
         backgroundSurfaceElevation1: '#ffffffff',
         backgroundSurfaceElevation2: '#f6f6f6ff',
         backgroundSurfaceElevation3: '#ffffffff',
+    },
+    dark: {
+        backgroundSurfaceElevationNegative: '#000000ff',
+        backgroundSurfaceElevation0: '#0a0a0aff',
+        backgroundSurfaceElevation1: '#161716ff',
+        backgroundSurfaceElevation2: '#1c1e1cff',
+        backgroundSurfaceElevation3: '#242524ff',
+    },
+} as const;
+
+const backgroundTertiaryElevationColors = {
+    standard: {
+        backgroundTertiaryElevationNegative: '#f6f6f6ff', // @TODO
+        backgroundTertiaryDefaultOnElevation0: '#eeeeeeff',
+        backgroundTertiaryDefaultOnElevation1: '#f6f6f6ff',
+        backgroundTertiaryDefaultOnElevation2: '#eeeeeeff', // @TODO
+        backgroundTertiaryDefaultOnElevation3: '#f6f6f6ff', // @TODO
+    },
+    dark: {
+        backgroundTertiaryElevationNegative: '#1c1e1cff', // @TODO
+        backgroundTertiaryDefaultOnElevation0: '#161716ff',
+        backgroundTertiaryDefaultOnElevation1: '#1c1e1cff',
+        backgroundTertiaryDefaultOnElevation2: '#161716ff', // @TODO
+        backgroundTertiaryDefaultOnElevation3: '#1c1e1cff', // @TODO
+    },
+} as const;
+
+export type BackgroundElevationColor = keyof typeof backgroundElevationColors.standard;
+export type BackgroundTertiaryElevationColor =
+    keyof typeof backgroundTertiaryElevationColors.standard;
+
+export const mapElevationToBackground: Record<Elevation, BackgroundElevationColor> = {
+    '-1': 'backgroundSurfaceElevationNegative', // For example left menu is negative elevation
+    0: 'backgroundSurfaceElevation0',
+    1: 'backgroundSurfaceElevation1',
+    2: 'backgroundSurfaceElevation2',
+    3: 'backgroundSurfaceElevation3',
+};
+
+// @TODO create iconDefaultInverse (packages/suite/src/components/suite/banners/Banner.tsx)
+
+export const colorVariants = {
+    standard: {
+        transparent: '#00000000',
         backgroundPrimaryDefault: '#0f6148ff',
         backgroundPrimaryPressed: '#0a4231ff',
         backgroundPrimarySubtleOnElevation0: '#d6efe8ff',
         backgroundPrimarySubtleOnElevation1: '#f0f9f6ff',
         backgroundSecondaryDefault: '#00854dff',
         backgroundSecondaryPressed: '#004d2dff',
-        backgroundTertiaryDefaultOnElevation0: '#eeeeeeff',
-        backgroundTertiaryDefaultOnElevation1: '#f6f6f6ff',
         backgroundTertiaryPressedOnElevation0: '#e2e2e2ff',
         backgroundTertiaryPressedOnElevation1: '#eeeeeeff',
         backgroundNeutralBold: '#171717ff',
@@ -59,8 +104,8 @@ export const colorVariants = {
         iconAlertRed: '#ac3939ff',
         iconAlertYellow: '#c28c00ff',
         iconAlertBlue: '#00597fff',
-        gradientNeutralBottomFadeSurfaceElevation1Start: '#FFFFFF33',
-        gradientNeutralBottomFadeSurfaceElevation1End: '#FFFFFF',
+        gradientNeutralBottomFadeSurfaceElevation1Start: '#FFFFFF33', // Don't use it, use elevation colors
+        gradientNeutralBottomFadeSurfaceElevation1End: '#FFFFFF', // Don't use it, use elevation colors
         borderFocus: '#e2e2e2ff',
         borderDashed: '#cbcbcbff',
         borderOnElevation0: '#e2e2e2ff',
@@ -69,22 +114,17 @@ export const colorVariants = {
         borderSecondary: '#00854dff',
         borderAlertRed: '#cd4949ff',
         borderSubtleInverted: '#ffffff99',
+        ...backgroundElevationColors.standard,
+        ...backgroundTertiaryElevationColors.standard,
     },
     dark: {
         transparent: '#00000000',
-        backgroundSurfaceElevationNegative: '#000000ff',
-        backgroundSurfaceElevation0: '#0a0a0aff',
-        backgroundSurfaceElevation1: '#161716ff',
-        backgroundSurfaceElevation2: '#1c1e1cff',
-        backgroundSurfaceElevation3: '#242524ff',
         backgroundPrimaryDefault: '#61dbb7ff',
         backgroundPrimaryPressed: '#a7f1dbff',
         backgroundPrimarySubtleOnElevation0: '#0d211bff',
         backgroundPrimarySubtleOnElevation1: '#0e2f25ff',
         backgroundSecondaryDefault: '#2fbc81ff',
         backgroundSecondaryPressed: '#74dcb1ff',
-        backgroundTertiaryDefaultOnElevation0: '#161716ff',
-        backgroundTertiaryDefaultOnElevation1: '#1c1e1cff',
         backgroundTertiaryPressedOnElevation0: '#1c1e1cff',
         backgroundTertiaryPressedOnElevation1: '#242524ff',
         backgroundNeutralBold: '#ffffffff',
@@ -103,7 +143,7 @@ export const colorVariants = {
         backgroundAlertBlueSubtleOnElevation1: '#092734ff',
         backGroundOnboardingCard: '#000000BD',
         textDefault: '#ffffffff',
-        textDefaultInverse: '#ffffffff',
+        textDefaultInverse: '#000000ff',
         textSubdued: '#a2a4a3ff',
         textSecondaryHighlight: '#2fbc81ff',
         textOnPrimary: '#000000ff',
@@ -126,8 +166,8 @@ export const colorVariants = {
         iconAlertRed: '#c66262ff',
         iconAlertYellow: '#c29729ff',
         iconAlertBlue: '#2290bfff',
-        gradientNeutralBottomFadeSurfaceElevation1Start: '#00000033',
-        gradientNeutralBottomFadeSurfaceElevation1End: '#000000',
+        gradientNeutralBottomFadeSurfaceElevation1Start: '#00000033', // Don't use it, use elevation colors
+        gradientNeutralBottomFadeSurfaceElevation1End: '#000000', // Don't use it, use elevation colors
         borderFocus: '#242524ff',
         borderDashed: '#242524ff',
         borderOnElevation0: '#1c1e1cff',
@@ -136,8 +176,11 @@ export const colorVariants = {
         borderSecondary: '#2fbc81ff',
         borderAlertRed: '#ac3e3eff',
         borderSubtleInverted: '#00000099',
+        ...backgroundElevationColors.dark,
+        ...backgroundTertiaryElevationColors.dark,
     },
 } as const;
+
 export type Color = keyof typeof colorVariants.standard;
 export type Colors = Record<Color, CSSColor>;
 export type ThemeColorVariant = keyof typeof colorVariants;

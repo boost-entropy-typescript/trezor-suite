@@ -126,6 +126,14 @@ export default defineMessages({
         defaultMessage: 'Add account',
         id: 'TR_ADD_ACCOUNT',
     },
+    TR_ADD_NETWORK_ACCOUNT: {
+        defaultMessage: 'Add {network} account',
+        id: 'TR_ADD_NETWORK_ACCOUNT',
+    },
+    TR_SELECT_TYPE: {
+        defaultMessage: 'Select type',
+        id: 'TR_SELECT_TYPE',
+    },
     TR_ADD_HIDDEN_WALLET: {
         defaultMessage: 'Add hidden wallet',
         id: 'TR_ADD_HIDDEN_WALLET',
@@ -4349,9 +4357,13 @@ export default defineMessages({
         id: 'TR_ACCOUNT_TYPE',
         defaultMessage: 'Account type',
     },
-    TR_SELECT_COIN: {
-        id: 'TR_SELECT_COIN',
-        defaultMessage: 'Select coin',
+    TR_ACTIVATED_COINS: {
+        id: 'TR_ACTIVATED_COINS',
+        defaultMessage: 'Activated coins',
+    },
+    TR_INACTIVE_COINS: {
+        id: 'TR_INACTIVE_COINS',
+        defaultMessage: 'Not activated yet',
     },
     TR_ACTIVATE_COINS: {
         id: 'TR_ACTIVATE_COINS',
@@ -4374,10 +4386,6 @@ export default defineMessages({
         id: 'FW_CAPABILITY_CONNECT_OUTDATED',
         defaultMessage: 'Application update required',
         description: 'Firmware is too NEW use this coin (trezor-connect is outdated)',
-    },
-    MODAL_ADD_ACCOUNT_TITLE: {
-        id: 'MODAL_ADD_ACCOUNT_TITLE',
-        defaultMessage: 'New account',
     },
     MODAL_ADD_ACCOUNT_NO_ACCOUNT: {
         id: 'MODAL_ADD_ACCOUNT_NO_ACCOUNT',
@@ -5652,11 +5660,6 @@ export default defineMessages({
         defaultMessage:
             'Destination tag is a unique code to identify the receiver of a transaction.',
     },
-    DESTINATION_TAG_EXPLAINED: {
-        defaultMessage:
-            'Destination tag is an arbitrary number which serves as a unique identifier of your transaction. Some services may require this to process your transaction.',
-        id: 'DESTINATION_TAG_EXPLAINED',
-    },
     DESTINATION_TAG_NOT_SET: {
         defaultMessage: 'Destination tag is not set',
         id: 'DESTINATION_TAG_NOT_SET',
@@ -5672,10 +5675,6 @@ export default defineMessages({
     DATA_ETH: {
         id: 'DATA_ETH',
         defaultMessage: 'Data',
-    },
-    DATA_ETH_TOOLTIP: {
-        id: 'DATA_ETH_TOOLTIP',
-        defaultMessage: 'Data is usually used when you send transactions to contracts.',
     },
     DATA_ETH_ADD: {
         id: 'DATA_ETH_ADD',
@@ -5727,11 +5726,6 @@ export default defineMessages({
         id: 'SEND_RAW',
         description: 'item in dropdown menu',
         defaultMessage: 'Send raw',
-    },
-    SEND_RAW_TRANSACTION: {
-        id: 'SEND_RAW_TRANSACTION',
-        description: 'Send raw form header',
-        defaultMessage: 'Send raw transaction',
     },
     RAW_TRANSACTION: {
         id: 'RAW_TRANSACTION',
@@ -5962,6 +5956,10 @@ export default defineMessages({
         id: 'TR_GOOGLE_DRIVE',
         description:
             'Name of cloud provider. Intended to be translated only in languages that do not use latin script',
+    },
+    TR_LOCAL_FILE_SYSTEM: {
+        defaultMessage: 'Local file system',
+        id: 'TR_LOCAL_FILE_SYSTEM',
     },
     METADATA_MODAL_HEADING: {
         defaultMessage: 'Save labels',
@@ -6449,6 +6447,10 @@ export default defineMessages({
         id: 'TR_ACCOUNT_SEARCH_NO_RESULTS',
         defaultMessage: 'No results',
     },
+    TR_ACCOUNT_NO_ACCOUNTS: {
+        id: 'TR_ACCOUNT_NO_ACCOUNTS',
+        defaultMessage: 'No accounts',
+    },
     TR_COLOR_SCHEME: {
         id: 'TR_COLOR_SCHEME',
         defaultMessage: 'Color scheme',
@@ -6771,10 +6773,6 @@ export default defineMessages({
     TR_GUIDE_SUPPORT_AND_FEEDBACK: {
         id: 'TR_GUIDE_SUPPORT_AND_FEEDBACK',
         defaultMessage: 'Support & Feedback',
-    },
-    TR_GUIDE_CATEGORIES: {
-        id: 'TR_GUIDE_CATEGORIES',
-        defaultMessage: 'Categories',
     },
     TR_GUIDE_ARTICLES: {
         id: 'TR_GUIDE_ARTICLES',
@@ -7938,6 +7936,14 @@ export default defineMessages({
         id: 'TR_LOADING_FUNDS',
         defaultMessage: 'Loading Funds...',
     },
+    TR_LOADING_ACCOUNTS: {
+        id: 'TR_LOADING_ACCOUNTS',
+        defaultMessage: 'Loading accounts...',
+    },
+    TR_LOADING_ACCOUNTS_DESCRIPTION: {
+        id: 'TR_LOADING_ACCOUNTS_DESCRIPTION',
+        defaultMessage: 'You can change these settings after accounts are loaded.',
+    },
     TR_LOADING_FACT_TITLE: {
         id: 'TR_LOADING_FACT_TITLE',
         defaultMessage: 'Did you know?',
@@ -8130,47 +8136,38 @@ export default defineMessages({
     TR_SESSION_PHASE_ROUND_SEARCH: {
         id: 'TR_SESSION_PHASE_ROUND_SEARCH',
         defaultMessage: 'Looking for a round',
-        description: '29 symbols max',
     },
     TR_SESSION_PHASE_COIN_SELECTION: {
         id: 'TR_SESSION_PHASE_COIN_SELECTION',
         defaultMessage: 'Choosing coins',
-        description: '29 symbols max',
     },
     TR_SESSION_PHASE_ROUND_PAIRING: {
         id: 'TR_SESSION_PHASE_ROUND_PAIRING',
         defaultMessage: 'Selecting coins for the next round',
-        description: '29 symbols max',
     },
     TR_SESSION_PHASE_COIN_REGISTRATION: {
         id: 'TR_SESSION_PHASE_COIN_REGISTRATION',
         defaultMessage: 'Registering coins',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_MISSING_UTXOS: {
         id: 'TR_SESSION_ERROR_PHASE_MISSING_UTXOS',
         defaultMessage: 'Looking for available coins',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_SKIPPING_ROUND: {
         id: 'TR_SESSION_ERROR_PHASE_SKIPPING_ROUND',
         defaultMessage: 'Skipping round',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_RETRYING_PAIRING: {
         id: 'TR_SESSION_ERROR_PHASE_RETRYING_PAIRING',
         defaultMessage: 'Retrying pairing',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_AFFILIATE_SERVERS_OFFLINE: {
         id: 'TR_SESSION_ERROR_PHASE_AFFILIATE_SERVERS_OFFLINE',
         defaultMessage: 'The coinjoin service is temporarily unavailable',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_CRITICAL_ERROR: {
         id: 'TR_SESSION_ERROR_PHASE_CRITICAL_ERROR',
         defaultMessage: 'Critical error, stopping coinjoin.',
-        description: '29 symbols max',
     },
     TR_SESSION_ERROR_PHASE_BLOCKED_UTXOS: {
         id: 'TR_SESSION_ERROR_PHASE_BLOCKED_UTXOS',
@@ -8402,5 +8399,34 @@ export default defineMessages({
     TR_RESTART_TREZOR_DEVICE_TUTORIAL: {
         id: 'TR_RESTART_TREZOR_DEVICE_TUTORIAL',
         defaultMessage: 'Restart tutorial',
+    },
+    TR_HIDE_BALANCES: {
+        id: 'TR_HIDE_BALANCES',
+        defaultMessage: 'Hide balances',
+    },
+    TR_SHOW_BALANCES: {
+        id: 'TR_SHOW_BALANCES',
+        defaultMessage: 'Show balances',
+    },
+    TR_SEND_ADDRESS_SECTION: {
+        id: 'TR_SEND_ADDRESS_SECTION',
+        defaultMessage: 'To',
+    },
+    TR_SEND_RECIPIENT_ADDRESS: {
+        id: 'TR_SEND_RECIPIENT_ADDRESS',
+        defaultMessage:
+            '{index, selectordinal, one {#st} two {#nd} few {#rd} other {#th} } Recipient',
+    },
+    TR_DISCOVERY_NEW_COINS: {
+        id: 'TR_DISCOVERY_NEW_COINS',
+        defaultMessage: 'Activate coins',
+    },
+    TR_DISCOVERY_NEW_COINS_TEXT: {
+        id: 'TR_DISCOVERY_NEW_COINS_TEXT',
+        defaultMessage: "Don't see an account after activating coin?",
+    },
+    TR_SIDEBAR_ADD_COIN: {
+        id: 'TR_SIDEBAR_ADD_COIN',
+        defaultMessage: 'Add a coin',
     },
 });

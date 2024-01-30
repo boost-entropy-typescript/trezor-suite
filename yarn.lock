@@ -1730,12 +1730,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:7.23.2, @babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.12.0, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.1, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:7.23.2":
   version: 7.23.2
   resolution: "@babel/runtime@npm:7.23.2"
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
   checksum: abdcbdd590c7e31762e1bdab94dd466823c8bcedd3ff2fde85eeb94dac7cccaef151ac37c428bda7018ededd27c9a82b4dfeb621f978ad934232475a902f8e3a
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.12.0, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.6, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+  version: 7.23.9
+  resolution: "@babel/runtime@npm:7.23.9"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 9a520fe1bf72249f7dd60ff726434251858de15cccfca7aa831bd19d0d3fb17702e116ead82724659b8da3844977e5e13de2bae01eb8a798f2823a669f122be6
   languageName: node
   linkType: hard
 
@@ -5938,38 +5947,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-knobs@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@storybook/addon-knobs@npm:7.0.2"
-  dependencies:
-    copy-to-clipboard: "npm:^3.3.3"
-    core-js: "npm:^3.29.0"
-    escape-html: "npm:^1.0.3"
-    fast-deep-equal: "npm:^3.1.3"
-    global: "npm:^4.4.0"
-    lodash: "npm:^4.17.21"
-    prop-types: "npm:^15.8.1"
-    qs: "npm:^6.11.1"
-    react-colorful: "npm:^5.6.1"
-    react-lifecycles-compat: "npm:^3.0.4"
-    react-select: "npm:^5.7.0"
-  peerDependencies:
-    "@storybook/addons": ^7.0.0
-    "@storybook/api": ^7.0.0
-    "@storybook/components": ^7.0.0
-    "@storybook/core-events": ^7.0.0
-    "@storybook/theming": ^7.0.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: 6fdd170e35a39db61c9365170cf84f5e5f40214b854dfa57509d3c712b7aef7f3c3e036272c089c3a484268528f305a50ebd9288338aa03342767d764e515eb5
-  languageName: node
-  linkType: hard
-
 "@storybook/addon-links@npm:^7.5.3":
   version: 7.5.3
   resolution: "@storybook/addon-links@npm:7.5.3"
@@ -6689,6 +6666,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/assets@workspace:*, @suite-common/assets@workspace:suite-common/assets":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/assets@workspace:suite-common/assets"
+  dependencies:
+    "@suite-common/wallet-config": "workspace:*"
+    bignumber.js: "npm:^9.1.1"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/connect-init@workspace:*, @suite-common/connect-init@workspace:suite-common/connect-init":
   version: 0.0.0-use.local
   resolution: "@suite-common/connect-init@workspace:suite-common/connect-init"
@@ -6796,6 +6782,8 @@ __metadata:
     react: "npm:18.2.0"
     react-native: "npm:0.73.2"
     react-native-reanimated: "npm:3.7.0-nightly-20240101-9d365ae7b"
+    react-svg: "npm:^16.1.17"
+    styled-components: "npm:^5.3.10"
     svgo: "npm:3.0.2"
     tsx: "npm:^4.6.2"
     typescript: "npm:5.3.2"
@@ -7286,6 +7274,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@react-navigation/native": "npm:6.1.9"
+    "@suite-common/assets": "workspace:*"
     "@suite-common/icons": "workspace:*"
     "@suite-common/suite-config": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -8401,14 +8390,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanem/svg-injector@npm:^10.1.66":
-  version: 10.1.67
-  resolution: "@tanem/svg-injector@npm:10.1.67"
+"@tanem/svg-injector@npm:^10.1.68":
+  version: 10.1.68
+  resolution: "@tanem/svg-injector@npm:10.1.68"
   dependencies:
-    "@babel/runtime": "npm:^7.23.1"
+    "@babel/runtime": "npm:^7.23.2"
     content-type: "npm:^1.0.5"
     tslib: "npm:^2.6.2"
-  checksum: b130e4dd03b219ef66408e1e01d14106fab68c16af5143545a223f36bbeb41b9dceb1b39e138e69926d73348428959b0d70964dd837815b8cca217a2eec98862
+  checksum: abf81ba51632f8c6bc299e9a46818a215cecffc56c196ccb9503d9159866e36658c29e7f04bb1ed43c3dd87089de1f0393f7696ed0d858eb2efc0893f020e534
   languageName: node
   linkType: hard
 
@@ -8608,19 +8597,21 @@ __metadata:
   dependencies:
     "@storybook/addon-actions": "npm:^7.5.3"
     "@storybook/addon-controls": "npm:^7.5.3"
-    "@storybook/addon-knobs": "npm:^7.0.2"
     "@storybook/addon-links": "npm:^7.5.3"
     "@storybook/addon-viewport": "npm:^7.5.3"
     "@storybook/addons": "npm:^7.5.3"
     "@storybook/client-api": "npm:^7.5.3"
     "@storybook/react": "npm:^7.5.3"
     "@storybook/react-webpack5": "npm:^7.5.3"
+    "@suite-common/icons": "workspace:*"
     "@suite-common/validators": "workspace:*"
     "@tippyjs/react": "npm:^4.2.6"
     "@trezor/connect": "workspace:*"
     "@trezor/dom-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/react-utils": "workspace:*"
+    "@trezor/styles": "workspace:*"
+    "@trezor/theme": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.0.32"
     "@types/react-date-range": "npm:^1.4.7"
@@ -9034,6 +9025,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/node-utils@workspace:packages/node-utils"
   dependencies:
+    "@trezor/type-utils": "workspace:*"
+    "@trezor/utils": "workspace:*"
     jest: "npm:29.5.0"
     typescript: "npm:5.3.2"
   languageName: unknown
@@ -9116,6 +9109,7 @@ __metadata:
     jest: "npm:29.5.0"
     prettier: "npm:^3.0.3"
     ts-mixer: "npm:^6.0.3"
+    tsx: "npm:^4.6.2"
     typescript: "npm:5.3.2"
   languageName: unknown
   linkType: soft
@@ -9267,6 +9261,7 @@ __metadata:
     "@trezor/coinjoin": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/connect-common": "workspace:*"
+    "@trezor/env-utils": "workspace:*"
     "@trezor/ipc-proxy": "workspace:*"
     "@trezor/node-utils": "workspace:*"
     "@trezor/request-manager": "workspace:*"
@@ -9309,6 +9304,7 @@ __metadata:
     "@trezor/suite": "workspace:*"
     "@trezor/suite-analytics": "workspace:*"
     "@trezor/suite-desktop-api": "workspace:*"
+    "@trezor/theme": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.0.32"
@@ -9389,6 +9385,7 @@ __metadata:
     cypress: "npm:^13.4.0"
     cypress-file-upload: "npm:^5.0.8"
     cypress-image-snapshot: "npm:^4.0.1"
+    cypress-real-events: "npm:^1.11.0"
     jest: "npm:29.5.0"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
@@ -9423,10 +9420,12 @@ __metadata:
     "@solana/buffer-layout": "npm:^4.0.1"
     "@solana/web3.js": "npm:^1.87.6"
     "@suite-common/analytics": "workspace:*"
+    "@suite-common/assets": "workspace:*"
     "@suite-common/connect-init": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/formatters": "workspace:*"
+    "@suite-common/icons": "workspace:*"
     "@suite-common/intl-types": "workspace:*"
     "@suite-common/invity": "workspace:*"
     "@suite-common/logger": "workspace:*"
@@ -9461,10 +9460,12 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/ipc-proxy": "workspace:*"
     "@trezor/react-utils": "workspace:*"
+    "@trezor/styles": "workspace:*"
     "@trezor/suite-analytics": "workspace:*"
     "@trezor/suite-data": "workspace:*"
     "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/suite-storage": "workspace:*"
+    "@trezor/theme": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -10698,10 +10699,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:*, @types/prop-types@npm:^15.7.8":
-  version: 15.7.9
-  resolution: "@types/prop-types@npm:15.7.9"
-  checksum: c7591d3ff7593e243908a07e1d3e2bb6e8879008af5800d8378115a90d0fdf669a1cae72a6d7f69e59c4fa7bb4c8ed61f6ebc1c520fe110c6f2b03ac02414072
+"@types/prop-types@npm:*, @types/prop-types@npm:^15.7.11":
+  version: 15.7.11
+  resolution: "@types/prop-types@npm:15.7.11"
+  checksum: 7519ff11d06fbf6b275029fe03fff9ec377b4cb6e864cac34d87d7146c7f5a7560fd164bdc1d2dbe00b60c43713631251af1fd3d34d46c69cd354602bc0c7c54
   languageName: node
   linkType: hard
 
@@ -14797,7 +14798,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"copy-to-clipboard@npm:^3.3.1, copy-to-clipboard@npm:^3.3.3":
+"copy-to-clipboard@npm:^3.3.1":
   version: 3.3.3
   resolution: "copy-to-clipboard@npm:3.3.3"
   dependencies:
@@ -14854,7 +14855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.29.0, core-js@npm:^3.30.2":
+"core-js@npm:^3.30.2":
   version: 3.32.0
   resolution: "core-js@npm:3.32.0"
   checksum: b08473c4cb2963e7428fddc5b519abf74b6262da731beb6caf05c617349149d58bd221b91f85c6f0e91e709e873dc017cce2259f3b2b7377c4c08a556230f5f1
@@ -15392,6 +15393,15 @@ __metadata:
   peerDependencies:
     cypress: ^4.5.0
   checksum: 0020ba6589582235da8585c9767dc79437ac4ff9adca05eeda2d29483e4e25e0d9bbd3aa31ef917ad0e300c87d7daf2c618f6178c8e8626a12dbb77d7d581e09
+  languageName: node
+  linkType: hard
+
+"cypress-real-events@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "cypress-real-events@npm:1.11.0"
+  peerDependencies:
+    cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+  checksum: ff1afe226a1ab0c8463436b2c9595dd6f89a950d436692ed1310348ad4562735c106ca8436675cbca5642b2c62203f486e9f80f8d78ceca2c38e147ba3cdba73
   languageName: node
   linkType: hard
 
@@ -16241,13 +16251,6 @@ __metadata:
     domhandler: "npm:^5.0.2"
     entities: "npm:^4.2.0"
   checksum: e3bf9027a64450bca0a72297ecdc1e3abb7a2912268a9f3f5d33a2e29c1e2c3502c6e9f860fc6625940bfe0cfb57a44953262b9e94df76872fdfb8151097eeb3
-  languageName: node
-  linkType: hard
-
-"dom-walk@npm:^0.1.0":
-  version: 0.1.2
-  resolution: "dom-walk@npm:0.1.2"
-  checksum: 19eb0ce9c6de39d5e231530685248545d9cd2bd97b2cb3486e0bfc0f2a393a9addddfd5557463a932b52fdfcf68ad2a619020cd2c74a5fe46fbecaa8e80872f3
   languageName: node
   linkType: hard
 
@@ -19553,16 +19556,6 @@ __metadata:
     kind-of: "npm:^6.0.2"
     which: "npm:^1.3.1"
   checksum: a405b9f83c7d88a49dc1c1e458d6585e258356810d3d0f41094265152a06a0f393b14d911f45616e35a4ce3894176a73be2984883575e778f55e90bf812d7337
-  languageName: node
-  linkType: hard
-
-"global@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "global@npm:4.4.0"
-  dependencies:
-    min-document: "npm:^2.19.0"
-    process: "npm:^0.11.10"
-  checksum: 9c057557c8f5a5bcfbeb9378ba4fe2255d04679452be504608dd5f13b54edf79f7be1db1031ea06a4ec6edd3b9f5f17d2d172fb47e6c69dae57fd84b7e72b77f
   languageName: node
   linkType: hard
 
@@ -24530,15 +24523,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"min-document@npm:^2.19.0":
-  version: 2.19.0
-  resolution: "min-document@npm:2.19.0"
-  dependencies:
-    dom-walk: "npm:^0.1.0"
-  checksum: 4e45a0686c81cc04509989235dc6107e2678a59bb48ce017d3c546d7d9a18d782e341103e66c78081dd04544704e2196e529905c41c2550bca069b69f95f07c8
-  languageName: node
-  linkType: hard
-
 "min-indent@npm:^1.0.0, min-indent@npm:^1.0.1":
   version: 1.0.1
   resolution: "min-indent@npm:1.0.1"
@@ -27256,7 +27240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.10.0, qs@npm:^6.11.1":
+"qs@npm:^6.10.0":
   version: 6.11.2
   resolution: "qs@npm:6.11.2"
   dependencies:
@@ -27425,7 +27409,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-colorful@npm:^5.1.2, react-colorful@npm:^5.6.1":
+"react-colorful@npm:^5.1.2":
   version: 5.6.1
   resolution: "react-colorful@npm:5.6.1"
   peerDependencies:
@@ -28065,7 +28049,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select@npm:^5.7.0, react-select@npm:^5.8.0":
+"react-select@npm:^5.8.0":
   version: 5.8.0
   resolution: "react-select@npm:5.8.0"
   dependencies:
@@ -28137,18 +28121,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-svg@npm:^16.1.29":
-  version: 16.1.29
-  resolution: "react-svg@npm:16.1.29"
+"react-svg@npm:^16.1.17, react-svg@npm:^16.1.29":
+  version: 16.1.32
+  resolution: "react-svg@npm:16.1.32"
   dependencies:
-    "@babel/runtime": "npm:^7.23.1"
-    "@tanem/svg-injector": "npm:^10.1.66"
-    "@types/prop-types": "npm:^15.7.8"
+    "@babel/runtime": "npm:^7.23.6"
+    "@tanem/svg-injector": "npm:^10.1.68"
+    "@types/prop-types": "npm:^15.7.11"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 7147cc4336d75eb707e2c032e2a25fa874163b5e819eb3b7db980a0492dd5f8694e3db3bd1f4365405177832c3d65c99b5f8f559e145f931f00a68ffd8e02633
+  checksum: f85015e9a84765481696bf129a25b7a8eb879b273554253b1b5eb2fbe5e7f6fba82ad5179eb9e272d2523a8d95fd88053b5665ca885c84288a2c12b1dab7f2ac
   languageName: node
   linkType: hard
 

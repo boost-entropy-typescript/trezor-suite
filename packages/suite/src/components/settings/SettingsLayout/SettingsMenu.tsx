@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { goto } from 'src/actions/suite/routerActions';
 import { setDebugMode } from 'src/actions/suite/suiteActions';
 import { FADE_IN } from '@trezor/components/src/config/animations';
-import { AppNavigationItem } from 'src/components/suite/AppNavigation/AppNavigation';
+import { NavigationItem } from 'src/components/suite/AppNavigation/AppNavigation';
 import { desktopApi } from '@trezor/suite-desktop-api';
+import { selectIsLoggedOut } from 'src/reducers/suite/suiteReducer';
 
 const CloseButtonWrapper = styled.div<{ isAppNavigationPanelInView?: boolean }>`
     position: absolute;
@@ -32,6 +33,8 @@ export const SettingsMenu = () => {
     const settingsBackRoute = useSelector(state => state.router.settingsBackRoute);
     const showDebugMenu = useSelector(state => state.suite.settings.debug.showDebugMenu);
     const initialRun = useSelector(state => state.suite.flags.initialRun);
+    const isLoggedOut = useSelector(selectIsLoggedOut);
+
     const dispatch = useDispatch();
 
     const handleTitleClick = () => {
@@ -61,7 +64,7 @@ export const SettingsMenu = () => {
             }),
         );
 
-    const appNavItems = useMemo<Array<AppNavigationItem>>(
+    const appNavItems = useMemo<Array<NavigationItem>>(
         () => [
             {
                 id: 'settings-index',
@@ -98,7 +101,6 @@ export const SettingsMenu = () => {
 
     return (
         <AppNavigationPanel
-            maxWidth="small"
             title={
                 <span
                     aria-hidden="true"
@@ -108,16 +110,18 @@ export const SettingsMenu = () => {
                     <Translation id="TR_SETTINGS" />
                 </span>
             }
-            navigation={<AppNavigation maxWidth="default" items={appNavItems} />}
-            titleContent={isAppNavigationPanelInView => (
-                <CloseButtonWrapper isAppNavigationPanelInView={isAppNavigationPanelInView}>
-                    <CloseButtonSticky
-                        isAppNavigationPanelInView={isAppNavigationPanelInView}
-                        onClick={handleClose}
-                        data-test="@settings/menu/close"
-                    />
-                </CloseButtonWrapper>
-            )}
+            navigation={<AppNavigation items={appNavItems} />}
+            titleContent={isAppNavigationPanelInView =>
+                isLoggedOut && (
+                    <CloseButtonWrapper isAppNavigationPanelInView={isAppNavigationPanelInView}>
+                        <CloseButtonSticky
+                            isAppNavigationPanelInView={isAppNavigationPanelInView}
+                            onClick={handleClose}
+                            data-test="@settings/menu/close"
+                        />
+                    </CloseButtonWrapper>
+                )
+            }
         />
     );
 };
