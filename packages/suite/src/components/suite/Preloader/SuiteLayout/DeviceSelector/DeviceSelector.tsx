@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, MouseEventHandler } from 'react';
 
 import styled, { css } from 'styled-components';
 
 import { Image, Icon, DeviceAnimation } from '@trezor/components';
-import { selectDevicesCount, selectDevice } from '@suite-common/wallet-core';
+import { selectDevicesCount, selectDevice, acquireDevice } from '@suite-common/wallet-core';
 import * as deviceUtils from '@suite-common/suite-utils';
 import type { Timeout } from '@trezor/type-utils';
 import { SHAKE } from 'src/support/suite/styles/animations';
@@ -28,9 +28,9 @@ const CaretContainer = styled.div`
 const Wrapper = styled.div<{ isAnimationTriggered?: boolean }>`
     position: relative;
     display: flex;
-    gap: ${spacingsPx.xs};
+    gap: ${spacingsPx.md};
     width: 100%;
-    padding: ${spacingsPx.md} ${spacingsPx.sm} ${spacingsPx.md} ${spacingsPx.md};
+    padding: ${spacingsPx.md} ${spacingsPx.md} ${spacingsPx.md} ${spacingsPx.md};
     align-items: center;
     cursor: pointer;
     border-radius: ${borders.radii.sm};
@@ -57,6 +57,7 @@ const Wrapper = styled.div<{ isAnimationTriggered?: boolean }>`
 
 const DeviceLabel = styled.div`
     ${typography.body};
+    margin-bottom: -${spacingsPx.xxs};
     min-width: 0;
     color: ${({ theme }) => theme.textDefault};
     overflow: hidden;
@@ -64,12 +65,12 @@ const DeviceLabel = styled.div`
 `;
 
 const DeviceWrapper = styled.div<{ isLowerOpacity: boolean }>`
-    margin-right: 14px;
+    display: flex;
     opacity: ${({ isLowerOpacity }) => isLowerOpacity && 0.4};
 `;
 
 const StyledImage = styled(Image)`
-    height: 34px;
+    width: 24px;
 
     /* do not apply the darkening filter in dark mode on device images */
     filter: none;
@@ -155,6 +156,13 @@ export const DeviceSelector = () => {
             }),
         );
 
+    const handleRefreshClick: MouseEventHandler = e => {
+        e.stopPropagation();
+        if (deviceNeedsRefresh) {
+            dispatch(acquireDevice(selectedDevice));
+        }
+    };
+
     return (
         <Wrapper
             data-test="@menu/switch-device"
@@ -168,11 +176,13 @@ export const DeviceSelector = () => {
                         {selectedDeviceModelInternal === DeviceModelInternal.T2B1 && (
                             <DeviceAnimation
                                 type="ROTATE"
-                                size={34}
+                                height="34px"
+                                width="24px"
                                 deviceModelInternal={selectedDeviceModelInternal}
                                 deviceUnitColor={selectedDevice?.features?.unit_color}
                             />
                         )}
+
                         {selectedDeviceModelInternal !== DeviceModelInternal.T2B1 && (
                             <StyledImage
                                 alt="Trezor"
@@ -180,9 +190,12 @@ export const DeviceSelector = () => {
                             />
                         )}
                     </DeviceWrapper>
+
                     <DeviceDetail>
                         <DeviceLabel>{selectedDevice.label}</DeviceLabel>
+
                         <DeviceStatusText
+                            onRefreshClick={handleRefreshClick}
                             device={selectedDevice}
                             walletLabel={
                                 walletLabel === undefined || walletLabel.trim() === ''
@@ -191,9 +204,12 @@ export const DeviceSelector = () => {
                             }
                         />
                     </DeviceDetail>
-                    <CaretContainer>
-                        <Icon size={20} icon="CARET_CIRCLE_DOWN" />
-                    </CaretContainer>
+
+                    {selectedDevice.state && (
+                        <CaretContainer>
+                            <Icon size={20} icon="CARET_CIRCLE_DOWN" />
+                        </CaretContainer>
+                    )}
                 </>
             )}
         </Wrapper>

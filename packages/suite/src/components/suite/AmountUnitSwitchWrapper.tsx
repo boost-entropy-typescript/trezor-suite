@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { MouseEvent, ReactNode } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '@trezor/components';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
@@ -36,6 +36,11 @@ export const AmountUnitSwitchWrapper = ({ symbol, children }: AmountUnitSwitchWr
         return <>{children}</>;
     }
 
+    const handleToggleBitcoinAmountUnits = (e: MouseEvent) => {
+        toggleBitcoinAmountUnits();
+        e.stopPropagation();
+    };
+
     return (
         <Tooltip
             cursor="default"
@@ -47,7 +52,7 @@ export const AmountUnitSwitchWrapper = ({ symbol, children }: AmountUnitSwitchWr
             content={<Translation id={areSatsDisplayed ? 'TR_TO_BTC' : 'TR_TO_SATOSHIS'} />}
         >
             <Container
-                onClick={toggleBitcoinAmountUnits}
+                onClick={handleToggleBitcoinAmountUnits}
                 data-test={`amount-unit-switch/${symbol}`}
             >
                 {children}
