@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 
 import { TRANSPORT, TRANSPORT_ERROR } from '@trezor/transport';
 import { createDeferred, Deferred } from '@trezor/utils/lib/createDeferred';
+import { getSynchronize } from '@trezor/utils/lib/getSynchronize';
 import { storage } from '@trezor/connect-common';
 
 import { DataManager } from '../data/DataManager';
@@ -22,11 +23,13 @@ import {
     createTransportMessage,
     createResponseMessage,
     TransportInfo,
-    CoreMessage,
     UiPromise,
     AnyUiPromise,
     UiPromiseCreator,
     UiPromiseResponse,
+    IFrameCallMessage,
+    CoreRequestMessage,
+    CoreEventMessage,
 } from '../events';
 import { getMethod } from './method';
 import { AbstractMethod } from './AbstractMethod';
@@ -46,7 +49,8 @@ const _callMethods: AbstractMethod<any>[] = []; // generic type is irrelevant. o
 let _interactionTimeout: InteractionTimeout;
 let _deviceListInitTimeout: ReturnType<typeof setTimeout> | undefined;
 let _overridePromise: Promise<void> | undefined;
-let _getMethodPromise: Promise<AbstractMethod<any>> | undefined;
+
+const methodSynchronize = getSynchronize();
 
 // custom log
 const _log = initLog('Core');
@@ -58,7 +62,7 @@ const _log = initLog('Core');
  * @returns {void}
  * @memberof Core
  */
-const postMessage = (message: CoreMessage) => {
+const postMessage = (message: CoreEventMessage) => {
     if (message.event === RESPONSE_EVENT) {
         const index = _callMethods.findIndex(call => call && call.responseID === message.id);
         if (index >= 0) {
@@ -133,7 +137,7 @@ const removeUiPromise = (promise: Deferred<any>) => {
  * @returns {void}
  * @memberof Core
  */
-export const handleMessage = (message: CoreMessage) => {
+const handleMessage = (message: CoreRequestMessage) => {
     _log.debug('handleMessage', message);
 
     switch (message.type) {
@@ -143,10 +147,6 @@ export const handleMessage = (message: CoreMessage) => {
         case POPUP.CLOSED:
             onPopupClosed(message.payload ? message.payload.error : null);
             break;
-
-        // case UI.CHANGE_SETTINGS :
-        //     enableLog(parseSettings(message.payload).debug);
-        //     break;
 
         case TRANSPORT.DISABLE_WEBUSB:
             disableWebUSBTransport();
@@ -302,7 +302,7 @@ const initDevice = async (method: AbstractMethod<any>) => {
  * @returns {Promise<void>}
  * @memberof Core
  */
-export const onCall = async (message: CoreMessage) => {
+const onCall = async (message: IFrameCallMessage) => {
     if (!message.id || !message.payload || message.type !== IFRAME.CALL) {
         throw ERRORS.TypedError(
             'Method_InvalidParameter',
@@ -322,25 +322,22 @@ export const onCall = async (message: CoreMessage) => {
 
     // find method and parse incoming params
     let method: AbstractMethod<any>;
-    let messageResponse: CoreMessage;
+    let messageResponse: CoreEventMessage;
     try {
-        _log.debug('loading method...');
-        _getMethodPromise = getMethod(message);
-        method = await _getMethodPromise;
-        _log.debug('method selected', method.name);
-        // bind callbacks
-        method.postMessage = postMessage;
-        method.getPopupPromise = getPopupPromise;
-        method.createUiPromise = createUiPromise;
-        // start validation process
-        method.init();
-
+        method = await methodSynchronize(async () => {
+            _log.debug('loading method...');
+            const method = await getMethod(message);
+            _log.debug('method selected', method.name);
+            // bind callbacks
+            method.postMessage = postMessage;
+            method.getPopupPromise = getPopupPromise;
+            method.createUiPromise = createUiPromise;
+            // start validation process
+            method.init();
+            await method.initAsync?.();
+            return method;
+        });
         _callMethods.push(method);
-
-        if (method.initAsync) {
-            method.initAsyncPromise = method.initAsync();
-            await method.initAsyncPromise;
-        }
     } catch (error) {
         postMessage(createPopupMessage(POPUP.CANCEL_POPUP_REQUEST));
         postMessage(createResponseMessage(responseID, false, { error }));
@@ -368,7 +365,7 @@ export const onCall = async (message: CoreMessage) => {
 
     if (!_deviceList && !DataManager.getSettings('transportReconnect')) {
         // transport is missing try to initialize it once again
-        await initTransport(DataManager.getSettings());
+        await initDeviceList(false);
     }
 
     if (method.isManagementRestricted()) {
@@ -400,7 +397,7 @@ export const onCall = async (message: CoreMessage) => {
         throw error;
     }
 
-    method.postMessage = (message: CoreMessage) =>
+    method.postMessage = (message: CoreEventMessage) =>
         enhancePostMessageWithAnalytics(postMessage, message, { device: device.toMessageObject() });
 
     method.setDevice(device);
@@ -934,11 +931,11 @@ const handleDeviceSelectionChanges = (interruptDevice?: DeviceTyped) => {
 
 /**
  * Start DeviceList with listeners.
- * @param {ConnectSettings} settings
+ * @param {boolean} transportReconnect
  * @returns {Promise<void>}
  * @memberof Core
  */
-const initDeviceList = async (settings: ConnectSettings) => {
+const initDeviceList = async (transportReconnect?: boolean) => {
     try {
         _deviceList = new DeviceList();
 
@@ -973,11 +970,11 @@ const initDeviceList = async (settings: ConnectSettings) => {
 
             postMessage(createTransportMessage(TRANSPORT.ERROR, { error }));
             // if transport fails during app lifetime, try to reconnect
-            if (settings.transportReconnect) {
+            if (transportReconnect) {
                 const { promise, timeout } = resolveAfter(1000, null);
                 _deviceListInitTimeout = timeout;
                 promise.then(() => {
-                    initDeviceList(settings);
+                    initDeviceList(transportReconnect);
                 });
             }
         });
@@ -993,14 +990,14 @@ const initDeviceList = async (settings: ConnectSettings) => {
     } catch (error) {
         _deviceList = undefined;
         postMessage(createTransportMessage(TRANSPORT.ERROR, { error }));
-        if (!settings.transportReconnect) {
+        if (!transportReconnect) {
             throw error;
         } else {
             const { promise, timeout } = resolveAfter(3000, null);
             _deviceListInitTimeout = timeout;
             await promise;
             // try to reconnect
-            await initDeviceList(settings);
+            await initDeviceList(transportReconnect);
         }
     }
 };
@@ -1011,7 +1008,7 @@ const initDeviceList = async (settings: ConnectSettings) => {
  * @memberof Core
  */
 export class Core extends EventEmitter {
-    handleMessage(message: any) {
+    handleMessage(message: CoreRequestMessage) {
         handleMessage(message);
     }
 
@@ -1026,11 +1023,8 @@ export class Core extends EventEmitter {
         }
     }
 
-    async getCurrentMethod() {
-        if (_getMethodPromise) {
-            await _getMethodPromise;
-        }
-        return _callMethods[0];
+    getCurrentMethod() {
+        return methodSynchronize(() => _callMethods[0]);
     }
 
     getTransportInfo(): TransportInfo | undefined {
@@ -1058,6 +1052,7 @@ export class Core extends EventEmitter {
  */
 export const initCore = async (
     settings: ConnectSettings,
+    onCoreEvent: (message: CoreEventMessage) => void,
     logWriterFactory?: () => LogWriter | undefined,
 ) => {
     if (logWriterFactory) {
@@ -1073,27 +1068,27 @@ export const initCore = async (
             settings.popup ? settings.interactionTimeout : 0,
         );
 
-        return _core;
+        _core.on(CORE_EVENT, onCoreEvent);
     } catch (error) {
         // TODO: kill app
         _log.error('init', error);
         throw error;
     }
-};
 
-export const initTransport = async (settings: ConnectSettings) => {
     try {
-        if (!settings.transportReconnect) {
+        if (!DataManager.getSettings('transportReconnect')) {
             // try only once, if it fails kill and throw initialization error
-            await initDeviceList(settings);
+            await initDeviceList(false);
         } else {
             // don't wait for DeviceList result, further communication will be thru TRANSPORT events
-            initDeviceList(settings);
+            initDeviceList(true);
         }
     } catch (error) {
         _log.error('initTransport', error);
         throw error;
     }
+
+    return _core;
 };
 
 const disableWebUSBTransport = async () => {
@@ -1118,7 +1113,7 @@ const disableWebUSBTransport = async () => {
         // disconnect previous device list
         await _deviceList.dispose();
         // and init with new settings, without webusb
-        await initDeviceList(settings);
+        await initDeviceList(settings.transportReconnect);
     } catch (error) {
         // do nothing
     }
