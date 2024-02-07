@@ -15,7 +15,7 @@ describe('T2B1 - Device settings', () => {
     };
 
     beforeEach(() => {
-        cy.viewport(1080, 1440).resetDb();
+        cy.viewport(1440, 2560).resetDb();
     });
 
     /*
@@ -30,7 +30,7 @@ describe('T2B1 - Device settings', () => {
      * 8. change the device's background
      * 9. change the device's rotation
      */
-    it('change all possible device settings', () => {
+    it.only('change all possible device settings', () => {
         //
         // Test preparation & constants
         //

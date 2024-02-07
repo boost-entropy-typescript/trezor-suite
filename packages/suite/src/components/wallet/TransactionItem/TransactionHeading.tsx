@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { variables, Icon } from '@trezor/components';
 import { HELP_CENTER_ZERO_VALUE_ATTACKS } from '@trezor/urls';
-import { getIsZeroValuePhishing } from '@suite-common/suite-utils';
 import {
     FormattedCryptoAmount,
     TooltipSymbol,
@@ -19,6 +18,7 @@ import {
 import { TransactionHeader } from './TransactionHeader';
 import { WalletAccountTransaction } from 'src/types/wallet';
 import BigNumber from 'bignumber.js';
+import { BlurWrapper } from './TransactionItemBlurWrapper';
 
 const Wrapper = styled.span`
     display: flex;
@@ -52,9 +52,9 @@ const ChevronIconWrapper = styled.div<{ show: boolean; animate: boolean }>`
     }
 `;
 
-const StyledCryptoAmount = styled(FormattedCryptoAmount)<{ isZeroValuePhishing: boolean }>`
-    color: ${({ theme, isZeroValuePhishing }) =>
-        isZeroValuePhishing ? theme.TYPE_LIGHT_GREY : theme.TYPE_DARK_GREY};
+const StyledCryptoAmount = styled(FormattedCryptoAmount)<{ isPhishingTransaction: boolean }>`
+    color: ${({ theme, isPhishingTransaction }) =>
+        isPhishingTransaction ? theme.TYPE_LIGHT_GREY : theme.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     white-space: nowrap;
@@ -76,6 +76,7 @@ interface TransactionHeadingProps {
     txItemIsHovered: boolean;
     nestedItemIsHovered: boolean;
     onClick: () => void;
+    isPhishingTransaction: boolean;
     dataTestBase: string;
 }
 
@@ -86,6 +87,7 @@ export const TransactionHeading = ({
     txItemIsHovered,
     nestedItemIsHovered,
     onClick,
+    isPhishingTransaction,
     dataTestBase,
 }: TransactionHeadingProps) => {
     const [headingIsHovered, setHeadingIsHovered] = useState(false);
@@ -100,8 +102,6 @@ export const TransactionHeading = ({
     const transfer = transaction.tokens[0];
     const targetSymbol = transaction.type === 'self' ? transaction.symbol : symbol;
     let amount = null;
-
-    const isZeroValuePhishing = getIsZeroValuePhishing(transaction);
 
     if (useSingleRowLayout) {
         // For single token transaction instead of showing coin amount we rather show the token amount
@@ -119,7 +119,7 @@ export const TransactionHeading = ({
                 value={targetAmount}
                 symbol={targetSymbol}
                 signValue={operation}
-                isZeroValuePhishing={isZeroValuePhishing}
+                isPhishingTransaction={isPhishingTransaction}
             />
         );
     }
@@ -133,7 +133,7 @@ export const TransactionHeading = ({
                 value={formatNetworkAmount(abs, transaction.symbol)}
                 symbol={transaction.symbol}
                 signValue={transactionAmount}
-                isZeroValuePhishing={isZeroValuePhishing}
+                isPhishingTransaction={isPhishingTransaction}
             />
         );
     }
@@ -146,7 +146,7 @@ export const TransactionHeading = ({
                 onClick={onClick}
             >
                 <HeadingWrapper data-test={`${dataTestBase}/heading`}>
-                    {isZeroValuePhishing && (
+                    {isPhishingTransaction && (
                         <TooltipSymbol
                             content={
                                 <Translation
@@ -167,7 +167,9 @@ export const TransactionHeading = ({
                             icon="WARNING"
                         />
                     )}
-                    <TransactionHeader transaction={transaction} isPending={isPending} />
+                    <BlurWrapper isBlurred={isPhishingTransaction}>
+                        <TransactionHeader transaction={transaction} isPending={isPending} />
+                    </BlurWrapper>
                 </HeadingWrapper>
 
                 <ChevronIconWrapper
