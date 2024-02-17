@@ -13,16 +13,25 @@ export class ServiceWorkerWindowChannel<
     IncomingMessages extends { type: string },
 > extends AbstractMessageChannel<IncomingMessages> {
     private port: chrome.runtime.Port | undefined;
+    private name: string;
+    private allowSelfOrigin: boolean;
+    private currentId?: () => number | undefined;
 
     constructor({
         name,
         channel,
         logger,
         lazyHandshake,
+        legacyMode,
         allowSelfOrigin = false,
-    }: Pick<AbstractMessageChannelConstructorParams, 'channel' | 'logger' | 'lazyHandshake'> & {
+        currentId,
+    }: Pick<
+        AbstractMessageChannelConstructorParams,
+        'channel' | 'logger' | 'lazyHandshake' | 'legacyMode'
+    > & {
         name: string;
         allowSelfOrigin?: boolean;
+        currentId?: () => number | undefined;
     }) {
         super({
             channel,
@@ -32,12 +41,21 @@ export class ServiceWorkerWindowChannel<
             },
             logger,
             lazyHandshake,
+            legacyMode,
         });
+        this.name = name;
+        this.allowSelfOrigin = allowSelfOrigin;
+        this.currentId = currentId;
+        this.connect();
+    }
 
+    connect() {
         chrome.runtime.onConnect.addListener(port => {
-            if (port.name !== name) return;
-            this.port = port;
+            if (port.name !== this.name) return;
+            // Ignore port if name does match, but port created by different popup
+            if (this.currentId?.() && this.currentId?.() !== port.sender?.tab?.id) return;
 
+            this.port = port;
             this.port.onMessage.addListener((message: Message<IncomingMessages>, { sender }) => {
                 if (!sender) {
                     this.logger?.error('service-worker-window', 'no sender');
@@ -77,18 +95,20 @@ export class ServiceWorkerWindowChannel<
                 }
 
                 // TODO: not completely sure that is necessary to prevent self origin communication sometimes.
-
-                if (origin === self.origin && !allowSelfOrigin) {
+                if (origin === self.origin && !this.allowSelfOrigin) {
                     return;
                 }
 
                 this.onMessage(message);
             });
         });
+        this.isConnected = true;
     }
 
     disconnect() {
+        if (!this.isConnected) return;
         this.port?.disconnect();
         this.clear();
+        this.isConnected = false;
     }
 }

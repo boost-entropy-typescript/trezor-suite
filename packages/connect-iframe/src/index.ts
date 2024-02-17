@@ -108,7 +108,7 @@ const handleMessage = async (event: MessageEvent<CoreRequestMessage>) => {
         _log.debug('loading current method');
         const method = await _core.getCurrentMethod();
 
-        if (method.info) {
+        if (method?.info) {
             postMessage(
                 createPopupMessage(POPUP.METHOD_INFO, {
                     method: method.name,
@@ -132,8 +132,8 @@ const handleMessage = async (event: MessageEvent<CoreRequestMessage>) => {
                 origin: settings?.origin,
                 referrerApp: settings?.manifest?.appUrl,
                 referrerEmail: settings?.manifest?.email,
-                method: method.name,
-                payload: method.payload ? Object.keys(method.payload) : undefined,
+                method: method?.name,
+                payload: method?.payload ? Object.keys(method.payload) : undefined,
                 transportType: transport?.type,
                 transportVersion: transport?.version,
             },
@@ -233,6 +233,7 @@ const postMessage = (message: CoreEventMessage) => {
     if (!usingPopup || shouldUiEventBeSentToHost(message)) {
         let origin = DataManager.getSettings('origin');
         if (!origin || origin.indexOf('file://') >= 0) origin = '*';
+        message.channel = { here: '@trezor/connect-iframe', peer: '@trezor/connect-web' };
         window.parent.postMessage(message, origin);
     }
 };

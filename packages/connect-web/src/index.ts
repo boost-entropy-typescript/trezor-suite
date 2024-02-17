@@ -40,7 +40,7 @@ let _popupManager: popup.PopupManager | undefined;
 const messagePromises = createDeferredManager({ initialId: 1 });
 
 const initPopupManager = () => {
-    const pm = new popup.PopupManager(_settings);
+    const pm = new popup.PopupManager(_settings, { logger: _log });
     pm.on(POPUP.CLOSED, (error?: string) => {
         iframe.postMessage({
             type: POPUP.CLOSED,
@@ -233,7 +233,7 @@ const call: CallMethod = async params => {
     } catch (error) {
         _log.error('__call error', error);
         if (_popupManager) {
-            _popupManager.clear();
+            _popupManager.clear(false);
         }
         return createErrorMessage(error);
     }
