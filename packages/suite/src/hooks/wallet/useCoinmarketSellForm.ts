@@ -9,10 +9,11 @@ import {
     getFeeLevels,
     amountToSatoshi,
     formatAmount,
+    getFiatRateKey,
 } from '@suite-common/wallet-utils';
 import { useDidUpdate } from '@trezor/react-utils';
 import { isChanged } from '@suite-common/suite-utils';
-import { selectDevice, selectCoinsLegacy } from '@suite-common/wallet-core';
+import { selectDevice, selectFiatRatesByFiatRateKey } from '@suite-common/wallet-core';
 
 import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import invityAPI from 'src/services/suite/invityAPI';
@@ -51,6 +52,8 @@ import { useCompose } from './form/useCompose';
 import { useFees } from './form/useFees';
 import { AddressDisplayOptions, selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
 import { networkToCryptoSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
+import { FiatCurrencyCode } from '@suite-common/suite-config';
+import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 
 export const SellFormContext = createContext<SellFormContextValues | null>(null);
 SellFormContext.displayName = 'CoinmarketSellContext';
@@ -90,8 +93,7 @@ export const useCoinmarketSellForm = ({
 
     const accounts = useSelector(state => state.wallet.accounts);
     const device = useSelector(selectDevice);
-    const coins = useSelector(selectCoinsLegacy);
-    const localCurrency = useSelector(state => state.wallet.settings.localCurrency);
+    const localCurrency = useSelector(selectLocalCurrency);
     const fees = useSelector(state => state.wallet.fees);
     const sellInfo = useSelector(state => state.wallet.coinmarket.sell.sellInfo);
     const quotesRequest = useSelector(state => state.wallet.coinmarket.sell.quotesRequest);
@@ -106,7 +108,6 @@ export const useCoinmarketSellForm = ({
     const levels = getFeeLevels(networkType, coinFees);
     const feeInfo = { ...coinFees, levels };
     const symbolForFiat = mapTestnetSymbol(symbol);
-    const fiatRates = coins.find(item => item.symbol === symbolForFiat);
     const localCurrencyOption = { value: localCurrency, label: localCurrency.toUpperCase() };
 
     const [state, setState] = useState<ReturnType<typeof useSellState>>(undefined);
@@ -171,9 +172,15 @@ export const useCoinmarketSellForm = ({
 
     const values = useWatch<SellFormState>({ control });
 
+    const currency: { value: string; label: string } | undefined = getValues(FIAT_CURRENCY_SELECT);
+
+    const fiatRateKey = getFiatRateKey(symbolForFiat, currency?.value as FiatCurrencyCode);
+    const fiatRate = useSelector(state => selectFiatRatesByFiatRateKey(state, fiatRateKey));
+
     useEffect(() => {
         if (!isChanged(defaultValues, values)) {
             removeDraft(account.key);
+
             return;
         }
 
@@ -267,13 +274,14 @@ export const useCoinmarketSellForm = ({
             setValue('setMaxOutputId', undefined, { shouldDirty: true });
             clearErrors(CRYPTO_INPUT);
             const currency: typeof defaultCurrency | undefined = getValues(FIAT_CURRENCY_SELECT);
-            if (!fiatRates || !fiatRates.current || !currency) return;
+            if (!fiatRate?.rate || !currency) return;
 
             const cryptoValue = fromFiatCurrency(
                 amount,
                 currency.value.toLowerCase(),
-                fiatRates.current.rates,
+                fiatRate,
                 network.decimals,
+                false,
             );
             const cryptoInputValue =
                 cryptoValue && shouldSendInSats
@@ -289,7 +297,7 @@ export const useCoinmarketSellForm = ({
             setValue,
             clearErrors,
             getValues,
-            fiatRates,
+            fiatRate,
             shouldSendInSats,
             network.decimals,
             composeRequest,
@@ -391,7 +399,7 @@ export const useCoinmarketSellForm = ({
         localCurrencyOption,
         feeInfo,
         composeRequest,
-        fiatRates,
+        fiatRate,
         isComposing,
         amountLimits,
         setAmountLimits,
@@ -410,5 +418,6 @@ export const useCoinmarketSellForm = ({
 export const useCoinmarketSellFormContext = () => {
     const context = useContext(SellFormContext);
     if (context === null) throw Error('SellFormContext used without Context');
+
     return context;
 };

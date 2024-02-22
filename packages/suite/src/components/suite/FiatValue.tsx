@@ -57,7 +57,7 @@ export const FiatValue = ({
     fiatAmountFormatterOptions,
     shouldConvert = true,
 }: FiatValueProps) => {
-    const { targetCurrency, fiatAmount, ratesSource, currentFiatRates } = useFiatFromCryptoValue({
+    const { targetCurrency, fiatAmount, ratesSource, currentRate } = useFiatFromCryptoValue({
         amount,
         symbol,
         tokenAddress,
@@ -89,12 +89,14 @@ export const FiatValue = ({
             </SameWidthNums>
         ) : null;
         if (!children) return fiatValueComponent;
+
         return children({
             value: fiatValueComponent,
             rate: fiatRateComponent,
-            timestamp: useCustomSource ? null : currentFiatRates?.ts ?? null,
+            timestamp: useCustomSource ? null : currentRate?.lastSuccessfulFetchTimestamp ?? null,
         });
     }
     if (!children) return null;
+
     return children({ value: null, rate: null, timestamp: null });
 };
