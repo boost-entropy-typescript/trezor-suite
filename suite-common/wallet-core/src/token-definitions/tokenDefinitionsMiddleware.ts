@@ -1,40 +1,66 @@
+import { Account, Timestamp, TokenAddress } from 'suite-common/wallet-types/src';
+import { isAnyOf } from '@reduxjs/toolkit';
+
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
-import { getNetworkFeatures, isEthereumBasedNetwork, networks } from '@suite-common/wallet-config';
+import {
+    NetworkSymbol,
+    getNetworkFeatures,
+    isEthereumBasedNetwork,
+    networks,
+} from '@suite-common/wallet-config';
 
 import { accountsActions } from '../accounts/accountsActions';
 import { getTokenDefinitionThunk } from './tokenDefinitionsThunks';
 import { selectSpecificTokenDefinition } from './tokenDefinitionsSelectors';
+import { updateFiatRatesThunk } from '../fiat-rates/fiatRatesThunks';
 
 export const prepareTokenDefinitionsMiddleware = createMiddlewareWithExtraDeps(
-    (action, { dispatch, next, getState }) => {
+    (action, { dispatch, extra, next, getState }) => {
+        const {
+            selectors: { selectLocalCurrency },
+        } = extra;
+
         next(action);
 
         if (
-            accountsActions.createAccount.match(action) ||
-            accountsActions.updateAccount.match(action)
+            isAnyOf(
+                accountsActions.createAccount,
+                accountsActions.updateAccount,
+                accountsActions.updateSelectedAccount,
+            )(action)
         ) {
-            const { symbol } = action.payload;
+            let account: Account;
+            if (isAnyOf(accountsActions.createAccount, accountsActions.updateAccount)(action)) {
+                account = action.payload;
+            } else if (
+                accountsActions.updateSelectedAccount.match(action) &&
+                action.payload.status === 'loaded'
+            ) {
+                account = action.payload.account;
+            } else {
+                return action;
+            }
 
-            const networkFeatures = getNetworkFeatures(symbol);
+            const networkFeatures = getNetworkFeatures(account.symbol);
 
             if (networkFeatures.includes('token-definitions')) {
-                action.payload.tokens?.forEach(token => {
+                account.tokens?.forEach(token => {
                     const contractAddress = token.contract;
 
                     const tokenDefinition = selectSpecificTokenDefinition(
                         getState(),
-                        symbol,
+                        account.symbol,
                         contractAddress,
                     );
 
-                    const network = networks[symbol];
+                    const network = networks[account.symbol];
                     if (
                         isEthereumBasedNetwork(network) &&
                         (!tokenDefinition || tokenDefinition.error)
                     ) {
                         dispatch(
                             getTokenDefinitionThunk({
-                                networkSymbol: symbol,
+                                networkSymbol: account.symbol,
                                 chainId: network.chainId,
                                 contractAddress,
                             }),
@@ -42,6 +68,20 @@ export const prepareTokenDefinitionsMiddleware = createMiddlewareWithExtraDeps(
                     }
                 });
             }
+        }
+
+        if (getTokenDefinitionThunk.fulfilled.match(action)) {
+            dispatch(
+                updateFiatRatesThunk({
+                    ticker: {
+                        symbol: action.meta.arg.networkSymbol as NetworkSymbol,
+                        tokenAddress: action.meta.arg.contractAddress as TokenAddress,
+                    },
+                    localCurrency: selectLocalCurrency(getState()),
+                    rateType: 'current',
+                    lastSuccessfulFetchTimestamp: Date.now() as Timestamp,
+                }),
+            );
         }
 
         return action;
