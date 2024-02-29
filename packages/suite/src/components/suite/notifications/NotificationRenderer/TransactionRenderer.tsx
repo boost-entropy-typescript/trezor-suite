@@ -24,9 +24,12 @@ import {
 import { goto } from 'src/actions/suite/routerActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { getTxAnchor } from 'src/utils/suite/anchor';
+import { isStakeTypeTx } from '@suite-common/suite-utils';
 
 type TransactionRendererProps = NotificationViewProps &
-    NotificationRendererProps<'tx-sent' | 'tx-received' | 'tx-confirmed'>;
+    NotificationRendererProps<
+        'tx-sent' | 'tx-received' | 'tx-confirmed' | 'tx-staked' | 'tx-unstaked' | 'tx-claimed'
+    >;
 
 export const TransactionRenderer = ({ render: View, ...props }: TransactionRendererProps) => {
     const accounts = useSelector(selectAccounts);
@@ -48,6 +51,9 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
     const tx = findTransaction(txid, accountTxs);
     const accountDevice = findAccountDevice(account, devices);
     const confirmations = tx ? getConfirmations(tx, blockchain[account.symbol].blockHeight) : 0;
+    const destinationRoute = isStakeTypeTx(tx?.ethereumSpecific?.parsedData?.methodId)
+        ? 'wallet-staking'
+        : 'wallet-index';
 
     return (
         <View
@@ -65,7 +71,7 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
                     }
                     const txAnchor = getTxAnchor(tx?.txid);
                     dispatch(
-                        goto('wallet-index', {
+                        goto(destinationRoute, {
                             params: {
                                 accountIndex: account.index,
                                 accountType: account.accountType,

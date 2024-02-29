@@ -8485,4 +8485,297 @@ export default defineMessages({
         id: 'TR_TO',
         defaultMessage: 'To',
     },
+    TR_STAKE_ETH: {
+        id: 'TR_STAKE_ETH',
+        defaultMessage: 'Stake Ethereum',
+    },
+    TR_STAKE_ETH_BADGE: {
+        id: 'TR_STAKE_ETH_BADGE',
+        defaultMessage: 'New',
+    },
+    TR_STAKE_ETH_CARD_TITLE: {
+        id: 'TR_STAKE_ETH_CARD_TITLE',
+        defaultMessage: 'The easiest way to earn ETH.',
+    },
+    TR_STAKE_ETH_EARN_REPEAT: {
+        id: 'TR_STAKE_ETH_EARN_REPEAT',
+        defaultMessage: 'Stake. Earn rewards. Repeat.',
+    },
+    TR_STAKE_ETH_SEE_MONEY_DANCE: {
+        id: 'TR_STAKE_ETH_SEE_MONEY_DANCE',
+        defaultMessage: 'See your money dance',
+    },
+    TR_STAKE_ETH_SEE_MONEY_DANCE_DESC: {
+        id: 'TR_STAKE_ETH_SEE_MONEY_DANCE_DESC',
+        defaultMessage: 'Earn {apyPercent}% APY* by staking your Ethereum with Trezor.',
+    },
+    TR_STAKE_APY_DESC: {
+        id: 'TR_STAKE_APY_DESC',
+        defaultMessage: '*Annual Percentage Yield',
+    },
+    TR_STAKE_ETH_LOCK_FUNDS: {
+        id: 'TR_STAKE_ETH_LOCK_FUNDS',
+        defaultMessage: 'Lock in funds with flexibility',
+    },
+    TR_STAKE_ETH_LOCK_FUNDS_DESC: {
+        id: 'TR_STAKE_ETH_LOCK_FUNDS_DESC',
+        defaultMessage: 'Staking locks in your funds, but you can unstake them anytime.',
+    },
+    TR_STAKE_ETH_MAXIMIZE_REWARDS: {
+        id: 'TR_STAKE_ETH_MAXIMIZE_REWARDS',
+        defaultMessage: 'Maximize your rewards',
+    },
+    TR_STAKE_ETH_MAXIMIZE_REWARDS_DESC: {
+        id: 'TR_STAKE_ETH_MAXIMIZE_REWARDS_DESC',
+        defaultMessage: 'Soar high! Earn rewards on your rewards. Staking has never felt so good.',
+    },
+    TR_AVAILABLE_NOW_FOR: {
+        id: 'TR_AVAILABLE_NOW_FOR',
+        defaultMessage: 'Available now for',
+    },
+    TR_STAKE_START_STAKING: {
+        id: 'TR_STAKE_START_STAKING',
+        defaultMessage: 'Start staking',
+    },
+    TR_MAYBE_LATER: {
+        id: 'TR_MAYBE_LATER',
+        defaultMessage: 'Maybe later',
+    },
+    TR_STAKE_WHAT_IS_STAKING: {
+        id: 'TR_STAKE_WHAT_IS_STAKING',
+        defaultMessage: 'What is staking?',
+    },
+    TR_STAKE_STAKING_IS: {
+        id: 'TR_STAKE_STAKING_IS',
+        defaultMessage:
+            "Staking is like a friendly gesture where you temporarily lock your Ethereum assets to support the blockchain's operation. As a sweet reward, you'll actually earn more ETH in return!",
+    },
+    TR_STAKE_ANY_AMOUNT_ETH: {
+        id: 'TR_STAKE_ANY_AMOUNT_ETH',
+        defaultMessage:
+            'Stake any amount and watch that sweet ETH roll in. With our current APY rate of {apyPercent}%, your rewards earn too!',
+    },
+    TR_STAKE_LEARN_MORE: {
+        id: 'TR_STAKE_LEARN_MORE',
+        defaultMessage: 'Learn more',
+    },
+    TR_STAKE_STAKING_IN_A_NUTSHELL: {
+        id: 'TR_STAKE_STAKING_IN_A_NUTSHELL',
+        defaultMessage: 'Staking in a nutshell',
+    },
+    TR_STAKE_STAKED_ETH_AMOUNT_LOCKED: {
+        id: 'TR_STAKE_STAKED_ETH_AMOUNT_LOCKED',
+        defaultMessage: 'The staked amount of ETH is locked and can’t be traded or sent.',
+    },
+    TR_STAKE_UNSTAKING_TAKES: {
+        id: 'TR_STAKE_UNSTAKING_TAKES',
+        defaultMessage:
+            'Unstaking usually takes about 3 days. Once completed, you can trade or send it.',
+    },
+    TR_STAKE_ETH_REWARDS_EARN: {
+        id: 'TR_STAKE_ETH_REWARDS_EARN',
+        defaultMessage: 'Your rewards also earn. Keep them staked and watch your ETH rewards soar.',
+    },
+    TR_STAKE_AVAILABLE: {
+        id: 'TR_STAKE_AVAILABLE',
+        defaultMessage: 'Available',
+    },
+    TR_STAKE_MAX_FEE_DESC: {
+        id: 'TR_STAKE_MAX_FEE_DESC',
+        defaultMessage:
+            'Maximum fee is the network transaction fee that you’re willing to pay on the network to ensure your transaction gets processed.',
+    },
+    TR_STAKE_MAX: {
+        id: 'TR_STAKE_MAX',
+        defaultMessage: 'Max',
+    },
+    TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL: {
+        id: 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL',
+        defaultMessage:
+            'We’ve left {amount} ETH out so you will be able to pay for withdrawal fees',
+    },
+    TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS: {
+        id: 'TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS',
+        defaultMessage:
+            'We recommend you to leave {amount} ETH so you will be able to pay for withdrawal fees',
+    },
+    TR_STAKE_CONFIRM_ENTRY_PERIOD: {
+        id: 'TR_STAKE_CONFIRM_ENTRY_PERIOD',
+        defaultMessage: 'Confirm entry period',
+    },
+    TR_STAKE_CONFIRM_AND_STAKE: {
+        id: 'TR_STAKE_CONFIRM_AND_STAKE',
+        defaultMessage: 'Confirm & stake',
+    },
+    TR_STAKE_ENTERING_POOL_MAY_TAKE: {
+        id: 'TR_STAKE_ENTERING_POOL_MAY_TAKE',
+        defaultMessage: 'Entering the staking pool may take up to {days} days',
+    },
+    TR_STAKE_ETH_WILL_BE_BLOCKED: {
+        id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
+        defaultMessage:
+            'Your ETH will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
+    },
+    TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
+        id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
+        defaultMessage: 'I acknowledge the above entry period',
+    },
+    TR_STAKE_STAKE: {
+        id: 'TR_STAKE_STAKE',
+        defaultMessage: 'Stake',
+    },
+    TR_STAKE_UNSTAKE: {
+        id: 'TR_STAKE_UNSTAKE',
+        defaultMessage: 'Unstake',
+    },
+    TR_STAKE_CLAIM: {
+        id: 'TR_STAKE_CLAIM',
+        defaultMessage: 'Claim',
+    },
+    TR_STAKE_STAKED_AMOUNT: {
+        id: 'TR_STAKE_STAKED_AMOUNT',
+        defaultMessage: 'Staked amount',
+    },
+    TR_STAKE_APY: {
+        id: 'TR_STAKE_APY',
+        defaultMessage: 'Annual Percentage Yield',
+    },
+    TR_STAKE_DAYS: {
+        id: 'TR_STAKE_DAYS',
+        defaultMessage: '{days} days',
+    },
+    TR_STAKE_NEXT_PAYOUT: {
+        id: 'TR_STAKE_NEXT_PAYOUT',
+        defaultMessage: 'Next reward payout',
+    },
+    TR_STAKE_STAKE_MORE: {
+        id: 'TR_STAKE_STAKE_MORE',
+        defaultMessage: 'Stake more',
+    },
+    TR_STAKE_UNSTAKE_TO_CLAIM: {
+        id: 'TR_STAKE_UNSTAKE_TO_CLAIM',
+        defaultMessage: 'Unstake to claim',
+    },
+    TR_STAKE_ETH_REWARDS_EARN_APY: {
+        id: 'TR_STAKE_ETH_REWARDS_EARN_APY',
+        defaultMessage:
+            'Your {symbol} rewards also earn the APY rate. Keep your funds staked or add more to increase your rewards.',
+    },
+    TR_STAKE_REWARDS: {
+        id: 'TR_STAKE_REWARDS',
+        defaultMessage: 'Rewards',
+    },
+    TR_STAKE_WAITING_TO_BE_ADDED: {
+        id: 'TR_STAKE_WAITING_TO_BE_ADDED',
+        defaultMessage: 'Your {symbol} is waiting to be added {br} to the staking pool.',
+    },
+    TR_TX_CONFIRMED: {
+        id: 'TR_TX_CONFIRMED',
+        defaultMessage: 'Transaction confirmed',
+    },
+    TR_STAKE_ADDING_TO_POOL: {
+        id: 'TR_STAKE_ADDING_TO_POOL',
+        defaultMessage: 'Adding to staking pool',
+    },
+    TR_STAKE_STAKED_AND_EARNING: {
+        id: 'TR_STAKE_STAKED_AND_EARNING',
+        defaultMessage: 'Staked & earning rewards',
+    },
+    TR_STAKE_CLAIM_AFTER_UNSTAKING: {
+        id: 'TR_STAKE_CLAIM_AFTER_UNSTAKING',
+        defaultMessage: 'You can claim once the unstaking period is complete.',
+    },
+    TR_STAKE_UNSTAKING_PERIOD: {
+        id: 'TR_STAKE_UNSTAKING_PERIOD',
+        defaultMessage: 'Unstaking period',
+    },
+    TR_UP_TO_DAYS: {
+        id: 'TR_UP_TO_DAYS',
+        defaultMessage: 'up to {days} days',
+    },
+    TR_STAKE_PAID_FROM_BALANCE: {
+        id: 'TR_STAKE_PAID_FROM_BALANCE',
+        defaultMessage: 'Paid from your balance',
+    },
+    TR_STAKE_OTHER_AMOUNT: {
+        id: 'TR_STAKE_OTHER_AMOUNT',
+        defaultMessage: 'Other amount',
+    },
+    TR_UP_TO: {
+        id: 'TR_UP_TO',
+        defaultMessage: 'up to',
+    },
+    TR_STAKE_ONLY_REWARDS: {
+        id: 'TR_STAKE_ONLY_REWARDS',
+        defaultMessage: 'Only rewards',
+    },
+    TR_STAKE_UNSTAKED_AND_READY_TO_CLAIM: {
+        id: 'TR_STAKE_UNSTAKED_AND_READY_TO_CLAIM',
+        defaultMessage: 'Unstaked and ready to claim',
+    },
+    TR_STAKE_TIME_TO_CLAIM: {
+        id: 'TR_STAKE_TIME_TO_CLAIM',
+        defaultMessage: 'Time to claim',
+    },
+    TR_STAKE_INSTANT: {
+        id: 'TR_STAKE_INSTANT',
+        defaultMessage: 'Instant',
+    },
+    TR_STAKE_CLAIM_PENDING: {
+        id: 'TR_STAKE_CLAIM_PENDING',
+        defaultMessage: 'Claim pending',
+    },
+    TR_STAKE_CLAIMED_AMOUNT_TRANSFERRED: {
+        id: 'TR_STAKE_CLAIMED_AMOUNT_TRANSFERRED',
+        defaultMessage: 'The claimed amount is transferred to your {symbol} account.',
+    },
+    TR_STAKE_CLAIMING_PERIOD: {
+        id: 'TR_STAKE_CLAIMING_PERIOD',
+        defaultMessage: 'Claiming period',
+    },
+    TR_NOT_ENOUGH_FUNDS_FOR_TX: {
+        id: 'TR_NOT_ENOUGH_FUNDS_FOR_TX',
+        defaultMessage: 'Not enough funds to execute the transaction',
+    },
+    TR_STAKE_MIN_AMOUNT_TOOLTIP: {
+        id: 'TR_STAKE_MIN_AMOUNT_TOOLTIP',
+        defaultMessage: 'Minimum amount to stake is {amount} {symbol}',
+    },
+    TOAST_TX_STAKED: {
+        id: 'TOAST_TX_STAKED',
+        defaultMessage: '{amount} staked from {account}',
+    },
+    TOAST_TX_UNSTAKED: {
+        id: 'TOAST_TX_UNSTAKED',
+        defaultMessage: '{amount} unstaked',
+    },
+    TOAST_TX_CLAIMED: {
+        id: 'TOAST_TX_CLAIMED',
+        defaultMessage: '{amount} claimed',
+    },
+    TOAST_SUCCESSFUL_CLAIM: {
+        id: 'TOAST_SUCCESSFUL_CLAIM',
+        defaultMessage: '{symbol} claimed successfully',
+    },
+    TR_STAKE_TOTAL_PENDING: {
+        id: 'TR_STAKE_TOTAL_PENDING',
+        defaultMessage: 'Total stake pending:',
+    },
+    TR_STAKE_LAST_STAKE_REQUEST_STATE: {
+        id: 'TR_STAKE_LAST_STAKE_REQUEST_STATE',
+        defaultMessage: 'Last stake request',
+    },
+    TR_STAKE_UNSTAKING: {
+        id: 'TR_STAKE_UNSTAKING',
+        defaultMessage: 'Unstaking',
+    },
+    TR_STAKE_CAN_CLAIM_WARNING: {
+        id: 'TR_STAKE_CAN_CLAIM_WARNING',
+        defaultMessage:
+            'You can already claim {amount} {symbol}. {br}Please claim or wait until new unstake is processed',
+    },
+    TR_STAKE_CLAIM_IN_NEXT_BLOCK: {
+        id: 'TR_STAKE_CLAIM_IN_NEXT_BLOCK',
+        defaultMessage: 'in the next block',
+    },
 });

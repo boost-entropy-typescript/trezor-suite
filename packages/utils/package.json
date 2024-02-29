@@ -1,6 +1,6 @@
 {
     "name": "@trezor/utils",
-    "version": "9.0.21",
+    "version": "9.0.22",
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/utils",
     "description": "A collection of typescript utils that are intended to be used across trezor-suite monorepo.",
@@ -27,10 +27,13 @@
         "test:unit": "yarn g:jest --verbose -c ../../jest.config.base.js",
         "type-check": "yarn g:tsc --build tsconfig.json",
         "build:lib": "yarn g:rimraf ./lib && yarn g:tsc --build tsconfig.lib.json",
-        "prepublishOnly": "yarn g:tsx ../../scripts/prepublishNPM.js",
-        "prepublish": "yarn g:tsx ../../scripts/prepublish.js"
+        "prepublishOnly": "yarn tsx ../../scripts/prepublishNPM.js",
+        "prepublish": "yarn tsx ../../scripts/prepublish.js"
     },
     "peerDependencies": {
         "tslib": "^2.6.2"
+    },
+    "devDependencies": {
+        "tsx": "^4.7.0"
     }
 }

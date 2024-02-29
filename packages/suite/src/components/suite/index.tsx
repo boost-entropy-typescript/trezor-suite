@@ -53,6 +53,8 @@ import { HoverAnimation } from './HoverAnimation';
 import { Preloader } from './Preloader/Preloader';
 import { PinMatrix } from './PinMatrix/PinMatrix';
 import { UdevDownload } from './UdevDownload';
+import { StakingFeature } from './StakingFeature';
+import { StakeAmountWrapper } from './StakeAmountWrapper';
 
 export {
     AccountLabel,
@@ -108,8 +110,11 @@ export {
     Preloader,
     PinMatrix,
     UdevDownload,
+    StakingFeature,
+    StakeAmountWrapper,
 };
 export * from './graph';
 export * from './notifications';
 export * from './section';
+export * from './styled';
 export type { ModalProps, NumberInputProps };
