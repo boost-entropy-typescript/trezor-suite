@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import BigNumber from 'bignumber.js';
 
-import { isZero, amountToSatoshi } from '@suite-common/wallet-utils';
+import { isZero, amountToSatoshi, getFiatRateKey } from '@suite-common/wallet-utils';
 import { useCoinmarketExchangeFormContext } from 'src/hooks/wallet/useCoinmarketExchangeForm';
 import SendCryptoInput from './SendCryptoInput';
 import FiatInput from './FiatInput';
@@ -20,9 +20,10 @@ import {
     isCryptoSymbolToken,
 } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
 import { useSelector } from 'src/hooks/suite';
-import { selectDeviceAccounts } from '@suite-common/wallet-core';
-import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
+import { selectDeviceAccounts, selectFiatRatesByFiatRateKey } from '@suite-common/wallet-core';
 import { spacingsPx } from '@trezor/theme';
+import { TokenAddress } from '@suite-common/wallet-types';
+import { FiatCurrencyCode } from '@suite-common/suite-config';
 
 const InputsContainer = styled(Wrapper)`
     gap: ${spacingsPx.sm} 0;
@@ -69,10 +70,10 @@ const Inputs = () => {
     const { shouldSendInSats } = useBitcoinAmountUnit(account.symbol);
     const deviceAccounts = useSelector(selectDeviceAccounts);
     const { elevation } = useElevation();
-    const isDebug = useSelector(selectIsDebugModeActive);
 
     const { outputs, receiveCryptoSelect } = getValues();
     const tokenAddress = outputs?.[0]?.token;
+    const currency = outputs?.[0]?.currency;
     const tokenData = account.tokens?.find(t => t.contract === tokenAddress);
 
     // Trigger validation once amountLimits are loaded after first submit
@@ -123,6 +124,14 @@ const Inputs = () => {
     const symbol = tokenData?.symbol ?? account.symbol;
     const isBalanceZero = isZero(balance);
 
+    const fiatRateKey = getFiatRateKey(
+        account.symbol,
+        currency?.value as FiatCurrencyCode,
+        tokenData?.contract as TokenAddress,
+    );
+    const currentRate = useSelector(state => selectFiatRatesByFiatRateKey(state, fiatRateKey));
+    const isWithRate = !!currentRate?.rate || !!currentRate?.isLoading;
+
     const receiveCryptoNetworkSymbol =
         receiveCryptoSelect?.cryptoSymbol &&
         cryptoToNetworkSymbol(receiveCryptoSelect.cryptoSymbol);
@@ -138,8 +147,8 @@ const Inputs = () => {
     return (
         <InputsContainer responsiveSize="XL">
             <Row>
-                <SendCryptoInput />
-                {!tokenData && <FiatInput />}
+                <SendCryptoInput isWithRate={isWithRate} />
+                {isWithRate && <FiatInput />}
             </Row>
             <Row>
                 <Left>
@@ -148,8 +157,9 @@ const Inputs = () => {
                         <FormattedCryptoAmount value={balance} symbol={symbol} />
                         <StyledFiatValue
                             amount={balance}
-                            symbol={symbol}
+                            symbol={account.symbol}
                             showApproximationIndicator
+                            tokenAddress={tokenData?.contract}
                         />
                     </Balance>
                 </Left>
@@ -165,27 +175,25 @@ const Inputs = () => {
             <Row spaceBefore>
                 <ReceiveCryptoSelect />
             </Row>
-            {isReceiveTokenBalanceZero &&
-                (receiveCryptoNetworkSymbol !== 'matic' || // TODO: POLYGON DEBUG
-                    (receiveCryptoNetworkSymbol === 'matic' && isDebug)) && (
-                    <Row spaceBefore>
-                        <StyledEvmExplanationBox
-                            caret
-                            elevation={elevation}
-                            symbol={receiveCryptoNetworkSymbol}
-                            title={<Translation id="TR_EVM_EXPLANATION_EXCHANGE_TITLE" />}
-                        >
-                            <Translation
-                                id="TR_EVM_EXPLANATION_EXCHANGE_DESCRIPTION"
-                                values={{
-                                    coin: receiveCryptoSelect.label,
-                                    network: networks[receiveCryptoNetworkSymbol].name,
-                                    networkSymbol: receiveCryptoNetworkSymbol.toUpperCase(),
-                                }}
-                            />
-                        </StyledEvmExplanationBox>
-                    </Row>
-                )}
+            {isReceiveTokenBalanceZero && (
+                <Row spaceBefore>
+                    <StyledEvmExplanationBox
+                        caret
+                        elevation={elevation}
+                        symbol={receiveCryptoNetworkSymbol}
+                        title={<Translation id="TR_EVM_EXPLANATION_EXCHANGE_TITLE" />}
+                    >
+                        <Translation
+                            id="TR_EVM_EXPLANATION_EXCHANGE_DESCRIPTION"
+                            values={{
+                                coin: receiveCryptoSelect.label,
+                                network: networks[receiveCryptoNetworkSymbol].name,
+                                networkSymbol: receiveCryptoNetworkSymbol.toUpperCase(),
+                            }}
+                        />
+                    </StyledEvmExplanationBox>
+                </Row>
+            )}
         </InputsContainer>
     );
 };

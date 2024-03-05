@@ -2961,13 +2961,9 @@ export default defineMessages({
         defaultMessage: 'Ethereum',
         id: 'TR_NETWORK_ETHEREUM',
     },
-    TR_NETWORK_ETHEREUM_LABEL: {
-        defaultMessage: 'Incl. ERC-20 tokens',
-        id: 'TR_NETWORK_ETHEREUM_LABEL',
-    },
-    TR_NETWORK_ETHEREUM_TOOLTIP: {
-        defaultMessage: 'Supported tokens',
-        id: 'TR_NETWORK_ETHEREUM_TOOLTIP',
+    TR_INCLUDING_TOKENS: {
+        defaultMessage: 'Including tokens',
+        id: 'TR_INCLUDING_TOKENS',
     },
     TR_NETWORK_ETHEREUM_CLASSIC: {
         defaultMessage: 'Ethereum Classic',
@@ -3000,10 +2996,6 @@ export default defineMessages({
     TR_NETWORK_POLYGON: {
         defaultMessage: 'Polygon PoS',
         id: 'TR_NETWORK_POLYGON',
-    },
-    TR_NETWORK_POLYGON_LABEL: {
-        defaultMessage: 'Incl. MRC20 tokens',
-        id: 'TR_NETWORK_POLYGON_LABEL',
     },
     TR_NETWORK_STELLAR: {
         defaultMessage: 'Stellar',
@@ -5446,7 +5438,7 @@ export default defineMessages({
     TR_ADD_TOKEN_DESCRIPTION: {
         id: 'TR_ADD_TOKEN_DESCRIPTION',
         defaultMessage:
-            "Enter a contract address of a token you wish to add to your wallet. This is typically a 42-character alphanumeric string starting with '0x'.",
+            'Enter a contract address of a token to add to your wallet. This is typically a 42-character alphanumeric string starting with "0x".',
     },
     TR_ADD_TOKEN_LABEL: {
         id: 'TR_ADD_TOKEN_LABEL',
@@ -5962,8 +5954,7 @@ export default defineMessages({
         id: 'METADATA_MODAL_HEADING',
     },
     METADATA_MODAL_DESCRIPTION: {
-        defaultMessage:
-            'Select a cloud storage provider to sync your labels or save them locally. Your data is encrypted by Trezor.',
+        defaultMessage: 'Select how to sync your labels. Your data is encrypted by Trezor.',
         id: 'METADATA_MODAL_DESCRIPTION',
     },
     TR_DISABLED_SWITCH_TOOLTIP: {
@@ -8056,7 +8047,7 @@ export default defineMessages({
         id: 'TR_LOADING_FACT_21',
         description: '140 symbols max',
         defaultMessage:
-            "Bitcoin transactions are grouped together in 'blocks'. These blocks are organized in a chronological sequence comprising the blockchain",
+            'Bitcoin transactions are grouped together in blocks. These blocks are organized in a chronological sequence comprising the blockchain',
     },
     TR_LOADING_FACT_22: {
         id: 'TR_LOADING_FACT_22',
@@ -8465,7 +8456,7 @@ export default defineMessages({
     TR_EVM_EXPLANATION_SEND_DESCRIPTION: {
         id: 'TR_EVM_EXPLANATION_SEND_DESCRIPTION',
         defaultMessage:
-            'Send only through the {network} network. The address must be on the {network} network for the crypto to be received.',
+            'Send only through the {network} network. The address must be on the {network} network for the sent crypto to be received.',
     },
     TR_EVM_EXPLANATION_EXCHANGE_TITLE: {
         id: 'TR_EVM_EXPLANATION_EXCHANGE_TITLE',
@@ -8781,5 +8772,9 @@ export default defineMessages({
     TR_STAKE_CLAIM_IN_NEXT_BLOCK: {
         id: 'TR_STAKE_CLAIM_IN_NEXT_BLOCK',
         defaultMessage: 'in the next block',
+    },
+    TR_STAKE_NOT_ENOUGH_FUNDS: {
+        id: 'TR_STAKE_NOT_ENOUGH_FUNDS',
+        defaultMessage: 'Not enough {symbol} to pay network fees',
     },
 });
