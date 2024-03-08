@@ -315,6 +315,7 @@ export const en = {
     moduleReceive: {
         screenTitle: '{coinSymbol} Receive address',
         accountNotFound: 'Account {accountKey} not found.',
+        deviceCancelError: 'Address confirmation canceled.',
         receiveAddressCard: {
             alert: {
                 success: 'Receive address has been confirmed on your Trezor.',
@@ -599,6 +600,8 @@ export const en = {
     },
     graph: {
         retrievingData: 'Retrieving data...',
+        errorMessage: 'There are some troubles with loading graph: ',
+        tryAgain: 'Try again',
         retrievengTakesLongerThanExpected:
             'Retrieving balances takes longer than usual. \n It may be caused by unstable internet connection.',
     },
