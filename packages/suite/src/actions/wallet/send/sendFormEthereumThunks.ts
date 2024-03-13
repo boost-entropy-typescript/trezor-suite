@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { toWei } from 'web3-utils';
+import { G } from '@mobily/ts-belt';
 
 import TrezorConnect, { FeeLevel, TokenInfo } from '@trezor/connect';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -13,20 +14,25 @@ import {
     amountToSatoshi,
     formatAmount,
     isPending,
+    getNetwork,
 } from '@suite-common/wallet-utils';
+import { createThunk } from '@suite-common/redux-utils';
 import { ETH_DEFAULT_GAS_LIMIT, ERC20_GAS_LIMIT } from '@suite-common/wallet-constants';
 import {
-    FormState,
-    ComposeActionContext,
     PrecomposedLevels,
     PrecomposedTransaction,
-    PrecomposedTransactionFinal,
     ExternalOutput,
 } from '@suite-common/wallet-types';
-import { selectDevice } from '@suite-common/wallet-core';
+import { selectDevice, selectTransactions } from '@suite-common/wallet-core';
 
-import { Dispatch, GetState } from 'src/types/suite';
+import {
+    selectSelectedAccount,
+    selectSelectedAccountStatus,
+} from 'src/reducers/wallet/selectedAccountReducer';
 import { AddressDisplayOptions, selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
+
+import { MODULE_PREFIX } from './constants';
+import { ComposeTransactionThunkArguments, SignTransactionThunkArguments } from './types';
 
 const calculate = (
     availableBalance: string,
@@ -105,8 +111,9 @@ const calculate = (
     return payloadData;
 };
 
-export const composeTransaction =
-    (formValues: FormState, formState: ComposeActionContext) => async () => {
+export const composeEthereumSendFormTransactionThunk = createThunk(
+    `${MODULE_PREFIX}/composeEthereumSendFormTransactionThunk`,
+    async ({ formValues, formState }: ComposeTransactionThunkArguments) => {
         const { account, network, feeInfo } = formState;
         const composeOutputs = getExternalComposeOutput(formValues, account, network);
         if (!composeOutputs) return; // no valid Output
@@ -224,23 +231,37 @@ export const composeTransaction =
         });
 
         return wrappedResponse;
-    };
+    },
+);
 
-export const signTransaction =
-    (formValues: FormState, transactionInfo: PrecomposedTransactionFinal) =>
-    async (dispatch: Dispatch, getState: GetState) => {
-        const { selectedAccount, transactions } = getState().wallet;
+export const signEthereumSendFormTransactionThunk = createThunk(
+    `${MODULE_PREFIX}/signEthereumSendFormTransactionThunk`,
+    async (
+        { formValues, transactionInfo }: SignTransactionThunkArguments,
+        { dispatch, getState },
+    ) => {
+        const selectedAccount = selectSelectedAccount(getState());
+        const selectedAccountStatus = selectSelectedAccountStatus(getState());
+        const transactions = selectTransactions(getState());
         const device = selectDevice(getState());
+
         if (
-            selectedAccount.status !== 'loaded' ||
+            G.isNullable(selectedAccount) ||
+            selectedAccountStatus !== 'loaded' ||
             !device ||
             !transactionInfo ||
             transactionInfo.type !== 'final'
         )
             return;
 
-        const { account, network } = selectedAccount;
-        if (account.networkType !== 'ethereum' || !network.chainId) return;
+        const network = getNetwork(selectedAccount.symbol);
+
+        if (
+            G.isNullable(network) ||
+            selectedAccount.networkType !== 'ethereum' ||
+            !network?.chainId
+        )
+            return;
 
         const addressDisplayType = selectAddressDisplayType(getState());
 
@@ -248,17 +269,20 @@ export const signTransaction =
         // Calculate `pendingNonce`: greatest value in pending tx + 1
         // This may lead to unexpected/unwanted behavior
         // whenever pending tx gets rejected all following txs (with higher nonce) will be rejected as well
-        const pendingTxs = (transactions.transactions[account.key] || []).filter(isPending);
+        const pendingTxs = (transactions[selectedAccount.key] || []).filter(isPending);
         const pendingNonce = pendingTxs.reduce((value, tx) => {
             if (!tx.ethereumSpecific) return value;
 
             return Math.max(value, tx.ethereumSpecific.nonce + 1);
         }, 0);
+
         const pendingNonceBig = new BigNumber(pendingNonce);
+        const accountNonce = selectedAccount.misc?.nonce;
+
         let nonce =
-            pendingNonceBig.gt(0) && pendingNonceBig.gt(account.misc.nonce)
+            pendingNonceBig.gt(0) && pendingNonceBig.gt(accountNonce)
                 ? pendingNonceBig.toString()
-                : account.misc.nonce;
+                : accountNonce;
 
         if (formValues.rbfParams && typeof formValues.rbfParams.ethereumNonce === 'number') {
             nonce = formValues.rbfParams.ethereumNonce.toString();
@@ -283,7 +307,7 @@ export const signTransaction =
                 state: device.state,
             },
             useEmptyPassphrase: device.useEmptyPassphrase,
-            path: account.path,
+            path: selectedAccount.path,
             transaction,
             chunkify: addressDisplayType === AddressDisplayOptions.CHUNKED,
         });
@@ -302,4 +326,5 @@ export const signTransaction =
         }
 
         return signedTx.payload.serializedTx;
-    };
+    },
+);

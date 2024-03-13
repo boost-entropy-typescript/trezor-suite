@@ -5,8 +5,11 @@ import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants'
 import { accountsActions } from '@suite-common/wallet-core';
 import { PROTO } from '@trezor/connect';
 import { testMocks } from '@suite-common/test-utils';
+import { extraDependencies } from 'src/support/extraDependencies';
 
-import sendFormReducer from 'src/reducers/wallet/sendFormReducer';
+import { prepareSendFormReducer } from 'src/reducers/wallet/sendFormReducer';
+
+const sendFormReducer = prepareSendFormReducer(extraDependencies);
 
 const UTXO = {
     '00': testMocks.getUtxo({
@@ -1390,26 +1393,6 @@ export const signAndPush = [
             ],
         },
     },
-    // {
-    //     description: 'XRP',
-    //     store: {
-    //         send: {
-    //             drafts: getDraft(),
-    //         },
-    //         selectedAccount: XRP_ACCOUNT,
-    //     },
-    //     // connect: [
-    //     //     { success: false, payload: { error: 'irrelevant ' } }, // getAccountInfo address check
-    //     //     // { success: true, payload: {} },
-    //     // ],
-    //     result: {
-    //         formValues: {
-    //             selectedFee: undefined,
-    //             outputs: [{ address: '', amount: '' }], // form was cleared
-    //         },
-    //         actions: [1],
-    //     },
-    // },
     {
         description: 'Success with: custom fee, 2 outputs, 0 utxo (ignored)',
         store: {
@@ -1989,18 +1972,6 @@ export const feeChange = [
                     misc: { reserve: '20000000' },
                 },
             },
-            // {
-            //     success: true,
-            //     payload: {
-            //         levels: [{ feeLimit: '41000' }],
-            //     },
-            // },
-            // {
-            //     success: true,
-            //     payload: {
-            //         levels: [{ feeLimit: '21009' }],
-            //     },
-            // },
         ],
         actionSequence: [
             {
