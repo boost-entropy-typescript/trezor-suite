@@ -8,7 +8,7 @@ import { useDiscovery, useEverstakePoolStats, useSelector } from 'src/hooks/suit
 import { useAccounts } from 'src/hooks/wallet';
 import { MIN_ETH_BALANCE_FOR_STAKING } from 'src/constants/suite/ethStaking';
 import { spacingsPx, borders } from '@trezor/theme';
-import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
+import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 
 const Flex = styled.div`
     display: flex;
@@ -60,10 +60,10 @@ const FlexRowChild = styled.div`
 
 export const StakeEthCard = () => {
     const theme = useTheme();
-    const isDebug = useSelector(selectIsDebugModeActive);
     const { ethApy } = useEverstakePoolStats();
 
     const { discovery } = useDiscovery();
+    const account = useSelector(selectSelectedAccount);
     const { accounts } = useAccounts(discovery);
     const ethAccountWithSufficientBalanceForStaking = accounts.find(
         ({ symbol, formattedBalance }) =>
@@ -114,8 +114,7 @@ export const StakeEthCard = () => {
         [ethApy, theme.iconPrimaryDefault],
     );
 
-    // TODO: remove isDebug for staking release
-    if (!isShown || !isDebug) return null;
+    if (!isShown) return null;
 
     return (
         <>
@@ -132,7 +131,10 @@ export const StakeEthCard = () => {
                 <StyledCard paddingType="none">
                     <Body>
                         <CardTitle>
-                            <Translation id="TR_STAKE_ETH_CARD_TITLE" />
+                            <Translation
+                                id="TR_STAKE_ETH_CARD_TITLE"
+                                values={{ symbol: account?.symbol }}
+                            />
                             <br />
                             <Translation id="TR_STAKE_ETH_EARN_REPEAT" />
                         </CardTitle>

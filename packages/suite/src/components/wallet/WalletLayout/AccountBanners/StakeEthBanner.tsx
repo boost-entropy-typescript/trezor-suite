@@ -4,9 +4,11 @@ import { spacingsPx } from '@trezor/theme';
 import { Translation, IconBorderedWrapper } from 'src/components/suite';
 import { goto } from 'src/actions/suite/routerActions';
 import { useDispatch, useSelector, useEverstakePoolStats } from 'src/hooks/suite';
-import { selectSelectedAccountHasSufficientEthForStaking } from 'src/reducers/wallet/selectedAccountReducer';
+import {
+    selectSelectedAccount,
+    selectSelectedAccountHasSufficientEthForStaking,
+} from 'src/reducers/wallet/selectedAccountReducer';
 import { setFlag } from 'src/actions/suite/suiteActions';
-import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
 
 const StyledCard = styled(Card)`
     padding: ${spacingsPx.lg} ${spacingsPx.xxl} ${spacingsPx.lg} ${spacingsPx.md};
@@ -49,12 +51,12 @@ const Text = styled.div`
 export const StakeEthBanner = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
-    const isDebug = useSelector(selectIsDebugModeActive);
     const { stakeEthBannerClosed } = useSelector(state => state.suite.flags);
     const hasSufficientEthForStaking = useSelector(selectSelectedAccountHasSufficientEthForStaking);
     const { pathname } = useSelector(state => state.router);
     const isShown = !stakeEthBannerClosed && pathname === '/accounts' && hasSufficientEthForStaking;
     const { ethApy } = useEverstakePoolStats();
+    const account = useSelector(selectSelectedAccount);
 
     const closeBanner = () => {
         dispatch(setFlag('stakeEthBannerClosed', true));
@@ -64,8 +66,7 @@ export const StakeEthBanner = () => {
         dispatch(goto('wallet-staking', { preserveParams: true }));
     };
 
-    // TODO: remove isDebug for staking release
-    if (!isShown || !isDebug) return null;
+    if (!isShown) return null;
 
     return (
         <StyledCard>
@@ -82,7 +83,7 @@ export const StakeEthBanner = () => {
                         <Paragraph>
                             <Translation
                                 id="TR_STAKE_ANY_AMOUNT_ETH"
-                                values={{ apyPercent: ethApy }}
+                                values={{ apyPercent: ethApy, symbol: account?.symbol }}
                             />
                         </Paragraph>
                     </Text>

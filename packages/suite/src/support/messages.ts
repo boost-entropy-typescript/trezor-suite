@@ -2202,7 +2202,7 @@ export default defineMessages({
         id: 'TR_CONFIRMED_TX',
     },
     TR_CONNECT_YOUR_DEVICE: {
-        defaultMessage: 'Connect your Trezor',
+        defaultMessage: 'Connect & unlock your Trezor',
         description: 'Prompt to user to connect his device.',
         id: 'TR_CONNECT_YOUR_DEVICE',
     },
@@ -6560,7 +6560,7 @@ export default defineMessages({
     TR_TRANSACTIONS_SEARCH_TIP_2: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_2',
         defaultMessage:
-            'Tip: Use the greater than (>) and less than (<) symbols for amount searches. For example <strong>> 1</strong> will show all transactions that have an amount of 1 and higher.',
+            'Tip: Use the greater than (>) and less than (<) symbols for amount searches. For example <strong> 1</strong> will show all transactions that have an amount of 1 and higher.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_3: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_3',
@@ -7115,10 +7115,6 @@ export default defineMessages({
     TR_ONBOARDING_DOWNLOAD_DESKTOP_APP: {
         id: 'TR_ONBOARDING_DOWNLOAD_DESKTOP_APP',
         defaultMessage: 'Download Desktop App',
-    },
-    TR_ONBOARDING_WELCOME_HEADING: {
-        id: 'TR_ONBOARDING_WELCOME_HEADING',
-        defaultMessage: 'Welcome!',
     },
     TR_DATA_ANALYTICS_CATEGORY_1: {
         id: 'TR_DATA_ANALYTICS_CATEGORY_1',
@@ -8059,7 +8055,7 @@ export default defineMessages({
         id: 'TR_LOADING_FACT_21',
         description: '140 symbols max',
         defaultMessage:
-            'Bitcoin transactions are grouped together in blocks. These blocks are organized in a chronological sequence comprising the blockchain',
+            'Bitcoin transactions are grouped together in blocks. These blocks are organized in a chronological sequence on the blockchain.',
     },
     TR_LOADING_FACT_22: {
         id: 'TR_LOADING_FACT_22',
@@ -8498,7 +8494,7 @@ export default defineMessages({
     },
     TR_STAKE_ETH_CARD_TITLE: {
         id: 'TR_STAKE_ETH_CARD_TITLE',
-        defaultMessage: 'The easiest way to earn ETH.',
+        defaultMessage: 'The easiest way to earn {symbol}.',
     },
     TR_STAKE_ETH_EARN_REPEAT: {
         id: 'TR_STAKE_ETH_EARN_REPEAT',
@@ -8506,7 +8502,7 @@ export default defineMessages({
     },
     TR_STAKE_ETH_SEE_MONEY_DANCE: {
         id: 'TR_STAKE_ETH_SEE_MONEY_DANCE',
-        defaultMessage: 'See your money dance',
+        defaultMessage: 'Watch your money dance',
     },
     TR_STAKE_ETH_SEE_MONEY_DANCE_DESC: {
         id: 'TR_STAKE_ETH_SEE_MONEY_DANCE_DESC',
@@ -8551,12 +8547,12 @@ export default defineMessages({
     TR_STAKE_STAKING_IS: {
         id: 'TR_STAKE_STAKING_IS',
         defaultMessage:
-            "Staking is like a friendly gesture where you temporarily lock your Ethereum assets to support the blockchain's operation. As a sweet reward, you'll actually earn more ETH in return!",
+            "Staking is like a friendly gesture where you temporarily lock your Ethereum assets to support the blockchain's operation. As a sweet reward, you'll actually earn more {symbol} in return!",
     },
     TR_STAKE_ANY_AMOUNT_ETH: {
         id: 'TR_STAKE_ANY_AMOUNT_ETH',
         defaultMessage:
-            'Stake any amount and watch that sweet ETH roll in. With our current APY rate of {apyPercent}%, your rewards earn too!',
+            'Stake any amount and watch that sweet {symbol} roll in. With our current APY rate of {apyPercent}%, your rewards earn too!',
     },
     TR_STAKE_LEARN_MORE: {
         id: 'TR_STAKE_LEARN_MORE',
@@ -8568,7 +8564,7 @@ export default defineMessages({
     },
     TR_STAKE_STAKED_ETH_AMOUNT_LOCKED: {
         id: 'TR_STAKE_STAKED_ETH_AMOUNT_LOCKED',
-        defaultMessage: 'The staked amount of ETH is locked and can’t be traded or sent.',
+        defaultMessage: 'The staked amount of {symbol} is locked and can’t be traded or sent.',
     },
     TR_STAKE_UNSTAKING_TAKES: {
         id: 'TR_STAKE_UNSTAKING_TAKES',
@@ -8577,7 +8573,8 @@ export default defineMessages({
     },
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
-        defaultMessage: 'Your rewards also earn. Keep them staked and watch your ETH rewards soar.',
+        defaultMessage:
+            'Your rewards also earn. Keep them staked and watch your {symbol} rewards soar.',
     },
     TR_STAKE_AVAILABLE: {
         id: 'TR_STAKE_AVAILABLE',
@@ -8595,12 +8592,12 @@ export default defineMessages({
     TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL: {
         id: 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL',
         defaultMessage:
-            'We’ve left {amount} ETH out so you will be able to pay for withdrawal fees',
+            'We’ve left {amount} {symbol} out so you will be able to pay for withdrawal fees.',
     },
     TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS: {
         id: 'TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS',
         defaultMessage:
-            'We recommend you to leave {amount} ETH so you will be able to pay for withdrawal fees',
+            "It's recommended to leave {amount} {symbol} so you will be able to pay for withdrawal fees.",
     },
     TR_STAKE_CONFIRM_ENTRY_PERIOD: {
         id: 'TR_STAKE_CONFIRM_ENTRY_PERIOD',
@@ -8617,7 +8614,7 @@ export default defineMessages({
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
         defaultMessage:
-            'Your ETH will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
+            'Your {symbol} will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
     },
     TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
         id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
@@ -8675,6 +8672,10 @@ export default defineMessages({
     TR_TX_CONFIRMED: {
         id: 'TR_TX_CONFIRMED',
         defaultMessage: 'Transaction confirmed',
+    },
+    TR_TX_CONFIRMING: {
+        id: 'TR_TX_CONFIRMING',
+        defaultMessage: 'Confirming transaction',
     },
     TR_STAKE_ADDING_TO_POOL: {
         id: 'TR_STAKE_ADDING_TO_POOL',
@@ -8771,7 +8772,7 @@ export default defineMessages({
     TR_STAKE_CAN_CLAIM_WARNING: {
         id: 'TR_STAKE_CAN_CLAIM_WARNING',
         defaultMessage:
-            'You can already claim {amount} {symbol}. {br}Please claim or wait until new unstake is processed',
+            'You can already claim {amount} {symbol}. {br}Please claim or wait until new unstake is processed.',
     },
     TR_STAKE_CLAIM_IN_NEXT_BLOCK: {
         id: 'TR_STAKE_CLAIM_IN_NEXT_BLOCK',
@@ -8780,5 +8781,9 @@ export default defineMessages({
     TR_STAKE_NOT_ENOUGH_FUNDS: {
         id: 'TR_STAKE_NOT_ENOUGH_FUNDS',
         defaultMessage: 'Not enough {symbol} to pay network fees',
+    },
+    TR_STAKE_PROVIDED_BY: {
+        id: 'TR_STAKE_PROVIDED_BY',
+        defaultMessage: 'Provided by',
     },
 });
