@@ -45,9 +45,9 @@ export const en = {
             },
             connectOrImportCrossroads: {
                 gotMyTrezor: {
-                    title: 'Connect my Trezor',
+                    title: 'Connect & unlock my Trezor',
                     description: 'Manage your coins with your Trezor connected.',
-                    connectButton: 'Connect Trezor',
+                    connectButton: 'Connect & unlock',
                 },
                 syncCoins: {
                     title: 'Track my coins',
@@ -226,18 +226,20 @@ export const en = {
             title: 'Connect & unlock\nyour Trezor',
         },
         pinScreen: {
+            title: 'Enter PIN\non your Trezor',
             form: {
                 title: 'Enter PIN',
                 entered: 'Entered',
                 digits: 'digits',
                 keypadInfo: 'Follow the keypad layout on your Trezor',
-                enterPin: 'Enter pin',
+                enterPin: 'Unlock',
                 submitting: 'Verifying your PIN',
             },
             wrongPinAlert: {
                 title: 'Incorrect PIN',
-                description: 'Enter up to 50 digits.',
-                button: { tryAgain: 'Try again', help: 'Enter PIN Help' },
+                description:
+                    'You have 16 PIN entry attemps.\nFailing all of them will result in your device being erased.',
+                button: { tryAgain: 'Try again', help: 'Enter PIN help' },
             },
         },
         connectingDeviceScreen: {
