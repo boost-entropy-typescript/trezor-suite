@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { A, pipe } from '@mobily/ts-belt';
 
 import { AccountType, NetworkSymbol, Network, networks } from '@suite-common/wallet-config';
@@ -28,6 +28,7 @@ import {
     StackToStackCompositeNavigationProps,
     RootStackRoutes,
     AddCoinFlowType,
+    AppTabsRoutes,
 } from '@suite-native/navigation';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
@@ -140,7 +141,7 @@ export const useAddCoinAccount = () => {
             icon: 'warningCircleLight',
             pictogramVariant: 'red',
             primaryButtonTitle: translate('moduleAddAccounts.alerts.tooManyAccounts.actionPrimary'),
-            onPressPrimaryButton: () => hideAlert(),
+            onPressPrimaryButton: hideAlert,
         });
 
     const showAnotherEmptyAccountAlert = () =>
@@ -152,7 +153,7 @@ export const useAddCoinAccount = () => {
             primaryButtonTitle: translate(
                 'moduleAddAccounts.alerts.anotherEmptyAccount.actionPrimary',
             ),
-            onPressPrimaryButton: () => hideAlert(),
+            onPressPrimaryButton: hideAlert,
             secondaryButtonTitle: translate(
                 'moduleAddAccounts.alerts.anotherEmptyAccount.actionSecondary',
             ),
@@ -171,7 +172,7 @@ export const useAddCoinAccount = () => {
             icon: 'warningCircleLight',
             pictogramVariant: 'red',
             primaryButtonTitle: translate('moduleAddAccounts.alerts.generalError.actionPrimary'),
-            onPressPrimaryButton: () => hideAlert(),
+            onPressPrimaryButton: hideAlert,
         });
 
     const setDefaultAccountToBeAdded = (network: Network) => {
@@ -312,8 +313,23 @@ export const useAddCoinAccount = () => {
         ).unwrap();
 
         if (!account) {
-            navigation.goBack();
             showGeneralErrorAlert();
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: RootStackRoutes.AppTabs,
+                            params: {
+                                screen:
+                                    flowType === 'accounts'
+                                        ? AppTabsRoutes.AccountsStack
+                                        : AppTabsRoutes.ReceiveStack,
+                            },
+                        },
+                    ],
+                }),
+            );
         }
     };
 

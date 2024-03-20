@@ -56,8 +56,8 @@ export const StakeEthBanner = () => {
     const hasSufficientEthForStaking = useSelector(selectSelectedAccountHasSufficientEthForStaking);
     const { pathname } = useSelector(state => state.router);
     const isShown = !stakeEthBannerClosed && pathname === '/accounts' && hasSufficientEthForStaking;
-    const { ethApy } = useEverstakePoolStats();
     const account = useSelector(selectSelectedAccount);
+    const { ethApy } = useEverstakePoolStats(account?.symbol);
 
     const closeBanner = () => {
         dispatch(setFlag('stakeEthBannerClosed', true));
@@ -84,7 +84,10 @@ export const StakeEthBanner = () => {
                         <Paragraph>
                             <Translation
                                 id="TR_STAKE_ANY_AMOUNT_ETH"
-                                values={{ apyPercent: ethApy, symbol: account?.symbol }}
+                                values={{
+                                    apyPercent: ethApy,
+                                    symbol: account?.symbol.toUpperCase(),
+                                }}
                             />
                         </Paragraph>
                     </Text>

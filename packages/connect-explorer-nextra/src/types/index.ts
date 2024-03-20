@@ -23,15 +23,19 @@ export interface FieldData {
     affectedValue: string;
 }
 
-export interface Field<Value> {
+// Field path
+// - string: object name
+// - number: batch index
+export type FieldPath = (string | number)[];
+
+export interface FieldCommon {
+    path?: FieldPath;
     name: string;
-    batch?: any[];
-    items?: any[];
-    data?: FieldData[];
-    omit?: boolean;
     optional?: boolean;
-    key: string;
-    affect?: string;
+    omit?: boolean;
+}
+
+export interface FieldBasic<Value> extends FieldCommon {
     type:
         | 'input'
         | 'input-long'
@@ -45,6 +49,8 @@ export interface Field<Value> {
         | 'file';
     value: Value;
     defaultValue?: Value;
+    affect?: string;
+    data?: FieldData[];
 }
 
 interface Batch<Value> {
@@ -52,9 +58,23 @@ interface Batch<Value> {
     fields: Field<Value>[];
 }
 
-export interface FieldWithBundle<Value> {
-    name: 'bundle';
+export interface FieldWithBundle<Value> extends FieldCommon {
     type: 'array';
-    items: Field<Value>[][];
     batch: Batch<Value>[];
+    items: Field<Value>[][];
+    affect?: undefined;
 }
+
+export interface FieldWithUnion<Value> extends FieldCommon {
+    type: 'union';
+    labels: string[];
+    options: Batch<Value>[];
+    current: Field<Value>[];
+    affect?: undefined;
+}
+
+export type Field<Value> = FieldBasic<Value> | FieldWithBundle<Value> | FieldWithUnion<Value>;
+
+export const isFieldBasic = <T>(field: Field<T>): field is FieldBasic<T> => {
+    return field.type !== 'array' && field.type !== 'union';
+};

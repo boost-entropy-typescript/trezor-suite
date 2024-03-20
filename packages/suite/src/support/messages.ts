@@ -7330,6 +7330,18 @@ export default defineMessages({
         id: 'TR_STAKING_WITHDRAW',
         defaultMessage: 'Withdraw',
     },
+    TR_STAKE_ON_EVERSTAKE: {
+        id: 'TR_STAKE_ON_EVERSTAKE',
+        defaultMessage: 'Stake {symbol} on Everstake?',
+    },
+    TR_CLAIM_FROM_EVERSTAKE: {
+        id: 'TR_CLAIM_FROM_EVERSTAKE',
+        defaultMessage: 'Claim {symbol} from Everstake?',
+    },
+    TR_UNSTAKE_FROM_EVERSTAKE: {
+        id: 'TR_UNSTAKE_FROM_EVERSTAKE',
+        defaultMessage: 'Unstake {symbol} from Everstake?',
+    },
     TR_TX_WITHDRAWAL: {
         id: 'TR_TX_WITHDRAWAL',
         defaultMessage: 'Withdrawal',
@@ -8791,5 +8803,27 @@ export default defineMessages({
     TR_STAKE_PROVIDED_BY: {
         id: 'TR_STAKE_PROVIDED_BY',
         defaultMessage: 'Provided by',
+    },
+    TR_STAKE_YOUR_FUNDS_MANAGED: {
+        id: 'TR_STAKE_YOUR_FUNDS_MANAGED',
+        defaultMessage: 'Your staked funds are <h>managed by Everstake</h>',
+    },
+    TR_STAKE_POWERED_BY: {
+        id: 'TR_STAKE_POWERED_BY',
+        defaultMessage: 'Powered by',
+    },
+    TR_STAKE_EVERSTAKE_MANAGES: {
+        id: 'TR_STAKE_EVERSTAKE_MANAGES',
+        defaultMessage:
+            'Everstake manages and protects your staked {symbol} <t>with their smart contracts, infrastructure, and technology.</t>',
+    },
+    TR_STAKE_TREZOR_NO_LIABILITY: {
+        id: 'TR_STAKE_TREZOR_NO_LIABILITY',
+        defaultMessage:
+            "Trezor assumes no liability <t>for Everstake's security guarantees. Your Trezor doesn’t manage the security of your staked funds.</t>",
+    },
+    TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE: {
+        id: 'TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE',
+        defaultMessage: 'I acknowledge and consent to staking with Everstake',
     },
 });
