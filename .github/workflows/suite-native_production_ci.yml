@@ -9,6 +9,7 @@ on:
           - iOS
           - Android
           - Both
+        description: Select platform to run build
         required: true
 
 concurrency:
@@ -20,6 +21,8 @@ jobs:
     name: Build and release iOS
     environment: production
     runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_ENVIRONMENT: production
     if: ${{ github.event.inputs.PLATFORM == 'iOS' || github.event.inputs.PLATFORM == 'Both' }}
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +38,7 @@ jobs:
       - name: Install libs
         run: yarn install
       - name: Build on EAS iOS
-        run: eas build
+        run: EXPO_PUBLIC_ENVIRONMENT=production eas build
           --platform ios
           --profile production
           --non-interactive
@@ -46,6 +49,8 @@ jobs:
     name: Build and release Android
     environment: production
     runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_ENVIRONMENT: production
     if: ${{ github.event.inputs.PLATFORM == 'Android' || github.event.inputs.PLATFORM == 'Both' }}
     steps:
       - uses: actions/checkout@v4
