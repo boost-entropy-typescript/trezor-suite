@@ -2978,10 +2978,6 @@ export default defineMessages({
         defaultMessage: 'Ethereum Sepolia',
         id: 'TR_NETWORK_ETHEREUM_SEPOLIA',
     },
-    TR_NETWORK_ETHEREUM_GOERLI: {
-        defaultMessage: 'Ethereum Goerli',
-        id: 'TR_NETWORK_ETHEREUM_GOERLI',
-    },
     TR_NETWORK_ETHEREUM_HOLESKY: {
         defaultMessage: 'Ethereum Holesky',
         id: 'TR_NETWORK_ETHEREUM_HOLESKY',
@@ -8823,5 +8819,9 @@ export default defineMessages({
     TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE: {
         id: 'TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE',
         defaultMessage: 'I acknowledge and consent to staking with Everstake',
+    },
+    TR_SOLANA_TX_CONFIRMATION_MAY_TAKE_UP_TO_1_MIN: {
+        id: 'TR_SOLANA_TX_CONFIRMATION_MAY_TAKE_UP_TO_1_MIN',
+        defaultMessage: 'Confirmation of the transaction may take up to <nowrap>1 minute</nowrap>',
     },
 });

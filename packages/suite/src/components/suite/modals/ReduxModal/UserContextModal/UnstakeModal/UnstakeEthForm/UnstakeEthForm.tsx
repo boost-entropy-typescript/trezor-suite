@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import { Button, Divider, Paragraph, Warning } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 import { Translation } from 'src/components/suite';
-import { FeesInfo } from 'src/components/wallet/FeesInfo';
 import { useDevice, useSelector, useValidatorsQueue } from 'src/hooks/suite';
 import { useUnstakeEthFormContext } from 'src/hooks/wallet/useUnstakeEthForm';
 import { selectSelectedAccountEverstakeStakingPool } from 'src/reducers/wallet/selectedAccountReducer';
 import { CRYPTO_INPUT, FIAT_INPUT } from 'src/types/wallet/stakeForms';
 import { Options } from './Options';
+import UnstakeFees from './Fees';
 
 const GreyP = styled(Paragraph)`
     color: ${({ theme }) => theme.textSubdued};
@@ -15,7 +15,7 @@ const GreyP = styled(Paragraph)`
 
 const DividerWrapper = styled.div`
     & > div {
-        background: ${({ theme }) => theme.borderOnElevation1};
+        background: ${({ theme }) => theme.borderElevation2};
         width: calc(100% + ${spacingsPx.xxl});
         margin: 0 -${spacingsPx.md} ${spacingsPx.lg} -${spacingsPx.md};
     }
@@ -38,7 +38,7 @@ const UpToDaysWrapper = styled.div`
     align-items: center;
     margin-top: 16px;
     padding: ${spacingsPx.lg} 0 ${spacingsPx.md};
-    border-top: 1px solid ${({ theme }) => theme.borderOnElevation1};
+    border-top: 1px solid ${({ theme }) => theme.borderElevation2};
 `;
 
 export const UnstakeEthForm = () => {
@@ -51,8 +51,6 @@ export const UnstakeEthForm = () => {
         handleSubmit,
         watch,
         signTx,
-        composedLevels,
-        selectedFee,
     } = useUnstakeEthFormContext();
 
     const { symbol } = account;
@@ -63,7 +61,6 @@ export const UnstakeEthForm = () => {
     const hasValues = Boolean(watch(FIAT_INPUT) || watch(CRYPTO_INPUT));
     // used instead of formState.isValid, which is sometimes returning false even if there are no errors
     const formIsValid = Object.keys(errors).length === 0;
-    const transactionInfo = composedLevels?.[selectedFee];
 
     const { canClaim = false, claimableAmount = '0' } =
         useSelector(selectSelectedAccountEverstakeStakingPool) ?? {};
@@ -99,11 +96,7 @@ export const UnstakeEthForm = () => {
                 <Divider />
             </DividerWrapper>
 
-            <FeesInfo
-                transactionInfo={transactionInfo}
-                symbol={symbol}
-                helperText={<Translation id="TR_STAKE_PAID_FROM_BALANCE" />}
-            />
+            <UnstakeFees />
 
             <UpToDaysWrapper>
                 {!Number.isNaN(unstakingPeriod) && (

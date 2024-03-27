@@ -7,8 +7,9 @@ import {
     Button,
     variables,
     SVG_IMAGES,
-    ElevationContext,
     useElevation,
+    ElevationUp,
+    ElevationContext,
 } from '@trezor/components';
 import { useOnce } from '@trezor/react-utils';
 import { Translation } from 'src/components/suite';
@@ -187,7 +188,7 @@ const Right = ({ children }: { children: ReactNode }) => {
             </SettingsWrapper>
 
             <ChildrenWrapper>
-                <ElevationContext baseElevation={elevation}>{children}</ElevationContext>
+                <ElevationUp>{children}</ElevationUp>
             </ChildrenWrapper>
         </Content>
     );
@@ -199,21 +200,21 @@ export const WelcomeLayout = ({ children }: WelcomeLayoutProps) => {
     const bannerMessage = useSelector(selectBannerMessage);
 
     return (
-        <Wrapper>
-            {bannerMessage && <MessageSystemBanner message={bannerMessage} />}
+        <ElevationContext baseElevation={-1}>
+            <Wrapper>
+                {bannerMessage && <MessageSystemBanner message={bannerMessage} />}
 
-            <Body data-test="@welcome-layout/body">
-                <ElevationContext baseElevation={-1}>
+                <Body data-test="@welcome-layout/body">
                     <Left />
-                </ElevationContext>
 
-                <ElevationContext baseElevation={0}>
-                    <Right>{children}</Right>
+                    <ElevationUp>
+                        <Right>{children}</Right>
 
-                    <GuideButton />
-                    <GuideRouter />
-                </ElevationContext>
-            </Body>
-        </Wrapper>
+                        <GuideButton />
+                        <GuideRouter />
+                    </ElevationUp>
+                </Body>
+            </Wrapper>
+        </ElevationContext>
     );
 };

@@ -19,7 +19,6 @@ export const WALLET_SDK_SOURCE = '1';
 export const getEthNetworkForWalletSdk = (symbol: NetworkSymbol) => {
     const ethNetworks = {
         thol: 'holesky',
-        tgor: 'goerli',
         eth: 'mainnet',
     };
 
@@ -249,6 +248,10 @@ export const getStakeFormsDefaultValues = ({
     feeLimit: '',
     feePerUnit: '',
     selectedFee: undefined,
+
+    isCoinControlEnabled: false,
+    hasCoinControlBeenOpened: false,
+    selectedUtxos: [],
 });
 
 const transformTx = (
