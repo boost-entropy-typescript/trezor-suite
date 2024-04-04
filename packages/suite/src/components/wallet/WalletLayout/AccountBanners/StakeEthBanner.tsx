@@ -3,13 +3,12 @@ import { Button, Card, Icon, Paragraph, variables, IconButton } from '@trezor/co
 import { spacingsPx } from '@trezor/theme';
 import { Translation, IconBorderedWrapper } from 'src/components/suite';
 import { goto } from 'src/actions/suite/routerActions';
-import { useDispatch, useSelector, useEverstakePoolStats } from 'src/hooks/suite';
-import {
-    selectSelectedAccount,
-    selectSelectedAccountHasSufficientEthForStaking,
-} from 'src/reducers/wallet/selectedAccountReducer';
+import { useDispatch, useSelector } from 'src/hooks/suite';
 import { setFlag } from 'src/actions/suite/suiteActions';
 import { selectSuiteFlags } from '../../../../reducers/suite/suiteReducer';
+import { Account } from '@suite-common/wallet-types';
+import { selectPoolStatsApyData } from '@suite-common/wallet-core';
+import { isSupportedNetworkSymbol } from '@suite-common/wallet-core/src/stake/stakeTypes';
 
 const StyledCard = styled(Card)`
     padding: ${spacingsPx.lg} ${spacingsPx.xxl} ${spacingsPx.lg} ${spacingsPx.md};
@@ -49,15 +48,16 @@ const Text = styled.div`
     line-height: 24px;
 `;
 
-export const StakeEthBanner = () => {
+interface StakeEthBannerProps {
+    account: Account;
+}
+
+export const StakeEthBanner = ({ account }: StakeEthBannerProps) => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { stakeEthBannerClosed } = useSelector(selectSuiteFlags);
-    const hasSufficientEthForStaking = useSelector(selectSelectedAccountHasSufficientEthForStaking);
     const { pathname } = useSelector(state => state.router);
-    const isShown = !stakeEthBannerClosed && pathname === '/accounts' && hasSufficientEthForStaking;
-    const account = useSelector(selectSelectedAccount);
-    const { ethApy } = useEverstakePoolStats(account?.symbol);
+    const ethApy = useSelector(state => selectPoolStatsApyData(state, account.symbol));
 
     const closeBanner = () => {
         dispatch(setFlag('stakeEthBannerClosed', true));
@@ -67,7 +67,14 @@ export const StakeEthBanner = () => {
         dispatch(goto('wallet-staking', { preserveParams: true }));
     };
 
-    if (!isShown) return null;
+    if (
+        pathname !== '/accounts' ||
+        stakeEthBannerClosed ||
+        !account ||
+        !isSupportedNetworkSymbol(account.symbol)
+    ) {
+        return null;
+    }
 
     return (
         <StyledCard>

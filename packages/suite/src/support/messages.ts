@@ -5420,6 +5420,10 @@ export default defineMessages({
         id: 'TR_TOKENS_ADD',
         defaultMessage: 'Add token',
     },
+    TR_TOKENS_ADD_WITH_RECEIVE: {
+        id: 'TR_TOKENS_ADD_WITH_RECEIVE',
+        defaultMessage: 'Add tokens with receive',
+    },
     TR_TOKENS_EMPTY: {
         id: 'TR_TOKENS_EMPTY',
         defaultMessage: 'No tokens... yet.',
@@ -5432,6 +5436,11 @@ export default defineMessages({
         id: 'TR_ADD_TOKEN_DESCRIPTION',
         defaultMessage:
             'Enter a contract address of a token to add to your wallet. This is typically a 42-character alphanumeric string starting with "0x".',
+    },
+    TR_ADD_TOKEN_NOTE: {
+        id: 'TR_ADD_TOKEN_NOTE',
+        defaultMessage:
+            'No need to activate tokens first. Simply click the receive button to create a receive address and send your tokens straight to your Trezor. Just make sure to match the network to access your tokens correctly.',
     },
     TR_ADD_TOKEN_LABEL: {
         id: 'TR_ADD_TOKEN_LABEL',
@@ -6492,10 +6501,6 @@ export default defineMessages({
         id: 'TR_CONFIRMING_TX',
         defaultMessage: 'Confirming transaction',
     },
-    TR_FINALIZE_TX: {
-        id: 'TR_FINALIZE_TX',
-        defaultMessage: 'Finalize transaction',
-    },
     TR_CURRENT_FEE: {
         id: 'TR_CURRENT_FEE',
         defaultMessage: 'Current',
@@ -6643,10 +6648,6 @@ export default defineMessages({
     TR_TXID_RBF: {
         id: 'TR_TXID_RBF',
         defaultMessage: 'Original TX ID to be replaced',
-    },
-    TR_FINALIZE_TS_RBF_OFF_WARN: {
-        id: 'TR_FINALIZE_TS_RBF_OFF_WARN',
-        defaultMessage: 'Finalizing transaction will turn RBF <strong>OFF</strong>',
     },
     TR_SIZE: {
         id: 'TR_SIZE',
@@ -8413,6 +8414,10 @@ export default defineMessages({
         defaultMessage:
             '{index, selectordinal, one {#st} two {#nd} few {#rd} other {#th} } Recipient',
     },
+    TR_DISCOVERY_NEW_COINS: {
+        id: 'TR_DISCOVERY_NEW_COINS',
+        defaultMessage: 'Activate coins',
+    },
     TR_DISCOVERY_NEW_COINS_TEXT: {
         id: 'TR_DISCOVERY_NEW_COINS_TEXT',
         defaultMessage: "Don't see an account after activating a coin?",
@@ -8570,7 +8575,7 @@ export default defineMessages({
     TR_STAKE_UNSTAKING_TAKES: {
         id: 'TR_STAKE_UNSTAKING_TAKES',
         defaultMessage:
-            'Unstaking usually takes about 3 days. Once completed, you can trade or send it.',
+            'Unstaking currently takes {days} days. Once completed, you can trade or send it.',
     },
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
@@ -8786,9 +8791,9 @@ export default defineMessages({
         id: 'TR_STAKE_PROVIDED_BY',
         defaultMessage: 'Provided by',
     },
-    TR_STAKE_YOUR_FUNDS_MANAGED: {
-        id: 'TR_STAKE_YOUR_FUNDS_MANAGED',
-        defaultMessage: 'Your staked funds are <h>managed by Everstake</h>',
+    TR_STAKE_YOUR_FUNDS_MAINTAINED: {
+        id: 'TR_STAKE_YOUR_FUNDS_MAINTAINED',
+        defaultMessage: 'Your staked funds are <h>maintained by Everstake</h>',
     },
     TR_STAKE_POWERED_BY: {
         id: 'TR_STAKE_POWERED_BY',
@@ -8797,7 +8802,7 @@ export default defineMessages({
     TR_STAKE_EVERSTAKE_MANAGES: {
         id: 'TR_STAKE_EVERSTAKE_MANAGES',
         defaultMessage:
-            'Everstake manages and protects your staked {symbol} <t>with their smart contracts, infrastructure, and technology.</t>',
+            'Everstake maintains and protects your staked {symbol} <t>with their smart contracts, infrastructure, and technology.</t>',
     },
     TR_STAKE_TREZOR_NO_LIABILITY: {
         id: 'TR_STAKE_TREZOR_NO_LIABILITY',

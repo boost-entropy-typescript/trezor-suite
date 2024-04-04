@@ -86,15 +86,17 @@ const FEE_LEVELS_TRANSLATIONS = {
     custom: 'FEE_LEVEL_CUSTOM',
     high: 'FEE_LEVEL_HIGH',
     normal: 'FEE_LEVEL_NORMAL',
-    economy: 'FEE_LEVEL_ECONOMY',
+    economy: 'FEE_LEVEL_LOW',
     low: 'FEE_LEVEL_LOW',
 } as const;
 
 const buildFeeOptions = (levels: FeeLevel[]) =>
-    levels.map(({ label }) => ({
-        label: <Translation id={FEE_LEVELS_TRANSLATIONS[label]} />,
-        value: label,
-    }));
+    levels
+        .filter(level => level.label !== 'low') // hack to hide "low" fee option
+        .map(({ label }) => ({
+            label: <Translation id={FEE_LEVELS_TRANSLATIONS[label]} />,
+            value: label,
+        }));
 
 export interface FeesProps<TFieldValues extends FormState> {
     account: Account;
@@ -110,6 +112,7 @@ export interface FeesProps<TFieldValues extends FormState> {
     label?: ExtendedMessageDescriptor['id'];
     rbfForm?: boolean;
     helperText?: React.ReactNode;
+    showFeeWhilePending?: boolean;
 }
 
 export const Fees = <TFieldValues extends FormState>({
@@ -122,6 +125,7 @@ export const Fees = <TFieldValues extends FormState>({
     label,
     rbfForm,
     helperText,
+    showFeeWhilePending = true,
     ...props
 }: FeesProps<TFieldValues>) => {
     // Type assertion allowing to make the component reusable, see https://stackoverflow.com/a/73624072.
@@ -201,6 +205,7 @@ export const Fees = <TFieldValues extends FormState>({
                             feeInfo={feeInfo}
                             selectedLevel={selectedLevel}
                             transactionInfo={transactionInfo}
+                            showFee={showFeeWhilePending || transactionInfo?.type === 'final'}
                         />
                     </motion.div>
                 )}

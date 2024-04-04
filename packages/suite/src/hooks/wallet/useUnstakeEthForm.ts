@@ -15,11 +15,9 @@ import {
     OUTPUT_AMOUNT,
     UseStakeFormsProps,
 } from 'src/types/wallet/stakeForms';
-import { mapTestnetSymbol } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 
 import { useStakeCompose } from './form/useStakeCompose';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
-import { MIN_ETH_AMOUNT_FOR_STAKING } from 'src/constants/suite/ethStaking';
 
 import { signTransaction } from 'src/actions/wallet/stakeActions';
 import {
@@ -56,19 +54,13 @@ export const useUnstakeEthForm = ({
     const localCurrency = useSelector(selectLocalCurrency);
     const symbolFees = useSelector(state => state.wallet.fees[symbol]);
 
-    const symbolForFiat = mapTestnetSymbol(symbol);
     const currentRate = useSelector(state =>
-        selectFiatRatesByFiatRateKey(
-            state,
-            getFiatRateKey(symbolForFiat, localCurrency),
-            'current',
-        ),
+        selectFiatRatesByFiatRateKey(state, getFiatRateKey(symbol, localCurrency), 'current'),
     );
 
     const autocompoundBalance = getAccountAutocompoundBalance(account);
     const amountLimits: AmountLimitsString = {
         currency: symbol,
-        minCrypto: MIN_ETH_AMOUNT_FOR_STAKING.toString(),
         maxCrypto: autocompoundBalance,
     };
 
@@ -81,9 +73,10 @@ export const useUnstakeEthForm = ({
             ...getStakeFormsDefaultValues({
                 address: poolAddress,
                 ethereumStakeType: 'unstake',
+                amount: autocompoundBalance,
             }),
         } as UnstakeFormState;
-    }, [account.symbol]);
+    }, [account.symbol, autocompoundBalance]);
 
     const { saveDraft, getDraft, removeDraft } = useFormDraft<UnstakeFormState>('unstake-eth');
     const draft = getDraft(account.key);

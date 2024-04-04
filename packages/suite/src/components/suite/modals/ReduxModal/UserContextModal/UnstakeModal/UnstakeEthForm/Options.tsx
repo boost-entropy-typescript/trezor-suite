@@ -5,10 +5,10 @@ import { Paragraph, Radio } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 import { Inputs } from './Inputs';
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { mapTestnetSymbol } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { useSelector } from 'src/hooks/suite';
 import { useUnstakeEthFormContext } from 'src/hooks/wallet/useUnstakeEthForm';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
+import BigNumber from 'bignumber.js';
 import { getAccountEverstakeStakingPool } from 'src/utils/wallet/stakingUtils';
 
 const GreyP = styled(Paragraph)`
@@ -70,11 +70,10 @@ interface OptionsProps {
 export const Options = ({ symbol }: OptionsProps) => {
     const selectedAccount = useSelector(selectSelectedAccount);
 
-    const [unstakeOption, setUnstakeOption] = useState<UnstakeOptions>('other');
+    const [unstakeOption, setUnstakeOption] = useState<UnstakeOptions>('all');
     const isRewardsSelected = unstakeOption === 'rewards';
     const isAllSelected = unstakeOption === 'all';
     const isOtherAmountSelected = unstakeOption === 'other';
-    const mappedSymbol = mapTestnetSymbol(symbol);
     const { onOptionChange } = useUnstakeEthFormContext();
 
     const {
@@ -85,34 +84,36 @@ export const Options = ({ symbol }: OptionsProps) => {
 
     return (
         <div>
-            <RadioWrapper>
-                <Radio
-                    isChecked={isRewardsSelected}
-                    onClick={async () => {
-                        if (isRewardsSelected) return;
+            {new BigNumber(restakedReward).gt(0) && (
+                <RadioWrapper>
+                    <Radio
+                        isChecked={isRewardsSelected}
+                        onClick={async () => {
+                            if (isRewardsSelected) return;
 
-                        setUnstakeOption('rewards');
-                        await onOptionChange(restakedReward);
-                    }}
-                >
-                    <RadioButtonLabelContent>
-                        <RadioButtonLabelTxt>
-                            <Translation id="TR_STAKE_ONLY_REWARDS" />
-                        </RadioButtonLabelTxt>
+                            setUnstakeOption('rewards');
+                            await onOptionChange(restakedReward);
+                        }}
+                    >
+                        <RadioButtonLabelContent>
+                            <RadioButtonLabelTxt>
+                                <Translation id="TR_STAKE_ONLY_REWARDS" />
+                            </RadioButtonLabelTxt>
 
-                        <TxtRight>
-                            <GreyP>
-                                <FormattedCryptoAmount value={restakedReward} symbol={symbol} />
-                            </GreyP>
-                            <Paragraph>
-                                <GreenTxt>
-                                    <FiatValue amount={restakedReward} symbol={mappedSymbol} />
-                                </GreenTxt>
-                            </Paragraph>
-                        </TxtRight>
-                    </RadioButtonLabelContent>
-                </Radio>
-            </RadioWrapper>
+                            <TxtRight>
+                                <GreyP>
+                                    <FormattedCryptoAmount value={restakedReward} symbol={symbol} />
+                                </GreyP>
+                                <Paragraph>
+                                    <GreenTxt>
+                                        <FiatValue amount={restakedReward} symbol={symbol} />
+                                    </GreenTxt>
+                                </Paragraph>
+                            </TxtRight>
+                        </RadioButtonLabelContent>
+                    </Radio>
+                </RadioWrapper>
+            )}
 
             <RadioWrapper>
                 <Radio
@@ -137,11 +138,11 @@ export const Options = ({ symbol }: OptionsProps) => {
                                 />
                             </GreyP>
                             <Paragraph>
-                                <FiatValue amount={depositedBalance} symbol={mappedSymbol}>
+                                <FiatValue amount={depositedBalance} symbol={symbol}>
                                     {({ value }) => value && <span>{value} + </span>}
                                 </FiatValue>
                                 <GreenTxt>
-                                    <FiatValue amount={restakedReward} symbol={mappedSymbol} />
+                                    <FiatValue amount={restakedReward} symbol={symbol} />
                                 </GreenTxt>
                             </Paragraph>
                         </TxtRight>
@@ -171,7 +172,7 @@ export const Options = ({ symbol }: OptionsProps) => {
                                 />
                             </GreyP>
                             <Paragraph>
-                                <FiatValue amount={autocompoundBalance} symbol={mappedSymbol}>
+                                <FiatValue amount={autocompoundBalance} symbol={symbol}>
                                     {({ value }) =>
                                         value && (
                                             <>

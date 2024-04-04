@@ -5,7 +5,6 @@ import { borders, spacingsPx } from '@trezor/theme';
 import { openModal } from 'src/actions/suite/modalActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
-import { mapTestnetSymbol } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { FiatValueWrapper, FormattedCryptoAmountWrapper } from './styled';
 
 const StyledCard = styled.div`
@@ -20,6 +19,10 @@ const StyledCard = styled.div`
     );
     position: relative;
     overflow: hidden;
+`;
+
+const StyledIcon = styled(Icon)`
+    transform: rotate(20deg);
 `;
 
 const BgImgWrapper = styled.div<{ $top: number; $left: number }>`
@@ -64,16 +67,19 @@ interface ClaimReadyCardProps {
 export const ClaimReadyCard = ({ claimAmount }: ClaimReadyCardProps) => {
     const theme = useTheme();
     const { symbol } = useSelector(selectSelectedAccount) ?? {};
-    const mappedSymbol = mapTestnetSymbol(symbol ?? 'eth');
     const dispatch = useDispatch();
     const openClaimModal = () => {
         dispatch(openModal({ type: 'claim' }));
     };
 
+    if (!symbol) {
+        return null;
+    }
+
     return (
         <StyledCard>
             <BgImgWrapper $top={30} $left={-16}>
-                <Icon icon="PIGGY_BANK_FILLED" size={31} color={theme.iconPrimaryDefault} />
+                <StyledIcon icon="PIGGY_BANK_FILLED" size={31} color={theme.iconPrimaryDefault} />
             </BgImgWrapper>
             <BgImgWrapper $top={103} $left={126}>
                 <Icon icon="CURRENCY_ETH" size={29} color={theme.iconPrimaryDefault} />
@@ -101,7 +107,7 @@ export const ClaimReadyCard = ({ claimAmount }: ClaimReadyCardProps) => {
                             <FiatValue
                                 showApproximationIndicator
                                 amount={claimAmount}
-                                symbol={mappedSymbol}
+                                symbol={symbol}
                             />
                         </FiatValueWrapper>
                     </div>
