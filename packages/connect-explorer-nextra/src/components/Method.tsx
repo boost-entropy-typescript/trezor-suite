@@ -33,7 +33,7 @@ interface Props {
     };
 }
 
-const getFields = (fields: Field<any>[], props: Props) => {
+export const getFields = (fields: Field<any>[], props: Props) => {
     // Move all booleans to the end while not breaking the order of other fields
     const bools = fields.filter(f => f.type === 'checkbox');
     const nonBools = fields.filter(f => f.type !== 'checkbox');
@@ -130,6 +130,8 @@ const MethodContent = styled.section`
     & > div {
         display: flex;
         flex-direction: column;
+        max-width: 100%;
+        overflow: hidden;
     }
 `;
 
@@ -138,6 +140,7 @@ const Container = styled.div`
     background: ${({ theme }) => theme.backgroundSurfaceElevation2};
     border-radius: 12px;
     width: 100%;
+    overflow-x: scroll;
     padding: 10px;
     word-wrap: break-word;
     word-break: break-all;

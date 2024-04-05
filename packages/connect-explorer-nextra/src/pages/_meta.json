@@ -1,6 +1,9 @@
 {
-    "index": "Home",
-    "bitcoin": "Bitcoin",
-    "cardano": "Cardano",
-    "other": "Other"
+    "index": "Getting started",
+    "methods": "Methods",
+    "details": "Details",
+    "settings": {
+        "title": "Settings",
+        "type": "page"
+    }
 }

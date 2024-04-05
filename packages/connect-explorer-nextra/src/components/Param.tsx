@@ -4,6 +4,7 @@ import Markdown from 'react-markdown';
 import styled from 'styled-components';
 
 import { Badge, useElevation } from '@trezor/components';
+import { useMDXComponents } from '@trezor/connect-explorer-theme';
 import { Elevation, mapElevationToBackground } from '@trezor/theme';
 
 interface ParamProps {
@@ -54,14 +55,17 @@ const ParamType = styled.div<{
     `}
 `;
 
-export const ParamDescriptionComponent = (props: Pick<ParamProps, 'description' | 'children'>) => {
+export const ParamDescriptionComponent = (
+    props: Pick<ParamProps, 'description' | 'children' | 'type'>,
+) => {
     const { parentElevation } = useElevation();
+    const components = useMDXComponents();
 
     return (
         <>
-            {props.description && (
+            {props.description && props.type !== 'Undefined' && (
                 <ParamDescription $elevation={parentElevation}>
-                    <Markdown>{props.description}</Markdown>
+                    <Markdown components={components as any}>{props.description}</Markdown>
                 </ParamDescription>
             )}
             {props.children && (
