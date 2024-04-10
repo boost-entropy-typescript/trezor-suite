@@ -76,6 +76,8 @@ export const DemoScreen = () => {
         'secondary',
         'tertiaryElevation0',
         'dangerElevation0',
+        'warningBold',
+        'warningElevation1',
     ] satisfies ButtonColorScheme[];
 
     const textButtonVariants = ['primary', 'tertiary'] satisfies TextButtonVariant[];
@@ -322,11 +324,11 @@ export const DemoScreen = () => {
                     <Box marginTop="medium" marginBottom="medium">
                         <Text>AlertBox:</Text>
                         <VStack spacing="medium">
-                            <AlertBox variant="info" title="Info" isStandalone />
-                            <AlertBox variant="success" title="Success" isStandalone />
-                            <AlertBox variant="error" title="Error" isStandalone />
+                            <AlertBox variant="info" title="Info" />
+                            <AlertBox variant="success" title="Success" />
+                            <AlertBox variant="error" title="Error" />
                             <Box>
-                                <AlertBox variant="warning" title="Warning" isStandalone />
+                                <AlertBox variant="warning" title="Warning" />
                             </Box>
                             <AlertBox
                                 variant="info"
@@ -342,7 +344,6 @@ export const DemoScreen = () => {
                                         />
                                     </>
                                 }
-                                isStandalone
                             />
                         </VStack>
                     </Box>

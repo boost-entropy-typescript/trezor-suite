@@ -32,8 +32,8 @@ export const createApi = (apiStr: 'usb' | 'udp', logger?: Log) => {
               });
 
     // whenever low-level api reports changes to descriptors, report them to sessions module
-    api.on('transport-interface-change', paths => {
-        sessionsClient.enumerateDone({ paths });
+    api.on('transport-interface-change', descriptors => {
+        sessionsClient.enumerateDone({ descriptors });
     });
 
     const writeUtil = async ({ path, data }: { path: string; data: string }) => {
@@ -89,7 +89,11 @@ export const createApi = (apiStr: 'usb' | 'udp', logger?: Log) => {
             return enumerateResult;
         }
 
-        return sessionsClient.enumerateDone({ paths: enumerateResult.payload });
+        const enumerateDoneResponse = await sessionsClient.enumerateDone({
+            descriptors: enumerateResult.payload,
+        });
+
+        return enumerateDoneResponse;
     };
 
     const acquire = async (acquireInput: AcquireInput) => {

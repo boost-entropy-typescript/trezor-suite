@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Inspector } from 'react-inspector';
 
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
+import { CopyToClipboard } from 'nextra/components';
 
 import { Button, H3 } from '@trezor/components';
 
@@ -19,7 +20,6 @@ import {
     File,
 } from './fields';
 import { Row } from './fields/Row';
-import { CopyToClipboard } from './CopyToClipboard';
 
 interface Props {
     actions: {
@@ -43,7 +43,7 @@ export const getFields = (fields: Field<any>[], props: Props) => {
     return (
         <>
             {children}
-            <Checkboxes>{boolsChildren}</Checkboxes>
+            {boolsChildren.length > 0 && <Checkboxes>{boolsChildren}</Checkboxes>}
         </>
     );
 };
@@ -122,16 +122,13 @@ export const getField = (field: Field<any> | FieldWithBundle<any>, props: Props)
 };
 
 const MethodContent = styled.section`
-    flex: 1;
     display: grid;
     grid-template-columns: 3fr 2fr;
     gap: 20px;
 
     & > div {
-        display: flex;
-        flex-direction: column;
-        max-width: 100%;
-        overflow: hidden;
+        /* CSS grid obscurities */
+        min-width: 0;
     }
 `;
 
@@ -167,6 +164,25 @@ const Checkboxes = styled.div`
     gap: 0 10px;
 `;
 
+const CopyWrapper = styled.div`
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+
+    div:hover > & {
+        opacity: 1;
+    }
+`;
+
+const Sticky = styled.div`
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+    width: 100%;
+`;
+
 interface VerifyButtonProps {
     onClick: (url: string) => void;
     name: string;
@@ -182,6 +198,7 @@ const VerifyButton = ({ name, onClick }: VerifyButtonProps) => {
 };
 
 export const Method = () => {
+    const theme = useTheme();
     const { method } = useSelector(state => ({
         method: state.method,
     }));
@@ -201,7 +218,14 @@ export const Method = () => {
 
     if (!name) return null;
 
-    const json = response ? <Inspector data={response} expandLevel={10} table={false} /> : null;
+    const json = response ? (
+        <Inspector
+            theme={theme.THEME === 'light' ? 'chromeLight' : 'chromeDark'}
+            data={response}
+            expandLevel={10}
+            table={false}
+        />
+    ) : null;
 
     return (
         <MethodContent>
@@ -216,18 +240,24 @@ export const Method = () => {
                         <VerifyButton name={name} onClick={onVerify} />
                     )}
                 </Row>
-                <Heading>Method with params</Heading>
-                <CodeContainer data-test="@code">
-                    <CopyToClipboard data={javascriptCode} />
-                    {javascriptCode}
-                </CodeContainer>
             </div>
             <div>
-                <Heading>Response</Heading>
-                <Container data-test="@response">
-                    <CopyToClipboard data={JSON.stringify(response, null, 2)} />
-                    {json}
-                </Container>
+                <Sticky>
+                    <Heading>Response</Heading>
+                    <Container data-test="@response">
+                        <CopyWrapper>
+                            <CopyToClipboard getValue={() => JSON.stringify(response, null, 2)} />
+                        </CopyWrapper>
+                        {json}
+                    </Container>
+                    <Heading>Method with params</Heading>
+                    <CodeContainer data-test="@code">
+                        <CopyWrapper>
+                            <CopyToClipboard getValue={() => javascriptCode ?? ''} />
+                        </CopyWrapper>
+                        {javascriptCode}
+                    </CodeContainer>
+                </Sticky>
             </div>
         </MethodContent>
     );
