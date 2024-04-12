@@ -10,7 +10,6 @@ import {
     PrecomposedLevels,
 } from '@suite-common/wallet-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { selectBlockchainBlockInfoBySymbol, selectDevice } from '@suite-common/wallet-core';
 import { createThunk } from '@suite-common/redux-utils';
 import {
     amountToSatoshi,
@@ -19,22 +18,18 @@ import {
     formatAmount,
     getExternalComposeOutput,
 } from '@suite-common/wallet-utils';
-
 import {
     getPubKeyFromAddress,
     buildTransferTransaction,
     buildTokenTransferTransaction,
     getAssociatedTokenAccountAddress,
     dummyPriorityFeesForFeeEstimation,
-} from 'src/utils/wallet/solanaUtils';
+} from '@suite-common/wallet-utils';
 
-import {
-    selectSelectedAccount,
-    selectSelectedAccountStatus,
-} from 'src/reducers/wallet/selectedAccountReducer';
-
-import { MODULE_PREFIX } from './constants';
-import { ComposeTransactionThunkArguments, SignTransactionThunkArguments } from './types';
+import { selectBlockchainBlockInfoBySymbol } from '../blockchain/blockchainReducer';
+import { selectDevice } from '../device/deviceReducer';
+import { ComposeTransactionThunkArguments, SignTransactionThunkArguments } from './sendFormTypes';
+import { SEND_MODULE_PREFIX } from './sendFormConstants';
 
 const calculate = (
     availableBalance: string,
@@ -128,7 +123,7 @@ const fetchAccountOwnerAndTokenInfoForAddress = async (
 };
 
 export const composeSolanaSendFormTransactionThunk = createThunk(
-    `${MODULE_PREFIX}/composeSolanaSendFormTransactionThunk`,
+    `${SEND_MODULE_PREFIX}/composeSolanaSendFormTransactionThunk`,
     async ({ formValues, formState }: ComposeTransactionThunkArguments, { getState }) => {
         const { account, network, feeInfo } = formState;
         const composeOutputs = getExternalComposeOutput(formValues, account, network);
@@ -256,12 +251,15 @@ export const composeSolanaSendFormTransactionThunk = createThunk(
 );
 
 export const signSolanaSendFormTransactionThunk = createThunk(
-    `${MODULE_PREFIX}/signSolanaSendFormTransactionThunk`,
+    `${SEND_MODULE_PREFIX}/signSolanaSendFormTransactionThunk`,
     async (
-        { formValues, transactionInfo }: SignTransactionThunkArguments,
-        { dispatch, getState },
+        { formValues, transactionInfo, selectedAccount }: SignTransactionThunkArguments,
+        { dispatch, getState, extra },
     ) => {
-        const selectedAccount = selectSelectedAccount(getState());
+        const {
+            selectors: { selectSelectedAccountStatus },
+        } = extra;
+
         const selectedAccountStatus = selectSelectedAccountStatus(getState());
         const device = selectDevice(getState());
 

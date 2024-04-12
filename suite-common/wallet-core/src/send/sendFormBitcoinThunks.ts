@@ -11,26 +11,28 @@ import {
     getUtxoOutpoint,
 } from '@suite-common/wallet-utils';
 import { BTC_RBF_SEQUENCE, BTC_LOCKTIME_SEQUENCE } from '@suite-common/wallet-constants';
-import { PrecomposedLevels, PrecomposedTransaction } from '@suite-common/wallet-types';
-import { selectDevice, selectTransactions } from '@suite-common/wallet-core';
+import {
+    AddressDisplayOptions,
+    PrecomposedLevels,
+    PrecomposedTransaction,
+} from '@suite-common/wallet-types';
 import { createThunk } from '@suite-common/redux-utils';
 
-import {
-    selectSelectedAccount,
-    selectSelectedAccountStatus,
-} from 'src/reducers/wallet/selectedAccountReducer';
-import { AddressDisplayOptions, selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
-import {
-    selectAreSatsAmountUnit,
-    selectBitcoinAmountUnit,
-} from 'src/reducers/wallet/settingsReducer';
-
-import { MODULE_PREFIX } from './constants';
-import { ComposeTransactionThunkArguments, SignTransactionThunkArguments } from './types';
+import { selectTransactions } from '../transactions/transactionsReducer';
+import { selectDevice } from '../device/deviceReducer';
+import { ComposeTransactionThunkArguments, SignTransactionThunkArguments } from './sendFormTypes';
+import { SEND_MODULE_PREFIX } from './sendFormConstants';
 
 export const composeBitcoinSendFormTransactionThunk = createThunk(
-    `${MODULE_PREFIX}/composeBitcoinSendFormTransactionThunk`,
-    async ({ formValues, formState }: ComposeTransactionThunkArguments, { dispatch, getState }) => {
+    `${SEND_MODULE_PREFIX}/composeBitcoinSendFormTransactionThunk`,
+    async (
+        { formValues, formState }: ComposeTransactionThunkArguments,
+        { dispatch, getState, extra },
+    ) => {
+        const {
+            selectors: { selectAreSatsAmountUnit },
+        } = extra;
+
         const { account, excludedUtxos, feeInfo, prison } = formState;
 
         const areSatsAmountUnit = selectAreSatsAmountUnit(getState());
@@ -208,12 +210,19 @@ export const composeBitcoinSendFormTransactionThunk = createThunk(
 );
 
 export const signBitcoinSendFormTransactionThunk = createThunk(
-    `${MODULE_PREFIX}/signBitcoinSendFormTransactionThunk`,
+    `${SEND_MODULE_PREFIX}/signBitcoinSendFormTransactionThunk`,
     async (
-        { formValues, transactionInfo }: SignTransactionThunkArguments,
-        { dispatch, getState },
+        { formValues, transactionInfo, selectedAccount }: SignTransactionThunkArguments,
+        { dispatch, getState, extra },
     ) => {
-        const selectedAccount = selectSelectedAccount(getState());
+        const {
+            selectors: {
+                selectBitcoinAmountUnit,
+                selectAddressDisplayType,
+                selectSelectedAccountStatus,
+            },
+        } = extra;
+
         const bitcoinAmountUnit = selectBitcoinAmountUnit(getState());
         const selectedAccountStatus = selectSelectedAccountStatus(getState());
         const device = selectDevice(getState());

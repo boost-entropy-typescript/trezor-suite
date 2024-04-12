@@ -1,3 +1,5 @@
+import { createAction } from '@reduxjs/toolkit';
+
 import {
     FormState,
     PrecomposedTransactionFinal,
@@ -5,25 +7,25 @@ import {
     AccountKey,
     TxFinalCardano,
 } from '@suite-common/wallet-types';
-import { createAction } from '@reduxjs/toolkit';
-import { MODULE_PREFIX } from './send/constants';
+
+import { SEND_MODULE_PREFIX } from './sendFormConstants';
 
 const storeDraft = createAction(
-    `${MODULE_PREFIX}/store-draft`,
+    `${SEND_MODULE_PREFIX}/store-draft`,
     (payload: { accountKey: AccountKey; formState: FormState }) => ({
         payload,
     }),
 );
 
 const removeDraft = createAction(
-    `${MODULE_PREFIX}/remove-draft`,
+    `${SEND_MODULE_PREFIX}/remove-draft`,
     (payload: { accountKey: AccountKey }) => ({
         payload,
     }),
 );
 
 const storePrecomposedTransaction = createAction(
-    `${MODULE_PREFIX}/store-precomposed-transaction`,
+    `${SEND_MODULE_PREFIX}/store-precomposed-transaction`,
     (payload: {
         formState: FormState;
         transactionInfo: PrecomposedTransactionFinal | TxFinalCardano;
@@ -33,19 +35,19 @@ const storePrecomposedTransaction = createAction(
 );
 
 const storeSignedTransaction = createAction(
-    `${MODULE_PREFIX}/store-signed-transaction`,
+    `${SEND_MODULE_PREFIX}/store-signed-transaction`,
     (payload: FormSignedTx) => ({
         payload,
     }),
 );
 
-const discardTransaction = createAction(`${MODULE_PREFIX}/discard-transaction`);
+const discardTransaction = createAction(`${SEND_MODULE_PREFIX}/discard-transaction`);
 
-const sendRaw = createAction(`${MODULE_PREFIX}/sendRaw`, (payload: boolean) => ({
+const sendRaw = createAction(`${SEND_MODULE_PREFIX}/sendRaw`, (payload: boolean) => ({
     payload,
 }));
 
-export const dispose = createAction(`${MODULE_PREFIX}/dispose`);
+export const dispose = createAction(`${SEND_MODULE_PREFIX}/dispose`);
 
 export const sendFormActions = {
     storeDraft,

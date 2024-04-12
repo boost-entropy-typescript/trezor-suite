@@ -1,13 +1,12 @@
 import { STORAGE } from 'src/actions/suite/constants';
 import { Action } from 'src/types/suite';
-import { FormState, PrecomposedTransactionFinal } from 'src/types/wallet/sendForm';
+import { FormState, PrecomposedTransactionFinal } from '@suite-common/wallet-types';
 import { accountsActions } from '@suite-common/wallet-core';
-import { prepareSendFormReducer, initialState } from '../sendFormReducer';
+import { prepareSendFormReducer, initialState, sendFormActions } from '@suite-common/wallet-core';
 
 import { Account, FormSignedTx } from '@suite-common/wallet-types';
 
 import { PreloadStoreAction } from 'src/support/suite/preloadStore';
-import { sendFormActions } from 'src/actions/wallet/sendFormActions';
 import { extraDependencies } from 'src/support/extraDependencies';
 
 // Since these mocked values are only used for assigning them and deleting from the state,
