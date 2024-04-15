@@ -14,6 +14,11 @@ describe('protocol-bridge', () => {
         expect(chunks[0].subarray(0, 6).toString('hex')).toEqual('003700000173');
         expect(chunks[0].readUint32BE(2)).toEqual(371);
         expect(chunks[0].length).toEqual(371 + 6);
+
+        // fail to encode unsupported messageType (string)
+        expect(() => bridge.encode(Buffer.alloc(64), { messageType: 'Initialize' })).toThrow(
+            'Unsupported message type Initialize',
+        );
     });
 
     it('decode', () => {
@@ -23,7 +28,7 @@ describe('protocol-bridge', () => {
         data.writeUint32BE(379, 2);
 
         const read = bridge.decode(data);
-        expect(read.typeId).toEqual(55);
+        expect(read.messageType).toEqual(55);
         expect(read.length).toEqual(379);
     });
 });

@@ -3,7 +3,14 @@ import { Modal, Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
-import { Button, Card, VStack, useBottomSheetAnimation, Pictogram } from '@suite-native/atoms';
+import {
+    Button,
+    Card,
+    VStack,
+    useBottomSheetAnimation,
+    CenteredTitleHeader,
+    Pictogram,
+} from '@suite-native/atoms';
 
 import { useShakeAnimation } from '../useShakeAnimation';
 import { Alert } from '../alertsAtoms';
@@ -87,12 +94,10 @@ export const AlertSheet = ({ alert }: AlertSheetProps) => {
                     >
                         <Card style={applyStyle(alertSheetContainerStyle)}>
                             <VStack style={applyStyle(alertSheetContentStyle)} spacing="large">
-                                <Pictogram
-                                    title={title}
-                                    variant={pictogramVariant}
-                                    subtitle={description}
-                                    icon={icon}
-                                />
+                                {icon && pictogramVariant && (
+                                    <Pictogram variant={pictogramVariant} icon={icon} />
+                                )}
+                                <CenteredTitleHeader title={title} subtitle={description} />
                                 {appendix}
                                 <VStack spacing="medium">
                                     <Button
