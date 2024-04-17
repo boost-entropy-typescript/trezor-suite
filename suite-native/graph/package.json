@@ -14,6 +14,7 @@
         "@mobily/ts-belt": "^3.13.1",
         "@react-navigation/native": "6.1.10",
         "@reduxjs/toolkit": "1.9.5",
+        "@sentry/react-native": "5.19.1",
         "@shopify/react-native-skia": "0.1.234",
         "@suite-common/formatters": "workspace:*",
         "@suite-common/graph": "workspace:*",
@@ -39,7 +40,7 @@
         "react": "18.2.0",
         "react-intl": "^6.6.2",
         "react-native": "0.73.6",
-        "react-native-reanimated": "3.7.0-nightly-20240101-9d365ae7b",
+        "react-native-reanimated": "3.8.1",
         "react-redux": "8.0.7"
     }
 }
