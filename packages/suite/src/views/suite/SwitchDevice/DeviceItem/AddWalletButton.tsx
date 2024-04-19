@@ -6,26 +6,11 @@ import { Translation } from 'src/components/suite';
 import { TrezorDevice, AcquiredDevice } from 'src/types/suite';
 import { useSelector } from 'src/hooks/suite';
 import { SUITE } from 'src/actions/suite/constants';
-import { borders } from '@trezor/theme';
 
 const AddWallet = styled.div`
     display: flex;
     width: 100%;
     margin-top: 10px;
-`;
-
-const StyledButton = styled(Button)`
-    padding: 16px;
-    justify-content: center;
-    border: 1px dashed ${({ theme }) => theme.STROKE_GREY};
-    border-radius: ${borders.radii.md};
-    background: transparent;
-
-    &:hover,
-    &:active,
-    &:focus {
-        background: ${({ theme }) => theme.BG_GREY_ALT};
-    }
 `;
 
 const StyledTooltip = styled(Tooltip)`
@@ -72,8 +57,9 @@ export const AddWalletButton = ({
             <StyledTooltip
                 content={isLocked && <Translation id="TR_TO_ACCESS_OTHER_WALLETS" />}
                 cursor="pointer"
+                placement="bottom"
             >
-                <StyledButton
+                <Button
                     data-test={
                         emptyPassphraseWalletExists
                             ? '@switch-device/add-hidden-wallet-button'
@@ -90,7 +76,7 @@ export const AddWalletButton = ({
                     ) : (
                         <Translation id="TR_ADD_WALLET" />
                     )}
-                </StyledButton>
+                </Button>
             </StyledTooltip>
         </AddWallet>
     );

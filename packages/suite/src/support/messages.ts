@@ -8846,4 +8846,71 @@ export default defineMessages({
         id: 'TR_VIEW_ONLY_TOOLTIP_BUTTON',
         defaultMessage: 'Got it',
     },
+    TR_VIEW_ONLY_ENABLED: {
+        id: 'TR_VIEW_ONLY_ENABLED',
+        defaultMessage: 'View-only enabled',
+    },
+    TR_VIEW_ONLY_DISABLED: {
+        id: 'TR_VIEW_ONLY_DISABLED',
+        defaultMessage: 'View-only disabled',
+    },
+    TR_VIEW_ONLY_RADIOS_ENABLED_TITLE: {
+        id: 'TR_VIEW_ONLY_RADIOS_ENABLED_TITLE',
+        defaultMessage: 'Enabled',
+    },
+    TR_VIEW_ONLY_RADIOS_DISABLED_TITLE: {
+        id: 'TR_VIEW_ONLY_RADIOS_DISABLED_TITLE',
+        defaultMessage: 'Disabled',
+    },
+    TR_VIEW_ONLY_RADIOS_ENABLED_DESCRIPTION: {
+        id: 'TR_VIEW_ONLY_RADIOS_ENABLED_DESCRIPTION',
+        defaultMessage:
+            'Balances & transactions <strong>remain visible</strong> in app even after Trezor is disconnected.',
+    },
+    TR_VIEW_ONLY_RADIOS_DISABLED_DESCRIPTION: {
+        id: 'TR_VIEW_ONLY_RADIOS_DISABLED_DESCRIPTION',
+        defaultMessage:
+            'Balances & transactions <strong>aren’t visible</strong> in the app after Trezor is disconnected.',
+    },
+    TR_VIEW_ONLY_RADIOS_CONFIRM: {
+        id: 'TR_VIEW_ONLY_RADIOS_CONFIRM',
+        defaultMessage: 'Confirm',
+    },
+    TR_VIEW_ONLY_SEND_COINS_INFO: {
+        id: 'TR_VIEW_ONLY_SEND_COINS_INFO',
+        defaultMessage: 'You always need to connect Trezor to move coins.',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_TITLE: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_TITLE',
+        defaultMessage: 'Eject this wallet?',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DESCRIPTION: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DESCRIPTION',
+        defaultMessage:
+            'Your funds and transactions won’t be visible until you reconnect your device.',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_PRIMARY_BUTTON: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_PRIMARY_BUTTON',
+        defaultMessage: 'Eject',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON',
+        defaultMessage: 'Cancel',
+    },
+    TR_VIEW_ONLY: {
+        id: 'TR_VIEW_ONLY',
+        defaultMessage: 'View-only',
+    },
+    TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE: {
+        id: 'TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE',
+        defaultMessage: 'Enable view-only to see balances in app even after Trezor is disconnected',
+    },
+    TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_DESC: {
+        id: 'TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_DESC',
+        defaultMessage: 'Connect Trezor to move or trade coins.',
+    },
+    TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_CHANGE_BUTTON: {
+        id: 'TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_CHANGE_BUTTON',
+        defaultMessage: 'Change',
+    },
 });
