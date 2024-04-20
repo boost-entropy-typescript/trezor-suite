@@ -38,17 +38,12 @@ import { useOpenLink } from '@suite-native/link';
 
 import { HowToUpdateBottomSheet } from '../components/HowToUpdateBottomSheet';
 
-const deviceImageMap = {
-    [DeviceModelInternal.T1B1]: require('../assets/t1.png'),
-    [DeviceModelInternal.T2T1]: require('../assets/tt.png'),
-    [DeviceModelInternal.T2B1]: require('../assets/ts3.png'),
-} as const satisfies Record<DeviceModelInternal, string>;
-
-const deviceModelNameMap = {
-    [DeviceModelInternal.T1B1]: 'Trezor Model One',
-    [DeviceModelInternal.T2T1]: 'Trezor Model T',
-    [DeviceModelInternal.T2B1]: 'Trezor Safe 3',
-} as const satisfies Record<DeviceModelInternal, string>;
+const deviceImageMap: Record<DeviceModelInternal, string> = {
+    [DeviceModelInternal.T1B1]: require('../assets/t1b1.png'),
+    [DeviceModelInternal.T2T1]: require('../assets/t2t1.png'),
+    [DeviceModelInternal.T2B1]: require('../assets/t2b1.png'),
+    [DeviceModelInternal.T3T1]: require('../assets/t3t1.png'),
+};
 
 const emptyBoxStyle = prepareNativeStyle(() => ({
     width: 48,
@@ -142,7 +137,7 @@ export const DeviceInfoModalScreen = () => {
                         <VStack spacing="extraSmall" justifyContent="center">
                             <Text variant="titleSmall">{deviceLabel}</Text>
                             <Text variant="label" color="textSubdued">
-                                {deviceModelNameMap[deviceModel]}
+                                {device?.name}
                             </Text>
                             <Text variant="hint">
                                 {translate('deviceInfo.installedFw', {

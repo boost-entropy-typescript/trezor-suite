@@ -1932,6 +1932,10 @@ export default defineMessages({
         defaultMessage: '{networkName} receive address',
         id: 'TR_ADDRESS_MODAL_TITLE',
     },
+    TR_ADDRESS_MODAL_TITLE_EXCHANGE: {
+        defaultMessage: '{networkCurrencyName} receive address on {networkName} network',
+        id: 'TR_ADDRESS_MODAL_TITLE_EXCHANGE',
+    },
     TR_XPUB_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy public key',
         id: 'TR_XPUB_MODAL_CLIPBOARD',
@@ -4262,6 +4266,12 @@ export default defineMessages({
     },
     TR_CHECK_RECOVERY_SEED_DESC_T2T1: {
         id: 'TR_CHECK_RECOVERY_SEED_DESC_T2T1',
+        defaultMessage:
+            'Your recovery seed (wallet backup) is entered using the touchscreen. This avoids exposing any of your sensitive information to a potentially insecure computer or web browser.',
+        dynamic: true,
+    },
+    TR_CHECK_RECOVERY_SEED_DESC_T3T1: {
+        id: 'TR_CHECK_RECOVERY_SEED_DESC_T3T1',
         defaultMessage:
             'Your recovery seed (wallet backup) is entered using the touchscreen. This avoids exposing any of your sensitive information to a potentially insecure computer or web browser.',
         dynamic: true,
