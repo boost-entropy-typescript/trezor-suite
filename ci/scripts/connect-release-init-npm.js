@@ -1,6 +1,3 @@
-/* eslint-disable camelcase */
-
-const child_process = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -11,7 +8,7 @@ const args = process.argv.slice(2);
 if (args.length < 1) throw new Error('Check npm dependencies requires 1 parameter: semver');
 const [semver] = args;
 
-const allowedSemvers = ['patch', 'minor'];
+const allowedSemvers = ['patch', 'minor', 'prerelease'];
 if (!allowedSemvers.includes(semver)) {
     throw new Error(`provided semver: ${semver} must be one of ${allowedSemvers.join(', ')}`);
 }
@@ -45,7 +42,7 @@ const initConnectRelease = async () => {
             const PACKAGE_PATH = path.join(ROOT, 'packages', packageName);
             const PACKAGE_JSON_PATH = path.join(PACKAGE_PATH, 'package.json');
 
-            exec('yarn', ['bump', 'patch', `./packages/${packageName}/package.json`]);
+            exec('yarn', ['bump', semver, `./packages/${packageName}/package.json`]);
 
             const rawPackageJSON = fs.readFileSync(PACKAGE_JSON_PATH);
             const packageJSON = JSON.parse(rawPackageJSON);

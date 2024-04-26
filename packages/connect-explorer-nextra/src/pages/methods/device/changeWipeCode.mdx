@@ -1,12 +1,16 @@
+import { Callout } from 'nextra/components';
+
 import { PROTO } from '@trezor/connect/src/constants';
 
 import { ParamsTable } from '../../../components/ParamsTable';
 import { CommonParamsLink } from '../../../components/CommonParamsLink';
 import { ApiPlayground } from '../../../components/ApiPlayground';
+import changeWipeCode from '../../../data/methods/management/changeWipeCode.ts';
 
 <ApiPlayground
     options={[
-        { title: 'PROTO.ChangeWipeCode', method: 'changeWipeCode', schema: PROTO.ChangeWipeCode },
+        { title: 'Change wipe code', legacyConfig: changeWipeCode[0] },
+        { title: 'Advanced schema', method: 'changeWipeCode', schema: PROTO.ChangeWipeCode },
     ]}
 />
 
@@ -15,6 +19,11 @@ export const paramDescriptions = {
 };
 
 ## Change wipe code
+
+<Callout type="error" emoji="️🚫">
+    **Management command** - this method is restricted to Trezor.io and can't be used in 3rd party
+    applications.
+</Callout>
 
 This method initiates wipe code change sequence.
 

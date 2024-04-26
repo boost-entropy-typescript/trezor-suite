@@ -9,6 +9,7 @@ on:
         options:
           - patch
           - minor
+          - prerelease
 
 concurrency:
   group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
@@ -24,7 +25,7 @@ jobs:
         with:
           # Number of commits to fetch. 0 indicates all history for all branches and tags.
           fetch-depth: 0
-          submodules: recursive
+          submodules: true
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -35,7 +36,7 @@ jobs:
         run: yarn install
 
       - name: Build dependencies
-        # Running `build:libs` requires action to checkout with `submodules: recursive`.
+        # Running `build:libs` requires action to checkout with `submodules: true`.
         run: yarn build:libs
 
       - name: Run @trezor/connect create npm release branch

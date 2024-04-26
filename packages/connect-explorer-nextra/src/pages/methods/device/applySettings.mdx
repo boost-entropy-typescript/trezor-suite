@@ -1,11 +1,17 @@
+import { Callout } from 'nextra/components';
+
 import { ApplySettings } from '@trezor/connect/src/types/api/applySettings';
 
 import { ParamsTable } from '../../../components/ParamsTable';
 import { CommonParamsLink } from '../../../components/CommonParamsLink';
 import { ApiPlayground } from '../../../components/ApiPlayground';
+import applySettings from '../../../data/methods/management/applySettings.ts';
 
 <ApiPlayground
-    options={[{ title: 'ApplySettings', method: 'applySettings', schema: ApplySettings }]}
+    options={[
+        { title: 'Apply settings', legacyConfig: applySettings[0] },
+        { title: 'Advanced schema', method: 'applySettings', schema: ApplySettings },
+    ]}
 />
 
 export const paramDescriptions = {
@@ -21,6 +27,11 @@ export const paramDescriptions = {
 };
 
 ## Apply settings
+
+<Callout type="error" emoji="️🚫">
+    **Management command** - this method is restricted to Trezor.io and can't be used in 3rd party
+    applications.
+</Callout>
 
 Change device settings
 

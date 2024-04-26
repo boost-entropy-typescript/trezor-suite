@@ -1,11 +1,17 @@
+import { Callout } from 'nextra/components';
+
 import { PROTO } from '@trezor/connect/src/constants';
 
 import { ParamsTable } from '../../../components/ParamsTable';
 import { CommonParamsLink } from '../../../components/CommonParamsLink';
 import { ApiPlayground } from '../../../components/ApiPlayground';
+import applyFlags from '../../../data/methods/management/applyFlags.ts';
 
 <ApiPlayground
-    options={[{ title: 'PROTO.ApplyFlags', method: 'applyFlags', schema: PROTO.ApplyFlags }]}
+    options={[
+        { title: 'Apply flags', legacyConfig: applyFlags[0] },
+        { title: 'Advanced schema', method: 'applyFlags', schema: PROTO.ApplyFlags },
+    ]}
 />
 
 export const paramDescriptions = {
@@ -13,6 +19,11 @@ export const paramDescriptions = {
 };
 
 ## Apply flags
+
+<Callout type="error" emoji="️🚫">
+    **Management command** - this method is restricted to Trezor.io and can't be used in 3rd party
+    applications.
+</Callout>
 
 Change device flags. This methods allows you to set a mark on device (number) which must not be lower than
 previously set flag.

@@ -6,13 +6,18 @@ import { ParamsTable } from '../../../components/ParamsTable';
 import { CommonParamsLink } from '../../../components/CommonParamsLink';
 import { ApiPlayground } from '../../../components/ApiPlayground';
 
-<ApiPlayground options={[{ title: 'PROTO.SetBusy', method: 'setBusy', schema: PROTO.SetBusy }]} />
+<ApiPlayground options={[{ title: 'Advanced schema', method: 'setBusy', schema: PROTO.SetBusy }]} />
 
 export const paramDescriptions = {
     expiry_ms: '',
 };
 
 ## Set busy
+
+<Callout type="error" emoji="️🚫">
+    **Management command** - this method is restricted to Trezor.io and can't be used in 3rd party
+    applications.
+</Callout>
 
 Show a "Do not disconnect" dialog instead of the standard homescreen.
 
