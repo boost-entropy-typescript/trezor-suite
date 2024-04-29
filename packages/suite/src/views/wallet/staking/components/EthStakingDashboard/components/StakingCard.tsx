@@ -4,7 +4,7 @@ import { Button, Card, Icon, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 import { selectAccountStakeTransactions } from '@suite-common/wallet-core';
 import { isPending } from '@suite-common/wallet-utils';
-import { FiatValue, FormattedCryptoAmount, Translation } from 'src/components/suite';
+import { FiatValue, Translation } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { openModal } from 'src/actions/suite/modalActions';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
@@ -13,38 +13,21 @@ import { ProgressLabels } from './ProgressLabels/ProgressLabels';
 import { useProgressLabelsData } from '../hooks/useProgressLabelsData';
 import { useIsTxStatusShown } from '../hooks/useIsTxStatusShown';
 import { getAccountEverstakeStakingPool } from 'src/utils/wallet/stakingUtils';
+import { TrimmedCryptoAmount } from './TrimmedCryptoAmount';
 
 const StyledCard = styled(Card)`
     padding: ${spacingsPx.md};
 `;
 
-const EnteringAmountInfo = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: ${spacingsPx.xxs};
-    flex-wrap: wrap;
-    padding: ${spacingsPx.xxxs} ${spacingsPx.xs} ${spacingsPx.sm} ${spacingsPx.xs};
-    font-size: ${variables.FONT_SIZE.SMALL};
-`;
-
-const EnteringAmountsWrapper = styled.div`
-    font-size: ${variables.FONT_SIZE.NORMAL};
-`;
-
-const EnteringFiatValueWrapper = styled.span`
-    color: ${({ theme }) => theme.textSubdued};
-`;
-
-const AmountsWrapper = styled.div<{ $isUnstakePending: boolean }>`
+const AmountsWrapper = styled.div<{ $isStakeOrUnstakePending: boolean }>`
     display: flex;
     gap: ${spacingsPx.sm} ${spacingsPx.xs};
     flex-wrap: wrap;
-    justify-content: ${({ $isUnstakePending }) =>
-        $isUnstakePending ? 'space-between' : 'flex-start'};
+    justify-content: ${({ $isStakeOrUnstakePending }) =>
+        $isStakeOrUnstakePending ? 'space-between' : 'flex-start'};
 
     & > div {
-        flex: ${({ $isUnstakePending }) => ($isUnstakePending ? '' : '1 0 300px')};
+        flex: ${({ $isStakeOrUnstakePending }) => ($isStakeOrUnstakePending ? '' : '1 0 300px')};
     }
 `;
 
@@ -54,13 +37,6 @@ const AmountHeading = styled.div`
     align-items: center;
     font-size: ${variables.FONT_SIZE.TINY};
     color: ${({ theme }) => theme.textSubdued};
-`;
-
-const StyledFormattedCryptoAmount = styled(FormattedCryptoAmount)<{ $isRewards?: boolean }>`
-    display: block;
-    margin-top: ${spacingsPx.xs};
-    font-size: ${variables.FONT_SIZE.H2};
-    color: ${({ $isRewards = false, theme }) => ($isRewards ? theme.textPrimaryDefault : '')};
 `;
 
 const StyledFiatValue = styled(FiatValue)`
@@ -80,14 +56,6 @@ const Info = styled.div`
     align-items: center;
     font-size: ${variables.FONT_SIZE.TINY};
     color: ${({ theme }) => theme.textSubdued};
-`;
-
-const NoMarginInfo = styled(Info)`
-    margin: 0;
-`;
-
-const SmMarginInfo = styled(Info)`
-    margin: 0 0 ${spacingsPx.xxxs} ${spacingsPx.xs};
 `;
 
 const ButtonsWrapper = styled.div`
@@ -171,52 +139,40 @@ export const StakingCard = ({
         <StyledCard>
             {(isStakeConfirming || isTxStatusShown) && (
                 <InfoBox>
-                    <EnteringAmountInfo>
-                        <Translation
-                            id="TR_STAKE_WAITING_TO_BE_ADDED"
-                            values={{ symbol: selectedAccount?.symbol?.toUpperCase(), br: <br /> }}
-                        />
-
-                        <EnteringAmountsWrapper>
-                            <NoMarginInfo>
-                                <Icon icon="CLOCK" size={12} />
-                                <Translation id="TR_STAKE_TOTAL_PENDING" />
-                            </NoMarginInfo>
-
-                            <div>
-                                <FormattedCryptoAmount
-                                    value={totalPendingStakeBalance}
-                                    symbol={selectedAccount?.symbol}
-                                />{' '}
-                                <EnteringFiatValueWrapper>
-                                    <FiatValue
-                                        amount={totalPendingStakeBalance}
-                                        symbol={selectedAccount?.symbol}
-                                        showApproximationIndicator
-                                    >
-                                        {({ value }) => value && <span>({value})</span>}
-                                    </FiatValue>
-                                </EnteringFiatValueWrapper>
-                            </div>
-                        </EnteringAmountsWrapper>
-                    </EnteringAmountInfo>
-
-                    <SmMarginInfo>
-                        <Icon icon="INFO" size={12} />
-                        <Translation id="TR_STAKE_LAST_STAKE_REQUEST_STATE" />
-                    </SmMarginInfo>
                     <ProgressLabels labels={progressLabelsData} />
                 </InfoBox>
             )}
 
-            <AmountsWrapper $isUnstakePending={isPendingUnstakeShown}>
+            <AmountsWrapper $isStakeOrUnstakePending={isPendingUnstakeShown || isStakePending}>
+                {isStakePending && (
+                    <div>
+                        <AmountHeading>
+                            <Icon icon="SPINNER" size={16} />
+                            <Translation id="TR_STAKE_TOTAL_PENDING" />
+                        </AmountHeading>
+
+                        <TrimmedCryptoAmount
+                            value={totalPendingStakeBalance}
+                            symbol={selectedAccount?.symbol}
+                        />
+
+                        <StyledFiatValue
+                            amount={totalPendingStakeBalance}
+                            symbol={selectedAccount?.symbol}
+                            showApproximationIndicator
+                        >
+                            {({ value }) => (value ? <span>{value}</span> : null)}
+                        </StyledFiatValue>
+                    </div>
+                )}
+
                 <div>
                     <AmountHeading>
                         <Icon icon="LOCK_SIMPLE" size={16} />
                         <Translation id="TR_STAKE_STAKE" />
                     </AmountHeading>
 
-                    <StyledFormattedCryptoAmount
+                    <TrimmedCryptoAmount
                         value={depositedBalance}
                         symbol={selectedAccount?.symbol}
                     />
@@ -236,10 +192,10 @@ export const StakingCard = ({
                         <Translation id="TR_STAKE_REWARDS" />
                     </AmountHeading>
 
-                    <StyledFormattedCryptoAmount
-                        $isRewards
+                    <TrimmedCryptoAmount
                         value={restakedReward}
                         symbol={selectedAccount?.symbol}
+                        isRewards
                     />
 
                     <StyledFiatValue
@@ -272,7 +228,7 @@ export const StakingCard = ({
                             </span>
                         </AmountHeading>
 
-                        <StyledFormattedCryptoAmount
+                        <TrimmedCryptoAmount
                             value={withdrawTotalAmount}
                             symbol={selectedAccount?.symbol}
                         />

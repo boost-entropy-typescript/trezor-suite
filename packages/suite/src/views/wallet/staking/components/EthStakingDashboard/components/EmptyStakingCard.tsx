@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { Button, Card, Icon, Paragraph } from '@trezor/components';
+import { Button, Card, Icon, Paragraph, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 import { Translation, StakingFeature } from 'src/components/suite';
 import { openModal } from 'src/actions/suite/modalActions';
@@ -43,6 +43,10 @@ const FlexRow = styled.div`
     margin: ${spacingsPx.xl} 0 ${spacingsPx.xxl};
     gap: 68px;
     flex-wrap: wrap;
+
+    ${variables.SCREEN_QUERY.BELOW_DESKTOP} {
+        flex-direction: column;
+    }
 `;
 
 const FlexRowChild = styled.div`
@@ -82,8 +86,14 @@ export const EmptyStakingCard = () => {
                 title: <Translation id="TR_STAKE_ETH_LOCK_FUNDS" />,
                 description: <Translation id="TR_STAKE_ETH_LOCK_FUNDS_DESC" />,
             },
+            {
+                id: 2,
+                icon: <Icon icon="EVERSTAKE_LOGO" size={32} color={theme.iconEverstake} />,
+                title: <Translation id="TR_STAKE_ETH_EVERSTAKE" />,
+                description: <Translation id="TR_STAKE_ETH_EVERSTAKE_DESC" />,
+            },
         ],
-        [ethApy, theme.iconPrimaryDefault],
+        [ethApy, theme.iconEverstake, theme.iconPrimaryDefault],
     );
 
     return (
