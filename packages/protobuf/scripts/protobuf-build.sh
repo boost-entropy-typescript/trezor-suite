@@ -20,7 +20,7 @@ if [[ $# -eq 1 ]]
         BRANCH=$1
 fi
 
-cd ../../
+cd ../../../
 ls -la
 if test -d ./trezor-firmware; then
     echo "trezor-firmware directory exists"
@@ -30,14 +30,13 @@ else
 fi
 
 cd trezor-firmware
-ls -la
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
 cd ..
 
 cd "$PARENT_PATH/.."
 
-SRC="../../trezor-firmware/common/protob"
+SRC="../../../trezor-firmware/common/protob"
 
 # BUILD combined messages.proto file from protobuf files
 # this code was copied from ./submodules/trezor-common/protob Makekile
@@ -55,7 +54,6 @@ grep -hv -e '^import ' -e '^syntax' -e '^package' -e 'option java_' "$SRC"/messa
 
 # BUILD messages.json from message.proto
 # pbjs command is added by protobufjs-cli package
-ls -la 
 node ../../node_modules/.bin/pbjs -t json -p "$DIST" -o "$DIST"/messages.json --keep-case messages.proto
 rm "$DIST"/messages.proto
 
