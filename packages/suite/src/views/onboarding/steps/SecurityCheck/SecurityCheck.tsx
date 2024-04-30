@@ -7,8 +7,8 @@ import { Icon, Tooltip, variables, H2, useElevation } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/connect';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { useDispatch, useOnboarding, useSelector } from 'src/hooks/suite';
-import { Translation } from 'src/components/suite';
+import { useDispatch, useLayoutSize, useOnboarding, useSelector } from 'src/hooks/suite';
+import { Translation, TrezorLink } from 'src/components/suite';
 import { Hologram, OnboardingButtonSkip } from 'src/components/onboarding';
 import { CollapsibleOnboardingCard } from 'src/components/onboarding/CollapsibleOnboardingCard';
 import { SecurityCheckLayout } from './SecurityCheckLayout';
@@ -19,6 +19,7 @@ import { DeviceAuthenticity } from './DeviceAuthenticity';
 import { selectIsOnboadingActive } from 'src/reducers/onboarding/onboardingReducer';
 import { Elevation, mapElevationToBorder, typography } from '@trezor/theme';
 import { selectSuiteFlags } from '../../../../reducers/suite/suiteReducer';
+import { TREZOR_RESELLERS_URL, TREZOR_URL } from '@trezor/urls';
 
 const StyledCard = styled(CollapsibleOnboardingCard)`
     max-width: 840px;
@@ -51,8 +52,18 @@ const StyledH2 = styled(H2)`
 `;
 
 const Underline = styled.span`
-    text-decoration: underline;
-    text-decoration-style: dashed;
+    position: relative;
+    display: inline-block;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 0;
+        right: 0;
+        border-bottom: 1px dashed ${({ theme }) => theme.TYPE_LIGHT_GREY};
+        width: 100%;
+    }
 `;
 
 const TimeEstimateWrapper = styled.div`
@@ -93,48 +104,13 @@ const Text = styled.div`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
-const StyledTooltip = styled(Tooltip)`
-    display: inline-block;
-
-    ${variables.SCREEN_QUERY.MOBILE} {
-        pointer-events: none;
-
-        span {
-            text-decoration: none;
-        }
-    }
+const StyledTrezorLink = styled(TrezorLink)`
+    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
 `;
 
-const noFirmwareChecklist = [
-    {
-        icon: 'HOLOGRAM',
-        content: (
-            <Translation
-                id="TR_ONBOARDING_DEVICE_CHECK_1"
-                values={{
-                    strong: chunks => (
-                        <StyledTooltip
-                            placement="left"
-                            isLarge
-                            title={<Translation id="TR_HOLOGRAM_STEP_HEADING" />}
-                            content={<Hologram />}
-                        >
-                            <Underline>{chunks}</Underline>
-                        </StyledTooltip>
-                    ),
-                }}
-            />
-        ),
-    },
-    {
-        icon: 'VERIFIED',
-        content: <Translation id="TR_ONBOARDING_DEVICE_CHECK_2" />,
-    },
-    {
-        icon: 'PACKAGE',
-        content: <Translation id="TR_ONBOARDING_DEVICE_CHECK_3" />,
-    },
-] as const;
+const StyledTooltip = styled(Tooltip)`
+    display: inline-block;
+`;
 
 const firmwareInstalledChecklist = [
     {
@@ -143,6 +119,53 @@ const firmwareInstalledChecklist = [
     },
 ] as const;
 
+const getNoFirmwareChecklist = (isMobileLayout: boolean) =>
+    [
+        {
+            icon: 'VERIFIED',
+            content: (
+                <Translation
+                    id="TR_ONBOARDING_DEVICE_CHECK_2"
+                    values={{
+                        reseller: link => (
+                            <StyledTrezorLink href={TREZOR_RESELLERS_URL} variant="underline">
+                                {link}
+                            </StyledTrezorLink>
+                        ),
+                        shop: link => (
+                            <StyledTrezorLink href={TREZOR_URL} variant="underline">
+                                {link}
+                            </StyledTrezorLink>
+                        ),
+                    }}
+                />
+            ),
+        },
+        {
+            icon: 'HOLOGRAM',
+            content: (
+                <Translation
+                    id="TR_ONBOARDING_DEVICE_CHECK_1"
+                    values={{
+                        strong: chunks => (
+                            <StyledTooltip
+                                placement={isMobileLayout ? 'top' : 'left'}
+                                title={<Translation id="TR_HOLOGRAM_STEP_HEADING" />}
+                                content={<Hologram />}
+                            >
+                                <Underline>{chunks}</Underline>
+                            </StyledTooltip>
+                        ),
+                    }}
+                />
+            ),
+        },
+        {
+            icon: 'PACKAGE',
+            content: <Translation id="TR_ONBOARDING_DEVICE_CHECK_3" />,
+        },
+    ] as const;
+
 export const SecurityCheckContent = ({
     goToDeviceAuthentication,
     isAuthenticityCheckSupported,
@@ -150,6 +173,7 @@ export const SecurityCheckContent = ({
     goToDeviceAuthentication: () => void;
     isAuthenticityCheckSupported: boolean;
 }) => {
+    const { isMobileLayout } = useLayoutSize();
     const recovery = useSelector(state => state.recovery);
     const device = useSelector(selectDevice);
     const { initialRun } = useSelector(selectSuiteFlags);
@@ -178,7 +202,10 @@ export const SecurityCheckContent = ({
     const headingText = isFirmwareInstalled
         ? 'TR_USED_TREZOR_BEFORE'
         : 'TR_ONBOARDING_DEVICE_CHECK';
-    const checklistItems = isFirmwareInstalled ? firmwareInstalledChecklist : noFirmwareChecklist;
+
+    const checklistItems = isFirmwareInstalled
+        ? firmwareInstalledChecklist
+        : getNoFirmwareChecklist(isMobileLayout);
 
     const toggleView = () => setIsFailed(current => !current);
 
@@ -196,7 +223,7 @@ export const SecurityCheckContent = ({
         if (isRecoveryInProgress) {
             rerun();
         } else if (isOnboardingActive) {
-            goToNextStep();
+            goToNextStep('firmware');
         } else {
             dispatch(goto('onboarding-index'));
         }

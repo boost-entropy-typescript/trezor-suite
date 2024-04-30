@@ -38,6 +38,7 @@ test('Basic web extension MV2', async () => {
         __dirname,
         '..',
         '..',
+        '..',
         'connect-examples',
         'webextension-mv2',
         'build',
@@ -132,6 +133,7 @@ test('Basic web extension MV3', async () => {
 
     const pathToExtension = path.join(
         __dirname,
+        '..',
         '..',
         '..',
         'connect-examples',

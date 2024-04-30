@@ -2488,11 +2488,10 @@ export default defineMessages({
         defaultMessage: 'After delay',
         id: 'TR_DEVICE_SETTINGS_AFTER_DELAY',
     },
-    TR_DID_YOU_PURCHASE: {
+    TR_SECURITY_CHECK_HOLOGRAM: {
         defaultMessage:
-            'Please note that device packaging including holograms have changed over time. You can check packaging details {TR_PACKAGING_LINK}. Also be sure you made your purchase from {TR_RESELLERS_LINK}. Otherwise, the device you are holding in your hands might be a counterfeit. Please {TR_CONTACT_OUR_SUPPORT_LINK}.',
-        description: 'Text to display when user is unhappy with his hologram.',
-        id: 'TR_DID_YOU_PURCHASE',
+            'Please note that device packaging including holograms have changed over time. You can check packaging details <packaging>here</packaging>. Also be sure you made your purchase from <reseller>our trusted sellers</reseller>. Otherwise, the device you are holding in your hands might be a counterfeit. Please <support>contract Trezor support</support>.',
+        id: 'TR_SECURITY_CHECK_HOLOGRAM',
     },
     TR_DISCONNECT_YOUR_DEVICE: {
         defaultMessage: 'Disconnect your Trezor',
@@ -2738,6 +2737,11 @@ export default defineMessages({
         defaultMessage: 'Make sure the holographic seal protecting your device was intact.',
         description: 'Subheading on hologram step page',
         id: 'TR_HOLOGRAM_STEP_SUBHEADING',
+    },
+    TR_HOLOGRAM_T2B1_NEW_SEAL: {
+        defaultMessage:
+            'The holographic seal of Trezor Safe 3 was updated in April 2024. Post-update devices typically feature the new seal shown in the bottom of the image, though older stock might have the previous seal.',
+        id: 'TR_HOLOGRAM_T2B1_NEW_SEAL',
     },
     TR_HOW_PIN_WORKS: {
         defaultMessage: 'More about your PIN',
@@ -4207,7 +4211,7 @@ export default defineMessages({
     },
     EVENT_WALLET_CREATED: {
         id: 'EVENT_WALLET_CREATED',
-        defaultMessage: 'New wallet created',
+        defaultMessage: 'Wallet successfully added',
     },
     TR_WIPE_DEVICE_HEADING: {
         id: 'TR_WIPE_DEVICE_HEADING',
@@ -4807,10 +4811,6 @@ export default defineMessages({
         id: 'TR_RECONNECT_IN_NORMAL',
         defaultMessage: 'Reconnect your device',
     },
-    TR_RECONNECT_IN_NORMAL_SUCCESS: {
-        id: 'TR_RECONNECT_IN_NORMAL_SUCCESS',
-        defaultMessage: 'Device is now ready',
-    },
     TR_VERSION: {
         id: 'TR_VERSION',
         defaultMessage: 'Version {version}',
@@ -4889,10 +4889,6 @@ export default defineMessages({
     TR_WIPE_AND_REINSTALL: {
         id: 'TR_WIPE_AND_REINSTALL',
         defaultMessage: 'Wipe device & reinstall',
-    },
-    TR_FIRMWARE_PARTIALLY_UPDATED: {
-        id: 'TR_FIRMWARE_PARTIALLY_UPDATED',
-        defaultMessage: 'Firmware partially updated',
     },
     TR_DISCREET: {
         id: 'TR_DISCREET',
@@ -8791,7 +8787,7 @@ export default defineMessages({
     },
     TR_STAKE_TOTAL_PENDING: {
         id: 'TR_STAKE_TOTAL_PENDING',
-        defaultMessage: 'Total stake pending',
+        defaultMessage: 'Total stake pending:',
     },
     TR_STAKE_LAST_STAKE_REQUEST_STATE: {
         id: 'TR_STAKE_LAST_STAKE_REQUEST_STATE',
