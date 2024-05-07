@@ -6,7 +6,6 @@ import {
     prepareTransactionsReducer,
     prepareBlockchainReducer,
     prepareDiscoveryReducer,
-    prepareTokenDefinitionsReducer,
     prepareStakeReducer,
     prepareSendFormReducer,
     feesReducer,
@@ -30,7 +29,6 @@ export const accountsReducer = prepareAccountsReducer(extraDependencies);
 export const blockchainReducer = prepareBlockchainReducer(extraDependencies);
 export const fiatRatesReducer = prepareFiatRatesReducer(extraDependencies);
 export const discoveryReducer = prepareDiscoveryReducer(extraDependencies);
-export const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);
 export const stakeReducer = prepareStakeReducer(extraDependencies);
 export const sendFormReducer = prepareSendFormReducer(extraDependencies);
 
@@ -52,7 +50,6 @@ const WalletReducers = combineReducers({
     cardanoStaking: cardanoStakingReducer,
     pollings: pollingReducer,
     coinjoin: coinjoinReducer,
-    tokenDefinitions: tokenDefinitionsReducer,
     stake: stakeReducer,
 });
 

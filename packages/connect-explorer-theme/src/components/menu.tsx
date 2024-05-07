@@ -8,6 +8,7 @@ import { useFSRoute } from 'nextra/hooks';
 import { ArrowRightIcon } from 'nextra/icons';
 import type { Item, MenuItem, PageItem } from 'nextra/normalize-pages';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 
 import { CoinLogo, Select, variables } from '@trezor/components';
 
@@ -53,6 +54,13 @@ const MenuCategory = styled.div`
 
 const SelectWrapper = styled.div`
     margin-bottom: 0.5rem;
+    .react-select__control {
+        border-style: solid;
+        border-color: ${({ theme }) => theme.borderElevation1};
+    }
+    .react-select__control:hover:not(:focus-within) {
+        border-color: ${({ theme }) => theme.borderElevation0};
+    }
 `;
 
 const Option = styled.div`
@@ -97,6 +105,7 @@ export function Menu({
     className,
     onlyCurrentDocs,
 }: MenuProps): ReactElement {
+    const router = useRouter();
     const route = useFSRoute();
     const prevRoute = useRef(route);
 
@@ -142,6 +151,14 @@ export function Menu({
         item => item.kind === 'Folder' && item.name !== 'methods',
     );
 
+    const [clickCounter, setClickCounter] = useState(0);
+    const handleClickMisc = () => {
+        setClickCounter(clickCounter + 1);
+        if (clickCounter < 5) return;
+
+        router.push('/settings');
+    };
+
     return (
         <div className={cn(className)}>
             <MenuCategory>Quick Access</MenuCategory>
@@ -178,7 +195,7 @@ export function Menu({
                 anchors={anchors}
                 onlyCurrentDocs={onlyCurrentDocs}
             />
-            <MenuCategory>Miscellaneous</MenuCategory>
+            <MenuCategory onClick={handleClickMisc}>Miscellaneous</MenuCategory>
             <MenuInner
                 directories={[...otherMethods, ...otherFolders]}
                 anchors={anchors}
@@ -397,6 +414,7 @@ export function File({
                     title: item.title,
                     type: item.type,
                     route: item.route,
+                    icon: item.kind === 'MdxPage' && item.frontMatter?.icon,
                 })}
             </Anchor>
             {active && anchors.length > 0 && (

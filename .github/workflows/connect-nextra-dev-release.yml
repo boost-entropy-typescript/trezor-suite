@@ -7,16 +7,30 @@ permissions:
 on:
   pull_request:
     paths:
+      - "packages/connect/**"
+      - "packages/connect-common/**"
+      - "packages/connect-iframe/**"
+      - "packages/connect-explorer/**"
+      - "packages/connect-webextension/**"
+      - "packages/connect-web/**"
+      - "packages/connect-popup/**"
+      - "packages/connect-examples/webextension-mv2/**"
+      - "packages/connect-examples/webextension-mv3/**"
       - "packages/connect-explorer-theme/**"
       - "packages/connect-explorer-nextra/**"
+      - "submodules/trezor-common/**"
+      - "yarn.lock"
+      - ".github/workflows/template-connect-popup-test-params.yml"
+      - "docker/docker-connect-popup-ci.sh"
       - ".github/workflows/connect-nextra-dev-release.yml"
       - ".github/workflows/template-connect-popup-nextra-test-params.yml"
   schedule:
     # Runs at midnight UTC every day at 01:00 AM CET
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 env:
@@ -116,7 +130,7 @@ jobs:
     with:
       test-name: methods.test
       DEV_SERVER_HOSTNAME: dev.suite.sldev.cz
-      run-webextension: true
+      run-webextension: false
       build-overview: true
 
   popup-close:
@@ -170,3 +184,4 @@ jobs:
     with:
       test-name: unchained.test
       DEV_SERVER_HOSTNAME: dev.suite.sldev.cz
+      run-web: ${{ github.event_name == 'schedule' }}

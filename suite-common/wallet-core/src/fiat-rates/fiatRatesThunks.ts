@@ -9,11 +9,11 @@ import { Account, TickerId, RateType, Timestamp } from '@suite-common/wallet-typ
 import { isTestnet } from '@suite-common/wallet-utils';
 import { AccountTransaction } from '@trezor/connect';
 import { getNetworkFeatures } from '@suite-common/wallet-config';
+import { selectIsSpecificCoinDefinitionKnown } from '@suite-common/token-definitions/src/tokenDefinitionsSelectors';
 
 import { FIAT_RATES_MODULE_PREFIX, REFETCH_INTERVAL } from './fiatRatesConstants';
 import { selectTickersToBeUpdated, selectTransactionsWithMissingRates } from './fiatRatesSelectors';
 import { transactionsActions } from '../transactions/transactionsActions';
-import { selectIsSpecificCoinDefinitionKnown } from '../token-definitions/tokenDefinitionsSelectors';
 import { selectIsElectrumBackendSelected } from '../blockchain/blockchainSelectors';
 
 type UpdateTxsFiatRatesThunkPayload = {
@@ -80,7 +80,9 @@ export const updateFiatRatesThunk = createThunk(
         { ticker, localCurrency, rateType, forceFetchToken }: UpdateCurrentFiatRatesThunkPayload,
         { getState },
     ) => {
-        if (isTestnet(ticker.symbol)) return;
+        if (isTestnet(ticker.symbol)) {
+            throw new Error('Testnet');
+        }
 
         const hasCoinDefinitions = getNetworkFeatures(ticker.symbol).includes('coin-definitions');
         if (ticker.tokenAddress && hasCoinDefinitions && !forceFetchToken) {

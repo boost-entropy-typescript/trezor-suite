@@ -1,10 +1,12 @@
 name: "[Release] connect init"
+# TODO: this is still used by the GitLab workflow
+# TODO: let's leave it here until we are confident GitHub release works.
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:

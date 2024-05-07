@@ -1,7 +1,6 @@
 import {
     prepareFiatRatesMiddleware,
     prepareBlockchainMiddleware,
-    prepareTokenDefinitionsMiddleware,
     prepareStakeMiddleware,
 } from '@suite-common/wallet-core';
 
@@ -14,6 +13,7 @@ import coinmarketSavingsMiddleware from './coinmarketSavingsMiddleware';
 import pollingMiddleware from './pollingMiddleware';
 import { coinjoinMiddleware } from './coinjoinMiddleware';
 import { extraDependencies } from 'src/support/extraDependencies';
+import { prepareTokenDefinitionsMiddleware } from '@suite-common/token-definitions';
 
 export default [
     prepareBlockchainMiddleware(extraDependencies),

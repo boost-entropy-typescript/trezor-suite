@@ -9,7 +9,7 @@ import {
 } from 'src/components/suite';
 import { Account } from 'src/types/wallet';
 import { useSelector } from 'src/hooks/suite';
-import { selectCoinDefinitions, selectFiatRates } from '@suite-common/wallet-core';
+import { selectFiatRates } from '@suite-common/wallet-core';
 import { NoRatesTooltip } from 'src/components/suite/Ticker/NoRatesTooltip';
 import { TokenInfo } from '@trezor/blockchain-link-types';
 import { spacingsPx, typography } from '@trezor/theme';
@@ -17,7 +17,7 @@ import { NetworkSymbol, getNetworkFeatures } from '@suite-common/wallet-config';
 import { enhanceTokensWithRates, sortTokensWithRates } from 'src/utils/wallet/tokenUtils';
 import { Rate } from '@suite-common/wallet-types';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
-import { isTokenDefinitionKnown } from '@suite-common/token-definitions';
+import { isTokenDefinitionKnown, selectCoinDefinitions } from '@suite-common/token-definitions';
 import { LastUpdateTooltip } from 'src/components/suite/Ticker/LastUpdateTooltip';
 
 const Wrapper = styled(Card)<{ $fiatRateHidden?: boolean }>`
@@ -92,36 +92,28 @@ const StyledQuestionTooltip = styled(QuestionTooltip)<{ $addMarginTop: boolean }
 interface TokenListProps {
     tokens: Account['tokens'];
     networkType: Account['networkType'];
+    networkSymbol: NetworkSymbol;
     explorerUrl: string;
     explorerUrlQueryString: string;
     isTestnet?: boolean;
-    networkSymbol: NetworkSymbol;
 }
 
 type EnhancedTokenInfo = TokenInfo & { fiatRate?: Rate };
 
 export const TokenList = ({
     tokens,
+    networkType,
+    networkSymbol,
     explorerUrl,
     explorerUrlQueryString,
     isTestnet,
-    networkType,
-    networkSymbol,
 }: TokenListProps) => {
     const theme = useTheme();
     const coinDefinitions = useSelector(state => selectCoinDefinitions(state, networkSymbol));
     const fiatRates = useSelector(selectFiatRates);
     const localCurrency = useSelector(selectLocalCurrency);
-    const { account } = useSelector(state => state.wallet.selectedAccount);
 
-    if (!account) return null;
-
-    const tokensWithRates = enhanceTokensWithRates(
-        tokens,
-        localCurrency,
-        account.symbol,
-        fiatRates,
-    );
+    const tokensWithRates = enhanceTokensWithRates(tokens, localCurrency, networkSymbol, fiatRates);
 
     const sortedTokens = tokensWithRates.sort(sortTokensWithRates);
 
@@ -135,7 +127,7 @@ export const TokenList = ({
         (acc, token) => {
             if (
                 !hasCoinDefinitions ||
-                isTokenDefinitionKnown(coinDefinitions?.data, account.symbol, token.contract)
+                isTokenDefinitionKnown(coinDefinitions?.data, networkSymbol, token.contract)
             ) {
                 acc.knownTokens.push(token);
             } else {
@@ -194,7 +186,7 @@ export const TokenList = ({
                                                 <FiatWrapper>
                                                     <FiatValue
                                                         amount={t.balance || '1'}
-                                                        symbol={account.symbol}
+                                                        symbol={networkSymbol}
                                                         tokenAddress={t.contract}
                                                         showLoadingSkeleton
                                                     >

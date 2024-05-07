@@ -12,28 +12,25 @@ on:
     branches: [release/connect/**]
   pull_request:
     paths:
-      - "packages/blockchain-link/**"
       - "packages/connect/**"
       - "packages/connect-common/**"
       - "packages/connect-iframe/**"
       - "packages/connect-explorer/**"
       - "packages/connect-webextension/**"
       - "packages/connect-web/**"
-      - "packages/transport/**"
-      - "packages/utxo-lib/**"
-      - "packages/utils/**"
+      - "packages/connect-popup/**"
       - "packages/connect-examples/webextension-mv2/**"
       - "packages/connect-examples/webextension-mv3/**"
       - "submodules/trezor-common/**"
       - "yarn.lock"
       - ".github/workflows/connect-dev-release-test.yml"
       - ".github/workflows/template-connect-popup-test-params.yml"
-      - ".github/workflows/template-connect-build-deploy.yml"
+      - ".github/actions/release-connect/**"
       - "docker/docker-connect-popup-ci.sh"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -45,16 +42,25 @@ jobs:
     steps:
       - name: Extract branch name
         id: extract_branch
-        run: echo "::set-output name=branch::${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
   build-deploy:
     needs: [extract-branch]
-    uses: ./.github/workflows/template-connect-build-deploy.yml
-    with:
-      awsRoleToAssume: "arn:aws:iam::538326561891:role/gh_actions_trezor_suite_dev_deploy"
-      awsRegion: "eu-central-1"
-      serverHostname: "dev.suite.sldev.cz"
-      serverPath: "connect/${{ needs.extract-branch.outputs.branch }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.extract-branch.outputs.branch }}
+
+      - name: Release connect to dev environment
+        uses: ./.github/actions/release-connect
+        with:
+          awsRoleToAssume: "arn:aws:iam::538326561891:role/gh_actions_trezor_suite_dev_deploy"
+          awsRegion: "eu-central-1"
+          serverHostname: "dev.suite.sldev.cz"
+          serverPath: "connect/${{ needs.extract-branch.outputs.branch }}"
 
   methods:
     needs: [build-deploy]
@@ -62,7 +68,7 @@ jobs:
     with:
       test-name: methods.test
       DEV_SERVER_HOSTNAME: dev.suite.sldev.cz
-      run-webextension: true
+      run-webextension: ${{ github.event_name == 'schedule' }}
       build-overview: true
 
   popup-close:
@@ -116,6 +122,8 @@ jobs:
     with:
       test-name: unchained.test
       DEV_SERVER_HOSTNAME: dev.suite.sldev.cz
+      run-web: ${{ github.event_name == 'schedule' }}
+      run-webextension: false
 
   webextension-examples:
     needs: [build-deploy]
@@ -123,5 +131,5 @@ jobs:
     with:
       test-name: webextension-example.test
       DEV_SERVER_HOSTNAME: dev.suite.sldev.cz
-      run-webextension: true
+      run-webextension: ${{ github.event_name == 'schedule' }}
       run-web: false
