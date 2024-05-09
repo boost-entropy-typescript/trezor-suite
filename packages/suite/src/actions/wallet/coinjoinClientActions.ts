@@ -38,6 +38,7 @@ import * as COINJOIN from './constants/coinjoinConstants';
 import { AddressDisplayOptions } from '@suite-common/wallet-types';
 
 import { selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
+import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 
 const clientEnable = (symbol: Account['symbol']) =>
     ({
@@ -733,6 +734,19 @@ export const initCoinjoinService =
             return knownService;
         }
 
+        const isCoinjoinDisabledByFeatureFlag = selectIsFeatureDisabled(state, Feature.coinjoin);
+        // retry if client was not enabled properly until now
+        if (knownService && knownClient?.status === 'unavailable') {
+            if (!isCoinjoinDisabledByFeatureFlag) {
+                const status = await knownService.client.enable();
+                if (status.success) {
+                    dispatch(clientEnableSuccess(symbol, status));
+                }
+            }
+
+            return knownService;
+        }
+
         const environment =
             debug?.coinjoinServerEnvironment && debug?.coinjoinServerEnvironment[symbol];
 
@@ -779,11 +793,13 @@ export const initCoinjoinService =
                 prison,
                 environment,
             });
+            if (isCoinjoinDisabledByFeatureFlag) {
+                dispatch(clientEnableFailed(symbol));
+
+                return service;
+            }
             const { client } = service;
             const status = await client.enable();
-            if (!status.success) {
-                throw new Error(status.error);
-            }
             // handle status change
             client.on('status', status => dispatch(clientOnStatusEvent(symbol, status)));
             // handle prison event
@@ -797,12 +813,17 @@ export const initCoinjoinService =
             });
             // handle session phase change
             client.on('session-phase', event => dispatch(clientSessionPhase(event)));
-            dispatch(clientEnableSuccess(symbol, status));
+
+            if (!status.success) {
+                dispatch(clientEnableFailed(symbol));
+            } else {
+                dispatch(clientEnableSuccess(symbol, status));
+            }
 
             return service;
         } catch (error) {
             CoinjoinService.removeInstance(symbol);
-            dispatch(clientEnableFailed(symbol));
+            dispatch(clientDisable(symbol));
             dispatch(
                 notificationsActions.addToast({
                     type: 'error',
