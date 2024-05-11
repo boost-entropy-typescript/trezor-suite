@@ -13,14 +13,13 @@ import { Bundle } from '../types';
 import { GetPublicKey as GetPublicKeySchema } from '../types/api/getPublicKey';
 
 type Params = PROTO.GetPublicKey & {
-    coinInfo?: BitcoinNetworkInfo;
+    coinInfo: BitcoinNetworkInfo;
     suppressBackupWarning?: boolean;
     unlockPath?: PROTO.UnlockPath;
 };
 
 export default class GetPublicKey extends AbstractMethod<'getPublicKey', Params[]> {
     hasBundle?: boolean;
-    confirmed?: boolean;
 
     init() {
         this.requiredPermissions = ['read'];
@@ -44,13 +43,11 @@ export default class GetPublicKey extends AbstractMethod<'getPublicKey', Params[
             if (coinInfo && !batch.crossChain) {
                 validateCoinPath(address_n, coinInfo);
             } else if (!coinInfo) {
-                coinInfo = getBitcoinNetwork(address_n);
+                coinInfo = getBitcoinNetwork(address_n) ?? getBitcoinNetwork('btc')!;
             }
 
             // set required firmware from coinInfo support
-            if (coinInfo) {
-                this.firmwareRange = getFirmwareRange(this.name, coinInfo, this.firmwareRange);
-            }
+            this.firmwareRange = getFirmwareRange(this.name, coinInfo, this.firmwareRange);
 
             return {
                 address_n,
@@ -64,64 +61,26 @@ export default class GetPublicKey extends AbstractMethod<'getPublicKey', Params[
                 suppress_backup_warning: batch.suppressBackupWarning,
             };
         });
+
+        this.noBackupConfirmationMode = this.params.every(
+            batch => batch.suppressBackupWarning || !batch.show_display,
+        )
+            ? 'popup-only'
+            : 'always';
     }
 
     get info() {
         return 'Export public key';
     }
 
-    async confirmation() {
-        if (this.confirmed) return true;
-        // wait for popup window
-        await this.getPopupPromise().promise;
-        // initialize user response promise
-        const uiPromise = this.createUiPromise(UI.RECEIVE_CONFIRMATION);
-        let label: string;
-        if (this.params.length > 1) {
-            label = 'Export multiple public keys';
-        } else {
-            label = getPublicKeyLabel(this.params[0].address_n, this.params[0].coinInfo);
-        }
-
-        // request confirmation view
-        this.postMessage(
-            createUiMessage(UI.REQUEST_CONFIRMATION, {
-                view: 'export-xpub',
-                label,
-            }),
-        );
-
-        // wait for user action
-        const uiResp = await uiPromise.promise;
-
-        this.confirmed = uiResp.payload;
-
-        return this.confirmed;
-    }
-
-    async noBackupConfirmation(allowSuppression?: boolean) {
-        if (
-            allowSuppression &&
-            this.params.every(batch => batch.suppressBackupWarning || !batch.show_display)
-        ) {
-            return true;
-        }
-        // wait for popup window
-        await this.getPopupPromise().promise;
-        // initialize user response promise
-        const uiPromise = this.createUiPromise(UI.RECEIVE_CONFIRMATION);
-
-        // request confirmation view
-        this.postMessage(
-            createUiMessage(UI.REQUEST_CONFIRMATION, {
-                view: 'no-backup',
-            }),
-        );
-
-        // wait for user action
-        const uiResp = await uiPromise.promise;
-
-        return uiResp.payload;
+    get confirmation() {
+        return {
+            view: 'export-xpub' as const,
+            label:
+                this.params.length > 1
+                    ? 'Export multiple public keys'
+                    : getPublicKeyLabel(this.params[0].address_n, this.params[0].coinInfo),
+        };
     }
 
     async run() {
