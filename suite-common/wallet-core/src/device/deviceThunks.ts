@@ -275,7 +275,12 @@ export const acquireDevice = createThunk(
  */
 export const authorizeDevice = createThunk(
     `${DEVICE_MODULE_PREFIX}/authorizeDevice`,
-    async (_, { dispatch, getState, extra }): Promise<boolean> => {
+    async (
+        { shouldIgnoreDeviceState }: { shouldIgnoreDeviceState: boolean } | undefined = {
+            shouldIgnoreDeviceState: false,
+        },
+        { dispatch, getState, extra },
+    ): Promise<boolean> => {
         const {
             selectors: { selectCheckFirmwareAuthenticity },
             actions: { openModal },
@@ -287,7 +292,9 @@ export const authorizeDevice = createThunk(
         const isDeviceReady =
             device.connected &&
             device.features &&
-            !device.state &&
+            // Should ignore device state serves as a variant to call "reauthorize" device. For example in passphrase mode
+            // mobile has retry button which starts passphrase flow on the same device instance to override device state.
+            (!device.state || shouldIgnoreDeviceState) &&
             device.mode === 'normal' &&
             device.firmware !== 'required';
         if (!isDeviceReady) return false;
@@ -421,6 +428,20 @@ export const switchDuplicatedDevice = createThunk(
     },
 );
 
+// Sort devices by timestamp and put Portfolio Tracker device at the end.
+const sortDevices = (devices: TrezorDevice[]) => {
+    return sortByTimestamp([...devices]).sort((a, b) => {
+        if (a.id === b.id) {
+            return 0;
+        }
+        if (a.id === PORTFOLIO_TRACKER_DEVICE_ID) {
+            return 1;
+        }
+
+        return -1;
+    });
+};
+
 export const initDevices = createThunk(
     `${DEVICE_MODULE_PREFIX}/initDevices`,
     (_, { dispatch, getState }) => {
@@ -433,9 +454,10 @@ export const initDevices = createThunk(
             forcedDevices.forEach(d => {
                 dispatch(toggleRememberDevice({ device: d }));
             });
+
             dispatch(
                 selectDeviceThunk(
-                    forcedDevices.length ? forcedDevices[0] : sortByTimestamp([...devices])[0],
+                    forcedDevices.length ? forcedDevices[0] : sortDevices(devices)[0],
                 ),
             );
         }

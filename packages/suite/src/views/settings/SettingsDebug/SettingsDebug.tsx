@@ -13,13 +13,14 @@ import { CheckFirmwareAuthenticity } from './CheckFirmwareAuthenticity';
 import { DeviceAuthenticity } from './DeviceAuthenticity';
 import { Devkit } from './Devkit';
 import { Transport } from './Transport';
-import { Processes } from './Processes';
+import { TransportBackends } from './TransportBackends';
 import { PasswordManager } from './PasswordManager/PasswordManager';
 import { ViewOnlySettings } from './ViewOnlySettings';
 import { TriggerHighlight } from './TriggerHighlight';
 import { Backends } from './Backends';
 import { selectSuiteFlags } from 'src/reducers/suite/suiteReducer';
 import { useSelector } from 'src/hooks/suite';
+import { PreField } from './PreField';
 
 export const SettingsDebug = () => {
     const flags = useSelector(selectSuiteFlags);
@@ -54,11 +55,11 @@ export const SettingsDebug = () => {
                 <ThrowTestingError />
             </SettingsSection>
             {!isWeb() && (
-                <SettingsSection title="Processes">
-                    <Processes />
+                <SettingsSection title="Transport backends">
+                    <TransportBackends />
                 </SettingsSection>
             )}
-            <SettingsSection title="Transports">
+            <SettingsSection title="Transport clients">
                 <Transport />
             </SettingsSection>
             <SettingsSection title="Backends">
@@ -71,7 +72,7 @@ export const SettingsDebug = () => {
                 <ViewOnlySettings />
             </SettingsSection>
             <SettingsSection title="Flags JSON">
-                <pre>{JSON.stringify(flags)}</pre>
+                <PreField>{JSON.stringify(flags)}</PreField>
             </SettingsSection>
         </SettingsLayout>
     );
