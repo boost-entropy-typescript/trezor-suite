@@ -36,9 +36,9 @@ const ghWorkflowRunReleaseAction = (branch, packages, deployment) =>
         '--ref',
         branch,
         '--field',
-        `packages="${packages}"`,
+        `packages=${packages}`,
         '--field',
-        `deploymentType="${deployment}"`,
+        `deploymentType=${deployment}`,
     ]);
 
 const splitByNewlines = input => input.split('\n');
@@ -47,6 +47,16 @@ const findIndexByCommit = (commitArr, searchString) =>
     commitArr.findIndex(commit => commit.includes(searchString));
 
 const initConnectRelease = async () => {
+    console.log('Using GitHub Token:', process.env.GITHUB_TOKEN ? 'Yes' : 'No');
+
+    if (process.env.GITHUB_TOKEN) {
+        // Making sure we use the proper GITHUB_TOKEN
+        exec('gh', ['auth', 'setup-git']);
+        exec('gh', ['config', 'set', '-h', 'github.com', 'oauth_token', process.env.GITHUB_TOKEN]);
+    } else {
+        throw new Error('Missing GITHUB_TOKEN');
+    }
+
     const checkResult = await checkPackageDependencies('connect', deploymentType);
 
     const update = checkResult.update.map(package => package.replace('@trezor/', ''));
@@ -202,7 +212,7 @@ const initConnectRelease = async () => {
     // and a pull request including all the changes.
     // Now we want to trigger the action that will trigger the actual release,
     // after approval form authorized member.
-    const dependenciesToRelease = update.join(',');
+    const dependenciesToRelease = JSON.stringify(update);
     console.log('dependenciesToRelease:', dependenciesToRelease);
     console.log('deploymentType:', deploymentType);
     console.log('branchName:', branchName);
@@ -220,7 +230,7 @@ const initConnectRelease = async () => {
     console.log('Triggering action to release connect.');
     const releaseConnectActionOutput = ghWorkflowRunReleaseAction(
         branchName,
-        ['connect', 'connect-web', 'connect-webextension'].join(','),
+        JSON.stringify(['connect', 'connect-web', 'connect-webextension']),
         deploymentType,
     );
 

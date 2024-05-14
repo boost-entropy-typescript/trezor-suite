@@ -3,14 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
     selectDevice,
-    selectIsDeviceAuthorized,
     selectIsPortfolioTrackerDevice,
     toggleRememberDevice,
     selectIsDeviceRemembered,
 } from '@suite-common/wallet-core';
 import { BottomSheet, Box, Button, CenteredTitleHeader, VStack } from '@suite-native/atoms';
+import { selectIsDeviceReadyToUseAndAuthorized } from '@suite-native/device';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
-import { useIsBiometricsInitialSetupFinished } from '@suite-native/biometrics';
+import {
+    getIsBiometricsFeatureAvailable,
+    useIsBiometricsInitialSetupFinished,
+} from '@suite-native/biometrics';
 import { Translation } from '@suite-native/intl';
 import {
     selectViewOnlyCancelationTimestamp,
@@ -38,13 +41,23 @@ export const EnableViewOnlyBottomSheet = () => {
     const { applyStyle } = useNativeStyles();
     const [isViewOnlyModeFeatureEnabled] = useFeatureFlag(FeatureFlag.IsViewOnlyEnabled);
     const { isBiometricsInitialSetupFinished } = useIsBiometricsInitialSetupFinished();
-    const isDeviceAuthorized = useSelector(selectIsDeviceAuthorized);
+    const isDeviceReadyToUseAndAuthorized = useSelector(selectIsDeviceReadyToUseAndAuthorized);
     const device = useSelector(selectDevice);
     const isPortfolioTrackerDevice = useSelector(selectIsPortfolioTrackerDevice);
     const viewOnlyCancelationTimestamp = useSelector(selectViewOnlyCancelationTimestamp);
     const isDeviceRemembered = useSelector(selectIsDeviceRemembered);
     const { showToast } = useToast();
     const [isVisible, setIsVisible] = useState(false);
+    const [isAvailableBiometrics, setIsAvailableBiometrics] = useState(false);
+
+    useEffect(() => {
+        const fetchBiometricsAvailability = async () => {
+            const isAvailable = await getIsBiometricsFeatureAvailable();
+            setIsAvailableBiometrics(isAvailable);
+        };
+
+        fetchBiometricsAvailability();
+    }, []);
 
     // show the bottom sheet if:
     //     View Only feature is enabled
@@ -52,15 +65,15 @@ export const EnableViewOnlyBottomSheet = () => {
     //     the device is authorized
     //     not a portfolio tracker
     //     the user hasn't made a choice yet
-    //     and biometrics initial setup was decided
+    //     and biometrics initial setup was decided or biometrics is not available
 
     const canBeShowed =
         isViewOnlyModeFeatureEnabled &&
         !isDeviceRemembered &&
-        isDeviceAuthorized &&
+        isDeviceReadyToUseAndAuthorized &&
         !isPortfolioTrackerDevice &&
         !viewOnlyCancelationTimestamp &&
-        isBiometricsInitialSetupFinished;
+        (isBiometricsInitialSetupFinished || !isAvailableBiometrics);
 
     useEffect(() => {
         let isMounted = true;
