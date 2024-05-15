@@ -78,48 +78,45 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
 
         const transportLogger = initLog('@trezor/transport', debug);
 
+        // todo: this should be passed from above
+        const abortController = new AbortController();
+
+        const transportCommonArgs = {
+            messages: this.messages,
+            logger: transportLogger,
+            signal: abortController.signal,
+        };
         // mapping of provided transports[] to @trezor/transport classes
         transports.forEach(transportType => {
             if (typeof transportType === 'string') {
                 switch (transportType) {
                     case 'WebUsbTransport':
-                        this.transports.push(
-                            new WebUsbTransport({
-                                messages: this.messages,
-                                logger: transportLogger,
-                            }),
-                        );
+                        this.transports.push(new WebUsbTransport(transportCommonArgs));
                         break;
                     case 'NodeUsbTransport':
-                        this.transports.push(
-                            new NodeUsbTransport({
-                                messages: this.messages,
-                                logger: transportLogger,
-                            }),
-                        );
+                        this.transports.push(new NodeUsbTransport(transportCommonArgs));
                         break;
                     case 'BridgeTransport':
                         this.transports.push(
                             new BridgeTransport({
                                 latestVersion: getBridgeInfo().version.join('.'),
-                                messages: this.messages,
-                                logger: transportLogger,
+                                ...transportCommonArgs,
                             }),
                         );
                         break;
                     case 'UdpTransport':
-                        this.transports.push(
-                            new UdpTransport({
-                                logger: transportLogger,
-                                messages: this.messages,
-                            }),
-                        );
+                        this.transports.push(new UdpTransport(transportCommonArgs));
                         break;
                     default:
                         throw ERRORS.TypedError(
                             'Runtime',
                             `DeviceList.init: transports[] of unexpected type: ${transportType}`,
                         );
+                }
+            } else if (typeof transportType === 'function' && 'prototype' in transportType) {
+                const transportInstance = new transportType(transportCommonArgs);
+                if (isTransportInstance(transportInstance)) {
+                    this.transports.push(transportInstance);
                 }
             } else if (isTransportInstance(transportType)) {
                 // custom Transport might be initialized without messages, update them if so
