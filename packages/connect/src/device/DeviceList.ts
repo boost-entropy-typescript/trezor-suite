@@ -15,8 +15,8 @@ import {
 import { ERRORS } from '../constants';
 import { DEVICE, TransportInfo } from '../events';
 import { Device } from './Device';
-import type { Device as DeviceTyped } from '../types';
-import { DataManager } from '../data/DataManager';
+import type { ConnectSettings, Device as DeviceTyped } from '../types';
+
 import { getBridgeInfo } from '../data/transportInfo';
 import { initLog } from '../utils/debug';
 import { resolveAfter } from '../utils/promiseUtils';
@@ -53,7 +53,6 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
 
     devices: { [path: string]: Device } = {};
 
-    messages: JSON | Record<string, any>;
     creatingDevicesDescriptors: { [k: string]: Descriptor } = {};
 
     transportStartPending = 0;
@@ -62,27 +61,33 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
 
     transportFirstEventPromise: Promise<void> | undefined;
 
-    constructor() {
+    private settings: ConnectSettings;
+
+    constructor({
+        settings,
+        messages,
+    }: {
+        settings: ConnectSettings;
+        messages: Record<string, any>;
+    }) {
         super();
-
-        let { transports } = DataManager.getSettings();
-        const { debug } = DataManager.getSettings();
-        this.messages = DataManager.getProtobufMessages();
-
+        this.settings = settings;
         // we fill in `transports` with a reasonable fallback in src/index.
         // since web index is released into npm, we can not rely
         // on that that transports will be always set here. We need to provide a 'fallback of the last resort'
-        if (!transports?.length) {
-            transports = ['BridgeTransport'];
+
+        const transports: ConnectSettings['transports'] = [...(settings.transports || [])];
+        if (!transports.length) {
+            transports.push('BridgeTransport');
         }
 
-        const transportLogger = initLog('@trezor/transport', debug);
+        const transportLogger = initLog('@trezor/transport', this.settings.debug);
 
         // todo: this should be passed from above
         const abortController = new AbortController();
 
         const transportCommonArgs = {
-            messages: this.messages,
+            messages,
             logger: transportLogger,
             signal: abortController.signal,
         };
@@ -121,7 +126,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
             } else if (isTransportInstance(transportType)) {
                 // custom Transport might be initialized without messages, update them if so
                 if (!transportType.getMessage()) {
-                    transportType.updateMessages(this.messages);
+                    transportType.updateMessages(messages);
                 }
                 this.transports.push(transportType);
             } else {
@@ -190,7 +195,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
                     const path = descriptor.path.toString();
                     this.creatingDevicesDescriptors[path] = descriptor;
 
-                    const priority = DataManager.getSettings('priority');
+                    const { priority } = this.settings;
                     const penalty = this.getAuthPenalty();
 
                     if (priority || penalty) {
@@ -298,7 +303,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> {
 
             const descriptors = enumerateResult.payload;
 
-            if (descriptors.length > 0 && DataManager.getSettings('pendingTransportEvent')) {
+            if (descriptors.length > 0 && this.settings.pendingTransportEvent) {
                 this.transportStartPending = descriptors.length;
                 // listen for self emitted events and resolve pending transport event if needed
                 this.on(DEVICE.CONNECT, this.resolveTransportEvent.bind(this));

@@ -7,6 +7,7 @@ import {
     toggleRememberDevice,
     selectIsDeviceRemembered,
 } from '@suite-common/wallet-core';
+import { analytics, EventType } from '@suite-native/analytics';
 import { BottomSheet, Box, Button, CenteredTitleHeader, VStack } from '@suite-native/atoms';
 import { selectIsDeviceReadyToUseAndAuthorized } from '@suite-native/device';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
@@ -19,7 +20,6 @@ import {
     selectViewOnlyCancelationTimestamp,
     setViewOnlyCancelationTimestamp,
 } from '@suite-native/settings';
-import { FeatureFlag, useFeatureFlag } from '@suite-native/feature-flags';
 import { useToast } from '@suite-native/toasts';
 
 import { DisconnectedTrezorSvg } from '../../../assets/DisconnectedTrezorSvg';
@@ -39,7 +39,6 @@ const buttonWrapperStyle = prepareNativeStyle(utils => ({
 export const EnableViewOnlyBottomSheet = () => {
     const dispatch = useDispatch();
     const { applyStyle } = useNativeStyles();
-    const [isViewOnlyModeFeatureEnabled] = useFeatureFlag(FeatureFlag.IsViewOnlyEnabled);
     const { isBiometricsInitialSetupFinished } = useIsBiometricsInitialSetupFinished();
     const isDeviceReadyToUseAndAuthorized = useSelector(selectIsDeviceReadyToUseAndAuthorized);
     const device = useSelector(selectDevice);
@@ -68,7 +67,6 @@ export const EnableViewOnlyBottomSheet = () => {
     //     and biometrics initial setup was decided or biometrics is not available
 
     const canBeShowed =
-        isViewOnlyModeFeatureEnabled &&
         !isDeviceRemembered &&
         isDeviceReadyToUseAndAuthorized &&
         !isPortfolioTrackerDevice &&
@@ -100,6 +98,17 @@ export const EnableViewOnlyBottomSheet = () => {
     const handleCancel = () => {
         setIsVisible(false);
         handleSetRememberModeOfferChoiceTimestamp();
+        analytics.report({
+            type: EventType.ViewOnlySkipped,
+            payload: { action: 'button' },
+        });
+    };
+
+    const handleClose = () => {
+        analytics.report({
+            type: EventType.ViewOnlySkipped,
+            payload: { action: 'close' },
+        });
     };
 
     const handleEnable = () => {
@@ -111,6 +120,11 @@ export const EnableViewOnlyBottomSheet = () => {
                 icon: 'check',
             });
             dispatch(toggleRememberDevice({ device }));
+
+            analytics.report({
+                type: EventType.ViewOnlyChange,
+                payload: { enabled: true, origin: 'bottomSheet' },
+            });
         }
     };
 
@@ -119,7 +133,7 @@ export const EnableViewOnlyBottomSheet = () => {
     }
 
     return (
-        <BottomSheet isVisible={isVisible} onClose={() => {}} isCloseDisplayed={false}>
+        <BottomSheet isVisible={isVisible} onClose={handleClose} isCloseDisplayed={false}>
             <VStack spacing="large" paddingHorizontal="small">
                 <Box style={applyStyle(svgStyle)}>
                     <DisconnectedTrezorSvg />

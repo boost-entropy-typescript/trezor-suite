@@ -61,16 +61,20 @@ const createTestTransport = (apiMethods = {}) => {
     return transport;
 };
 
-const loadDataManager = (settings = {}) => {
-    return DataManager.load(
-        parseConnectSettings({
-            ...settings,
-        }),
-    );
+const getDeviceListParams = (
+    partialSettings: Partial<ConstructorParameters<typeof DeviceList>[0]['settings']>,
+): ConstructorParameters<typeof DeviceList>[0] => {
+    return {
+        settings: {
+            ...parseConnectSettings({}),
+            ...partialSettings,
+        },
+        messages: DataManager.getProtobufMessages(),
+    };
 };
 
-const createDeviceList = () => {
-    const list = new DeviceList();
+const createDeviceList = (deviceListParams: ConstructorParameters<typeof DeviceList>[0]) => {
+    const list = new DeviceList(deviceListParams);
     const eventsSpy = jest.fn();
     (
         [
@@ -94,27 +98,37 @@ const createDeviceList = () => {
 };
 
 describe('DeviceList', () => {
-    it('constructor throws error on unknown transport (string)', async () => {
-        await loadDataManager({ transports: ['FooBarTransport'] });
+    beforeAll(async () => {
+        // todo: I don't get it. If we pass empty messages: {} (see getDeviceListParams), tests behave differently.
+        await DataManager.load({
+            ...parseConnectSettings({}),
+        });
+    });
+    it('constructor throws error on unknown transport (string)', () => {
+        const params = getDeviceListParams({
+            // @ts-expect-error
+            transports: ['FooBarTransport'],
+        });
 
         expect(() => {
-            new DeviceList();
+            new DeviceList(params);
         }).toThrow('unexpected type: FooBarTransport');
     });
 
-    it('constructor throws error on unknown transport (class)', async () => {
-        await loadDataManager({ transports: [{}, () => {}, [], String, 1, 'meow-non-existent'] });
-
+    it('constructor throws error on unknown transport (class)', () => {
         expect(() => {
-            new DeviceList();
+            new DeviceList(
+                getDeviceListParams({
+                    // @ts-expect-error
+                    transports: [{}, () => {}, [], String, 1, 'meow-non-existent'],
+                }),
+            );
         }).toThrow('DeviceList.init: transports[] of unexpected type');
     });
 
-    it('constructor accepts transports in form of transport class', async () => {
-        await loadDataManager({ transports: [TestTransport] });
-
+    it('constructor accepts transports in form of transport class', () => {
         expect(() => {
-            new DeviceList();
+            new DeviceList(getDeviceListParams({ transports: [TestTransport] }));
         }).not.toThrow();
     });
 
@@ -129,9 +143,9 @@ describe('DeviceList', () => {
             abort: () => {},
         }));
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         // transport-error is not emitted yet because list.init is not awaited
@@ -154,9 +168,9 @@ describe('DeviceList', () => {
             abort: () => {},
         }));
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         // transport-error is not emitted yet because list.init is not awaited
@@ -173,9 +187,9 @@ describe('DeviceList', () => {
             openDevice: () => Promise.resolve({ success: false, error: 'wrong previous session' }),
         });
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         await list.waitForTransportFirstEvent();
@@ -190,9 +204,10 @@ describe('DeviceList', () => {
         const transport = createTestTransport({
             openDevice: () => Promise.resolve({ success: false, error: 'device not found' }),
         });
-        await loadDataManager({ transports: [transport] });
 
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         const transportFirstEvent = list.waitForTransportFirstEvent();
@@ -225,9 +240,9 @@ describe('DeviceList', () => {
             },
         });
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         await list.waitForTransportFirstEvent();
@@ -249,9 +264,9 @@ describe('DeviceList', () => {
                 return { success: true, payload: [{ path: '1' }, { path: '2' }, { path: '3' }] };
             },
         });
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         await list.waitForTransportFirstEvent();
@@ -286,9 +301,9 @@ describe('DeviceList', () => {
             },
         });
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         // NOTE: this behavior is wrong
         jest.useFakeTimers();
@@ -317,9 +332,9 @@ describe('DeviceList', () => {
     it('.init() without pendingTransportEvent (device connected after start)', async () => {
         const transport = createTestTransport();
 
-        await loadDataManager({ transports: [transport], pendingTransportEvent: false });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport], pendingTransportEvent: false }),
+        );
 
         list.init();
         await list.waitForTransportFirstEvent();
@@ -355,9 +370,9 @@ describe('DeviceList', () => {
             },
         });
 
-        await loadDataManager({ transports: [transport] });
-
-        const { list, eventsSpy } = createDeviceList();
+        const { list, eventsSpy } = createDeviceList(
+            getDeviceListParams({ transports: [transport] }),
+        );
 
         list.init();
         await list.waitForTransportFirstEvent();

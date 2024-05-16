@@ -36,6 +36,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
     public init() {
         return this.scheduleAction(async () => {
             const handshakeRes = await this.sessionsClient.handshake();
+            this.stopped = !handshakeRes.success;
 
             return handshakeRes.success
                 ? this.success(undefined)
@@ -118,7 +119,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                 const openDeviceResult = await this.api.openDevice(path, reset);
 
                 if (!openDeviceResult.success) {
-                    if (this.listenPromise) {
+                    if (this.listenPromise[path]) {
                         this.listenPromise[path].resolve(openDeviceResult);
                     }
 
