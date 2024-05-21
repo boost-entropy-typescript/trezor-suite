@@ -16,7 +16,7 @@ import { isNative } from '@trezor/env-utils';
 
 import { deviceActions } from './deviceActions';
 import { authorizeDevice } from './deviceThunks';
-import { PORTFOLIO_TRACKER_DEVICE_ID, PORTFOLIO_TRACKER_DEVICE_STATE } from './deviceConstants';
+import { PORTFOLIO_TRACKER_DEVICE_ID } from './deviceConstants';
 
 export type State = {
     devices: TrezorDevice[];
@@ -70,7 +70,7 @@ const merge = (device: AcquiredDevice, upcoming: Partial<AcquiredDevice>): Trezo
 
 const getShouldUseEmptyPassphrase = (device: Device, deviceInstance?: number): boolean => {
     if (!device.features) return false;
-    if (isNative() && typeof deviceInstance === 'number' && deviceInstance === 1) {
+    if (isNative() && (!deviceInstance || deviceInstance === 1)) {
         // On mobile, if device has instance === 1, we always want to use empty passphrase since we
         // connect & authorize standard wallet by default. Other instances will have `usePassphraseProtection` set same way as web/desktop app.
         return true;
@@ -784,13 +784,6 @@ export const selectDeviceFirmwareVersion = memoize((state: DeviceRootState) => {
 
     return getFirmwareVersionArray(device);
 });
-
-export const selectPersistedDeviceStates = (state: DeviceRootState) => {
-    const devices = selectDevices(state);
-
-    return [...devices.map(d => d.state), PORTFOLIO_TRACKER_DEVICE_STATE];
-};
-
 export const selectPhysicalDevices = memoize((state: DeviceRootState) => {
     const devices = selectDevices(state);
 
@@ -798,9 +791,9 @@ export const selectPhysicalDevices = memoize((state: DeviceRootState) => {
 });
 
 export const selectIsNoPhysicalDeviceConnected = (state: DeviceRootState) => {
-    const devices = selectDevices(state);
+    const devices = selectPhysicalDevices(state);
 
-    return devices.length === 1 && devices[0].id === PORTFOLIO_TRACKER_DEVICE_ID;
+    return devices.every(device => !device.connected);
 };
 
 export const selectIsDeviceBitcoinOnly = (state: DeviceRootState) => {
