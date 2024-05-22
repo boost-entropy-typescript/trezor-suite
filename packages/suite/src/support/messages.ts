@@ -4517,6 +4517,10 @@ export default defineMessages({
         id: 'RECEIVE_ADDRESS_REVEAL',
         defaultMessage: 'Show full address',
     },
+    RECEIVE_UNVERIFIED_ADDRESS_REVEAL: {
+        id: 'RECEIVE_UNVERIFIED_ADDRESS_REVEAL',
+        defaultMessage: 'Generate unverified address',
+    },
     RECEIVE_ADDRESS_COINJOIN_DISALLOW: {
         id: 'RECEIVE_ADDRESS_COINJOIN_DISALLOW',
         defaultMessage:
@@ -9076,5 +9080,22 @@ export default defineMessages({
     TR_PASSPHRASE_DESCRIPTION_ITEM3: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM3',
         defaultMessage: 'No one can recover it, not even Trezor support',
+    },
+    TR_CONNECT_DEVICE_SEND_PROMO_TITLE: {
+        id: 'TR_CONNECT_DEVICE_SEND_PROMO_TITLE',
+        defaultMessage: "Your Trezor isn't connected",
+    },
+    TR_CONNECT_DEVICE_SEND_PROMO_DESCRIPTION: {
+        id: 'TR_CONNECT_DEVICE_SEND_PROMO_DESCRIPTION',
+        defaultMessage: 'To send coins, connect your Trezor.',
+    },
+    TR_CONNECT_DEVICE_RECEIVE_PROMO_TITLE: {
+        id: 'TR_CONNECT_DEVICE_RECEIVE_PROMO_TITLE',
+        defaultMessage: "Receive address can't be verified",
+    },
+    TR_CONNECT_DEVICE_RECEIVE_PROMO_DESCRIPTION: {
+        id: 'TR_CONNECT_DEVICE_RECEIVE_PROMO_DESCRIPTION',
+        defaultMessage:
+            "Verify on Trezor to confirm receive address. Continuing without confirming isn't recommended.",
     },
 });
