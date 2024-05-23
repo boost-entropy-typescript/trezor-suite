@@ -7,7 +7,7 @@ import {
     selectDeviceByState,
     DeviceRootState,
     PORTFOLIO_TRACKER_DEVICE_ID,
-    selectAreAllDevicesDisconnectedOrAccountless,
+    selectHasOnlyEmptyPortfolioTracker,
 } from '@suite-common/wallet-core';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { TypographyStyle } from '@trezor/theme';
@@ -26,6 +26,7 @@ export type DeviceItemContentProps = {
     headerTextVariant?: TypographyStyle;
     variant?: DeviceItemContentVariant;
     isCompact?: boolean;
+    isSubHeaderForceHidden?: boolean;
 };
 
 const contentWrapperStyle = prepareNativeStyle<{ height: number }>((utils, { height }) => ({
@@ -50,14 +51,13 @@ export const DeviceItemContent = ({
     headerTextVariant = 'body',
     variant = 'simple',
     isCompact = true,
+    isSubHeaderForceHidden = false,
 }: DeviceItemContentProps) => {
     const { translate } = useTranslate();
     const { applyStyle } = useNativeStyles();
 
     const device = useSelector((state: DeviceRootState) => selectDeviceByState(state, deviceState));
-    const areAllDevicesDisconnectedOrAccountless = useSelector(
-        selectAreAllDevicesDisconnectedOrAccountless,
-    );
+    const hasOnlyEmptyPortfolioTracker = useSelector(selectHasOnlyEmptyPortfolioTracker);
 
     const isPortfolioTrackerDevice = device?.id === PORTFOLIO_TRACKER_DEVICE_ID;
 
@@ -80,9 +80,7 @@ export const DeviceItemContent = ({
 
     return (
         <HStack style={applyStyle(contentWrapperStyle, { height: isCompact ? 46 : 56 })}>
-            <DeviceItemIcon
-                deviceId={areAllDevicesDisconnectedOrAccountless ? undefined : device.id}
-            />
+            <DeviceItemIcon deviceId={hasOnlyEmptyPortfolioTracker ? undefined : device.id} />
             <Box style={applyStyle(itemStyle, { isCompact })}>
                 {variant === 'simple' ? (
                     <SimpleDeviceItemContent
@@ -90,6 +88,7 @@ export const DeviceItemContent = ({
                         headerTextVariant={headerTextVariant}
                         header={deviceHeader}
                         isPortfolioTrackerDevice={isPortfolioTrackerDevice}
+                        isSubHeaderForceHidden={isSubHeaderForceHidden}
                     />
                 ) : (
                     <WalletDetailDeviceItemContent
