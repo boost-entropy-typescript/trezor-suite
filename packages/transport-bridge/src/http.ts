@@ -11,6 +11,7 @@ import {
 } from '@trezor/node-utils';
 import { Descriptor } from '@trezor/transport/src/types';
 import { Log, arrayPartition } from '@trezor/utils';
+import { AbstractApi } from '@trezor/transport/src/api/abstract';
 
 import { sessionsClient, createApi } from './core';
 
@@ -45,7 +46,7 @@ export class TrezordNode {
         logger,
     }: {
         port: number;
-        api: 'usb' | 'udp';
+        api: 'usb' | 'udp' | AbstractApi;
         assetPrefix?: string;
         logger?: Log;
     }) {
@@ -56,10 +57,6 @@ export class TrezordNode {
 
         this.listenSubscriptions = [];
 
-        // whenever sessions module reports changes to descriptors (including sessions), resolve affected /listen subscriptions
-        sessionsClient.on('descriptors', descriptors => {
-            this.resolveListenSubscriptions(descriptors);
-        });
         this.api = createApi(api, this.logger);
         this.assetPrefix = assetPrefix;
     }
@@ -77,6 +74,11 @@ export class TrezordNode {
     }
 
     public start() {
+        // whenever sessions module reports changes to descriptors (including sessions), resolve affected /listen subscriptions
+        sessionsClient.on('descriptors', descriptors => {
+            this.resolveListenSubscriptions(descriptors);
+        });
+
         return new Promise<void>(resolve => {
             this.logger.info('Starting Trezor Bridge HTTP server');
             const app = new HttpServer({
@@ -360,7 +362,10 @@ export class TrezordNode {
     public stop() {
         // send empty descriptors (imitate that all devices have disconnected)
         this.resolveListenSubscriptions([]);
-        this.server?.stop();
+        sessionsClient.removeAllListeners('descriptors');
+        this.api.dispose();
+
+        return this.server?.stop();
     }
 
     public async status() {

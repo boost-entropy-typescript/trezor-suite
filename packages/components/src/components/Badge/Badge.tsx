@@ -73,7 +73,7 @@ const mapVariantToPadding = ({ $size }: { $size: BadgeSize }): string => {
     return colorMap[$size];
 };
 
-const Container = styled.button<BadgeContainerProps>`
+const Container = styled.div<BadgeContainerProps>`
     ${withFrameProps}
 
     display: ${({ $inline }) => ($inline ? 'inline-flex' : 'flex')};
@@ -124,7 +124,6 @@ export const Badge = ({
         <Container
             $size={size}
             $variant={variant}
-            disabled={!!isDisabled}
             $hasAlert={!!hasAlert}
             className={className}
             $margin={margin}

@@ -4,6 +4,7 @@ import {
     ElevationUp,
     Icon,
     Radio,
+    Row,
     Text,
     Warning,
     useElevation,
@@ -19,7 +20,7 @@ import {
     zIndices,
 } from '@trezor/theme';
 import { CSSProperties, ReactNode, forwardRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useLayoutSize, useSelector } from '../../../hooks/suite';
 import { selectDevice } from '@suite-common/wallet-core';
 import { DeviceModelInternal } from '@trezor/connect';
@@ -128,15 +129,49 @@ const OptionGroupHeading = styled.div`
 
     gap: ${spacingsPx.md};
     align-items: center;
+
+    padding: ${spacingsPx.sm} 0;
 `;
 
-const OptionStyled = styled.div`
+const OptionStyled = styled.div<{ $hasHoverInteraction?: boolean }>`
     display: flex;
     flex-direction: row;
 
     gap: ${spacingsPx.md};
+
+    padding-top: ${spacingsPx.sm};
+    padding-bottom: ${spacingsPx.sm};
+
+    ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
+        padding-top: ${spacingsPx.xs};
+        padding-bottom: ${spacingsPx.xs};
+    }
+
     align-items: center;
     cursor: pointer;
+
+    ${({ $hasHoverInteraction }) =>
+        $hasHoverInteraction === true
+            ? css`
+                  &:hover {
+                      background-color: ${({ theme }) => theme.backgroundSurfaceElevation2};
+
+                      margin-left: -10px;
+                      margin-right: -10px;
+                      padding-left: 10px;
+                      padding-right: 10px;
+
+                      ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
+                          margin-left: -6px;
+                          margin-right: -6px;
+                          padding-left: 6px;
+                          padding-right: 6px;
+                      }
+
+                      border-radius: ${borders.radii.xs};
+                  }
+              `
+            : ''}
 `;
 
 const DownComponent = () => {
@@ -160,10 +195,10 @@ const SelectedOptionStyled = styled.div<{ $isDisabled: boolean }>`
         middleware of the Floating UI.
     */
 
-    padding: ${spacingsPx.md} ${spacingsPx.xl};
+    padding: ${spacingsPx.xxs} ${spacingsPx.xl};
 
     ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
-        padding: ${spacingsPx.xs} ${spacingsPx.sm} ${spacingsPx.md} ${spacingsPx.sm};
+        padding: 0 ${spacingsPx.sm};
     }
 `;
 
@@ -189,13 +224,11 @@ type OptionProps = {
 };
 
 const Option = ({ children, onSelect, isChecked, 'data-test': dataTest }: OptionProps) => (
-    <OptionStyled onClick={onSelect}>
+    <OptionStyled onClick={onSelect} $hasHoverInteraction={true}>
         {children}
         <Radio isChecked={isChecked} onClick={onSelect} data-test={dataTest} />
     </OptionStyled>
 );
-
-const FLOATING_SELECTIONS_WRAPPER_PADDING = spacings.xs;
 
 const FloatingSelectionsWrapper = styled.div<{ $elevation: Elevation }>`
     z-index: ${zIndices.modal};
@@ -209,7 +242,7 @@ const FloatingSelectionsWrapper = styled.div<{ $elevation: Elevation }>`
         middleware of the Floating UI
     */
 
-    padding: ${FLOATING_SELECTIONS_WRAPPER_PADDING}px ${spacingsPx.xxs};
+    padding: 0 ${spacingsPx.xxs};
 `;
 
 const InnerScrollableWrapper = styled.div`
@@ -225,11 +258,9 @@ const InnerScrollableWrapper = styled.div`
     */
 
     padding: ${spacingsPx.sm} ${spacingsPx.md};
-    gap: ${spacingsPx.md};
 
     ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
-        gap: ${spacingsPx.md};
-        padding: ${spacingsPx.xs} ${spacingsPx.sm} ${spacingsPx.md} ${spacingsPx.sm};
+        padding: ${spacingsPx.xs} ${spacingsPx.sm};
     }
 `;
 
@@ -247,7 +278,7 @@ const DefaultTag = () => {
         <Badge
             variant="primary"
             inline
-            margin={{ left: spacings.xxs }}
+            margin={{ left: spacings.xs }}
             size={isMobileLayout ? 'tiny' : undefined}
         >
             <Text typographyStyle="hint">
@@ -264,7 +295,7 @@ const UpgradableToMultiTag = () => {
         <Badge
             variant="tertiary"
             inline
-            margin={{ left: spacings.xxs }}
+            margin={{ left: spacings.xs }}
             size={isMobileLayout ? 'tiny' : undefined}
         >
             <Translation id="TR_ONBOARDING_BACKUP_TYPE_UPGRADABLE_TO_MULTI" />
@@ -279,13 +310,23 @@ const AdvancedTag = () => {
         <Badge
             variant="tertiary"
             inline
-            margin={{ left: spacings.xxs }}
+            margin={{ left: spacings.xs }}
             size={isMobileLayout ? 'tiny' : undefined}
         >
             <Translation id="TR_ONBOARDING_BACKUP_TYPE_ADVANCED" />
         </Badge>
     );
 };
+
+const DividerWrapper = styled.div`
+    margin-top: ${spacingsPx.xs};
+    margin-bottom: ${spacingsPx.xs};
+
+    ${variables.SCREEN_QUERY.BELOW_LAPTOP} {
+        margin-top: ${spacingsPx.xxs};
+        margin-bottom: ${spacingsPx.xxs};
+    }
+`;
 
 const FloatingSelections = forwardRef<HTMLDivElement, FloatingSelectionsProps>(
     ({ selected, onSelect, style, defaultType }, ref) => {
@@ -306,17 +347,20 @@ const FloatingSelections = forwardRef<HTMLDivElement, FloatingSelectionsProps>(
                         data-test="@onboarding/select-seed-type-shamir-default"
                     >
                         <OptionText>
-                            <Text
-                                variant={selected === 'shamir-default' ? undefined : 'tertiary'}
-                                typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
-                            >
-                                <Translation id={typesToLabelMap['shamir-default']} />
+                            <Row alignItems="center">
+                                <Text
+                                    variant={selected === 'shamir-default' ? undefined : 'tertiary'}
+                                    typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
+                                >
+                                    <Translation id={typesToLabelMap['shamir-default']} />
+                                </Text>
                                 {defaultType === 'shamir-default' ? (
                                     <DefaultTag />
                                 ) : (
                                     <UpgradableToMultiTag />
                                 )}
-                            </Text>
+                            </Row>
+
                             <Text typographyStyle="hint">
                                 <Translation id="TR_ONBOARDING_SEED_TYPE_SINGLE_SEED_DESCRIPTION" />
                             </Text>
@@ -328,20 +372,24 @@ const FloatingSelections = forwardRef<HTMLDivElement, FloatingSelectionsProps>(
                         data-test="@onboarding/select-seed-type-shamir-advance"
                     >
                         <OptionText>
-                            <Text
-                                variant={selected === 'shamir-advance' ? undefined : 'tertiary'}
-                                typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
-                            >
-                                <Translation id={typesToLabelMap['shamir-advance']} />
+                            <Row alignItems="center">
+                                <Text
+                                    variant={selected === 'shamir-advance' ? undefined : 'tertiary'}
+                                    typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
+                                >
+                                    <Translation id={typesToLabelMap['shamir-advance']} />
+                                </Text>
                                 {defaultType === 'shamir-advance' && <DefaultTag />}
                                 <AdvancedTag />
-                            </Text>
+                            </Row>
                             <Text typographyStyle="hint">
                                 <Translation id="TR_ONBOARDING_SEED_TYPE_ADVANCED_DESCRIPTION" />
                             </Text>
                         </OptionText>
                     </Option>
-                    <Divider margin={{ top: spacings.zero, bottom: spacings.zero }} />
+                    <DividerWrapper>
+                        <Divider margin={{ top: spacings.zero, bottom: spacings.zero }} />
+                    </DividerWrapper>
                     <OptionGroupHeading>
                         <Text typographyStyle="hint" variant="tertiary">
                             <Translation
@@ -356,13 +404,15 @@ const FloatingSelections = forwardRef<HTMLDivElement, FloatingSelectionsProps>(
                         data-test="@onboarding/select-seed-type-12-words"
                     >
                         <OptionText>
-                            <Text
-                                variant={selected === '12-words' ? undefined : 'tertiary'}
-                                typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
-                            >
-                                <Translation id={typesToLabelMap['12-words']} />
+                            <Row alignItems="center">
+                                <Text
+                                    variant={selected === '12-words' ? undefined : 'tertiary'}
+                                    typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
+                                >
+                                    <Translation id={typesToLabelMap['12-words']} />
+                                </Text>
                                 {defaultType === '12-words' && <DefaultTag />}
-                            </Text>
+                            </Row>
                             {defaultType === '12-words' && (
                                 <Text typographyStyle="hint">
                                     <Translation id="TR_ONBOARDING_BACKUP_TYPE_12_WORDS_DEFAULT_NOTE" />
@@ -376,13 +426,15 @@ const FloatingSelections = forwardRef<HTMLDivElement, FloatingSelectionsProps>(
                         data-test="@onboarding/select-seed-type-24-words"
                     >
                         <OptionText>
-                            <Text
-                                variant={selected === '24-words' ? undefined : 'tertiary'}
-                                typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
-                            >
-                                <Translation id={typesToLabelMap['24-words']} />
+                            <Row alignItems="center">
+                                <Text
+                                    variant={selected === '24-words' ? undefined : 'tertiary'}
+                                    typographyStyle={isMobileLayout ? 'highlight' : 'titleSmall'}
+                                >
+                                    <Translation id={typesToLabelMap['24-words']} />
+                                </Text>
                                 {defaultType === '24-words' && <DefaultTag />}
-                            </Text>
+                            </Row>
                         </OptionText>
                     </Option>
                 </InnerScrollableWrapper>
@@ -419,12 +471,12 @@ export const SelectBackupType = ({
         open: isOpen,
         onOpenChange: setIsOpen,
         middleware: [
-            offset(-(isMobileLayout ? SELECT_ELEMENT_HEIGHT_MOBILE : SELECT_ELEMENT_HEIGHT)),
+            offset(-(isMobileLayout ? SELECT_ELEMENT_HEIGHT_MOBILE : SELECT_ELEMENT_HEIGHT) + 1),
             size({
                 apply: ({ rects, elements, availableHeight }) => {
                     Object.assign(elements.floating.style, {
-                        width: `${rects.reference.width}px`,
-                        height: `${Math.min(availableHeight, (isMobileLayout ? 317 : 350) + 2 * FLOATING_SELECTIONS_WRAPPER_PADDING)}px`, // <--- IMPORTANT: Those number needs to be updated when auto-height of the floating element changes
+                        width: `${rects.reference.width - 2}px`,
+                        height: `${Math.min(availableHeight, isMobileLayout ? 333 : 389)}px`, // <--- IMPORTANT: Those number needs to be updated when auto-height of the floating element changes
                     });
                 },
                 padding: 10,
