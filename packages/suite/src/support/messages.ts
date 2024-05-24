@@ -2175,6 +2175,10 @@ export default defineMessages({
         defaultMessage: 'Checking balances',
         id: 'TR_COIN_DISCOVERY_IN_PROGRESS',
     },
+    TR_COIN_DISCOVERY_LOADER_DESCRIPTION: {
+        defaultMessage: 'Checking passphrase wallet for balances & transactions',
+        id: 'TR_COIN_DISCOVERY_LOADER_DESCRIPTION',
+    },
     TR_COINS: {
         defaultMessage: 'Coins',
         id: 'TR_COINS',
@@ -5799,6 +5803,10 @@ export default defineMessages({
         description: 'Sign and send button used in send form',
         defaultMessage: 'Review & Send',
     },
+    TR_CONNECT_TREZOR_TO_SEND_BUTTON: {
+        id: 'TR_CONNECT_TREZOR_TO_SEND_BUTTON',
+        defaultMessage: 'Connect Trezor to Send',
+    },
     SEND_RAW: {
         id: 'SEND_RAW',
         description: 'item in dropdown menu',
@@ -8991,6 +8999,19 @@ export default defineMessages({
         id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON',
         defaultMessage: 'Cancel',
     },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_TITLE: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_TITLE',
+        defaultMessage: 'Disabling view-only will eject this wallet',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_DESCRIPTION: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_DESCRIPTION',
+        defaultMessage:
+            "Your funds and transactions won't be visible until you reconnect your device.",
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON',
+        defaultMessage: 'Disable & eject',
+    },
     TR_VIEW_ONLY: {
         id: 'TR_VIEW_ONLY',
         defaultMessage: 'View-only',
@@ -9013,7 +9034,7 @@ export default defineMessages({
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_HINT_LINK: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_HINT_LINK',
-        defaultMessage: 'Go',
+        defaultMessage: 'Learn',
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_TITLE: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_TITLE',
