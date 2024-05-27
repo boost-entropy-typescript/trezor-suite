@@ -1,5 +1,5 @@
 import { AbstractApi, AbstractApiConstructorParams, DEVICE_TYPE } from './abstract';
-import { AsyncResultWithTypedError } from '../types';
+import { AsyncResultWithTypedError, DescriptorApiLevel } from '../types';
 import {
     CONFIGURATION_ID,
     ENDPOINT_ID,
@@ -29,8 +29,9 @@ const INTERFACE_DEVICE_DISCONNECTED = 'The device was disconnected.' as const;
 
 export class UsbApi extends AbstractApi {
     chunkSize = 64;
-    devices: TransportInterfaceDevice[] = [];
-    usbInterface: ConstructorParams['usbInterface'];
+
+    protected devices: TransportInterfaceDevice[] = [];
+    protected usbInterface: ConstructorParams['usbInterface'];
 
     constructor({ usbInterface, logger }: ConstructorParams) {
         super({ logger });
@@ -82,7 +83,7 @@ export class UsbApi extends AbstractApi {
         }
     }
 
-    private devicesToDescriptors() {
+    private devicesToDescriptors(): DescriptorApiLevel[] {
         return this.devices.map(d => ({
             path: d.path,
             type: this.matchDeviceType(d.device),

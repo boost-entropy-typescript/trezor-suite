@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '@trezor/utils/src/bigNumber';
 import styled, { useTheme } from 'styled-components';
 import { Button, Card, Icon, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
@@ -152,6 +152,7 @@ export const StakingCard = ({
                         </AmountHeading>
 
                         <TrimmedCryptoAmount
+                            data-test="@account/staking/pending"
                             value={totalPendingStakeBalance}
                             symbol={selectedAccount?.symbol}
                         />
@@ -173,6 +174,7 @@ export const StakingCard = ({
                     </AmountHeading>
 
                     <TrimmedCryptoAmount
+                        data-test="@account/staking/staked"
                         value={depositedBalance}
                         symbol={selectedAccount?.symbol}
                     />
@@ -193,6 +195,7 @@ export const StakingCard = ({
                     </AmountHeading>
 
                     <TrimmedCryptoAmount
+                        data-test="@account/staking/rewards"
                         value={restakedReward}
                         symbol={selectedAccount?.symbol}
                         isRewards
@@ -229,6 +232,7 @@ export const StakingCard = ({
                         </AmountHeading>
 
                         <TrimmedCryptoAmount
+                            data-test="@account/staking/unstaking"
                             value={withdrawTotalAmount}
                             symbol={selectedAccount?.symbol}
                         />
