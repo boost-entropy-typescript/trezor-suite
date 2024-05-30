@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import { selectDiscoveryByDeviceState, selectCurrentFiatRates } from '@suite-common/wallet-core';
-import { variables, Card, Divider } from '@trezor/components';
+import { variables, Card, Divider, Icon, Tooltip } from '@trezor/components';
 import { getAllAccounts, getTotalFiatBalance } from '@suite-common/wallet-utils';
 import { spacingsPx, typography } from '@trezor/theme';
 
@@ -30,8 +30,16 @@ const RelativeContainer = styled.div`
     overflow: hidden;
 `;
 
+const DividerWrapper = styled.div`
+    position: relative;
+    left: -${spacingsPx.xs};
+    width: calc(100% + ${spacingsPx.lg});
+`;
+
 const InstanceType = styled.div<{ isSelected: boolean }>`
     display: flex;
+    gap: ${spacingsPx.xxs};
+    align-items: center;
     color: ${({ theme, isSelected }) => (isSelected ? theme.textDefault : theme.textSubdued)};
     ${({ isSelected }) => isSelected && typography.highlight}
     /* these styles ensure proper metadata behavior */
@@ -118,6 +126,7 @@ export const WalletInstance = ({
 
     return (
         <RelativeContainer>
+            <EjectButton setContentType={setContentType} dataTest={dataTestBase} />
             <Card
                 data-test={dataTestBase}
                 key={`${instance.label}${instance.instance}${instance.state}`}
@@ -127,10 +136,15 @@ export const WalletInstance = ({
                 {...rest}
             >
                 {isSelected && <SelectedHighlight />}
-                <EjectButton setContentType={setContentType} dataTest={dataTestBase} />
+
                 <Col $grow={1}>
                     {discoveryProcess && (
                         <InstanceType isSelected={isSelected}>
+                            {!instance.useEmptyPassphrase && (
+                                <Tooltip content={<Translation id="TR_WALLET_PASSPHRASE_WALLET" />}>
+                                    <Icon icon="ASTERISK" color="textDefault" size={12} />
+                                </Tooltip>
+                            )}
                             {instance.state ? (
                                 <MetadataLabeling
                                     defaultVisibleValue={
@@ -173,7 +187,9 @@ export const WalletInstance = ({
                     </InstanceTitle>
                 </Col>
 
-                <Divider />
+                <DividerWrapper>
+                    <Divider />
+                </DividerWrapper>
 
                 {contentType === 'default' && enabled && discoveryProcess && (
                     <ViewOnly

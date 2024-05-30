@@ -2,7 +2,7 @@ import {
     Account,
     ExportFileType,
     PrecomposedTransactionFinal,
-    TxFinalCardano,
+    PrecomposedTransactionCardanoFinal,
     WalletAccountTransaction,
     AccountKey,
 } from '@suite-common/wallet-types';
@@ -23,7 +23,6 @@ import {
 import { AccountLabels } from '@suite-common/metadata-types';
 import TrezorConnect from '@trezor/connect';
 import { blockbookUtils } from '@trezor/blockchain-link-utils';
-import { Transaction } from '@trezor/blockchain-link-types/src/blockbook';
 import { createThunk } from '@suite-common/redux-utils';
 import { selectNetworkTokenDefinitions } from '@suite-common/token-definitions/src/tokenDefinitionsSelectors';
 
@@ -33,6 +32,7 @@ import { TRANSACTIONS_MODULE_PREFIX, transactionsActions } from './transactionsA
 import { selectAccountByKey, selectAccounts } from '../accounts/accountsReducer';
 import { selectBlockchainHeightBySymbol } from '../blockchain/blockchainReducer';
 import { selectHistoricFiatRates } from '../fiat-rates/fiatRatesSelectors';
+import { selectSendSignedTx } from '../send/sendFormReducer';
 
 /**
  * Replace existing transaction in the reducer (RBF)
@@ -40,23 +40,27 @@ import { selectHistoricFiatRates } from '../fiat-rates/fiatRatesSelectors';
  * sender account and receiver account(s)
  */
 interface ReplaceTransactionThunkParams {
-    precomposedTx: PrecomposedTransactionFinal; // tx params signed by @trezor/connect
-    newTxid: string; // new txid
-    signedTransaction?: Transaction; // tx returned from @trezor/connect (only in bitcoin-like)
+    // transaction input parameters. It has to be passed as argument rather than obtained form send-form state, because this thunk is used also by eth-staking module that uses different redux state.
+    precomposedTransaction: PrecomposedTransactionFinal;
+    newTxid: string;
 }
 
 export const replaceTransactionThunk = createThunk(
     `${TRANSACTIONS_MODULE_PREFIX}/replaceTransactionThunk`,
     (
-        { precomposedTx, newTxid, signedTransaction }: ReplaceTransactionThunkParams,
+        { precomposedTransaction, newTxid }: ReplaceTransactionThunkParams,
         { getState, dispatch },
     ) => {
-        if (!precomposedTx.prevTxid) return; // ignore if it's not a replacement tx
+        if (!precomposedTransaction.prevTxid) return; // ignore if it's not a replacement tx
 
         const walletTransactions = selectTransactions(getState());
+        const signedTransaction = selectSendSignedTx(getState());
 
         // find all transactions to replace, they may be related to another account
-        const origTransactions = findTransactions(precomposedTx.prevTxid, walletTransactions);
+        const origTransactions = findTransactions(
+            precomposedTransaction.prevTxid,
+            walletTransactions,
+        );
 
         // prepare replace actions for txs
         const actions = origTransactions.flatMap(origTx => {
@@ -78,17 +82,17 @@ export const replaceTransactionThunk = createThunk(
                 newTx = {
                     ...origTx.tx,
                     txid: newTxid,
-                    fee: precomposedTx.fee,
-                    rbf: !!precomposedTx.rbf,
+                    fee: precomposedTransaction.fee,
+                    rbf: !!precomposedTransaction.rbf,
                     blockTime: Math.round(new Date().getTime() / 1000),
                     // TODO: details: {}, is it worth it?
                 };
 
                 // update ethereumSpecific values
-                newTx.ethereumSpecific = replaceEthereumSpecific(newTx, precomposedTx);
+                newTx.ethereumSpecific = replaceEthereumSpecific(newTx, precomposedTransaction);
 
                 // finalized and recv tx shouldn't have rbfParams
-                if (!precomposedTx.rbf || origTx.tx.type === 'recv') {
+                if (!precomposedTransaction.rbf || origTx.tx.type === 'recv') {
                     delete newTx.rbfParams;
                 } else {
                     // update tx rbfParams
@@ -98,7 +102,7 @@ export const replaceTransactionThunk = createThunk(
 
             return transactionsActions.replaceTransaction({
                 key: origTx.key,
-                txid: precomposedTx.prevTxid,
+                txid: precomposedTransaction.prevTxid,
                 tx: newTx,
             });
         });
@@ -109,23 +113,25 @@ export const replaceTransactionThunk = createThunk(
 );
 
 interface AddFakePendingTransactionParams {
-    transaction: Transaction;
-    precomposedTx: PrecomposedTransactionFinal;
+    precomposedTransaction: PrecomposedTransactionFinal;
     account: Account;
 }
 
 export const addFakePendingTxThunk = createThunk(
     `${TRANSACTIONS_MODULE_PREFIX}/addFakePendingTransaction`,
     (
-        { transaction, precomposedTx, account }: AddFakePendingTransactionParams,
-        { dispatch, getState },
+        { precomposedTransaction, account }: AddFakePendingTransactionParams,
+        { dispatch, getState, rejectWithValue },
     ) => {
         const blockHeight = selectBlockchainHeightBySymbol(getState(), account.symbol);
         const accounts = selectAccounts(getState());
+        const signedTransaction = selectSendSignedTx(getState());
+
+        if (!signedTransaction) return rejectWithValue('No signed transaction found');
 
         // decide affected accounts by tx.outputs
         // only 1 pending tx may be created per affected account,
-        const affectedAccounts = transaction.vout.reduce<{
+        const affectedAccounts = signedTransaction.vout.reduce<{
             [affectedAccountKey: string]: Account;
         }>(
             (result, output) => {
@@ -148,10 +154,10 @@ export const addFakePendingTxThunk = createThunk(
 
         Object.keys(affectedAccounts).forEach(key => {
             const affectedAccount = affectedAccounts[key];
-            if (!precomposedTx.prevTxid) {
+            if (!precomposedTransaction.prevTxid) {
                 // create and profile pending transaction for affected account if it's not a replacement tx
                 const affectedAccountTransaction = blockbookUtils.transformTransaction(
-                    transaction,
+                    signedTransaction,
                     affectedAccount.addresses ?? affectedAccount.descriptor,
                 );
                 const prependingTx = { ...affectedAccountTransaction, deadline: blockHeight + 2 };
@@ -170,8 +176,8 @@ export const addFakePendingTxThunk = createThunk(
 
             const pendingAccount = getPendingAccount({
                 account: affectedAccount,
-                tx: precomposedTx,
-                txid: transaction.txid,
+                tx: precomposedTransaction,
+                txid: signedTransaction.txid,
                 receivingAccount: account.key !== affectedAccount.key,
             });
 
@@ -186,11 +192,11 @@ export const addFakePendingCardanoTxThunk = createThunk(
     `${TRANSACTIONS_MODULE_PREFIX}/addFakePendingTransaction`,
     (
         {
-            precomposedTx,
+            precomposedTransaction,
             txid,
             account,
         }: {
-            precomposedTx: Pick<TxFinalCardano, 'totalSpent' | 'fee'>;
+            precomposedTransaction: Pick<PrecomposedTransactionCardanoFinal, 'totalSpent' | 'fee'>;
             txid: string;
             account: Account;
         },
@@ -206,10 +212,10 @@ export const addFakePendingCardanoTxThunk = createThunk(
             blockTime: Math.floor(new Date().getTime() / 1000),
             blockHash: undefined,
             // amounts (as most of props below) don't matter much since it is temp fake anyway
-            amount: precomposedTx.totalSpent,
-            fee: precomposedTx.fee,
+            amount: precomposedTransaction.totalSpent,
+            fee: precomposedTransaction.fee,
             feeRate: '0',
-            totalSpent: precomposedTx.totalSpent,
+            totalSpent: precomposedTransaction.totalSpent,
             targets: [],
             tokens: [],
             internalTransfers: [],

@@ -2,11 +2,11 @@ import { createAction } from '@reduxjs/toolkit';
 
 import {
     FormState,
-    PrecomposedTransactionFinal,
-    FormSignedTx,
+    SerializedTx,
     AccountKey,
-    TxFinalCardano,
+    GeneralPrecomposedTransactionFinal,
 } from '@suite-common/wallet-types';
+import { BlockbookTransaction } from '@trezor/blockchain-link-types';
 
 import { SEND_MODULE_PREFIX } from './sendFormConstants';
 
@@ -27,8 +27,9 @@ const removeDraft = createAction(
 const storePrecomposedTransaction = createAction(
     `${SEND_MODULE_PREFIX}/store-precomposed-transaction`,
     (payload: {
-        formState: FormState;
-        transactionInfo: PrecomposedTransactionFinal | TxFinalCardano;
+        accountKey: AccountKey;
+        enhancedFormDraft: FormState;
+        precomposedTransaction: GeneralPrecomposedTransactionFinal;
     }) => ({
         payload,
     }),
@@ -36,7 +37,7 @@ const storePrecomposedTransaction = createAction(
 
 const storeSignedTransaction = createAction(
     `${SEND_MODULE_PREFIX}/store-signed-transaction`,
-    (payload: FormSignedTx) => ({
+    (payload: { serializedTx: SerializedTx; signedTx?: BlockbookTransaction }) => ({
         payload,
     }),
 );

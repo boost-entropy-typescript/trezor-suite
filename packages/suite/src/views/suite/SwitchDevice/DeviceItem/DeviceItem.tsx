@@ -2,7 +2,11 @@ import styled from 'styled-components';
 import { variables } from '@trezor/components';
 import * as deviceUtils from '@suite-common/suite-utils';
 
-import { selectDevice, createDeviceInstance, selectDeviceThunk } from '@suite-common/wallet-core';
+import {
+    selectDevice,
+    createDeviceInstanceThunk,
+    selectDeviceThunk,
+} from '@suite-common/wallet-core';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { goto } from 'src/actions/suite/routerActions';
 
@@ -37,9 +41,16 @@ interface DeviceItemProps {
     instances: AcquiredDevice[];
     onCancel: ForegroundAppProps['onCancel'];
     backgroundRoute: ReturnType<typeof getBackgroundRoute>;
+    isCloseButtonVisible?: boolean;
 }
 
-export const DeviceItem = ({ device, instances, onCancel, backgroundRoute }: DeviceItemProps) => {
+export const DeviceItem = ({
+    device,
+    instances,
+    onCancel,
+    backgroundRoute,
+    isCloseButtonVisible,
+}: DeviceItemProps) => {
     const selectedDevice = useSelector(selectDevice);
     const dispatch = useDispatch();
     const deviceStatus = deviceUtils.getStatus(device);
@@ -74,7 +85,7 @@ export const DeviceItem = ({ device, instances, onCancel, backgroundRoute }: Dev
         instance: DeviceItemProps['device'],
         useEmptyPassphrase?: boolean,
     ) => {
-        await dispatch(createDeviceInstance({ device: instance, useEmptyPassphrase }));
+        await dispatch(createDeviceInstanceThunk({ device: instance, useEmptyPassphrase }));
         handleRedirection();
     };
 
@@ -101,6 +112,7 @@ export const DeviceItem = ({ device, instances, onCancel, backgroundRoute }: Dev
             }
             onCancel={onCancel}
             device={device}
+            isCloseButtonVisible={isCloseButtonVisible}
         >
             <WalletsWrapper $enabled>
                 <InstancesWrapper>
