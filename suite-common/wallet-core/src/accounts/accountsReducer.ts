@@ -167,6 +167,10 @@ export const selectDeviceAccounts = (state: AccountsRootState & DeviceRootState)
     return selectAccountsByDeviceState(state, device.state);
 };
 
+export const selectVisibleDeviceAccounts = memoize((state: AccountsRootState & DeviceRootState) =>
+    selectDeviceAccounts(state).filter(account => account.visible),
+);
+
 export const selectDeviceAccountsForNetworkSymbolAndAccountType = memoizeWithArgs(
     (
         state: AccountsRootState & DeviceRootState,
@@ -238,6 +242,16 @@ export const selectDeviceAccountsByNetworkSymbol = memoizeWithArgs(
 
         return A.filter(accounts, account => account.symbol === networkSymbol);
     },
+    {
+        size: Object.keys(networks).length,
+    },
+);
+
+export const selectVisibleDeviceAccountsByNetworkSymbol = memoizeWithArgs(
+    (state: AccountsRootState & DeviceRootState, networkSymbol: NetworkSymbol | null) =>
+        selectDeviceAccountsByNetworkSymbol(state, networkSymbol).filter(
+            account => account.visible,
+        ),
     {
         size: Object.keys(networks).length,
     },
@@ -353,7 +367,7 @@ export const selectAccountsSymbols = memoize(
 );
 
 export const selectIsDeviceAccountless = (state: AccountsRootState & DeviceRootState) =>
-    pipe(selectDeviceAccounts(state), A.isEmpty);
+    pipe(selectVisibleDeviceAccounts(state), A.isEmpty);
 
 // Selected device has no accounts and no active discovery. It can be empty portfolio device.
 export const selectIsEmptyDevice = (

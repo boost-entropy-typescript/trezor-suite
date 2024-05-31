@@ -205,6 +205,7 @@ const addAccountByDescriptorThunk = createThunk(
                     discoveryItem: bundleItem,
                     deviceState,
                     accountInfo,
+                    visible: true,
                 }),
             );
 
@@ -255,7 +256,6 @@ const discoverAccountsByDescriptorThunk = createThunk(
             if (success) {
                 if (accountInfo.empty) {
                     isFinalRound = true;
-                    break;
                 }
 
                 dispatch(
@@ -263,6 +263,7 @@ const discoverAccountsByDescriptorThunk = createThunk(
                         discoveryItem: bundleItem,
                         deviceState,
                         accountInfo,
+                        visible: !accountInfo.empty,
                     }),
                 );
             }

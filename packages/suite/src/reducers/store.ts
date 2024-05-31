@@ -7,6 +7,7 @@ import { createLogger } from 'redux-logger';
 import { prepareFirmwareReducer } from '@suite-common/wallet-core';
 import { addLog } from '@suite-common/logger';
 import { isCodesignBuild } from '@trezor/env-utils';
+import { mergeDeepObject } from '@trezor/utils';
 
 import suiteMiddlewares from 'src/middlewares/suite';
 import walletMiddlewares from 'src/middlewares/wallet';
@@ -79,16 +80,31 @@ const devTools =
           }
         : false;
 
-export const initStore = (preloadStoreAction?: PreloadStoreAction) => {
+const patchConfirm = (statePatch: any) =>
+    !isCodesignBuild() ||
+    confirm(
+        `Trezor Suite is starting with partially predefined state. Press OK only if you intended to do that!\n\n` +
+            JSON.stringify(statePatch, null, 4),
+    );
+
+export const initStore = (
+    preloadStoreAction?: PreloadStoreAction,
+    statePatch?: Record<string, any>,
+) => {
     // get initial state by calling STORAGE.LOAD action with optional payload
     // payload will be processed in each reducer explicitly
     const preloadedState = preloadStoreAction
         ? rootReducer(undefined, preloadStoreAction)
         : undefined;
 
+    const patchedState =
+        preloadedState && statePatch && patchConfirm(statePatch)
+            ? mergeDeepObject.withOptions({ dotNotation: true }, preloadedState, statePatch)
+            : preloadedState;
+
     return configureStore({
         reducer: rootReducer,
-        preloadedState,
+        preloadedState: patchedState,
         middleware,
         devTools,
     });
