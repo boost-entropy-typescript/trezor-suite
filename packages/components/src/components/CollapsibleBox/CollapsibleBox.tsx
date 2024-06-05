@@ -59,7 +59,10 @@ type CollapsibleBoxCommon = {
     isIconFlipped?: boolean; // Open upwards, affects the icon rotation
     hasDivider?: boolean;
     margin?: FrameProps['margin'];
+    onAnimationComplete?: (isOpen: boolean) => void;
     'data-test'?: string;
+    /** @deprecated */
+    className?: string;
 };
 type CollapsibleBoxSubcomponents = {
     Header: typeof Header;
@@ -195,6 +198,8 @@ const CollapsibleBoxContent = ({
     hasDivider = true,
     children,
     margin,
+    className,
+    onAnimationComplete,
     'data-test': dataTest,
 }: CollapsibleBoxContentProps) => {
     const { elevation } = useElevation();
@@ -235,6 +240,7 @@ const CollapsibleBoxContent = ({
                 initial={false} // Prevents animation on mount when expanded === false
                 variants={animationVariants}
                 animate={isOpen ? 'expanded' : 'closed'}
+                onAnimationComplete={() => onAnimationComplete?.(isOpen)}
                 transition={{
                     duration: ANIMATION_DURATION,
                     ease: motionEasing.transition,
@@ -259,6 +265,7 @@ const CollapsibleBoxContent = ({
     const containerProps = {
         $margin: margin,
         'data-test': dataTest,
+        className,
     };
 
     return fillType === 'default' ? (
