@@ -87,6 +87,7 @@ export type SuiteAnalyticsEvent =
           payload: Partial<Omit<OnboardingAnalytics, 'startTime'>> & {
               duration: number;
               device: string;
+              unitPackaging: number;
           };
       }
     | {
@@ -280,6 +281,18 @@ export type SuiteAnalyticsEvent =
               value: 0 | 90 | 180 | 270;
           };
       }
+    | {
+          type: EventType.SettingsDeviceChangeHapticFeedback;
+          payload: {
+              value: boolean;
+          };
+      }
+    | {
+          type: EventType.SettingsDeviceChangeBrightness;
+          payload: {
+              value?: number;
+          };
+      }
     | { type: EventType.SettingsDeviceWipe }
     | {
           type: EventType.SettingsDeviceChangePassphraseProtection;
@@ -416,5 +429,11 @@ export type SuiteAnalyticsEvent =
           type: EventType.T2B1DashboardPromo;
           payload: {
               action: 'shop' | 'close';
+          };
+      }
+    | {
+          type: EventType.SettingsMultiShareBackup;
+          payload: {
+              action: 'start' | 'done' | 'learn-more' | 'close-modal';
           };
       };
