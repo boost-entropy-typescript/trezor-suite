@@ -26,9 +26,10 @@ type MultiShareBackupModalProps = {
     onCancel: () => void;
 };
 
-export const MultiShareBackupModal = ({
-    onCancel: onCancelFromProps,
-}: MultiShareBackupModalProps) => {
+type StepConfig = Partial<ModalProps> &
+    Required<Pick<ModalProps, 'isCancelable' | 'heading' | 'children' | 'hasBackdropCancel'>>;
+
+export const MultiShareBackupModal = ({ onCancel }: MultiShareBackupModalProps) => {
     const device = useSelector(selectDevice);
 
     const isInBackupMode =
@@ -55,7 +56,7 @@ export const MultiShareBackupModal = ({
             });
         }
 
-        onCancelFromProps();
+        onCancel();
     };
 
     const closeWithCancelOnDevice = () => {
@@ -67,7 +68,7 @@ export const MultiShareBackupModal = ({
         return;
     }
 
-    const getStepConfig = (): Partial<ModalProps> => {
+    const getStepConfig = (): StepConfig => {
         switch (step) {
             case 'first-info':
                 const goToStepNextStep = () => {
@@ -100,6 +101,8 @@ export const MultiShareBackupModal = ({
                             />
                         </>
                     ),
+                    isCancelable: true,
+                    hasBackdropCancel: true,
                 };
 
             case 'second-info':
@@ -148,6 +151,8 @@ export const MultiShareBackupModal = ({
                         </>
                     ),
                     onBackClick: () => setStep('first-info'),
+                    isCancelable: true,
+                    hasBackdropCancel: true,
                 };
 
             case 'verify-ownership':
@@ -155,6 +160,8 @@ export const MultiShareBackupModal = ({
                     children: <MultiShareBackupStep3VerifyOwnership />,
                     heading: <Translation id="TR_CONFIRM_ON_TREZOR" />,
                     onCancel: closeWithCancelOnDevice,
+                    isCancelable: false, // There is a bug in FW, that prevents cancel during recovery-check
+                    hasBackdropCancel: false,
                 };
 
             case 'backup-seed':
@@ -162,6 +169,8 @@ export const MultiShareBackupModal = ({
                     children: <MultiShareBackupStep4BackupSeed />,
                     heading: <Translation id="TR_CONFIRM_ON_TREZOR" />,
                     onCancel: closeWithCancelOnDevice,
+                    isCancelable: true,
+                    hasBackdropCancel: false, // It is hard to get here, we don't want to cancel it by miss-click
                 };
 
             case 'done':
@@ -178,9 +187,11 @@ export const MultiShareBackupModal = ({
                             </LearnMoreButton>
                         </>
                     ),
+                    isCancelable: true,
+                    hasBackdropCancel: true,
                 };
         }
     };
 
-    return <Modal isCancelable onCancel={handleCancel} {...getStepConfig()}></Modal>;
+    return <Modal onCancel={handleCancel} {...getStepConfig()}></Modal>;
 };
