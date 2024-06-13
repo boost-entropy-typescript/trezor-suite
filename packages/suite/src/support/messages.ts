@@ -2119,7 +2119,7 @@ export default defineMessages({
         id: 'TR_BASIC_RECOVERY',
     },
     TR_BASIC_RECOVERY_OPTION: {
-        defaultMessage: 'Enter your wallet backup word by word on your computer or mobile device.',
+        defaultMessage: 'Enter your wallet backup word by word on your computer.',
         description: 'Enter words on your computer, recovery takes about 2 minutes.',
         id: 'TR_BASIC_RECOVERY_OPTION',
     },
@@ -2163,7 +2163,7 @@ export default defineMessages({
     },
     TR_MULTI_SHARE_BACKUP_EXPLANATION_1: {
         defaultMessage:
-            'Multi-share Backup generates multiple 20-word shares (wordlists) to recover your wallet. Set a minimum recovery number then distribute shares to trusted individuals or store them securely. When needed, collect the required number of shares to regain access to your wallet.',
+            'Generates multiple 20-word lists (shares) to recover your wallet. A minimum number of shares, set by you, are needed to regain access to your wallet.',
         id: 'TR_MULTI_SHARE_BACKUP_EXPLANATION_1',
     },
     TR_MULTI_SHARE_BACKUP_EXPLANATION_2: {
@@ -2176,7 +2176,7 @@ export default defineMessages({
         id: 'TR_MULTI_SHARE_BACKUP_CHECKBOX_1',
     },
     TR_MULTI_SHARE_BACKUP_CHECKBOX_2: {
-        defaultMessage: 'My current wallet backup is still be able to recover my wallet',
+        defaultMessage: 'My current wallet backup is still able to recover my wallet',
         id: 'TR_MULTI_SHARE_BACKUP_CHECKBOX_2',
     },
     TR_MULTI_SHARE_TIPS_ON_STORING_BACKUP: {
@@ -2366,6 +2366,10 @@ export default defineMessages({
     TR_COINS: {
         defaultMessage: 'Coins',
         id: 'TR_COINS',
+    },
+    TR_HIDDEN: {
+        defaultMessage: 'Hidden',
+        id: 'TR_HIDDEN',
     },
     TR_CONFIRM: {
         defaultMessage: 'Confirm',
@@ -5061,7 +5065,7 @@ export default defineMessages({
     TR_SWITCH_FIRMWARE_NO_BACKUP: {
         id: 'TR_SWITCH_FIRMWARE_NO_BACKUP',
         defaultMessage:
-            'You may lose access to your coins on this wallet without a recovery seed. If you’re confident that this wallet is empty, you can proceed, but do so at your own risk.',
+            'You may lose access to your coins on this wallet without a wallet backup. If you’re confident that this wallet is empty, proceed, but do so at your own risk.',
     },
     TR_SWITCH_FIRMWARE_NO_BACKUP_2: {
         id: 'TR_SWITCH_FIRMWARE_NO_BACKUP_2',
@@ -5269,7 +5273,7 @@ export default defineMessages({
     TR_ONBOARDING_SELECTED_DEFAULT_BACKUP_TYPE: {
         id: 'TR_ONBOARDING_SELECTED_DEFAULT_BACKUP_TYPE',
         defaultMessage:
-            "We've set the <primary>default backup type</primary> for your wallet based on your device.",
+            "We've selected the <primary>default backup type</primary> for your wallet based on your device.",
     },
     TR_ONBOARDING_WILL_CREATE_BACKUP_TYPE: {
         id: 'TR_ONBOARDING_WILL_CREATE_BACKUP_TYPE',
@@ -5286,7 +5290,8 @@ export default defineMessages({
     },
     TR_ONBOARDING_SEED_TYPE_SINGLE_SEED_DESCRIPTION: {
         id: 'TR_ONBOARDING_SEED_TYPE_SINGLE_SEED_DESCRIPTION',
-        defaultMessage: 'Supports upgrade to Multi-share Backup.',
+        defaultMessage:
+            'Generates a single set of 20 words that recovers your wallet. This backup type is upgradable to Multi-share Backup whenever you’re ready.',
     },
     TR_ONBOARDING_SEED_TYPE_ADVANCED: {
         id: 'TR_ONBOARDING_SEED_TYPE_ADVANCED',
@@ -5324,7 +5329,7 @@ export default defineMessages({
     TR_ONBOARDING_BACKUP_TYPE_12_WORDS_DEFAULT_NOTE: {
         id: 'TR_ONBOARDING_BACKUP_TYPE_12_WORDS_DEFAULT_NOTE',
         defaultMessage:
-            "Generates a single set of 12 words that fits on your device's wallet backup card (or recovery seed card), making it easy to write down accurately.",
+            "Generates a single set of 12 words that fits on your device's wallet backup card (recovery seed card), making it easy to write down accurately.",
     },
     TR_ONBOARDING_BACKUP_TYPE_12_DEFAULT_TOOLTIP: {
         id: 'TR_ONBOARDING_BACKUP_TYPE_12_DEFAULT_TOOLTIP',
@@ -5337,7 +5342,7 @@ export default defineMessages({
     TR_THESE_WONT_ALLOW_YOU_UPGRADE: {
         id: 'TR_THESE_WONT_ALLOW_YOU_UPGRADE',
         defaultMessage:
-            'Generates a single set of 12 or 24 words that can be used to recover your wallet. Legacy backups can’t be easily upgraded to Multi-share Backup. <a>Read more</a>',
+            "Generates a single set of 12 or 24 words that can be used to recover your wallet. Legacy backups can't be easily upgraded to a Multi-share Backup. <a>Read more</a>",
     },
     TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP: {
         id: 'TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP',
@@ -5345,8 +5350,7 @@ export default defineMessages({
     },
     TR_CREATE_WALLET_DEFAULT_OPTION_TOOLTIP: {
         id: 'TR_CREATE_WALLET_DEFAULT_OPTION_TOOLTIP',
-        defaultMessage:
-            "If you're unsure, choose the default option for simplicity <nowrap>and flexibility.</nowrap>",
+        defaultMessage: 'Recommended option for a simple, flexible setup.',
     },
     TR_ONBOARDING_BACKUP_OLDER_BACKUP_TYPES_SHORT: {
         id: 'TR_ONBOARDING_BACKUP_OLDER_BACKUP_TYPES_SHORT',
@@ -5355,7 +5359,7 @@ export default defineMessages({
     TR_ONBOARDING_BACKUP_LEGACY_WARNING: {
         id: 'TR_ONBOARDING_BACKUP_LEGACY_WARNING',
         defaultMessage:
-            "This backup option doesn't support upgrading to Multi-share Backup. To enable this upgrade, you need to use the 20-word backup option.",
+            'This cannot be directly upgraded to Multi-share Backup. To allow for seamless upgrades, use the default Single-share Backup.',
     },
     TR_ONBOARDING_BACKUP_SHAMIR_WARNING: {
         id: 'TR_ONBOARDING_BACKUP_SHAMIR_WARNING',
@@ -5728,6 +5732,14 @@ export default defineMessages({
     TR_TOKENS_EMPTY: {
         id: 'TR_TOKENS_EMPTY',
         defaultMessage: 'No tokens... yet.',
+    },
+    TR_TOKENS_EMPTY_CHECK_HIDDEN: {
+        id: 'TR_TOKENS_EMPTY_CHECK_HIDDEN',
+        defaultMessage: 'No tokens. They may be hidden.',
+    },
+    TR_HIDDEN_TOKENS_EMPTY: {
+        id: 'TR_HIDDEN_TOKENS_EMPTY',
+        defaultMessage: 'You have no hidden tokens.',
     },
     TR_ADD_TOKEN_TITLE: {
         id: 'TR_ADD_TOKEN_TITLE',
@@ -6769,6 +6781,22 @@ export default defineMessages({
         id: 'TR_EXPORT_AS',
         defaultMessage: 'Export as {as}',
     },
+    TR_HIDE_TOKEN: {
+        id: 'TR_HIDE_TOKEN',
+        defaultMessage: 'Hide token',
+    },
+    TR_UNHIDE_TOKEN: {
+        id: 'TR_UNHIDE_TOKEN',
+        defaultMessage: 'Unhide token',
+    },
+    TR_UNHIDE: {
+        id: 'TR_UNHIDE',
+        defaultMessage: 'Unhide',
+    },
+    TR_VIEW_IN_EXPLORER: {
+        id: 'TR_VIEW_IN_EXPLORER',
+        defaultMessage: 'View in explorer',
+    },
     TR_EXPORT_FAIL: {
         id: 'TR_EXPORT_FAIL',
         defaultMessage: 'Export failed.',
@@ -6907,6 +6935,10 @@ export default defineMessages({
     TR_TOKEN_TRANSFERS: {
         id: 'TR_TOKEN_TRANSFERS',
         defaultMessage: '{standard} Token Transfers',
+    },
+    TR_CONTRACT_ADDRESS: {
+        id: 'TR_CONTRACT_ADDRESS',
+        defaultMessage: 'Contract address:',
     },
     TR_ANALYZE_IN_BLOCKBOOK: {
         id: 'TR_ANALYZE_IN_BLOCKBOOK',
@@ -9209,6 +9241,10 @@ export default defineMessages({
     TR_VIEW_ONLY: {
         id: 'TR_VIEW_ONLY',
         defaultMessage: 'View-only',
+    },
+    TR_URL_IN_TOKEN: {
+        id: 'TR_URL_IN_TOKEN',
+        defaultMessage: 'Never visit URLs in token names or symbols. They are usually scams.',
     },
     TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE: {
         id: 'TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE',

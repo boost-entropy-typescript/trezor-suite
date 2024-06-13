@@ -3,8 +3,13 @@ import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { Account, Rate, TokenAddress, RatesByKey } from '@suite-common/wallet-types';
 import { TokenInfo } from '@trezor/connect';
 import { getFiatRateKey } from '@suite-common/wallet-utils';
-import { NetworkSymbol } from '@suite-common/wallet-config';
+import { NetworkSymbol, getNetworkFeatures } from '@suite-common/wallet-config';
 import { FiatCurrencyCode } from '@suite-common/suite-config';
+import {
+    EnhancedTokenInfo,
+    TokenDefinition,
+    isTokenDefinitionKnown,
+} from '@suite-common/token-definitions';
 
 interface TokensWithRates extends TokenInfo {
     fiatValue: BigNumber;
@@ -59,4 +64,31 @@ export const formatTokenSymbol = (symbol: string) => {
     const isTokenSymbolLong = upperCasedSymbol.length > 7;
 
     return isTokenSymbolLong ? `${upperCasedSymbol.slice(0, 7)}...` : upperCasedSymbol;
+};
+
+export const getTokens = (
+    tokens: EnhancedTokenInfo[] | TokenInfo[],
+    symbol: NetworkSymbol,
+    filterType: 'shown' | 'hidden' | 'unverified',
+    coinDefinitions?: TokenDefinition,
+): EnhancedTokenInfo[] => {
+    const hasCoinDefinitions = getNetworkFeatures(symbol).includes('coin-definitions');
+
+    const filteredTokens = tokens.filter(token => {
+        const isKnown = isTokenDefinitionKnown(coinDefinitions?.data, symbol, token.contract);
+        const isHidden = coinDefinitions?.hide.includes(token.contract);
+        const isShown = coinDefinitions?.show.includes(token.contract);
+
+        if (filterType === 'shown') {
+            return !hasCoinDefinitions || (isKnown && !isHidden) || isShown;
+        } else if (filterType === 'unverified') {
+            return hasCoinDefinitions && !isKnown && !isShown;
+        } else if (filterType === 'hidden') {
+            return isKnown && isHidden;
+        }
+
+        return false;
+    });
+
+    return filteredTokens;
 };
