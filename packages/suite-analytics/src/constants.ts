@@ -69,6 +69,7 @@ export enum EventType {
     SettingsDeviceChangeOrientation = 'settings/device/change-orientation',
     SettingsDeviceChangeHapticFeedback = 'settings/device/change-haptic-feedback',
     SettingsDeviceChangeBrightness = 'settings/device/change-brightness',
+    SettingsMultiShareBackup = 'settings/device/multi-share-backup',
     SettingsDeviceWipe = 'settings/device/wipe',
     SettingsDeviceChangePassphraseProtection = 'settings/device/change-passphrase-protection',
     SettingsGeneralChangeLanguage = 'settings/general/change-language',
@@ -88,7 +89,6 @@ export enum EventType {
 
     GetDesktopApp = 'promo/desktop',
     GetMobileApp = 'promo/mobile',
-    T2B1DashboardPromo = 'promo/t2b1-dashboard',
 
-    SettingsMultiShareBackup = 'settings/device/multi-share-backup',
+    T3T1DashboardPromo = 'promo/t3t1-dashboard',
 }
