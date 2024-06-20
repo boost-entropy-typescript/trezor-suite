@@ -62,15 +62,16 @@ const suite =
         next(action);
 
         if (createDeviceInstanceThunk.fulfilled.match(action)) {
-            api.dispatch(selectDeviceThunk(action.payload.device));
+            api.dispatch(selectDeviceThunk({ device: action.payload.device }));
         }
 
         if (deviceActions.forgetDevice.match(action)) {
-            api.dispatch(handleDeviceDisconnect(action.payload));
+            api.dispatch(handleDeviceDisconnect(action.payload.device));
         }
 
         if (deviceActions.connectDevice.match(action)) {
-            const isT3T1 = action.payload?.features?.internal_model === DeviceModelInternal.T3T1;
+            const isT3T1 =
+                action.payload?.device?.features?.internal_model === DeviceModelInternal.T3T1;
             const isT3T1DashboardPromoBannerActive =
                 api.getState().suite.flags.showDashboardT3T1PromoBanner;
 
@@ -95,7 +96,7 @@ const suite =
                 break;
             case DEVICE.CONNECT:
             case DEVICE.CONNECT_UNACQUIRED:
-                api.dispatch(handleDeviceConnect(action.payload));
+                api.dispatch(handleDeviceConnect(action.payload.device));
                 break;
             case DEVICE.DISCONNECT:
                 api.dispatch(handleDeviceDisconnect(action.payload));

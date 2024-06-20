@@ -75,6 +75,7 @@ export type SuiteAnalyticsEvent =
     | {
           type: EventType.DeviceUpdateFirmware;
           payload: {
+              model: string;
               fromBlVersion: string;
               fromFwVersion: string;
               toFwVersion?: string;
@@ -298,6 +299,12 @@ export type SuiteAnalyticsEvent =
           type: EventType.SettingsDeviceChangePassphraseProtection;
           payload: {
               use_passphrase: boolean;
+          };
+      }
+    | {
+          type: EventType.SettingsDeviceDefaultWalletLoading;
+          payload: {
+              defaultWalletLoading: 'standard' | 'passphrase';
           };
       }
     | {

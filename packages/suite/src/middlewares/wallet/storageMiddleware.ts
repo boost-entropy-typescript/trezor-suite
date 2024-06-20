@@ -173,8 +173,8 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
             }
 
             if (deviceActions.forgetDevice.match(action)) {
-                api.dispatch(storageActions.forgetDevice(action.payload));
-                api.dispatch(storageActions.forgetDeviceMetadataError(action.payload));
+                api.dispatch(storageActions.forgetDevice(action.payload.device));
+                api.dispatch(storageActions.forgetDeviceMetadataError(action.payload.device));
             }
 
             if (tokenDefinitionsActions.setTokenStatus.match(action)) {
@@ -227,6 +227,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 case SUITE.ONION_LINKS:
                 case SUITE.SET_THEME:
                 case SUITE.SET_ADDRESS_DISPLAY_TYPE:
+                case SUITE.SET_DEFAULT_WALLET_LOADING:
                 case SUITE.SET_AUTODETECT:
                 case SUITE.DEVICE_AUTHENTICITY_OPT_OUT:
                 case SUITE.EVM_CONFIRM_EXPLANATION_MODAL:

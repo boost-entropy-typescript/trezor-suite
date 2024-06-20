@@ -16,7 +16,7 @@ import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/p
 import { RouterRootState, selectRouter } from './routerReducer';
 import { Network } from '@suite-common/wallet-config';
 import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
-import { AddressDisplayOptions } from '@suite-common/wallet-types';
+import { AddressDisplayOptions, WalletType } from '@suite-common/wallet-types';
 
 export interface SuiteRootState {
     suite: SuiteState;
@@ -63,6 +63,7 @@ export interface Flags {
     stakeEthBannerClosed: boolean; // banner in account view (Overview tab) presenting ETH staking feature
     showDashboardStakingPromoBanner: boolean;
     isViewOnlyModeVisible: boolean;
+    isDashboardPassphraseBannerVisible: boolean;
     viewOnlyPromoClosed: boolean;
     viewOnlyTooltipClosed: boolean;
 }
@@ -84,6 +85,7 @@ export interface SuiteSettings {
     autodetect: AutodetectSettings;
     isDeviceAuthenticityCheckDisabled: boolean;
     addressDisplayType: AddressDisplayOptions;
+    defaultWalletLoading: WalletType;
 }
 
 export interface SuiteState {
@@ -122,6 +124,7 @@ const initialState: SuiteState = {
         isViewOnlyModeVisible: false,
         viewOnlyPromoClosed: false,
         viewOnlyTooltipClosed: false,
+        isDashboardPassphraseBannerVisible: true,
     },
     evmSettings: {
         confirmExplanationModalClosed: {},
@@ -148,6 +151,7 @@ const initialState: SuiteState = {
             theme: true,
         },
         addressDisplayType: AddressDisplayOptions.CHUNKED,
+        defaultWalletLoading: WalletType.STANDARD,
     },
 };
 
@@ -236,6 +240,10 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
 
             case SUITE.SET_ADDRESS_DISPLAY_TYPE:
                 draft.settings.addressDisplayType = action.option;
+                break;
+
+            case SUITE.SET_DEFAULT_WALLET_LOADING:
+                draft.settings.defaultWalletLoading = action.option;
                 break;
 
             case SUITE.SET_AUTODETECT:
@@ -364,5 +372,10 @@ export const selectIsLoggedOut = (state: SuiteRootState & DeviceRootState) =>
     state.suite.flags.initialRun || state.device?.selectedDevice?.mode !== 'normal';
 
 export const selectSuiteFlags = (state: SuiteRootState) => state.suite.flags;
+
+export const selectSuiteSettings = (state: SuiteRootState) => ({
+    defaultWalletLoading: state.suite.settings.defaultWalletLoading,
+    isViewOnlyModeVisible: state.suite.flags.isViewOnlyModeVisible,
+});
 
 export default suiteReducer;

@@ -9256,6 +9256,26 @@ export default defineMessages({
         id: 'TR_URL_IN_TOKEN',
         defaultMessage: 'Never visit URLs in token names or symbols. They are usually scams.',
     },
+    TR_DEVICE_SETTINGS_APPLICATION: {
+        id: 'TR_DEVICE_SETTINGS_APPLICATION',
+        defaultMessage: 'Application',
+    },
+    TR_DEVICE_SETTINGS_DEFAULT_WALLET_LOADING_TITLE: {
+        id: 'TR_DEVICE_SETTINGS_DEFAULT_WALLET_LOADING_TITLE',
+        defaultMessage: 'Default wallet loading',
+    },
+    TR_DEVICE_SETTINGS_DEFAULT_WALLET_LOADING_DESC: {
+        id: 'TR_DEVICE_SETTINGS_DEFAULT_WALLET_LOADING_DESC',
+        defaultMessage: 'Select passphrase to open passphrase dialog after opening Suite',
+    },
+    TR_DEFAULT_WALLET_LOADING_STANDARD: {
+        id: 'TR_DEFAULT_WALLET_LOADING_STANDARD',
+        defaultMessage: 'Standard',
+    },
+    TR_DEFAULT_WALLET_LOADING_PASSPHRASE: {
+        id: 'TR_DEFAULT_WALLET_LOADING_PASSPHRASE',
+        defaultMessage: 'Passphrase',
+    },
     TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE: {
         id: 'TR_DEVICE_SETTINGS_ENABLE_VIEW_ONLY_TITLE',
         defaultMessage: 'Enable view-only to see balances in app even after Trezor is disconnected',
@@ -9359,5 +9379,17 @@ export default defineMessages({
         id: 'TR_CONNECT_DEVICE_RECEIVE_PROMO_DESCRIPTION',
         defaultMessage:
             "Verify on Trezor to confirm receive address. Continuing without confirming isn't recommended.",
+    },
+    TR_CONNECT_DEVICE_PASSPHRASE_BANNER_TITLE: {
+        id: 'TR_CONNECT_DEVICE_PASSPHRASE_BANNER_TITLE',
+        defaultMessage: 'Do you primarily use passphrase?',
+    },
+    TR_CONNECT_DEVICE_PASSPHRASE_BANNER_DESCRIPTION: {
+        id: 'TR_CONNECT_DEVICE_PASSPHRASE_BANNER_DESCRIPTION',
+        defaultMessage: 'Enable showing passphrase entry dialog right when you open Suite.',
+    },
+    TR_CONNECT_DEVICE_PASSPHRASE_BANNER_BUTTON: {
+        id: 'TR_CONNECT_DEVICE_PASSPHRASE_BANNER_BUTTON',
+        defaultMessage: 'Manage',
     },
 });
