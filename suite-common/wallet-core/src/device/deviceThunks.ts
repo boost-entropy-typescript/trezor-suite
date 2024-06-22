@@ -20,7 +20,7 @@ import {
     getDeviceInstances,
     getFirstDeviceInstance,
 } from '@suite-common/suite-utils';
-import { AccountKey } from '@suite-common/wallet-types';
+import { AccountKey, WalletType } from '@suite-common/wallet-types';
 import {
     getAddressType,
     getDerivationType,
@@ -378,6 +378,27 @@ export const authorizeDeviceThunk = createThunk<
             return { device: freshDeviceData as TrezorDevice, state };
         }
 
+        if (
+            response.payload.error === 'enter-passphrase-cancel' ||
+            response.payload.error === 'enter-passphrase-back'
+        ) {
+            const settings = extra.selectors.selectSuiteSettings(getState());
+            dispatch(deviceActions.forgetDevice({ device, settings }));
+
+            if (settings.isViewOnlyModeVisible) {
+                const newDevice = selectDeviceSelector(getState());
+                dispatch(deviceActions.selectDevice(newDevice));
+                if (response.payload.error === 'enter-passphrase-back') {
+                    dispatch(extra.thunks.openSwitchDeviceDialog());
+                }
+            }
+
+            return rejectWithValue({
+                error: 'auth-failed',
+                device: device as TrezorDevice,
+            });
+        }
+
         dispatch(
             notificationsActions.addToast({
                 type: 'auth-failed',
@@ -412,13 +433,23 @@ export const authConfirm = createThunk(
 
         if (!response.success) {
             // handle error passed from Passphrase modal
-            if (response.payload.error === 'auth-confirm-cancel') {
+            if (
+                response.payload.error === 'auth-confirm-cancel' ||
+                response.payload.error === 'auth-confirm-retry'
+            ) {
                 // needs await to propagate all actions
                 await dispatch(createDeviceInstanceThunk({ device, useEmptyPassphrase: false }));
 
                 // forget previous empty wallet
                 const settings = extra.selectors.selectSuiteSettings(getState());
                 dispatch(deviceActions.forgetDevice({ device, settings }));
+
+                if (
+                    response.payload.error === 'auth-confirm-retry' &&
+                    settings.isViewOnlyModeVisible
+                ) {
+                    dispatch(extra.thunks.addWalletThunk({ walletType: WalletType.PASSPHRASE }));
+                }
 
                 return;
             }
@@ -428,14 +459,24 @@ export const authConfirm = createThunk(
                     error: response.payload.error,
                 }),
             );
+
             dispatch(deviceActions.receiveAuthConfirm({ device, success: false }));
 
             return;
         }
 
         if (response.payload.state !== device.state) {
-            dispatch(notificationsActions.addToast({ type: 'auth-confirm-error' }));
+            const settings = extra.selectors.selectSuiteSettings(getState());
+
+            if (!settings.isViewOnlyModeVisible) {
+                dispatch(notificationsActions.addToast({ type: 'auth-confirm-error' }));
+            }
+
             dispatch(deviceActions.receiveAuthConfirm({ device, success: false }));
+
+            if (settings.isViewOnlyModeVisible) {
+                dispatch(extra.actions.openModal({ type: 'passphrase-mismatch-warning' }));
+            }
 
             return;
         }
@@ -645,5 +686,17 @@ export const deviceConnectThunks = createThunk<void, DeviceConnectThunksParams, 
         const settings = extra.selectors.selectSuiteSettings(getState());
 
         dispatch(deviceConnectThunksMap[type]({ device, settings }));
+    },
+);
+
+export const passwordMismatchResetThunk = createThunk<void, { device: TrezorDevice }, void>(
+    `${DEVICE_MODULE_PREFIX}/passwordMismatchResetThunk`,
+    ({ device }, { dispatch, getState, extra }) => {
+        const settings = extra.selectors.selectSuiteSettings(getState());
+
+        dispatch(deviceActions.forgetDevice({ device, settings }));
+
+        const newDevice = selectDeviceSelector(getState());
+        dispatch(deviceActions.selectDevice(newDevice));
     },
 );

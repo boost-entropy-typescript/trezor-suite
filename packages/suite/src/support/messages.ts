@@ -2376,6 +2376,10 @@ export default defineMessages({
         defaultMessage: 'Hidden',
         id: 'TR_HIDDEN',
     },
+    TR_HIDDEN_TOKENS: {
+        defaultMessage: 'Hidden tokens',
+        id: 'TR_HIDDEN_TOKENS',
+    },
     TR_CONFIRM: {
         defaultMessage: 'Confirm',
         id: 'TR_CONFIRM',
@@ -2444,6 +2448,14 @@ export default defineMessages({
     TR_COPY_TO_CLIPBOARD: {
         defaultMessage: 'Copy',
         id: 'TR_COPY_TO_CLIPBOARD',
+    },
+    TR_NOT_YOUR_RECEIVE_ADDRRESS: {
+        defaultMessage: "This isn't your receive address.",
+        id: 'TR_NOT_YOUR_RECEIVE_ADDRRESS',
+    },
+    TR_COPY_CONTRACT_ADDRESS: {
+        defaultMessage: 'Never send funds to a contract address.',
+        id: 'TR_COPY_CONTRACT_ADDRESS',
     },
     TR_CREATE_BACKUP: {
         defaultMessage: 'Create backup',
@@ -3350,6 +3362,19 @@ export default defineMessages({
     TR_PASSPHRASE_WALLET: {
         defaultMessage: 'Hidden wallet #{id}',
         id: 'TR_PASSPHRASE_WALLET',
+    },
+    TR_PASSPHRASE_MISMATCH: {
+        defaultMessage: 'Passphrase mismatch',
+        id: 'TR_PASSPHRASE_MISMATCH',
+    },
+    TR_PASSPHRASE_MISMATCH_DESCRIPTION: {
+        defaultMessage:
+            'The passphrases didn’t match. For security, start from the beginning and re-enter them carefully.',
+        id: 'TR_PASSPHRASE_MISMATCH_DESCRIPTION',
+    },
+    TR_PASSPHRASE_MISMATCH_START_OVER: {
+        defaultMessage: 'Start over',
+        id: 'TR_PASSPHRASE_MISMATCH_START_OVER',
     },
     TR_PENDING_TX_HEADING: {
         defaultMessage: 'Pending {count, plural, one {transaction} other {transactions}}',
@@ -8921,7 +8946,7 @@ export default defineMessages({
     TR_STAKE_UNSTAKING_TAKES: {
         id: 'TR_STAKE_UNSTAKING_TAKES',
         defaultMessage:
-            'Unstaking currently takes {days} days. Once completed, you can trade or send it.',
+            'Unstaking currently takes {count, plural, one {# day} other {# days}}. Once completed, you can trade or send it.',
     },
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
@@ -8960,7 +8985,8 @@ export default defineMessages({
     },
     TR_STAKE_ENTERING_POOL_MAY_TAKE: {
         id: 'TR_STAKE_ENTERING_POOL_MAY_TAKE',
-        defaultMessage: 'Entering the staking pool may take up to {days} days',
+        defaultMessage:
+            'Entering the staking pool may take up to {count, plural, one {# day} other {# days}}',
     },
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
@@ -8997,7 +9023,7 @@ export default defineMessages({
     },
     TR_STAKE_MAX_REWARD_DAYS: {
         id: 'TR_STAKE_MAX_REWARD_DAYS',
-        defaultMessage: 'Max {days} days',
+        defaultMessage: 'Max {count, plural, one {# day} other {# days}}',
     },
     TR_STAKE_NEXT_PAYOUT: {
         id: 'TR_STAKE_NEXT_PAYOUT',
@@ -9046,7 +9072,7 @@ export default defineMessages({
     },
     TR_UP_TO_DAYS: {
         id: 'TR_UP_TO_DAYS',
-        defaultMessage: 'up to {days} days',
+        defaultMessage: 'up to {count, plural, one {# day} other {# days}}',
     },
     TR_STAKE_PAID_FROM_BALANCE: {
         id: 'TR_STAKE_PAID_FROM_BALANCE',

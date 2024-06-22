@@ -1,12 +1,10 @@
 import { useCallback, useState } from 'react';
 
 import { PassphraseTypeCard } from '@trezor/components';
-import TrezorConnect from '@trezor/connect';
 import {
     selectIsDiscoveryAuthConfirmationRequired,
     onPassphraseSubmit,
     selectDeviceModel,
-    deviceActions,
 } from '@suite-common/wallet-core';
 import { useSelector, useDispatch } from 'src/hooks/suite';
 import { Translation } from 'src/components/suite';
@@ -17,7 +15,7 @@ import { CardWithDevice } from 'src/views/suite/SwitchDevice/CardWithDevice';
 import { PassphraseDescription } from './PassphraseDescription';
 import { PassphraseWalletConfirmation } from './PassphraseWalletConfirmation';
 import { PassphraseHeading } from './PassphraseHeading';
-import { selectSuiteSettings } from '../../../../../reducers/suite/suiteReducer';
+import TrezorConnect from '@trezor/connect';
 
 interface PassphraseModalProps {
     device: TrezorDevice;
@@ -30,7 +28,6 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
         useSelector(selectIsDiscoveryAuthConfirmationRequired) || device.authConfirm;
 
     const deviceModel = useSelector(selectDeviceModel);
-    const settings = useSelector(selectSuiteSettings);
 
     const stateConfirmation = !!device.state;
 
@@ -42,9 +39,19 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
 
     const dispatch = useDispatch();
 
-    const onCancel = () => {
-        TrezorConnect.cancel('auth-confirm-cancel'); // This auth-confirm-cancel' causes the proper cleaning of the state in deviceThunks.authConfirm()
-        dispatch(deviceActions.forgetDevice({ device, settings }));
+    const onConfirmPassphraseDialogCancel = () => {
+        TrezorConnect.cancel('auth-confirm-cancel');
+    };
+
+    const onConfirmPassphraseDialogRetry = () => {
+        TrezorConnect.cancel('auth-confirm-retry');
+    };
+
+    const onEnterPassphraseDialogCancel = () => {
+        TrezorConnect.cancel('enter-passphrase-cancel');
+    };
+    const onEnterPassphraseDialogBack = () => {
+        TrezorConnect.cancel('enter-passphrase-back');
     };
 
     const onSubmit = useCallback(
@@ -65,17 +72,23 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
     if (isPassphraseWalletConfirmationVisible) {
         return (
             <PassphraseWalletConfirmation
-                onCancel={onCancel}
+                onCancel={onConfirmPassphraseDialogCancel}
                 onSubmit={onSubmit}
                 onDeviceOffer={onDeviceOffer}
                 device={device}
+                onRetry={onConfirmPassphraseDialogRetry}
             />
         );
     }
 
     return (
-        <SwitchDeviceRenderer>
-            <CardWithDevice onCancel={onCancel} device={device}>
+        <SwitchDeviceRenderer isCancelable onCancel={onEnterPassphraseDialogCancel}>
+            <CardWithDevice
+                onCancel={onEnterPassphraseDialogCancel}
+                device={device}
+                onBackButtonClick={onEnterPassphraseDialogBack}
+                isCloseButtonVisible
+            >
                 <PassphraseHeading>
                     <Translation id="TR_PASSPHRASE_HIDDEN_WALLET" />
                 </PassphraseHeading>

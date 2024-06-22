@@ -1,6 +1,5 @@
 // Dynamic script loading to import the Trezor Connect script, making its functions available in this service worker.
 // This is designed to work within the service-worker context, which does not support ES6 modules natively.
-// TODO: add other example for ES6 module imports.
 importScripts('vendor/trezor-connect-webextension.js');
 
 // URL of the Trezor Connect
