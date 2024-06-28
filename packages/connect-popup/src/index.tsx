@@ -39,6 +39,7 @@ import {
 } from './view/common';
 import { isPhishingDomain } from './utils/isPhishingDomain';
 import { initLog, setLogWriter, LogWriter } from '@trezor/connect/src/utils/debug';
+import { DEFAULT_DOMAIN } from '@trezor/connect/src/data/version';
 
 const INTERVAL_CHECK_PARENT_ALIVE_MS = 1000;
 const INTERVAL_HANDSHAKE_TIMEOUT_MS = 90 * 1000;
@@ -168,7 +169,7 @@ const handleResponseEvent = (data: MethodResponseMessage) => {
 
     // When success we can close popup.
     if (data.success) {
-        window.close();
+        window.closeWindow();
     }
 
     if (!data.success && typeof data.payload === 'object') {
@@ -187,7 +188,7 @@ const handleResponseEvent = (data: MethodResponseMessage) => {
             case 'Method_PermissionsNotGranted':
             case 'Method_Cancel':
                 // User canceled process, close popup.
-                window.close();
+                window.closeWindow();
                 break;
             default:
                 fail({
@@ -425,7 +426,7 @@ const initCoreInPopup = async (
     // dynamically load core module
     reactEventBus.dispatch({ type: 'loading', message: 'loading core' });
 
-    const { connectSrc } = payload.settings;
+    const connectSrc = payload.settings.connectSrc ?? DEFAULT_DOMAIN;
     // core is built in a separate build step.
     const { initCoreState, initTransport } = await import(
         /* webpackIgnore: true */ `${connectSrc}js/core.js`
@@ -586,7 +587,6 @@ addWindowEventListener('message', handleInitMessage, false);
 addWindowEventListener('message', handleLogMessage, false);
 
 // global method used in html-inline elements
-// @ts-expect-error not defined in window
 window.closeWindow = () => {
     setTimeout(() => {
         window.postMessage(
@@ -600,5 +600,5 @@ window.closeWindow = () => {
             window.location.origin,
         );
         window.close();
-    }, 100);
+    }, 300);
 };

@@ -16,12 +16,20 @@ import { PassphraseDescription } from './PassphraseDescription';
 import { PassphraseWalletConfirmation } from './PassphraseWalletConfirmation';
 import { PassphraseHeading } from './PassphraseHeading';
 import TrezorConnect from '@trezor/connect';
+import { selectSuiteFlags } from 'src/reducers/suite/suiteReducer';
+import { spacingsPx } from '@trezor/theme';
+import styled from 'styled-components';
+
+const MarginContainer = styled.div`
+    margin: 0 ${spacingsPx.sm};
+`;
 
 interface PassphraseModalProps {
     device: TrezorDevice;
 }
 
 export const PassphraseModal = ({ device }: PassphraseModalProps) => {
+    const { isViewOnlyModeVisible } = useSelector(selectSuiteFlags);
     const [submitted, setSubmitted] = useState(false);
 
     const authConfirmation =
@@ -56,13 +64,15 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
 
     const onSubmit = useCallback(
         (value: string, passphraseOnDevice?: boolean) => {
-            setSubmitted(true);
+            if (!isViewOnlyModeVisible) {
+                setSubmitted(true);
+            }
             dispatch(onPassphraseSubmit({ value, passphraseOnDevice: !!passphraseOnDevice }));
         },
-        [setSubmitted, dispatch],
+        [dispatch, setSubmitted, isViewOnlyModeVisible],
     );
 
-    if (submitted) {
+    if (!isViewOnlyModeVisible && submitted) {
         return null;
     }
 
@@ -89,11 +99,13 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
                 onBackButtonClick={onEnterPassphraseDialogBack}
                 isCloseButtonVisible
             >
-                <PassphraseHeading>
-                    <Translation id="TR_PASSPHRASE_HIDDEN_WALLET" />
-                </PassphraseHeading>
+                <MarginContainer>
+                    <PassphraseHeading>
+                        <Translation id="TR_PASSPHRASE_HIDDEN_WALLET" />
+                    </PassphraseHeading>
 
-                <PassphraseDescription />
+                    <PassphraseDescription />
+                </MarginContainer>
                 <PassphraseTypeCard
                     title={<Translation id="TR_WALLET_SELECTION_HIDDEN_WALLET" />}
                     description={<Translation id="TR_HIDDEN_WALLET_DESCRIPTION" />}

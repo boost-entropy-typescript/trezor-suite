@@ -24,7 +24,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
     // sessions client is a standardized interface for communicating with sessions backend
     // which can live in couple of context (shared worker, local module, websocket server etc)
     private sessionsClient: ConstructorParams['sessionsClient'];
-    private api: AbstractApi;
+    protected api: AbstractApi;
 
     constructor({ messages, api, sessionsClient, signal, logger }: ConstructorParams) {
         super({ messages, signal, logger });
@@ -70,8 +70,6 @@ export abstract class AbstractApiTransport extends AbstractTransport {
 
     public enumerate() {
         return this.scheduleAction(async () => {
-            // notify sessions background that a client is going to access usb
-            await this.sessionsClient.enumerateIntent();
             // enumerate usb api
             const enumerateResult = await this.api.enumerate();
 

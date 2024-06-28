@@ -154,6 +154,24 @@ export const TransactionReviewOutput = forwardRef<HTMLDivElement, TransactionRev
                     plainValue: true,
                 },
             ];
+        } else if (['data', 'address'].includes(type) && ethereumStakeType) {
+            const displayModeStringsMap = getDisplayModeStringsMap();
+
+            outputLines = [
+                {
+                    id: 'data',
+                    label: translationString(
+                        displayModeStringsMap[ethereumStakeType].confirmLabel,
+                        {
+                            symbol: symbol.toUpperCase(),
+                        },
+                    ),
+                    value: translationString(displayModeStringsMap[ethereumStakeType].value, {
+                        symbol: symbol.toUpperCase(),
+                    }),
+                    plainValue: true,
+                },
+            ];
         } else if (type === 'data') {
             outputLines = [
                 {
@@ -179,22 +197,6 @@ export const TransactionReviewOutput = forwardRef<HTMLDivElement, TransactionRev
                     id: 'contract',
                     label: outputLabel,
                     value: outputValue,
-                    plainValue: true,
-                },
-            ];
-        } else if (type === 'address' && ethereumStakeType) {
-            const displayModeStringsMap = getDisplayModeStringsMap();
-
-            outputLines = [
-                {
-                    id: 'address',
-                    label: outputLabel,
-                    value: translationString(displayModeStringsMap[ethereumStakeType].value, {
-                        symbol: symbol.toUpperCase(),
-                    }),
-                    confirmLabel: (
-                        <Translation id={displayModeStringsMap[ethereumStakeType].confirmLabel} />
-                    ),
                     plainValue: true,
                 },
             ];
