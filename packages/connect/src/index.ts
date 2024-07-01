@@ -50,7 +50,7 @@ const onCoreEvent = (message: CoreEventMessage) => {
     const { event, type, payload } = message;
 
     if (type === UI.REQUEST_UI_WINDOW) {
-        coreManager.getCore()?.handleMessage({ type: POPUP.HANDSHAKE });
+        coreManager.get()?.handleMessage({ type: POPUP.HANDSHAKE });
 
         return;
     }
@@ -93,10 +93,7 @@ const onCoreEvent = (message: CoreEventMessage) => {
     }
 };
 
-const init = async (settings: Partial<ConnectSettings> = {}) => {
-    if (coreManager.getCore() || coreManager.getInitPromise()) {
-        throw ERRORS.TypedError('Init_AlreadyInitialized');
-    }
+const initSettings = (settings: Partial<ConnectSettings> = {}) => {
     _settings = parseConnectSettings({ ..._settings, ...settings, popup: false });
 
     if (!_settings.manifest) {
@@ -107,24 +104,30 @@ const init = async (settings: Partial<ConnectSettings> = {}) => {
         // default fallback for node
         _settings.transports = ['BridgeTransport'];
     }
+};
 
-    if (_settings.lazyLoad) {
-        // reset "lazyLoad" after first use
-        _settings.lazyLoad = false;
-
-        return;
+const init = async (settings: Partial<ConnectSettings> = {}) => {
+    if (coreManager.get() || coreManager.getPending()) {
+        throw ERRORS.TypedError('Init_AlreadyInitialized');
     }
 
-    await coreManager.getOrInitCore(_settings, onCoreEvent);
+    initSettings(settings);
+
+    if (!_settings.lazyLoad) {
+        await coreManager.getOrInit(_settings, onCoreEvent);
+    }
+};
+
+const initCore = () => {
+    initSettings({ lazyLoad: false });
+
+    return coreManager.getOrInit(_settings, onCoreEvent);
 };
 
 const call: CallMethod = async params => {
     let core;
     try {
-        if (!coreManager.getCore() && !coreManager.getInitPromise()) {
-            await init();
-        }
-        core = await coreManager.getOrInitCore(_settings, onCoreEvent);
+        core = coreManager.get() ?? (await coreManager.getPending()) ?? (await initCore());
     } catch (error) {
         return createErrorMessage(error);
     }
@@ -138,11 +141,7 @@ const call: CallMethod = async params => {
         });
         const response = await promise;
 
-        if (response) {
-            return response;
-        }
-
-        return createErrorMessage(ERRORS.TypedError('Method_NoResponse'));
+        return response ?? createErrorMessage(ERRORS.TypedError('Method_NoResponse'));
     } catch (error) {
         _log.error('call', error);
 
@@ -151,7 +150,7 @@ const call: CallMethod = async params => {
 };
 
 const uiResponse = (response: UiResponseEvent) => {
-    const core = coreManager.getCore();
+    const core = coreManager.get();
     if (!core) {
         throw ERRORS.TypedError('Init_NotInitialized');
     }
@@ -161,7 +160,7 @@ const uiResponse = (response: UiResponseEvent) => {
 const requestLogin = async (params: any) => {
     if (typeof params.callback === 'function') {
         const { callback } = params;
-        const core = coreManager.getCore();
+        const core = coreManager.get();
 
         // TODO: set message listener only if _core is loaded correctly
         const loginChallengeListener = async (event: MessageEvent<CoreEventMessage>) => {
@@ -198,7 +197,7 @@ const requestLogin = async (params: any) => {
 };
 
 const cancel = (error?: string) => {
-    const core = coreManager.getCore();
+    const core = coreManager.get();
     if (!core) {
         throw ERRORS.TypedError('Runtime', 'postMessage: _core not found');
     }

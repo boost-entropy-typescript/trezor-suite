@@ -282,11 +282,12 @@ export const networks = {
         bip43Path: "m/1852'/1815'/i'",
         decimals: 6,
         testnet: false,
-        features: ['tokens', 'staking' /* coin-definitions */],
+        features: ['tokens', 'staking', 'coin-definitions'],
         explorer: {
-            tx: 'https://explorer.blockfrost.dev/transaction/',
-            account: 'https://explorer.blockfrost.dev/account/',
-            token: 'https://explorer.blockfrost.dev/token/',
+            tx: 'https://cexplorer.io/tx/',
+            address: 'https://cexplorer.io/address/',
+            account: 'https://cexplorer.io/address/',
+            token: 'https://cexplorer.io/asset/',
             queryString: '',
         },
         support: {
@@ -350,6 +351,27 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'polygon-pos',
+    },
+    bsc: {
+        name: 'BNB Smart Chain',
+        networkType: 'ethereum',
+        chainId: 56,
+        bip43Path: "m/44'/60'/0'/0/i",
+        decimals: 18,
+        testnet: false,
+        explorer: {
+            tx: 'https://bsc1.trezor.io/tx/',
+            account: 'https://bsc1.trezor.io/address/',
+            nft: 'https://bsc1.trezor.io/nft/',
+            address: 'https://bsc1.trezor.io/address/',
+            queryString: '',
+        },
+        features: ['rbf', 'sign-verify', 'tokens', 'coin-definitions', 'nft-definitions'],
+        label: 'TR_INCLUDING_TOKENS',
+        customBackends: ['blockbook'],
+        accountTypes: {},
+        coingeckoId: 'binance-smart-chain',
+        isDebugOnly: true,
     },
     // testnets
     test: {
@@ -489,9 +511,10 @@ export const networks = {
         testnet: true,
         features: ['tokens', 'staking'],
         explorer: {
-            tx: 'https://testnet-explorer.blockfrost.dev/transaction/',
-            account: 'https://testnet-explorer.blockfrost.dev/account/',
-            token: 'https://testnet-explorer.blockfrost.dev/token/',
+            tx: 'https://preview.cexplorer.io/tx/',
+            address: 'https://preview.cexplorer.io/address/',
+            account: 'https://preview.cexplorer.io/address/',
+            token: 'https://preview.cexplorer.io/asset/',
             queryString: '',
         },
         support: {
