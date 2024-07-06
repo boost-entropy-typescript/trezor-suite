@@ -45,7 +45,9 @@ export abstract class AbstractApi extends TypedEmitter<{
     /**
      * enumerate connected devices
      */
-    abstract enumerate(): AsyncResultWithTypedError<
+    abstract enumerate(
+        signal?: AbortSignal,
+    ): AsyncResultWithTypedError<
         DescriptorApiLevel[],
         | typeof ERRORS.ABORTED_BY_TIMEOUT
         | typeof ERRORS.ABORTED_BY_SIGNAL
@@ -62,6 +64,7 @@ export abstract class AbstractApi extends TypedEmitter<{
      */
     abstract read(
         path: string,
+        signal?: AbortSignal,
     ): AsyncResultWithTypedError<
         ArrayBuffer,
         | typeof ERRORS.DEVICE_NOT_FOUND
@@ -70,6 +73,7 @@ export abstract class AbstractApi extends TypedEmitter<{
         | typeof ERRORS.DEVICE_DISCONNECTED_DURING_ACTION
         | typeof ERRORS.UNEXPECTED_ERROR
         | typeof ERRORS.ABORTED_BY_TIMEOUT
+        | typeof ERRORS.ABORTED_BY_SIGNAL
     >;
 
     /**
@@ -78,12 +82,14 @@ export abstract class AbstractApi extends TypedEmitter<{
     abstract write(
         path: string,
         buffers: Buffer,
+        signal?: AbortSignal,
     ): AsyncResultWithTypedError<
         undefined,
         | typeof ERRORS.DEVICE_NOT_FOUND
         | typeof ERRORS.INTERFACE_UNABLE_TO_OPEN_DEVICE
         | typeof ERRORS.INTERFACE_DATA_TRANSFER
         | typeof ERRORS.DEVICE_DISCONNECTED_DURING_ACTION
+        | typeof ERRORS.ABORTED_BY_SIGNAL
         | typeof ERRORS.UNEXPECTED_ERROR
     >;
 
@@ -93,6 +99,7 @@ export abstract class AbstractApi extends TypedEmitter<{
     abstract openDevice(
         path: string,
         first: boolean,
+        signal?: AbortSignal,
     ): AsyncResultWithTypedError<
         undefined,
         | typeof ERRORS.DEVICE_NOT_FOUND
@@ -135,3 +142,9 @@ export abstract class AbstractApi extends TypedEmitter<{
         return unknownError(err, expectedErrors);
     }
 }
+
+export type AbstractApiAwaitedResult<K extends keyof AbstractApi> = AbstractApi[K] extends (
+    ...args: any[]
+) => any
+    ? Awaited<ReturnType<AbstractApi[K]>>
+    : never;

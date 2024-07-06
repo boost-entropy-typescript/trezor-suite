@@ -43,7 +43,7 @@ export const AddWalletButton = ({ device, instances, onCancel }: AddWalletButton
         locks.includes(SUITE.LOCK_TYPE.UI);
 
     const onAddWallet = ({ walletType }: { walletType: WalletType }) => {
-        dispatch(addWalletThunk({ walletType }));
+        dispatch(addWalletThunk({ walletType, device }));
         onCancel(false);
     };
 
@@ -79,7 +79,7 @@ export const AddWalletButton = ({ device, instances, onCancel }: AddWalletButton
                         >
                             <Row gap={spacings.xs}>
                                 <Translation id="TR_ADD_HIDDEN_WALLET" />{' '}
-                                <HotkeyBadge hotkey={['CTRL', 'KEY_P']} />
+                                {!isLocked && <HotkeyBadge hotkey={['ALT', 'KEY_P']} />}
                             </Row>
                         </Button>
                     )}

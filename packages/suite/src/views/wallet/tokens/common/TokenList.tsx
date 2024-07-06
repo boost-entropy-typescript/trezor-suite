@@ -31,6 +31,7 @@ import { getUnusedAddressFromAccount } from 'src/utils/wallet/coinmarket/coinmar
 import { openModal } from 'src/actions/suite/modalActions';
 import { selectDevice } from '@suite-common/wallet-core';
 import { GroupedMenuItems } from '@trezor/components/src/components/Dropdown/Menu';
+import { formatTokenSymbol } from 'src/utils/wallet/tokenUtils';
 
 const Table = styled(Card)`
     word-break: break-all;
@@ -218,7 +219,7 @@ export const TokenList = ({
                             <Amount>
                                 {!hideRates && (
                                     <StyledFiatValue
-                                        amount={token.balance || '1'}
+                                        amount={token.balance || ''}
                                         symbol={network.symbol}
                                         tokenAddress={token.contract as TokenAddress}
                                         showLoadingSkeleton
@@ -226,7 +227,8 @@ export const TokenList = ({
                                 )}
                                 <StyledFormattedCryptoAmount
                                     value={token.balance}
-                                    symbol={token.symbol}
+                                    symbol={formatTokenSymbol(token.symbol || '')}
+                                    isBalance
                                 />
                             </Amount>
                         </Cell>
@@ -297,6 +299,7 @@ export const TokenList = ({
                                                             }
                                                         />
                                                     ),
+                                                    icon: 'EYE_CLOSED',
                                                     onClick: () =>
                                                         dispatch(
                                                             tokenDefinitionsActions.setTokenStatus({
@@ -313,6 +316,7 @@ export const TokenList = ({
                                                 },
                                                 {
                                                     label: <Translation id="TR_VIEW_IN_EXPLORER" />,
+                                                    icon: 'EXTERNAL_LINK',
                                                     onClick: () => {
                                                         window.open(
                                                             getTokenExplorerUrl(network, token),
@@ -324,11 +328,7 @@ export const TokenList = ({
                                         },
                                         {
                                             key: 'contract-address',
-                                            label: translationString(
-                                                network.networkType === 'cardano'
-                                                    ? 'TR_POLICY_ID_ADDRESS'
-                                                    : 'TR_CONTRACT_ADDRESS',
-                                            ),
+                                            label: translationString('TR_CONTRACT_ADDRESS'),
                                             options: [
                                                 {
                                                     label: (
@@ -341,11 +341,7 @@ export const TokenList = ({
                                                         dispatch(
                                                             openModal({
                                                                 type: 'copy-address',
-                                                                addressType:
-                                                                    network.networkType ===
-                                                                    'cardano'
-                                                                        ? 'policyId'
-                                                                        : 'contract',
+                                                                addressType: 'contract',
                                                                 address: token.contract,
                                                             }),
                                                         ),
@@ -370,6 +366,28 @@ export const TokenList = ({
                                                                 addressType: 'fingerprint',
                                                                 address:
                                                                     token.fingerprint as string,
+                                                            }),
+                                                        ),
+                                                },
+                                            ],
+                                        },
+                                        token.policyId && {
+                                            key: 'policyId',
+                                            label: translationString('TR_POLICY_ID_ADDRESS'),
+                                            options: [
+                                                {
+                                                    label: (
+                                                        <ContractAddress>
+                                                            {token.policyId}
+                                                            <StyledIcon icon="COPY" size={14} />
+                                                        </ContractAddress>
+                                                    ),
+                                                    onClick: () =>
+                                                        dispatch(
+                                                            openModal({
+                                                                type: 'copy-address',
+                                                                addressType: 'policyId',
+                                                                address: token.policyId as string,
                                                             }),
                                                         ),
                                                 },

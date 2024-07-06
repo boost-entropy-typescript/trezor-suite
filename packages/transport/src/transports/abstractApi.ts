@@ -69,9 +69,9 @@ export abstract class AbstractApiTransport extends AbstractTransport {
     }
 
     public enumerate() {
-        return this.scheduleAction(async () => {
+        return this.scheduleAction(async signal => {
             // enumerate usb api
-            const enumerateResult = await this.api.enumerate();
+            const enumerateResult = await this.api.enumerate(signal);
 
             if (!enumerateResult.success) {
                 return enumerateResult;
@@ -90,7 +90,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
 
     public acquire({ input }: AbstractTransportMethodParams<'acquire'>) {
         return this.scheduleAction(
-            async () => {
+            async signal => {
                 const { path } = input;
 
                 if (this.listening) {
@@ -106,7 +106,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                 this.acquiredUnconfirmed[path] = acquireIntentResponse.payload.session;
 
                 const reset = !!input.previous;
-                const openDeviceResult = await this.api.openDevice(path, reset);
+                const openDeviceResult = await this.api.openDevice(path, reset, signal);
 
                 if (!openDeviceResult.success) {
                     if (this.listenPromise[path]) {
@@ -173,7 +173,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
         protocol: customProtocol,
     }: AbstractTransportMethodParams<'call'>) {
         return this.scheduleAction(
-            async () => {
+            async signal => {
                 const getPathBySessionResponse = await this.sessionsClient.getPathBySession({
                     session,
                 });
@@ -203,7 +203,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                     for (let i = 0; i < buffers.length; i++) {
                         const chunk = buffers[i];
 
-                        await this.api.write(path, chunk).then(result => {
+                        await this.api.write(path, chunk, signal).then(result => {
                             if (!result.success) {
                                 throw new Error(result.error);
                             }
@@ -213,7 +213,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                     const message = await receiveAndParse(
                         this.messages,
                         () =>
-                            this.api.read(path).then(result => {
+                            this.api.read(path, signal).then(result => {
                                 if (result.success) {
                                     return result.payload;
                                 }
@@ -242,82 +242,94 @@ export abstract class AbstractApiTransport extends AbstractTransport {
     }
 
     public send({ data, session, name, protocol }: AbstractTransportMethodParams<'send'>) {
-        return this.scheduleAction(async () => {
-            const getPathBySessionResponse = await this.sessionsClient.getPathBySession({
-                session,
-            });
-            if (!getPathBySessionResponse.success) {
-                return this.error({ error: getPathBySessionResponse.error });
-            }
-            const { path } = getPathBySessionResponse.payload;
-
-            try {
-                const { encode, getChunkHeader } = protocol || v1Protocol;
-                const bytes = buildMessage({
-                    messages: this.messages,
-                    name,
-                    data,
-                    encode,
+        return this.scheduleAction(
+            async signal => {
+                const getPathBySessionResponse = await this.sessionsClient.getPathBySession({
+                    session,
                 });
-                const buffers = createChunks(bytes, getChunkHeader(bytes), this.api.chunkSize);
-                for (let i = 0; i < buffers.length; i++) {
-                    const chunk = buffers[i];
+                if (!getPathBySessionResponse.success) {
+                    return this.error({ error: getPathBySessionResponse.error });
+                }
+                const { path } = getPathBySessionResponse.payload;
 
-                    await this.api.write(path, chunk).then(result => {
-                        if (!result.success) {
-                            throw new Error(result.error);
-                        }
+                try {
+                    const { encode, getChunkHeader } = protocol || v1Protocol;
+                    const bytes = buildMessage({
+                        messages: this.messages,
+                        name,
+                        data,
+                        encode,
                     });
-                }
+                    const buffers = createChunks(bytes, getChunkHeader(bytes), this.api.chunkSize);
+                    for (let i = 0; i < buffers.length; i++) {
+                        const chunk = buffers[i];
 
-                return this.success(undefined);
-            } catch (err) {
-                if (err.message === ERRORS.DEVICE_DISCONNECTED_DURING_ACTION) {
-                    this.enumerate();
-                }
+                        await this.api.write(path, chunk, signal).then(result => {
+                            if (!result.success) {
+                                throw new Error(result.error);
+                            }
+                        });
+                    }
 
-                return this.unknownError(err, [ERRORS.DEVICE_DISCONNECTED_DURING_ACTION]);
-            }
-        });
+                    return this.success(undefined);
+                } catch (err) {
+                    if (err.message === ERRORS.DEVICE_DISCONNECTED_DURING_ACTION) {
+                        this.enumerate();
+                    }
+
+                    return this.unknownError(err, [
+                        ERRORS.DEVICE_DISCONNECTED_DURING_ACTION,
+                        ERRORS.ABORTED_BY_SIGNAL,
+                    ]);
+                }
+            },
+            { timeout: undefined },
+        );
     }
 
     public receive({
         session,
         protocol: customProtocol,
     }: AbstractTransportMethodParams<'receive'>) {
-        return this.scheduleAction(async () => {
-            const getPathBySessionResponse = await this.sessionsClient.getPathBySession({
-                session,
-            });
-            if (!getPathBySessionResponse.success) {
-                return this.error({ error: getPathBySessionResponse.error });
-            }
-            const { path } = getPathBySessionResponse.payload;
-
-            try {
-                const protocol = customProtocol || v1Protocol;
-                const message = await receiveAndParse(
-                    this.messages,
-                    () =>
-                        this.api.read(path).then(result => {
-                            if (!result.success) {
-                                throw new Error(result.error);
-                            }
-
-                            return result.payload;
-                        }),
-                    protocol,
-                );
-
-                return this.success(message);
-            } catch (err) {
-                if (err.message === ERRORS.DEVICE_DISCONNECTED_DURING_ACTION) {
-                    this.enumerate();
+        return this.scheduleAction(
+            async signal => {
+                const getPathBySessionResponse = await this.sessionsClient.getPathBySession({
+                    session,
+                });
+                if (!getPathBySessionResponse.success) {
+                    return this.error({ error: getPathBySessionResponse.error });
                 }
+                const { path } = getPathBySessionResponse.payload;
 
-                return this.unknownError(err, [ERRORS.DEVICE_DISCONNECTED_DURING_ACTION]);
-            }
-        });
+                try {
+                    const protocol = customProtocol || v1Protocol;
+                    const message = await receiveAndParse(
+                        this.messages,
+                        () =>
+                            this.api.read(path, signal).then(result => {
+                                if (!result.success) {
+                                    throw new Error(result.error);
+                                }
+
+                                return result.payload;
+                            }),
+                        protocol,
+                    );
+
+                    return this.success(message);
+                } catch (err) {
+                    if (err.message === ERRORS.DEVICE_DISCONNECTED_DURING_ACTION) {
+                        this.enumerate();
+                    }
+
+                    return this.unknownError(err, [
+                        ERRORS.DEVICE_DISCONNECTED_DURING_ACTION,
+                        ERRORS.ABORTED_BY_SIGNAL,
+                    ]);
+                }
+            },
+            { timeout: undefined },
+        );
     }
 
     releaseDevice(path: string) {

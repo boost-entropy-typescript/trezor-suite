@@ -1,9 +1,7 @@
 import { MouseEventHandler } from 'react';
-import { acquireDevice, selectDevice } from '@suite-common/wallet-core';
+import { acquireDevice, selectDevice, selectDevices } from '@suite-common/wallet-core';
 import * as deviceUtils from '@suite-common/suite-utils';
 import { TrezorDevice } from 'src/types/suite';
-import { useWalletLabeling } from '../../../labeling/WalletLabeling';
-import { selectLabelingDataForWallet } from '../../../../../reducers/suite/metadataReducer';
 import { useDispatch, useSelector } from '../../../../../hooks/suite';
 import { DeviceStatus } from './DeviceStatus';
 
@@ -21,19 +19,10 @@ const needsRefresh = (device?: TrezorDevice) => {
 
 export const SidebarDeviceStatus = () => {
     const selectedDevice = useSelector(selectDevice);
-
+    const devices = useSelector(selectDevices);
     const dispatch = useDispatch();
 
-    const { walletLabel } = useSelector(state =>
-        selectLabelingDataForWallet(state, selectedDevice?.state),
-    );
     const deviceNeedsRefresh = needsRefresh(selectedDevice);
-    const { defaultAccountLabelString } = useWalletLabeling();
-
-    const defaultWalletLabel =
-        selectedDevice !== undefined
-            ? defaultAccountLabelString({ device: selectedDevice })
-            : undefined;
 
     const handleRefreshClick: MouseEventHandler = e => {
         e.stopPropagation();
@@ -47,6 +36,11 @@ export const SidebarDeviceStatus = () => {
     if (!selectedDevice || !selectedDeviceModelInternal) {
         return null;
     }
+    const instances = deviceUtils.getDeviceInstances(selectedDevice, devices);
+    const instancesWithState = instances.filter(i => i.state);
+
+    const isConnectionShown =
+        instancesWithState.length === 1 && selectedDevice.useEmptyPassphrase === true;
 
     return (
         <DeviceStatus
@@ -54,11 +48,7 @@ export const SidebarDeviceStatus = () => {
             deviceNeedsRefresh={deviceNeedsRefresh}
             device={selectedDevice}
             handleRefreshClick={handleRefreshClick}
-            walletLabel={
-                walletLabel === undefined || walletLabel.trim() === ''
-                    ? defaultWalletLabel
-                    : walletLabel
-            }
+            forceConnectionInfo={isConnectionShown}
         />
     );
 };

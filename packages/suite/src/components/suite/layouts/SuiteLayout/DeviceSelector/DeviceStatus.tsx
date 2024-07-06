@@ -13,7 +13,7 @@ type DeviceStatusProps = {
     deviceNeedsRefresh?: boolean;
     device?: TrezorDevice;
     handleRefreshClick?: MouseEventHandler;
-    walletLabel?: string;
+    forceConnectionInfo?: boolean;
 };
 
 const Container = styled.div`
@@ -40,7 +40,7 @@ export const DeviceStatus = ({
     deviceNeedsRefresh = false,
     device,
     handleRefreshClick,
-    walletLabel,
+    forceConnectionInfo = false,
 }: DeviceStatusProps) => {
     return (
         <Container>
@@ -58,7 +58,7 @@ export const DeviceStatus = ({
                     <DeviceStatusText
                         onRefreshClick={handleRefreshClick}
                         device={device}
-                        walletLabel={walletLabel}
+                        forceConnectionInfo={forceConnectionInfo}
                     />
                 </DeviceDetail>
             )}

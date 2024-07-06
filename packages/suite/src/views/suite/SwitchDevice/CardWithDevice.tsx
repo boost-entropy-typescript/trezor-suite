@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
-import { Card, motionAnimation, useElevation } from '@trezor/components';
+import { Card, IconType, motionAnimation, useElevation } from '@trezor/components';
 import * as deviceUtils from '@suite-common/suite-utils';
 
 import type { TrezorDevice, ForegroundAppProps } from 'src/types/suite';
@@ -44,6 +44,7 @@ interface CardWithDeviceProps {
     isCloseButtonVisible?: boolean;
     isFindTrezorVisible?: boolean;
     onBackButtonClick?: () => void;
+    icon?: IconType;
 }
 
 export const CardWithDevice = ({
@@ -54,6 +55,7 @@ export const CardWithDevice = ({
     isCloseButtonVisible = false,
     onBackButtonClick,
     isFindTrezorVisible,
+    icon,
 }: CardWithDeviceProps) => {
     const deviceStatus = deviceUtils.getStatus(device);
 
@@ -70,6 +72,8 @@ export const CardWithDevice = ({
                     device={device}
                     isCloseButtonVisible={isCloseButtonVisible}
                     onBackButtonClick={onBackButtonClick}
+                    forceConnectionInfo
+                    icon={icon}
                 />
 
                 {deviceWarning}

@@ -3,15 +3,13 @@ import { FieldPath, UseFormReturn } from 'react-hook-form';
 
 import {
     FormState,
-    UseSendFormState,
-    SendContextValues,
     ExcludedUtxos,
     PrecomposedTransaction,
     PrecomposedTransactionCardano,
     PrecomposedLevels,
     PrecomposedLevelsCardano,
 } from '@suite-common/wallet-types';
-import { useAsyncDebounce } from '@trezor/react-utils';
+import { useDebounce } from '@trezor/react-utils';
 import { isChanged } from '@suite-common/suite-utils';
 import { findComposeErrors } from '@suite-common/wallet-utils';
 import { FeeLevel } from '@trezor/connect';
@@ -21,6 +19,7 @@ import { TranslationKey } from 'src/components/suite/Translation';
 import { useDispatch } from 'react-redux';
 import { composeSendFormTransactionThunk } from '@suite-common/wallet-core';
 import { useTranslation } from '../suite';
+import { SendContextValues, UseSendFormState } from 'src/types/wallet/sendForm';
 
 type Props = UseFormReturn<FormState> & {
     state: UseSendFormState;
@@ -59,7 +58,7 @@ export const useSendFormCompose = ({
 
     const composeRequestID = useRef(0); // compose ID, incremented with every compose request
 
-    const debounce = useAsyncDebounce();
+    const debounce = useDebounce();
 
     const composeDraft = useCallback(
         async (formValues: FormState) => {

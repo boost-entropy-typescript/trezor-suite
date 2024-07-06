@@ -1,5 +1,5 @@
-import styled, { useTheme } from 'styled-components';
-import { Icon, IconButton, Row, TOOLTIP_DELAY_LONG, Tooltip } from '@trezor/components';
+import styled from 'styled-components';
+import { IconButton, IconType, Row, TOOLTIP_DELAY_LONG, Tooltip } from '@trezor/components';
 import { DeviceStatus } from 'src/components/suite/layouts/SuiteLayout/DeviceSelector/DeviceStatus';
 import { isWebUsb } from 'src/utils/suite/transport';
 import { Translation, WebUsbButton } from 'src/components/suite';
@@ -30,6 +30,8 @@ interface DeviceHeaderProps {
     isCloseButtonVisible: boolean;
     onBackButtonClick?: () => void;
     isFindTrezorVisible?: boolean;
+    forceConnectionInfo: boolean;
+    icon?: IconType;
 }
 
 export const DeviceHeader = ({
@@ -38,12 +40,13 @@ export const DeviceHeader = ({
     isCloseButtonVisible,
     onBackButtonClick,
     isFindTrezorVisible = false,
+    forceConnectionInfo,
+    icon = 'CARET_CIRCLE_DOWN',
 }: DeviceHeaderProps) => {
     const selectedDevice = useSelector(selectDevice);
     const transport = useSelector(state => state.suite.transport);
     const isWebUsbTransport = isWebUsb(transport);
     const isDeviceConnected = selectedDevice?.connected === true;
-    const theme = useTheme();
     const deviceModelInternal = device.features?.internal_model;
 
     const onHeaderClick = () => {
@@ -65,7 +68,11 @@ export const DeviceHeader = ({
                 )}
 
                 {deviceModelInternal && (
-                    <DeviceStatus deviceModel={deviceModelInternal} device={device} />
+                    <DeviceStatus
+                        deviceModel={deviceModelInternal}
+                        device={device}
+                        forceConnectionInfo={forceConnectionInfo}
+                    />
                 )}
             </Row>
 
@@ -86,12 +93,11 @@ export const DeviceHeader = ({
                             }}
                             style={{ originX: '50%', originY: '50%' }}
                         >
-                            <Icon
-                                useCursorPointer
-                                size={20}
-                                icon="CARET_CIRCLE_DOWN"
-                                color={theme.TYPE_LIGHT_GREY}
-                                hoverColor={theme.TYPE_LIGHTER_GREY}
+                            <IconButton
+                                icon={icon}
+                                iconSize={20}
+                                size="small"
+                                variant="tertiary"
                                 onClick={() => onCancel?.()}
                             />
                         </motion.div>
