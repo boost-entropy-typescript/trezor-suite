@@ -80,7 +80,6 @@ export const replaceTransactionThunk = createThunk(
                     ...origTx.tx,
                     txid: newTxid,
                     fee: precomposedTransaction.fee,
-                    rbf: !!precomposedTransaction.rbf,
                     blockTime: Math.round(new Date().getTime() / 1000),
                     // TODO: details: {}, is it worth it?
                 };
@@ -89,7 +88,7 @@ export const replaceTransactionThunk = createThunk(
                 newTx.ethereumSpecific = replaceEthereumSpecific(newTx, precomposedTransaction);
 
                 // finalized and recv tx shouldn't have rbfParams
-                if (!precomposedTransaction.rbf || origTx.tx.type === 'recv') {
+                if (origTx.tx.type === 'recv') {
                     delete newTx.rbfParams;
                 } else {
                     // update tx rbfParams
@@ -281,8 +280,15 @@ export const fetchTransactionsPageThunk = createThunk(
             suppressBackupWarning: true,
         });
 
+        // Account might have changed during async getAccountInfo call, so we fetch current state
+        const currentAccount = selectAccountByKey(getState(), accountKey);
+
+        if (!currentAccount) {
+            throw new Error(`Account not found: ${accountKey}`);
+        }
+
         if (result && result.success) {
-            const updateAction = accountsActions.updateAccount(account, result.payload);
+            const updateAction = accountsActions.updateAccount(currentAccount, result.payload);
             const updatedAccount = updateAction.payload;
             const updatedTransactions = result.payload.history.transactions || [];
 

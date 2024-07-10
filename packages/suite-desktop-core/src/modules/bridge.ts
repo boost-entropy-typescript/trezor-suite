@@ -3,6 +3,7 @@
  */
 import { TrezordNode } from '@trezor/transport-bridge';
 import { isDevEnv } from '@suite-common/suite-utils';
+import { validateIpcMessage } from '@trezor/ipc-proxy';
 
 import { app, ipcMain } from '../typed-electron';
 import { BridgeProcess } from '../libs/processes/BridgeProcess';
@@ -52,6 +53,8 @@ const start = async (bridge: BridgeProcess | TrezordNode) => {
 
 const getBridgeInstance = (store: Dependencies['store']) => {
     const legacyRequestedBySettings = store.getBridgeSettings().legacy;
+    const { allowPrerelease } = store.getUpdateSettings();
+
     const legacyRequestedByArg = bridgeLegacy || bridgeLegacyDev || bridgeLegacyTest;
 
     // handle rollout
@@ -65,7 +68,12 @@ const getBridgeInstance = (store: Dependencies['store']) => {
     const legacyBridgeReasonRollout =
         !isDevEnv && !skipNewBridgeRollout && newBridgeRollout >= NEW_BRIDGE_ROLLOUT_THRESHOLD;
 
-    if (legacyRequestedBySettings || legacyRequestedByArg || legacyBridgeReasonRollout) {
+    if (
+        legacyRequestedBySettings ||
+        legacyRequestedByArg ||
+        legacyBridgeReasonRollout ||
+        !allowPrerelease
+    ) {
         return new BridgeProcess();
     }
 
@@ -101,7 +109,9 @@ const load = async ({ store, mainWindow }: Dependencies) => {
         bridge.stop();
     });
 
-    ipcMain.handle('bridge/toggle', async (_: unknown) => {
+    ipcMain.handle('bridge/toggle', async ipcEvent => {
+        validateIpcMessage(ipcEvent);
+
         const status = await handleBridgeStatus(bridge, mainWindow);
         try {
             if (status.service) {
@@ -118,7 +128,9 @@ const load = async ({ store, mainWindow }: Dependencies) => {
         }
     });
 
-    ipcMain.handle('bridge/get-status', async () => {
+    ipcMain.handle('bridge/get-status', async ipcEvent => {
+        validateIpcMessage(ipcEvent);
+
         try {
             const status = await bridge.status();
 
@@ -130,7 +142,9 @@ const load = async ({ store, mainWindow }: Dependencies) => {
 
     ipcMain.handle(
         'bridge/change-settings',
-        (_: unknown, payload: { doNotStartOnStartup: boolean; legacy?: boolean }) => {
+        (ipcEvent, payload: { doNotStartOnStartup: boolean; legacy?: boolean }) => {
+            validateIpcMessage(ipcEvent);
+
             try {
                 store.setBridgeSettings(payload);
 
@@ -143,7 +157,9 @@ const load = async ({ store, mainWindow }: Dependencies) => {
         },
     );
 
-    ipcMain.handle('bridge/get-settings', () => {
+    ipcMain.handle('bridge/get-settings', ipcEvent => {
+        validateIpcMessage(ipcEvent);
+
         try {
             return { success: true, payload: store.getBridgeSettings() };
         } catch (error) {

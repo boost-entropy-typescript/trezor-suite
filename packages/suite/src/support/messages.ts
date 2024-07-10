@@ -791,9 +791,9 @@ export default defineMessages({
         defaultMessage: 'Required',
         id: 'TR_REQUIRED_FIELD',
     },
-    TR_PREORDER_NOW: {
-        defaultMessage: 'Pre-order now',
-        id: 'TR_PREORDER_NOW',
+    TR_ORDER_NOW: {
+        defaultMessage: 'Order now',
+        id: 'TR_ORDER_NOW',
     },
     TREZOR_SAFE_PROMO_TEXT: {
         id: 'TREZOR_SAFE_PROMO_TEXT',
@@ -3574,6 +3574,10 @@ export default defineMessages({
         defaultMessage: 'Entered wrong PIN',
         id: 'TR_WRONG_PIN_ENTERED',
     },
+    TR_PASSWORD_MANAGER: {
+        defaultMessage: 'Password manager',
+        id: 'TR_PASSWORD_MANAGER',
+    },
     TR_SETTINGS: {
         defaultMessage: 'Settings',
         id: 'TR_SETTINGS',
@@ -6282,8 +6286,7 @@ export default defineMessages({
     },
     TR_SEARCH_UTXOS: {
         id: 'TR_SEARCH_UTXOS',
-        defaultMessage: 'Address, transaction ID, or label',
-        description: 'Placeholder text in Coin control search input',
+        defaultMessage: 'Search for a specific address, transaction ID, or label',
     },
     TR_CONNECTED_TO_PROVIDER: {
         defaultMessage: 'Connected to {provider} as {user}',

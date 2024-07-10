@@ -581,6 +581,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
             internal_model: this.features.internal_model,
         });
 
+        if (!downloadedBinary) {
+            throw ERRORS.TypedError('Runtime', 'changeLanguage: translation not found');
+        }
+
         return this._uploadTranslationData(downloadedBinary);
     }
 
@@ -732,7 +736,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             this.features.major_version,
             this.features.minor_version,
             this.features.patch_version,
-        ] satisfies [number, number, number];
+        ] satisfies VersionArray;
     }
 
     atLeast(versions: string[] | string) {

@@ -68,6 +68,7 @@ export type SuiteAnalyticsEvent =
               model?: string;
               firmwareRevision?: string;
               bootloaderHash?: string;
+              optiga_sec?: number;
           };
       }
     | {
@@ -187,7 +188,6 @@ export type SuiteAnalyticsEvent =
               tokens: string;
               outputsCount: number;
               broadcast: boolean;
-              bitcoinRbf: boolean;
               bitcoinLockTime: boolean;
               ethereumData: boolean;
               ethereumNonce: boolean;

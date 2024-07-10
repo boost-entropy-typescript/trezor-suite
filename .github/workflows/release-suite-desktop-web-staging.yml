@@ -150,7 +150,6 @@ jobs:
     name: Build suite-web and deploy to staging-suite.trezor.io
     environment: suite-production
     runs-on: ubuntu-latest
-    needs: suite-desktop
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -183,13 +182,6 @@ jobs:
           yarn workspace @trezor/connect-iframe build:lib
           yarn workspace @trezor/connect-web build
           yarn workspace @trezor/suite-web build
-
-      - name: Download suite-desktop apps
-        uses: actions/download-artifact@v4
-        with:
-          pattern: suite-desktop-*
-          merge-multiple: true
-          path: packages/suite-web/build/static/desktop
 
       # this step should upload build result to s3 bucket staging-suite.trezor.io using awscli
       - name: Upload suite-web to staging-suite.trezor.io
@@ -239,21 +231,22 @@ jobs:
       - name: Prepare versions for autoupdate
         id: prepare-versions
         run: |
-          sed -E 's/"suiteVersion": "2([0-9]+\.[0-9]+\.[0-9]+)"/"suiteVersion": "0\1"/' packages/suite/package.json > version0.json
-          sed -E 's/"suiteVersion": "2([0-9]+\.[0-9]+\.[0-9]+)"/"suiteVersion": "3\1"/' packages/suite/package.json > version3.json
+          sed -E 's/"suiteVersion": "([0-9]+)\.([0-9]+)\.([0-9]+)"/"suiteVersion": "0.\1.\2"/' packages/suite/package.json > version0.json
+          sed -E 's/"suiteVersion": "2([0-9]+)\.([0-9]+)\.([0-9]+)"/"suiteVersion": "3\1.\2.\3"/' packages/suite/package.json > version3.json
           echo "VERSION0=$(jq -r .suiteVersion version0.json)" >> $GITHUB_OUTPUT
           echo "VERSION3=$(jq -r .suiteVersion version3.json)" >> $GITHUB_OUTPUT
 
-      - name: Build ${{ matrix.platform }} suite-desktop autoupdate version 0x.x.x
+      - name: Build ${{ matrix.platform }} suite-desktop autoupdate version 0.xx.x
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           mv version0.json packages/suite/package.json
           yarn workspace @trezor/suite-desktop build:${{ matrix.platform }}
           bash packages/suite-desktop-core/scripts/gnupg-sign.sh
-          mv packages/suite-desktop/build-electron/* .
+          mv packages/suite-desktop/build-electron/Trezor-Suite* .
+          mv packages/suite-desktop/build-electron/latest*.yml .
 
-      - name: Upload suite-desktop autoupdate version 0x.x.x artifacts
+      - name: Upload suite-desktop autoupdate version 0.xx.x artifacts
         uses: actions/upload-artifact@v4
         with:
           name: AUTOUPDATE-TEST-suite-desktop-${{steps.prepare-versions.outputs.VERSION0}}-${{ matrix.platform }}
@@ -262,6 +255,11 @@ jobs:
             latest*.yml
           retention-days: 3
 
+      - name: Remove suite-desktop autoupdate version 0.xx.x before building version 3x.x.x
+        run: |
+          rm -rf Trezor-Suite*
+          rm -rf latest*.yml
+
       - name: Build ${{ matrix.platform }} suite-desktop autoupdate version 3x.x.x
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -269,7 +267,8 @@ jobs:
           mv version3.json packages/suite/package.json
           yarn workspace @trezor/suite-desktop build:${{ matrix.platform }}
           bash packages/suite-desktop-core/scripts/gnupg-sign.sh
-          mv packages/suite-desktop/build-electron/* .
+          mv packages/suite-desktop/build-electron/Trezor-Suite* .
+          mv packages/suite-desktop/build-electron/latest*.yml .
 
       - name: Upload suite-desktop autoupdate version 3x.x.x artifacts
         uses: actions/upload-artifact@v4
@@ -297,7 +296,7 @@ jobs:
       - name: Download suite-desktop apps
         uses: actions/download-artifact@v4
         with:
-          pattern: AUTOUPDATE-TEST-suite-desktop-34-*
+          pattern: AUTOUPDATE-TEST-suite-desktop-34*
           merge-multiple: true
           path: ./trezor-suite-files
 
