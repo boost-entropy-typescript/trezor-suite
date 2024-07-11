@@ -600,7 +600,7 @@ const getBitcoinRbfParams = (
     account: Account,
 ): RbfTransactionParams | undefined => {
     if (account.networkType !== 'bitcoin') return;
-    if (tx.type === 'recv' || !tx.rbf || !tx.details || !isPending(tx)) return; // ignore non rbf and mined transactions
+    if (tx.type === 'recv' || !tx.details || !isPending(tx)) return; // ignore mined transactions
     const { vin, vout } = tx.details;
 
     const changeAddresses = account.addresses ? account.addresses.change : [];
@@ -656,7 +656,6 @@ const getBitcoinRbfParams = (
 
     if (!utxo.length || !outputs.length || outputs.length !== vout.length) return;
 
-    // TODO: get other params, like locktime etc.
     return {
         txid: tx.txid,
         utxo,
@@ -667,6 +666,7 @@ const getBitcoinRbfParams = (
         // of displaying fee rate is kept here
         feeRate: tx.feeRate || getFeeRate(tx),
         baseFee: parseInt(tx.fee, 10),
+        locktime: tx.lockTime,
     };
 };
 
@@ -975,10 +975,6 @@ export const advancedSearchTransactions = (
 
     return transactions.filter(t => filteredTxIDs.has(t.txid));
 };
-
-export const isTxFinal = (tx: WalletAccountTransaction, confirmations: number) =>
-    // checks RBF status
-    !tx.rbf || confirmations > 0 || tx.solanaSpecific?.status === 'confirmed';
 
 /**
  * TODO: in case user swaps tokens on SOL/ADA, we probably say that he received SOL/ADA

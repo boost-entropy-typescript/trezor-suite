@@ -6184,6 +6184,11 @@ export default defineMessages({
         id: 'BROADCAST_TOOLTIP',
         defaultMessage: 'Broadcast the transaction to the network.',
     },
+    BROADCAST_TOOLTIP_DISABLED_LOCKTIME: {
+        id: 'BROADCAST_TOOLTIP_DISABLED_LOCKTIME',
+        defaultMessage:
+            'A transaction with locktime higher than the current block/timestamp would be rejected by the network.',
+    },
     IMPORT_CSV: {
         id: 'IMPORT_CSV',
         description: 'item in dropdown menu',
@@ -7046,14 +7051,6 @@ export default defineMessages({
     TR_RBF_STATUS: {
         id: 'TR_RBF_STATUS',
         defaultMessage: 'Status',
-    },
-    TR_RBF_STATUS_FINAL: {
-        id: 'TR_RBF_STATUS_FINAL',
-        defaultMessage: 'Final',
-    },
-    TR_RBF_STATUS_NOT_FINAL: {
-        id: 'TR_RBF_STATUS_NOT_FINAL',
-        defaultMessage: 'Not final',
     },
     TR_TXID: {
         id: 'TR_TXID',

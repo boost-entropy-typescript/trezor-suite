@@ -155,7 +155,7 @@ export const en = {
                 actionPrimary: 'Close',
             },
         },
-        accountTypeDecisionBootomSheet: {
+        accountTypeDecisionBottomSheet: {
             title: 'Add <coin></coin> account',
             description:
                 '<type></type> is the default address type. <moreLink>Learn more</moreLink>',
@@ -265,6 +265,12 @@ export const en = {
                     3: 'Start using your Trezor with Trezor Suite Lite.',
                 },
             },
+        },
+        noSeedWithFWModal: {
+            title: 'Firmware installed.\nContinue in your browser to finish device setup.',
+            description:
+                'Follow the instructions in your browser and come back once setup is complete.',
+            primaryButton: 'Finish setup',
         },
         genericErrorModal: {
             title: 'Please reconnect your Trezor device.',
