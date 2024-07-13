@@ -2,12 +2,23 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": { "outDir": "libDev" },
     "references": [
-        { "path": "../../suite-common/icons" },
         {
             "path": "../../suite-common/redux-utils"
         },
         {
+            "path": "../../suite-common/suite-config"
+        },
+        {
+            "path": "../../suite-common/wallet-config"
+        },
+        {
             "path": "../../suite-common/wallet-core"
+        },
+        {
+            "path": "../../suite-common/wallet-types"
+        },
+        {
+            "path": "../../suite-common/wallet-utils"
         },
         { "path": "../alerts" },
         { "path": "../analytics" },
@@ -22,8 +33,7 @@
         { "path": "../settings" },
         { "path": "../../packages/connect" },
         { "path": "../../packages/device-utils" },
-        { "path": "../../packages/styles" },
-        { "path": "../../packages/theme" }
+        { "path": "../../packages/styles" }
     ],
     "include": [".", "**/*.json"]
 }

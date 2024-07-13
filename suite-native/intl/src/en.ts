@@ -666,6 +666,7 @@ export const en = {
         title: 'Passphrase',
         subtitle:
             'Entering a <bold>passphrase opens a distinct wallet</bold> secured by that specific phrase.',
+        featureAuthorizationError: 'The passphrase you’ve entered is incorrect.',
         alertCard: {
             paragraphWarning1:
                 'It’s essential to understand how a passphrase works before using it.',
@@ -724,7 +725,7 @@ export const en = {
                 title: 'Confirm empty passphrase wallet',
                 description: 'Re-enter your passphrase to open this wallet.',
                 alertTitle:
-                    '<bold>Write down your passphrase on paper, nothing digital. It’s impossible to recover</bold>— not even Trezor Support can help.',
+                    '<bold>Create an offline backup of your passphrase. It is irrecoverable</bold>, even by Trezor support.',
                 passphraseMismatchAlert: {
                     title: 'Passphrase mismatch',
                     description: 'Start over and enter your passphrase again.',

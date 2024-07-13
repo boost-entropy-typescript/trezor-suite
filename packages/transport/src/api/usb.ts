@@ -44,28 +44,18 @@ export class UsbApi extends AbstractApi {
     }
 
     public listen() {
-        this.usbInterface.onconnect = async event => {
+        this.usbInterface.onconnect = event => {
             this.logger?.debug(`usb: onconnect: ${this.formatDeviceForLog(event.device)}`);
-            const [_hidDevices, nonHidDevices] = this.filterDevices([event.device]);
 
-            _hidDevices.forEach(() => {
-                // hidDevices that do not support webusb. these are very very old. we used to emit unreadable
-                // device for these but I am not sure if it is still worth the effort.
-                this.logger?.error(
-                    `usb: unreadable hid device connected. device: ${this.formatDeviceForLog(event.device)}`,
-                );
-            });
-            if (nonHidDevices.length) {
-                await this.createDevices(nonHidDevices, this.abortController.signal)
-                    .then(newDevices => {
-                        this.devices = [...this.devices, ...newDevices];
-                        this.emit('transport-interface-change', this.devicesToDescriptors());
-                    })
-                    .catch(err => {
-                        // empty
-                        this.logger?.error(`usb: createDevices error: ${err.message}`);
-                    });
-            }
+            this.createDevices([event.device], this.abortController.signal)
+                .then(newDevices => {
+                    this.devices = [...this.devices, ...newDevices];
+                    this.emit('transport-interface-change', this.devicesToDescriptors());
+                })
+                .catch(err => {
+                    // empty
+                    this.logger?.error(`usb: createDevices error: ${err.message}`);
+                });
         };
 
         this.usbInterface.ondisconnect = event => {
@@ -162,20 +152,7 @@ export class UsbApi extends AbstractApi {
                 signal,
             );
 
-            const [hidDevices, nonHidDevices] = this.filterDevices(devices);
-            this.logger?.debug(
-                `usb: enumerate done. connected devices.length: ${devices.length}. trezor old (hid) devices: ${hidDevices.length}. trezor devices: ${nonHidDevices.length}`,
-            );
-
-            hidDevices.forEach(d => {
-                // hidDevices that do not support webusb. these are very very old. we used to emit unreadable
-                // device for these but I am not sure if it is still worth the effort.
-                this.logger?.error(
-                    `usb: unreadable hid device connected. device: ${this.formatDeviceForLog(d)}`,
-                );
-            });
-
-            this.devices = await this.createDevices(nonHidDevices, signal);
+            this.devices = await this.createDevices(devices, signal);
 
             return this.success(this.devicesToDescriptors());
         } catch (err) {
@@ -395,10 +372,34 @@ export class UsbApi extends AbstractApi {
         return device.device;
     }
 
-    private createDevices(nonHidDevices: USBDevice[], signal?: AbortSignal) {
+    private async createDevices(devices: USBDevice[], signal?: AbortSignal) {
         let bootloaderId = 0;
 
-        return Promise.all(
+        const getPathFromUsbDevice = (device: USBDevice) => {
+            // path is just serial number
+            // more bootloaders => number them, hope for the best
+            const { serialNumber } = device;
+            let path = serialNumber == null || serialNumber === '' ? 'bootloader' : serialNumber;
+            if (path === 'bootloader') {
+                this.logger?.debug('usb: device without serial number!');
+                bootloaderId++;
+                path += bootloaderId;
+            }
+
+            return path;
+        };
+
+        const [hidDevices, nonHidDevices] = this.filterDevices(devices);
+
+        hidDevices.forEach(device => {
+            // hidDevices that do not support webusb standard. emit them as normal descriptors. higher layers are responsible
+            // for displaying them as unreadable devices
+            this.logger?.error(
+                `usb: unreadable hid device connected. device: ${this.formatDeviceForLog(device)}`,
+            );
+        });
+
+        const loadedDevices = await Promise.all(
             nonHidDevices.map(async device => {
                 this.logger?.debug(`usb: creating device ${this.formatDeviceForLog(device)}`);
 
@@ -407,21 +408,19 @@ export class UsbApi extends AbstractApi {
                     // connected at the same time will not be properly distinguished.
                     await this.loadSerialNumber(device, signal);
                 }
-
-                // path is just serial number
-                // more bootloaders => number them, hope for the best
-                const { serialNumber } = device;
-                let path =
-                    serialNumber == null || serialNumber === '' ? 'bootloader' : serialNumber;
-                if (path === 'bootloader') {
-                    this.logger?.debug('usb: device without serial number!');
-                    bootloaderId++;
-                    path += bootloaderId;
-                }
+                const path = getPathFromUsbDevice(device);
 
                 return { path, device };
             }),
         );
+
+        return [
+            ...loadedDevices,
+            ...hidDevices.map(d => ({
+                path: getPathFromUsbDevice(d),
+                device: d,
+            })),
+        ];
     }
 
     /*

@@ -17,13 +17,15 @@ describe('Sign and verify ETH', () => {
         cy.task('startBridge');
 
         cy.viewport(1440, 2560).resetDb();
-        cy.prefixedVisit('/settings/coins');
+        cy.prefixedVisit('/');
         cy.passThroughInitialRun();
+        cy.discoveryShouldFinish();
+        cy.getTestElement('@suite/menu/settings').click();
+        cy.getTestElement('@settings/menu/wallet').click();
 
         //
         // Test preparation
         //
-        cy.getTestElement('@settings/menu/wallet').click();
         cy.getTestElement('@settings/wallet/network/btc').click({ force: true });
         cy.getTestElement('@settings/wallet/network/eth').click({ force: true });
         //
@@ -32,8 +34,7 @@ describe('Sign and verify ETH', () => {
         cy.getTestElement('@suite/menu/suite-index').click();
         cy.discoveryShouldFinish();
         cy.getTestElement('@account-menu/eth/normal/0').click();
-
-        cy.wait(300); // wait until is the dropdown loaded
+        cy.getTestElement('@suite/bundle-loader').should('not.be.exist');
     });
 
     afterEach(() => {
