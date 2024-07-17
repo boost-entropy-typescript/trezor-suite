@@ -31,8 +31,6 @@ import {
     prepareStakeEthTx,
     prepareUnstakeEthTx,
 } from 'src/utils/suite/stake';
-// @ts-expect-error
-import { Ethereum } from '@everstake/wallet-sdk';
 import { MIN_ETH_FOR_WITHDRAWALS } from 'src/constants/suite/ethStaking';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { ComposeActionContext } from '@suite-common/wallet-core';
@@ -119,8 +117,6 @@ export const composeTransaction =
         const { availableBalance } = account;
         const { amount } = formValues.outputs[0];
 
-        let customFeeLimit: string | undefined;
-
         // gasLimit calculation based on account.descriptor and amount
         const { ethereumStakeType } = formValues;
         const stakeTxGasLimit = await getStakeTxGasLimit({
@@ -133,12 +129,7 @@ export const composeTransaction =
 
         if (!stakeTxGasLimit.success) return stakeTxGasLimit.error;
 
-        customFeeLimit = stakeTxGasLimit.gasLimit;
-        if (formValues.ethereumAdjustGasLimit && customFeeLimit) {
-            customFeeLimit = new BigNumber(customFeeLimit)
-                .multipliedBy(new BigNumber(formValues.ethereumAdjustGasLimit))
-                .toFixed(0);
-        }
+        const customFeeLimit = stakeTxGasLimit.gasLimit;
 
         // FeeLevels are read-only
         const levels = customFeeLimit ? feeInfo.levels.map(l => ({ ...l })) : feeInfo.levels;

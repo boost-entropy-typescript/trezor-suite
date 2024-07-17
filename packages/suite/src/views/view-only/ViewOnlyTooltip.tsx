@@ -48,8 +48,9 @@ const Content = styled.div`
 `;
 
 export const ViewOnlyTooltip = ({ children }: ViewOnlyTooltipProps) => {
-    const { viewOnlyTooltipClosed, isViewOnlyModeVisible } = useSelector(selectSuiteFlags);
+    const { viewOnlyTooltipClosed, viewOnlyPromoClosed } = useSelector(selectSuiteFlags);
     const dispatch = useDispatch();
+    const isOpen = viewOnlyPromoClosed && !viewOnlyTooltipClosed;
 
     const handleClose = () => {
         dispatch(setFlag('viewOnlyTooltipClosed', true));
@@ -59,7 +60,7 @@ export const ViewOnlyTooltip = ({ children }: ViewOnlyTooltipProps) => {
     return (
         <Tooltip
             hasArrow
-            isOpen={isViewOnlyModeVisible === true && viewOnlyTooltipClosed === false}
+            isOpen={isOpen}
             shift={{ padding: { left: 10 } }}
             zIndex={zIndices.navigationBar}
             content={

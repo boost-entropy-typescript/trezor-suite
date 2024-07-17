@@ -30,7 +30,16 @@ import { fetchAndUpdateAccountThunk } from '../accounts/accountsThunks';
 import { BLOCKCHAIN_MODULE_PREFIX, blockchainActions } from './blockchainActions';
 import { selectBlockchainState, selectNetworkBlockchainInfo } from './blockchainReducer';
 
-const ACCOUNTS_SYNC_INTERVAL = 60 * 1000;
+const DEFAULT_ACCOUNT_SYNC_INTERVAL = 60 * 1000;
+
+// using fast and cheap blockchains, it looks suspicious when tx is not almost instantly confirmed
+const CUSTOM_ACCOUNT_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
+    matic: 20 * 1000,
+    bsc: 20 * 1000,
+};
+
+const getAccountSyncInterval = (symbol: NetworkSymbol) =>
+    CUSTOM_ACCOUNT_SYNC_INTERVALS[symbol] || DEFAULT_ACCOUNT_SYNC_INTERVAL;
 
 // Conditionally subscribe to blockchain backend
 // called after TrezorConnect.init successfully emits TRANSPORT.START event
@@ -329,7 +338,7 @@ export const syncAccountsWithBlockchainThunk = createThunk(
         tryClearTimeout(blockchainInfo.syncTimeout);
         const timeout = setTimeout(
             () => dispatch(syncAccountsWithBlockchainThunk(symbol)),
-            ACCOUNTS_SYNC_INTERVAL,
+            getAccountSyncInterval(symbol),
         );
 
         dispatch(blockchainActions.synced({ symbol, timeout }));
@@ -364,9 +373,8 @@ export const onBlockMinedThunk = createThunk(
 
         // Don't sync fast networks because a new block is emitted every few seconds.
         // Accounts are updated via account subscription or also by the timer in syncAccountsWithBlockchainThunk.
-        // Solana - new block every 10 seconds
-        // Polygon (matic) - new block every 2 seconds
-        if (network?.networkType === 'solana' || symbol === 'matic') {
+        // Solana - new block every 800ms
+        if (network?.networkType === 'solana') {
             return;
         }
 

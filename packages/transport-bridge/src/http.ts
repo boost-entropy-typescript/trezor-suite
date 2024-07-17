@@ -9,6 +9,8 @@ import {
     parseBodyJSON,
     parseBodyText,
     Handler,
+    RequestWithParams,
+    Response,
 } from '@trezor/node-utils';
 import { Descriptor, Session } from '@trezor/transport/src/types';
 import { Log, arrayPartition, Throttler } from '@trezor/utils';
@@ -94,7 +96,7 @@ export class TrezordNode {
         this.listenSubscriptions = unaffected;
     }
 
-    private createAbortSignal(res: any) {
+    private createAbortSignal(res: Response) {
         const abortController = new AbortController();
         const listener = () => {
             abortController.abort();
@@ -103,6 +105,15 @@ export class TrezordNode {
         res.addListener('close', listener);
 
         return abortController.signal;
+    }
+
+    private handleInfo(_req: RequestWithParams, res: Response) {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(
+            str({
+                version: this.version,
+            }),
+        );
     }
 
     public start() {
@@ -211,8 +222,6 @@ export class TrezordNode {
                     this.api
                         .release({
                             session: req.params.session as Session,
-                            // @ts-expect-error
-                            path: req.body,
                         })
                         .then(result => {
                             if (!result.success) {
@@ -242,7 +251,7 @@ export class TrezordNode {
 
                                 return res.end(str({ error: result.error }));
                             }
-                            res.end(str(result.payload));
+                            res.end(result.payload);
                         });
                 },
             ]);
@@ -259,7 +268,8 @@ export class TrezordNode {
 
                                 return res.end(str({ error: result.error }));
                             }
-                            res.end(str(result.payload));
+
+                            res.end(result.payload);
                         });
                 },
             ]);
@@ -389,16 +399,9 @@ export class TrezordNode {
                 },
             ]);
 
-            app.post('/', [
-                (_req, res) => {
-                    res.writeHead(200, { 'Content-Type': 'text/plain' });
-                    res.end(
-                        str({
-                            version: this.version,
-                        }),
-                    );
-                },
-            ]);
+            app.post('/', [this.handleInfo.bind(this)]);
+
+            app.post('/configure', [this.handleInfo.bind(this)]);
 
             app.start().then(() => {
                 this.server = app;
