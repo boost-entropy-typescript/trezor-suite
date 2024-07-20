@@ -25,6 +25,7 @@ import {
     StackToStackCompositeNavigationProps,
     useScrollView,
 } from '@suite-native/navigation';
+import { EventType, analytics } from '@suite-native/analytics';
 
 import { EnterPassphraseOnTrezorButton } from './EnterPassphraseOnTrezorButton';
 
@@ -72,6 +73,7 @@ export const PassphraseForm = ({ inputLabel, onFocus }: PassphraseFormProps) => 
 
     const form = useForm<PassphraseFormValues>({
         validation: passphraseFormSchema,
+        reValidateMode: 'onSubmit',
         defaultValues: {
             passphrase: '',
         },
@@ -109,6 +111,7 @@ export const PassphraseForm = ({ inputLabel, onFocus }: PassphraseFormProps) => 
     });
 
     const handleFocusInput = () => {
+        analytics.report({ type: EventType.PassphraseEnterInApp });
         setIsInputFocused(true);
         onFocus?.();
     };

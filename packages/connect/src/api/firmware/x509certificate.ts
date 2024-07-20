@@ -14,6 +14,25 @@ interface Asn1 {
     raw: Uint8Array; // original byte array
 }
 
+type Oid = `${number}.${number}.${number}.${number}`;
+
+type Extension =
+    | {
+          key: 'keyUsage';
+          critical?: boolean;
+          keyCertSign: '0' | '1';
+      }
+    | {
+          key: 'basicConstraints';
+          critical?: boolean;
+          cA: boolean;
+          pathLenConstraint?: number;
+      }
+    | (Asn1 & {
+          key: Oid;
+          critical?: boolean;
+      });
+
 const derToAsn1 = (byteArray: Uint8Array): Asn1 => {
     let position = 0;
 
@@ -56,21 +75,18 @@ const derToAsn1 = (byteArray: Uint8Array): Asn1 => {
     const structured = (byteArray[0] & 0x20) === 0x20;
     const tag = getTag();
 
+    if (byteArray[position] === 0x80) {
+        // DER forbids indefinite length encoding. You must use the definite length encoding (that is, with the length specified at the beginning).
+        // https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/
+        throw new Error('Unsupported length encoding');
+    }
+
     let length = getLength(); // As encoded, which may be special value 0
     let byteLength;
     let contents;
 
-    if (length === 0x80) {
-        length = 0;
-        while (byteArray[position + length] !== 0 || byteArray[position + length + 1] !== 0) {
-            length += 1;
-        }
-        byteLength = position + length + 2;
-        contents = byteArray.subarray(position, position + length);
-    } else {
-        byteLength = position + length;
-        contents = byteArray.subarray(position, byteLength);
-    }
+    byteLength = position + length;
+    contents = byteArray.subarray(position, byteLength);
 
     const raw = byteArray.subarray(0, byteLength); // May not be the whole input array
 
@@ -175,7 +191,7 @@ const derObjectIdentifierValue = (byteArray: Uint8Array) => {
         oid += `.${nextInteger}`;
     }
 
-    return oid;
+    return oid as Oid;
 };
 
 /*
@@ -287,6 +303,103 @@ const parseValidity = (asn1: Asn1) => {
 };
 
 /*
+ * https://www.alvestrand.no/objectid/2.5.29.html
+ * Extensions ::= SEQUENCE {
+ *   extnID      OBJECT IDENTIFIER,
+ *   critical    BOOLEAN OPTIONAL,
+ *   extnValue   OCTET STRING
+ * }
+ */
+const parseExtensions = (data: Asn1) => {
+    const asn1 = derToAsn1(data.contents);
+    if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
+        throw new Error("This can't be a Extension. Wrong data type.");
+    }
+
+    const readBoolean = (value?: Asn1) => {
+        if (!value) return false;
+        if (value.cls !== 0 || value.tag !== 1 || value.contents.length !== 1 || value.structured) {
+            throw new Error("This can't be a boolean. Wrong data type.");
+        }
+        if (![0x00, 0xff].includes(value.contents[0])) {
+            throw new Error('Invalid boolean value.');
+        }
+
+        return value.contents[0] === 0xff;
+    };
+
+    const readBitString = (uint8Array: Uint8Array) => {
+        const buffer = Buffer.from(uint8Array);
+        const tag = buffer.readUInt8(0);
+        if (tag !== 3) {
+            throw new Error("This can't be a bit string. Wrong data type.");
+        }
+        const length = buffer.readUInt8(1);
+        const unusedBits = buffer.readUInt8(2);
+        const bitStringBytes = buffer.subarray(3, 3 + length - 1); // -1 because the length includes the unusedBits byte
+        const bitString = bitStringBytes.reduce(
+            (str, byte) => str + byte.toString(2).padStart(8, '0'),
+            '',
+        );
+
+        return bitString.slice(0, bitString.length - unusedBits) as '01';
+    };
+
+    const readInteger = (value?: Asn1) => {
+        if (!value) return undefined;
+        if (value.cls !== 0 || value.tag !== 2 || value.contents.length !== 1 || value.structured) {
+            throw new Error("This can't be a integer. Wrong data type.");
+        }
+
+        return Buffer.from(value.contents).readInt8();
+    };
+
+    const extensions: Extension[] = [];
+    derToAsn1List(asn1.contents).forEach(item => {
+        const [id, ...pieces] = derToAsn1List(item.contents);
+        if (id.cls !== 0 || id.tag !== 6 || id.structured) {
+            throw new Error('Bad extension. Does not begin with an OBJECT IDENTIFIER.');
+        }
+
+        const algorithm = derObjectIdentifierValue(id.contents);
+        const critical = pieces.length > 1 ? readBoolean(pieces[0]) : false;
+        const extnValue = pieces.length > 1 ? pieces[1] : pieces[0];
+        if (extnValue.cls !== 0 || extnValue.tag !== 4 || extnValue.structured) {
+            throw new Error("This can't be a octet string. Wrong data type.");
+        }
+
+        if (algorithm === '2.5.29.15') {
+            // https://www.alvestrand.no/objectid/2.5.29.15.html
+            extensions.push({
+                key: 'keyUsage',
+                critical,
+                keyCertSign: readBitString(extnValue.contents)[5] as '0' | '1',
+            });
+        } else if (algorithm === '2.5.29.19') {
+            // https://www.alvestrand.no/objectid/2.5.29.19.html
+            const fields = derToAsn1List(derToAsn1(extnValue.contents).contents);
+            const ca = fields.length > 0 && fields[0].tag === 1 ? fields[0] : undefined;
+            const len = fields.length > 0 && fields[0].tag === 2 ? fields[0] : fields[1];
+
+            extensions.push({
+                key: 'basicConstraints',
+                critical,
+                cA: readBoolean(ca),
+                pathLenConstraint: readInteger(len),
+            });
+        } else {
+            extensions.push({
+                key: algorithm,
+                critical,
+                ...item,
+            });
+        }
+    });
+
+    return extensions;
+};
+
+/*
  * TBSCertificate ::= SEQUENCE {
  *   version         [0]  EXPLICIT Version DEFAULT v1,
  *   serialNumber         CertificateSerialNumber,
@@ -318,7 +431,7 @@ const parseTBSCertificate = (asn1: Asn1) => {
         validity: parseValidity(pieces[4]),
         subject: parseName(pieces[5]),
         subjectPublicKeyInfo: parseSubjectPublicKeyInfo(pieces[6]),
-        extensions: pieces[7],
+        extensions: parseExtensions(pieces[7]),
     };
 };
 

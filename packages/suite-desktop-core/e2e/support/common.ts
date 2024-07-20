@@ -2,7 +2,7 @@
 
 import { Page, _electron as electron } from '@playwright/test';
 import path from 'path';
-import fs from 'fs';
+import fse from 'fs-extra';
 
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
@@ -33,6 +33,12 @@ export const launchSuite = async (params: LaunchSuiteParams = {}) => {
         // recordVideo: { dir: 'test-results' },
     });
 
+    const localDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'));
+
+    if (options.rmUserData) {
+        fse.removeSync(localDataDir);
+    }
+
     electronApp.process().stdout?.on('data', data => console.log(data.toString()));
     electronApp.process().stderr?.on('data', data => console.error(data.toString()));
 
@@ -48,11 +54,6 @@ export const launchSuite = async (params: LaunchSuiteParams = {}) => {
     );
 
     const window = await electronApp.firstWindow();
-    const localDataDir = await electronApp.evaluate(({ app }) => app.getPath('userData'));
-
-    if (options.rmUserData) {
-        fs.rmSync(localDataDir, { recursive: true, force: true });
-    }
 
     return { electronApp, window, localDataDir };
 };

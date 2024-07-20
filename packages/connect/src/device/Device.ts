@@ -47,7 +47,6 @@ export type RunOptions = {
     cancelPopupRequest?: () => any;
 
     keepSession?: boolean;
-    useEmptyPassphrase?: boolean;
     useCardanoDerivation?: boolean;
 };
 
@@ -337,14 +336,13 @@ export class Device extends TypedEmitter<DeviceEvents> {
             // update features
             try {
                 if (fn) {
-                    await this.initialize(
-                        !!options.useEmptyPassphrase,
-                        !!options.useCardanoDerivation,
-                    );
+                    await this.initialize(!!options.useCardanoDerivation);
                 } else {
                     // do not initialize while firstRunPromise otherwise `features.session_id` could be affected
                     await Promise.race([
                         this.getFeatures(),
+                        // We do not support T1B1 <1.9.0 but we still need Features even from not supported devices to determine your version
+                        // and tell you that update is required.
                         // Edge-case: T1B1 + bootloader < 1.4.0 doesn't know the "GetFeatures" message yet and it will send no response to it
                         // transport response is pending endlessly, calling any other message will end up with "device call in progress"
                         // set the timeout for this call so whenever it happens "unacquired device" will be created instead
@@ -366,7 +364,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
                     return this._runInner(() => Promise.resolve({}), options);
                 }
-
                 if (TRANSPORT_ERROR.ABORTED_BY_TIMEOUT === error.message) {
                     this.unreadableError = 'Connection timeout';
                 }
@@ -444,11 +441,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 this.activitySessionID = null;
                 this.keepSession = false;
             }
-
-            // T1B1: forget passphrase cached in internal state
-            if (this.isT1() && this.useLegacyPassphrase()) {
-                this.setInternalState(undefined);
-            }
         }
         this.instance = instance;
     }
@@ -462,11 +454,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
             delete this.internalState[this.instance];
         } else if (state !== this.internalState[this.instance]) {
             this.internalState[this.instance] = state;
-
-            if (this.useLegacyPassphrase() && this.isT1()) {
-                // T1B1 fw lower than 1.9.0, passphrase is in plain text, don't save it
-                return;
-            }
 
             this.emit(DEVICE.SAVE_STATE, state);
         }
@@ -504,7 +491,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         const expectedState = this.getExternalState();
         const state = await this.getCommands().getDeviceState();
         const uniqueState = `${state}@${this.features.device_id || 'device_id'}:${this.instance}`;
-        if (!this.useLegacyPassphrase() && this.features.session_id) {
+        if (this.features.session_id) {
             this.setInternalState(this.features.session_id);
         }
         if (expectedState && expectedState !== uniqueState) {
@@ -515,28 +502,16 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
-    useLegacyPassphrase() {
-        return !this.atLeast(['1.9.0', '2.3.0']);
-    }
-
-    async initialize(useEmptyPassphrase: boolean, useCardanoDerivation: boolean) {
+    async initialize(useCardanoDerivation: boolean) {
         let payload: PROTO.Initialize | undefined;
         if (this.features) {
-            const legacy = this.useLegacyPassphrase();
             const internalState = this.getInternalState();
             payload = {};
             // If the user has BIP-39 seed, and Initialize(derive_cardano=True) is not sent,
             // all Cardano calls will fail because the root secret will not be available.
             payload.derive_cardano = useCardanoDerivation;
-            if (!legacy && internalState) {
+            if (internalState) {
                 payload.session_id = internalState;
-            }
-            if (legacy && !this.isT1()) {
-                payload.session_id = internalState;
-                if (useEmptyPassphrase) {
-                    payload._skip_passphrase = useEmptyPassphrase;
-                    payload.session_id = undefined;
-                }
             }
         }
 

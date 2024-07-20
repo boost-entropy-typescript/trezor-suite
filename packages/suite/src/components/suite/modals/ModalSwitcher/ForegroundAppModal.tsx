@@ -4,13 +4,14 @@ import { Recovery } from 'src/views/recovery';
 import { Backup } from 'src/views/backup';
 import { useDispatch } from 'src/hooks/suite';
 import { closeModalApp } from 'src/actions/suite/routerActions';
-import { InstallBridge } from 'src/views/suite/bridge';
+import { BridgeUnavailable } from 'src/views/suite/bridge';
 import { UdevRules } from 'src/views/suite/udev';
 import { Version } from 'src/views/suite/version';
 import { SwitchDevice } from 'src/views/suite/SwitchDevice/SwitchDevice';
 import type { ForegroundAppRoute } from 'src/types/suite';
 import { FunctionComponent } from 'react';
 import { MultiShareBackupModal } from '../ReduxModal/UserContextModal/MultiShareBackupModal/MultiShareBackupModal';
+import { BridgeRequested } from 'src/views/suite/bridge-requested';
 
 // would not work if defined directly in the switch
 const FirmwareType = () => <FirmwareUpdate shouldSwitchFirmwareType />;
@@ -21,7 +22,8 @@ const getForegroundApp = (app: ForegroundAppRoute['app']) => {
         'firmware-type': FirmwareType,
         'firmware-custom': FirmwareCustom,
         version: Version,
-        bridge: InstallBridge,
+        bridge: BridgeUnavailable,
+        'bridge-requested': BridgeRequested,
         udev: UdevRules,
         'switch-device': SwitchDevice,
         recovery: Recovery,

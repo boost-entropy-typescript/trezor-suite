@@ -4,7 +4,7 @@ import { isRejected } from '@reduxjs/toolkit';
 import { createThunk } from '@suite-common/redux-utils';
 import {
     ComposeActionContext,
-    composeSendFormTransactionThunk,
+    composeSendFormTransactionFeeLevelsThunk,
     deviceActions,
     enhancePrecomposedTransactionThunk,
     pushSendFormTransactionThunk,
@@ -53,9 +53,9 @@ export const onDeviceTransactionReviewThunk = createThunk<
 
         //compose transaction with specific fee levels
         const precomposedFeeLevels = await dispatch(
-            composeSendFormTransactionThunk({
-                formValues: formState,
-                formState: composeContext,
+            composeSendFormTransactionFeeLevelsThunk({
+                formState,
+                composeContext,
             }),
         ).unwrap();
 
@@ -80,7 +80,7 @@ export const onDeviceTransactionReviewThunk = createThunk<
             deviceCallback: () =>
                 dispatch(
                     signTransactionThunk({
-                        formValues: formState,
+                        formState,
                         precomposedTransaction,
                         selectedAccount: account,
                     }),
@@ -112,7 +112,7 @@ export const sendTransactionAndCleanupSendFormThunk = createThunk(
         );
 
         if (isRejected(response)) {
-            return rejectWithValue(response.error ?? 'Failed to push transaction to blockchain.');
+            return rejectWithValue(response.error);
         }
 
         dispatch(sendFormActions.dispose());

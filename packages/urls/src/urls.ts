@@ -12,7 +12,6 @@ export const DOCS_ANALYTICS_URL = 'https://docs.trezor.io/trezor-suite/analytics
 
 export const SUITE_URL = 'https://trezor.io/trezor-suite';
 export const SUITE_BACKUP_URL = 'https://suite.trezor.io/web/backup/';
-export const SUITE_BRIDGE_URL = 'https://suite.trezor.io/web/bridge/';
 export const SUITE_FIRMWARE_URL = 'https://suite.trezor.io/web/firmware/';
 export const SUITE_UDEV_URL = 'https://suite.trezor.io/web/udev/';
 
@@ -32,6 +31,8 @@ export const HELP_CENTER_DRY_RUN_T2T1_URL =
     'https://trezor.io/learn/a/test-recovery-seed-on-trezor-model-t';
 export const HELP_CENTER_DRY_RUN_T2B1_URL =
     'https://trezor.io/learn/a/check-backup-on-trezor-safe-3';
+export const HELP_CENTER_DRY_RUN_T3B1_URL =
+    'https://trezor.io/learn/a/check-backup-on-trezor-safe-3';
 export const HELP_CENTER_DRY_RUN_T3T1_URL =
     'https://trezor.io/learn/a/check-backup-on-trezor-safe-5';
 export const HELP_CENTER_PASSPHRASE_URL =
@@ -40,6 +41,8 @@ export const HELP_CENTER_RECOVERY_SEED_URL = 'https://trezor.io/learn/a/how-to-u
 export const HELP_CENTER_PACKAGING_T1B1_URL = 'https://trezor.io/learn/a/authenticate-model-one';
 export const HELP_CENTER_PACKAGING_T2T1_URL = 'https://trezor.io/learn/a/authenticate-model-t';
 export const HELP_CENTER_PACKAGING_T2B1_URL =
+    'https://trezor.io/learn/a/authenticate-trezor-safe-3';
+export const HELP_CENTER_PACKAGING_T3B1_URL =
     'https://trezor.io/learn/a/authenticate-trezor-safe-3';
 export const HELP_CENTER_PACKAGING_T3T1_URL =
     'https://trezor.io/learn/a/authenticate-trezor-safe-5';
@@ -57,6 +60,8 @@ export const HELP_CENTER_FW_DOWNGRADE_T2T1_URL =
     'https://trezor.io/learn/a/downgrade-firmware-trezor-model-t';
 export const HELP_CENTER_FW_DOWNGRADE_T2B1_URL =
     'https://trezor.io/learn/a/downgrade-firmware-trezor-safe-3';
+export const HELP_CENTER_FW_DOWNGRADE_T3B1_URL =
+    'https://trezor.io/learn/a/downgrade-firmware-trezor-safe-3';
 export const HELP_CENTER_FW_DOWNGRADE_T3T1_URL =
     'https://trezor.io/learn/a/downgrade-firmware-trezor-safe-5';
 export const HELP_CENTER_RECOVERY_ISSUES_URL = 'https://trezor.io/support/a/trezor-recovery-issues';
@@ -71,7 +76,7 @@ export const HELP_CENTER_ZERO_VALUE_ATTACKS =
     'https://trezor.io/support/a/address-poisoning-attacks';
 export const HELP_CENTER_LABELING = 'https://trezor.io/learn/a/labels-in-trezor-suite-app';
 export const HELP_CENTER_DEVICE_AUTHENTICATION =
-    'https://trezor.io/learn/a/trezor-safe-3-authentication-check';
+    'https://trezor.io/learn/a/trezor-safe-device-authentication-check';
 export const HELP_CENTER_ETH_STAKING =
     'https://trezor.io/learn/a/stake-ethereum-eth-in-trezor-suite';
 export const HELP_CENTER_SEED_CARD_URL = 'https://trezor.io/learn/a/recovery-seed-card';

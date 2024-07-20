@@ -17,9 +17,10 @@ import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
 
 import { TranslationKey } from 'src/components/suite/Translation';
 import { useDispatch } from 'react-redux';
-import { composeSendFormTransactionThunk } from '@suite-common/wallet-core';
+import { composeSendFormTransactionFeeLevelsThunk } from '@suite-common/wallet-core';
 import { useTranslation } from '../suite';
 import { SendContextValues, UseSendFormState } from 'src/types/wallet/sendForm';
+import { isFulfilled } from '@reduxjs/toolkit';
 
 type Props = UseFormReturn<FormState> & {
     state: UseSendFormState;
@@ -61,15 +62,15 @@ export const useSendFormCompose = ({
     const debounce = useDebounce();
 
     const composeDraft = useCallback(
-        async (formValues: FormState) => {
+        async (formState: FormState) => {
             // start composing without debounce
             setLoading(true);
             setComposedLevels(undefined);
 
             const result = await dispatch(
-                composeSendFormTransactionThunk({
-                    formValues,
-                    formState: {
+                composeSendFormTransactionFeeLevelsThunk({
+                    formState,
+                    composeContext: {
                         account,
                         network: state.network,
                         feeInfo: state.feeInfo,
@@ -77,10 +78,10 @@ export const useSendFormCompose = ({
                         prison,
                     },
                 }),
-            ).unwrap();
+            );
 
-            if (result) {
-                setComposedLevels(result);
+            if (isFulfilled(result)) {
+                setComposedLevels(result.payload);
             } else {
                 // undefined result will not be processed by useEffect below, reset loader
                 setLoading(false);
@@ -113,14 +114,14 @@ export const useSendFormCompose = ({
                     return Promise.resolve(undefined);
                 }
 
-                const values = getValues();
+                const formState = getValues();
                 // save draft (it could be changed later, after composing)
                 setDraftSaveRequest(true);
 
                 return dispatch(
-                    composeSendFormTransactionThunk({
-                        formValues: values,
-                        formState: {
+                    composeSendFormTransactionFeeLevelsThunk({
+                        formState,
+                        composeContext: {
                             account,
                             network: state.network,
                             feeInfo: state.feeInfo,
@@ -128,7 +129,7 @@ export const useSendFormCompose = ({
                             prison,
                         },
                     }),
-                ).unwrap();
+                );
             });
 
             // RACE-CONDITION NOTE:
@@ -136,9 +137,9 @@ export const useSendFormCompose = ({
             // therefore another debounce process was not called yet to interrupt current one
             // unexpected result: `updateComposedValues` is trying to work with updated/newer FormState
             if (resultID === composeRequestID.current) {
-                if (result) {
+                if (isFulfilled(result)) {
                     // set new composed transactions
-                    setComposedLevels(result);
+                    setComposedLevels(result.payload);
                 } else {
                     // result undefined: (FormState got errors or sendFormActions got errors)
                     // undefined result will not be processed by useEffect below, reset loader

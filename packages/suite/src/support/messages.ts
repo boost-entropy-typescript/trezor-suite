@@ -146,10 +146,6 @@ export default defineMessages({
         defaultMessage: 'Add wallet',
         id: 'TR_ADD_WALLET',
     },
-    TR_ADDITIONAL_SECURITY_FEATURES: {
-        defaultMessage: 'In the meantime, make sure you have completed all security steps below.',
-        id: 'TR_ADDITIONAL_SECURITY_FEATURES',
-    },
     TR_CONTRACT: {
         defaultMessage: 'Contract',
         id: 'TR_CONTRACT',
@@ -2454,6 +2450,14 @@ export default defineMessages({
         defaultMessage: 'Copy',
         id: 'TR_COPY_TO_CLIPBOARD',
     },
+    TR_UNHIDE_TOKEN_TITLE: {
+        defaultMessage: 'Unhide this token?',
+        id: 'TR_UNHIDE_TOKEN_TITLE',
+    },
+    TR_UNHIDE_TOKEN_TEXT: {
+        defaultMessage: 'This token appears to be suspicious and may be a scam.',
+        id: 'TR_UNHIDE_TOKEN_TEXT',
+    },
     TR_NOT_YOUR_RECEIVE_ADDRRESS: {
         defaultMessage: "This isn't your receive address.",
         id: 'TR_NOT_YOUR_RECEIVE_ADDRRESS',
@@ -3211,6 +3215,10 @@ export default defineMessages({
         defaultMessage: 'Including tokens',
         id: 'TR_INCLUDING_TOKENS',
     },
+    TR_INCLUDING_TOKENS_AND_STAKING: {
+        defaultMessage: 'Incl. tokens & staking',
+        id: 'TR_INCLUDING_TOKENS_AND_STAKING',
+    },
     TR_NETWORK_ETHEREUM_CLASSIC: {
         defaultMessage: 'Ethereum Classic',
         id: 'TR_NETWORK_ETHEREUM_CLASSIC',
@@ -3775,10 +3783,10 @@ export default defineMessages({
         defaultMessage: 'Details',
         id: 'TR_TRANSACTION_DETAILS',
     },
-    TR_TREZOR_BRIDGE_IS_NOT_RUNNING: {
-        defaultMessage: 'Trezor Bridge is not running',
+    TR_NO_TRANSPORT: {
+        defaultMessage: "Browser can't communicate with device",
         description: '',
-        id: 'TR_TREZOR_BRIDGE_IS_NOT_RUNNING',
+        id: 'TR_NO_TRANSPORT',
     },
     TR_TRY_AGAIN: {
         defaultMessage: 'Try again',
@@ -4443,9 +4451,9 @@ export default defineMessages({
         id: 'TR_TREZOR_BRIDGE_DOWNLOAD',
         defaultMessage: 'Trezor Bridge Download',
     },
-    TR_CURRENTLY_INSTALLED_TREZOR: {
-        id: 'TR_CURRENTLY_INSTALLED_TREZOR',
-        defaultMessage: 'Currently installed: Trezor Bridge {version}',
+    TR_TREZOR_BRIDGE_RUNNING_VERSION: {
+        id: 'TR_TREZOR_BRIDGE_RUNNING_VERSION',
+        defaultMessage: 'Trezor Bridge running version {version}',
     },
     TR_OUTDATED_BRIDGE_DESKTOP: {
         id: 'TR_OUTDATED_BRIDGE_DESKTOP',
@@ -7537,9 +7545,9 @@ export default defineMessages({
         id: 'TR_DATA_ANALYTICS_CATEGORY_3_ITEM_1',
         defaultMessage: 'Language, user count, etc.',
     },
-    TR_TROUBLESHOOTING_BRIDGE_IS_NOT_RUNNING: {
-        defaultMessage: 'Steps to make sure Trezor Bridge is running',
-        id: 'TR_TROUBLESHOOTING_BRIDGE_IS_NOT_RUNNING',
+    TR_TROUBLESHOOTING_DEVICE_NOT_DETECTED: {
+        defaultMessage: 'Steps needed to make communication possible',
+        id: 'TR_TROUBLESHOOTING_DEVICE_NOT_DETECTED',
     },
     TR_TROUBLESHOOTING_TIP_BRIDGE_STATUS_TITLE: {
         defaultMessage: 'Ensure the Trezor Bridge process is running',
@@ -7549,13 +7557,30 @@ export default defineMessages({
         defaultMessage: 'Visit <a>Trezor Bridge status page</a>',
         id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_STATUS_DESCRIPTION',
     },
-    TR_TROUBLESHOOTING_TIP_BRIDGE_INSTALL_TITLE: {
-        id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_INSTALL_TITLE',
-        defaultMessage: 'If you can’t see Trezor Bridge running, download and install it',
+    TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_TITLE: {
+        defaultMessage: 'Try using a browser with WebUSB support',
+        id: 'TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_TITLE',
     },
-    TR_TROUBLESHOOTING_TIP_BRIDGE_INSTALL_DESCRIPTION: {
-        id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_INSTALL_DESCRIPTION',
-        defaultMessage: '<a>Download Trezor Bridge</a>',
+    TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_DESCRIPTION: {
+        defaultMessage:
+            'Use a chromium based browser which allows direct communication with usb devices',
+        id: 'TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_DESCRIPTION',
+    },
+    TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_TITLE: {
+        id: 'TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_TITLE',
+        defaultMessage: 'Use Suite desktop application',
+    },
+    TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_DESCRIPTION: {
+        id: 'TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_DESCRIPTION',
+        defaultMessage: 'Run <a>Trezor Suite</a> desktop application',
+    },
+    TR_TROUBLESHOOTING_TIP_BRIDGE_BACKGROUND_TITLE: {
+        id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_BACKGROUND_TITLE',
+        defaultMessage: 'You may also run Trezor Suite in background',
+    },
+    TR_TROUBLESHOOTING_TIP_BRIDGE_BACKGROUND_DESCRIPTION: {
+        id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_BACKGROUND_DESCRIPTION',
+        defaultMessage: '<a>See intructions</a>',
     },
     TR_TROUBLESHOOTING_TIP_BRIDGE_USE_TITLE: {
         id: 'TR_TROUBLESHOOTING_TIP_BRIDGE_USE_TITLE',
@@ -9467,5 +9492,36 @@ export default defineMessages({
     TR_SELECT_TREZOR_TO_CONTINUE: {
         id: 'TR_SELECT_TREZOR_TO_CONTINUE',
         defaultMessage: 'Select your Trezor to continue.',
+    },
+    TR_RUN_TREZOR_SUITE_IN_BACKGROUND: {
+        id: 'TR_RUN_TREZOR_SUITE_IN_BACKGROUND',
+        defaultMessage: 'Run Trezor Suite in the background',
+    },
+    TR_KEEP_RUNNING_IN_BACKGROUND: {
+        id: 'TR_KEEP_RUNNING_IN_BACKGROUND',
+        defaultMessage: 'Keep running in background',
+    },
+    TR_BRIDGE: {
+        id: 'TR_BRIDGE',
+        defaultMessage: 'Bridge',
+    },
+    TR_BRIDGE_REQUESTED_DESCRIPTION: {
+        id: 'TR_BRIDGE_REQUESTED_DESCRIPTION',
+        defaultMessage:
+            'Trezor Suite application was requested by another application in order to make the connection with your Trezor device possible. Keep this in background and all will be good.',
+    },
+    TR_BRIDGE_GO_TO_WALLET_DESCRIPTION: {
+        id: 'TR_BRIDGE_GO_TO_WALLET_DESCRIPTION',
+        defaultMessage:
+            'Are you sure? The device might only be used by a single application at time. If you are currently using another application with your Trezor device, make sure to finish it first.',
+    },
+    TR_BRIDGE_NEEDED_DESCRIPTION: {
+        id: 'TR_BRIDGE_NEEDED_DESCRIPTION',
+        defaultMessage:
+            'We recommend downloading and running the Trezor Suite desktop app in the background for the best experience. Alternatively, use a supported browser that is compatible with WebUSB',
+    },
+    TR_OPEN_TREZOR_SUITE_DESKTOP: {
+        id: 'TR_OPEN_TREZOR_SUITE_DESKTOP',
+        defaultMessage: 'Open Trezor Suite desktop app',
     },
 });

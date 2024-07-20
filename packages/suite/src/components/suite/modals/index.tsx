@@ -2,7 +2,6 @@ export { PinModal } from './ReduxModal/DeviceContextModal/PinModal';
 export { PinInvalidModal } from './ReduxModal/DeviceContextModal/PinInvalidModal';
 export { PinMismatchModal } from './ReduxModal/UserContextModal/PinMismatchModal';
 export { PassphraseModal } from './ReduxModal/DeviceContextModal/PassphraseModal';
-export { PassphraseModalLegacy } from './ReduxModal/DeviceContextModal/PassphraseModalLegacy';
 export { PassphraseSourceModal } from './ReduxModal/DeviceContextModal/PassphraseSourceModal';
 export { PassphraseOnDeviceModal } from './ReduxModal/DeviceContextModal/PassphraseOnDeviceModal';
 export { PassphraseDuplicateModal } from './ReduxModal/UserContextModal/PassphraseDuplicateModal';
@@ -48,3 +47,4 @@ export { UnstakeModal } from './ReduxModal/UserContextModal/UnstakeModal/Unstake
 export { ClaimModal } from './ReduxModal/UserContextModal/ClaimModal/ClaimModal';
 export { MultiShareBackupModal } from './ReduxModal/UserContextModal/MultiShareBackupModal/MultiShareBackupModal';
 export { CopyAddressModal } from './ReduxModal/CopyAddressModal';
+export { UnhideTokenModal } from './ReduxModal/UnhideTokenModal';

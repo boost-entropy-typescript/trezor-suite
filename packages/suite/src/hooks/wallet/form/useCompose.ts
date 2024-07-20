@@ -5,7 +5,10 @@ import { FeeLevel } from '@trezor/connect';
 import { useDebounce } from '@trezor/react-utils';
 import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import { signAndPushSendFormTransactionThunk } from 'src/actions/wallet/send/sendFormThunks';
-import { ComposeActionContext, composeSendFormTransactionThunk } from '@suite-common/wallet-core';
+import {
+    ComposeActionContext,
+    composeSendFormTransactionFeeLevelsThunk,
+} from '@suite-common/wallet-core';
 import { findComposeErrors } from '@suite-common/wallet-utils';
 import {
     FormState,
@@ -80,10 +83,13 @@ export const useCompose = <TFieldValues extends FormState>({
                     return Promise.resolve(undefined);
                 }
 
-                const values = getValues();
+                const formState = getValues();
 
                 return dispatch(
-                    composeSendFormTransactionThunk({ formValues: values, formState: state }),
+                    composeSendFormTransactionFeeLevelsThunk({
+                        formState,
+                        composeContext: state,
+                    }),
                 ).unwrap();
             });
 
@@ -228,16 +234,16 @@ export const useCompose = <TFieldValues extends FormState>({
 
     // called from the UI, triggers signing process
     const sign = async () => {
-        const values = getValues();
+        const formState = getValues();
         const precomposedTransaction = composedLevels
-            ? composedLevels[values.selectedFee || 'normal']
+            ? composedLevels[formState.selectedFee || 'normal']
             : undefined;
         if (precomposedTransaction && precomposedTransaction.type === 'final') {
             // sign workflow in Actions:
             // signSendFormTransactionThunk > sign[COIN]TransactionThunk > sendFormActions.storeSignedTransaction (modal with promise decision)
             const result = await dispatch(
                 signAndPushSendFormTransactionThunk({
-                    formValues: values,
+                    formState,
                     precomposedTransaction,
                     selectedAccount,
                 }),

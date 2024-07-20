@@ -17,8 +17,10 @@ import {
     cancelPassphraseAndSelectStandardDeviceThunk,
     selectIsCreatingNewPassphraseWallet,
     useAuthorizationGoBack,
+    useHandlePassphraseMismatch,
 } from '@suite-native/device-authorization';
 import TrezorConnect from '@trezor/connect';
+import { EventType, analytics } from '@suite-native/analytics';
 
 import { useRedirectOnPassphraseCompletion } from '../../useRedirectOnPassphraseCompletion';
 import { DeviceT3T1Svg } from '../../assets/passphrase/DeviceT3T1Svg';
@@ -55,6 +57,8 @@ export const PassphraseEnterOnTrezorScreen = () => {
     // on success, this hook will close the stack and go back
     useRedirectOnPassphraseCompletion();
 
+    useHandlePassphraseMismatch();
+
     useEffect(() => {
         if (isDiscoveryActive) {
             navigation.navigate(AuthorizeDeviceStackRoutes.PassphraseLoading);
@@ -65,6 +69,10 @@ export const PassphraseEnterOnTrezorScreen = () => {
         if (isCreatingNewWalletInstance) {
             dispatch(cancelPassphraseAndSelectStandardDeviceThunk());
         } else {
+            analytics.report({
+                type: EventType.PassphraseExit,
+                payload: { screen: AuthorizeDeviceStackRoutes.PassphraseEnterOnTrezor },
+            });
             TrezorConnect.cancel();
             handleGoBack();
         }
