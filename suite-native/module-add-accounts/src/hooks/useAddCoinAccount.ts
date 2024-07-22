@@ -280,7 +280,12 @@ export const useAddCoinAccount = () => {
             account => account.symbol === networkSymbol && account.accountType === accountType,
         );
 
-        const firstHiddenEmptyAccount = accounts.find(account => account.empty && !account.visible);
+        const firstHiddenEmptyAccount = pipe(
+            accounts,
+            A.filter(account => account.empty && !account.visible),
+            A.sortBy(account => account.index),
+            A.head,
+        );
 
         const canAddAccount = checkCanAddAccount(accounts);
 
@@ -309,7 +314,10 @@ export const useAddCoinAccount = () => {
             }),
         );
 
-        if (isRejected(newAccountResult)) {
+        if (
+            !firstHiddenEmptyAccount && // Do not show error if we are just making the first hidden empty account visible
+            isRejected(newAccountResult)
+        ) {
             let screen = AppTabsRoutes.HomeStack;
             if (flowType === 'accounts') {
                 screen = AppTabsRoutes.AccountsStack;
