@@ -12,7 +12,7 @@ import { Session } from '@trezor/transport/src/types';
 import { Log } from '@trezor/utils';
 import { AbstractApi } from '@trezor/transport/src/api/abstract';
 
-export const createApi = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) => {
+export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) => {
     let api: AbstractApi;
 
     const abortController = new AbortController();
@@ -61,9 +61,7 @@ export const createApi = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) => 
         data: string;
         signal: AbortSignal;
     }) => {
-        const { messageType, payload } = protocolBridge.decode(
-            new Uint8Array(Buffer.from(data, 'hex')),
-        );
+        const { messageType, payload } = protocolBridge.decode(Buffer.from(data, 'hex'));
 
         const encodedMessage = protocolV1.encode(payload, { messageType });
         const chunks = createChunks(
@@ -258,6 +256,7 @@ export const createApi = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) => 
 
     const dispose = () => {
         api.dispose();
+        sessionsClient.removeAllListeners('descriptors');
     };
 
     return {
