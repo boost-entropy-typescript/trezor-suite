@@ -1,6 +1,6 @@
 {
     "name": "@trezor/protobuf",
-    "version": "1.1.1-beta.1",
+    "version": "1.1.1-beta.2",
     "license": "See LICENSE.md in repo root",
     "repository": {
         "type": "git",
@@ -40,7 +40,7 @@
     },
     "devDependencies": {
         "protobufjs-cli": "^1.1.2",
-        "tsx": "^4.7.0"
+        "tsx": "^4.16.3"
     },
     "peerDependencies": {
         "tslib": "^2.6.2"

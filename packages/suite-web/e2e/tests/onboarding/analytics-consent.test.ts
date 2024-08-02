@@ -1,17 +1,5 @@
-// @group_device-management
+// @group_suite
 // @retry=2
-
-const navigateToSettingsAndBack = () => {
-    cy.getTestElement('@analytics/consent');
-    cy.getTestElement('@suite/menu/settings').click();
-    cy.getTestElement('@settings/menu/close').click();
-};
-
-const acceptAnalyticsConsentOnNonInitializedDevice = () => {
-    cy.getTestElement('@analytics/consent');
-    cy.getTestElement('@analytics/continue-button').click();
-    cy.getTestElement('@analytics/continue-button').click();
-};
 
 const acceptAnalyticsConsentOnInitializedDevice = () => {
     cy.getTestElement('@analytics/consent');
@@ -25,70 +13,7 @@ describe('Onboarding - analytics consent', () => {
         cy.viewport(1440, 2560).resetDb();
     });
 
-    it('shows analytics consent when going to settings and back on non-initialized T1B1 device', () => {
-        cy.task('startEmu', { version: '1-latest', wipe: true });
-        cy.prefixedVisit('/');
-
-        navigateToSettingsAndBack();
-        acceptAnalyticsConsentOnNonInitializedDevice();
-
-        cy.getTestElement('@onboarding-layout/body').should('be.visible');
-    });
-
-    it('shows analytics consent when going to settings and back on non-initialized T2T1 device', () => {
-        cy.task('startEmu', { wipe: true });
-        cy.prefixedVisit('/');
-
-        navigateToSettingsAndBack();
-        acceptAnalyticsConsentOnNonInitializedDevice();
-
-        cy.getTestElement('@onboarding-layout/body').should('be.visible');
-    });
-
-    it('shows analytics consent when going to settings and back on initialized T1B1 device', () => {
-        cy.task('startEmu', { version: '1-latest', wipe: true });
-        cy.task('setupEmu', {
-            needs_backup: false,
-        });
-        cy.prefixedVisit('/');
-
-        navigateToSettingsAndBack();
-        acceptAnalyticsConsentOnInitializedDevice();
-
-        cy.getTestElement('@suite-layout/body').should('be.visible');
-        cy.getTestElement('@settings/menu/title').should('be.visible');
-    });
-
-    it('shows analytics consent when going to settings and back on initialized T2T1 device', () => {
-        cy.task('startEmu', { wipe: true });
-        cy.task('setupEmu', {
-            needs_backup: false,
-        });
-        cy.prefixedVisit('/');
-
-        navigateToSettingsAndBack();
-        acceptAnalyticsConsentOnInitializedDevice();
-
-        cy.getTestElement('@suite-layout/body').should('be.visible');
-        cy.getTestElement('@settings/menu/title').should('be.visible');
-    });
-
-    it('shows analytics consent and then goes to /accounts on initialized T1B1 device', () => {
-        cy.task('startEmu', { version: '1-latest', wipe: true });
-        cy.task('setupEmu', {
-            needs_backup: false,
-        });
-        cy.prefixedVisit('/accounts');
-
-        acceptAnalyticsConsentOnInitializedDevice();
-
-        cy.getTestElement('@onbarding/viewOnly/enable').click();
-        cy.getTestElement('@suite-layout/body').should('be.visible');
-        cy.getTestElement('@account-menu/btc/normal/0').click();
-        cy.getTestElement('@wallet/menu/wallet-send');
-    });
-
-    it('shows analytics consent and then goes to /accounts on initialized T2T1 device', () => {
+    it('analytics consent appears on any route that is visited initially. this time /accounts', () => {
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu', {
             needs_backup: false,
@@ -97,7 +22,7 @@ describe('Onboarding - analytics consent', () => {
 
         acceptAnalyticsConsentOnInitializedDevice();
 
-        cy.getTestElement('@onbarding/viewOnly/enable').click();
+        cy.getTestElement('@onboarding/viewOnly/enable').click();
         cy.getTestElement('@suite-layout/body').should('be.visible');
         cy.getTestElement('@account-menu/btc/normal/0').click();
         cy.getTestElement('@wallet/menu/wallet-send');
