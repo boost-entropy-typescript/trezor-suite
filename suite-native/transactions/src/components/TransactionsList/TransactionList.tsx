@@ -12,7 +12,7 @@ import {
     TransactionsRootState,
 } from '@suite-common/wallet-core';
 import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
-import { groupTransactionsByDate, MonthKey } from '@suite-common/wallet-utils';
+import { groupTransactionsByDate, isPending, MonthKey } from '@suite-common/wallet-utils';
 import { Box, Loader } from '@suite-native/atoms';
 import {
     EthereumTokenTransfer,
@@ -21,6 +21,7 @@ import {
 } from '@suite-native/ethereum-tokens';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { SettingsSliceRootState } from '@suite-native/settings';
+import { arrayPartition } from '@trezor/utils';
 
 import { TransactionsEmptyState } from '../TransactionsEmptyState';
 import { TokenTransferListItem } from './TokenTransferListItem';
@@ -72,6 +73,25 @@ const sectionListStyle = prepareNativeStyle(utils => ({
 const sectionListContainerStyle = prepareNativeStyle(utils => ({
     paddingVertical: utils.spacings.small,
 }));
+
+const sortKeysPendingFirst = (a: string, b: string) => {
+    if (a === 'pending' && b === 'pending') return 0;
+    if (a === 'pending') return -1;
+    if (b === 'pending') return 1;
+
+    const dateA = new Date(a);
+    const dateB = new Date(b);
+
+    return dateA.getTime() - dateB.getTime();
+};
+
+const sortPendingTransactions = (a: WalletAccountTransaction, b: WalletAccountTransaction) => {
+    if (a.blockTime === undefined && b.blockTime === undefined) return 0;
+    if (a.blockTime === undefined) return -1;
+    if (b.blockTime === undefined) return 1;
+
+    return a.blockTime - b.blockTime;
+};
 
 const renderTransactionItem = ({
     item,
@@ -162,8 +182,22 @@ export const TransactionList = ({
     }, [dispatch, accountKey, fetchTransactions]);
 
     const data = useMemo((): TransactionListItem[] => {
-        const accountTransactionsByMonth = groupTransactionsByDate(transactions, 'month');
-        const transactionMonthKeys = Object.keys(accountTransactionsByMonth) as MonthKey[];
+        // groupTransactionsByDate now sorts also pending transactions, if they have blockTime set.
+        // This is here to keep the original behavior of having pending transactions in one group
+        // at the beginning of the list.
+        const [pendingTxs, confirmedTxs] = arrayPartition(transactions, isPending);
+        const accountTransactionsByMonth = groupTransactionsByDate(confirmedTxs, 'month');
+        if (pendingTxs.length || accountTransactionsByMonth['no-blocktime']) {
+            accountTransactionsByMonth['pending'] = [
+                ...(accountTransactionsByMonth['no-blocktime'] ?? []),
+                ...pendingTxs.sort(sortPendingTransactions),
+            ];
+            delete accountTransactionsByMonth['no-blocktime'];
+        }
+
+        const transactionMonthKeys = Object.keys(accountTransactionsByMonth).sort(
+            sortKeysPendingFirst,
+        ) as MonthKey[];
 
         if (tokenContract) {
             return transactionMonthKeys.flatMap(monthKey => [

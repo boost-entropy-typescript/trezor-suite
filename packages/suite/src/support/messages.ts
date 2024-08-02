@@ -3404,6 +3404,15 @@ export default defineMessages({
         defaultMessage: 'TEST COIN',
         id: 'TR_TESTNET_COINS_LABEL',
     },
+    TR_UNSUPPORTED_COINS: {
+        defaultMessage: 'Supported on newer Trezors',
+        id: 'TR_UNSUPPORTED_COINS',
+    },
+    TR_UNSUPPORTED_COINS_DESCRIPTION: {
+        defaultMessage:
+            'These coins are supported on Trezor Safe family devices and the Trezor Model T.',
+        id: 'TR_UNSUPPORTED_COINS_DESCRIPTION',
+    },
     TR_THE_PIN_LAYOUT_IS_DISPLAYED: {
         defaultMessage: 'Check <b>{deviceLabel}</b> screen for the keypad layout.',
         id: 'TR_THE_PIN_LAYOUT_IS_DISPLAYED',
@@ -8633,7 +8642,7 @@ export default defineMessages({
     TR_STAKE_ANY_AMOUNT_ETH: {
         id: 'TR_STAKE_ANY_AMOUNT_ETH',
         defaultMessage:
-            'Stake any amount and watch that sweet {symbol} roll in. With our current APY rate of {apyPercent}%, your rewards earn too!',
+            'Stake a minimum amount of {amount} {symbol} and start earning rewards. With our current APY rate of {apyPercent}%, your rewards earn too!',
     },
     TR_STAKE_LEARN_MORE: {
         id: 'TR_STAKE_LEARN_MORE',
@@ -8757,6 +8766,10 @@ export default defineMessages({
     TR_TX_CONFIRMING: {
         id: 'TR_TX_CONFIRMING',
         defaultMessage: 'Confirming transaction',
+    },
+    ZERO_BALANCE_TOKENS: {
+        id: 'ZERO_BALANCE_TOKENS',
+        defaultMessage: 'Zero balance tokens ({count})',
     },
     TR_STAKE_ADDING_TO_POOL: {
         id: 'TR_STAKE_ADDING_TO_POOL',
@@ -9160,5 +9173,13 @@ export default defineMessages({
     TR_OPEN_TREZOR_SUITE_DESKTOP: {
         id: 'TR_OPEN_TREZOR_SUITE_DESKTOP',
         defaultMessage: 'Open Trezor Suite desktop app',
+    },
+    TR_AUTO_START: {
+        id: 'TR_AUTO_START',
+        defaultMessage: 'Run Trezor Suite automatically',
+    },
+    TR_AUTO_START_DESCRIPTION: {
+        id: 'TR_AUTO_START_DESCRIPTION',
+        defaultMessage: 'Start Trezor Suite in the background when you log in to your computer.',
     },
 });

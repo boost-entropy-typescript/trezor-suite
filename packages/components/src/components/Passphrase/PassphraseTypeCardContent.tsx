@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Card } from '../Card/Card';
 import { Column, Row } from '../Flex/Flex';
-import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+import { PasswordStrengthIndicator } from '../PasswordStrengthIndicator/PasswordStrengthIndicator';
 import styled, { useTheme } from 'styled-components';
 import { Input } from '../form/Input/Input';
 import { spacings, spacingsPx, typography } from '@trezor/theme';

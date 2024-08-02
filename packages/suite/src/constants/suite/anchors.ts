@@ -14,6 +14,7 @@ export const enum SettingsAnchor {
     ClearStorage = '@general-settings/clear-storage',
     VersionWithUpdate = '@general-settings/version-with-update',
     EarlyAccess = '@general-settings/early-access',
+    AutoStart = '@general-settings/auto-start',
 
     BackupFailed = '@device-settings/backup-failed',
     BackupRecoverySeed = '@device-settings/backup-recovery-seed',
@@ -36,6 +37,7 @@ export const enum SettingsAnchor {
 
     Crypto = '@coin-settings/crypto',
     TestnetCrypto = '@coin-settings/testnet-crypto',
+    UnsupportedCrypto = '@coin-settings/unsupported-crypto',
 
     TranslationMode = '@debug-settings/translation-mode',
     GithubIssue = '@debug-settings/github-issue',
