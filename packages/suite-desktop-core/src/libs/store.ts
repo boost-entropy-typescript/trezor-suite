@@ -56,7 +56,12 @@ export class Store {
     }
 
     public getTorSettings() {
-        return this.store.get('torSettings', { running: false });
+        return this.store.get('torSettings', {
+            running: false,
+            port: 9050,
+            host: '127.0.0.1',
+            snowflakeBinaryPath: '',
+        });
     }
 
     public setTorSettings(torSettings: TorSettings) {

@@ -96,15 +96,12 @@ declare type UpdateSettings = {
     allowPrerelease: boolean;
 };
 
-declare type TorSettings =
-    | {
-          running: false; // Tor should be disabled
-      }
-    | {
-          running: true; // Tor should be enabled
-          host: string; // Hostname of the tor process through which traffic is routed
-          port: number; // Port of the tor process through which traffic is routed
-      };
+declare type TorSettings = {
+    running: boolean; // Tor should be enabled
+    host: string; // Hostname of the tor process through which traffic is routed
+    port: number; // Port of the tor process through which traffic is routed
+    snowflakeBinaryPath: string; // Path in user system to the snowflake binary
+};
 
 declare type BridgeSettings = {
     /**

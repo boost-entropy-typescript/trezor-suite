@@ -10,6 +10,7 @@ const host = '127.0.0.1';
 const port = 38835;
 const controlPort = 35527;
 const processId = process.pid;
+const snowflakeBinaryPath = '';
 
 // 1 minute before timeout, because Tor might be slow to start.
 jest.setTimeout(60000);
@@ -28,7 +29,7 @@ describe('Interceptor', () => {
     let torController: TorController;
     let torIdentities: TorIdentities;
 
-    const torSettings = { running: true, host, port };
+    const torSettings = { running: true, host, port, snowflakeBinaryPath };
 
     const INTERCEPTOR = {
         handler: () => {},
@@ -44,8 +45,9 @@ describe('Interceptor', () => {
             port,
             controlPort,
             torDataDir,
+            snowflakeBinaryPath,
         });
-        const torParams = torController.getTorConfiguration(processId);
+        const torParams = await torController.getTorConfiguration(processId);
         // Starting Tor process from binary.
         torProcess = torRunner({
             torParams,

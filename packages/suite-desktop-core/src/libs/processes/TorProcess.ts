@@ -1,13 +1,7 @@
 import { TorController, TOR_CONTROLLER_STATUS } from '@trezor/request-manager';
+import { TorConnectionOptions } from '@trezor/request-manager/src/types';
 
 import { BaseProcess, Status } from './BaseProcess';
-
-interface TorConnectionOptions {
-    host: string;
-    port: number;
-    controlPort: number;
-    torDataDir: string;
-}
 
 export type TorProcessStatus = Status & { isBootstrapping?: boolean };
 
@@ -17,6 +11,7 @@ export class TorProcess extends BaseProcess {
     controlPort: number;
     torHost: string;
     torDataDir: string;
+    snowflakeBinaryPath: string;
 
     constructor(options: TorConnectionOptions) {
         super('tor', 'tor');
@@ -25,13 +20,19 @@ export class TorProcess extends BaseProcess {
         this.controlPort = options.controlPort;
         this.torHost = options.host;
         this.torDataDir = options.torDataDir;
+        this.snowflakeBinaryPath = '';
 
         this.torController = new TorController({
             host: this.torHost,
             port: this.port,
             controlPort: this.controlPort,
             torDataDir: this.torDataDir,
+            snowflakeBinaryPath: this.snowflakeBinaryPath,
         });
+    }
+
+    setTorConfig(torConfig: Pick<TorConnectionOptions, 'snowflakeBinaryPath'>) {
+        this.snowflakeBinaryPath = torConfig.snowflakeBinaryPath;
     }
 
     async status(): Promise<TorProcessStatus> {
@@ -46,7 +47,10 @@ export class TorProcess extends BaseProcess {
 
     async start(): Promise<void> {
         const electronProcessId = process.pid;
-        const torConfiguration = this.torController.getTorConfiguration(electronProcessId);
+        const torConfiguration = await this.torController.getTorConfiguration(
+            electronProcessId,
+            this.snowflakeBinaryPath,
+        );
 
         await super.start(torConfiguration);
 
