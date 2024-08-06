@@ -2900,9 +2900,9 @@ export default defineMessages({
         defaultMessage: 'Ethereum Holesky',
         id: 'TR_NETWORK_ETHEREUM_HOLESKY',
     },
-    TR_NETWORK_BSC: {
+    TR_NETWORK_BNB: {
         defaultMessage: 'BNB Smart Chain',
-        id: 'TR_NETWORK_BSC',
+        id: 'TR_NETWORK_BNB',
     },
     TR_NETWORK_LITECOIN: {
         defaultMessage: 'Litecoin',
@@ -5177,6 +5177,15 @@ export default defineMessages({
         id: 'TR_EXPERIMENTAL_FEATURES_DESCRIPTION',
         defaultMessage:
             'For experienced users only. Use at your own risk.\nSelect which experimental features to enable in Trezor Suite to experience the latest advancements and innovations.',
+    },
+    TR_EXPERIMENTAL_BNB_SMART_CHAIN: {
+        id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN',
+        defaultMessage: 'BNB Smart Chain',
+    },
+    TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON: {
+        id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON',
+        defaultMessage:
+            'Allows to enable network BNB Smart Chain. Missing historical internal transactions.',
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER',

@@ -309,7 +309,7 @@ export const networks = {
     sol: {
         name: 'Solana',
         networkType: 'solana',
-        bip43Path: "m/44'/501'/i'/0'",
+        bip43Path: "m/44'/501'/i'/0'", // phantom - bip44Change
         decimals: 9,
         testnet: false,
         features: ['tokens', 'coin-definitions' /*, 'staking' */],
@@ -325,7 +325,12 @@ export const networks = {
             [DeviceModelInternal.T3T1]: '2.7.1',
         },
         customBackends: ['solana'],
-        accountTypes: {},
+        accountTypes: {
+            ledger: {
+                // bip44Change - Ledger Live
+                bip43Path: "m/44'/501'/i'",
+            },
+        },
         coingeckoId: 'solana',
     },
     matic: {
@@ -347,7 +352,7 @@ export const networks = {
         accountTypes: {},
         coingeckoId: 'polygon-pos',
     },
-    bsc: {
+    bnb: {
         name: 'BNB Smart Chain',
         networkType: 'ethereum',
         chainId: 56,
@@ -365,7 +370,6 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'binance-smart-chain',
-        isDebugOnly: true,
     },
     // testnets
     test: {
@@ -603,8 +607,14 @@ export const networksCompatibility: Network[] = Object.entries(networks).flatMap
     ],
 );
 
-export const getMainnets = (debug = false) =>
-    networksCompatibility.filter(n => !n.accountType && !n.testnet && (!n.isDebugOnly || debug));
+export const getMainnets = (debug = false, bnb = false) =>
+    networksCompatibility.filter(
+        n =>
+            !n.accountType &&
+            !n.testnet &&
+            (!n.isDebugOnly || debug) &&
+            (bnb || n.symbol !== 'bnb'),
+    );
 
 export const getTestnets = (debug = false) =>
     networksCompatibility.filter(
