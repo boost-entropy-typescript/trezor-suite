@@ -37,8 +37,8 @@ let popup: Page;
 
 test.beforeAll(async () => {
     await TrezorUserEnvLink.connect();
-    await TrezorUserEnvLink.api.stopBridge();
-    await TrezorUserEnvLink.api.stopEmu();
+    await TrezorUserEnvLink.stopBridge();
+    await TrezorUserEnvLink.stopEmu();
 });
 
 const fixtures = [
@@ -129,6 +129,7 @@ fixtures.forEach(f => {
         [popup] = await Promise.all([
             context.waitForEvent('page'),
             page.locator("button[data-test='@submit-button']").click({ timeout: 30000 }),
+            page.waitForSelector("[data-test='@submit-button/spinner']"),
         ]);
         log('waiting for analytics');
         await waitAndClick(popup, ['@analytics/continue-button']);

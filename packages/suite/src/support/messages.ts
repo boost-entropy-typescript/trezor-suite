@@ -3248,7 +3248,7 @@ export default defineMessages({
         id: 'TR_WRONG_PIN_ENTERED',
     },
     TR_PASSWORD_MANAGER: {
-        defaultMessage: 'Trezor Password Manager',
+        defaultMessage: 'Migrate Dropbox password',
         id: 'TR_PASSWORD_MANAGER',
     },
     TR_SETTINGS: {
@@ -3409,8 +3409,7 @@ export default defineMessages({
         id: 'TR_UNSUPPORTED_COINS',
     },
     TR_UNSUPPORTED_COINS_DESCRIPTION: {
-        defaultMessage:
-            'These coins are supported on Trezor Safe family devices and the Trezor Model T.',
+        defaultMessage: 'These coins are supported on Trezor Safe devices and Trezor Model T.',
         id: 'TR_UNSUPPORTED_COINS_DESCRIPTION',
     },
     TR_THE_PIN_LAYOUT_IS_DISPLAYED: {
@@ -4102,7 +4101,7 @@ export default defineMessages({
     },
     TR_TOR_CONFIG_SNOWFLAKE_DISABLE_LABEL: {
         id: 'TR_TOR_CONFIG_SNOWFLAKE_DISABLE_LABEL',
-        defaultMessage: 'Disable snowflake',
+        defaultMessage: 'Disable Snowflake',
     },
     TR_TOR_ENABLE_TITLE: {
         id: 'TR_TOR_ENABLE_TITLE',
@@ -5181,16 +5180,16 @@ export default defineMessages({
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER',
-        defaultMessage: 'Trezor Password Manager',
+        defaultMessage: 'Migrate Dropbox password',
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER_DESCRIPTION',
         defaultMessage:
-            'Add Trezor Password Manager to Trezor Suite, allowing you to use your Trezor device as a master password.',
+            'A utility for retrieving passwords stored on Dropbox and secured by Trezor, designed for former Chrome extension users of Password Manager.',
     },
     TR_EXPERIMENTAL_TOR_SNOWFLAKE: {
         id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE',
-        defaultMessage: 'Tor snowflake',
+        defaultMessage: 'Tor Snowflake',
     },
     TR_EXPERIMENTAL_TOR_SNOWFLAKE_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE_DESCRIPTION',
@@ -8818,7 +8817,7 @@ export default defineMessages({
     },
     ZERO_BALANCE_TOKENS: {
         id: 'ZERO_BALANCE_TOKENS',
-        defaultMessage: 'Zero balance tokens ({count})',
+        defaultMessage: 'Zero-balance tokens',
     },
     TR_STAKE_ADDING_TO_POOL: {
         id: 'TR_STAKE_ADDING_TO_POOL',
@@ -9225,10 +9224,10 @@ export default defineMessages({
     },
     TR_AUTO_START: {
         id: 'TR_AUTO_START',
-        defaultMessage: 'Run Trezor Suite automatically',
+        defaultMessage: 'Start Trezor Suite automatically',
     },
     TR_AUTO_START_DESCRIPTION: {
         id: 'TR_AUTO_START_DESCRIPTION',
-        defaultMessage: 'Start Trezor Suite in the background when you log in to your computer.',
+        defaultMessage: 'Start Trezor Suite in the background when you log into your computer.',
     },
 });

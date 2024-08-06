@@ -11571,7 +11571,6 @@ __metadata:
     "@types/w3c-web-usb": "npm:^1.0.10"
     cross-fetch: "npm:^4.0.0"
     jest: "npm:29.7.0"
-    json-stable-stringify: "npm:^1.1.1"
     long: "npm:^4.0.0"
     protobufjs: "npm:7.2.6"
     ts-node: "npm:^10.9.1"
@@ -11587,8 +11586,10 @@ __metadata:
   resolution: "@trezor/trezor-user-env-link@workspace:packages/trezor-user-env-link"
   dependencies:
     "@trezor/utils": "workspace:*"
+    "@types/semver": "npm:^7.5.6"
     "@types/ws": "npm:^8.5.5"
     cross-fetch: "npm:^4.0.0"
+    semver: "npm:^7.6.0"
     ws: "npm:^8.18.0"
   languageName: unknown
   linkType: soft
