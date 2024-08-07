@@ -22,9 +22,6 @@ export interface ExchangeInfo {
 export type CoinmarketExchangeAction =
     | { type: typeof COINMARKET_EXCHANGE.SAVE_EXCHANGE_INFO; exchangeInfo: ExchangeInfo }
     | {
-          type: typeof COINMARKET_EXCHANGE.CLEAR_QUOTE_REQUEST;
-      }
-    | {
           type: typeof COINMARKET_EXCHANGE.SAVE_QUOTE_REQUEST;
           request: ExchangeTradeQuoteRequest;
       }
@@ -32,11 +29,10 @@ export type CoinmarketExchangeAction =
     | { type: typeof COINMARKET_EXCHANGE.VERIFY_ADDRESS; addressVerified: string }
     | {
           type: typeof COINMARKET_EXCHANGE.SAVE_QUOTES;
-          fixedQuotes: ExchangeTrade[];
-          floatQuotes: ExchangeTrade[];
-          dexQuotes: ExchangeTrade[];
+          quotes: ExchangeTrade[];
       }
     | { type: typeof COINMARKET_EXCHANGE.CLEAR_QUOTES }
+    | { type: typeof COINMARKET_EXCHANGE.SET_COINMARKET_ACCOUNT; account: Account }
     | {
           type: typeof COINMARKET_COMMON.SAVE_TRADE;
           date: string;
@@ -126,24 +122,14 @@ export const saveQuoteRequest = (request: ExchangeTradeQuoteRequest): Coinmarket
     request,
 });
 
-export const clearQuoteRequest = (): CoinmarketExchangeAction => ({
-    type: COINMARKET_EXCHANGE.CLEAR_QUOTE_REQUEST,
-});
-
 export const saveTransactionId = (transactionId: string): CoinmarketExchangeAction => ({
     type: COINMARKET_EXCHANGE.SAVE_TRANSACTION_ID,
     transactionId,
 });
 
-export const saveQuotes = (
-    fixedQuotes: ExchangeTrade[],
-    floatQuotes: ExchangeTrade[],
-    dexQuotes: ExchangeTrade[],
-): CoinmarketExchangeAction => ({
+export const saveQuotes = (quotes: ExchangeTrade[]): CoinmarketExchangeAction => ({
     type: COINMARKET_EXCHANGE.SAVE_QUOTES,
-    fixedQuotes,
-    floatQuotes,
-    dexQuotes,
+    quotes,
 });
 
 export const clearQuotes = (): CoinmarketExchangeAction => ({

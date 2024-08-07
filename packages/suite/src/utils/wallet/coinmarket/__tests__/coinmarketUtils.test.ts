@@ -8,8 +8,39 @@ import {
     getSendCryptoOptions,
     getTagAndInfoNote,
     buildCryptoOption,
+    getBestRatedQuote,
+    coinmarketBuildCryptoOptions,
+    addIdsToQuotes,
+    filterQuotesAccordingTags,
+    coinmarketGetSortedAccounts,
+    coinmarketBuildAccountOptions,
+    coinmarketGetRoundedFiatAmount,
+    coinmarketGetAmountLabels,
+    coinmarketGetAccountLabel,
 } from '../coinmarketUtils';
-import { accountBtc, accountEth, coinDefinitions } from '../__fixtures__/coinmarketUtils';
+import {
+    FIXTURE_ACCOUNTS,
+    accountBtc,
+    accountEth,
+    coinDefinitions,
+} from '../__fixtures__/coinmarketUtils';
+import * as BUY_FIXTURE from 'src/utils/wallet/coinmarket/__fixtures__/buyUtils';
+import * as SELL_FIXTURE from 'src/utils/wallet/coinmarket/__fixtures__/sellUtils';
+import * as EXCHANGE_FIXTURE from 'src/utils/wallet/coinmarket/__fixtures__/exchangeUtils';
+import { CryptoSymbol, CryptoSymbolInfo } from 'invity-api';
+import {
+    CryptoCategoryA,
+    CryptoCategoryB,
+    CryptoCategoryC,
+    CryptoCategoryD,
+    CryptoCategoryE,
+} from 'src/constants/wallet/coinmarket/cryptoCategories';
+import { useAccountLabel } from 'src/components/suite/AccountLabel';
+
+jest.mock('src/components/suite/AccountLabel', () => ({
+    ...jest.requireActual('src/components/suite/AccountLabel'),
+    useAccountLabel: jest.fn(),
+}));
 
 describe('coinmarket utils', () => {
     it('buildFiatOption', () => {
@@ -17,15 +48,20 @@ describe('coinmarket utils', () => {
     });
 
     it('buildCryptoOption', () => {
-        expect(buildCryptoOption('btc')).toStrictEqual({
+        expect(buildCryptoOption('BTC')).toStrictEqual({
             value: 'BTC',
             label: 'BTC',
-            cryptoSymbol: 'BTC',
+            cryptoName: 'Bitcoin',
         });
-        expect(buildCryptoOption('eth')).toStrictEqual({
+        expect(buildCryptoOption('ETH')).toStrictEqual({
             value: 'ETH',
             label: 'ETH',
-            cryptoSymbol: 'ETH',
+            cryptoName: 'Ethereum',
+        });
+        expect(buildCryptoOption('USDT@ETH')).toStrictEqual({
+            value: 'USDT@ETH',
+            label: 'USDT',
+            cryptoName: 'Ethereum',
         });
     });
 
@@ -163,5 +199,280 @@ describe('coinmarket utils', () => {
             infoNote: 'Bar',
             tag: 'Foo',
         });
+    });
+
+    it('filterQuotesAccordingTags', () => {
+        const quotes = [
+            ...BUY_FIXTURE.MIN_MAX_QUOTES_OK,
+            ...BUY_FIXTURE.ALTERNATIVE_QUOTES,
+            ...SELL_FIXTURE.MIN_MAX_QUOTES_HIGH,
+        ];
+
+        expect(filterQuotesAccordingTags([])).toStrictEqual([]);
+        expect(filterQuotesAccordingTags(quotes).length).toStrictEqual(
+            quotes.filter(q => !q.tags || !q.tags.includes('alternativeCurrency')).length,
+        );
+    });
+
+    it('addIdsToQuotes', () => {
+        const quotes = [...BUY_FIXTURE.MIN_MAX_QUOTES_OK];
+        const quotesExchange = [...EXCHANGE_FIXTURE.MIN_MAX_QUOTES_OK];
+
+        expect(addIdsToQuotes([], 'buy')).toStrictEqual([]);
+        expect(addIdsToQuotes(quotes, 'buy').length).toStrictEqual(
+            quotes.filter(q => q.orderId && q.paymentId).length,
+        );
+        expect(addIdsToQuotes(quotesExchange, 'exchange').length).toStrictEqual(
+            quotesExchange.filter(q => q.orderId).length,
+        );
+    });
+
+    describe('getBestRatedQuote', () => {
+        it('buy trades (shuffled with error)', () => {
+            expect(getBestRatedQuote(BUY_FIXTURE.MIN_MAX_QUOTES_OK, 'buy')).toStrictEqual(
+                BUY_FIXTURE.MIN_MAX_QUOTES_OK[1],
+            );
+        });
+        it('sell trades', () => {
+            expect(getBestRatedQuote(SELL_FIXTURE.MIN_MAX_QUOTES_OK, 'sell')).toStrictEqual(
+                SELL_FIXTURE.MIN_MAX_QUOTES_OK[0],
+            );
+        });
+        it('exchange trades (shuffled)', () => {
+            expect(getBestRatedQuote(EXCHANGE_FIXTURE.MIN_MAX_QUOTES_OK, 'exchange')).toStrictEqual(
+                EXCHANGE_FIXTURE.MIN_MAX_QUOTES_OK[EXCHANGE_FIXTURE.MIN_MAX_QUOTES_OK.length - 1],
+            );
+        });
+    });
+
+    it('function coinmarketBuildCryptoOptions', () => {
+        const symbolsInfo: CryptoSymbolInfo[] = [
+            {
+                symbol: 'BTC',
+                name: 'Bitcoin',
+                category: 'Popular currencies',
+            },
+            {
+                symbol: 'ETH',
+                name: 'Ethereum',
+                category: 'Popular currencies',
+            },
+            {
+                symbol: 'USDT@ETH',
+                name: 'Tether',
+                category: 'Ethereum ERC20 tokens',
+            },
+            {
+                symbol: 'USDT@MATIC',
+                name: 'Tether',
+                category: 'Polygon ERC20 tokens',
+            },
+        ];
+        const cryptoCurrencies: Set<CryptoSymbol> = new Set([
+            'BTC',
+            'ETH',
+            'USDT@ETH',
+            'USDT@MATIC',
+            'VEN',
+            'STEEM',
+        ]);
+
+        expect(
+            coinmarketBuildCryptoOptions({
+                symbolsInfo,
+                cryptoCurrencies,
+            }),
+        ).toStrictEqual([
+            {
+                label: CryptoCategoryA,
+                options: [
+                    {
+                        value: 'BTC',
+                        label: 'BTC',
+                        cryptoName: 'Bitcoin',
+                    },
+                    {
+                        value: 'ETH',
+                        label: 'ETH',
+                        cryptoName: 'Ethereum',
+                    },
+                ],
+            },
+            {
+                label: CryptoCategoryB,
+                options: [
+                    {
+                        value: 'USDT@ETH',
+                        label: 'USDT',
+                        cryptoName: 'Tether',
+                    },
+                ],
+            },
+            {
+                label: CryptoCategoryC,
+                options: [],
+            },
+            {
+                label: CryptoCategoryD,
+                options: [
+                    {
+                        value: 'USDT@MATIC',
+                        label: 'USDT',
+                        cryptoName: 'Tether',
+                    },
+                ],
+            },
+            {
+                label: CryptoCategoryE,
+                options: [
+                    {
+                        value: 'VEN',
+                        label: 'VEN',
+                        cryptoName: null,
+                    },
+                    {
+                        value: 'STEEM',
+                        label: 'STEEM',
+                        cryptoName: null,
+                    },
+                ],
+            },
+        ]);
+    });
+
+    it('coinmarketGetSortedAccounts', () => {
+        const sortedAccounts = coinmarketGetSortedAccounts({
+            accounts: FIXTURE_ACCOUNTS as Account[],
+            deviceState: 'deviceState',
+        });
+
+        expect(sortedAccounts).toStrictEqual([
+            FIXTURE_ACCOUNTS[0],
+            FIXTURE_ACCOUNTS[1],
+            FIXTURE_ACCOUNTS[2],
+        ]);
+    });
+
+    it('coinmarketBuildAccountOptions', () => {
+        const symbolsInfo: CryptoSymbolInfo[] = [
+            {
+                symbol: 'BTC',
+                name: 'Bitcoin',
+                category: 'Popular currencies',
+            },
+            {
+                symbol: 'LTC',
+                name: 'Litecoin',
+                category: 'Popular currencies',
+            },
+            {
+                symbol: 'USDT@ETH',
+                name: 'Tether',
+                category: 'Ethereum ERC20 tokens',
+            },
+            {
+                symbol: 'ETH',
+                name: 'Ethereum',
+                category: 'Popular currencies',
+            },
+        ];
+        const label = 'mocked label';
+        const defaultAccountLabelString = (useAccountLabel as jest.Mock).mockImplementation(
+            () => label,
+        );
+
+        const sortedAccounts = coinmarketBuildAccountOptions({
+            accounts: FIXTURE_ACCOUNTS as Account[],
+            deviceState: 'deviceState',
+            accountLabels: {},
+            defaultAccountLabelString,
+            symbolsInfo,
+        });
+
+        expect(sortedAccounts).toStrictEqual([
+            {
+                label,
+                options: [
+                    {
+                        balance: '0',
+                        cryptoName: 'Bitcoin',
+                        descriptor: 'descriptor1',
+                        label: 'BTC',
+                        value: 'BTC',
+                    },
+                ],
+            },
+            {
+                label,
+                options: [
+                    {
+                        balance: '0.101213',
+                        cryptoName: 'Litecoin',
+                        descriptor: 'descriptor2',
+                        label: 'LTC',
+                        value: 'LTC',
+                    },
+                ],
+            },
+            {
+                label,
+                options: [
+                    {
+                        balance: '0',
+                        cryptoName: 'Ethereum',
+                        descriptor: 'descriptor3',
+                        label: 'ETH',
+                        value: 'ETH',
+                    },
+                    {
+                        balance: '2.76149',
+                        contractAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+                        cryptoName: 'Tether',
+                        descriptor: 'descriptor3',
+                        label: 'USDT',
+                        value: 'USDT@ETH',
+                    },
+                ],
+            },
+        ]);
+    });
+
+    it('coinmarketGetAmountLabels', () => {
+        expect(coinmarketGetAmountLabels({ type: 'sell', amountInCrypto: true })).toEqual({
+            label1: 'TR_COINMARKET_YOU_PAY',
+            label2: 'TR_COINMARKET_YOU_GET',
+            labelComparatorOffer: 'TR_COINMARKET_YOU_WILL_GET',
+        });
+
+        expect(coinmarketGetAmountLabels({ type: 'sell', amountInCrypto: false })).toEqual({
+            label1: 'TR_COINMARKET_YOU_GET',
+            label2: 'TR_COINMARKET_YOU_PAY',
+            labelComparatorOffer: 'TR_COINMARKET_YOU_WILL_PAY',
+        });
+
+        expect(coinmarketGetAmountLabels({ type: 'buy', amountInCrypto: true })).toEqual({
+            label1: 'TR_COINMARKET_YOU_GET',
+            label2: 'TR_COINMARKET_YOU_PAY',
+            labelComparatorOffer: 'TR_COINMARKET_YOU_WILL_PAY',
+        });
+
+        expect(coinmarketGetAmountLabels({ type: 'buy', amountInCrypto: false })).toEqual({
+            label1: 'TR_COINMARKET_YOU_PAY',
+            label2: 'TR_COINMARKET_YOU_GET',
+            labelComparatorOffer: 'TR_COINMARKET_YOU_WILL_GET',
+        });
+    });
+
+    it('coinmarketBuildAccountOptions', () => {
+        expect(coinmarketGetRoundedFiatAmount('0.23923')).toBe('0.24');
+        expect(coinmarketGetRoundedFiatAmount('0.24423')).toBe('0.24');
+        expect(coinmarketGetRoundedFiatAmount('0.2')).toBe('0.20');
+    });
+
+    it('coinmarketGetAccountLabel', () => {
+        expect(coinmarketGetAccountLabel('BTC', true)).toBe('sat');
+        expect(coinmarketGetAccountLabel('BTC', false)).toBe('BTC');
+        expect(coinmarketGetAccountLabel('USDT', true)).toBe('USDT');
+        expect(coinmarketGetAccountLabel('USDT', false)).toBe('USDT');
     });
 });

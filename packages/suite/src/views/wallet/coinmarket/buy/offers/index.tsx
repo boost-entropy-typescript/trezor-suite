@@ -1,23 +1,23 @@
-import styled from 'styled-components';
-import { withSelectedAccountLoaded, WithSelectedAccountLoadedProps } from 'src/components/wallet';
-import { CoinmarketBuyOffersContext, useOffers } from 'src/hooks/wallet/useCoinmarketBuyOffers';
+import { withSelectedAccountLoaded } from 'src/components/wallet';
 import Offers from './Offers';
+import { UseCoinmarketProps } from 'src/types/coinmarket/coinmarket';
+import { CoinmarketOffersContext } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
+import useCoinmarketBuyForm from 'src/hooks/wallet/coinmarket/form/useCoinmarketBuyForm';
+import { CoinmarketFormContext } from 'src/hooks/wallet/coinmarket/form/useCoinmarketCommonForm';
 
-const Wrapper = styled.div`
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-`;
+const OffersIndex = (props: UseCoinmarketProps) => {
+    const coinmarketBuyFormContextValues = useCoinmarketBuyForm({
+        ...props,
+        pageType: 'offers',
+    });
 
-const OffersIndex = (props: WithSelectedAccountLoadedProps) => {
-    const coinmarketOffersValues = useOffers(props);
-
+    // CoinmarketOffersContext.Provider is temporary FIX
     return (
-        <CoinmarketBuyOffersContext.Provider value={coinmarketOffersValues}>
-            <Wrapper>
+        <CoinmarketFormContext.Provider value={coinmarketBuyFormContextValues}>
+            <CoinmarketOffersContext.Provider value={coinmarketBuyFormContextValues}>
                 <Offers />
-            </Wrapper>
-        </CoinmarketBuyOffersContext.Provider>
+            </CoinmarketOffersContext.Provider>
+        </CoinmarketFormContext.Provider>
     );
 };
 

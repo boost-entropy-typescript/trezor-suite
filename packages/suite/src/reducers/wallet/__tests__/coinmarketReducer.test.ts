@@ -39,6 +39,28 @@ describe('settings reducer', () => {
         ).toEqual(initialState);
     });
 
+    it('COINMARKET_COMMON.SET_MODAL_CRYPTO_CURRENCY', () => {
+        expect(
+            reducer(undefined, {
+                type: COINMARKET_COMMON.SET_MODAL_CRYPTO_CURRENCY,
+                modalCryptoSymbol: 'ANKR@ETH',
+            }),
+        ).toEqual({
+            ...initialState,
+            modalCryptoSymbol: 'ANKR@ETH',
+        });
+
+        expect(
+            reducer(undefined, {
+                type: COINMARKET_COMMON.SET_MODAL_CRYPTO_CURRENCY,
+                modalCryptoSymbol: undefined,
+            }),
+        ).toEqual({
+            ...initialState,
+            modalCryptoSymbol: undefined,
+        });
+    });
+
     it('COINMARKET_INFO.SAVE_SYMBOLS_INFO', () => {
         const symbolsInfo: CryptoSymbolInfo[] = [
             {
@@ -62,6 +84,11 @@ describe('settings reducer', () => {
 
     it('COINMARKET_BUY.SAVE_BUY_INFO', () => {
         const buyInfo: BuyInfo = {
+            buyInfo: {
+                country: 'cz',
+                providers: [],
+                defaultAmountsOfFiatCurrencies: new Map([['usd', '1000']]),
+            },
             providerInfos: {},
             supportedCryptoCurrencies: new Set(['BTC', 'ETH']),
             supportedFiatCurrencies: new Set(['usd']),
@@ -142,16 +169,14 @@ describe('settings reducer', () => {
                 paymentMethod: 'creditCard',
             },
         ];
-        const alternativeQuotes: BuyTrade[] = [];
         expect(
             reducer(undefined, {
                 type: COINMARKET_BUY.SAVE_QUOTES,
                 quotes,
-                alternativeQuotes,
             }),
         ).toEqual({
             ...initialState,
-            buy: { ...initialState.buy, quotes, alternativeQuotes },
+            buy: { ...initialState.buy, quotes },
         });
     });
 
@@ -219,17 +244,6 @@ describe('settings reducer', () => {
         ).toEqual({
             ...initialState,
             exchange: { ...initialState.exchange, quotesRequest: request },
-        });
-    });
-
-    it('COINMARKET_EXCHANGE.CLEAR_QUOTE_REQUEST', () => {
-        expect(
-            reducer(undefined, {
-                type: COINMARKET_EXCHANGE.CLEAR_QUOTE_REQUEST,
-            }),
-        ).toEqual({
-            ...initialState,
-            exchange: { ...initialState.exchange, quotesRequest: undefined },
         });
     });
 
@@ -370,7 +384,7 @@ describe('settings reducer', () => {
             }),
         ).toEqual({
             ...initialState,
-            buy: { ...initialState.buy, quotes: undefined, alternativeQuotes: undefined },
+            buy: { ...initialState.buy, quotes: undefined },
         });
     });
 
@@ -381,7 +395,7 @@ describe('settings reducer', () => {
             }),
         ).toEqual({
             ...initialState,
-            exchange: { ...initialState.exchange, fixedQuotes: undefined, floatQuotes: undefined },
+            exchange: { ...initialState.exchange, quotes: undefined },
         });
     });
 
@@ -392,7 +406,7 @@ describe('settings reducer', () => {
             }),
         ).toEqual({
             ...initialState,
-            sell: { ...initialState.sell, quotes: undefined, alternativeQuotes: undefined },
+            sell: { ...initialState.sell, quotes: undefined },
         });
     });
 });

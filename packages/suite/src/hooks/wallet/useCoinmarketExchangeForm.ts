@@ -1,7 +1,7 @@
 import { createContext, useContext, useCallback, useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import type { ExchangeTradeQuoteRequest } from 'invity-api';
+import type { CryptoSymbol, ExchangeTradeQuoteRequest } from 'invity-api';
 import useDebounce from 'react-use/lib/useDebounce';
 
 import {
@@ -34,10 +34,15 @@ import {
     CRYPTO_INPUT,
     FIAT_INPUT,
     FIAT_CURRENCY,
-    UseCoinmarketExchangeFormProps,
 } from 'src/types/wallet/coinmarketExchangeForm';
-import { getComposeAddressPlaceholder } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import { getAmountLimits, splitToQuoteCategories } from 'src/utils/wallet/coinmarket/exchangeUtils';
+import {
+    addIdsToQuotes,
+    getComposeAddressPlaceholder,
+} from 'src/utils/wallet/coinmarket/coinmarketUtils';
+import {
+    getAmountLimits,
+    getSuccessQuotesOrdered,
+} from 'src/utils/wallet/coinmarket/exchangeUtils';
 import { useFormDraft } from 'src/hooks/wallet/useFormDraft';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
 import type { AppState } from 'src/types/suite';
@@ -54,13 +59,14 @@ import { networkToCryptoSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolU
 import { FiatCurrencyCode } from '@suite-common/suite-config';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 import { TokenAddress } from '@suite-common/wallet-types';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { CoinmarketTradeExchangeType, UseCoinmarketProps } from 'src/types/coinmarket/coinmarket';
+import { BigNumber } from '@trezor/utils';
 
 export const ExchangeFormContext = createContext<ExchangeFormContextValues | null>(null);
 ExchangeFormContext.displayName = 'CoinmarketExchangeContext';
 
 const useExchangeState = (
-    selectedAccount: UseCoinmarketExchangeFormProps['selectedAccount'],
+    selectedAccount: UseCoinmarketProps['selectedAccount'],
     fees: AppState['wallet']['fees'],
     currentState: boolean,
     defaultFormValues?: ExchangeFormState,
@@ -83,7 +89,7 @@ const useExchangeState = (
 
 export const useCoinmarketExchangeForm = ({
     selectedAccount,
-}: UseCoinmarketExchangeFormProps): ExchangeFormContextValues => {
+}: UseCoinmarketProps): ExchangeFormContextValues => {
     const [state, setState] = useState<ReturnType<typeof useExchangeState>>(undefined);
 
     const accounts = useSelector(state => state.wallet.accounts);
@@ -358,8 +364,8 @@ export const useCoinmarketExchangeForm = ({
                 : unformattedOutputAmount;
         if (formValues.receiveCryptoSelect) {
             const request: ExchangeTradeQuoteRequest = {
-                receive: formValues.receiveCryptoSelect.cryptoSymbol!,
-                send: formValues.sendCryptoSelect.cryptoSymbol!,
+                receive: formValues.receiveCryptoSelect.value as CryptoSymbol,
+                send: formValues.sendCryptoSelect.value as CryptoSymbol,
                 sendStringAmount,
                 dex: 'enable',
             };
@@ -370,11 +376,11 @@ export const useCoinmarketExchangeForm = ({
                 if (limits) {
                     setAmountLimits(limits);
                 } else {
-                    const [fixedQuotes, floatQuotes, dexQuotes] = splitToQuoteCategories(
-                        allQuotes,
-                        exchangeInfo,
+                    const successQuotes = addIdsToQuotes<CoinmarketTradeExchangeType>(
+                        getSuccessQuotesOrdered(allQuotes, exchangeInfo),
+                        'exchange',
                     );
-                    dispatch(saveQuotes(fixedQuotes, floatQuotes, dexQuotes));
+                    dispatch(saveQuotes(successQuotes));
                     navigateToExchangeOffers();
                 }
             } else {

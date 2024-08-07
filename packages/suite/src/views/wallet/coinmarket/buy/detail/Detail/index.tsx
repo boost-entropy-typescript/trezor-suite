@@ -1,14 +1,18 @@
 import styled from 'styled-components';
 import { Card, variables } from '@trezor/components';
-import { useCoinmarketBuyDetailContext } from 'src/hooks/wallet/useCoinmarketBuyDetail';
 import { goto } from 'src/actions/suite/routerActions';
 import { useDispatch, useLayout } from 'src/hooks/suite';
 import { PageHeader } from 'src/components/suite/layouts/SuiteLayout';
-import { CoinmarketBuyOfferInfo } from '../../components/CoinmarketBuyOfferInfo';
-import PaymentFailed from '../components/PaymentFailed';
-import PaymentProcessing from '../components/PaymentProcessing';
-import PaymentSuccessful from '../components/PaymentSuccessful';
-import WaitingForUser from '../components/WaitingForUser';
+import { useCoinmarketDetailContext } from 'src/hooks/wallet/coinmarket/useCoinmarketDetail';
+import {
+    CoinmarketGetCryptoQuoteAmountProps,
+    CoinmarketTradeBuyType,
+} from 'src/types/coinmarket/coinmarket';
+import { CoinmarketSelectedOfferInfo } from 'src/views/wallet/coinmarket/common/CoinmarketSelectedOffer/CoinmarketSelectedOfferInfo';
+import PaymentSuccessful from 'src/views/wallet/coinmarket/buy/detail/components/PaymentSuccessful';
+import WaitingForUser from 'src/views/wallet/coinmarket/buy/detail/components/WaitingForUser';
+import PaymentProcessing from 'src/views/wallet/coinmarket/buy/detail/components/PaymentProcessing';
+import PaymentFailed from 'src/views/wallet/coinmarket/buy/detail/components/PaymentFailed';
 
 const Wrapper = styled.div`
     display: flex;
@@ -27,9 +31,8 @@ const StyledCard = styled(Card)`
 const CoinmarketDetail = () => {
     useLayout('Trezor Suite | Trade', () => <PageHeader backRoute="wallet-coinmarket-buy" />);
 
-    const { account, trade, buyInfo } = useCoinmarketBuyDetailContext();
+    const { trade, info, account } = useCoinmarketDetailContext<CoinmarketTradeBuyType>();
     const dispatch = useDispatch();
-
     // if trade not found, it is because user refreshed the page and stored transactionId got removed
     // go to the default coinmarket page, the trade is shown there in the previous trades
     if (!trade) {
@@ -54,9 +57,17 @@ const CoinmarketDetail = () => {
 
     const exchange = trade?.data?.exchange;
     const provider =
-        buyInfo && buyInfo.providerInfos && exchange ? buyInfo.providerInfos[exchange] : undefined;
+        info && info.providerInfos && exchange ? info.providerInfos[exchange] : undefined;
     const supportUrlTemplate = provider?.statusUrl || provider?.supportUrl;
     const supportUrl = supportUrlTemplate?.replace('{{paymentId}}', trade?.data?.paymentId || '');
+
+    const quoteAmounts: CoinmarketGetCryptoQuoteAmountProps = {
+        amountInCrypto: trade?.data?.wantCrypto,
+        sendAmount: trade?.data?.fiatStringAmount ?? '',
+        sendCurrency: trade?.data?.fiatCurrency,
+        receiveAmount: trade?.data?.receiveAmount?.toString() ?? '',
+        receiveCurrency: trade?.data?.receiveCurrency,
+    };
 
     return (
         <Wrapper>
@@ -72,11 +83,12 @@ const CoinmarketDetail = () => {
                 )}
                 {showSuccess && <PaymentSuccessful account={account} />}
             </StyledCard>
-            <CoinmarketBuyOfferInfo
-                account={account}
+            <CoinmarketSelectedOfferInfo
                 selectedQuote={trade.data}
                 transactionId={trade.key}
-                providers={buyInfo?.providerInfos}
+                providers={info?.providerInfos}
+                quoteAmounts={quoteAmounts}
+                type="buy"
             />
         </Wrapper>
     );

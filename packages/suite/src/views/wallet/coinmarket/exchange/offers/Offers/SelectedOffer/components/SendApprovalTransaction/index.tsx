@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Translation, AccountLabeling } from 'src/components/suite';
 import { Button, Spinner, Radio, variables, Paragraph } from '@trezor/components';
-import { useCoinmarketExchangeOffersContext } from 'src/hooks/wallet/useCoinmarketExchangeOffers';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
 import { DexApprovalType, ExchangeTrade } from 'invity-api';
 import useTimeoutFn from 'react-use/lib/useTimeoutFn';
 import useUnmount from 'react-use/lib/useUnmount';
 import invityAPI from 'src/services/suite/invityAPI';
+import { useCoinmarketOffersContext } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
+import { CoinmarketTradeExchangeType } from 'src/types/coinmarket/coinmarket';
+import { CoinmarketExchangeOffersContextProps } from 'src/types/coinmarket/coinmarketOffers';
 
 // add APPROVED means no approval request is necessary
 type ExtendedDexApprovalType = DexApprovalType | 'APPROVED';
@@ -87,7 +89,8 @@ const SendApprovalTransactionComponent = () => {
         confirmTrade,
         sendTransaction,
         setExchangeStep,
-    } = useCoinmarketExchangeOffersContext();
+    } =
+        useCoinmarketOffersContext<CoinmarketTradeExchangeType>() as unknown as CoinmarketExchangeOffersContextProps; // FIXME: exchange
     const [approvalType, setApprovalType] = useState<ExtendedDexApprovalType>(
         selectedQuote?.status === 'CONFIRM' ? 'APPROVED' : 'MINIMAL',
     );
@@ -105,8 +108,14 @@ const SendApprovalTransactionComponent = () => {
     });
     useEffect(() => {
         if (selectedQuote && shouldRefresh(selectedQuote)) {
-            cancelRefresh();
-            invityAPI.watchExchangeTrade(selectedQuote, refreshCount).then(response => {
+            const watchTradeAsync = async () => {
+                cancelRefresh();
+                const response = await invityAPI.watchTrade<'exchange'>(
+                    selectedQuote,
+                    'exchange',
+                    refreshCount,
+                );
+
                 if (response.status && response.status !== selectedQuote.status) {
                     selectedQuote.status = response.status;
                     selectedQuote.error = response.error;
@@ -116,7 +125,9 @@ const SendApprovalTransactionComponent = () => {
                     }
                 }
                 resetRefresh();
-            });
+            };
+
+            watchTradeAsync();
         }
     }, [cancelRefresh, confirmTrade, refreshCount, resetRefresh, selectedQuote, setSelectedQuote]);
 

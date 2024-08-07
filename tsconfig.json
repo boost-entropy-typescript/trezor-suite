@@ -48,7 +48,11 @@
         { "path": "suite-native/atoms" },
         { "path": "suite-native/biometrics" },
         { "path": "suite-native/blockchain" },
+        { "path": "suite-native/coin-enabling" },
         { "path": "suite-native/config" },
+        {
+            "path": "suite-native/connection-status"
+        },
         { "path": "suite-native/device" },
         {
             "path": "suite-native/device-authorization"

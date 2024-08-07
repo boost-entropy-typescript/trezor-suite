@@ -32,6 +32,7 @@ export const icons = {
     clockClockwise: require('../assets/icons/clockClockwise.svg'),
     close: require('../assets/icons/close.svg'),
     closeCircle: require('../assets/icons/closeCircle.svg'),
+    coins: require('../assets/icons/coins.svg'),
     confirmation: require('../assets/icons/confirmation.svg'),
     copy: require('../assets/icons/copy.svg'),
     database: require('../assets/icons/database.svg'),
@@ -116,6 +117,7 @@ export const icons = {
     warningOctagon: require('../assets/icons/warningOctagon.svg'),
     warningTriangle: require('../assets/icons/warningTriangle.svg'),
     warningTriangleLight: require('../assets/icons/warningTriangleLight.svg'),
+    wifiSlash: require('../assets/icons/wifiSlash.svg'),
 } as const;
 export type IconName = keyof typeof icons;
 

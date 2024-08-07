@@ -23,10 +23,10 @@ export type CoinmarketSellAction =
     | { type: typeof COINMARKET_SELL.SAVE_QUOTE_REQUEST; request: SellFiatTradeQuoteRequest }
     | { type: typeof COINMARKET_SELL.SAVE_TRANSACTION_ID; transactionId?: string }
     | { type: typeof COINMARKET_SELL.SET_IS_FROM_REDIRECT; isFromRedirect: boolean }
+    | { type: typeof COINMARKET_SELL.SET_COINMARKET_ACCOUNT; account: Account }
     | {
           type: typeof COINMARKET_SELL.SAVE_QUOTES;
           quotes: SellFiatTrade[];
-          alternativeQuotes: SellFiatTrade[];
       }
     | { type: typeof COINMARKET_SELL.CLEAR_QUOTES }
     | {
@@ -103,13 +103,9 @@ export const saveTransactionId = (transactionId?: string): CoinmarketSellAction 
     transactionId,
 });
 
-export const saveQuotes = (
-    quotes: SellFiatTrade[],
-    alternativeQuotes: SellFiatTrade[],
-): CoinmarketSellAction => ({
+export const saveQuotes = (quotes: SellFiatTrade[]): CoinmarketSellAction => ({
     type: COINMARKET_SELL.SAVE_QUOTES,
     quotes,
-    alternativeQuotes,
 });
 
 export const clearQuotes = (): CoinmarketSellAction => ({
@@ -119,6 +115,11 @@ export const clearQuotes = (): CoinmarketSellAction => ({
 export const setIsFromRedirect = (isFromRedirect: boolean): CoinmarketSellAction => ({
     type: COINMARKET_SELL.SET_IS_FROM_REDIRECT,
     isFromRedirect,
+});
+
+export const setCoinmarketSellAccount = (account: Account): CoinmarketSellAction => ({
+    type: COINMARKET_SELL.SET_COINMARKET_ACCOUNT,
+    account,
 });
 
 // this is only a wrapper for `openDeferredModal` since it doesn't work with `bindActionCreators`

@@ -5,7 +5,6 @@ import {
     ExchangeTradeQuoteRequest,
     ConfirmExchangeTradeRequest,
     ExchangeTrade,
-    WatchExchangeTradeResponse,
     BuyListResponse,
     BuyTradeQuoteRequest,
     BuyTradeQuoteResponse,
@@ -13,7 +12,6 @@ import {
     BuyTradeResponse,
     BuyTradeFormResponse,
     BuyTrade,
-    WatchBuyTradeResponse,
     CountryInfo,
     SellListResponse,
     SellVoucherTradeQuoteRequest,
@@ -25,11 +23,18 @@ import {
     SellFiatTradeQuoteResponse,
     SellFiatTradeRequest,
     SellFiatTradeResponse,
-    WatchSellTradeResponse,
     CryptoSymbolsResponse,
+    SavingsPaymentMethod,
+    SellCryptoPaymentMethod,
+    BuyCryptoPaymentMethod,
 } from 'invity-api';
 import { getSuiteVersion, isDesktop } from '@trezor/env-utils';
 import type { InvityServerEnvironment, InvityServers } from '@suite-common/invity';
+import {
+    CoinmarketTradeDetailType,
+    CoinmarketTradeType,
+    CoinmarketWatchTradeResponseMapProps,
+} from 'src/types/coinmarket/coinmarket';
 
 type BodyType =
     | BuyTrade
@@ -41,6 +46,8 @@ type BodyType =
     | SellVoucherTradeQuoteRequest
     | SellVoucherTradeRequest
     | SellFiatTradeRequest;
+
+type SignalType = AbortSignal | null | undefined;
 
 class InvityAPI {
     unknownCountry = 'unknown';
@@ -120,7 +127,12 @@ class InvityAPI {
         }
     }
 
-    private options(body: BodyType = {}, method = 'POST', apiHeaderValue?: string): any {
+    private options(
+        body: BodyType = {},
+        method = 'POST',
+        apiHeaderValue?: string,
+        signal?: SignalType,
+    ): any {
         const apiHeader = isDesktop() ? 'X-SuiteA-Api' : 'X-SuiteW-Api';
 
         return {
@@ -137,19 +149,21 @@ class InvityAPI {
             ...(method === 'POST' && {
                 body: JSON.stringify(body),
             }),
+            signal,
         };
     }
 
-    private request(
+    private async request(
         url: string,
         body: BodyType = {},
         method = 'POST',
         apiHeaderValue?: string,
+        signal?: SignalType,
     ): Promise<any> {
         const finalUrl = `${this.getApiServerUrl()}${url}`;
-        const opts = this.options(body, method, apiHeaderValue);
+        const opts = this.options(body, method, apiHeaderValue, signal);
 
-        return fetch(finalUrl, opts).then(response => {
+        return await fetch(finalUrl, opts).then(response => {
             if (response.ok) {
                 return response.json();
             }
@@ -211,12 +225,15 @@ class InvityAPI {
 
     getExchangeQuotes = async (
         params: ExchangeTradeQuoteRequest,
+        signal?: SignalType,
     ): Promise<ExchangeTrade[] | undefined> => {
         try {
             const response: ExchangeTradeQuoteResponse = await this.request(
                 this.EXCHANGE_QUOTES,
                 params,
                 'POST',
+                undefined,
+                signal,
             );
 
             return response;
@@ -241,25 +258,6 @@ class InvityAPI {
         }
     };
 
-    watchExchangeTrade = async (
-        trade: ExchangeTrade,
-        counter: number,
-    ): Promise<WatchExchangeTradeResponse> => {
-        try {
-            const response: WatchExchangeTradeResponse = await this.request(
-                this.EXCHANGE_WATCH_TRADE.replace('{{counter}}', counter.toString()),
-                trade,
-                'POST',
-            );
-
-            return response;
-        } catch (error) {
-            console.log('[watchExchangeTrade]', error);
-
-            return { error: error.toString() };
-        }
-    };
-
     getBuyList = async (): Promise<BuyListResponse | undefined> => {
         try {
             const response = await this.request(this.BUY_LIST, {}, 'GET');
@@ -270,12 +268,17 @@ class InvityAPI {
         }
     };
 
-    getBuyQuotes = async (params: BuyTradeQuoteRequest): Promise<BuyTrade[] | undefined> => {
+    getBuyQuotes = async (
+        params: BuyTradeQuoteRequest,
+        signal?: SignalType,
+    ): Promise<BuyTrade[] | undefined> => {
         try {
             const response: BuyTradeQuoteResponse = await this.request(
                 this.BUY_QUOTES,
                 params,
                 'POST',
+                undefined,
+                signal,
             );
 
             return response;
@@ -311,22 +314,6 @@ class InvityAPI {
             return response;
         } catch (error) {
             console.log('[getBuyTradeForm]', error);
-
-            return { error: error.toString() };
-        }
-    };
-
-    watchBuyTrade = async (trade: BuyTrade, counter: number): Promise<WatchBuyTradeResponse> => {
-        try {
-            const response: WatchBuyTradeResponse = await this.request(
-                this.BUY_WATCH_TRADE.replace('{{counter}}', counter.toString()),
-                trade,
-                'POST',
-            );
-
-            return response;
-        } catch (error) {
-            console.log('[watchBuyTrade]', error);
 
             return { error: error.toString() };
         }
@@ -394,12 +381,15 @@ class InvityAPI {
 
     getSellQuotes = async (
         params: SellFiatTradeQuoteRequest,
+        signal?: SignalType,
     ): Promise<SellFiatTrade[] | undefined> => {
         try {
             const response: SellFiatTradeQuoteResponse = await this.request(
                 this.SELL_FIAT_QUOTES,
                 params,
                 'POST',
+                undefined,
+                signal,
             );
 
             return response;
@@ -440,28 +430,61 @@ class InvityAPI {
         }
     };
 
-    watchSellTrade = async (
-        trade: SellFiatTrade,
+    getCoinLogoUrl(coin: string): string {
+        return `${this.getApiServerUrl()}/images/coins/suite/${coin}.svg`;
+    }
+
+    getProviderLogoUrl(logo: string): string {
+        return `${this.getApiServerUrl()}/images/exchange/${logo}`;
+    }
+
+    getPaymentMethodUrl(
+        paymentMethod: BuyCryptoPaymentMethod | SellCryptoPaymentMethod | SavingsPaymentMethod,
+    ): string {
+        return `${this.getApiServerUrl()}/images/paymentMethods/suite/${paymentMethod}.svg`;
+    }
+
+    private getWatchTradeData = (tradeType: CoinmarketTradeType) => {
+        const tradesData = {
+            exchange: {
+                url: this.EXCHANGE_WATCH_TRADE,
+                logPrefix: '[watchExchangeTrade]',
+            },
+            buy: {
+                url: this.BUY_WATCH_TRADE,
+                logPrefix: '[watchBuyTrade]',
+            },
+
+            sell: {
+                url: this.SELL_FIAT_WATCH_TRADE,
+                logPrefix: '[watchSellFiatTrade]',
+            },
+        };
+
+        return tradesData[tradeType];
+    };
+
+    watchTrade = async <T extends CoinmarketTradeType>(
+        tradeData: CoinmarketTradeDetailType,
+        tradeType: CoinmarketTradeType,
         counter: number,
-    ): Promise<WatchSellTradeResponse> => {
+    ): Promise<CoinmarketWatchTradeResponseMapProps[T]> => {
+        const tradesData = this.getWatchTradeData(tradeType);
+
         try {
-            const response: WatchSellTradeResponse = await this.request(
-                this.SELL_FIAT_WATCH_TRADE.replace('{{counter}}', counter.toString()),
-                trade,
+            const response: CoinmarketWatchTradeResponseMapProps[T] = await this.request(
+                tradesData.url.replace('{{counter}}', counter.toString()),
+                tradeData,
                 'POST',
             );
 
             return response;
         } catch (error) {
-            console.log('[watchSellFiatTrade]', error);
+            console.log(tradesData.logPrefix, error);
 
             return { error: error.toString() };
         }
     };
-
-    getCoinLogoUrl(coin: string): string {
-        return `${this.getApiServerUrl()}/images/coins/suite/${coin}.svg`;
-    }
 }
 
 const invityAPI = new InvityAPI();
