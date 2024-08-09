@@ -3409,7 +3409,7 @@ export default defineMessages({
         id: 'TR_WRONG_PIN_ENTERED',
     },
     TR_PASSWORD_MANAGER: {
-        defaultMessage: 'Migrate Dropbox password',
+        defaultMessage: 'Migrate Dropbox passwords',
         id: 'TR_PASSWORD_MANAGER',
     },
     TR_SETTINGS: {
@@ -5332,12 +5332,7 @@ export default defineMessages({
     TR_EXPERIMENTAL_FEATURES_WARNING: {
         id: 'TR_EXPERIMENTAL_FEATURES_WARNING',
         defaultMessage:
-            'Note, these features are in testing, may be unstable, and might not have long-term support.',
-    },
-    TR_EXPERIMENTAL_FEATURES_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_FEATURES_DESCRIPTION',
-        defaultMessage:
-            'For experienced users only. Use at your own risk.\nSelect which experimental features to enable in Trezor Suite to experience the latest advancements and innovations.',
+            'For experienced users only. Use at your own risk. These features are in testing, may be unstable, and might not have long-term support.',
     },
     TR_EXPERIMENTAL_BNB_SMART_CHAIN: {
         id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN',
@@ -5350,12 +5345,12 @@ export default defineMessages({
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER',
-        defaultMessage: 'Migrate Dropbox password',
+        defaultMessage: 'Migrate Dropbox passwords',
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER_DESCRIPTION',
         defaultMessage:
-            'A utility for retrieving passwords stored on Dropbox and secured by Trezor, designed for former Chrome extension users of Password Manager.',
+            'A utility for retrieving passwords stored on Dropbox and secured by Trezor, designed for former Chrome extension users of Trezor Password Manager.',
     },
     TR_EXPERIMENTAL_TOR_SNOWFLAKE: {
         id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE',
@@ -7344,6 +7339,64 @@ export default defineMessages({
         defaultMessage:
             'Trezor Support will never ask you to turn off the device check. This feature has been designed to ensure your security.',
     },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE',
+        defaultMessage: 'Turn off firmware revision check',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE_DISABLED: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE_DISABLED',
+        defaultMessage: 'Turn on firmware revision check',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION',
+        defaultMessage:
+            'Firmware revision check is a vital security feature. We don’t recommend turning it off.',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION_DISABLED: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION_DISABLED',
+        defaultMessage:
+            'Firmware revision is a vital security feature. We strongly recommend turning it on.',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON',
+        defaultMessage: 'Turn off',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON_DISABLED: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON_DISABLED',
+        defaultMessage: 'Turn on',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_HEADING: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_HEADING',
+        defaultMessage: 'Essential to understand',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_BUTTON: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_BUTTON',
+        defaultMessage: 'Turn off',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_CHECKBOX_TITLE: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_CHECKBOX_TITLE',
+        defaultMessage: 'I’ve read and understood the above',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_1: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_1',
+        defaultMessage:
+            "Only turn off the firmware revision check if you're fully aware of what you're doing and have clear reasons for doing so. If you're uncertain, contact Trezor Support for assistance.",
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_2: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_2',
+        defaultMessage:
+            'Don’t turn off this feature unless your device has successfully passed the check before. Using an unverified device may lead to the loss of your funds.',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_3: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_3',
+        defaultMessage:
+            'Trezor Support will never ask you to turn off the firmware revision check. This feature has been designed to ensure your security.',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_UNABLE_TO_PERFORM: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_UNABLE_TO_PERFORM',
+        defaultMessage:
+            'Firmware check cannot be performed. To verify your firmware revision go online.',
+    },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
         defaultMessage: 'Activate coins',
@@ -8860,7 +8913,7 @@ export default defineMessages({
     TR_STAKE_ANY_AMOUNT_ETH: {
         id: 'TR_STAKE_ANY_AMOUNT_ETH',
         defaultMessage:
-            'Stake any amount and watch that sweet {symbol} roll in. With our current APY rate of {apyPercent}%, your rewards earn too!',
+            'Stake a minimum amount of {amount} {symbol} and start earning rewards. With our current APY rate of {apyPercent}%, your rewards earn too!',
     },
     TR_STAKE_LEARN_MORE: {
         id: 'TR_STAKE_LEARN_MORE',

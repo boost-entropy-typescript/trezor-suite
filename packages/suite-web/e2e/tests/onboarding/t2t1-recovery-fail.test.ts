@@ -11,6 +11,16 @@ describe('Onboarding - recover wallet T2T1', () => {
         // in production, and we locally bumped emulator version, we would get into a screen saying "update your firmware" and the test would fail.
         cy.task('startEmu', { wipe: true, version: '2-master' });
 
+        // Disable revision check. On emulator '2-master' it wont pass as it is unreleased version
+        cy.getTestElement('@device-compromised').should('be.visible');
+        cy.getTestElement('@suite/menu/settings').click();
+        cy.getTestElement('@settings/menu/device').click();
+        cy.getTestElement('@settings/device/open-firmware-revision-check-modal-button').click();
+        cy.getTestElement('@device-firmware-revision/checkbox').click();
+        cy.getTestElement('@device-firmware-revision/opt-out-button').click();
+        cy.getTestElement('@settings/menu/close').click();
+
+        // Continue with test
         cy.getTestElement('@analytics/continue-button').click();
         cy.getTestElement('@analytics/continue-button').click();
 
