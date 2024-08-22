@@ -5,14 +5,15 @@ import { Color, borders } from '@trezor/theme';
 import { KEYBOARD_CODE } from '../../../constants/keyboardEvents';
 import { getFocusShadowStyle } from '../../../utils/utils';
 import {
-    CheckboxVariant,
     Label,
     LabelAlignment,
+    VerticalAlignment,
     variantStyles,
     Container,
     HiddenInput,
     CheckContainer,
 } from '../Checkbox/Checkbox';
+import { UIVariant } from '../../../config/types';
 
 interface VariantStyles {
     borderChecked: Color;
@@ -20,7 +21,10 @@ interface VariantStyles {
     borderDisabledChecked: Color;
 }
 
-const radioVariantStyles: Record<CheckboxVariant, VariantStyles> = {
+export const radioVariants = ['primary', 'destructive', 'warning'] as const;
+export type RadioVariant = Extract<UIVariant, (typeof radioVariants)[number]>;
+
+const radioVariantStyles: Record<RadioVariant, VariantStyles> = {
     primary: {
         borderChecked: 'backgroundSecondaryDefault',
         dotDisabledChecked: 'backgroundPrimarySubtleOnElevation0',
@@ -98,10 +102,11 @@ const RadioIcon = styled(CheckContainer)`
 `;
 
 export interface RadioProps {
-    variant?: CheckboxVariant;
+    variant?: RadioVariant;
     isChecked?: boolean;
     isDisabled?: boolean;
     labelAlignment?: LabelAlignment;
+    verticalAlignment?: VerticalAlignment;
     onClick: EventHandler<SyntheticEvent>;
     'data-testid'?: string;
     children?: ReactNode;
@@ -110,7 +115,8 @@ export interface RadioProps {
 export const Radio = ({
     variant = 'primary',
     isChecked,
-    labelAlignment,
+    labelAlignment = 'right',
+    verticalAlignment = 'top',
     isDisabled = false,
     onClick,
     'data-testid': dataTest,
@@ -131,6 +137,7 @@ export const Radio = ({
             onKeyUp={handleKeyUp}
             $isDisabled={isDisabled}
             $labelAlignment={labelAlignment}
+            $verticalAlignment={verticalAlignment}
             data-checked={isChecked}
             data-testid={dataTest}
         >

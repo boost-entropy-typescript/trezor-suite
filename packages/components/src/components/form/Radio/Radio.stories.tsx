@@ -2,7 +2,7 @@ import { useArgs } from '@storybook/client-api';
 import styled from 'styled-components';
 import { Meta, StoryObj } from '@storybook/react';
 
-import { Radio as RadioComponent, RadioProps } from './Radio';
+import { Radio as RadioComponent, RadioProps, radioVariants } from './Radio';
 import { H2 } from '../../typography/Heading/Heading';
 
 const Wrapper = styled.div`
@@ -37,19 +37,27 @@ export const RadioButton: StoryObj<RadioProps> = {
         variant: 'primary',
         isChecked: false,
         isDisabled: false,
+        labelAlignment: 'right',
+        verticalAlignment: 'top',
     },
     argTypes: {
         variant: {
             control: {
                 type: 'radio',
             },
-            options: ['primary', 'warning', 'destructive'],
+            options: radioVariants,
         },
         labelAlignment: {
             control: {
                 type: 'radio',
             },
-            options: [null, 'left', 'right'],
+            options: ['left', 'right'],
+        },
+        verticalAlignment: {
+            control: {
+                type: 'radio',
+            },
+            options: ['top', 'center'],
         },
     },
 };
