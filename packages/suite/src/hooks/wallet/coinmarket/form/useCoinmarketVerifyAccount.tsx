@@ -73,7 +73,7 @@ const getSuiteReceiveAccounts = ({
             n =>
                 n.symbol === receiveNetwork &&
                 !unavailableCapabilities[n.symbol] &&
-                ((n.isDebugOnly && isDebug) || !n.isDebugOnly),
+                ((n.isDebugOnlyNetwork && isDebug) || !n.isDebugOnlyNetwork),
         );
         if (receiveNetworks.length > 0) {
             // get accounts of the current symbol belonging to the current device
@@ -92,17 +92,20 @@ const getSuiteReceiveAccounts = ({
 const useCoinmarketVerifyAccount = ({
     currency,
 }: CoinmarketVerifyAccountProps): CoinmarketVerifyAccountReturnProps => {
+    const selectedAccount = useSelector(state => state.wallet.selectedAccount);
     const accounts = useSelector(state => state.wallet.accounts);
     const isDebug = useSelector(selectIsDebugModeActive);
     const device = useSelector(selectDevice);
     const dispatch = useDispatch();
+    const [isMenuOpen, setIsMenuOpen] = useState<boolean | undefined>(undefined);
 
     const methods = useForm<CoinmarketVerifyFormProps>({
         mode: 'onChange',
     });
 
-    const [selectedAccountOption, setSelectedAccountOption] =
-        useState<CoinmarketVerifyFormAccountOptionProps>();
+    const [selectedAccountOption, setSelectedAccountOption] = useState<
+        CoinmarketVerifyFormAccountOptionProps | undefined
+    >();
 
     const receiveNetwork = currency && cryptoToNetworkSymbol(currency);
     const suiteReceiveAccounts = getSuiteReceiveAccounts({
@@ -113,7 +116,11 @@ const useCoinmarketVerifyAccount = ({
         accounts,
     });
     const selectAccountOptions = getSelectAccountOptions(suiteReceiveAccounts, device);
-    const preselectedAccount = selectAccountOptions[0];
+    const preselectedAccount =
+        selectAccountOptions.find(
+            accountOption =>
+                accountOption.account?.descriptor === selectedAccount.account?.descriptor,
+        ) ?? selectAccountOptions[0];
 
     const { address } = methods.getValues();
     const addressDictionary = useAccountAddressDictionary(selectedAccountOption?.account);
@@ -132,6 +139,7 @@ const useCoinmarketVerifyAccount = ({
 
     const onChangeAccount = (account: CoinmarketVerifyFormAccountOptionProps) => {
         if (account.type === 'ADD_SUITE' && device) {
+            setIsMenuOpen(true);
             dispatch(
                 openModal({
                     type: 'add-account',
@@ -144,6 +152,7 @@ const useCoinmarketVerifyAccount = ({
             return;
         }
 
+        setIsMenuOpen(undefined);
         selectAccountOption(account);
     };
 
@@ -167,6 +176,7 @@ const useCoinmarketVerifyAccount = ({
         receiveNetwork,
         selectAccountOptions,
         selectedAccountOption,
+        isMenuOpen,
         getTranslationIds,
         onChangeAccount,
     };

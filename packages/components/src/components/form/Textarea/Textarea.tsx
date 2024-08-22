@@ -55,6 +55,11 @@ const StyledTextarea = styled.textarea<{ $inputState?: InputState; $elevation: E
     border: none;
     resize: none;
     white-space: pre-wrap;
+
+    &:disabled {
+        cursor: not-allowed;
+        pointer-events: auto;
+    }
 `;
 
 const TextareaLabel = styled(Label)`
@@ -83,7 +88,7 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
     hasBottomPadding?: boolean;
     value?: string;
     characterCount?: CharacterCountProps['characterCount'];
-    'data-test'?: string;
+    'data-testid'?: string;
 }
 
 export const Textarea = ({
@@ -91,7 +96,7 @@ export const Textarea = ({
     value,
     maxLength,
     labelHoverRight,
-    isDisabled,
+    isDisabled = false,
     innerRef,
     label,
     inputState,
@@ -101,7 +106,7 @@ export const Textarea = ({
     labelRight,
     characterCount,
     hasBottomPadding = true,
-    'data-test': dataTest,
+    'data-testid': dataTest,
     ...rest
 }: TextareaProps) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -130,7 +135,7 @@ export const Textarea = ({
                     disabled={isDisabled}
                     $inputState={inputState}
                     rows={rows}
-                    data-test={dataTest}
+                    data-testid={dataTest}
                     placeholder={placeholder || ''} // needed for uncontrolled inputs
                     ref={innerRef}
                     value={value}

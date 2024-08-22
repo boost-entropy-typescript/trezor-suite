@@ -89,13 +89,13 @@ const SendLoaded = ({ children, selectedAccount }: SendLoadedProps) => {
             <SendContext.Provider value={sendContextValues}>
                 <SendHeader />
 
-                <FormGrid data-test="@wallet/send/outputs-and-options">
+                <FormGrid data-testid="@wallet/send/outputs-and-options">
                     <Outputs disableAnim={!!children} />
                     <Options />
                     <SendFees />
 
                     {symbol === 'dsol' && (
-                        <Warning withIcon>
+                        <Warning icon>
                             <Translation id="TR_SOLANA_DEVNET_SHORTCUT_WARNING" />
                         </Warning>
                     )}

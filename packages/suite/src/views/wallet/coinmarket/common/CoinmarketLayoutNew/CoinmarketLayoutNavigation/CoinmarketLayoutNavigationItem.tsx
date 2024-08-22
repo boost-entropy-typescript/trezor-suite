@@ -75,9 +75,8 @@ const CoinmarketLayoutNavigationItem = ({
             <ButtonWrapper
                 size="small"
                 variant="tertiary"
-                title={title}
                 onClick={handleTransactionRoute}
-                data-test={`@coinmarket/menu/${transactionsRoute}`}
+                data-testid={`@coinmarket/menu/${transactionsRoute}`}
             >
                 <Translation id={title} />
             </ButtonWrapper>
@@ -86,7 +85,7 @@ const CoinmarketLayoutNavigationItem = ({
 
     return (
         <NavListItemWrapper
-            data-test={`@coinmarket/menu/${route}`}
+            data-testid={`@coinmarket/menu/${route}`}
             nameId={title}
             isActive={routeName === route}
             icon={icon ?? 'receive'}

@@ -6,7 +6,7 @@ import { ErrorBoundary } from '@trezor/connect-ui/src/support/ErrorBoundary';
 import { GlobalStyle } from '@trezor/connect-ui/src/support/GlobalStyle';
 import { InfoPanel } from '@trezor/connect-ui/src/components/InfoPanel';
 import { View } from '@trezor/connect-ui/src/components/View';
-import { Button, Paragraph, THEME } from '@trezor/components';
+import { Button, Paragraph, intermediaryTheme } from '@trezor/components';
 import { LogMessage } from '@trezor/connect/src/utils/debug';
 
 interface ReactWrapperProps {
@@ -17,7 +17,7 @@ const MAX_ENTRIES = 1000;
 const LOG_DEBOUNCE_TIME = 1000;
 
 const ThemeWrapper = ({ children }: ReactWrapperProps) => (
-    <ThemeProvider theme={THEME.light}>{children}</ThemeProvider>
+    <ThemeProvider theme={intermediaryTheme.light}>{children}</ThemeProvider>
 );
 
 const Layout = styled.div`
@@ -70,7 +70,7 @@ const DownloadButton = ({ array, filename }: { array: any[]; filename: string })
     };
 
     return (
-        <Button data-test="@log-container/download-button" onClick={downloadArrayAsFile}>
+        <Button data-testid="@log-container/download-button" onClick={downloadArrayAsFile}>
             Download Logs
         </Button>
     );
@@ -149,7 +149,7 @@ const DebugCenter = () => {
             {logs.length > 0 ? (
                 <View
                     title="Logs"
-                    data-test="@connect-logs/logs"
+                    data-testid="@connect-logs/logs"
                     buttons={
                         <DownloadButton
                             array={orderByTimestamp(logs)}
@@ -165,7 +165,7 @@ const DebugCenter = () => {
                 </View>
             ) : (
                 <Wrapper>
-                    <StyledP data-test="@connect-logs/no-logs">
+                    <StyledP data-testid="@connect-logs/no-logs">
                         Waiting for an app to connect
                     </StyledP>
                 </Wrapper>

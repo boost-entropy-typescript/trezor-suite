@@ -7,7 +7,7 @@ import { IconButton } from '../IconButton/IconButton';
 import { Tooltip } from '../../Tooltip/Tooltip';
 
 const meta: Meta = {
-    title: 'Buttons/ButtonGroup',
+    title: 'Buttons',
     component: ButtonGroup,
 } as Meta;
 export default meta;
@@ -64,6 +64,14 @@ export const ButtonGroups: StoryObj = {
                 <IconButton icon="CLOCK" />
                 <IconButton icon="TWO_USERS" />
                 <IconButton icon="BACKEND" />
+            </ButtonGroup>
+
+            <ButtonGroup>
+                <Button>Button</Button>
+                <Button>
+                    A very long Lorem ipsum dolor sit amet, which wraps to many lines, but the
+                    buttons have consistent height
+                </Button>
             </ButtonGroup>
         </StoryColumn>
     ),

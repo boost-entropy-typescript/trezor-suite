@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Divider as DividerComponent, allowedDividerFrameProps } from './Divider';
 import styled from 'styled-components';
-import { getFramePropsStory } from '../common/frameProps';
+import { getFramePropsStory } from '../../utils/frameProps';
 
 const Container = styled.div`
     width: 200px;
@@ -9,7 +9,7 @@ const Container = styled.div`
 `;
 
 const meta: Meta = {
-    title: 'Misc/Divider',
+    title: 'Divider',
     component: DividerComponent,
 } as Meta;
 export default meta;

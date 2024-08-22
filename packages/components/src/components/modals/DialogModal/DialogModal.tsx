@@ -39,7 +39,7 @@ type PickedModalProps = Pick<
     | 'currentProgressBarStep'
     | 'totalProgressBarSteps'
     | 'className'
-    | 'data-test'
+    | 'data-testid'
 >;
 
 export interface DialogModalProps extends PickedModalProps {
@@ -50,6 +50,9 @@ export interface DialogModalProps extends PickedModalProps {
     body?: ReactNode;
 }
 
+/**
+ * @deprecated Use NewModal.
+ */
 export const DialogModal = ({
     headerHeading,
     bodyHeading,

@@ -25,16 +25,19 @@ import {
 import { FORM_CRYPTO_CURRENCY_SELECT } from 'src/constants/wallet/coinmarket/form';
 import { useCoinmarketBuildAccountGroups } from 'src/hooks/wallet/coinmarket/form/useCoinmarketSellFormDefaultValues';
 import { CoinmarketFormOptionIcon } from 'src/views/wallet/coinmarket/common/CoinmarketCoinImage';
+import { HiddenPlaceholder } from 'src/components/suite';
+import { createFilter } from 'react-select';
 
 const CoinmarketFormInputAccountActive = ({ label }: CoinmarketFormInputDefaultProps) => {
     const {
+        type,
         form: {
             helpers: { onCryptoCurrencyChange },
         },
     } = useCoinmarketFormContext<CoinmarketTradeSellExchangeType>();
     const { elevation } = useElevation();
     const { control } = useCoinmarketFormContext();
-    const optionGroups = useCoinmarketBuildAccountGroups();
+    const optionGroups = useCoinmarketBuildAccountGroups(type);
 
     return (
         <>
@@ -50,6 +53,9 @@ const CoinmarketFormInputAccountActive = ({ label }: CoinmarketFormInputDefaultP
                             onChange(selected);
                             onCryptoCurrencyChange(selected);
                         }}
+                        filterOption={createFilter<CoinmarketAccountOptionsGroupOptionProps>({
+                            stringify: option => `${option.value} ${option.data.cryptoName}`,
+                        })}
                         formatGroupLabel={group => (
                             <CoinmarketFormOptionGroupLabel>
                                 {group.label}
@@ -68,7 +74,9 @@ const CoinmarketFormInputAccountActive = ({ label }: CoinmarketFormInputDefaultP
                                         {option.cryptoName}
                                     </CoinmarketFormOptionLabelLong>
                                     <CoinmarketFormOptionLabelLong>
-                                        ({option.balance} {option.label})
+                                        <HiddenPlaceholder>
+                                            ({option.balance} {option.label})
+                                        </HiddenPlaceholder>
                                     </CoinmarketFormOptionLabelLong>
                                     {option.value &&
                                         isCryptoSymbolToken(option.value) &&
@@ -80,7 +88,7 @@ const CoinmarketFormInputAccountActive = ({ label }: CoinmarketFormInputDefaultP
                                 </CoinmarketFormOption>
                             );
                         }}
-                        data-test="@coinmarket/form/account-select-active"
+                        data-testid="@coinmarket/form/account-select-active"
                         isClearable={false}
                         isSearchable
                     />

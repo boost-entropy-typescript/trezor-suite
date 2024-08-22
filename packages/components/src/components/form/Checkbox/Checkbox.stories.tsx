@@ -6,10 +6,10 @@ import {
     CheckboxProps,
     allowedCheckboxFrameProps,
 } from './Checkbox';
-import { getFramePropsStory } from '../../common/frameProps';
+import { getFramePropsStory } from '../../../utils/frameProps';
 
 const meta: Meta = {
-    title: 'Form/Checkbox',
+    title: 'Form',
     component: CheckboxComponent,
 } as Meta;
 export default meta;

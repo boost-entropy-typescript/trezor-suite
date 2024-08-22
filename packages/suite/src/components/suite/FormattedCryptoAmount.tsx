@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { HiddenPlaceholder, Sign } from 'src/components/suite';
 import { NetworkSymbol } from 'src/types/wallet';
-import { NETWORKS } from 'src/config/wallet';
 import { useSelector } from 'src/hooks/suite';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 
@@ -14,6 +13,7 @@ import {
 import { isSignValuePositive } from '@suite-common/formatters';
 import { selectLanguage } from 'src/reducers/suite/suiteReducer';
 import { BlurUrls } from 'src/views/wallet/tokens/common/BlurUrls';
+import { networksCompatibility } from '@suite-common/wallet-config';
 
 const Container = styled.span`
     max-width: 100%;
@@ -32,7 +32,7 @@ export interface FormattedCryptoAmountProps {
     signValue?: SignValue;
     disableHiddenPlaceholder?: boolean;
     isRawString?: boolean;
-    'data-test'?: string;
+    'data-testid'?: string;
     className?: string;
 }
 
@@ -43,7 +43,7 @@ export const FormattedCryptoAmount = ({
     signValue,
     disableHiddenPlaceholder,
     isRawString,
-    'data-test': dataTest,
+    'data-testid': dataTest,
     className,
 }: FormattedCryptoAmountProps) => {
     const locale = useSelector(selectLanguage);
@@ -56,7 +56,7 @@ export const FormattedCryptoAmount = ({
 
     const lowerCaseSymbol = symbol?.toLowerCase();
     const { features: networkFeatures, testnet: isTestnet } =
-        NETWORKS.find(network => network.symbol === lowerCaseSymbol) ?? {};
+        networksCompatibility.find(network => network.symbol === lowerCaseSymbol) ?? {};
 
     const areSatsSupported = !!networkFeatures?.includes('amount-unit');
 
@@ -89,7 +89,7 @@ export const FormattedCryptoAmount = ({
     const content = (
         <Container className={className}>
             {!!signValue && <Sign value={signValue} />}
-            <Value data-test={dataTest}>{formattedValue}</Value>
+            <Value data-testid={dataTest}>{formattedValue}</Value>
             {formattedSymbol && <BlurUrls text={'\u00A0' + formattedSymbol} />}
         </Container>
     );

@@ -2,7 +2,7 @@ import { useEffect, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { Button, ConfirmOnDevice, ModalProps, Tooltip, variables } from '@trezor/components';
+import { Button, ModalProps, Tooltip, variables } from '@trezor/components';
 import { copyToClipboard } from '@trezor/dom-utils';
 import { selectDevice } from '@suite-common/wallet-core';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
@@ -17,6 +17,7 @@ import { TransactionReviewOutputElement } from '../TransactionReviewModal/Transa
 import { Account } from '@suite-common/wallet-types';
 import { borders, palette } from '@trezor/theme';
 import { getNetworkFeatures } from '@suite-common/wallet-config';
+import { ConfirmOnDevice } from '@trezor/product-components';
 
 const Wrapper = styled.div`
     display: flex;
@@ -71,7 +72,7 @@ export interface ConfirmValueModalProps extends Pick<ModalProps, 'onCancel' | 'h
     copyButtonText: ReactNode;
     stepLabel: ReactNode;
     confirmStepLabel: ReactNode;
-    copyButtonDataTest?: string;
+    'data-testid'?: string;
     isConfirmed?: boolean;
     validateOnDevice: () => ThunkAction;
     value: string;
@@ -81,7 +82,7 @@ export interface ConfirmValueModalProps extends Pick<ModalProps, 'onCancel' | 'h
 export const ConfirmValueModal = ({
     account,
     copyButtonText,
-    copyButtonDataTest,
+    'data-testid': copyButtonDataTest,
     stepLabel,
     confirmStepLabel,
     heading,
@@ -174,7 +175,7 @@ export const ConfirmValueModal = ({
                             <StyledButton
                                 isDisabled={!addressConfirmed}
                                 onClick={copy}
-                                data-test={copyButtonDataTest}
+                                data-testid={copyButtonDataTest}
                             >
                                 {copyButtonText}
                             </StyledButton>

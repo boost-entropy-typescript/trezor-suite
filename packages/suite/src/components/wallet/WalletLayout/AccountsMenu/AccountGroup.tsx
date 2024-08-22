@@ -40,6 +40,7 @@ const Header = styled.header<{ $isOpen: boolean; onClick?: () => void }>`
     align-items: center;
     ${typography.label}
     color: ${({ theme }) => theme.textSubdued};
+    height: 40px;
 
     &:hover {
         ${ChevronIcon} {
@@ -115,12 +116,12 @@ export const AccountGroup = forwardRef(
                         <Header
                             $isOpen={isOpen}
                             onClick={!keepOpen ? onClick : undefined}
-                            data-test={`@account-menu/${type}`}
+                            data-testid={`@account-menu/${type}`}
                         >
                             <ChevronContainer>
                                 {!keepOpen && (
                                     <ChevronIcon
-                                        data-test="@account-menu/arrow"
+                                        data-testid="@account-menu/arrow"
                                         $isActive={isOpen}
                                         size={18}
                                         color={theme.iconSubdued}
@@ -136,7 +137,7 @@ export const AccountGroup = forwardRef(
                 <AnimationWrapper
                     opened={isOpen}
                     onUpdate={onUpdate}
-                    dataTest={`@account-menu/${type}/group`}
+                    data-testid={`@account-menu/${type}/group`}
                 >
                     {children}
                 </AnimationWrapper>

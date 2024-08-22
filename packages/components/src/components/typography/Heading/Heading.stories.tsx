@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Meta, StoryObj } from '@storybook/react';
 import { H1, H2, H3, allowedHeadingFrameProps } from './Heading';
-import { getFramePropsStory } from '../../common/frameProps';
+import { getFramePropsStory } from '../../../utils/frameProps';
 
 const Wrapper = styled.div`
     display: flex;
@@ -9,7 +9,7 @@ const Wrapper = styled.div`
 `;
 
 const meta: Meta = {
-    title: 'Typography/Heading',
+    title: 'Typography',
 } as Meta;
 export default meta;
 

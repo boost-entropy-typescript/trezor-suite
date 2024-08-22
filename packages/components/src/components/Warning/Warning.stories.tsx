@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Warning as WarningComponent, WarningProps, variables } from '../../index';
+import { Warning as WarningComponent, WarningProps, variables, Row } from '../../index';
 import { allowedWarningFrameProps } from './Warning';
 import styled from 'styled-components';
-import { getFramePropsStory } from '../common/frameProps';
+import { getFramePropsStory } from '../../utils/frameProps';
 
 const Wrapper = styled.div`
     display: flex;
@@ -12,11 +12,17 @@ const Wrapper = styled.div`
 `;
 
 const meta: Meta = {
-    title: 'Misc/Warning',
+    title: 'Warning',
     component: WarningComponent,
     render: ({ children, ...rest }) => (
         <Wrapper>
             <WarningComponent {...rest} variant="primary">
+                {children}
+            </WarningComponent>
+            <WarningComponent {...rest} variant="secondary">
+                {children}
+            </WarningComponent>
+            <WarningComponent {...rest} variant="tertiary">
                 {children}
             </WarningComponent>
             <WarningComponent {...rest} variant="warning">
@@ -36,9 +42,10 @@ export default meta;
 export const Warning: StoryObj<WarningProps> = {
     args: {
         children: 'Insert text here.',
-        withIcon: true,
+        filled: true,
         variant: 'warning',
         icon: undefined,
+        rightContent: <WarningComponent.Button>Click</WarningComponent.Button>,
         ...getFramePropsStory(allowedWarningFrameProps).args,
     },
     argTypes: {
@@ -46,9 +53,39 @@ export const Warning: StoryObj<WarningProps> = {
             control: false,
         },
         icon: {
-            options: variables.ICONS,
+            options: [undefined, true, ...variables.ICONS],
             control: {
                 type: 'select',
+            },
+        },
+        rightContent: {
+            options: ['nothing', 'button', 'buttons', 'iconButton', 'iconButtons'],
+            mapping: {
+                nothing: undefined,
+                button: <WarningComponent.Button>Button</WarningComponent.Button>,
+                buttons: (
+                    <Row gap={8}>
+                        <WarningComponent.Button>Button 1</WarningComponent.Button>
+                        <WarningComponent.Button isSubtle>Button 2</WarningComponent.Button>
+                    </Row>
+                ),
+                iconButton: <WarningComponent.IconButton icon="CROSS" />,
+                iconButtons: (
+                    <Row gap={8}>
+                        <WarningComponent.IconButton icon="CROSS" />
+                        <WarningComponent.IconButton icon="ASTERISK" isSubtle />
+                    </Row>
+                ),
+            },
+            control: {
+                type: 'select',
+                labels: {
+                    nothing: 'undefined',
+                    button: '1 button',
+                    buttons: '2 buttons',
+                    iconButton: '1 icon button',
+                    iconButtons: '2 icon buttons',
+                },
             },
         },
         ...getFramePropsStory(allowedWarningFrameProps).argTypes,

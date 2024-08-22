@@ -18,16 +18,26 @@ import {
 import { CoinmarketPaymentPlainType } from 'src/views/wallet/coinmarket/common/CoinmarketPaymentPlainType';
 import CoinmarketFormInputLoader from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputLoader';
 import { FORM_PAYMENT_METHOD_SELECT } from 'src/constants/wallet/coinmarket/form';
+import { Translation } from 'src/components/suite';
 
 const CoinmarketFormInputPaymentMethod = ({ label }: CoinmarketFormInputDefaultProps) => {
     const {
         control,
         paymentMethods,
         defaultPaymentMethod,
+        quotes,
         form: {
             state: { isFormLoading, isFormInvalid },
         },
     } = useCoinmarketFormContext<CoinmarketTradeBuySellType>();
+
+    const getEmptyMethodsLabel = () => {
+        if (isFormInvalid || (quotes && quotes.length === 0)) {
+            return <Translation id="TR_COINMARKET_NO_METHODS_AVAILABLE" />;
+        }
+
+        return '';
+    };
 
     return (
         <>
@@ -51,12 +61,12 @@ const CoinmarketFormInputPaymentMethod = ({ label }: CoinmarketFormInputDefaultP
                                                 methodName={option.label}
                                             />
                                         ) : (
-                                            option.label
+                                            getEmptyMethodsLabel()
                                         )}
                                     </CoinmarketFormOptionLabel>
                                 </CoinmarketFormOption>
                             )}
-                            data-test="@coinmarket/form/payment-method-select"
+                            data-testid="@coinmarket/form/payment-method-select"
                             isClearable={false}
                             isSearchable
                             isDisabled={isFormInvalid}

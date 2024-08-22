@@ -382,7 +382,7 @@ export const en = {
 
                 localization: {
                     title: 'Localization',
-                    subtitle: 'Currency, Bitcoin units',
+                    subtitle: 'Fiat currency, Bitcoin units',
                 },
                 customization: {
                     title: 'Customization',
@@ -500,6 +500,8 @@ export const en = {
         },
         localizations: {
             title: 'Localization',
+            fiatCurrencyLabel: 'Fiat currency',
+            bitcoinUnitsLabel: 'Bitcoin units',
         },
         customization: {
             title: 'Customization',
@@ -515,6 +517,21 @@ export const en = {
                 title: 'Enabled coins',
                 subtitle:
                     'Only choosing coins that you use will shorten loading times when connecting your Trezor.',
+            },
+            bottomNote:
+                'Didn’t find what you’re looking for? Check if it’s not a token running one of the listed coin’s network.',
+            toasts: {
+                coinEnabled: '<coin></coin> accounts will load for\nconnected Trezor.',
+                coinDisabled: '<coin></coin> accounts will be removed',
+            },
+            btcOnly: {
+                title: 'This device is BTC only.',
+                subtitle: 'So what exactly are you looking for?',
+            },
+            oneNetworkSymbolAlert: {
+                title: 'You need to keep at least 1 coin enabled at all times.',
+                description: 'Otherwise the app won’t show you anything.',
+                action: 'Got it',
             },
         },
         viewOnly: {
@@ -797,6 +814,31 @@ export const en = {
         },
         passphraseFeatureUnlock: {
             title: 'Enter passphrase to continue',
+        },
+    },
+    moduleSend: {
+        fees: {
+            recipient: { singular: 'Recipient' },
+            description: {
+                title: 'Mining fee',
+                body: 'Fees are paid directly to network miners for processing your transactions.',
+            },
+            levels: {
+                low: {
+                    label: 'Low',
+                    timeEstimate: '~ 1 hour',
+                },
+                medium: {
+                    label: 'Medium',
+                    timeEstimate: '~ 20 minutes',
+                },
+                high: {
+                    label: 'High',
+                    timeEstimate: '~ 10 minutes',
+                },
+            },
+            totalAmount: 'Total amount',
+            submitButton: 'Review and sign',
         },
     },
 };

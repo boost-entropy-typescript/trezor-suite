@@ -43,6 +43,7 @@ import { NetworkSymbol } from '@suite-common/wallet-config';
 import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
 import { Timer } from '@trezor/react-utils';
 import { AccountsState } from '@suite-common/wallet-core';
+import { TokenDefinitionsState } from '@suite-common/token-definitions';
 
 export type UseCoinmarketProps = WithSelectedAccountLoadedProps;
 export type UseCoinmarketCommonProps = UseCoinmarketProps & {
@@ -58,6 +59,7 @@ export interface UseCoinmarketCommonReturnProps<T extends CoinmarketTradeType> {
     setSelectedQuote: (quote: CoinmarketTradeDetailMapProps[T] | undefined) => void;
     checkQuotesTimer: (callback: () => Promise<void>) => void;
 }
+export type CoinmarketPageType = 'form' | 'offers' | 'confirm';
 export type UseCoinmarketFormProps = UseCoinmarketProps & {
     /**
      * Difference between form and offers is that on the offers page are used all data filled in the form
@@ -65,7 +67,7 @@ export type UseCoinmarketFormProps = UseCoinmarketProps & {
      *
      * default value is 'form'
      */
-    pageType?: 'form' | 'offers';
+    pageType?: CoinmarketPageType;
 };
 
 export type CoinmarketTradeBuyType = 'buy';
@@ -204,6 +206,8 @@ export interface CoinmarketBuildAccountOptionsProps extends CoinmarketGetSortedA
         symbol: Account['symbol'];
         index?: number;
     }) => string;
+    supportedSymbols: Set<CryptoSymbol> | undefined;
+    tokenDefinitions: Partial<TokenDefinitionsState>;
 }
 
 export interface CoinmarketAccountOptionsGroupOptionProps extends CoinmarketCryptoListProps {

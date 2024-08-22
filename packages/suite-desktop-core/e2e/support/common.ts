@@ -25,8 +25,6 @@ export const launchSuite = async (params: LaunchSuiteParams = {}) => {
         args: [
             path.join(appDir, './dist/app.js'),
             `--log-level=${desiredLogLevel}`,
-            // '--bridge-node-test',
-            // uncomment to use legacy bridge
             '--bridge-legacy-test',
         ],
         // when testing electron, video needs to be setup like this. it works locally but not in docker
@@ -65,8 +63,8 @@ export const launchSuite = async (params: LaunchSuiteParams = {}) => {
 };
 
 export const waitForDataTestSelector = (window: Page, selector: string, options = {}) =>
-    window.waitForSelector(`[data-test="${selector}"]`, options);
+    window.waitForSelector(`[data-testid="${selector}"]`, options);
 
 export const clickDataTest = async (window: Page, selector: string) => {
-    await window.locator(`[data-test="${selector}"]`).click();
+    await window.locator(`[data-testid="${selector}"]`).click();
 };

@@ -241,7 +241,7 @@ export const TransactionReviewOutputList = ({
                 <RightBottom>
                     {broadcastEnabled ? (
                         <StyledButton
-                            data-test="@modal/send"
+                            data-testid="@modal/send"
                             isDisabled={!signedTx}
                             isLoading={isSending}
                             onClick={handleSend}
@@ -253,7 +253,7 @@ export const TransactionReviewOutputList = ({
                             <StyledButton
                                 isDisabled={!signedTx}
                                 onClick={handleCopy}
-                                data-test="@send/copy-raw-transaction"
+                                data-testid="@send/copy-raw-transaction"
                             >
                                 <Translation id="COPY_TRANSACTION_TO_CLIPBOARD" />
                             </StyledButton>
@@ -268,7 +268,7 @@ export const TransactionReviewOutputList = ({
                     )}
                     {isSending && networkType === 'solana' ? (
                         <TxReviewFootnote>
-                            <Warning variant="tertiary" icon="INFO" withIcon>
+                            <Warning variant="tertiary" icon="INFO">
                                 <Translation
                                     id="TR_SOLANA_TX_CONFIRMATION_MAY_TAKE_UP_TO_1_MIN"
                                     values={{ nowrap: chunks => <Nowrap>{chunks}</Nowrap> }}

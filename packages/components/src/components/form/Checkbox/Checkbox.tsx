@@ -3,10 +3,10 @@ import styled, { useTheme } from 'styled-components';
 import { borders, Color, spacingsPx, typography } from '@trezor/theme';
 
 import { KEYBOARD_CODE } from '../../../constants/keyboardEvents';
-import { Icon } from '../../assets/Icon/Icon';
+import { Icon } from '../../Icon/Icon';
 import { getFocusShadowStyle } from '../../../utils/utils';
 import { UIHorizontalAlignment, UIVariant } from '../../../config/types';
-import { FrameProps, FramePropsKeys, withFrameProps } from '../../common/frameProps';
+import { FrameProps, FramePropsKeys, withFrameProps } from '../../../utils/frameProps';
 import { makePropsTransient, TransientProps } from '../../../utils/transientProps';
 
 export const allowedCheckboxFrameProps: FramePropsKeys[] = ['margin'];
@@ -160,7 +160,7 @@ export type CheckboxProps = AllowedFrameProps & {
     isDisabled?: boolean;
     labelAlignment?: LabelAlignment;
     onClick: EventHandler<SyntheticEvent>;
-    'data-test'?: string;
+    'data-testid'?: string;
     className?: string;
     children?: ReactNode;
 };
@@ -171,7 +171,7 @@ export const Checkbox = ({
     isDisabled = false,
     labelAlignment = 'right',
     onClick,
-    'data-test': dataTest,
+    'data-testid': dataTest,
     className,
     children,
     margin,
@@ -197,7 +197,7 @@ export const Checkbox = ({
             $labelAlignment={labelAlignment}
             onClick={isDisabled ? undefined : onClick}
             onKeyUp={handleKeyUp}
-            data-test={dataTest}
+            data-testid={dataTest}
             className={className}
             {...makePropsTransient(frameProps)}
         >

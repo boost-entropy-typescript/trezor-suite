@@ -1,9 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Card as CardComponent, allowedCardFrameProps } from './Card';
-import { getFramePropsStory } from '../common/frameProps';
+import { getFramePropsStory } from '../../utils/frameProps';
 
 const meta: Meta = {
-    title: 'Misc/Card',
+    title: 'Card',
     component: CardComponent,
 } as Meta;
 export default meta;

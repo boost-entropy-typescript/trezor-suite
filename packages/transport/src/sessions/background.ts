@@ -69,6 +69,9 @@ export class SessionsBackground extends TypedEmitter<{
                 case 'handshake':
                     result = this.handshake();
                     break;
+                case 'enumerateIntent':
+                    await this.enumerateIntent();
+                    break;
                 case 'enumerateDone':
                     result = await this.enumerateDone(message.payload);
                     break;
@@ -89,6 +92,9 @@ export class SessionsBackground extends TypedEmitter<{
                     break;
                 case 'getPathBySession':
                     result = this.getPathBySession(message.payload);
+                    break;
+                case 'dispose':
+                    this.dispose();
                     break;
                 default:
                     throw new Error(ERRORS.UNEXPECTED_ERROR);
@@ -116,11 +122,19 @@ export class SessionsBackground extends TypedEmitter<{
         return this.success(undefined);
     }
 
+    private async enumerateIntent() {
+        await this.waitInQueue();
+
+        return this.success(undefined);
+    }
+
     /**
      * enumerate done
      * - caller informs about current descriptors
      */
     private enumerateDone(payload: EnumerateDoneRequest) {
+        this.clearLock();
+
         const disconnectedDevices = this.filterDisconnectedDevices(
             Object.values(this.descriptors),
             payload.descriptors.map(d => d.path), // which paths are occupied paths after last interface read
@@ -299,5 +313,12 @@ export class SessionsBackground extends TypedEmitter<{
             success: false as const,
             error,
         };
+    }
+
+    dispose() {
+        this.locksQueue.forEach(lock => clearTimeout(lock.id));
+        this.locksTimeoutQueue.forEach(timeout => clearTimeout(timeout));
+        this.descriptors = {};
+        this.lastSessionId = 0;
     }
 }

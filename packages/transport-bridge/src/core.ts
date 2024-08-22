@@ -109,6 +109,7 @@ export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) =>
     };
 
     const enumerate = async ({ signal }: { signal: AbortSignal }) => {
+        await sessionsClient.enumerateIntent();
         const enumerateResult = await api.enumerate(signal);
 
         if (!enumerateResult.success) {
@@ -255,8 +256,9 @@ export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) =>
     };
 
     const dispose = () => {
+        abortController.abort();
         api.dispose();
-        sessionsClient.removeAllListeners('descriptors');
+        sessionsClient.dispose();
     };
 
     return {

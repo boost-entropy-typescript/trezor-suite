@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
+import { palette } from '@trezor/theme';
 
 import { ACCESSIBILITY_FONTSIZE_MULTIPLIER } from './Text';
 
@@ -18,24 +19,41 @@ type SwitchProps = {
     isDisabled?: boolean; // Functionality of disabled works but styles are not implemented yet (waiting for design)
 };
 
-const SWITCH_CONTAINER_WIDTH = 44 * ACCESSIBILITY_FONTSIZE_MULTIPLIER;
-const SWITCH_CONTAINER_HEIGHT = 24 * ACCESSIBILITY_FONTSIZE_MULTIPLIER;
+const SWITCH_CONTAINER_BORDER_WIDTH = 1;
+const SWITCH_CONTAINER_WIDTH =
+    44 * ACCESSIBILITY_FONTSIZE_MULTIPLIER + 2 * SWITCH_CONTAINER_BORDER_WIDTH;
+const SWITCH_CONTAINER_HEIGHT =
+    24 * ACCESSIBILITY_FONTSIZE_MULTIPLIER + 2 * SWITCH_CONTAINER_BORDER_WIDTH;
+
 const SWITCH_CIRCLE_SIZE = 20 * ACCESSIBILITY_FONTSIZE_MULTIPLIER;
 const SWITCH_CIRCLE_MARGIN = 2 * ACCESSIBILITY_FONTSIZE_MULTIPLIER;
 const SWITCH_CIRCLE_TRACK_WIDTH =
-    SWITCH_CONTAINER_WIDTH - SWITCH_CIRCLE_SIZE - SWITCH_CIRCLE_MARGIN * 2;
+    SWITCH_CONTAINER_WIDTH -
+    SWITCH_CIRCLE_SIZE -
+    SWITCH_CIRCLE_MARGIN * 2 -
+    SWITCH_CONTAINER_BORDER_WIDTH * 2;
 
-const switchContainerStyle = prepareNativeStyle(utils => ({
-    width: SWITCH_CONTAINER_WIDTH,
+const switchContainerStyle = prepareNativeStyle<{ isChecked: boolean }>((utils, { isChecked }) => ({
     height: SWITCH_CONTAINER_HEIGHT,
+    width: SWITCH_CONTAINER_WIDTH,
     borderRadius: utils.borders.radii.round,
     flexDirection: 'row',
+    borderWidth: SWITCH_CONTAINER_BORDER_WIDTH,
+    borderColor: 'transparent',
+    extend: [
+        {
+            condition: !isChecked,
+            style: {
+                borderColor: utils.colors.borderElevation0,
+            },
+        },
+    ],
 }));
 
 const switchCircleStyle = prepareNativeStyle(utils => ({
     width: SWITCH_CIRCLE_SIZE,
     height: SWITCH_CIRCLE_SIZE,
-    backgroundColor: utils.colors.backgroundSurfaceElevation1,
+    backgroundColor: palette.darkGray1000,
     borderRadius: utils.borders.radii.round,
     margin: SWITCH_CIRCLE_MARGIN,
     alignSelf: 'center',
@@ -61,7 +79,10 @@ const useAnimationStyles = ({ isChecked }: Pick<SwitchProps, 'isChecked'>) => {
         backgroundColor: interpolateColor(
             translateX.value,
             [0, SWITCH_CIRCLE_TRACK_WIDTH],
-            [utils.colors.backgroundNeutralDisabled, utils.colors.backgroundSecondaryDefault],
+            [
+                utils.colors.backgroundNeutralSubtleOnElevationNegative,
+                utils.colors.backgroundPrimaryDefault,
+            ],
         ),
     }));
 
@@ -73,6 +94,7 @@ const useAnimationStyles = ({ isChecked }: Pick<SwitchProps, 'isChecked'>) => {
 
 export const Switch = ({ isChecked, onChange, isDisabled = false }: SwitchProps) => {
     const { applyStyle } = useNativeStyles();
+
     const { animatedSwitchCircleStyle, animatedSwitchContainerStyle } = useAnimationStyles({
         isChecked,
     });
@@ -84,7 +106,12 @@ export const Switch = ({ isChecked, onChange, isDisabled = false }: SwitchProps)
 
     return (
         <Pressable onPress={handlePress} accessibilityRole="switch">
-            <Animated.View style={[animatedSwitchContainerStyle, applyStyle(switchContainerStyle)]}>
+            <Animated.View
+                style={[
+                    animatedSwitchContainerStyle,
+                    applyStyle(switchContainerStyle, { isChecked }),
+                ]}
+            >
                 <Animated.View style={[animatedSwitchCircleStyle, applyStyle(switchCircleStyle)]} />
             </Animated.View>
         </Pressable>

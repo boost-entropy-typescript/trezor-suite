@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { ConfirmOnDevice, variables } from '@trezor/components';
+import { variables } from '@trezor/components';
 import { Deferred } from '@trezor/utils';
 import {
     DeviceRootState,
@@ -21,6 +21,7 @@ import { TransactionReviewSummary } from './TransactionReviewSummary';
 import { TransactionReviewOutputList } from './TransactionReviewOutputList/TransactionReviewOutputList';
 import { TransactionReviewEvmExplanation } from './TransactionReviewEvmExplanation';
 import { getTxStakeNameByDataHex } from '@suite-common/suite-utils';
+import { ConfirmOnDevice } from '@trezor/product-components';
 
 const StyledModal = styled(Modal)`
     ${Modal.Body} {
@@ -144,6 +145,7 @@ export const TransactionReviewModalContent = ({
                 broadcast={precomposedForm.options.includes('broadcast')}
                 detailsOpen={detailsOpen}
                 onDetailsClick={() => setDetailsOpen(!detailsOpen)}
+                ethereumStakeType={ethereumStakeType}
                 actionText={getTransactionReviewModalActionText({
                     ethereumStakeType,
                     isRbfAction,
@@ -168,7 +170,10 @@ export const TransactionReviewModalContent = ({
                 setIsSending={() => setIsSending(true)}
                 ethereumStakeType={ethereumStakeType || undefined}
             />
-            <TransactionReviewEvmExplanation account={selectedAccount.account} />
+            <TransactionReviewEvmExplanation
+                account={selectedAccount.account}
+                ethereumStakeType={ethereumStakeType}
+            />
         </StyledModal>
     );
 };

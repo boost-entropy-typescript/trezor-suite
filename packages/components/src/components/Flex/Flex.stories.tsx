@@ -10,7 +10,7 @@ import {
 } from './Flex';
 import { spacings } from '@trezor/theme';
 import styled from 'styled-components';
-import { getFramePropsStory } from '../common/frameProps';
+import { getFramePropsStory } from '../../utils/frameProps';
 
 const Container = styled.div`
     width: 100%;
@@ -77,7 +77,7 @@ const argTypes: Partial<ArgTypes<FlexProps>> = {
 };
 
 const meta: Meta = {
-    title: 'Misc/Layout',
+    title: 'Layout',
 } as Meta;
 export default meta;
 

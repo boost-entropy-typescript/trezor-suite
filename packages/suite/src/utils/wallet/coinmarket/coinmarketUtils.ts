@@ -1,5 +1,4 @@
 import { Account, Network } from 'src/types/wallet';
-import { NETWORKS } from 'src/config/wallet';
 import TrezorConnect, { TokenInfo } from '@trezor/connect';
 import regional from 'src/constants/wallet/coinmarket/regional';
 import { TrezorDevice } from 'src/types/suite';
@@ -12,7 +11,7 @@ import {
     networkToCryptoSymbol,
     tokenToCryptoSymbol,
 } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
-import { getNetworkFeatures } from '@suite-common/wallet-config';
+import { getNetworkFeatures, networksCompatibility } from '@suite-common/wallet-config';
 import {
     DefinitionType,
     TokenDefinitions,
@@ -84,6 +83,7 @@ export const symbolToInvityApiSymbol = (symbol?: string) => {
     return result ? result.invitySymbol : symbol;
 };
 
+/** @deprecated */
 export const getSendCryptoOptions = (
     account: Account,
     supportedSymbols: Set<CryptoSymbol>,
@@ -95,7 +95,7 @@ export const getSendCryptoOptions = (
     }
 
     const options: {
-        value: string;
+        value: CryptoSymbol;
         label: string;
         token?: TokenInfo;
         cryptoSymbol: CryptoSymbol;
@@ -129,7 +129,7 @@ export const getSendCryptoOptions = (
 
             options.push({
                 label: token.symbol.toUpperCase(),
-                value: token.symbol.toUpperCase(),
+                value: tokenCryptoSymbol,
                 token,
                 cryptoSymbol: tokenCryptoSymbol,
             });
@@ -196,11 +196,11 @@ export const getComposeAddressPlaceholder = async (
             // use legacy (the most expensive) address for fee calculation
             // as we do not know what address type the exchange will use
             const legacy =
-                NETWORKS.find(
+                networksCompatibility.find(
                     network =>
                         network.symbol === account.symbol && network.accountType === 'legacy',
                 ) ||
-                NETWORKS.find(
+                networksCompatibility.find(
                     network =>
                         network.symbol === account.symbol && network.accountType === 'segwit',
                 ) ||
@@ -406,6 +406,8 @@ export const coinmarketBuildAccountOptions = ({
     deviceState,
     accounts,
     accountLabels,
+    tokenDefinitions,
+    supportedSymbols,
     defaultAccountLabelString,
 }: CoinmarketBuildAccountOptionsProps): CoinmarketAccountsOptionsGroupProps[] => {
     const accountsSorted = coinmarketGetSortedAccounts({
@@ -443,17 +445,36 @@ export const coinmarketBuildAccountOptions = ({
                 balance: formattedBalance ?? '',
             },
         ];
-
         // add crypto tokens to options
         if (tokens && tokens.length > 0) {
+            const hasCoinDefinitions = getNetworkFeatures(account.symbol).includes(
+                'coin-definitions',
+            );
+            const coinDefinitions = tokenDefinitions?.[account.symbol]?.[DefinitionType.COIN];
+
             tokens.forEach(token => {
                 const { symbol, balance, contract } = token;
+
                 if (!symbol || !balance || balance === '0') {
                     return;
                 }
 
                 const tokenCryptoSymbol = tokenToCryptoSymbol(symbol, account.symbol);
+
                 if (!tokenCryptoSymbol) {
+                    return;
+                }
+
+                if (supportedSymbols && !supportedSymbols.has(tokenCryptoSymbol)) {
+                    return;
+                }
+
+                // exclude unknown tokens
+                if (
+                    hasCoinDefinitions &&
+                    coinDefinitions &&
+                    !isTokenDefinitionKnown(coinDefinitions.data, account.symbol, token.contract)
+                ) {
                     return;
                 }
 
@@ -507,8 +528,15 @@ export const coinmarketGetAmountLabels = ({
 /**
  * Rounding up to two decimal places
  */
-export const coinmarketGetRoundedFiatAmount = (amount: string): string =>
-    new BigNumber(amount).toFixed(2, BigNumber.ROUND_HALF_UP);
+export const coinmarketGetRoundedFiatAmount = (amount: string | undefined): string => {
+    if (!amount) return '';
+
+    const numberAmount = new BigNumber(amount);
+
+    if (!numberAmount.isNaN()) return numberAmount.toFixed(2, BigNumber.ROUND_HALF_UP);
+
+    return '';
+};
 
 export const coinmarketGetAccountLabel = (label: string, shouldSendInSats: boolean | undefined) =>
     label === 'BTC' && shouldSendInSats ? 'sat' : label;

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { borders, spacingsPx, typography } from '@trezor/theme';
 import { ButtonProps } from '../Button/Button';
 import { ButtonSize, getIconSize, IconAlignment } from '../buttonStyleUtils';
-import { Icon } from '../../assets/Icon/Icon';
+import { Icon } from '../../Icon/Icon';
 import { Spinner } from '../../loaders/Spinner/Spinner';
 import { focusStyleTransition, getFocusShadowStyle } from '../../../utils/utils';
 
@@ -17,7 +17,7 @@ const TextButtonContainer = styled.button<{
     flex-direction: ${({ $iconAlignment }) => $iconAlignment === 'right' && 'row-reverse'};
     gap: ${({ $hasIcon }) => $hasIcon && spacingsPx.xs};
     height: ${({ $size: size }) => (size === 'small' ? 22 : 26)}px;
-    padding: 4px;
+    padding: ${spacingsPx.xxs};
     border: 1px solid transparent;
     border-radius: ${borders.radii.xxs};
     background: none;
@@ -47,7 +47,7 @@ const TextButtonContainer = styled.button<{
 
     &:disabled {
         color: ${({ theme }) => theme.textDisabled};
-        cursor: default;
+        cursor: not-allowed;
 
         path {
             fill: ${({ theme }) => theme.iconDisabled};

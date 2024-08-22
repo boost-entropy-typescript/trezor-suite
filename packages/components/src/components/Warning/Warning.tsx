@@ -1,94 +1,34 @@
 import { ReactNode } from 'react';
-import styled, { DefaultTheme, css, useTheme } from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 
-import { Icon, IconType } from '../assets/Icon/Icon';
+import { Icon, IconType } from '../Icon/Icon';
 import { variables } from '../../config';
+import { Elevation, borders, spacingsPx, typography, spacings } from '@trezor/theme';
+import { Row, Column, TransientProps, useElevation } from '../..';
+import { FrameProps, FramePropsKeys, withFrameProps } from '../../utils/frameProps';
+import { WarningContext } from './WarningContext';
+import { WarningButton } from './WarningButton';
+import { WarningVariant } from './types';
+import { DEFAULT_VARIANT } from './consts';
+import { WarningIconButton } from './WarningIconButton';
 import {
-    CSSColor,
-    Color,
-    Elevation,
-    borders,
-    mapElevationToBackgroundToken,
-    spacingsPx,
-    typography,
-} from '@trezor/theme';
-import { UIVariant } from '../../config/types';
-import { TransientProps, useElevation } from '../..';
-import { FrameProps, FramePropsKeys, withFrameProps } from '../common/frameProps';
+    mapVariantToBackgroundColor,
+    mapVariantToIcon,
+    mapVariantToIconColor,
+    mapVariantToTextColor,
+} from './utils';
 
 export const allowedWarningFrameProps: FramePropsKeys[] = ['margin'];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedWarningFrameProps)[number]>;
-
-export type WarningVariant = Extract<
-    UIVariant,
-    'primary' | 'secondary' | 'info' | 'warning' | 'destructive' | 'tertiary'
->;
 
 export type WarningProps = AllowedFrameProps & {
     children: ReactNode;
     className?: string;
     variant?: WarningVariant;
-    withIcon?: boolean;
-    icon?: IconType;
+    rightContent?: ReactNode;
+    icon?: IconType | true;
     filled?: boolean;
-    dataTest?: string;
-};
-
-type MapArgs = {
-    $variant: WarningVariant;
-    theme: DefaultTheme;
-    $elevation: Elevation;
-};
-
-const mapVariantToBackgroundColor = ({ $variant, theme, $elevation }: MapArgs): CSSColor => {
-    const colorMap: Record<WarningVariant, Color> = {
-        primary: 'backgroundPrimarySubtleOnElevation0',
-        secondary: 'backgroundNeutralBold',
-        info: 'backgroundAlertBlueSubtleOnElevation0',
-        warning: 'backgroundAlertYellowSubtleOnElevation0',
-        destructive: 'backgroundAlertRedSubtleOnElevation0',
-        tertiary: mapElevationToBackgroundToken({ $elevation }),
-    };
-
-    return theme[colorMap[$variant]];
-};
-
-const mapVariantToTextColor = ({ $variant, theme }: MapArgs): CSSColor => {
-    const colorMap: Record<WarningVariant, Color> = {
-        primary: 'textPrimaryDefault',
-        secondary: 'textDefaultInverted',
-        info: 'textAlertBlue',
-        warning: 'textAlertYellow',
-        destructive: 'textAlertRed',
-        tertiary: 'textSubdued',
-    };
-
-    return theme[colorMap[$variant]];
-};
-const mapVariantToIconColor = ({ $variant, theme }: MapArgs): CSSColor => {
-    const colorMap: Record<WarningVariant, Color> = {
-        primary: 'iconPrimaryDefault',
-        secondary: 'iconDefaultInverted',
-        info: 'iconAlertBlue',
-        warning: 'iconAlertYellow',
-        destructive: 'iconAlertRed',
-        tertiary: 'iconSubdued',
-    };
-
-    return theme[colorMap[$variant]];
-};
-
-const mapVariantToIcon = ({ $variant }: Pick<MapArgs, '$variant'>): IconType => {
-    const iconMap: Record<WarningVariant, IconType> = {
-        primary: 'LIGHTBULB',
-        secondary: 'INFO',
-        info: 'INFO',
-        warning: 'WARNING',
-        destructive: 'WARNING',
-        tertiary: 'INFO',
-    };
-
-    return iconMap[$variant];
+    'data-testid'?: string;
 };
 
 type WrapperParams = TransientProps<AllowedFrameProps> & {
@@ -113,7 +53,6 @@ const Wrapper = styled.div<WrapperParams>`
     ${typography.hint}
     gap: ${spacingsPx.sm};
     padding: ${spacingsPx.sm} ${spacingsPx.lg};
-    width: 100%;
 
     ${withFrameProps}
 
@@ -127,15 +66,17 @@ const Wrapper = styled.div<WrapperParams>`
 export const Warning = ({
     children,
     className,
-    variant = 'warning',
-    withIcon,
+    variant = DEFAULT_VARIANT,
     icon,
     filled = true,
     margin,
-    dataTest,
+    rightContent,
+    'data-testid': dataTest,
 }: WarningProps) => {
     const theme = useTheme();
     const { elevation } = useElevation();
+
+    const withIcon = icon !== undefined;
 
     return (
         <Wrapper
@@ -145,12 +86,12 @@ export const Warning = ({
             $elevation={elevation}
             $filled={filled}
             $margin={margin}
-            data-test={dataTest}
+            data-testid={dataTest}
         >
             {withIcon && (
                 <Icon
                     size={20}
-                    icon={icon === undefined ? mapVariantToIcon({ $variant: variant }) : icon}
+                    icon={icon === true ? mapVariantToIcon({ $variant: variant }) : icon}
                     color={mapVariantToIconColor({
                         $variant: variant,
                         theme,
@@ -158,7 +99,18 @@ export const Warning = ({
                     })}
                 />
             )}
-            {children}
+
+            <Row justifyContent="space-between" gap={spacings.lg} flex={1}>
+                <Column alignItems="flex-start">{children}</Column>
+                {rightContent && (
+                    <WarningContext.Provider value={{ variant }}>
+                        {rightContent}
+                    </WarningContext.Provider>
+                )}
+            </Row>
         </Wrapper>
     );
 };
+
+Warning.Button = WarningButton;
+Warning.IconButton = WarningIconButton;

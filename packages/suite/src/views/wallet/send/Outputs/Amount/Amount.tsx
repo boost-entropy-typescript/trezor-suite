@@ -234,7 +234,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
             hideOnLargeScreens={hideOnLargeScreens}
             hideOnSmallScreens={hideOnSmallScreens}
             isSetMaxActive={isSetMaxActive}
-            dataTest={!hideOnSmallScreens ? maxSwitchId : ''}
+            data-testid={!hideOnSmallScreens ? maxSwitchId : ''}
             onChange={onSwitchChange}
         />
     );
@@ -269,7 +269,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                         bottomText={bottomText || null}
                         onChange={handleInputChange}
                         name={amountName}
-                        data-test={amountName}
+                        data-testid={amountName}
                         defaultValue={amountValue}
                         maxLength={formInputsMaxLength.amount}
                         rules={cryptoAmountRules}
@@ -311,7 +311,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
 
             {isLowAnonymity && (
                 <WarningWrapper>
-                    <Warning withIcon>
+                    <Warning icon>
                         <Translation id="TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING" />
                     </Warning>
                 </WarningWrapper>

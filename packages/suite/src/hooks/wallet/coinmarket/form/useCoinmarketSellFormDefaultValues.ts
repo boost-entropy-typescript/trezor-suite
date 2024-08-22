@@ -10,6 +10,7 @@ import { Account } from 'src/types/wallet';
 import {
     CoinmarketAccountsOptionsGroupProps,
     CoinmarketPaymentMethodListProps,
+    CoinmarketTradeSellExchangeType,
 } from 'src/types/coinmarket/coinmarket';
 import { formDefaultCurrency } from 'src/constants/wallet/coinmarket/formDefaults';
 import { CoinmarketSellFormDefaultValuesProps } from 'src/types/coinmarket/coinmarketForm';
@@ -18,13 +19,22 @@ import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
 import { useSelector } from 'src/hooks/suite';
 import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
 import { useAccountLabel } from 'src/components/suite/AccountLabel';
+import { cryptoToNetworkSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
 
-export const useCoinmarketBuildAccountGroups = (): CoinmarketAccountsOptionsGroupProps[] => {
+export const useCoinmarketBuildAccountGroups = (
+    type: CoinmarketTradeSellExchangeType,
+): CoinmarketAccountsOptionsGroupProps[] => {
     const accounts = useSelector(selectAccounts);
     const accountLabels = useSelector(selectAccountLabels);
     const device = useSelector(selectDevice);
     const { defaultAccountLabelString } = useAccountLabel();
     const { symbolsInfo } = useSelector(state => state.wallet.coinmarket.info);
+    const { tokenDefinitions } = useSelector(state => state);
+    const supportedSymbols = useSelector(state =>
+        type === 'sell'
+            ? state.wallet.coinmarket.sell.sellInfo?.supportedCryptoCurrencies
+            : state.wallet.coinmarket.exchange.exchangeInfo?.sellSymbols,
+    );
 
     const groups = useMemo(
         () =>
@@ -33,9 +43,19 @@ export const useCoinmarketBuildAccountGroups = (): CoinmarketAccountsOptionsGrou
                 deviceState: device?.state,
                 symbolsInfo,
                 accountLabels,
+                tokenDefinitions,
+                supportedSymbols,
                 defaultAccountLabelString,
             }),
-        [symbolsInfo, accounts, accountLabels, device, defaultAccountLabelString],
+        [
+            symbolsInfo,
+            accounts,
+            supportedSymbols,
+            accountLabels,
+            device,
+            tokenDefinitions,
+            defaultAccountLabelString,
+        ],
     );
 
     return groups;
@@ -48,11 +68,16 @@ export const useCoinmarketSellFormDefaultValues = (
     defaultAddress?: string,
 ): CoinmarketSellFormDefaultValuesProps => {
     const country = sellInfo?.sellList?.country;
-    const cryptoGroups = useCoinmarketBuildAccountGroups();
+    const cryptoGroups = useCoinmarketBuildAccountGroups('sell');
     const cryptoOptions = cryptoGroups.flatMap(group => group.options);
     const defaultCrypto = useMemo(
-        () => cryptoOptions.find(option => option.descriptor === account.descriptor),
-        [account.descriptor, cryptoOptions],
+        () =>
+            cryptoOptions.find(
+                option =>
+                    option.descriptor === account.descriptor &&
+                    cryptoToNetworkSymbol(option.value) === account.symbol,
+            ),
+        [account.descriptor, account.symbol, cryptoOptions],
     );
     const defaultCountry = useMemo(() => getDefaultCountry(country), [country]);
     const defaultPaymentMethod: CoinmarketPaymentMethodListProps = useMemo(

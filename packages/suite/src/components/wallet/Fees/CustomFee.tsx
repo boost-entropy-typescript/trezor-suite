@@ -9,7 +9,7 @@ import {
     UseFormReturn,
     UseFormSetValue,
 } from 'react-hook-form';
-import { Note, Row, Warning, motionEasing, variables } from '@trezor/components';
+import { Note, Warning, motionEasing, variables } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { NumberInput } from 'src/components/suite/NumberInput';
 import { getInputState, getFeeUnits, isInteger } from '@suite-common/wallet-utils';
@@ -168,11 +168,15 @@ export const CustomFee = <TFieldValues extends FormState>({
                 marginTop: { duration: 0.25, ease: motionEasing.transition },
             }}
         >
-            <Warning withIcon variant="warning" margin={{ bottom: spacings.xs }}>
-                <Row width="100%" gap={spacings.xs} justifyContent="space-between">
-                    <Translation id="TR_CUSTOM_FEE_WARNING" />
+            <Warning
+                icon
+                variant="warning"
+                margin={{ bottom: spacings.xs }}
+                rightContent={
                     <LearnMoreButton url={HELP_CENTER_TRANSACTION_FEES_URL} variant="warning" />
-                </Row>
+                }
+            >
+                <Translation id="TR_CUSTOM_FEE_WARNING" />
             </Warning>
             <Wrapper>
                 {useFeeLimit ? (
@@ -181,7 +185,7 @@ export const CustomFee = <TFieldValues extends FormState>({
                         label={<Translation id="TR_GAS_LIMIT" />}
                         inputState={getInputState(feeLimitError)}
                         name={FEE_LIMIT}
-                        data-test={FEE_LIMIT}
+                        data-testid={FEE_LIMIT}
                         onChange={changeFeeLimit}
                         rules={feeLimitRules}
                     />
@@ -194,7 +198,7 @@ export const CustomFee = <TFieldValues extends FormState>({
                     inputState={getInputState(feePerUnitError)}
                     innerAddon={<Units>{feeUnits}</Units>}
                     name={FEE_PER_UNIT}
-                    data-test={FEE_PER_UNIT}
+                    data-testid={FEE_PER_UNIT}
                     rules={feeRules}
                     bottomText={feePerUnitError?.message || null}
                 />

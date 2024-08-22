@@ -5,8 +5,6 @@ import {
     stakeActions,
     sendFormActions,
 } from '@suite-common/wallet-core';
-import { ArrayElement } from '@trezor/type-utils';
-
 import { ReceiveAction } from 'src/actions/wallet/receiveActions';
 import { SignVerifyAction } from 'src/actions/wallet/signVerifyActions';
 import { CoinmarketBuyAction } from 'src/actions/wallet/coinmarketBuyActions';
@@ -19,13 +17,11 @@ import { FormDraftAction } from 'src/actions/wallet/formDraftActions';
 import { CardanoStakingAction } from 'src/actions/wallet/cardanoStakingActions';
 import { CoinjoinAccountAction } from 'src/actions/wallet/coinjoinAccountActions';
 import { CoinjoinClientAction } from 'src/actions/wallet/coinjoinClientActions';
-import { NETWORKS } from 'src/config/wallet';
 import { CoinmarketInfoAction } from 'src/actions/wallet/coinmarketInfoActions';
 import { tokenDefinitionsActions } from '@suite-common/token-definitions/src/tokenDefinitionsActions';
 
-export type Network = ArrayElement<typeof NETWORKS>;
-export type NetworkSymbol = Network['symbol'];
 // reexport
+export type { Network, NetworkSymbol } from '@suite-common/wallet-config';
 export type { Icon } from './iconTypes';
 export type { BackendType, CustomBackend } from './backend';
 export type { TickerId } from 'src/types/wallet/fiatRates';

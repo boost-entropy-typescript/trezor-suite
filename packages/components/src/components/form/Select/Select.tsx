@@ -34,10 +34,11 @@ const reactSelectClassNamePrefix = 'react-select';
 const createSelectStyle = (
     theme: DefaultTheme,
     elevation: Elevation,
+    isRenderedInModal: boolean,
 ): StylesConfig<Option, boolean> => ({
     menuPortal: base => ({
         ...base,
-        zIndex: zIndices.modal /* Necessary to be visible inside a Modal */,
+        zIndex: isRenderedInModal ? zIndices.modal : zIndices.selectMenu,
     }),
     // menu styles are here because of the portal
     menu: base => ({
@@ -51,7 +52,6 @@ const createSelectStyle = (
         borderRadius: borders.radii.md,
         background: theme.backgroundSurfaceElevation1,
         boxShadow: theme.boxShadowElevated,
-        zIndex: zIndices.modal,
         animation: `${DROPDOWN_MENU.getName()} 0.15s ease-in-out`,
         listStyleType: 'none',
         overflow: 'hidden',
@@ -262,7 +262,7 @@ interface CommonProps extends Omit<ReactSelectProps<Option>, 'onChange'> {
     minValueWidth?: string; // TODO: should be probably removed
     inputState?: InputState;
     onChange?: (value: Option, ref?: SelectInstance<Option, boolean> | null) => void;
-    'data-test'?: string;
+    'data-testid'?: string;
 }
 
 // Make sure isSearchable can't be defined if useKeyPressScroll===true
@@ -289,7 +289,7 @@ export const Select = ({
     onChange,
     placeholder,
     isDisabled = false,
-    'data-test': dataTest,
+    'data-testid': dataTest,
     ...props
 }: SelectProps) => {
     const selectRef = useRef<SelectInstance<Option, boolean>>(null);
@@ -298,6 +298,7 @@ export const Select = ({
     const theme = useTheme();
     const onKeyDown = useOnKeyDown(selectRef, useKeyPressScroll);
     const menuPortalTarget = useDetectPortalTarget(selectRef);
+    const isRenderedInModal = menuPortalTarget !== null;
 
     const handleOnChange = useCallback<Required<ReactSelectProps>['onChange']>(
         (value, { action }) => {
@@ -322,10 +323,10 @@ export const Select = ({
     const memoizedComponents = useMemo(
         () => ({
             Control: (controlProps: ControlComponentProps) => (
-                <Control {...controlProps} dataTest={dataTest} />
+                <Control {...controlProps} data-testid={dataTest} />
             ),
             Option: (optionProps: OptionComponentProps) => (
-                <Option {...optionProps} dataTest={dataTest} />
+                <Option {...optionProps} data-testid={dataTest} />
             ),
             GroupHeading,
             ...components,
@@ -355,7 +356,7 @@ export const Select = ({
                 closeMenuOnScroll={closeMenuOnScroll}
                 menuPosition="fixed" // Required for closeMenuOnScroll to work properly when near page bottom
                 menuPortalTarget={menuPortalTarget}
-                styles={createSelectStyle(theme, elevation)}
+                styles={createSelectStyle(theme, elevation, isRenderedInModal)}
                 onChange={handleOnChange}
                 isSearchable={isSearchable}
                 menuIsOpen={menuIsOpen}

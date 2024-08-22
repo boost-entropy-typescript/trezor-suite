@@ -54,7 +54,9 @@ export class SessionsClient extends TypedEmitter<{
     handshake() {
         return this.request({ type: 'handshake' });
     }
-
+    enumerateIntent() {
+        return this.request({ type: 'enumerateIntent' });
+    }
     enumerateDone(payload: EnumerateDoneRequest) {
         return this.request({ type: 'enumerateDone', payload });
     }
@@ -75,5 +77,10 @@ export class SessionsClient extends TypedEmitter<{
     }
     getPathBySession(payload: GetPathBySessionRequest) {
         return this.request({ type: 'getPathBySession', payload });
+    }
+    dispose() {
+        this.removeAllListeners('descriptors');
+
+        return this.request({ type: 'dispose' });
     }
 }

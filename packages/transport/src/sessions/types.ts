@@ -83,6 +83,7 @@ export type Params = {
 
 export interface HandleMessageApi {
     handshake: () => HandshakeResponse;
+    enumerateIntent: () => BackgroundResponse<void>;
     enumerateDone: (payload: EnumerateDoneRequest) => EnumerateDoneResponse;
     acquireIntent: (payload: AcquireIntentRequest) => AcquireIntentResponse;
     acquireDone: (payload: AcquireDoneRequest) => AcquireDoneResponse;
@@ -90,6 +91,7 @@ export interface HandleMessageApi {
     releaseDone: (payload: ReleaseDoneRequest) => ReleaseDoneResponse;
     getSessions: () => GetSessionsResponse;
     getPathBySession: (payload: GetPathBySessionRequest) => GetPathBySessionResponse;
+    dispose: () => BackgroundResponse<void>;
 }
 
 type UnwrapParams<T, Fn> = Fn extends () => any

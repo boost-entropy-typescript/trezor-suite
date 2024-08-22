@@ -3,7 +3,7 @@ import styled, { useTheme } from 'styled-components';
 import { useMeasure } from 'react-use';
 import { spacingsPx, spacings, typography } from '@trezor/theme';
 
-import { Icon } from '../../assets/Icon/Icon';
+import { Icon } from '../../Icon/Icon';
 import {
     baseInputStyle,
     INPUT_HEIGHTS,
@@ -16,6 +16,7 @@ import { InputState, InputSize } from '../inputTypes';
 import { TopAddons } from '../TopAddons';
 import { useElevation } from '../../ElevationContext/ElevationContext';
 import { UIHorizontalAlignment } from '../../../config/types';
+import { IconName } from '@suite-common/icons';
 
 const Wrapper = styled.div<{ $width?: number; $hasBottomPadding: boolean }>`
     display: inline-flex;
@@ -90,10 +91,11 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
      * @description pass `null` if bottom text can be `undefined`
      */
     bottomText?: ReactNode;
+    bottomTextIcon?: IconName;
     isDisabled?: boolean;
     size?: InputSize;
     className?: string;
-    dataTest?: string;
+    'data-testid'?: string;
     inputState?: InputState; // TODO: do we need this? we only have the error state right now
     innerAddonAlign?: innerAddonAlignment;
     hasBottomPadding?: boolean;
@@ -115,9 +117,10 @@ const Input = ({
     innerAddon,
     innerAddonAlign = 'right',
     bottomText,
+    bottomTextIcon,
     size = 'large',
     isDisabled,
-    dataTest,
+    'data-testid': dataTest,
     showClearButton,
     placeholder,
     onClear,
@@ -191,7 +194,7 @@ const Input = ({
                     $rightAddonWidth={rightAddonWidth}
                     $isWithLabel={!!label}
                     placeholder={placeholder || ''} // needed for uncontrolled inputs
-                    data-test={dataTest}
+                    data-testid={dataTest}
                     {...rest}
                 />
 
@@ -203,7 +206,7 @@ const Input = ({
             </InputWrapper>
 
             {bottomText && (
-                <BottomText inputState={inputState} isDisabled={isDisabled}>
+                <BottomText inputState={inputState} isDisabled={isDisabled} icon={bottomTextIcon}>
                     {bottomText}
                 </BottomText>
             )}

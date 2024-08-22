@@ -5,7 +5,6 @@
 // 4. add params types to RouteParamsTypes (@suite-constants/routes)
 
 const walletParams = ['symbol', 'accountIndex', 'accountType'] as const;
-const sendParams = ['symbol', 'accountIndex', 'accountType', 'contractAddress'] as const;
 const modalAppParams = ['cancelable', 'variant'] as const;
 
 export const routes = [
@@ -144,7 +143,7 @@ export const routes = [
         name: 'wallet-send',
         pattern: '/accounts/send',
         app: 'wallet',
-        params: sendParams,
+        params: walletParams,
     },
     {
         name: 'wallet-staking',
@@ -218,6 +217,19 @@ export const routes = [
     {
         name: 'wallet-coinmarket-exchange-detail',
         pattern: '/accounts/coinmarket/exchange/detail',
+        app: 'wallet',
+        params: walletParams,
+    },
+    {
+        name: 'wallet-coinmarket-buy-confirm',
+        pattern: '/accounts/coinmarket/buy/confirm',
+        app: 'wallet',
+        params: walletParams,
+        exact: true,
+    },
+    {
+        name: 'wallet-coinmarket-sell-confirm',
+        pattern: '/accounts/coinmarket/sell/confirm',
         app: 'wallet',
         params: walletParams,
     },

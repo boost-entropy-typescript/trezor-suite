@@ -1,4 +1,4 @@
-import { useCallback, useRef, Dispatch, SetStateAction, KeyboardEvent, ChangeEvent } from 'react';
+import { useCallback, useRef, Dispatch, SetStateAction, KeyboardEvent } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { Input, Icon, KEYBOARD_CODE, motionEasing } from '@trezor/components';
 import { borders, spacingsPx } from '@trezor/theme';
@@ -52,8 +52,8 @@ export interface SearchProps {
     searchQuery: string;
     setExpanded: Dispatch<SetStateAction<boolean>>;
     setSearch: Dispatch<SetStateAction<string>>;
-    onSearch: (event: ChangeEvent<HTMLInputElement>) => void;
-    dataTest?: string;
+    onSearch: (query: string) => void;
+    'data-testid'?: string;
 }
 
 export const SearchAction = ({
@@ -64,7 +64,7 @@ export const SearchAction = ({
     setExpanded,
     setSearch,
     onSearch,
-    dataTest,
+    'data-testid': dataTest,
 }: SearchProps) => {
     const theme = useTheme();
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -96,12 +96,12 @@ export const SearchAction = ({
         <Container>
             <StyledTooltipSymbol
                 content={<Translation id={tooltipText} />}
-                $isExpanded={isExpanded}
+                $isExpanded={isExpanded || searchQuery !== ''}
             />
 
             <StyledInput
-                $isExpanded={isExpanded}
-                data-test={dataTest}
+                $isExpanded={isExpanded || searchQuery !== ''}
+                data-testid={dataTest}
                 size="small"
                 innerRef={inputRef}
                 innerAddon={
@@ -113,7 +113,7 @@ export const SearchAction = ({
                     />
                 }
                 placeholder={isExpanded ? translationString(placeholder) : undefined}
-                onChange={onSearch}
+                onChange={e => onSearch(e.target.value)}
                 onBlur={onBlur}
                 onKeyDown={onKeyDown}
                 value={searchQuery}

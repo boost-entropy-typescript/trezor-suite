@@ -61,11 +61,11 @@ window.addEventListener('load', () => {
                 <br>
                 To keep your funds safe, we recommend using the latest version of a supported browser.
                 </p>
-                <p class=${style.continueButton} id="continue-to-suite" data-test="@continue-to-suite">Continue at my own risk</p>`
+                <p class=${style.continueButton} id="continue-to-suite" data-testid="@continue-to-suite">Continue at my own risk</p>`
             : '';
 
     const getMainHtml = (props: MainHtmlProps) => `
-    <div id="unsupported-browser" class="${style.container}" data-test="@browser-detect">
+    <div id="unsupported-browser" class="${style.container}" data-testid="@browser-detect">
         <h1 class="${style.title}">${props.title}</h1>
         <p class="${style.subtitle}">${props.subtitle}</p>
         ${getSupportedDevicesList(props)}
@@ -159,6 +159,22 @@ window.addEventListener('load', () => {
             name: 'firefox',
             version: 102,
             mobile: false, // no webusb support
+        },
+        // Other Chromium based browsers
+        {
+            name: 'brave',
+            version: 59,
+            mobile: true,
+        },
+        {
+            name: 'edge',
+            version: 92, // Edge 92 is based on Chromium 92
+            mobile: true,
+        },
+        {
+            name: 'opera',
+            version: 95,
+            mobile: true,
         },
     ] as const;
 

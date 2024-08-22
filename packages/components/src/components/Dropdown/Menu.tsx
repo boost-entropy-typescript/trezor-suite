@@ -9,7 +9,7 @@ import {
     mapElevationToBackground,
     nextElevation,
 } from '@trezor/theme';
-import { Icon, IconProps } from '../assets/Icon/Icon';
+import { Icon, IconProps } from '../Icon/Icon';
 import type { Coords } from './getAdjustedCoords';
 import { menuStyle } from './menuStyle';
 import { useElevation } from '../ElevationContext/ElevationContext';
@@ -159,7 +159,7 @@ export type DropdownMenuItemProps = {
     isDisabled?: boolean;
     isHidden?: boolean;
     separatorBefore?: boolean;
-    'data-test'?: string;
+    'data-testid'?: string;
 };
 
 type MenuItemComponentProps = DropdownMenuItemProps & {
@@ -178,7 +178,7 @@ const MenuItem = ({
     setToggled,
     isKeyboardSelected,
     onMouseOver,
-    'data-test': dataTest,
+    'data-testid': dataTest,
     separatorBefore,
 }: MenuItemComponentProps) => {
     const { elevation } = useElevation();
@@ -203,7 +203,7 @@ const MenuItem = ({
             $isFocused={isKeyboardSelected}
             onMouseOver={onMouseOver}
             $separatorBefore={separatorBefore}
-            data-test={dataTest}
+            data-testid={dataTest}
         >
             {icon && <Icon icon={icon} size={spacings.md} />}
             <span>{label}</span>

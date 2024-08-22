@@ -19,13 +19,17 @@ class SuiteGuide {
     }
 
     async selectLocationInApp(window: Page, desiredLocation: string) {
-        const suggestionDropdown = await window.getByTestId('@guide/feedback/suggestion-dropdown');
+        const suggestionDropdown = window.getByTestId('@guide/feedback/suggestion-dropdown');
         await suggestionDropdown.waitFor({ state: 'visible' });
         await suggestionDropdown.click();
         await clickDataTest(
             window,
             `@guide/feedback/suggestion-dropdown/select/option/${desiredLocation.toLowerCase()}`,
         );
+        // assert that select value was changed correctly.
+        expectPlaywright(
+            window.locator('[data-testid="@guide/feedback/suggestion-dropdown/select/input"]'),
+        ).toHaveText(desiredLocation);
     }
 
     async fillInSuggestionForm(window: Page, reportText: string) {
@@ -59,9 +63,9 @@ class SuiteGuide {
 
     async closeGuide(window: Page) {
         // since there's a possibility of a notification, we first check for it
-        const suiteNotification = await window.locator('[data-test*="@toast"]').first();
+        const suiteNotification = await window.locator('[data-testid*="@toast"]').first();
         if (await suiteNotification.isVisible()) {
-            await suiteNotification.locator('[data-test$="close"]').click();
+            await suiteNotification.locator('[data-testid$="close"]').click();
             await suiteNotification.waitFor({ state: 'detached' });
         }
         await window.getByTestId('@guide/button-close').click();
@@ -71,7 +75,7 @@ class SuiteGuide {
     async lookupArticle(window: Page, article: string) {
         await window.getByTestId('@guide/search').fill(article);
         await window.getByTestId('@guide/search/results').waitFor({ state: 'visible' });
-        await window.locator('[data-test^="@guide/node"]', { hasText: article }).click();
+        await window.locator('[data-testid^="@guide/node"]', { hasText: article }).click();
     }
 
     // asserts

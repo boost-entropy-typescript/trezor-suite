@@ -1,9 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Spinner as SpinnerComponent, SpinnerProps, allowedSpinnerFrameProps } from './Spinner';
-import { getFramePropsStory } from '../../common/frameProps';
+import { getFramePropsStory } from '../../../utils/frameProps';
 
 const meta: Meta = {
-    title: 'Loaders/Spinner',
+    title: 'Spinner',
     component: SpinnerComponent,
 } as Meta;
 export default meta;

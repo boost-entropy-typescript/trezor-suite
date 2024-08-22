@@ -1,14 +1,47 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.3.0  | 9.3.1-beta.2 |
-|     npm @trezor/connect-web      | 9.3.0  | 9.3.1-beta.2 |
-| npm @trezor/connect-webextension | 9.3.0  | 9.3.1-beta.2 |
+|       npm @trezor/connect        | 9.3.0  | 9.3.1-beta.3 |
+|     npm @trezor/connect-web      | 9.3.0  | 9.3.1-beta.3 |
+| npm @trezor/connect-webextension | 9.3.0  | 9.3.1-beta.3 |
 
 |     Deployment     | Stable |    Canary    |
 | :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.3.0  | 9.3.1-beta.2 |
+| connect.trezor.io/ | 9.3.0  | 9.3.1-beta.3 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.3.1-beta.3
+
+## connect
+
+-   add fw 2.8.1 (847cfd6)
+-   feat: Implement firmware hash check into device (905e656, 10a1c86, 95d3d90, 655b9d3)
+-   chore: rename bsc to bnb as it is declared in fw repo (0174dc2)
+-   fix: report devices without GetFeatures support as fw required (f6b7826)
+-   refactor: core and deviceList global state (6149ef1, d1e92f9, cbb4c5c, 167cacf, 0057aeb, 76ab7a0, 8e65374, 418b7cc)
+
+## connect-popup
+
+-   Opera is now not marked as unsupported browser (8e34af7)
+-   fix typo in loader message (9adeb0b)
+-   allow on mobile (9a6ba2e, 462e45e)
+-   update no transport description message (10a79da)
+
+## connect-explorer
+
+-   add extra meta tags & preview image (c4e1c2d)
+-   add loading indicator to method submit button (14e1248)
+-   clean up coins select - remove namecoin, vertcoin, capricoin and komodo (9cef961)
+
+## Dependencies update
+
+-   npm-prerelease: @trezor/blockchain-link 2.2.1-beta.3
+-   npm-prerelease: @trezor/blockchain-link-utils 1.1.1-beta.3
+-   npm-prerelease: @trezor/blockchain-link-types 1.1.1-beta.3
+-   npm-prerelease: @trezor/connect-analytics 1.1.1-beta.1
+-   npm-prerelease: @trezor/connect-common 0.1.1-beta.3
+-   npm-prerelease: @trezor/transport 1.2.1-beta.3
+-   npm-prerelease: @trezor/utils 9.1.1-beta.3
 
 # 9.3.1-beta.2
 

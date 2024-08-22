@@ -7,12 +7,11 @@ import {
     selectDeviceModel,
 } from '@suite-common/wallet-core';
 import { arrayPartition } from '@trezor/utils';
-import { NetworkSymbol } from '@suite-common/wallet-config';
-import { Button, CoinLogo, CollapsibleBox } from '@trezor/components';
+import { networksCompatibility, NetworkSymbol } from '@suite-common/wallet-config';
+import { CollapsibleBox, NewModal } from '@trezor/components';
 import { FirmwareType } from '@trezor/connect';
 import { spacings, spacingsPx } from '@trezor/theme';
-import { Translation, Modal, CoinList, TooltipSymbol } from 'src/components/suite';
-import { NETWORKS } from 'src/config/wallet';
+import { Translation, CoinList, TooltipSymbol } from 'src/components/suite';
 import { Account, Network } from 'src/types/wallet';
 import { TrezorDevice } from 'src/types/suite';
 import { useSelector, useDispatch } from 'src/hooks/suite';
@@ -24,22 +23,12 @@ import { AccountTypeSelect } from './AccountTypeSelect/AccountTypeSelect';
 import { SelectNetwork } from './SelectNetwork';
 import { AddAccountButton } from './AddAccountButton/AddAccountButton';
 import { DeviceModelInternal } from '@trezor/connect';
-
-const StyledModal = styled(Modal)`
-    width: 480px;
-    text-align: left;
-`;
+import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
 
 const NetworksWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${spacingsPx.md};
-`;
-
-const CoinLogoWrapper = styled.span`
-    display: inline;
-    margin-right: ${spacingsPx.xxs};
-    vertical-align: text-top;
 `;
 
 interface AddAccountProps {
@@ -53,7 +42,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
     const accounts = useSelector(state => state.wallet.accounts);
     const supportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
     const app = useSelector(state => state.router.app);
-    const debug = useSelector(state => state.suite.settings.debug);
+    const isDebug = useSelector(selectIsDebugModeActive);
     const isCoinjoinPublic = useSelector(selectIsPublic);
     const deviceModel = useSelector(selectDeviceModel);
     const dispatch = useDispatch();
@@ -73,13 +62,11 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
         enabledNetworkSymbols.includes(network.symbol),
     );
 
-    const isCoinjoinVisible = isCoinjoinPublic || debug.showDebugMenu;
-
     // applied when changing account in coinmarket exchange receive options context
     const networkPinned = !!symbol;
     const preselectedNetwork = symbol && supportedNetworks.find(n => n.symbol === symbol);
     // or in case of only btc is enabled on bitcoin-only firmware
-    const bitcoinNetwork = NETWORKS.find(n => n.symbol === 'btc');
+    const bitcoinNetwork = networksCompatibility.find(n => n.symbol === 'btc');
     const bitcoinOnlyDefaultNetworkSelection =
         device.firmwareType === FirmwareType.BitcoinOnly &&
         supportedMainnets.length === 1 &&
@@ -113,23 +100,29 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
           )
         : [];
 
+    const isCoinjoinVisible = isCoinjoinPublic || isDebug;
+
     // Collect possible accountTypes
-    const accountTypes =
-        isSelectedNetworkEnabled && selectedNetwork?.networkType === 'bitcoin'
-            ? NETWORKS.filter(n => n.symbol === selectedNetwork.symbol)
-                  /**
-                   * Filter out coinjoin account type if it is not visible.
-                   * Visibility of coinjoin account type depends on coinjoin feature config in message system.
-                   * By default it is visible publicly, but it can be remotely hidden under debug menu.
-                   */
-                  .filter(({ backendType }) => backendType !== 'coinjoin' || isCoinjoinVisible)
-            : undefined;
+    const accountTypes = isSelectedNetworkEnabled
+        ? networksCompatibility
+              .filter(n => n.symbol === selectedNetwork.symbol)
+              /**
+               * Filter out coinjoin account type if it is not visible.
+               * Visibility of coinjoin account type depends on coinjoin feature config in message system.
+               * By default it is visible publicly, but it can be remotely hidden under debug menu.
+               */
+              .filter(({ backendType }) => backendType !== 'coinjoin' || isCoinjoinVisible)
+              .filter(
+                  ({ isDebugOnlyAccountType }) =>
+                      isDebugOnlyAccountType === undefined || (isDebugOnlyAccountType && isDebug),
+              )
+        : undefined;
 
     const selectedNetworks = selectedNetwork ? [selectedNetwork.symbol] : [];
 
     const selectNetwork = (symbol?: Network['symbol']) => {
         if (symbol) {
-            const networkToSelect = NETWORKS.find(n => n.symbol === symbol);
+            const networkToSelect = networksCompatibility.find(n => n.symbol === symbol);
 
             // To prevent account type selection reset
             const alreadySelected =
@@ -187,18 +180,11 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                       <Translation
                           id="TR_ADD_NETWORK_ACCOUNT"
                           values={{
-                              network: (
-                                  <>
-                                      <CoinLogoWrapper>
-                                          <CoinLogo size={24} symbol={selectedNetwork.symbol} />
-                                      </CoinLogoWrapper>
-                                      {selectedNetwork.name}
-                                  </>
-                              ),
+                              network: selectedNetwork.name,
                           }}
                       />
                   ),
-                  subheading: <Translation id="TR_SELECT_TYPE" />,
+                  description: <Translation id="TR_SELECT_TYPE" />,
                   children: (
                       <AccountTypeSelect
                           network={selectedNetwork}
@@ -210,7 +196,6 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
               }
             : {
                   heading: <Translation id="TR_ADD_ACCOUNT" />,
-                  headingSize: 'large',
                   children: (
                       <>
                           <NetworksWrapper>
@@ -239,7 +224,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                                           />
                                       </>
                                   }
-                                  data-test="@modal/account/activate_more_coins"
+                                  data-testid="@modal/account/activate_more_coins"
                                   margin={{ top: spacings.md }}
                               >
                                   <CoinList
@@ -261,7 +246,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                                           />
                                       </>
                                   }
-                                  data-test="@modal/account/activate_more_coins"
+                                  data-testid="@modal/account/activate_more_coins"
                                   margin={{ top: spacings.md }}
                               >
                                   <CoinList
@@ -277,10 +262,10 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
     };
 
     return (
-        <StyledModal
-            isCancelable
+        <NewModal
             onCancel={onCancel}
-            bottomBarComponents={
+            size="small"
+            bottomContent={
                 selectedNetwork &&
                 (isSelectedNetworkEnabled ? (
                     <AddAccountButton
@@ -289,12 +274,12 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                         onEnableAccount={addAccount}
                     />
                 ) : (
-                    <Button variant="primary" size="small" onClick={enableNetwork}>
+                    <NewModal.Button onClick={enableNetwork}>
                         <Translation
                             id="TR_ENABLE_NETWORK_BUTTON"
                             values={{ networkName: selectedNetwork.name }}
                         />
-                    </Button>
+                    </NewModal.Button>
                 ))
             }
             {...getStepConfig()}

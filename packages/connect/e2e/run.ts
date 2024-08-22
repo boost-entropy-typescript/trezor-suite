@@ -92,10 +92,21 @@ const getEmulatorOptions = (availableFirmwares: Firmwares) => {
     if (process.argv[2] === 'node') {
         // eslint-disable-next-line no-console
         console.log('jest version: ', getJestVersion());
-        // @ts-expect-error
-        const { results } = await runCLI(argv, [__dirname]);
 
-        process.exit(results.numFailedTests);
+        if (process.env.TESTS_RANDOM === 'true') {
+            // @ts-expect-error
+            argv.showSeed = true;
+            // @ts-expect-error
+            argv.randomize = true;
+        }
+
+        // @ts-expect-error
+        const { results } = await runCLI(argv, [__dirname]).catch(err => {
+            console.error(err);
+            process.exit(1);
+        });
+
+        process.exit(results.numFailedTestSuites);
     } else if (process.argv[2] === 'web') {
         const { parseConfig } = karma.config;
         const { Server } = karma;

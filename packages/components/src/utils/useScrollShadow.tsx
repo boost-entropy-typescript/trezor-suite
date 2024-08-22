@@ -66,6 +66,7 @@ export const useScrollShadow = () => {
     };
 
     const { elevation } = useElevation();
+
     useEffect(() => {
         setShadows();
         window.addEventListener('resize', () => setShadows());

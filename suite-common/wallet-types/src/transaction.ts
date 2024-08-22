@@ -29,7 +29,8 @@ type PrecomposedTransactionErrorExtended =
               | 'AMOUNT_IS_NOT_ENOUGH'
               | 'AMOUNT_IS_TOO_LOW'
               | 'AMOUNT_IS_LESS_THAN_RESERVE'
-              | 'TR_STAKE_NOT_ENOUGH_FUNDS';
+              | 'TR_STAKE_NOT_ENOUGH_FUNDS'
+              | 'REMAINING_BALANCE_LESS_THAN_RENT';
       };
 
 export type PrecomposedTransactionCardanoNonFinal =
@@ -154,6 +155,7 @@ export type GeneralPrecomposedTransactionFinal =
 
 export type PrecomposedLevels = { [key: string]: PrecomposedTransaction };
 export type PrecomposedLevelsCardano = { [key: string]: PrecomposedTransactionCardano };
+export type GeneralPrecomposedLevels = PrecomposedLevels | PrecomposedLevelsCardano;
 
 export interface RbfTransactionParams {
     txid: string;
@@ -283,3 +285,5 @@ export type ReviewOutputType = ReviewOutput['type'];
 export type ReviewOutputState = 'active' | 'success' | undefined;
 
 export type ExcludedUtxos = Record<string, 'low-anonymity' | 'dust' | undefined>;
+
+export type FeeLevelLabel = FeeLevel['label'];

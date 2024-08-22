@@ -57,20 +57,28 @@ import { useCoinmarketSellFormHelpers } from 'src/hooks/wallet/coinmarket/form/u
 import { selectAccounts } from '@suite-common/wallet-core';
 import { Network } from '@suite-common/wallet-config';
 import { useCoinmarketSatsSwitcher } from 'src/hooks/wallet/coinmarket/form/useCoinmarketSatsSwitcher';
+import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarketLoadData';
 
 export const useCoinmarketSellForm = ({
     selectedAccount,
     pageType = 'form',
 }: UseCoinmarketFormProps): CoinmarketSellFormContextProps => {
     const type = 'sell';
-    const isPageOffers = pageType === 'offers';
+    const isNotFormPage = pageType !== 'form';
     const dispatch = useDispatch();
-    const { sellInfo, quotesRequest, isFromRedirect, quotes, transactionId, coinmarketAccount } =
-        useSelector(state => state.wallet.coinmarket.sell);
+    const {
+        sellInfo,
+        quotesRequest,
+        isFromRedirect,
+        quotes,
+        transactionId,
+        coinmarketAccount,
+        selectedQuote,
+    } = useSelector(state => state.wallet.coinmarket.sell);
     // selectedAccount is used as initial state if this is form page
     // coinmarketAccount is used on offers page
     const [account, setAccount] = useState<Account>(() => {
-        if (coinmarketAccount && isPageOffers) {
+        if (coinmarketAccount && isNotFormPage) {
             return coinmarketAccount;
         }
 
@@ -78,15 +86,8 @@ export const useCoinmarketSellForm = ({
     });
 
     const { translationString } = useTranslation();
-    const {
-        callInProgress,
-        selectedQuote,
-        timer,
-        device,
-        setCallInProgress,
-        setSelectedQuote,
-        checkQuotesTimer,
-    } = useCoinmarketCommonOffers<CoinmarketTradeSellType>({ selectedAccount, type });
+    const { callInProgress, timer, device, setCallInProgress, checkQuotesTimer } =
+        useCoinmarketCommonOffers<CoinmarketTradeSellType>({ selectedAccount, type });
     const { paymentMethods, getPaymentMethods, getQuotesByPaymentMethod } =
         useCoinmarketPaymentMethod<CoinmarketTradeSellType>();
     const {
@@ -98,18 +99,19 @@ export const useCoinmarketSellForm = ({
         goto,
         saveTrade,
         saveQuotes,
+        saveSelectedQuote,
         setIsFromRedirect,
         saveQuoteRequest,
         saveTransactionId,
         openCoinmarketSellConfirmModal,
         submitRequestForm,
         saveComposedTransactionInfo,
-        loadInvityData,
         savePaymentMethods,
     } = useActions({
         goto: routerActions.goto,
         saveTrade: coinmarketSellActions.saveTrade,
         saveQuotes: coinmarketSellActions.saveQuotes,
+        saveSelectedQuote: coinmarketSellActions.saveSelectedQuote,
         setIsFromRedirect: coinmarketSellActions.setIsFromRedirect,
         saveQuoteRequest: coinmarketSellActions.saveQuoteRequest,
         saveTransactionId: coinmarketSellActions.saveTransactionId,
@@ -120,7 +122,8 @@ export const useCoinmarketSellForm = ({
         savePaymentMethods: coinmarketInfoActions.savePaymentMethods,
     });
     const accounts = useSelector(selectAccounts);
-    const { navigateToSellForm, navigateToSellOffers } = useCoinmarketNavigation(account);
+    const { navigateToSellForm, navigateToSellOffers, navigateToSellOffer } =
+        useCoinmarketNavigation(account);
 
     const { symbol, networkType } = account;
     const localCurrency = useSelector(selectLocalCurrency);
@@ -162,7 +165,7 @@ export const useCoinmarketSellForm = ({
     const draft = getDraft(sellDraftKey);
     // eslint-disable-next-line no-nested-ternary
     const draftUpdated: CoinmarketSellFormProps | null = draft
-        ? isPageOffers
+        ? isNotFormPage
             ? {
                   ...draft,
                   fiatInput: draft.fiatInput && draft.fiatInput !== '' ? draft.fiatInput : '',
@@ -191,7 +194,7 @@ export const useCoinmarketSellForm = ({
         formState,
     } = methods;
     const values = useWatch<CoinmarketSellFormProps>({ control });
-    const previousValues = useRef<typeof values | null>(isPageOffers ? draftUpdated : null);
+    const previousValues = useRef<typeof values | null>(isNotFormPage ? draftUpdated : null);
 
     const initState = useCoinmarketCommonFormState({
         account,
@@ -247,7 +250,6 @@ export const useCoinmarketSellForm = ({
         quoteCryptoAmount: quotesByPaymentMethod?.[0]?.cryptoStringAmount,
         quoteFiatAmount: quotesByPaymentMethod?.[0]?.fiatStringAmount,
         network,
-        setIsSubmittingHelper,
     });
 
     const getQuotesRequest = useCallback(
@@ -417,7 +419,7 @@ export const useCoinmarketSellForm = ({
 
             previousValues.current = values;
         }
-    }, [previousValues, values, handleChange, handleSubmit, isPageOffers]);
+    }, [previousValues, values, handleChange, handleSubmit, isNotFormPage]);
 
     const doSellTrade = async (quote: SellFiatTrade) => {
         const provider =
@@ -435,6 +437,7 @@ export const useCoinmarketSellForm = ({
             { selectedFee: selectedFeeRecomposedAndSigned, composed },
             orderId,
         );
+
         const response = await invityAPI.doSellTrade({
             trade: { ...quote, refundAddress: getUnusedAddressFromAccount(account).address },
             returnUrl,
@@ -460,7 +463,7 @@ export const useCoinmarketSellForm = ({
                 if (provider.flow === 'PAYMENT_GATE') {
                     dispatch(saveTrade(response.trade, account, new Date().toISOString()));
                     dispatch(saveTransactionId(response.trade.orderId));
-                    setSelectedQuote(response.trade);
+                    saveSelectedQuote(response.trade);
                     setSellStep('SEND_TRANSACTION');
                 }
                 // dispatch(submitRequestForm(response.tradeForm?.form));
@@ -480,7 +483,6 @@ export const useCoinmarketSellForm = ({
             }),
         );
     };
-
     const needToRegisterOrVerifyBankAccount = (quote: SellFiatTrade) => {
         const provider =
             sellInfo?.providerInfos && quote.exchange
@@ -516,13 +518,10 @@ export const useCoinmarketSellForm = ({
             );
 
             if (result) {
-                // empty quoteId means the partner requests login first, requestTrade to get login screen
-                if (!quote.quoteId || needToRegisterOrVerifyBankAccount(quote)) {
-                    doSellTrade(quote);
-                } else {
-                    setSelectedQuote(quote);
-                    timer.stop();
-                }
+                saveSelectedQuote(quote);
+                timer.stop();
+
+                navigateToSellOffer();
             }
         }
     };
@@ -532,7 +531,7 @@ export const useCoinmarketSellForm = ({
         const quote = { ...selectedQuote, bankAccount };
         const response = await doSellTrade(quote);
         if (response) {
-            setSelectedQuote(response);
+            saveSelectedQuote(response);
             setSellStep('SEND_TRANSACTION');
         }
     };
@@ -610,10 +609,7 @@ export const useCoinmarketSellForm = ({
         }
     };
 
-    // hooks
-    useEffect(() => {
-        dispatch(loadInvityData());
-    }, [dispatch, loadInvityData]);
+    useCoinmarketLoadData();
 
     useEffect(() => {
         if (!isChanged(defaultValues, values)) {
@@ -654,35 +650,10 @@ export const useCoinmarketSellForm = ({
             setState(initState);
         };
 
-        // used to prevent composing transaction on empty fields
-        const shouldCompose =
-            values?.cryptoInput !== '' ||
-            values?.fiatInput !== '' ||
-            values?.setMaxOutputId === 0 ||
-            // check changing accounts
-            initState?.formValues?.outputs[0].address !== values?.outputs?.[0]?.address;
-
-        if (
-            initState &&
-            initState?.account.descriptor !== state?.account.descriptor &&
-            shouldCompose
-        ) {
+        if (initState && initState?.account.descriptor !== state?.account.descriptor) {
             setStateAsync(initState);
         }
-    }, [
-        state,
-        initState,
-        account,
-        network,
-        device,
-        accounts,
-        chunkify,
-        setValue,
-        values,
-        values?.cryptoInput,
-        values?.fiatInput,
-        values?.setMaxOutputId,
-    ]);
+    }, [state, initState, account, network, device, accounts, chunkify, setValue]);
 
     useEffect(() => {
         if (!composedLevels) return;
@@ -718,10 +689,10 @@ export const useCoinmarketSellForm = ({
 
     useEffect(() => {
         // when draft doesn't exist, we need to bind actual default values - that happens when we've got sellInfo from Invity API server
-        if (!isDraft && sellInfo) {
+        if (!isDraft && sellInfo && !formState.isDirty) {
             reset(defaultValues);
         }
-    }, [reset, sellInfo, defaultValues, isDraft, isPageOffers]);
+    }, [reset, sellInfo, defaultValues, isDraft, isNotFormPage, formState.isDirty]);
 
     useDebounce(
         () => {
@@ -748,8 +719,17 @@ export const useCoinmarketSellForm = ({
         ],
     );
 
+    useDebounce(() => {
+        if (selectedQuote && pageType === 'confirm') {
+            // empty quoteId means the partner requests login first, requestTrade to get login screen
+            if (!selectedQuote.quoteId || needToRegisterOrVerifyBankAccount(selectedQuote)) {
+                doSellTrade(selectedQuote);
+            }
+        }
+    }, 50);
+
     useEffect(() => {
-        if (!quotesRequest) {
+        if (!quotesRequest && isNotFormPage) {
             navigateToSellForm();
 
             return;
@@ -757,7 +737,7 @@ export const useCoinmarketSellForm = ({
 
         if (isFromRedirect) {
             if (transactionId && trade) {
-                setSelectedQuote(trade.data);
+                saveSelectedQuote(trade.data);
                 setSellStep('SEND_TRANSACTION');
             }
 
@@ -772,10 +752,11 @@ export const useCoinmarketSellForm = ({
         transactionId,
         trades,
         trade,
+        isNotFormPage,
         dispatch,
         navigateToSellForm,
         checkQuotesTimer,
-        setSelectedQuote,
+        saveSelectedQuote,
         setIsFromRedirect,
         handleChange,
     ]);
