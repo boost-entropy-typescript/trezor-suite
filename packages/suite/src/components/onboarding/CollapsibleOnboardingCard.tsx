@@ -5,7 +5,7 @@ import { Elevation, borders, mapElevationToBackground, zIndices } from '@trezor/
 import {
     ElevationUp,
     H2,
-    Icon,
+    IconLegacy,
     Image,
     ImageType,
     Text,
@@ -71,7 +71,7 @@ const CardWrapper = styled.div<CardWrapperProps>`
         $expandable &&
         !$expanded &&
         css`
-            background: ${theme.BG_GREY};
+            background: ${theme.legacy.BG_GREY};
             box-shadow: rgb(0 0 0 / 0%) 0 2px 5px 0;
             border-radius: 10px;
             padding: 16px 26px;
@@ -81,7 +81,7 @@ const CardWrapper = styled.div<CardWrapperProps>`
         $expandable &&
         $expanded &&
         css`
-            background: ${theme.BG_WHITE};
+            background: ${theme.legacy.BG_WHITE};
             border-radius: 16px;
             padding: ${$variant === 'large' ? '40px' : '20px 30px'};
         `}
@@ -92,7 +92,7 @@ const CardWrapper = styled.div<CardWrapperProps>`
                   padding: 0;
               `
             : css`
-                  box-shadow: 0 2px 5px 0 ${theme.BOX_SHADOW_BLACK_20};
+                  box-shadow: 0 2px 5px 0 ${theme.legacy.BOX_SHADOW_BLACK_20};
               `}
 
     ${({ $withImage }) =>
@@ -160,14 +160,14 @@ const HeadingExpandable = styled.div`
 `;
 
 const Tag = styled.div`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     text-transform: uppercase;
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     letter-spacing: 0.2px;
 `;
 
-const CloseIcon = styled(Icon)`
+const CloseIcon = styled(IconLegacy)`
     position: absolute;
     top: 24px;
     right: 24px;

@@ -8,7 +8,7 @@ import {
     selectDeviceAuthenticity,
     selectDevices,
 } from '@suite-common/wallet-core';
-import { Icon, Tooltip, variables, H2, useElevation } from '@trezor/components';
+import { IconLegacy, Tooltip, variables, H2, useElevation } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/connect';
 import { TREZOR_RESELLERS_URL, TREZOR_URL } from '@trezor/urls';
 
@@ -66,7 +66,7 @@ const Underline = styled.span`
         bottom: 4px;
         left: 0;
         right: 0;
-        border-bottom: 1px dashed ${({ theme }) => theme.TYPE_LIGHT_GREY};
+        border-bottom: 1px dashed ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
         width: 100%;
     }
 `;
@@ -104,13 +104,13 @@ const SecurityCheckButtonWithSecondLine = styled(StyledSecurityCheckButton)`
 `;
 
 const Text = styled.div`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
 const StyledTrezorLink = styled(TrezorLink)`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
 `;
 
 const StyledTooltip = styled(Tooltip)`
@@ -292,7 +292,11 @@ const SecurityCheckContent = ({
                         <Translation id={primaryButtonTopText} />
                         <TimeEstimateWrapper>
                             <IconWrapper>
-                                <Icon size={12} icon="CLOCK_ACTIVE" color={theme.iconOnPrimary} />
+                                <IconLegacy
+                                    size={12}
+                                    icon="CLOCK_ACTIVE"
+                                    color={theme.iconOnPrimary}
+                                />
                             </IconWrapper>
                             <Translation id="TR_TAKES_N_MINUTES" />
                         </TimeEstimateWrapper>

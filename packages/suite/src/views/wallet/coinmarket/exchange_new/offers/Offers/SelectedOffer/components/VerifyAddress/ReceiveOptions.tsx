@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import useTimeoutFn from 'react-use/lib/useTimeoutFn';
-import { variables, CoinLogo, Select, Icon } from '@trezor/components';
+import { variables, CoinLogo, Select, IconLegacy } from '@trezor/components';
 import {
     FiatValue,
     Translation,
@@ -40,7 +40,7 @@ const FiatWrapper = styled.div`
 const Amount = styled.div`
     display: flex;
     font-size: ${variables.FONT_SIZE.TINY};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
@@ -55,7 +55,7 @@ const Option = styled.div`
 `;
 
 const AccountType = styled.span`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     padding-left: 5px;
 `;
 
@@ -176,7 +176,11 @@ export const ReceiveOptions = (props: ReceiveOptionsProps) => {
                         return (
                             <Option>
                                 <LogoWrapper>
-                                    <Icon icon="PLUS" size={25} color={theme.TYPE_DARK_GREY} />
+                                    <IconLegacy
+                                        icon="PLUS"
+                                        size={25}
+                                        color={theme.legacy.TYPE_DARK_GREY}
+                                    />
                                 </LogoWrapper>
                                 <AccountWrapper>
                                     <Translation
@@ -192,7 +196,11 @@ export const ReceiveOptions = (props: ReceiveOptionsProps) => {
                         return (
                             <Option>
                                 <LogoWrapper>
-                                    <Icon icon="NON_SUITE" size={25} color={theme.TYPE_DARK_GREY} />
+                                    <IconLegacy
+                                        icon="NON_SUITE"
+                                        size={25}
+                                        color={theme.legacy.TYPE_DARK_GREY}
+                                    />
                                 </LogoWrapper>
                                 <AccountWrapper>
                                     <Translation

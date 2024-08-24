@@ -2,7 +2,7 @@ import styled, { useTheme } from 'styled-components';
 
 import {
     variables,
-    Icon,
+    IconLegacy,
     Button,
     motionEasing,
     LottieAnimation,
@@ -47,7 +47,7 @@ const Text = styled.div`
     flex-direction: column;
     margin: 0 32px;
     text-align: center;
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
     font-size: 20px;
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 
@@ -112,10 +112,12 @@ const ConnectImage = ({
 
             <Checkmark>
                 {connected && !showWarning && (
-                    <Icon icon="CHECK_ACTIVE" size={24} color={theme.TYPE_GREEN} />
+                    <IconLegacy icon="CHECK_ACTIVE" size={24} color={theme.legacy.TYPE_GREEN} />
                 )}
 
-                {showWarning && <Icon icon="WARNING" size={24} color={theme.TYPE_ORANGE} />}
+                {showWarning && (
+                    <IconLegacy icon="WARNING" size={24} color={theme.legacy.TYPE_ORANGE} />
+                )}
             </Checkmark>
         </ImageWrapper>
     );

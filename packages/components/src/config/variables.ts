@@ -1,7 +1,7 @@
 import { COINS as CoinsObject } from '../components/CoinLogo/coins';
-import { ICONS as IconsObject } from '../components/Icon/icons';
+import { IconsLegacy as IconsObject } from '../components/Icon/iconsLegacy';
 import { CoinType } from '../components/CoinLogo/CoinLogo';
-import { IconType } from '../components/Icon/Icon';
+import { IconType } from '../components/Icon/IconLegacy';
 
 export const SCREEN_SIZE = {
     UNAVAILABLE: '260px',
@@ -38,6 +38,9 @@ export const LAYOUT_SIZE = {
     GUIDE_PANEL_CONTENT_WIDTH: '349px',
 } as const;
 
+/**
+ * @deprecated This key is deprecated. Please use e.g. `typography.hint` or different typographic style.
+ */
 export const FONT_SIZE = {
     BIG: '18px',
     NORMAL: '16px',
@@ -48,6 +51,9 @@ export const FONT_SIZE = {
     H3: '20px',
 } as const;
 
+/**
+ * @deprecated This key is deprecated. Please use e.g. `typography.hint` or different typographic style.
+ */
 export const FONT_WEIGHT = {
     LIGHT: 300,
     REGULAR: 400,

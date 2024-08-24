@@ -3,11 +3,18 @@ import { ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import { Button, CollapsibleBox, colors, Icon, IconProps, variables } from '@trezor/components';
+import {
+    Button,
+    CollapsibleBox,
+    colors,
+    IconLegacy,
+    IconLegacyProps,
+    variables,
+} from '@trezor/components';
 import { isFirefox } from '@trezor/env-utils';
 
 const WhiteCollapsibleBox = styled(CollapsibleBox)`
-    background: ${({ theme }) => theme.BG_WHITE};
+    background: ${({ theme }) => theme.legacy.BG_WHITE};
     width: 500px;
 
     ${CollapsibleBox.Content} {
@@ -47,7 +54,7 @@ const Green = styled.span`
 `;
 
 interface Tip {
-    icon: IconProps['icon'];
+    icon: IconLegacyProps['icon'];
     title: string;
     detail: {
         steps: ReactNode[];
@@ -203,13 +210,13 @@ const InnerWrapper = styled.div`
 `;
 
 const H = styled.h1`
-    color: ${colors.TYPE_RED};
+    color: ${colors.legacy.TYPE_RED};
     font-size: 28px;
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
 `;
 
 const Text = styled.div`
-    color: ${colors.TYPE_LIGHT_GREY};
+    color: ${colors.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
 `;
 
@@ -218,7 +225,7 @@ const TipsContainer = styled.div`
     margin-bottom: 20px;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconLegacy)`
     width: 40px;
     height: 40px;
     border-radius: 20px;
@@ -236,7 +243,7 @@ const HeadingText = styled.div`
 `;
 
 const HeadingH1 = styled.div`
-    color: ${colors.TYPE_DARK_GREY};
+    color: ${colors.legacy.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     margin-bottom: 4px;

@@ -1,7 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 
-import { Icon, Tooltip, colors, variables } from '@trezor/components';
+import { IconLegacy, Tooltip, colors, variables } from '@trezor/components';
 import { Translation } from './Translation';
 
 export const QRCODE_SIZE = 384;
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 
     /* some qr code scanners can't recognize qr codes on dark background, having white border around helps with this */
     padding: ${QRCODE_PADDING}px;
-    background: ${colors.BG_WHITE};
+    background: ${colors.legacy.BG_WHITE};
     max-width: ${QRCODE_SIZE}px;
     position: relative;
 
@@ -24,12 +24,12 @@ const Wrapper = styled.div`
 const Message = styled.div`
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     margin-top: 12px;
     white-space: nowrap;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconLegacy)`
     display: inline-block;
     margin-left: 5px;
     vertical-align: middle;
@@ -54,8 +54,8 @@ interface QrCodeProps {
 export const QrCode = ({ value, className, bgColor, fgColor, showMessage }: QrCodeProps) => (
     <Wrapper className={className}>
         <QRCodeSVG
-            bgColor={bgColor || colors.BG_WHITE}
-            fgColor={fgColor || colors.TYPE_DARK_GREY}
+            bgColor={bgColor || colors.legacy.BG_WHITE}
+            fgColor={fgColor || colors.legacy.TYPE_DARK_GREY}
             level="Q"
             size={QRCODE_SIZE}
             value={value}
@@ -69,7 +69,11 @@ export const QrCode = ({ value, className, bgColor, fgColor, showMessage }: QrCo
                 <StyledTooltip
                     content={<Translation id="TR_QR_RECEIVE_ADDRESS_CONFIRM_EXPLANATION" />}
                 >
-                    <StyledIcon icon="INFO" size={12} color={fgColor || colors.TYPE_DARK_GREY} />
+                    <StyledIcon
+                        icon="INFO"
+                        size={12}
+                        color={fgColor || colors.legacy.TYPE_DARK_GREY}
+                    />
                 </StyledTooltip>
             </Message>
         )}

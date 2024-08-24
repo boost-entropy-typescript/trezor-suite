@@ -1,7 +1,15 @@
 import { useState, ChangeEvent, MouseEventHandler } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { Translation, AccountLabeling, FormattedCryptoAmount } from 'src/components/suite';
-import { Button, Icon, Input, Paragraph, SelectBar, Tooltip, variables } from '@trezor/components';
+import {
+    Button,
+    IconLegacy,
+    Input,
+    Paragraph,
+    SelectBar,
+    Tooltip,
+    variables,
+} from '@trezor/components';
 import useDebounce from 'react-use/lib/useDebounce';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { FieldError } from 'react-hook-form';
@@ -19,13 +27,13 @@ const Wrapper = styled.div`
 
 const LabelText = styled.div`
     font-size: ${variables.FONT_SIZE.TINY};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
 `;
 
 const Value = styled.div`
     padding-top: 6px;
     font-size: ${variables.FONT_SIZE.SMALL};
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
@@ -42,7 +50,7 @@ const ButtonWrapper = styled.div`
     align-items: center;
     justify-content: center;
     padding-top: 20px;
-    border-top: 1px solid ${({ theme }) => theme.STROKE_GREY};
+    border-top: 1px solid ${({ theme }) => theme.legacy.STROKE_GREY};
     margin: 20px 0;
 `;
 
@@ -73,7 +81,7 @@ const RightColumn = styled.div`
 `;
 
 const Slippage = styled.div`
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
@@ -272,9 +280,9 @@ const SendSwapTransactionComponent = () => {
                     <RightColumn>
                         <SlippageAmount>{selectedQuote.swapSlippage}%</SlippageAmount>
                         <SlippageSettingsButton type="button" onClick={toggleSlippage}>
-                            <Icon
+                            <IconLegacy
                                 icon={slippageSettings ? 'ARROW_UP' : 'ARROW_DOWN'}
-                                color={theme.TYPE_DARK_GREY}
+                                color={theme.legacy.TYPE_DARK_GREY}
                                 size={14}
                             />
                         </SlippageSettingsButton>

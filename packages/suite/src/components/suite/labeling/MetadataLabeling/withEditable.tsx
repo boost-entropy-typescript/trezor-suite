@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import styled, { useTheme } from 'styled-components';
-import { Icon } from '@trezor/components';
+import { IconLegacy } from '@trezor/components';
 import { AutoScalingInput } from '@trezor/components/src/components/AutoScalingInput/AutoScalingInput';
 
 const IconWrapper = styled.div<{ $bgColor: string }>`
@@ -113,8 +113,8 @@ export const withEditable =
                 </WrappedComponent>
 
                 <IconListWrapper>
-                    <IconWrapper $bgColor={theme.BG_LIGHT_GREEN}>
-                        <Icon
+                    <IconWrapper $bgColor={theme.legacy.BG_LIGHT_GREEN}>
+                        <IconLegacy
                             useCursorPointer
                             size={14}
                             data-testid="@metadata/submit"
@@ -123,12 +123,12 @@ export const withEditable =
                                 e.stopPropagation();
                                 submit(value);
                             }}
-                            color={theme.TYPE_GREEN}
+                            color={theme.legacy.TYPE_GREEN}
                         />
                     </IconWrapper>
 
-                    <IconWrapper $bgColor={theme.BG_GREY}>
-                        <Icon
+                    <IconWrapper $bgColor={theme.legacy.BG_GREY}>
+                        <IconLegacy
                             useCursorPointer
                             size={14}
                             data-testid="@metadata/cancel"
@@ -137,7 +137,7 @@ export const withEditable =
                                 e.stopPropagation();
                                 onBlur();
                             }}
-                            color={theme.TYPE_DARK_GREY}
+                            color={theme.legacy.TYPE_DARK_GREY}
                         />
                     </IconWrapper>
                 </IconListWrapper>

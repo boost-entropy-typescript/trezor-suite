@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { TREZOR_FORUM_URL, TREZOR_SUPPORT_URL } from '@trezor/urls';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { resolveStaticPath, isDevEnv } from '@suite-common/suite-utils';
-import { Icon, Link, variables } from '@trezor/components';
+import { IconLegacy, Link, variables } from '@trezor/components';
 import { isDesktop } from '@trezor/env-utils';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { selectDevice } from '@suite-common/wallet-core';
@@ -24,7 +24,7 @@ const Section = styled.div`
 const SectionHeader = styled.h3`
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     padding: 0 0 18px;
 `;
 
@@ -42,7 +42,7 @@ const SectionButton = styled.button<{ $hasBackground?: boolean }>`
     border: 0;
 
     transition: ${({ theme }) =>
-        `background ${theme.HOVER_TRANSITION_TIME} ${theme.HOVER_TRANSITION_EFFECT}`};
+        `background ${theme.legacy.HOVER_TRANSITION_TIME} ${theme.legacy.HOVER_TRANSITION_EFFECT}`};
 
     &:hover {
         background: ${({ theme }) => theme.backgroundTertiaryPressedOnElevation1};
@@ -57,7 +57,7 @@ const Details = styled.div`
     padding: 10px 0 0;
     font-size: 10px;
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     display: flex;
     justify-content: space-around;
 `;
@@ -72,7 +72,7 @@ const DetailItem = styled.div`
     align-items: center;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconLegacy)`
     padding: 0 6px;
 `;
 
@@ -85,7 +85,7 @@ const Label = styled.div`
 const LabelHeadline = styled.strong`
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -98,7 +98,7 @@ const LabelHeadline = styled.strong`
 const LabelSubheadline = styled.div`
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
 `;
 
 export const SupportFeedbackSelection = () => {
@@ -196,7 +196,7 @@ export const SupportFeedbackSelection = () => {
                             <Label>
                                 <LabelHeadline>
                                     <Translation id="TR_GUIDE_FORUM" />
-                                    <Icon size={20} icon="EXTERNAL_LINK" />
+                                    <IconLegacy size={20} icon="EXTERNAL_LINK" />
                                 </LabelHeadline>
                                 <LabelSubheadline>
                                     <Translation id="TR_GUIDE_FORUM_LABEL" />
@@ -210,7 +210,7 @@ export const SupportFeedbackSelection = () => {
                             <Label>
                                 <LabelHeadline>
                                     <Translation id="TR_GUIDE_SUPPORT" />
-                                    <Icon size={20} icon="EXTERNAL_LINK" />
+                                    <IconLegacy size={20} icon="EXTERNAL_LINK" />
                                 </LabelHeadline>
                             </Label>
                         </SectionButton>

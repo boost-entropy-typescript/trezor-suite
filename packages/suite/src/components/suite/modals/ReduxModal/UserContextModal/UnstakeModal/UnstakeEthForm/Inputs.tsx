@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Icon } from '@trezor/components';
+import { IconLegacy } from '@trezor/components';
 import { NumberInput } from 'src/components/suite';
 import { CRYPTO_INPUT, FIAT_INPUT } from 'src/types/wallet/stakeForms';
 import { formInputsMaxLength } from '@suite-common/validators';
@@ -24,7 +24,7 @@ const IconWrapper = styled.div`
 
 const InputAddon = styled.span`
     text-transform: uppercase;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
@@ -85,7 +85,7 @@ export const Inputs = () => {
                 <>
                     <IconWrapper>
                         {/* TODO: Add new transfer icon. Export from Figma isn't handled as is it should by the strokes to fills online converter */}
-                        <Icon icon="TRANSFER" size={16} />
+                        <IconLegacy icon="TRANSFER" size={16} />
                     </IconWrapper>
 
                     <NumberInput

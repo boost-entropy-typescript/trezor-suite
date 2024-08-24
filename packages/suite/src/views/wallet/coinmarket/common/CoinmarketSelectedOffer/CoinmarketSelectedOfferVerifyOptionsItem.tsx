@@ -1,4 +1,4 @@
-import { CoinLogo, Column, Icon, Row, variables } from '@trezor/components';
+import { CoinLogo, Column, IconLegacy, Row, variables } from '@trezor/components';
 import { spacingsPx, typography } from '@trezor/theme';
 import {
     AccountLabeling,
@@ -27,7 +27,7 @@ const FiatWrapper = styled.div`
 
 const Amount = styled.div`
     display: flex;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     ${typography.label}
 `;
 
@@ -37,7 +37,7 @@ const AccountName = styled.div`
 `;
 
 const AccountType = styled.span`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     padding-left: ${spacingsPx.xxs};
 `;
 
@@ -89,7 +89,11 @@ const CoinmarketSelectedOfferVerifyOptionsItem = ({
             <Row>
                 <LogoWrapper>
                     <Row alignItems="center">
-                        <Icon icon="PLUS" size={iconSize} color={theme.TYPE_DARK_GREY} />
+                        <IconLegacy
+                            icon="PLUS"
+                            size={iconSize}
+                            color={theme.legacy.TYPE_DARK_GREY}
+                        />
                     </Row>
                 </LogoWrapper>
                 <AccountWrapper>
@@ -110,7 +114,11 @@ const CoinmarketSelectedOfferVerifyOptionsItem = ({
         <Row>
             <LogoWrapper>
                 <Row alignItems="center">
-                    <Icon icon="NON_SUITE" size={iconSize} color={theme.TYPE_DARK_GREY} />
+                    <IconLegacy
+                        icon="NON_SUITE"
+                        size={iconSize}
+                        color={theme.legacy.TYPE_DARK_GREY}
+                    />
                 </Row>
             </LogoWrapper>
             <AccountWrapper>

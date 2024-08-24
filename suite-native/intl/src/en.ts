@@ -82,6 +82,10 @@ export const en = {
             },
         },
     },
+    accountList: {
+        numberOfTokens: '+{numberOfTokens} tokens',
+        tokens: 'Tokens',
+    },
     assets: {
         dashboard: {
             discoveryProgress: { loading: 'Loading...', stillWorking: 'Retrieving balances' },
@@ -817,6 +821,13 @@ export const en = {
         },
     },
     moduleSend: {
+        outputs: {
+            recipients: {
+                title: 'Amount & recipients',
+                addressLabel: 'Recipient address',
+                amountLabel: 'Amount to be sent',
+            },
+        },
         fees: {
             recipient: { singular: 'Recipient' },
             description: {

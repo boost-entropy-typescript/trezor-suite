@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 
 import { TextInput } from 'react-native/types';
+import { RequireOneOrNone } from 'type-fest';
 
 import { Input, InputWrapper, InputProps, InputWrapperProps } from '@suite-native/atoms';
 
@@ -12,17 +13,29 @@ type AllowedTextInputFieldProps = Omit<
     keyof ReturnType<typeof useField> | 'defaultValue'
 >;
 type AllowedInputWrapperProps = Pick<InputWrapperProps, 'hint'>;
-export interface FieldProps extends AllowedTextInputFieldProps, AllowedInputWrapperProps {
-    name: FieldName;
-    label: string;
-    onBlur?: () => void;
-    defaultValue?: string;
-    valueTransformer?: (value: string) => string;
-}
+export type FieldProps = AllowedTextInputFieldProps &
+    AllowedInputWrapperProps &
+    RequireOneOrNone<
+        {
+            name: FieldName;
+            label?: string;
+            placeholder?: string;
+            onBlur?: () => void;
+            defaultValue?: string;
+            valueTransformer?: (value: string) => string;
+        },
+        'label' | 'placeholder'
+    >;
 
 export const TextInputField = forwardRef<TextInput, FieldProps>(
-    ({ name, label, hint, onBlur, defaultValue = '', valueTransformer, ...otherProps }, ref) => {
-        const field = useField({ name, label, defaultValue, valueTransformer });
+    ({ name, hint, onBlur, defaultValue = '', valueTransformer, ...otherProps }, ref) => {
+        const field = useField({
+            name,
+            defaultValue,
+            valueTransformer,
+            // Accessing `label` from destructured props does break the `RequireOneOrNone` validation of `Input` props.
+            label: otherProps.label,
+        });
         const { errorMessage, onBlur: hookFormOnBlur, onChange, value, hasError } = field;
 
         const handleOnBlur = () => {
@@ -40,7 +53,6 @@ export const TextInputField = forwardRef<TextInput, FieldProps>(
                     onChangeText={onChange}
                     value={value}
                     hasError={hasError}
-                    label={label}
                     ref={ref}
                 />
             </InputWrapper>

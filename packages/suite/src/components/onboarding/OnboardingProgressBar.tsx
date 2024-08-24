@@ -1,6 +1,6 @@
 import { ReactNode, Fragment } from 'react';
 import styled, { css, useTheme } from 'styled-components';
-import { Icon, variables } from '@trezor/components';
+import { IconLegacy, variables } from '@trezor/components';
 import { spacingsPx, typography } from '@trezor/theme';
 
 const ProgressBarWrapper = styled.div`
@@ -63,7 +63,7 @@ const Label = styled.div`
     text-align: center;
     margin: 10px 0 0;
     display: block;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     ${typography.label}
 
     @media (max-width: ${variables.SCREEN_SIZE.SM}) {
@@ -85,7 +85,7 @@ const Divider = styled.div`
     }
 `;
 
-const ConfettiIcon = styled(Icon)`
+const ConfettiIcon = styled(IconLegacy)`
     margin-left: 1px;
 `;
 
@@ -116,14 +116,16 @@ export const OnboardingProgressBar = ({
                         <StepWrapper $active={stepActive}>
                             <IconWrapper $active={stepActive} $stepCompleted={stepCompleted}>
                                 {stepCompleted ? (
-                                    <Icon icon="CHECK" color={theme.TYPE_GREEN} />
+                                    <IconLegacy icon="CHECK" color={theme.legacy.TYPE_GREEN} />
                                 ) : (
                                     <>
                                         {index === steps.length - 1 ? (
                                             <ConfettiIcon
                                                 icon="CONFETTI_SUCCESS"
                                                 size={20}
-                                                color={stepActive ? theme.TYPE_GREEN : undefined}
+                                                color={
+                                                    stepActive ? theme.legacy.TYPE_GREEN : undefined
+                                                }
                                             />
                                         ) : (
                                             index + 1

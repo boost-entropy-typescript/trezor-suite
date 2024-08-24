@@ -3,7 +3,7 @@ import { lazy, Suspense, useState } from 'react';
 import styled from 'styled-components';
 
 import { HELP_CENTER_QR_CODE_URL } from '@trezor/urls';
-import { Icon, colors, Paragraph, Button, Textarea, SelectBar } from '@trezor/components';
+import { IconLegacy, colors, Paragraph, Button, Textarea, SelectBar } from '@trezor/components';
 import { UserContextPayload } from '@suite-common/suite-types';
 
 import { TrezorLink, Translation, Modal, BundleLoader } from 'src/components/suite';
@@ -45,7 +45,7 @@ const CameraPlaceholder = styled.div`
     padding: 40px;
     height: 100%;
     border-radius: 16px;
-    background: ${({ theme }) => theme.BG_GREY};
+    background: ${({ theme }) => theme.legacy.BG_GREY};
 `;
 
 const Error = styled.div`
@@ -57,11 +57,11 @@ const Error = styled.div`
 
 const ErrorTitle = styled(Paragraph)`
     text-align: center;
-    color: ${colors.TYPE_RED};
+    color: ${colors.legacy.TYPE_RED};
 `;
 const ErrorMessage = styled.span`
     text-align: center;
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
 `;
 
 const IconWrapper = styled.div`
@@ -204,7 +204,7 @@ export const QrScannerModal = ({ onCancel, decision, allowPaste }: QrScannerModa
                 <ContentWrapper $show>
                     <CameraPlaceholder>
                         <IconWrapper>
-                            <Icon icon="QR" size={100} />
+                            <IconLegacy icon="QR" size={100} />
                         </IconWrapper>
                         <Translation id="TR_PLEASE_ALLOW_YOUR_CAMERA" />
                     </CameraPlaceholder>

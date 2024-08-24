@@ -3,14 +3,14 @@ import styled from 'styled-components';
 import { transparentize } from 'polished';
 
 import { selectAccountTransactionsWithNulls } from '@suite-common/wallet-core';
-import { Icon, variables, IconType } from '@trezor/components';
+import { IconLegacy, variables, IconType } from '@trezor/components';
 import { useSelector } from 'src/hooks/suite';
 import type { AccountUtxo } from '@trezor/connect';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { UtxoSelection } from './UtxoSelection';
 
 const Wrapper = styled.section`
-    border-bottom: 1px solid ${({ theme }) => theme.STROKE_GREY};
+    border-bottom: 1px solid ${({ theme }) => theme.legacy.STROKE_GREY};
     margin: 12px 0 16px;
     padding-bottom: 14px;
 `;
@@ -29,11 +29,11 @@ const Heading = styled.div`
 `;
 
 const Description = styled.div`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
-const StyledIcon = styled(Icon)<{ $backgroundColor?: string }>`
+const StyledIcon = styled(IconLegacy)<{ $backgroundColor?: string }>`
     background: ${({ $backgroundColor }) =>
         $backgroundColor && transparentize(0.9, $backgroundColor)};
     border-radius: 50%;

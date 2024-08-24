@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Icon, variables } from '@trezor/components';
+import { IconLegacy, variables } from '@trezor/components';
 
 const Wrapper = styled.div`
     align-items: center;
@@ -9,7 +9,7 @@ const Wrapper = styled.div`
 `;
 
 const AnonymityLevel = styled.span`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.TINY};
     font-variant-numeric: tabular-nums;
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
@@ -21,7 +21,7 @@ interface UtxoAnonymityProps {
 
 export const UtxoAnonymity = ({ anonymity }: UtxoAnonymityProps) => (
     <Wrapper>
-        <Icon icon="USERS" size={20} />
+        <IconLegacy icon="USERS" size={20} />
         <AnonymityLevel>{Math.floor(anonymity)}</AnonymityLevel>
     </Wrapper>
 );

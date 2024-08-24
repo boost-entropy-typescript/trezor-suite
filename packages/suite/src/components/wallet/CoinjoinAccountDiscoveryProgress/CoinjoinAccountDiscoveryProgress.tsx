@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { Card, H3, Icon, LottieAnimation, ProgressBar, variables } from '@trezor/components';
+import { Card, H3, IconLegacy, LottieAnimation, ProgressBar, variables } from '@trezor/components';
 import { localizeNumber } from '@suite-common/wallet-utils';
 import { Translation } from 'src/components/suite';
 import { useCoinjoinAccountLoadingProgress } from 'src/hooks/coinjoin';
@@ -20,7 +20,7 @@ const Container = styled(Card)`
 const Subheader = styled.div`
     display: flex;
     align-items: center;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     text-align: center;
@@ -43,13 +43,13 @@ const DiscoveryProgress = styled(ProgressBar)`
 const FactHeading = styled.div`
     display: flex;
     align-items: center;
-    color: ${({ theme }) => theme.TYPE_ORANGE};
+    color: ${({ theme }) => theme.legacy.TYPE_ORANGE};
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     text-transform: uppercase;
 `;
 
-const SparksIcon = styled(Icon)`
+const SparksIcon = styled(IconLegacy)`
     margin-right: 4px;
     padding-bottom: 2px;
 `;
@@ -58,8 +58,8 @@ const StyledLottieAnimation = styled(LottieAnimation)`
     margin: -32px -8px -32px -20px;
 
     path {
-        stroke: ${({ theme }) => theme.TYPE_LIGHT_GREY};
-        fill: ${({ theme }) => theme.BG_WHITE};
+        stroke: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
+        fill: ${({ theme }) => theme.legacy.BG_WHITE};
     }
 `;
 
@@ -93,7 +93,7 @@ export const CoinjoinAccountDiscoveryProgress = () => {
             <DiscoveryProgress max={1.01} value={progress} />
 
             <FactHeading>
-                <SparksIcon icon="EXPERIMENTAL" size={13} color={theme.TYPE_ORANGE} />
+                <SparksIcon icon="EXPERIMENTAL" size={13} color={theme.legacy.TYPE_ORANGE} />
                 <Translation id="TR_LOADING_FACT_TITLE" />
             </FactHeading>
 

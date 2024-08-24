@@ -1,6 +1,6 @@
 import styled, { useTheme } from 'styled-components';
 import { useDispatch } from 'src/hooks/suite';
-import { Button, Icon, variables } from '@trezor/components';
+import { Button, IconLegacy, variables } from '@trezor/components';
 import { onCancel as closeModal } from 'src/actions/suite/modalActions';
 import { Modal, Translation } from 'src/components/suite';
 
@@ -12,16 +12,16 @@ const StyledButton = styled(Button)`
     flex: 1;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconLegacy)`
     width: 84px;
     height: 84px;
     margin: 12px auto 32px;
     border-radius: 50%;
-    background: ${({ theme }) => theme.BG_GREY};
+    background: ${({ theme }) => theme.legacy.BG_GREY};
 `;
 
 const Text = styled.p`
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
@@ -46,7 +46,7 @@ export const MoreRoundsNeededModal = () => {
                 </StyledButton>
             }
         >
-            <StyledIcon icon="CONFETTI_SUCCESS" size={32} color={theme.TYPE_DARK_GREY} />
+            <StyledIcon icon="CONFETTI_SUCCESS" size={32} color={theme.legacy.TYPE_DARK_GREY} />
             <Text>
                 <Translation id="TR_COINJOIN_ENDED" />
             </Text>

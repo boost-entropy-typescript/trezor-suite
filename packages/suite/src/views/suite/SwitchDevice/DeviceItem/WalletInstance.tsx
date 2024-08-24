@@ -5,7 +5,7 @@ import {
     selectCurrentFiatRates,
     selectDeviceThunk,
 } from '@suite-common/wallet-core';
-import { variables, Card, Divider, Icon, Tooltip } from '@trezor/components';
+import { variables, Card, Divider, IconLegacy, Tooltip } from '@trezor/components';
 import { getAllAccounts, getTotalFiatBalance } from '@suite-common/wallet-utils';
 import { spacingsPx, typography } from '@trezor/theme';
 
@@ -55,7 +55,7 @@ const InstanceType = styled.div<{ $isSelected: boolean }>`
 const InstanceTitle = styled.div`
     font-weight: 500;
     line-height: 1.57;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.SMALL};
     font-variant-numeric: tabular-nums;
 `;
@@ -112,7 +112,11 @@ export const WalletInstance = ({
     const { defaultAccountLabelString } = useWalletLabeling();
 
     const deviceAccounts = getAllAccounts(instance.state, accounts);
-    const instanceBalance = getTotalFiatBalance(deviceAccounts, localCurrency, currentFiatRates);
+    const instanceBalance = getTotalFiatBalance({
+        deviceAccounts,
+        localCurrency,
+        rates: currentFiatRates,
+    });
     const isSelected = enabled && selected && !!discoveryProcess;
     const { walletLabel } = useSelector(state =>
         selectLabelingDataForWallet(state, instance.state),
@@ -159,7 +163,7 @@ export const WalletInstance = ({
                         <InstanceType $isSelected={isSelected}>
                             {!instance.useEmptyPassphrase && (
                                 <Tooltip content={<Translation id="TR_WALLET_PASSPHRASE_WALLET" />}>
-                                    <Icon icon="ASTERISK" size={12} />
+                                    <IconLegacy icon="ASTERISK" size={12} />
                                 </Tooltip>
                             )}
                             {instance.state ? (

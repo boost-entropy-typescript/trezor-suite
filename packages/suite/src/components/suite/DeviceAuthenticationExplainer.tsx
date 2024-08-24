@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { Icon, variables } from '@trezor/components';
+import { IconLegacy, variables } from '@trezor/components';
 
 import { Translation } from 'src/components/suite';
 
@@ -14,7 +14,7 @@ const Item = styled.div`
 const Items = styled.div<{ $isHorizontal: DeviceAuthenticationExplainerProps['horizontal'] }>`
     display: grid;
     gap: 40px;
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 
@@ -48,7 +48,7 @@ export const DeviceAuthenticationExplainer = ({
     <Items $isHorizontal={horizontal}>
         {items.map(({ icon, text }) => (
             <Item key={icon}>
-                <Icon icon={icon} size={32} />
+                <IconLegacy icon={icon} size={32} />
                 <Translation id={text} />
             </Item>
         ))}

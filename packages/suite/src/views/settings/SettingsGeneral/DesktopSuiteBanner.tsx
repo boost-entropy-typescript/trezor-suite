@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { AnimatePresence, HTMLMotionProps, motion } from 'framer-motion';
-import { Button, H2, Icon, Image, Paragraph, motionEasing } from '@trezor/components';
+import { Button, H2, IconLegacy, Image, Paragraph, motionEasing } from '@trezor/components';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { SUITE_URL } from '@trezor/urls';
 
@@ -18,11 +18,11 @@ const Container = styled(motion.div)`
     margin-bottom: 40px;
     padding: 12px 20px;
     border-radius: 12px;
-    background: ${({ theme }) => theme.BG_GREEN};
+    background: ${({ theme }) => theme.legacy.BG_GREEN};
     overflow: hidden;
 `;
 
-const CloseButton = styled(Icon)`
+const CloseButton = styled(IconLegacy)`
     position: absolute;
     right: 16px;
     top: 16px;
@@ -36,11 +36,11 @@ const CloseButton = styled(Icon)`
     cursor: pointer;
 
     path {
-        fill: ${({ theme }) => theme.BG_WHITE};
+        fill: ${({ theme }) => theme.legacy.BG_WHITE};
     }
 
     &:hover {
-        background: ${({ theme }) => theme.BG_GREEN_HOVER};
+        background: ${({ theme }) => theme.legacy.BG_GREEN_HOVER};
         opacity: 0.7;
     }
 
@@ -67,18 +67,18 @@ const TextContainer = styled.div`
     grid-column: 1/3;
 
     * {
-        color: ${({ theme }) => theme.TYPE_WHITE};
+        color: ${({ theme }) => theme.legacy.TYPE_WHITE};
     }
 `;
 
 const StyledButton = styled(Button)`
-    background: ${({ theme }) => theme.BG_WHITE};
-    color: ${({ theme }) => theme.TYPE_GREEN};
+    background: ${({ theme }) => theme.legacy.BG_WHITE};
+    color: ${({ theme }) => theme.legacy.TYPE_GREEN};
     transition: opacity 0.2s;
 
     &:hover,
     &:focus {
-        background: ${({ theme }) => theme.BG_WHITE};
+        background: ${({ theme }) => theme.legacy.BG_WHITE};
         opacity: 0.8;
     }
 `;
@@ -91,7 +91,7 @@ const OSIcons = styled.div`
     opacity: 0.7;
 
     path {
-        fill: ${({ theme }) => theme.BG_WHITE};
+        fill: ${({ theme }) => theme.legacy.BG_WHITE};
     }
 `;
 
@@ -165,9 +165,9 @@ export const DesktopSuiteBanner = () => {
                         </TrezorLink>
 
                         <OSIcons>
-                            <Icon icon="OS_MAC" />
-                            <Icon icon="OS_LINUX" />
-                            <Icon icon="OS_WINDOWS" size={20} />
+                            <IconLegacy icon="OS_MAC" />
+                            <IconLegacy icon="OS_LINUX" />
+                            <IconLegacy icon="OS_WINDOWS" size={20} />
                         </OSIcons>
                     </Content>
                 </Container>

@@ -8,7 +8,7 @@ import {
     restartDiscoveryThunk as restartDiscovery,
 } from '@suite-common/wallet-core';
 import * as accountUtils from '@suite-common/wallet-utils';
-import { variables, Button, IconProps, H3, Image } from '@trezor/components';
+import { variables, Button, IconLegacyProps, H3, Image } from '@trezor/components';
 import { Discovery } from '@suite-common/wallet-types';
 
 import { Translation } from 'src/components/suite';
@@ -28,12 +28,12 @@ const Wrapper = styled.div`
 `;
 
 const Title = styled(H3)`
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
 `;
 
 const Description = styled.div`
     font-size: ${variables.FONT_SIZE.SMALL};
-    color: ${({ theme }) => theme.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
     text-align: center;
 `;
 
@@ -52,7 +52,7 @@ interface CTA {
     label?: TranslationKey;
     variant?: ComponentProps<typeof Button>['variant'];
     action: () => void;
-    icon?: IconProps['icon'];
+    icon?: IconLegacyProps['icon'];
 }
 
 interface ContainerProps {

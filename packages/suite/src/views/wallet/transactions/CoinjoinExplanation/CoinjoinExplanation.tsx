@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { darken } from 'polished';
 
-import { Card, Icon, variables } from '@trezor/components';
+import { Card, IconLegacy, variables } from '@trezor/components';
 import { HELP_CENTER_COINJOIN_URL } from '@trezor/urls';
 import { mediaQueries } from '@trezor/styles';
 
@@ -22,7 +22,7 @@ const Heading = styled.div`
     ${typography.hint};
 `;
 
-const QuestionIcon = styled(Icon)`
+const QuestionIcon = styled(IconLegacy)`
     margin-right: 4px;
 `;
 
@@ -56,7 +56,7 @@ const StyledLearnMoreButton = styled(LearnMoreButton)`
 
     button:hover,
     button:focus {
-        background: ${({ theme }) => darken(theme.HOVER_DARKEN_FILTER, '#d9d9d9')};
+        background: ${({ theme }) => darken(theme.legacy.HOVER_DARKEN_FILTER, '#d9d9d9')};
     }
 
     ${mediaQueries.dark_theme} {
@@ -67,7 +67,7 @@ const StyledLearnMoreButton = styled(LearnMoreButton)`
         button:hover,
         button:focus {
             background: ${({ theme }) =>
-                darken(theme.HOVER_DARKEN_FILTER, theme.backgroundSurfaceElevation0)};
+                darken(theme.legacy.HOVER_DARKEN_FILTER, theme.backgroundSurfaceElevation0)};
         }
     }
 `;

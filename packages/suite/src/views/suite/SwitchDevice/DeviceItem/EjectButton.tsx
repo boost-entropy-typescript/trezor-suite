@@ -1,6 +1,6 @@
 import styled, { useTheme } from 'styled-components';
 
-import { Tooltip, Icon, useElevation } from '@trezor/components';
+import { Tooltip, IconLegacy, useElevation } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { Elevation, borders, mapElevationToBackground, spacingsPx } from '@trezor/theme';
 import { ContentType } from '../types';
@@ -32,12 +32,12 @@ export const EjectButton = ({ setContentType, 'data-testid': dataTest }: EjectBu
     return (
         <EjectContainer $elevation={elevation}>
             <Tooltip cursor="pointer" content={<Translation id="TR_EJECT_HEADING" />}>
-                <Icon
+                <IconLegacy
                     data-testid={`${dataTest}/eject-button`}
                     icon="EJECT"
                     size={22}
-                    color={theme.TYPE_LIGHT_GREY}
-                    hoverColor={theme.TYPE_DARK_GREY}
+                    color={theme.legacy.TYPE_LIGHT_GREY}
+                    hoverColor={theme.legacy.TYPE_DARK_GREY}
                     onClick={onEjectClick}
                 />
             </Tooltip>

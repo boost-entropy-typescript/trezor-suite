@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { variables, Icon } from '@trezor/components';
+import { variables, IconLegacy } from '@trezor/components';
 import { HELP_CENTER_ZERO_VALUE_ATTACKS } from '@trezor/urls';
 import {
     FormattedCryptoAmount,
@@ -55,7 +55,7 @@ const ChevronIconWrapper = styled.div<{ $show: boolean; $animate: boolean }>`
 
 const StyledCryptoAmount = styled(FormattedCryptoAmount)<{ $isPhishingTransaction: boolean }>`
     color: ${({ theme, $isPhishingTransaction }) =>
-        $isPhishingTransaction ? theme.TYPE_LIGHT_GREY : theme.TYPE_DARK_GREY};
+        $isPhishingTransaction ? theme.legacy.TYPE_LIGHT_GREY : theme.legacy.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     white-space: nowrap;
@@ -63,10 +63,10 @@ const StyledCryptoAmount = styled(FormattedCryptoAmount)<{ $isPhishingTransactio
 `;
 
 const HelpLink = styled(TrezorLink)`
-    color: ${({ theme }) => theme.TYPE_ORANGE};
+    color: ${({ theme }) => theme.legacy.TYPE_ORANGE};
 
     path {
-        fill: ${({ theme }) => theme.TYPE_ORANGE};
+        fill: ${({ theme }) => theme.legacy.TYPE_ORANGE};
     }
 `;
 
@@ -177,9 +177,9 @@ export const TransactionHeading = ({
                     $show={txItemIsHovered}
                     $animate={nestedItemIsHovered || headingIsHovered}
                 >
-                    <Icon
+                    <IconLegacy
                         size={nestedItemIsHovered || headingIsHovered ? 18 : 16}
-                        color={theme.TYPE_DARK_GREY}
+                        color={theme.legacy.TYPE_DARK_GREY}
                         icon="ARROW_RIGHT"
                     />
                 </ChevronIconWrapper>

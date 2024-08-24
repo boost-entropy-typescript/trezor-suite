@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
-import { Image, Icon, IconProps, variables } from '@trezor/components';
+import { Image, IconLegacy, IconLegacyProps, variables } from '@trezor/components';
 import { useGuide } from 'src/hooks/guide';
 import { DeviceModelInternal } from '@trezor/connect';
 
@@ -8,7 +8,7 @@ const Wrapper = styled.div<{ $isGuideOpen?: boolean }>`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: ${({ theme }) => theme.BG_GREY};
+    background: ${({ theme }) => theme.legacy.BG_GREY};
     padding: 20px 24px;
     margin-right: 34px;
     width: 100%;
@@ -37,7 +37,7 @@ const ItemIconWrapper = styled.div`
 
 const ItemText = styled.div`
     width: 100%;
-    color: ${({ theme }) => theme.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     padding: 26px 0;
@@ -61,9 +61,9 @@ interface DeviceImageItem extends CommonItemProps {
 
 interface IconItem extends CommonItemProps {
     deviceModelInternal?: DeviceModelInternal;
-    icon: IconProps['icon'];
-    iconColor?: IconProps['color'];
-    iconSize?: IconProps['size'];
+    icon: IconLegacyProps['icon'];
+    iconColor?: IconLegacyProps['color'];
+    iconSize?: IconLegacyProps['size'];
 }
 
 type Item = DeviceImageItem | IconItem;
@@ -81,7 +81,7 @@ export const DeviceMatrixExplanation = ({ items }: DeviceMatrixExplanationProps)
                 <Item key={item.key}>
                     <ItemIconWrapper>
                         {item.icon ? (
-                            <Icon
+                            <IconLegacy
                                 icon={item.icon}
                                 color={item.iconColor}
                                 size={item.iconSize ?? 26}

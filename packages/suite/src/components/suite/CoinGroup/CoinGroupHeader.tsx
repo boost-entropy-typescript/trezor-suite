@@ -1,6 +1,6 @@
 import { transparentize } from 'polished';
 import styled, { css } from 'styled-components';
-import { variables, Icon } from '@trezor/components';
+import { variables, IconLegacy } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 
 const Wrapper = styled.div`
@@ -31,7 +31,10 @@ const SettingsWrapper = styled.div<{ $disabled: boolean }>`
         `}
     &:hover {
         background-color: ${({ theme }) =>
-            transparentize(theme.HOVER_TRANSPARENTIZE_FILTER, theme.HOVER_PRIMER_COLOR)};
+            transparentize(
+                theme.legacy.HOVER_TRANSPARENTIZE_FILTER,
+                theme.legacy.HOVER_PRIMER_COLOR,
+            )};
     }
 `;
 
@@ -49,7 +52,7 @@ export const CoinGroupHeader = ({
     <Wrapper>
         {settingsMode && <Translation id="TR_SELECT_COIN_FOR_SETTINGS" />}
         <SettingsWrapper onClick={toggleSettingsMode} $disabled={!isAtLeastOneActive}>
-            <Icon icon={settingsMode ? 'CROSS' : 'SETTINGS'} />
+            <IconLegacy icon={settingsMode ? 'CROSS' : 'SETTINGS'} />
         </SettingsWrapper>
     </Wrapper>
 );

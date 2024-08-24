@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo, useState, MouseEvent, DragEvent, ChangeEvent } from 'react';
 import styled from 'styled-components';
-import { Icon, IconType, Paragraph } from '@trezor/components';
+import { IconLegacy, IconType, Paragraph } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import type { ExtendedMessageDescriptor } from 'src/types/suite';
 import { borders } from '@trezor/theme';
@@ -146,7 +146,7 @@ const Wrapper = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 2px dashed ${({ theme }) => theme.STROKE_GREY};
+    border: 2px dashed ${({ theme }) => theme.legacy.STROKE_GREY};
     border-radius: ${borders.radii.xs};
     cursor: pointer;
     min-height: 250px;
@@ -154,7 +154,7 @@ const Wrapper = styled.div`
 
     &:hover,
     &.dragging {
-        background: ${({ theme }) => theme.BG_GREY};
+        background: ${({ theme }) => theme.legacy.BG_GREY};
     }
 
     * {
@@ -166,7 +166,7 @@ const StyledInput = styled.input`
     display: none;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconLegacy)`
     margin-right: 10px;
 `;
 
