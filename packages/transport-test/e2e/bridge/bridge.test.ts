@@ -4,30 +4,18 @@ import { BridgeTransport } from '@trezor/transport';
 import { controller as TrezorUserEnvLink } from './controller';
 import { pathLength, descriptor as expectedDescriptor } from './expect';
 
-// todo: introduce global jest config for e2e
-jest.setTimeout(60000);
-
 const emulatorStartOpts = { model: 'T2T1', version: '2-main', wipe: true } as const;
 
 describe('bridge', () => {
-    beforeAll(async () => {
-        await TrezorUserEnvLink.connect();
-    });
-
-    afterAll(async () => {
-        await TrezorUserEnvLink.stopEmu();
-        await TrezorUserEnvLink.stopBridge();
-        TrezorUserEnvLink.disconnect();
-    });
-
     let bridge: any;
     let devices: any[];
     let session: any;
-    beforeEach(async () => {
-        // await TrezorUserEnvLink.stopEmu();
-        await TrezorUserEnvLink.stopBridge();
+
+    beforeAll(async () => {
+        await TrezorUserEnvLink.connect();
         await TrezorUserEnvLink.startEmu(emulatorStartOpts);
         await TrezorUserEnvLink.startBridge();
+
         const abortController = new AbortController();
         bridge = new BridgeTransport({ messages, signal: abortController.signal });
         await bridge.init().promise;
@@ -49,12 +37,19 @@ describe('bridge', () => {
 
         devices = enumerateResult.payload;
 
-        const acquireResult = await bridge.acquire({ input: { path: devices[0].path } }).promise;
+        const acquireResult = await bridge.acquire({ input: { path: devices[0].path, session } })
+            .promise;
         expect(acquireResult).toEqual({
             success: true,
             payload: '1',
         });
         session = acquireResult.payload;
+    });
+
+    afterAll(async () => {
+        await TrezorUserEnvLink.stopEmu();
+        await TrezorUserEnvLink.stopBridge();
+        TrezorUserEnvLink.disconnect();
     });
 
     test(`call(GetFeatures)`, async () => {

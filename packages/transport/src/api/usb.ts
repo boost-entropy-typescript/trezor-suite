@@ -6,6 +6,8 @@ import {
     CONFIGURATION_ID,
     ENDPOINT_ID,
     INTERFACE_ID,
+    DEBUGLINK_ENDPOINT_ID,
+    DEBUGLINK_INTERFACE_ID,
     T1_HID_VENDOR,
     TREZOR_USB_DESCRIPTORS,
     WEBUSB_BOOTLOADER_PRODUCT,
@@ -16,6 +18,7 @@ import * as ERRORS from '../errors';
 interface ConstructorParams extends AbstractApiConstructorParams {
     usbInterface: USB;
     forceReadSerialOnConnect?: boolean;
+    debugLink?: boolean;
 }
 
 interface TransportInterfaceDevice {
@@ -36,12 +39,14 @@ export class UsbApi extends AbstractApi {
     protected usbInterface: ConstructorParams['usbInterface'];
     private forceReadSerialOnConnect?: boolean;
     private abortController = new AbortController();
+    private debugLink?: boolean;
 
-    constructor({ usbInterface, logger, forceReadSerialOnConnect }: ConstructorParams) {
+    constructor({ usbInterface, logger, forceReadSerialOnConnect, debugLink }: ConstructorParams) {
         super({ logger });
 
         this.usbInterface = usbInterface;
         this.forceReadSerialOnConnect = forceReadSerialOnConnect;
+        this.debugLink = debugLink;
     }
 
     public listen() {
@@ -120,7 +125,10 @@ export class UsbApi extends AbstractApi {
         }));
     }
 
-    private abortableMethod<R>(method: () => R, signal?: AbortSignal) {
+    private abortableMethod<R>(
+        method: () => R,
+        { signal, onAbort }: { signal?: AbortSignal; onAbort?: () => void },
+    ) {
         if (!signal) {
             return method();
         }
@@ -128,8 +136,18 @@ export class UsbApi extends AbstractApi {
             return Promise.reject(new Error(ERRORS.ABORTED_BY_SIGNAL));
         }
 
+        const abort = () => {
+            if (!onAbort) return;
+            try {
+                onAbort();
+            } catch (err) {
+                this.logger?.error(`usb: onAbort error: ${err}`);
+            }
+        };
+
         const dfd = createDeferred<R>();
         const abortListener = () => {
+            abort();
             dfd.reject(new Error(ERRORS.ABORTED_BY_SIGNAL));
         };
         signal?.addEventListener('abort', abortListener);
@@ -148,10 +166,9 @@ export class UsbApi extends AbstractApi {
     public async enumerate(signal?: AbortSignal) {
         try {
             this.logger?.debug('usb: enumerate');
-            const devices = await this.abortableMethod(
-                () => this.usbInterface.getDevices(),
+            const devices = await this.abortableMethod(() => this.usbInterface.getDevices(), {
                 signal,
-            );
+            });
 
             this.devices = await this.createDevices(devices, signal);
 
@@ -171,14 +188,18 @@ export class UsbApi extends AbstractApi {
         try {
             this.logger?.debug('usb: device.transferIn');
             const res = await this.abortableMethod(
-                () => device.transferIn(ENDPOINT_ID, this.chunkSize),
-                signal,
+                () =>
+                    device.transferIn(
+                        this.debugLink ? DEBUGLINK_ENDPOINT_ID : ENDPOINT_ID,
+                        this.chunkSize,
+                    ),
+                { signal, onAbort: () => device?.reset() },
             );
             this.logger?.debug(
                 `usb: device.transferIn done. status: ${res.status}, byteLength: ${res.data?.byteLength}. device: ${this.formatDeviceForLog(device)}`,
             );
 
-            if (!res.data) {
+            if (!res.data?.byteLength) {
                 return this.error({ error: ERRORS.INTERFACE_DATA_TRANSFER });
             }
 
@@ -208,8 +229,12 @@ export class UsbApi extends AbstractApi {
             // https://wicg.github.io/webusb/#ref-for-dom-usbdevice-transferout
             this.logger?.debug('usb: device.transferOut');
             const result = await this.abortableMethod(
-                () => device.transferOut(ENDPOINT_ID, newArray),
-                signal,
+                () =>
+                    device.transferOut(
+                        this.debugLink ? DEBUGLINK_ENDPOINT_ID : ENDPOINT_ID,
+                        newArray,
+                    ),
+                { signal, onAbort: () => device?.reset() },
             );
             this.logger?.debug(
                 `usb: device.transferOut done. device: ${this.formatDeviceForLog(device)}`,
@@ -258,7 +283,7 @@ export class UsbApi extends AbstractApi {
 
         try {
             this.logger?.debug(`usb: device.open`);
-            await this.abortableMethod(() => device.open(), signal);
+            await this.abortableMethod(() => device.open(), { signal });
             this.logger?.debug(`usb: device.open done. device: ${this.formatDeviceForLog(device)}`);
         } catch (err) {
             this.logger?.error(`usb: device.open error ${err}`);
@@ -272,10 +297,9 @@ export class UsbApi extends AbstractApi {
         if (first) {
             try {
                 this.logger?.debug(`usb: device.selectConfiguration ${CONFIGURATION_ID}`);
-                await this.abortableMethod(
-                    () => device.selectConfiguration(CONFIGURATION_ID),
+                await this.abortableMethod(() => device.selectConfiguration(CONFIGURATION_ID), {
                     signal,
-                );
+                });
                 this.logger?.debug(
                     `usb: device.selectConfiguration done: ${CONFIGURATION_ID}. device: ${this.formatDeviceForLog(device)}`,
                 );
@@ -287,7 +311,7 @@ export class UsbApi extends AbstractApi {
             try {
                 // reset fails on ChromeOS and windows
                 this.logger?.debug('usb: device.reset');
-                await this.abortableMethod(() => device.reset(), signal);
+                await this.abortableMethod(() => device?.reset(), { signal });
                 this.logger?.debug(
                     `usb: device.reset done. device: ${this.formatDeviceForLog(device)}`,
                 );
@@ -299,11 +323,12 @@ export class UsbApi extends AbstractApi {
             }
         }
         try {
-            this.logger?.debug(`usb: device.claimInterface: ${INTERFACE_ID}`);
+            const interfaceId = this.debugLink ? DEBUGLINK_INTERFACE_ID : INTERFACE_ID;
+            this.logger?.debug(`usb: device.claimInterface: ${interfaceId}`);
             // claim device for exclusive access by this app
-            await this.abortableMethod(() => device.claimInterface(INTERFACE_ID), signal);
+            await this.abortableMethod(() => device.claimInterface(interfaceId), { signal });
             this.logger?.debug(
-                `usb: device.claimInterface done: ${INTERFACE_ID}. device: ${this.formatDeviceForLog(device)}`,
+                `usb: device.claimInterface done: ${interfaceId}. device: ${this.formatDeviceForLog(device)}`,
             );
         } catch (err) {
             this.logger?.error(
@@ -329,7 +354,7 @@ export class UsbApi extends AbstractApi {
 
         if (device.opened) {
             try {
-                const interfaceId = INTERFACE_ID;
+                const interfaceId = this.debugLink ? DEBUGLINK_INTERFACE_ID : INTERFACE_ID;
                 this.logger?.debug(`usb: device.releaseInterface: ${interfaceId}`);
                 await device.releaseInterface(interfaceId);
                 this.logger?.debug(
@@ -432,17 +457,17 @@ export class UsbApi extends AbstractApi {
         try {
             this.logger?.debug(`usb: loadSerialNumber`);
 
-            await this.abortableMethod(() => device.open(), signal);
+            await this.abortableMethod(() => device.open(), { signal });
             // load serial number.
             await this.abortableMethod(
                 () =>
                     device
                         // @ts-expect-error: this is not part of common types between webusb and usb.
                         .getStringDescriptor(device.device.deviceDescriptor.iSerialNumber),
-                signal,
+                { signal },
             );
             this.logger?.debug(`usb: loadSerialNumber done, serialNumber: ${device.serialNumber}`);
-            await this.abortableMethod(() => device.close(), signal);
+            await this.abortableMethod(() => device.close(), { signal });
         } catch (err) {
             this.logger?.error(`usb: loadSerialNumber error: ${err.message}`);
             throw err;
