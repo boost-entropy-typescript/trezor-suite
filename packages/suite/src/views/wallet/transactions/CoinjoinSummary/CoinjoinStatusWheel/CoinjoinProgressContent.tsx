@@ -1,5 +1,5 @@
-import styled, { css, useTheme } from 'styled-components';
-import { Spinner, IconLegacy, Tooltip } from '@trezor/components';
+import styled, { useTheme } from 'styled-components';
+import { Spinner, Icon, Tooltip } from '@trezor/components';
 import { Translation } from 'src/components/suite/Translation';
 import { CountdownTimer } from 'src/components/suite/CountdownTimer';
 import { useSelector } from 'src/hooks/suite/useSelector';
@@ -10,7 +10,7 @@ import {
 } from 'src/reducers/wallet/coinjoinReducer';
 import { useCoinjoinSessionBlockers } from 'src/hooks/coinjoin/useCoinjoinSessionBlockers';
 import { FormattedNumber } from 'react-intl';
-import { spacingsPx, typography } from '@trezor/theme';
+import { spacings, spacingsPx, typography } from '@trezor/theme';
 
 export const Container = styled.div<{ $isWide: boolean }>`
     width: ${({ $isWide }) => `calc(100% - ${$isWide ? 12 : 8}px)`};
@@ -60,19 +60,6 @@ const TimeLeft = styled.p`
     ${typography.highlight}
 `;
 
-const iconBase = css`
-    margin-bottom: ${spacingsPx.xxs};
-`;
-
-const PlayIcon = styled(IconLegacy)`
-    ${iconBase}
-    margin-left: ${spacingsPx.xxs};
-`;
-
-const StyledIcon = styled(IconLegacy)`
-    ${iconBase};
-`;
-
 interface CoinjoinProgressContentProps {
     accountKey: string;
     isWheelHovered: boolean;
@@ -111,7 +98,13 @@ export const CoinjoinProgressContent = ({
         const isRunningAndBlocked = isSessionActive && isCoinjoinSessionBlocked && isPaused;
 
         if (isAccountEmpty || coinjoinSessionBlocker === 'ANONYMITY_ERROR') {
-            return <PlayIcon icon="PLAY" {...iconConfig} />;
+            return (
+                <Icon
+                    name="play"
+                    margin={{ bottom: spacings.xxs, left: spacings.xxs }}
+                    {...iconConfig}
+                />
+            );
         }
 
         if (isLoadingIndicatorShown) {
@@ -132,7 +125,7 @@ export const CoinjoinProgressContent = ({
         if (isRunningAndBlocked) {
             return (
                 <>
-                    <StyledIcon icon="PAUSE" {...iconConfig} />
+                    <Icon name="pause" margin={{ bottom: spacings.xxs }} {...iconConfig} />
                     <Translation id="TR_PAUSED" />
                 </>
             );
@@ -142,7 +135,7 @@ export const CoinjoinProgressContent = ({
             if (isWheelHovered) {
                 return (
                     <>
-                        <StyledIcon icon="PLAY" {...iconConfig} />
+                        <Icon name="play" margin={{ bottom: spacings.xxs }} {...iconConfig} />
                         <Translation id="TR_RESUME" />
                     </>
                 );
@@ -150,7 +143,7 @@ export const CoinjoinProgressContent = ({
 
             return (
                 <>
-                    <StyledIcon icon="STOP" {...iconConfig} />
+                    <Icon name="stop" margin={{ bottom: spacings.xxs }} {...iconConfig} />
                     <Translation id="TR_STOPPING" />
                 </>
             );
@@ -166,7 +159,7 @@ export const CoinjoinProgressContent = ({
                         content={<Translation id="TR_AUTO_STOP_TOOLTIP" />}
                     >
                         <TooltipChildren>
-                            <StyledIcon icon="STOP" {...iconConfig} />
+                            <Icon name="stop" margin={{ bottom: spacings.xxs }} {...iconConfig} />
                             <Translation id="TR_STOP" />
                         </TooltipChildren>
                     </Tooltip>
@@ -175,7 +168,7 @@ export const CoinjoinProgressContent = ({
 
             return (
                 <>
-                    <StyledIcon icon="STOP" {...iconConfig} />
+                    <Icon name="stop" margin={{ bottom: spacings.xxs }} {...iconConfig} />
                     <Translation id="TR_STOP" />
                 </>
             );
@@ -201,7 +194,12 @@ export const CoinjoinProgressContent = ({
 
         return (
             <>
-                <PlayIcon icon="PLAY" {...iconConfig} color={theme.iconPrimaryDefault} />
+                <Icon
+                    name="play"
+                    margin={{ bottom: spacings.xxs }}
+                    {...iconConfig}
+                    color={theme.iconPrimaryDefault}
+                />
                 <Translation id="TR_START" />
             </>
         );

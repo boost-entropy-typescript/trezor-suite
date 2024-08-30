@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { Translation } from 'src/components/suite';
-import { Textarea, IconLegacy, Tooltip, variables } from '@trezor/components';
+import { Textarea, Icon, Tooltip, variables } from '@trezor/components';
 import { getInputState, isHexValid } from '@suite-common/wallet-utils';
 import { OpenGuideFromTooltip } from 'src/components/guide';
 import { formInputsMaxLength } from '@suite-common/validators';
@@ -12,7 +12,7 @@ const Container = styled.div`
     position: relative;
 `;
 
-const CloseIcon = styled(IconLegacy)`
+const IconWrapper = styled.div`
     position: absolute;
     right: 0;
     top: 0;
@@ -102,7 +102,9 @@ export const OpReturn = ({ outputId }: { outputId: number }) => {
                 <Translation id="OP_RETURN_ADD" />
             </Tooltip>
 
-            <CloseIcon size={20} icon="CROSS" onClick={() => removeOpReturn(outputId)} />
+            <IconWrapper>
+                <Icon size={20} name="close" onClick={() => removeOpReturn(outputId)} />
+            </IconWrapper>
 
             <Inputs>
                 <StyledTextarea

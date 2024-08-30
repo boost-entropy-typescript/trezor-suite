@@ -3,8 +3,18 @@ import { useCallback, useEffect, useMemo, ReactNode } from 'react';
 import { analytics, AppUpdateEventStatus, EventType } from '@trezor/suite-analytics';
 import { desktopApi } from '@trezor/suite-desktop-api';
 
-import { useActions, useSelector } from 'src/hooks/suite';
-import * as desktopUpdateActions from 'src/actions/suite/desktopUpdateActions';
+import { useDispatch, useSelector } from 'src/hooks/suite';
+import {
+    allowPrerelease,
+    setAutomaticUpdates,
+    checking,
+    available,
+    notAvailable,
+    ready,
+    downloading,
+    error,
+    setUpdateModalVisibility,
+} from 'src/actions/suite/desktopUpdateActions';
 import { UpdateState } from 'src/reducers/suite/desktopUpdateReducer';
 import { ModalContextProvider } from 'src/support/suite/ModalContext';
 import { getAppUpdatePayload } from 'src/utils/suite/analytics';
@@ -21,25 +31,7 @@ interface DesktopUpdaterProps {
 }
 
 export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
-    const {
-        checking,
-        available,
-        notAvailable,
-        downloading,
-        ready,
-        error,
-        setUpdateWindow,
-        allowPrerelease,
-    } = useActions({
-        checking: desktopUpdateActions.checking,
-        available: desktopUpdateActions.available,
-        notAvailable: desktopUpdateActions.notAvailable,
-        downloading: desktopUpdateActions.downloading,
-        ready: desktopUpdateActions.ready,
-        error: desktopUpdateActions.error,
-        setUpdateWindow: desktopUpdateActions.setUpdateWindow,
-        allowPrerelease: desktopUpdateActions.allowPrerelease,
-    });
+    const dispatch = useDispatch();
     const { desktopUpdate } = useSelector(state => state);
     const routeName = useSelector(selectRouteName);
 
@@ -48,17 +40,21 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
     const isSettingsRoute = routeName === 'settings-index';
 
     useEffect(() => {
-        desktopApi.on('update/allow-prerelease', allowPrerelease);
+        desktopApi.on('update/allow-prerelease', params => dispatch(allowPrerelease(params)));
+        desktopApi.on('update/set-automatic-update-enabled', isEnabled =>
+            dispatch(setAutomaticUpdates({ isEnabled })),
+        );
 
         if (!desktopUpdate.enabled) {
             return;
         }
-        desktopApi.on('update/checking', checking);
-        desktopApi.on('update/available', available);
-        desktopApi.on('update/not-available', notAvailable);
-        desktopApi.on('update/downloaded', ready);
-        desktopApi.on('update/downloading', downloading);
-        desktopApi.on('update/error', error);
+
+        desktopApi.on('update/checking', () => dispatch(checking()));
+        desktopApi.on('update/available', params => dispatch(available(params)));
+        desktopApi.on('update/not-available', params => dispatch(notAvailable(params)));
+        desktopApi.on('update/downloaded', params => dispatch(ready(params)));
+        desktopApi.on('update/downloading', params => dispatch(downloading(params)));
+        desktopApi.on('update/error', params => dispatch(error(params)));
 
         // Initial check for updates
         desktopApi.checkForUpdates();
@@ -71,19 +67,10 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
         );
 
         return () => clearInterval(checkForUpdatesInterval);
-    }, [
-        available,
-        checking,
-        downloading,
-        notAvailable,
-        ready,
-        error,
-        desktopUpdate.enabled,
-        allowPrerelease,
-    ]);
+    }, [desktopUpdate.enabled, dispatch]);
 
     const hideWindow = useCallback(() => {
-        setUpdateWindow('hidden');
+        dispatch(setUpdateModalVisibility('hidden'));
 
         const payload = getAppUpdatePayload(
             AppUpdateEventStatus.Closed,
@@ -94,11 +81,11 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
             type: EventType.AppUpdate,
             payload,
         });
-    }, [setUpdateWindow, desktopUpdate.latest, desktopUpdate.allowPrerelease]);
+    }, [dispatch, desktopUpdate.allowPrerelease, desktopUpdate.latest]);
 
     const isVisible = useMemo(() => {
         // Not displayed as a modal
-        if (desktopUpdate.window !== 'maximized') {
+        if (desktopUpdate.modalVisibility !== 'maximized') {
             return false;
         }
 
@@ -118,7 +105,7 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
         }
 
         return true;
-    }, [desktopUpdate.window, desktopUpdate.state, desktopUpdate.latest]);
+    }, [desktopUpdate.modalVisibility, desktopUpdate.state, desktopUpdate.latest]);
 
     const getUpdateModal = () => {
         switch (desktopUpdate.state) {

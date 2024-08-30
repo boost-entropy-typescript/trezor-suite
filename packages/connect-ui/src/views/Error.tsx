@@ -3,14 +3,7 @@ import { ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import {
-    Button,
-    CollapsibleBox,
-    colors,
-    IconLegacy,
-    IconLegacyProps,
-    variables,
-} from '@trezor/components';
+import { Button, CollapsibleBox, colors, Icon, IconName, variables } from '@trezor/components';
 import { isFirefox } from '@trezor/env-utils';
 
 const WhiteCollapsibleBox = styled(CollapsibleBox)`
@@ -54,7 +47,7 @@ const Green = styled.span`
 `;
 
 interface Tip {
-    icon: IconLegacyProps['icon'];
+    icon: IconName;
     title: string;
     detail: {
         steps: ReactNode[];
@@ -67,7 +60,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
     if (props.detail === 'handshake-timeout') {
         if (isFirefox()) {
             tips.push({
-                icon: 'COOKIE',
+                icon: 'cookie',
                 title: 'Disable cookies',
                 detail: {
                     steps: [
@@ -88,7 +81,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
             });
 
             tips.push({
-                icon: 'FINGERPRINT',
+                icon: 'biometric',
                 title: 'Disable: Block Fingerprinting',
                 detail: {
                     steps: [
@@ -111,7 +104,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
             // hopefully chromium based
         } else {
             tips.push({
-                icon: 'COOKIE',
+                icon: 'cookie',
                 title: 'Disable cookies',
                 detail: {
                     steps: [
@@ -133,7 +126,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
 
             // fallback, last resort tips
             tips.push({
-                icon: 'FINGERPRINT',
+                icon: 'biometric',
                 title: 'Open site in “Incognito/Private mode”',
                 detail: {
                     steps: [
@@ -151,7 +144,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
 
     if (props.detail === 'response-event-error') {
         tips.push({
-            icon: 'QUESTION',
+            icon: 'question',
             title: 'Action not completed',
             detail: {
                 steps: [<Step>{props.message}</Step>],
@@ -161,7 +154,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
 
     if (['core-missing', 'core-failed-to-load'].includes(props.detail)) {
         tips.push({
-            icon: 'QUESTION',
+            icon: 'question',
             title: 'Tried to access connect core which is not loaded yet',
             detail: {
                 steps: [<Step>Try again or contact developers</Step>],
@@ -171,7 +164,7 @@ const getTroubleshootingTips = (props: ErrorViewProps) => {
 
     if (!tips.length) {
         tips.push({
-            icon: 'QUESTION',
+            icon: 'question',
             title: 'Could not communicate with the host website',
             detail: {
                 steps: [
@@ -225,12 +218,15 @@ const TipsContainer = styled.div`
     margin-bottom: 20px;
 `;
 
-const StyledIcon = styled(IconLegacy)`
+const IconWrapper = styled.div`
     width: 40px;
     height: 40px;
     border-radius: 20px;
     background-color: #c4c4c4;
     margin-right: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const Heading = styled.div`
@@ -269,7 +265,9 @@ export const ErrorView = (props: ErrorViewProps) => {
                             key={tip.title}
                             heading={
                                 <Heading>
-                                    <StyledIcon icon={tip.icon} color="#000" />
+                                    <IconWrapper>
+                                        <Icon name={tip.icon} color="#000" />
+                                    </IconWrapper>
                                     <HeadingText>
                                         <HeadingH1>{tip.title}</HeadingH1>
                                     </HeadingText>

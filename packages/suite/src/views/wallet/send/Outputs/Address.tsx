@@ -1,8 +1,15 @@
 import { useCallback, useState } from 'react';
 import { checkAddressCheckSum, toChecksumAddress } from 'web3-utils';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
-import { Input, Button, IconButton } from '@trezor/components';
+import {
+    Input,
+    Button,
+    IconButton,
+    CoinLogo,
+    getInputStateTextColor,
+    Icon,
+} from '@trezor/components';
 import { capitalizeFirstLetter } from '@trezor/utils';
 import * as URLS from '@trezor/urls';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -33,6 +40,7 @@ import { Row } from '@trezor/components';
 
 import { HELP_CENTER_EVM_ADDRESS_CHECKSUM } from '@trezor/urls';
 import { spacings } from '@trezor/theme';
+
 const Container = styled.div`
     position: relative;
 `;
@@ -77,8 +85,8 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
     const { descriptor, networkType, symbol } = account;
     const inputName = `outputs.${outputId}.address` as const;
     // NOTE: compose errors are always associated with the amount.
-    // if address is not valid then compose process will never be triggered,
-    // however if address is changed compose process may return `AMOUNT_IS_NOT_ENOUGH` which should appear under the amount filed
+    // If address is not valid then compose process will never be triggered,
+    // however if address is changed compose process may return `AMOUNT_IS_NOT_ENOUGH` which should appear under the amount filed.
     const amountInputName = `outputs.${outputId}.amount` as const;
     const outputError = errors.outputs ? errors.outputs[outputId] : undefined;
     const addressError = outputError ? outputError.address : undefined;
@@ -89,6 +97,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
     const options = getDefaultValue('options', []);
     const broadcastEnabled = options.includes('broadcast');
     const isOnline = useSelector(state => state.suite.online);
+    const theme = useTheme();
     const getInputErrorState = () => {
         if (hasAddressChecksummed) {
             return 'primary';
@@ -217,7 +226,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                     return translationString('RECIPIENT_IS_NOT_VALID');
                 }
             },
-            // eth addresses are valid without checksum but Trezor displays them as checksummed
+            // Eth addresses are valid without checksum but Trezor displays them as checksummed.
             checksum: async (address: string) => {
                 if (networkType === 'ethereum' && !checkAddressCheckSum(address)) {
                     if (isOnline) {
@@ -240,8 +249,8 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                                 return;
                             }
 
-                            // 2. If the address is not checksummed at all and not found in blockbook.
-                            // offer to checksum it with a button
+                            // 2. If the address is not checksummed at all and not found in blockbook
+                            // offer to checksum it with a button.
                             if (!hasHistory && address === address.toLowerCase()) {
                                 return translationString('TR_ETH_ADDRESS_NOT_USED_NOT_CHECKSUMMED');
                             }
@@ -259,7 +268,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
         },
     });
 
-    // required for the correct functionality of bottom text in the input
+    // Required for the correct functionality of bottom text in the input.
     const addressLabelComponent = (
         <AddressLabeling address={addressValue} knownOnly networkSymbol={symbol} />
     );
@@ -281,7 +290,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                                 <Link
                                     href={HELP_CENTER_EVM_ADDRESS_CHECKSUM}
                                     variant="nostyle"
-                                    icon="EXTERNAL_LINK"
+                                    icon="externalLink"
                                     type="label"
                                 >
                                     {chunks}
@@ -301,9 +310,23 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
         return addressBottomText;
     };
 
-    const getBottomTextIcon = () => {
+    const getBottomTextIconComponent = () => {
         if (hasAddressChecksummed) {
-            return 'check';
+            return <Icon name="check" size="medium" color="iconDisabled" />;
+        }
+
+        if (isAddressWithLabel) {
+            return <CoinLogo symbol={symbol} size={16} />;
+        }
+
+        if (addressError) {
+            return (
+                <Icon
+                    name="warningCircle"
+                    size="medium"
+                    color={getInputStateTextColor('error', theme)}
+                />
+            );
         }
 
         return undefined;
@@ -322,7 +345,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                                     type: 'outputLabel',
                                     entityKey: account.key,
                                     // txid is not known at this moment. metadata is only saved
-                                    // along with other sendForm data and processed in sendFormActions
+                                    // along with other sendForm data and processed in sendFormActions.
                                     txid: 'will-be-replaced',
                                     outputIndex: outputId,
                                     defaultValue: `${outputId}`,
@@ -343,7 +366,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                     </Text>
                 }
                 labelHoverRight={
-                    <Button variant="tertiary" size="tiny" icon="QR" onClick={handleQrClick}>
+                    <Button variant="tertiary" size="tiny" icon="qrCode" onClick={handleQrClick}>
                         <Translation id="RECIPIENT_SCAN" />
                     </Button>
                 }
@@ -362,7 +385,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                 labelRight={
                     outputsCount > 1 ? (
                         <IconButton
-                            icon="CROSS"
+                            icon="close"
                             size="tiny"
                             variant="tertiary"
                             data-testid={`outputs.${outputId}.remove`}
@@ -375,7 +398,7 @@ export const Address = ({ output, outputId, outputsCount }: AddressProps) => {
                     ) : undefined
                 }
                 bottomText={getBottomText()}
-                bottomTextIcon={getBottomTextIcon()}
+                bottomTextIconComponent={getBottomTextIconComponent()}
                 data-testid={inputName}
                 defaultValue={addressValue}
                 maxLength={formInputsMaxLength.address}

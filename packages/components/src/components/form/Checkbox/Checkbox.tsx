@@ -3,14 +3,17 @@ import styled, { useTheme } from 'styled-components';
 import { borders, Color, spacingsPx, typography } from '@trezor/theme';
 
 import { KEYBOARD_CODE } from '../../../constants/keyboardEvents';
-import { IconLegacy } from '../../Icon/IconLegacy';
 import { getFocusShadowStyle } from '../../../utils/utils';
 import { UIHorizontalAlignment, UIVerticalAlignment, UIVariant } from '../../../config/types';
 import { FrameProps, FramePropsKeys, withFrameProps } from '../../../utils/frameProps';
 import { makePropsTransient, TransientProps } from '../../../utils/transientProps';
+import { Icon } from '../../Icon/Icon';
 
 export const allowedCheckboxFrameProps: FramePropsKeys[] = ['margin'];
-type AllowedFrameProps = Pick<FrameProps, (typeof allowedCheckboxFrameProps)[number]>;
+export type AllowedCheckboxFrameProps = Pick<
+    FrameProps,
+    (typeof allowedCheckboxFrameProps)[number]
+>;
 
 interface VariantStyles {
     background: Color;
@@ -64,7 +67,7 @@ export const variantStyles: Record<CheckboxVariant, VariantStyles> = {
     },
 };
 
-type ContainerProps = TransientProps<AllowedFrameProps> & {
+type ContainerProps = TransientProps<AllowedCheckboxFrameProps> & {
     $isDisabled?: boolean;
     $labelAlignment?: LabelAlignment;
     $verticalAlignment?: VerticalAlignment;
@@ -127,7 +130,7 @@ export const CheckContainer = styled.div<{ $variant: CheckboxVariant }>`
     ${getFocusShadowStyle()}
 `;
 
-const CheckIcon = styled(IconLegacy)<{ $isVisible: boolean }>`
+const CheckIcon = styled(Icon)<{ $isVisible: boolean }>`
     opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
     transition: opacity 0.1s;
 `;
@@ -159,7 +162,7 @@ export type CheckboxVariant = Extract<UIVariant, (typeof checkboxVariants)[numbe
 export type LabelAlignment = Extract<UIHorizontalAlignment, 'left' | 'right'>;
 export type VerticalAlignment = Extract<UIVerticalAlignment, 'top' | 'center'>;
 
-export type CheckboxProps = AllowedFrameProps & {
+export type CheckboxProps = AllowedCheckboxFrameProps & {
     variant?: CheckboxVariant;
     isChecked?: boolean;
     isDisabled?: boolean;
@@ -222,7 +225,7 @@ export const Checkbox = ({
                     $isVisible={!!isChecked}
                     size={24}
                     color={theme.iconOnPrimary}
-                    icon="CHECK"
+                    name="check"
                 />
             </CheckContainer>
 

@@ -1,7 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Icon as IconComponent, IconProps } from './Icon';
+import { allowedIconFrameProps, Icon as IconComponent, IconProps, iconVariants } from './Icon';
 import { IconName, icons } from '@suite-common/icons/src/icons';
-import { colorVariants } from '@trezor/theme';
+import { getFramePropsStory } from '../../utils/frameProps';
+import { iconSizes } from '@suite-common/icons';
 const meta: Meta = {
     title: 'Icons',
     component: IconComponent,
@@ -9,12 +10,14 @@ const meta: Meta = {
 export default meta;
 
 const iconNames = Object.keys(icons) as IconName[];
-const colors = Object.keys(colorVariants.standard);
 
 export const Icon: StoryObj<IconProps> = {
     args: {
         name: 'discover',
-        color: 'iconDefault',
+        variant: 'primary',
+        size: 'large',
+        color: undefined,
+        ...getFramePropsStory(allowedIconFrameProps).args,
     },
     argTypes: {
         name: {
@@ -23,11 +26,18 @@ export const Icon: StoryObj<IconProps> = {
                 type: 'select',
             },
         },
-        color: {
-            options: colors,
+        variant: {
+            options: iconVariants,
             control: {
                 type: 'select',
             },
         },
+        size: {
+            options: iconSizes,
+            control: {
+                type: 'select',
+            },
+        },
+        ...getFramePropsStory(allowedIconFrameProps).argTypes,
     },
 };

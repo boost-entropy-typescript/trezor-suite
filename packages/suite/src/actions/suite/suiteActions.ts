@@ -84,9 +84,15 @@ export type SuiteAction =
           payload: Partial<AutodetectSettings>;
       }
     | { type: typeof deviceActions.requestDeviceReconnect.type }
-    | { type: typeof SUITE.SET_EXPERIMENTAL_FEATURES; payload?: ExperimentalFeature[] }
     | { type: typeof SUITE.SET_SIDEBAR_WIDTH; payload: { width: number } }
-    | { type: typeof SUITE.SET_AUTO_START; enabled?: boolean };
+    | { type: typeof SUITE.SET_AUTO_START; enabled?: boolean }
+    | {
+          type: typeof SUITE.SET_EXPERIMENTAL_FEATURES;
+          payload: {
+              enabledFeatures: ExperimentalFeature[] | undefined; // undefined means the experimental features are off as a whole
+          };
+      }
+    | { type: typeof SUITE.SET_SIDEBAR_WIDTH; payload: { width: number } };
 
 export const appChanged = createAction(
     SUITE.APP_CHANGED,

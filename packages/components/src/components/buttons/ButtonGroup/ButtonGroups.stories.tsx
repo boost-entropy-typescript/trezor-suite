@@ -29,12 +29,6 @@ export const ButtonGroups: StoryObj = {
                 <Button>Button 3</Button>
             </ButtonGroup>
 
-            <ButtonGroup variant="secondary" size="medium">
-                <Button>Button 1</Button>
-                <Button>Button 2</Button>
-                <Button>Button 3</Button>
-            </ButtonGroup>
-
             <ButtonGroup variant="tertiary" size="small">
                 <Button>Button 1</Button>
                 <Button>Button 2</Button>
@@ -43,27 +37,20 @@ export const ButtonGroups: StoryObj = {
             </ButtonGroup>
 
             <ButtonGroup>
-                <IconButton icon="PENCIL" />
-                <IconButton icon="CLOCK" />
+                <IconButton icon="pencil" />
+                <IconButton icon="clock" />
             </ButtonGroup>
 
             <ButtonGroup isDisabled>
-                <IconButton icon="PENCIL" />
-                <IconButton icon="CLOCK" />
-                <IconButton icon="TWO_USERS" />
+                <IconButton icon="pencil" />
+                <IconButton icon="clock" />
+                <IconButton icon="twoUsers" />
             </ButtonGroup>
 
-            <ButtonGroup variant="secondary" size="medium">
-                <IconButton icon="PENCIL" />
-                <IconButton icon="CLOCK" />
-                <IconButton icon="TWO_USERS" />
-            </ButtonGroup>
-
-            <ButtonGroup variant="tertiary" size="small">
-                <IconButton icon="PENCIL" />
-                <IconButton icon="CLOCK" />
-                <IconButton icon="TWO_USERS" />
-                <IconButton icon="BACKEND" />
+            <ButtonGroup variant="tertiary" size="medium">
+                <IconButton icon="pencil" />
+                <IconButton icon="clock" />
+                <IconButton icon="twoUsers" />
             </ButtonGroup>
 
             <ButtonGroup>

@@ -1,6 +1,6 @@
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 import styled, { useTheme } from 'styled-components';
-import { Badge, Button, Card, IconLegacy, Row, Tooltip, variables } from '@trezor/components';
+import { Badge, Button, Card, Icon, Row, Tooltip, variables } from '@trezor/components';
 import { spacings, spacingsPx } from '@trezor/theme';
 import { selectAccountStakeTransactions } from '@suite-common/wallet-core';
 import { getAccountEverstakeStakingPool, isPending } from '@suite-common/wallet-utils';
@@ -14,10 +14,6 @@ import { useProgressLabelsData } from '../hooks/useProgressLabelsData';
 import { useIsTxStatusShown } from '../hooks/useIsTxStatusShown';
 import { TrimmedCryptoAmount } from './TrimmedCryptoAmount';
 import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking';
-
-const StyledCard = styled(Card)`
-    padding: ${spacingsPx.md};
-`;
 
 const AmountsWrapper = styled.div<{ $isStakeOrUnstakePending: boolean }>`
     display: flex;
@@ -139,7 +135,7 @@ export const StakingCard = ({
     }
 
     return (
-        <StyledCard>
+        <Card>
             {(isStakeConfirming || isTxStatusShown) && (
                 <InfoBox>
                     <ProgressLabels labels={progressLabelsData} />
@@ -150,7 +146,7 @@ export const StakingCard = ({
                 {isStakePending && (
                     <div>
                         <AmountHeading>
-                            <IconLegacy icon="SPINNER" size={16} />
+                            <Icon name="spinner" size={16} />
                             <Translation id="TR_STAKE_TOTAL_PENDING" />
                         </AmountHeading>
 
@@ -172,7 +168,7 @@ export const StakingCard = ({
 
                 <div>
                     <AmountHeading>
-                        <IconLegacy icon="LOCK_SIMPLE" size={16} />
+                        <Icon name="lock" size={16} />
                         <Translation id="TR_STAKE_STAKE" />
                     </AmountHeading>
 
@@ -193,7 +189,7 @@ export const StakingCard = ({
 
                 <div>
                     <AmountHeading>
-                        <IconLegacy icon="PLUS_CIRCLE" size={16} />
+                        <Icon name="plusCircle" size={16} />
                         <Translation id="TR_STAKE_REWARDS" />
                         <Tooltip
                             maxWidth={250}
@@ -207,7 +203,7 @@ export const StakingCard = ({
                             <Badge variant="primary" size="small">
                                 <Row gap={spacings.xxs} alignItems="center">
                                     <Translation id="TR_STAKE_RESTAKED_BADGE" />
-                                    <IconLegacy icon="INFO" size={spacings.sm} variant="primary" />
+                                    <Icon name="info" size={spacings.sm} variant="primary" />
                                 </Row>
                             </Badge>
                         </Tooltip>
@@ -232,7 +228,7 @@ export const StakingCard = ({
                 {isPendingUnstakeShown && (
                     <div>
                         <AmountHeading>
-                            <IconLegacy icon="SPINNER" size={18} color={theme.iconSubdued} />
+                            <Icon name="spinner" size={18} color={theme.iconSubdued} />
                             <span>
                                 <Translation id="TR_STAKE_UNSTAKING" />{' '}
                                 {isDaysToUnstakeShown && (
@@ -285,7 +281,7 @@ export const StakingCard = ({
                     <StyledButton
                         onClick={openStakeModal}
                         isDisabled={isStakingDisabled}
-                        icon={isStakingDisabled ? 'INFO' : undefined}
+                        icon={isStakingDisabled ? 'info' : undefined}
                     >
                         <Translation id="TR_STAKE_STAKE_MORE" />
                     </StyledButton>
@@ -294,12 +290,12 @@ export const StakingCard = ({
                     <StyledButton
                         isDisabled={!canUnstake || isUnstakingDisabled}
                         onClick={openUnstakeModal}
-                        icon={isUnstakingDisabled ? 'INFO' : undefined}
+                        icon={isUnstakingDisabled ? 'info' : undefined}
                     >
                         <Translation id="TR_STAKE_UNSTAKE_TO_CLAIM" />
                     </StyledButton>
                 </Tooltip>
             </ButtonsWrapper>
-        </StyledCard>
+        </Card>
     );
 };

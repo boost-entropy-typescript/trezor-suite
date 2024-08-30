@@ -228,7 +228,7 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
                 break;
 
             case SUITE.SET_EXPERIMENTAL_FEATURES:
-                draft.settings.experimental = action.payload;
+                draft.settings.experimental = action.payload.enabledFeatures;
                 break;
 
             case SUITE.SET_FLAG:

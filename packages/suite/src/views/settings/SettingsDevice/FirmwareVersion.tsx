@@ -72,7 +72,7 @@ export const FirmwareVersion = ({ isDeviceLocked }: FirmwareVersionProps) => {
     const availableFwVersion = getFwUpdateVersion(device);
     const { revision } = device.features;
     const changelogUrl = getChangelogUrl(device, revision);
-    const githubButtonIcon = revision ? 'EXTERNAL_LINK' : undefined;
+    const githubButtonIcon = revision ? 'externalLink' : undefined;
 
     const handleUpdate = () => dispatch(goto('firmware-index', { params: { cancelable: true } }));
 
@@ -120,7 +120,7 @@ export const FirmwareVersion = ({ isDeviceLocked }: FirmwareVersionProps) => {
             />
             <ActionColumn>
                 <ActionButton
-                    variant="secondary"
+                    variant="tertiary"
                     onClick={handleUpdate}
                     data-testid="@settings/device/update-button"
                     isDisabled={isDeviceLocked}

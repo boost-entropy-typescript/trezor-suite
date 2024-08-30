@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import { darken } from 'polished';
 
-import { Card, IconLegacy, variables } from '@trezor/components';
+import { Card, Icon, variables } from '@trezor/components';
 import { HELP_CENTER_COINJOIN_URL } from '@trezor/urls';
 import { mediaQueries } from '@trezor/styles';
 
 import { Translation } from 'src/components/suite';
 import { CoinjoinProcessStep, CoinjoinProcessStepProps } from './CoinjoinProcessStep';
-import { spacingsPx, typography } from '@trezor/theme';
+import { spacings, spacingsPx, typography } from '@trezor/theme';
 import { LearnMoreButton } from 'src/components/suite/LearnMoreButton';
 
 const Container = styled(Card)`
@@ -20,10 +20,6 @@ const Heading = styled.div`
     margin-bottom: ${spacingsPx.md};
     color: ${({ theme }) => theme.textSubdued};
     ${typography.hint};
-`;
-
-const QuestionIcon = styled(IconLegacy)`
-    margin-right: 4px;
 `;
 
 const Steps = styled(Card)`
@@ -93,7 +89,7 @@ const STEPS: Array<Omit<CoinjoinProcessStepProps, 'number'>> = [
 export const CoinjoinExplanation = () => (
     <Container>
         <Heading>
-            <QuestionIcon icon="QUESTION" size={15} />
+            <Icon name="question" margin={{ right: spacings.xxs }} size={15} />
             <Translation id="TR_COINJOIN_EXPLANATION_TITLE" />
         </Heading>
 

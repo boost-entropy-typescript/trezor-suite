@@ -12,6 +12,8 @@ import {
     TokenAddress,
     RatesByTimestamps,
     Timestamp,
+    GeneralPrecomposedTransactionFinal,
+    PrecomposedTransactionFinalRbf,
 } from '@suite-common/wallet-types';
 import {
     AccountAddress,
@@ -57,6 +59,10 @@ export const isPending = (tx: WalletAccountTransaction | AccountTransaction) => 
 
     return !!tx && (!tx.blockHeight || tx.blockHeight < 0);
 };
+
+export const isRbfTransaction = (
+    tx: GeneralPrecomposedTransactionFinal,
+): tx is PrecomposedTransactionFinalRbf => 'prevTxid' in tx && tx.prevTxid !== undefined;
 
 /* Convert date to string in YYYY-MM-DD format */
 const generateTransactionDateKey = (d: Date) =>
@@ -481,17 +487,17 @@ export const getNftTokenId = (transfer: TokenTransfer) =>
 export const getTxIcon = (txType: WalletAccountTransaction['type']) => {
     switch (txType) {
         case 'recv':
-            return 'RECEIVE';
+            return 'receive';
         case 'sent':
         case 'contract':
         case 'self':
-            return 'SEND';
+            return 'send';
         case 'failed':
-            return 'CROSS';
+            return 'close';
         case 'joint':
-            return 'SHUFFLE';
+            return 'shuffle';
         default:
-            return 'QUESTION';
+            return 'question';
     }
 };
 

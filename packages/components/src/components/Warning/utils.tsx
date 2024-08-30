@@ -1,7 +1,7 @@
 import { Color, CSSColor, Elevation, mapElevationToBackgroundToken } from '@trezor/theme';
 import { WarningVariant } from './types';
-import { IconType } from '../Icon/IconLegacy';
 import { DefaultTheme } from 'styled-components';
+import { IconName } from '../Icon/Icon';
 
 type MapArgs = {
     $variant: WarningVariant;
@@ -12,7 +12,6 @@ type MapArgs = {
 export const mapVariantToBackgroundColor = ({ $variant, theme, $elevation }: MapArgs): CSSColor => {
     const colorMap: Record<WarningVariant, Color> = {
         primary: 'backgroundPrimarySubtleOnElevation0',
-        secondary: 'backgroundNeutralBold',
         info: 'backgroundAlertBlueSubtleOnElevation0',
         warning: 'backgroundAlertYellowSubtleOnElevation0',
         destructive: 'backgroundAlertRedSubtleOnElevation0',
@@ -25,7 +24,6 @@ export const mapVariantToBackgroundColor = ({ $variant, theme, $elevation }: Map
 export const mapVariantToTextColor = ({ $variant, theme }: MapArgs): CSSColor => {
     const colorMap: Record<WarningVariant, Color> = {
         primary: 'textPrimaryDefault',
-        secondary: 'textDefaultInverted',
         info: 'textAlertBlue',
         warning: 'textAlertYellow',
         destructive: 'textAlertRed',
@@ -37,7 +35,6 @@ export const mapVariantToTextColor = ({ $variant, theme }: MapArgs): CSSColor =>
 export const mapVariantToIconColor = ({ $variant, theme }: MapArgs): CSSColor => {
     const colorMap: Record<WarningVariant, Color> = {
         primary: 'iconPrimaryDefault',
-        secondary: 'iconDefaultInverted',
         info: 'iconAlertBlue',
         warning: 'iconAlertYellow',
         destructive: 'iconAlertRed',
@@ -47,14 +44,13 @@ export const mapVariantToIconColor = ({ $variant, theme }: MapArgs): CSSColor =>
     return theme[colorMap[$variant]];
 };
 
-export const mapVariantToIcon = ({ $variant }: Pick<MapArgs, '$variant'>): IconType => {
-    const iconMap: Record<WarningVariant, IconType> = {
-        primary: 'LIGHTBULB',
-        secondary: 'INFO',
-        info: 'INFO',
-        warning: 'WARNING',
-        destructive: 'WARNING',
-        tertiary: 'INFO',
+export const mapVariantToIcon = ({ $variant }: Pick<MapArgs, '$variant'>): IconName => {
+    const iconMap: Record<WarningVariant, IconName> = {
+        primary: 'lightbulb',
+        info: 'info',
+        warning: 'warningTriangle',
+        destructive: 'warningTriangle',
+        tertiary: 'info',
     };
 
     return iconMap[$variant];

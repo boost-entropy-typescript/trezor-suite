@@ -31,7 +31,7 @@ import { EnableViewOnly } from './EnableViewOnly';
 import { Experimental } from './Experimental';
 import { networksCompatibility } from '@suite-common/wallet-config';
 import { TorSnowflake } from './TorSnowflake';
-import { ExperimentalFeature } from 'src/constants/suite/experimental';
+import { AutomaticUpdate } from './AutomaticUpdate';
 
 export const SettingsGeneral = () => {
     const shouldShowSettingsDesktopAppPromoBanner = useSelector(
@@ -44,7 +44,7 @@ export const SettingsGeneral = () => {
     const metadata = useSelector(state => state.metadata);
     const { isMobileLayout } = useLayoutSize();
     const torSnowflakeExperimentalFeature = useSelector(
-        selectHasExperimentalFeature(ExperimentalFeature.TorSnowflake),
+        selectHasExperimentalFeature('tor-snowflake'),
     );
 
     const hasBitcoinNetworks = networksCompatibility.some(
@@ -61,13 +61,13 @@ export const SettingsGeneral = () => {
                 <DesktopSuiteBanner />
             )}
 
-            <SettingsSection title={<Translation id="TR_LOCALIZATION" />} icon="FLAG">
+            <SettingsSection title={<Translation id="TR_LOCALIZATION" />} icon="flag">
                 <Language />
                 <Fiat />
                 {hasBitcoinNetworks && <BitcoinAmountUnit />}
             </SettingsSection>
 
-            <SettingsSection title={<Translation id="TR_LABELING" />} icon="TAG_MINIMAL">
+            <SettingsSection title={<Translation id="TR_LABELING" />} icon="tagMinimal">
                 <Labeling />
                 {isMetadataEnabled &&
                     (isProviderConnected ? (
@@ -78,29 +78,30 @@ export const SettingsGeneral = () => {
             </SettingsSection>
 
             {(isDesktop() || (isWeb() && isTorEnabled)) && (
-                <SettingsSection title={<Translation id="TR_TOR" />} icon="TOR_MINIMAL">
+                <SettingsSection title={<Translation id="TR_TOR" />} icon="tor">
                     {isDesktop() && <Tor />}
                     {isTorEnabled && <TorOnionLinks />}
                     {isDesktop() && torSnowflakeExperimentalFeature && <TorSnowflake />}
                 </SettingsSection>
             )}
 
-            <SettingsSection title={<Translation id="TR_APPLICATION" />} icon="APP">
+            <SettingsSection title={<Translation id="TR_APPLICATION" />} icon="app">
                 <Theme />
                 <AddressDisplay />
                 <Analytics />
                 <ShowApplicationLog />
                 <ClearStorage />
+                <AutomaticUpdate />
                 <VersionWithUpdate />
             </SettingsSection>
 
-            <SettingsSection title={<Translation id="TR_VIEW_ONLY" />} icon="LINK">
+            <SettingsSection title={<Translation id="TR_VIEW_ONLY" />} icon="link">
                 <EnableViewOnly />
             </SettingsSection>
 
             <SettingsSection
                 title={<Translation id="TR_EXPERIMENTAL_FEATURES" />}
-                icon="EXPERIMENTAL"
+                icon="experimental"
             >
                 {desktopUpdate.enabled && <EarlyAccess />}
                 <Experimental />

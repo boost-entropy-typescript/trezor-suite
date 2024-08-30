@@ -11,9 +11,9 @@ import {
 } from 'src/components/suite';
 import { isTestnet } from '@suite-common/wallet-utils';
 import { CoinmarketBuyButton } from 'src/views/dashboard/components/CoinmarketBuyButton';
-import { borders, spacingsPx, typography } from '@trezor/theme';
+import { spacingsPx, typography } from '@trezor/theme';
 
-import { Card, H2, IconLegacy, SkeletonRectangle, variables } from '@trezor/components';
+import { Card, H2, Icon, Row, SkeletonRectangle, variables } from '@trezor/components';
 import { useDispatch } from 'react-redux';
 import { useAccountSearch, useLoadingSkeleton, useSelector } from 'src/hooks/suite';
 import { goto } from 'src/actions/suite/routerActions';
@@ -27,7 +27,7 @@ import { useFiatFromCryptoValue } from 'src/hooks/suite/useFiatFromCryptoValue';
 const StyledCard = styled(Card)`
     transition: box-shadow 0.2s;
 
-    ${styledHoverOnParentOfArrowIcon}
+    ${styledHoverOnParentOfArrowIcon};
 
     padding: ${spacingsPx.xs};
 `;
@@ -37,16 +37,7 @@ const Content = styled.div`
     flex: 1;
 `;
 
-const BuyContainerCard = styled(Card)`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: ${borders.radii.xs};
-    padding: ${spacingsPx.md};
-`;
-
-const WarningIcon = styled(IconLegacy)`
+const WarningIcon = styled(Icon)`
     padding-left: ${spacingsPx.xxs};
     padding-bottom: ${spacingsPx.xxxs};
 `;
@@ -139,7 +130,7 @@ export const AssetCard = ({
                         assetsFiatBalances={assetsFiatBalances}
                         index={index}
                     />
-                    <ArrowIcon size={16} icon="ARROW_RIGHT_LONG" color={theme.iconDisabled} />
+                    <ArrowIcon size={16} name="arrowRightLong" color={theme.iconDisabled} />
                 </AssetContainer>
                 {!failed ? (
                     <>
@@ -158,30 +149,36 @@ export const AssetCard = ({
                     </>
                 ) : (
                     <FailedContainer>
-                        <WarningIcon icon="WARNING" color={theme.legacy.TYPE_RED} size={14} />
+                        <WarningIcon
+                            name="warningTriangle"
+                            color={theme.legacy.TYPE_RED}
+                            size={14}
+                        />
                         <Translation id="TR_DASHBOARD_ASSET_FAILED" />
                     </FailedContainer>
                 )}
             </Content>
             {!isTestnet(symbol) && (
-                <BuyContainerCard>
-                    <div>
-                        <BuyContainerLabel>
-                            <Translation id="TR_EXCHANGE_RATE" />
-                        </BuyContainerLabel>
-                        <PriceTicker symbol={symbol} />
-                    </div>
-                    <div>
-                        <BuyContainerLabel>
-                            <Translation id="TR_7D_CHANGE" />
-                        </BuyContainerLabel>
-                        <TrendTicker symbol={symbol} />
-                    </div>
-                    <CoinmarketBuyButton
-                        symbol={symbol}
-                        data-testid={`@dashboard/assets/grid/${symbol}/buy-button`}
-                    />
-                </BuyContainerCard>
+                <Card>
+                    <Row alignItems="center" justifyContent="space-between">
+                        <div>
+                            <BuyContainerLabel>
+                                <Translation id="TR_EXCHANGE_RATE" />
+                            </BuyContainerLabel>
+                            <PriceTicker symbol={symbol} />
+                        </div>
+                        <div>
+                            <BuyContainerLabel>
+                                <Translation id="TR_7D_CHANGE" />
+                            </BuyContainerLabel>
+                            <TrendTicker symbol={symbol} />
+                        </div>
+                        <CoinmarketBuyButton
+                            symbol={symbol}
+                            data-testid={`@dashboard/assets/grid/${symbol}/buy-button`}
+                        />
+                    </Row>
+                </Card>
             )}
         </StyledCard>
     );
@@ -206,9 +203,9 @@ export const AssetCardSkeleton = (props: { animate?: boolean }) => {
                     <SkeletonRectangle animate={animate} width={50} height={16} />
                 </CoinAmount>
             </Content>
-            <BuyContainerCard>
+            <Card>
                 <SkeletonRectangle animate={animate} width="100%" height={40} />
-            </BuyContainerCard>
+            </Card>
         </StyledCard>
     );
 };

@@ -1,8 +1,9 @@
 import {
     Button,
     Card,
+    Column,
     ElevationContext,
-    IconLegacy,
+    Icon,
     Image,
     Text,
     useElevation,
@@ -24,14 +25,6 @@ import { IllustrativeExampleArrow } from './images/IllustrativeExampleArrow';
 import { goto } from 'src/actions/suite/routerActions';
 import { DEFAULT_FLAGSHIP_MODEL } from '@suite-common/suite-constants';
 import { analytics, EventType } from '@trezor/suite-analytics';
-
-const StyledCard = styled(Card)`
-    display: flex;
-    flex-direction: column;
-    gap: ${spacingsPx.md};
-    padding: ${spacingsPx.xxs};
-    max-width: 476px;
-`;
 
 const Callout = styled.div`
     display: flex;
@@ -171,7 +164,7 @@ const Top = () => {
                             />
 
                             <DeviceDetail label="My Trezor">
-                                <DeviceConnectionText icon="LINK" variant="primary">
+                                <DeviceConnectionText icon="link" variant="primary">
                                     <Translation id="TR_CONNECTED" />
                                 </DeviceConnectionText>
                             </DeviceDetail>
@@ -259,45 +252,47 @@ export const ViewOnlyPromoContent = () => {
     const { elevation } = useElevation();
 
     return (
-        <StyledCard>
-            <ElevationContext baseElevation={elevation}>
-                <Top />
-            </ElevationContext>
-            <Bottom>
-                <Text typographyStyle="titleSmall">
-                    <Translation
-                        id="TR_VIEW_ONLY_CALL_TO_ACTION"
-                        values={{
-                            primary: chunks => (
-                                <>
-                                    <br />
-                                    <Text variant="primary">{chunks}</Text>
-                                </>
-                            ),
-                        }}
-                    />
-                </Text>
-
-                <Callout>
-                    <Circle>
-                        <IconLegacy icon="LINK" size={spacings.xl} />
-                    </Circle>
-                    <Text variant="tertiary">
+        <Card paddingType="small" maxWidth={476}>
+            <Column gap={spacings.md}>
+                <ElevationContext baseElevation={elevation}>
+                    <Top />
+                </ElevationContext>
+                <Bottom>
+                    <Text typographyStyle="titleSmall">
                         <Translation
-                            id="TR_VIEW_ONLY_EXPLANATION"
+                            id="TR_VIEW_ONLY_CALL_TO_ACTION"
                             values={{
-                                secondLine: chunks => (
+                                primary: chunks => (
                                     <>
                                         <br />
-                                        {chunks}
+                                        <Text variant="primary">{chunks}</Text>
                                     </>
                                 ),
                             }}
                         />
                     </Text>
-                </Callout>
-                <Buttons />
-            </Bottom>
-        </StyledCard>
+
+                    <Callout>
+                        <Circle>
+                            <Icon name="link" size={spacings.xl} />
+                        </Circle>
+                        <Text variant="tertiary">
+                            <Translation
+                                id="TR_VIEW_ONLY_EXPLANATION"
+                                values={{
+                                    secondLine: chunks => (
+                                        <>
+                                            <br />
+                                            {chunks}
+                                        </>
+                                    ),
+                                }}
+                            />
+                        </Text>
+                    </Callout>
+                    <Buttons />
+                </Bottom>
+            </Column>
+        </Card>
     );
 };

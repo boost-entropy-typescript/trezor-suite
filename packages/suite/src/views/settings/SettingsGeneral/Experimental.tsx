@@ -6,12 +6,7 @@ import { EXPERIMENTAL_FEATURES_KB_URL } from '@trezor/urls';
 
 import { SUITE } from 'src/actions/suite/constants';
 import { ActionColumn, SectionItem, TextColumn, Translation } from 'src/components/suite';
-import {
-    ExperimentalFeature,
-    ExperimentalFeatureTitle,
-    ExperimentalFeatureDescription,
-    ExperimentalFeatureKnowledgeBaseUrl,
-} from 'src/constants/suite/experimental';
+import { EXPERIMENTAL_FEATURES, ExperimentalFeature } from 'src/constants/suite/experimental';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
 
@@ -27,21 +22,32 @@ const FeatureLineWrapper = styled.div`
 
 type FeatureLineProps = {
     feature: ExperimentalFeature;
-    features: ExperimentalFeature[];
+    enabledFeatures: ExperimentalFeature[];
 };
 
-const FeatureLine = ({ feature, features }: FeatureLineProps) => {
+const FeatureLine = ({ feature, enabledFeatures }: FeatureLineProps) => {
     const dispatch = useDispatch();
-    const checked = features.includes(feature);
-    const titleId = ExperimentalFeatureTitle[feature];
-    const descId = ExperimentalFeatureDescription[feature];
-    const url = ExperimentalFeatureKnowledgeBaseUrl[feature];
+    const checked = enabledFeatures.includes(feature);
 
-    const onChangeFeature = () =>
+    const config = EXPERIMENTAL_FEATURES[feature];
+    const titleId = config.title;
+    const descId = config.description;
+    const url = config.knowledgeBaseUrl;
+
+    const onChangeFeature = () => {
+        const newValue = !checked;
+
+        config?.onToggle?.({ dispatch, newValue });
+
         dispatch({
             type: SUITE.SET_EXPERIMENTAL_FEATURES,
-            payload: !checked ? [...features, feature] : features.filter(f => f !== feature),
+            payload: {
+                enabledFeatures: newValue
+                    ? [...enabledFeatures, feature]
+                    : enabledFeatures.filter(enabledFeature => enabledFeature !== feature),
+            },
         });
+    };
 
     return (
         <FeatureLineWrapper>
@@ -75,16 +81,26 @@ const motionDivProps = {
 } as const;
 
 export const Experimental = () => {
-    const features = useSelector(state => state.suite.settings.experimental);
+    const enabledFeatures = useSelector(state => state.suite.settings.experimental);
     const isDebug = useSelector(selectIsDebugModeActive);
 
     const dispatch = useDispatch();
 
-    const onSwitchExperimental = () =>
+    const onSwitchExperimental = () => {
+        enabledFeatures?.forEach(feature =>
+            EXPERIMENTAL_FEATURES[feature]?.onToggle?.({ dispatch, newValue: false }),
+        );
+
         dispatch({
             type: SUITE.SET_EXPERIMENTAL_FEATURES,
-            payload: !features ? [] : undefined,
+            payload: { enabledFeatures: enabledFeatures === undefined ? [] : undefined },
         });
+    };
+
+    const experimentalFeatures = Object.keys(EXPERIMENTAL_FEATURES).filter(
+        feature =>
+            !EXPERIMENTAL_FEATURES[feature as ExperimentalFeature]?.isDisabled?.({ isDebug }),
+    );
 
     return (
         <>
@@ -92,28 +108,29 @@ export const Experimental = () => {
                 <TextColumn
                     title={<Translation id="TR_EXPERIMENTAL_FEATURES_ALLOW" />}
                     description={
-                        <Warning icon="WARNING" variant="warning">
+                        <Warning icon="warningTriangle" variant="warning">
                             <Translation id="TR_EXPERIMENTAL_FEATURES_WARNING" />
                         </Warning>
                     }
                     buttonLink={EXPERIMENTAL_FEATURES_KB_URL}
                 />
                 <ActionColumn>
-                    <Switch isChecked={!!features} onChange={onSwitchExperimental} />
+                    <Switch
+                        isChecked={enabledFeatures !== undefined}
+                        onChange={onSwitchExperimental}
+                    />
                 </ActionColumn>
             </SectionItem>
             <AnimatePresence>
-                {features && Object.keys(ExperimentalFeature).length && (
+                {enabledFeatures && experimentalFeatures.length > 0 && (
                     <motion.div {...motionDivProps}>
-                        {Object.values(ExperimentalFeature).map(feature => {
-                            // not very systematic way how to exclude some features but freeze is happening
-                            if (feature === ExperimentalFeature.PasswordManager && !isDebug)
-                                return null;
-
-                            return (
-                                <FeatureLine key={feature} feature={feature} features={features} />
-                            );
-                        })}
+                        {experimentalFeatures.map(feature => (
+                            <FeatureLine
+                                key={feature}
+                                feature={feature as ExperimentalFeature}
+                                enabledFeatures={enabledFeatures}
+                            />
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -1604,6 +1604,15 @@ export default defineMessages({
             "All data is kept strictly anonymous. It's only used to improve the Trezor ecosystem.",
         id: 'TR_ALLOW_ANALYTICS_DESCRIPTION',
     },
+    TR_ALLOW_AUTOMATIC_SUITE_UPDATES: {
+        defaultMessage: 'Automatic Trezor Suite updates',
+        id: 'TR_ALLOW_AUTOMATIC_SUITE_UPDATES',
+    },
+    TR_ALLOW_AUTOMATIC_SUITE_UPDATES_DESCRIPTION: {
+        defaultMessage:
+            "Trezor Suite automatically downloads the latest version in the background and installs it when restarting the app. This ensures you're always up-to-date with the latest features and security patches. Updates occur without requiring your permission.",
+        id: 'TR_ALLOW_AUTOMATIC_SUITE_UPDATES_DESCRIPTION',
+    },
     TR_ADDRESS_DISPLAY: {
         defaultMessage: 'Address display',
         id: 'TR_ADDRESS_DISPLAY',
@@ -2672,6 +2681,41 @@ export default defineMessages({
     TR_CARDANO_LEDGER_ACCOUNTS: {
         defaultMessage: 'Ledger accounts',
         id: 'TR_CARDANO_LEDGER_ACCOUNTS',
+    },
+    TR_ACCOUNT_TYPE_LEGACY: {
+        defaultMessage: 'Legacy',
+        id: 'TR_ACCOUNT_TYPE_LEGACY',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_TAPROOT: {
+        defaultMessage: 'Taproot',
+        id: 'TR_ACCOUNT_TYPE_TAPROOT',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_COINJOIN: {
+        defaultMessage: 'Coinjoin',
+        id: 'TR_ACCOUNT_TYPE_COINJOIN',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_LEDGER: {
+        defaultMessage: 'Ledger',
+        id: 'TR_ACCOUNT_TYPE_LEDGER',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_IMPORTED: {
+        defaultMessage: 'Imported',
+        id: 'TR_ACCOUNT_TYPE_IMPORTED',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_NORMAL: {
+        defaultMessage: 'Normal',
+        id: 'TR_ACCOUNT_TYPE_NORMAL',
+        dynamic: true,
+    },
+    TR_ACCOUNT_TYPE_SEGWIT: {
+        defaultMessage: 'Legacy SegWit',
+        id: 'TR_ACCOUNT_TYPE_SEGWIT',
+        dynamic: true,
     },
     TR_LOG: {
         defaultMessage: 'Application log',
@@ -4921,6 +4965,15 @@ export default defineMessages({
         id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE_DESCRIPTION',
         defaultMessage:
             'Tor Snowflake is a system that allows access to censored websites and apps.',
+    },
+    TR_EXPERIMENTAL_AUTOMATIC_UPDATE: {
+        id: 'TR_EXPERIMENTAL_AUTOMATIC_UPDATE',
+        defaultMessage: ' Automatic Trezor Suite updates',
+    },
+    TR_EXPERIMENTAL_AUTOMATIC_UPDATE_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_AUTOMATIC_UPDATE_DESCRIPTION',
+        defaultMessage:
+            "Trezor Suite automatically downloads the latest version in the background and installs it when restarting the app. This ensures you're always up-to-date with the latest features and security patches. Updates occur without requiring your permission.",
     },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',

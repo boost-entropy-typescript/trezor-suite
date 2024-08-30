@@ -1,13 +1,14 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import { AnimatePresence, motion } from 'framer-motion';
-import { IconLegacy, variables, Radio, motionAnimation } from '@trezor/components';
+import { Icon, variables, Radio, motionAnimation } from '@trezor/components';
 import { FormattedCryptoAmount, HiddenPlaceholder } from 'src/components/suite';
 import { Translation, TranslationKey } from 'src/components/suite/Translation';
 import { formatNetworkAmount } from '@suite-common/wallet-utils';
 import { useRbfContext } from 'src/hooks/wallet/useRbfForm';
 import { GreyCard } from './GreyCard';
 import { WarnHeader } from './WarnHeader';
+import { spacings } from '@trezor/theme';
 
 const OutputsWrapper = styled.div`
     display: flex;
@@ -51,18 +52,6 @@ const ReducedAmount = styled.span`
     align-items: center;
 `;
 
-const ArrowIcon = styled(IconLegacy)`
-    margin: 0 8px;
-
-    & svg {
-        fill: ${({ theme }) => theme.legacy.TYPE_GREEN};
-    }
-`;
-
-const StyledRadio = styled(Radio)`
-    margin-right: 8px;
-`;
-
 export const DecreasedOutputs = () => {
     const {
         showDecreasedOutputs,
@@ -86,7 +75,11 @@ export const DecreasedOutputs = () => {
         if (precomposedTx.type === 'final') {
             reducedAmount = (
                 <ReducedAmount>
-                    <ArrowIcon icon="ARROW_RIGHT_LONG" />
+                    <Icon
+                        name="arrowRightLong"
+                        margin={{ left: spacings.sm, right: spacings.sm }}
+                        variant="primary"
+                    />
                     <FormattedCryptoAmount
                         value={formatNetworkAmount(
                             precomposedTx.outputs[setMaxOutputId].amount.toString(),
@@ -128,12 +121,13 @@ export const DecreasedOutputs = () => {
 
                                 <Output key={i}>
                                     {useRadio && (
-                                        <StyledRadio
+                                        <Radio
                                             onClick={() => {
                                                 setValue('setMaxOutputId', i);
                                                 composeRequest();
                                             }}
                                             isChecked={isChecked}
+                                            margin={{ right: spacings.xs }}
                                         />
                                     )}
                                     <OutputInner>

@@ -1,17 +1,16 @@
 import React from 'react';
 import styled, { css, DefaultTheme, useTheme } from 'styled-components';
-import { IconName } from '@suite-common/icons';
-import { Icon } from '@suite-common/icons/src/webComponents';
 import { borders, Color, CSSColor, spacings, spacingsPx, typography } from '@trezor/theme';
 import { focusStyleTransition, getFocusShadowStyle } from '../../utils/utils';
 import type { UISize, UIVariant } from '../../config/types';
 import { FrameProps, FramePropsKeys, withFrameProps } from '../../utils/frameProps';
 import { TransientProps } from '../../utils/transientProps';
+import { Icon, IconName } from '../Icon/Icon';
 
 export const allowedBadgeFrameProps: FramePropsKeys[] = ['margin'];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedBadgeFrameProps)[number]>;
 
-type BadgeSize = Extract<UISize, 'tiny' | 'small' | 'medium'>;
+export type BadgeSize = Extract<UISize, 'tiny' | 'small' | 'medium'>;
 type BadgeVariant = Extract<UIVariant, 'primary' | 'tertiary' | 'destructive'>;
 
 export type BadgeProps = AllowedFrameProps & {

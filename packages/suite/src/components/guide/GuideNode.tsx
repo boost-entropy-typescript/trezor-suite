@@ -3,12 +3,12 @@ import styled, { useTheme } from 'styled-components';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { resolveStaticPath } from '@suite-common/suite-utils';
 
-import { IconLegacy, variables } from '@trezor/components';
+import { Icon, variables } from '@trezor/components';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { openNode } from 'src/actions/suite/guideActions';
 import { GuideNode as GuideNodeType } from '@suite-common/suite-types';
 import { getNodeTitle } from 'src/utils/suite/guide';
-import { borders } from '@trezor/theme';
+import { borders, spacings } from '@trezor/theme';
 import { selectLanguage } from 'src/reducers/suite/suiteReducer';
 
 const NodeButton = styled.button`
@@ -32,10 +32,6 @@ const NodeButton = styled.button`
 
 const PageNodeButton = styled(NodeButton)`
     text-align: left;
-`;
-
-const PageNodeButtonIcon = styled(IconLegacy)`
-    margin: 0 18px 0 0;
 `;
 
 const Label = styled.div<{ $isBold: boolean }>`
@@ -97,7 +93,12 @@ export const GuideNode = ({ node, description }: GuideNodeProps) => {
     if (node.type === 'page') {
         return (
             <PageNodeButton data-testid={`@guide/node${node.id}`} onClick={navigateToNode}>
-                <PageNodeButtonIcon icon="ARTICLE" size={20} color={theme.legacy.TYPE_LIGHT_GREY} />
+                <Icon
+                    name="article"
+                    size={20}
+                    color={theme.legacy.TYPE_LIGHT_GREY}
+                    margin={{ right: spacings.md }}
+                />
                 {label}
             </PageNodeButton>
         );

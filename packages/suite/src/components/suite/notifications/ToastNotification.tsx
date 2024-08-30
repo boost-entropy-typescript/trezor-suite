@@ -1,11 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import styled, { css, useTheme } from 'styled-components';
-import { Button, IconLegacy, variables } from '@trezor/components';
+import { Button, Icon, variables } from '@trezor/components';
 import { NotificationRenderer, NotificationViewProps, Translation } from 'src/components/suite';
 import { notificationsActions, NotificationEntry } from '@suite-common/toast-notifications';
 import { useDispatch } from 'src/hooks/suite';
 import { getNotificationIcon, getVariantColor } from 'src/utils/suite/notification';
 import { ToastNotificationVariant } from '../../../types/suite';
+import { spacings } from '@trezor/theme';
 
 const Wrapper = styled.div<{ $variant: ToastNotificationVariant; $isTall: boolean }>`
     display: flex;
@@ -42,10 +43,6 @@ const StyledButton = styled(Button)<{ $action: NotificationViewProps['action'] }
             margin-top: 12px;
             height: 32px;
         `};
-`;
-
-const StyledCancelIcon = styled(IconLegacy)`
-    margin-left: 18px;
 `;
 
 interface ToastNotificationProps extends NotificationViewProps {
@@ -100,7 +97,7 @@ const ToastNotification = ({
     return (
         <Wrapper data-testid={dataTestBase} $variant={variant} $isTall={isTall} ref={wrapperRef}>
             {defaultIcon && typeof defaultIcon === 'string' ? (
-                <IconLegacy icon={defaultIcon} size={24} color={getVariantColor(variant)} />
+                <Icon name={defaultIcon} size={24} color={getVariantColor(variant)} />
             ) : (
                 defaultIcon
             )}
@@ -115,12 +112,13 @@ const ToastNotification = ({
             {(action?.position === 'right' || !action?.position) && actionButton}
 
             {cancelable && (
-                <StyledCancelIcon
+                <Icon
                     size={16}
-                    icon="CROSS"
+                    name="close"
                     hoverColor={theme.legacy.TYPE_LIGHTER_GREY}
                     onClick={handleCancelClick}
                     data-testid={`${dataTestBase}/close`}
+                    margin={{ left: spacings.md }}
                 />
             )}
         </Wrapper>

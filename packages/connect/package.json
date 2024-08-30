@@ -82,8 +82,8 @@
         "@trezor/utils": "workspace:*",
         "@trezor/utxo-lib": "workspace:*",
         "blakejs": "^1.2.1",
-        "bs58": "^5.0.0",
-        "bs58check": "^3.0.1",
+        "bs58": "^6.0.0",
+        "bs58check": "^4.0.0",
         "cross-fetch": "^4.0.0"
     },
     "devDependencies": {
@@ -101,7 +101,7 @@
         "node-libs-browser": "^2.2.1",
         "ts-node": "^10.9.1",
         "tsx": "^4.16.3",
-        "webpack": "^5.93.0",
+        "webpack": "^5.94.0",
         "ws": "^8.18.0"
     },
     "peerDependencies": {

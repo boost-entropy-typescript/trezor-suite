@@ -1,4 +1,4 @@
-import { CoinLogo, Column, IconLegacy, Row, variables } from '@trezor/components';
+import { CoinLogo, Column, Icon, Row, variables } from '@trezor/components';
 import { spacingsPx, typography } from '@trezor/theme';
 import {
     AccountLabeling,
@@ -36,11 +36,6 @@ const AccountName = styled.div`
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
 `;
 
-const AccountType = styled.span`
-    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
-    padding-left: ${spacingsPx.xxs};
-`;
-
 const CoinmarketSelectedOfferVerifyOptionsItem = ({
     option,
     receiveNetwork,
@@ -63,12 +58,11 @@ const CoinmarketSelectedOfferVerifyOptionsItem = ({
                 <AccountWrapper>
                     <Column alignItems="flex-start">
                         <AccountName>
-                            <AccountLabeling account={option.account} />
-                            <AccountType>
-                                {option.account.accountType !== 'normal'
-                                    ? option.account.accountType
-                                    : ''}
-                            </AccountType>
+                            <AccountLabeling
+                                account={option.account}
+                                accountTypeBadgeSize="small"
+                                showAccountTypeBadge
+                            />
                         </AccountName>
                         <Amount>
                             <CryptoWrapper>
@@ -89,11 +83,7 @@ const CoinmarketSelectedOfferVerifyOptionsItem = ({
             <Row>
                 <LogoWrapper>
                     <Row alignItems="center">
-                        <IconLegacy
-                            icon="PLUS"
-                            size={iconSize}
-                            color={theme.legacy.TYPE_DARK_GREY}
-                        />
+                        <Icon name="plus" size={iconSize} color={theme.legacy.TYPE_DARK_GREY} />
                     </Row>
                 </LogoWrapper>
                 <AccountWrapper>
@@ -114,11 +104,7 @@ const CoinmarketSelectedOfferVerifyOptionsItem = ({
         <Row>
             <LogoWrapper>
                 <Row alignItems="center">
-                    <IconLegacy
-                        icon="NON_SUITE"
-                        size={iconSize}
-                        color={theme.legacy.TYPE_DARK_GREY}
-                    />
+                    <Icon name="nonSuite" size={iconSize} color={theme.legacy.TYPE_DARK_GREY} />
                 </Row>
             </LogoWrapper>
             <AccountWrapper>
