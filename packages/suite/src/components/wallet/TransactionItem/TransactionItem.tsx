@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { openModal } from 'src/actions/suite/modalActions';
 import { formatNetworkAmount, isTestnet, isTxFeePaid } from '@suite-common/wallet-utils';
 import { AccountLabels } from 'src/types/suite/metadata';
-import { Network, WalletAccountTransaction } from 'src/types/wallet';
+import { WalletAccountTransaction } from 'src/types/wallet';
+import { NetworkCompatible } from '@suite-common/wallet-config';
 import { TransactionTypeIcon } from './TransactionTypeIcon';
 import { TransactionHeading } from './TransactionHeading';
 import {
@@ -35,6 +36,7 @@ import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReduce
 import { getInstantStakeType } from 'src/utils/suite/stake';
 import { isStakeTypeTx } from '@suite-common/suite-utils';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const Wrapper = styled(Card)<{
     $isPending: boolean;
     $shouldHighlight: boolean;
@@ -64,6 +66,7 @@ const Body = styled.div`
     width: 100%;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const ExpandButton = styled(Button)`
     justify-content: flex-start;
     align-self: flex-start;
@@ -82,7 +85,7 @@ interface TransactionItemProps {
     isActionDisabled?: boolean; // Used in "chained transactions" transaction detail modal
     accountMetadata?: AccountLabels;
     accountKey: string;
-    network: Network;
+    network: NetworkCompatible;
     className?: string;
     index: number;
 }

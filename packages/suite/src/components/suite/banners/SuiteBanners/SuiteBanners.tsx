@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { isDesktop } from '@trezor/env-utils';
 import { selectBannerMessage } from '@suite-common/message-system';
+import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { selectDevice } from '@suite-common/wallet-core';
+import { isDesktop } from '@trezor/env-utils';
+import { spacingsPx } from '@trezor/theme';
 
 import { isTranslationMode } from 'src/utils/suite/l10n';
 import { useSelector } from 'src/hooks/suite';
 import { MAX_CONTENT_WIDTH } from 'src/constants/suite/layout';
-
 import { MessageSystemBanner } from '../MessageSystemBanner';
 import { NoConnectionBanner } from './NoConnectionBanner';
 import { UpdateBridge } from './UpdateBridgeBanner';
@@ -18,8 +19,7 @@ import { FailedBackup } from './FailedBackupBanner';
 import { SafetyChecksBanner } from './SafetyChecksBanner';
 import { TranslationMode } from './TranslationModeBanner';
 import { FirmwareHashMismatch } from './FirmwareHashMismatchBanner';
-import { UnableToPerformRevisionCheck } from './UnableToPerformRevisionCheck';
-import { spacingsPx } from '@trezor/theme';
+import { FirmwareRevisionCheckBanner } from './FirmwareRevisionCheckBanner';
 
 const Container = styled.div<{ $isVisible?: boolean }>`
     width: 100%;
@@ -63,13 +63,12 @@ export const SuiteBanners = () => {
         priority = 92;
     } else if (
         !isFirmwareRevisionCheckDisabled &&
-        device?.features &&
-        device?.authenticityChecks !== undefined &&
-        device?.authenticityChecks.firmwareRevision !== null && // check was performed
-        device?.authenticityChecks.firmwareRevision.success === false &&
-        device?.authenticityChecks.firmwareRevision.error === 'cannot-perform-check-offline' // but it was not possible to finish it (user is offline & revision not found locally)
+        isDeviceAcquired(device) &&
+        device.authenticityChecks !== undefined &&
+        device.authenticityChecks.firmwareRevision !== null && // check was performed
+        device.authenticityChecks.firmwareRevision.success === false
     ) {
-        banner = <UnableToPerformRevisionCheck />;
+        banner = <FirmwareRevisionCheckBanner />;
         priority = 91;
     } else if (device?.features?.unfinished_backup) {
         banner = <FailedBackup />;
@@ -95,8 +94,8 @@ export const SuiteBanners = () => {
         priority = 30;
     } else if (
         device?.connected &&
-        device?.features &&
-        device?.mode !== 'bootloader' &&
+        isDeviceAcquired(device) &&
+        device.mode !== 'bootloader' &&
         ['outdated'].includes(device.firmware)
     ) {
         banner = <UpdateFirmware />;

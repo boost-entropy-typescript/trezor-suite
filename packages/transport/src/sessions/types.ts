@@ -11,8 +11,6 @@ import * as ERRORS from '../errors';
 type BackgroundResponseWithError<T, E> = ResultWithTypedError<T, E> & { id: number };
 type BackgroundResponse<T> = Success<T> & { id: number };
 
-export type Sessions = Record<string, Descriptor>;
-
 export type HandshakeRequest = Record<string, never>;
 export type HandshakeResponse = BackgroundResponse<undefined>;
 
@@ -83,7 +81,6 @@ export type Params = {
 
 export interface HandleMessageApi {
     handshake: () => HandshakeResponse;
-    enumerateIntent: () => BackgroundResponse<void>;
     enumerateDone: (payload: EnumerateDoneRequest) => EnumerateDoneResponse;
     acquireIntent: (payload: AcquireIntentRequest) => AcquireIntentResponse;
     acquireDone: (payload: AcquireDoneRequest) => AcquireDoneResponse;

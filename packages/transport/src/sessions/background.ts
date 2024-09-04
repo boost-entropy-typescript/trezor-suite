@@ -21,11 +21,12 @@ import type {
     GetPathBySessionRequest,
     HandleMessageParams,
     HandleMessageResponse,
-    Sessions,
 } from './types';
 import type { Descriptor, Success } from '../types';
 
 import * as ERRORS from '../errors';
+
+type DescriptorsDict = Record<string, Descriptor>;
 
 // in nodeusb, enumeration operation takes ~3 seconds
 const lockDuration = 1000 * 4;
@@ -40,7 +41,7 @@ export class SessionsBackground extends TypedEmitter<{
     /**
      * Dictionary where key is path and value is Descriptor
      */
-    private descriptors: Sessions = {};
+    private descriptors: DescriptorsDict = {};
 
     // if lock is set, somebody is doing something with device. we have to wait
     private locksQueue: { id: ReturnType<typeof setTimeout>; dfd: Deferred<void> }[] = [];
@@ -68,9 +69,6 @@ export class SessionsBackground extends TypedEmitter<{
             switch (message.type) {
                 case 'handshake':
                     result = this.handshake();
-                    break;
-                case 'enumerateIntent':
-                    await this.enumerateIntent();
                     break;
                 case 'enumerateDone':
                     result = await this.enumerateDone(message.payload);
@@ -122,19 +120,11 @@ export class SessionsBackground extends TypedEmitter<{
         return this.success(undefined);
     }
 
-    private async enumerateIntent() {
-        await this.waitInQueue();
-
-        return this.success(undefined);
-    }
-
     /**
      * enumerate done
      * - caller informs about current descriptors
      */
     private enumerateDone(payload: EnumerateDoneRequest) {
-        this.clearLock();
-
         const disconnectedDevices = this.filterDisconnectedDevices(
             Object.values(this.descriptors),
             payload.descriptors.map(d => d.path), // which paths are occupied paths after last interface read
@@ -182,7 +172,7 @@ export class SessionsBackground extends TypedEmitter<{
 
         // new "unconfirmed" descriptors are  broadcasted. we can't yet update this.sessions object as it needs
         // to stay as it is. we can not allow 2 clients sending session:null to proceed. this way only one gets through
-        const unconfirmedSessions: Sessions = JSON.parse(JSON.stringify(this.descriptors));
+        const unconfirmedSessions: DescriptorsDict = JSON.parse(JSON.stringify(this.descriptors));
 
         this.lastSessionId++;
         unconfirmedSessions[payload.path].session = `${this.lastSessionId}`;
@@ -212,11 +202,12 @@ export class SessionsBackground extends TypedEmitter<{
     }
 
     private async releaseIntent(payload: ReleaseIntentRequest) {
-        const path = this.getPathFromSessions({ session: payload.session });
+        const pathResult = this.getPathBySession({ session: payload.session });
 
-        if (!path) {
-            return this.error(ERRORS.SESSION_NOT_FOUND);
+        if (!pathResult.success) {
+            return pathResult;
         }
+        const { path } = pathResult.payload;
 
         await this.waitInQueue();
 
@@ -236,15 +227,6 @@ export class SessionsBackground extends TypedEmitter<{
     }
 
     private getPathBySession({ session }: GetPathBySessionRequest) {
-        const path = this.getPathFromSessions({ session });
-        if (!path) {
-            return this.error(ERRORS.SESSION_NOT_FOUND);
-        }
-
-        return this.success({ path });
-    }
-
-    private getPathFromSessions({ session }: GetPathBySessionRequest) {
         let path: string | undefined;
         Object.keys(this.descriptors).forEach(pathKey => {
             if (this.descriptors[pathKey]?.session === session) {
@@ -252,7 +234,11 @@ export class SessionsBackground extends TypedEmitter<{
             }
         });
 
-        return path;
+        if (!path) {
+            return this.error(ERRORS.SESSION_NOT_FOUND);
+        }
+
+        return this.success({ path });
     }
 
     private startLock() {

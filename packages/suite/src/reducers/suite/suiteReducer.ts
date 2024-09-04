@@ -15,7 +15,7 @@ import { ExperimentalFeature } from 'src/constants/suite/experimental';
 import { Action, Lock, TorBootstrap, TorStatus } from 'src/types/suite';
 import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/prerequisites';
 import { RouterRootState, selectRouter } from './routerReducer';
-import { Network } from '@suite-common/wallet-config';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
 import { AddressDisplayOptions, WalletType } from '@suite-common/wallet-types';
 import { SIDEBAR_WIDTH_NUMERIC } from 'src/constants/suite/layout';
@@ -72,8 +72,8 @@ export interface Flags {
 }
 
 export interface EvmSettings {
-    confirmExplanationModalClosed: Partial<Record<Network['symbol'], Record<string, boolean>>>;
-    explanationBannerClosed: Partial<Record<Network['symbol'], boolean>>;
+    confirmExplanationModalClosed: Partial<Record<NetworkSymbol, Record<string, boolean>>>;
+    explanationBannerClosed: Partial<Record<NetworkSymbol, boolean>>;
 }
 
 export interface PrefillFields {
@@ -358,6 +358,7 @@ export const selectTorState = (state: SuiteRootState) => {
     const { torStatus, torBootstrap } = state.suite;
 
     return {
+        torStatus,
         isTorEnabled: getIsTorEnabled(torStatus),
         isTorLoading: getIsTorLoading(torStatus),
         isTorError: torStatus === TorStatus.Error,

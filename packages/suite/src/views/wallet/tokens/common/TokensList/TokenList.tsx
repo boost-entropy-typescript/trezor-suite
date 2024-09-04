@@ -3,12 +3,13 @@ import { Card, Icon } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { spacingsPx, typography } from '@trezor/theme';
 import { Account } from '@suite-common/wallet-types';
-import { Network } from '@suite-common/wallet-config';
+import { NetworkCompatible } from '@suite-common/wallet-config';
 import { EnhancedTokenInfo, TokenManagementAction } from '@suite-common/token-definitions';
 import { useState } from 'react';
 import { AnimationWrapper } from 'src/components/wallet/AnimationWrapper';
 import { TokenRow } from './TokenRow';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const Table = styled(Card)`
     word-break: break-all;
 `;
@@ -32,6 +33,7 @@ const NoResults = styled.div`
     text-align: center;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const ChevronIcon = styled(Icon)<{ $isActive: boolean }>`
     padding: ${spacingsPx.sm};
     border-radius: 50%;
@@ -64,7 +66,7 @@ interface TokenListProps {
     account: Account;
     tokensWithBalance: EnhancedTokenInfo[];
     tokensWithoutBalance: EnhancedTokenInfo[];
-    network: Network;
+    network: NetworkCompatible;
     tokenStatusType: TokenManagementAction;
     hideRates?: boolean;
     searchQuery?: string;

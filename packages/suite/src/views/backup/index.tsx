@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { Paragraph, Button, Image, Row } from '@trezor/components';
 import { HELP_CENTER_RECOVERY_ISSUES_URL } from '@trezor/urls';
+import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { selectDevice } from '@suite-common/wallet-core';
 
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -15,14 +16,17 @@ import type { ForegroundAppProps } from 'src/types/suite';
 import type { BackupStatus } from 'src/actions/backup/backupActions';
 import { selectBackup } from 'src/reducers/backup/backupReducer';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledButton = styled(Button)`
     width: 224px;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledP = styled(Paragraph)`
     color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledImage = styled(Image)`
     margin-bottom: 24px;
     align-self: center;
@@ -87,7 +91,7 @@ export const Backup = ({ cancelable, onCancel }: ForegroundAppProps) => {
     const dispatch = useDispatch();
 
     const nonErrorBackupStatuses = ['initial', 'in-progress', 'finished'] as const;
-    const isDeviceUnavailable = !device || !device.features || !device.connected;
+    const isDeviceUnavailable = !isDeviceAcquired(device) || !device.connected;
     const currentProgressBarStep = nonErrorBackupStatuses.some(status => status === backup.status)
         ? nonErrorBackupStatuses.findIndex(s => s === backup.status) + 1
         : undefined;

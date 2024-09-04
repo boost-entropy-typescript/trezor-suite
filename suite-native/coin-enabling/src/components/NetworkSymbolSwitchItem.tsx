@@ -1,22 +1,25 @@
 import { TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CryptoIcon } from '@suite-common/icons';
+import { CryptoIcon } from '@suite-common/icons-deprecated';
 import { networks, NetworkSymbol } from '@suite-common/wallet-config';
 import { Card, HStack, Text, Switch } from '@suite-native/atoms';
-import { toggleEnabledDiscoveryNetworkSymbol } from '@suite-native/discovery';
+import {
+    selectEnabledDiscoveryNetworkSymbols,
+    toggleEnabledDiscoveryNetworkSymbol,
+} from '@suite-native/discovery';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { useToast } from '@suite-native/toasts';
 import { Translation } from '@suite-native/intl';
 import { useAlert } from '@suite-native/alerts';
 import { selectIsDeviceConnected } from '@suite-common/wallet-core';
+import { analytics, EventType } from '@suite-native/analytics';
 
-import { useCoinEnabling } from '../hooks/useCoinEnabling';
-
-type NetworkSymbolProps = {
+type NetworkSymbolSwitchItemProps = {
     networkSymbol: NetworkSymbol;
     isEnabled: boolean;
     allowDeselectLastCoin: boolean;
+    allowChangeAnalytics?: boolean;
 };
 
 const wrapperStyle = prepareNativeStyle<{ isEnabled: boolean }>((utils, { isEnabled }) => ({
@@ -45,12 +48,13 @@ export const NetworkSymbolSwitchItem = ({
     networkSymbol,
     isEnabled,
     allowDeselectLastCoin,
-}: NetworkSymbolProps) => {
+    allowChangeAnalytics,
+}: NetworkSymbolSwitchItemProps) => {
     const dispatch = useDispatch();
     const isDeviceConnected = useSelector(selectIsDeviceConnected);
+    const enabledNetworkSymbols = useSelector(selectEnabledDiscoveryNetworkSymbols);
     const { applyStyle } = useNativeStyles();
     const { showToast } = useToast();
-    const { enabledNetworkSymbols } = useCoinEnabling();
     const { showAlert } = useAlert();
     const { name } = networks[networkSymbol];
 
@@ -60,9 +64,7 @@ export const NetworkSymbolSwitchItem = ({
             description: (
                 <Translation id="moduleSettings.coinEnabling.oneNetworkSymbolAlert.description" />
             ),
-            primaryButtonTitle: (
-                <Translation id="moduleSettings.coinEnabling.oneNetworkSymbolAlert.action" />
-            ),
+            primaryButtonTitle: <Translation id="generic.buttons.gotIt" />,
             primaryButtonVariant: 'redBold',
         });
 
@@ -95,6 +97,16 @@ export const NetworkSymbolSwitchItem = ({
             });
         }
         dispatch(toggleEnabledDiscoveryNetworkSymbol(networkSymbol));
+
+        if (allowChangeAnalytics) {
+            analytics.report({
+                type: EventType.SettingsChangeCoinEnabled,
+                payload: {
+                    symbol: networkSymbol,
+                    value: isChecked,
+                },
+            });
+        }
     };
 
     return (

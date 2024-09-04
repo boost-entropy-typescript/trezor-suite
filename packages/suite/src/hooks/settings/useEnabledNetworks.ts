@@ -1,8 +1,7 @@
-import { useSelector, useActions } from 'src/hooks/suite';
+import { Network, NetworkSymbol, getMainnets, getTestnets } from '@suite-common/wallet-config';
 import { changeCoinVisibility } from 'src/actions/settings/walletSettingsActions';
-import type { Network } from 'src/types/wallet';
+import { useActions, useSelector } from 'src/hooks/suite';
 
-import { getMainnets, getTestnets } from '@suite-common/wallet-config';
 import {
     selectHasExperimentalFeature,
     selectIsDebugModeActive,
@@ -11,8 +10,8 @@ import {
 type EnabledNetworks = {
     mainnets: Network[];
     testnets: Network[];
-    enabledNetworks: Network['symbol'][];
-    setEnabled: (symbol: Network['symbol'], enabled: boolean) => void;
+    enabledNetworks: NetworkSymbol[];
+    setEnabled: (symbol: NetworkSymbol, enabled: boolean) => void;
 };
 
 export const useEnabledNetworks = (): EnabledNetworks => {

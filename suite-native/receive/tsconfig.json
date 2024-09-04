@@ -2,7 +2,9 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": { "outDir": "libDev" },
     "references": [
-        { "path": "../../suite-common/icons" },
+        {
+            "path": "../../suite-common/icons-deprecated"
+        },
         {
             "path": "../../suite-common/wallet-config"
         },
@@ -19,6 +21,7 @@
         { "path": "../alerts" },
         { "path": "../analytics" },
         { "path": "../atoms" },
+        { "path": "../device" },
         { "path": "../device-mutex" },
         { "path": "../formatters" },
         { "path": "../helpers" },

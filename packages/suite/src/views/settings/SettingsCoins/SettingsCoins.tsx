@@ -8,7 +8,7 @@ import {
 } from '@suite-common/wallet-core';
 import { Button, motionEasing, Tooltip } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/connect';
-import type { Network } from 'src/types/wallet';
+import { Network } from '@suite-common/wallet-config';
 
 import {
     DeviceBanner,

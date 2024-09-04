@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useDispatch } from 'src/hooks/suite';
 import { openModal } from 'src/actions/suite/modalActions';
 import { CoinList } from 'src/components/suite';
-import type { Network } from 'src/types/wallet';
+import { Network, NetworkSymbol } from '@suite-common/wallet-config';
 
 import { CoinGroupHeader } from './CoinGroupHeader';
 
@@ -14,9 +14,9 @@ const CoinGroupWrapper = styled.div`
 
 interface CoinGroupProps {
     networks: Network[];
-    enabledNetworks?: Network['symbol'][];
+    enabledNetworks?: NetworkSymbol[];
     className?: string;
-    onToggle: (symbol: Network['symbol'], toggled: boolean) => void;
+    onToggle: (symbol: NetworkSymbol, toggled: boolean) => void;
 }
 
 export const CoinGroup = ({ onToggle, networks, enabledNetworks, className }: CoinGroupProps) => {
@@ -26,7 +26,7 @@ export const CoinGroup = ({ onToggle, networks, enabledNetworks, className }: Co
 
     const isAtLeastOneActive = networks.some(({ symbol }) => enabledNetworks?.includes(symbol));
 
-    const onSettings = (symbol: Network['symbol']) => {
+    const onSettings = (symbol: NetworkSymbol) => {
         setSettingsMode(false);
         dispatch(
             openModal({

@@ -2,10 +2,10 @@ import { Button, Column, Text, Icon, Row, Paragraph } from '@trezor/components';
 import { Modal, Translation } from 'src/components/suite';
 import styled from 'styled-components';
 import type { Deferred } from '@trezor/utils';
-import { cryptoToCoinSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
-import { CryptoSymbol } from 'invity-api';
+import { CryptoId } from 'invity-api';
 import { useDevice } from 'src/hooks/suite';
 import { spacings, spacingsPx } from '@trezor/theme';
+import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 
 const ContentWrapper = styled.div`
     text-align: left;
@@ -32,9 +32,9 @@ export type CoinmarketTermsModalProps = {
     onCancel: () => void;
     type: 'BUY' | 'SELL' | 'EXCHANGE' | 'EXCHANGE_DEX';
     provider?: string;
-    cryptoCurrency?: CryptoSymbol;
-    toCryptoCurrency?: CryptoSymbol;
-    fromCryptoCurrency?: CryptoSymbol;
+    cryptoCurrency?: CryptoId;
+    toCryptoCurrency?: CryptoId;
+    fromCryptoCurrency?: CryptoId;
 };
 export const CoinmarketTermsModal = ({
     decision,
@@ -48,6 +48,7 @@ export const CoinmarketTermsModal = ({
     const providerName = provider || 'unknown provider';
     const lowercaseType = type.toLowerCase();
     const { device } = useDevice();
+    const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
 
     if (!device?.features) {
         return null;
@@ -68,13 +69,13 @@ export const CoinmarketTermsModal = ({
                     values={{
                         provider: providerName,
                         cryptocurrency: cryptoCurrency
-                            ? cryptoToCoinSymbol(cryptoCurrency)
+                            ? cryptoIdToCoinSymbol(cryptoCurrency)
                             : undefined,
                         toCrypto: toCryptoCurrency
-                            ? cryptoToCoinSymbol(toCryptoCurrency)
+                            ? cryptoIdToCoinSymbol(toCryptoCurrency)
                             : undefined,
                         fromCrypto: fromCryptoCurrency
-                            ? cryptoToCoinSymbol(fromCryptoCurrency)
+                            ? cryptoIdToCoinSymbol(fromCryptoCurrency)
                             : undefined,
                     }}
                 />
@@ -123,7 +124,7 @@ export const CoinmarketTermsModal = ({
                 </Row>
                 <Row alignItems="center">
                     <IconWrapper $backgroundColor="#e8f3fa">
-                        <Icon size={24} name={`checkActive`} color="#1d88c5" />
+                        <Icon size={24} name="checkActive" color="#1d88c5" />
                     </IconWrapper>
 
                     <ContentWrapper>
@@ -140,7 +141,7 @@ export const CoinmarketTermsModal = ({
                 </Row>
                 <Row alignItems="center">
                     <IconWrapper $backgroundColor="#f9f4e6">
-                        <Icon size={24} name={`pencil`} color="#c19009" />
+                        <Icon size={24} name="pencil" color="#c19009" />
                     </IconWrapper>
                     <ContentWrapper>
                         <Text typographyStyle="highlight">

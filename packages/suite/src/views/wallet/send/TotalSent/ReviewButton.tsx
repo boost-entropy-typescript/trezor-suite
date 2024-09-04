@@ -1,7 +1,7 @@
 import { useWatch } from 'react-hook-form';
 import styled from 'styled-components';
 
-import { Checkbox, TooltipButton, Warning, variables } from '@trezor/components';
+import { Checkbox, Button, Banner, variables, Tooltip } from '@trezor/components';
 import { useDevice } from 'src/hooks/suite';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { isLowAnonymityWarning } from '@suite-common/wallet-utils';
@@ -15,11 +15,13 @@ const Container = styled.div`
     gap: ${spacingsPx.md};
 `;
 
-const StyledWarning = styled(Warning)`
+// eslint-disable-next-line local-rules/no-override-ds-component
+const StyledWarning = styled(Banner)`
     justify-content: flex-start;
 `;
 
-const ButtonReview = styled(TooltipButton)<{ $isRed: boolean }>`
+// eslint-disable-next-line local-rules/no-override-ds-component
+const ButtonReview = styled(Button)<{ $isRed: boolean }>`
     background: ${({ $isRed, theme }) => $isRed && theme.legacy.BUTTON_RED};
     display: flex;
     flex-direction: column;
@@ -167,20 +169,21 @@ export const ReviewButton = () => {
                 </StyledWarning>
             )}
 
-            <ButtonReview
-                $isRed={anonymityWarningChecked}
-                tooltipContent={tooltipContent}
-                data-testid="@send/review-button"
-                isDisabled={isDisabled || isLoading}
-                onClick={signTransaction}
-            >
-                <Translation id={getPrimaryText()} />
-                {buttonHasTwoLines && (
-                    <SecondLine>
-                        <Translation id={secondaryText} />
-                    </SecondLine>
-                )}
-            </ButtonReview>
+            <Tooltip content={tooltipContent}>
+                <ButtonReview
+                    $isRed={anonymityWarningChecked}
+                    data-testid="@send/review-button"
+                    isDisabled={isDisabled || isLoading}
+                    onClick={signTransaction}
+                >
+                    <Translation id={getPrimaryText()} />
+                    {buttonHasTwoLines && (
+                        <SecondLine>
+                            <Translation id={secondaryText} />
+                        </SecondLine>
+                    )}
+                </ButtonReview>
+            </Tooltip>
         </Container>
     );
 };

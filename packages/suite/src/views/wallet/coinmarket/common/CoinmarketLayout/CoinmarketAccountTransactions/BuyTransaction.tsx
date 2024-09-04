@@ -24,13 +24,14 @@ import { TradeBuy } from 'src/types/wallet/coinmarketCommonTypes';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
 import { CoinmarketTransactionStatus } from './CoinmarketTransactionStatus';
-import { cryptoToCoinSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
 import { useCoinmarketWatchTrade } from 'src/hooks/wallet/coinmarket/useCoinmarketWatchTrade';
 import { CoinmarketTradeBuyType } from 'src/types/coinmarket/coinmarket';
 import {
     addIdsToQuotes,
     filterQuotesAccordingTags,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
+import { CoinmarketTestWrapper } from 'src/views/wallet/coinmarket';
+import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 
 const Wrapper = styled.div`
     display: flex;
@@ -136,6 +137,7 @@ export const BuyTransaction = ({ trade, providers, account }: BuyTransactionProp
     const dispatch = useDispatch();
     const theme = useTheme();
     const { navigateToBuyOffers, navigateToBuyDetail } = useCoinmarketNavigation(account);
+    const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
     const country = useSelector(state => state.wallet.coinmarket.buy.buyInfo?.buyInfo?.country);
 
     useCoinmarketWatchTrade({
@@ -190,17 +192,19 @@ export const BuyTransaction = ({ trade, providers, account }: BuyTransactionProp
             <Column>
                 <Row>
                     <Amount>
-                        <HiddenPlaceholder>
+                        <HiddenPlaceholder data-testid="@coinmarket/transaction/fiat-amount">
                             {fiatStringAmount} {fiatCurrency}
                         </HiddenPlaceholder>
                     </Amount>
                     <Arrow>
                         <Icon color={theme.legacy.TYPE_LIGHT_GREY} size={13} name="chevronRight" />
                     </Arrow>
-                    <FormattedCryptoAmount
-                        value={receiveStringAmount}
-                        symbol={cryptoToCoinSymbol(receiveCurrency!)}
-                    />
+                    <CoinmarketTestWrapper data-testid="@coinmarket/transaction/crypto-amount">
+                        <FormattedCryptoAmount
+                            value={receiveStringAmount}
+                            symbol={cryptoIdToCoinSymbol(receiveCurrency!)}
+                        />
+                    </CoinmarketTestWrapper>
                     {/* TODO FIX THIS LOGO */}
                     {/* <StyledCoinLogo size={13} symbol={symbol} /> */}
                 </Row>

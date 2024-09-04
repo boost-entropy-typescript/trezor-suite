@@ -7,12 +7,12 @@ import {
     selectDeviceModel,
 } from '@suite-common/wallet-core';
 import { arrayPartition } from '@trezor/utils';
-import { networksCompatibility, NetworkSymbol } from '@suite-common/wallet-config';
+import { networks, Network, NetworkSymbol, NetworkAccount } from '@suite-common/wallet-config';
 import { CollapsibleBox, NewModal } from '@trezor/components';
 import { FirmwareType } from '@trezor/connect';
 import { spacings, spacingsPx } from '@trezor/theme';
 import { Translation, CoinList, TooltipSymbol } from 'src/components/suite';
-import { Account, Network } from 'src/types/wallet';
+import { Account } from 'src/types/wallet';
 import { TrezorDevice } from 'src/types/suite';
 import { useSelector, useDispatch } from 'src/hooks/suite';
 import { changeCoinVisibility } from 'src/actions/settings/walletSettingsActions';
@@ -49,8 +49,8 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
 
     const { mainnets, testnets, enabledNetworks: enabledNetworkSymbols } = useEnabledNetworks();
 
-    const getNetworks = (networks: Network[], getUnsupported = false) =>
-        networks.filter(
+    const getNetworks = (networksToFilterFrom: Network[], getUnsupported = false) =>
+        networksToFilterFrom.filter(
             ({ symbol }) => getUnsupported !== supportedNetworkSymbols.includes(symbol),
         );
 
@@ -66,17 +66,17 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
     const networkPinned = !!symbol;
     const preselectedNetwork = symbol && supportedNetworks.find(n => n.symbol === symbol);
     // or in case of only btc is enabled on bitcoin-only firmware
-    const bitcoinNetwork = networksCompatibility.find(n => n.symbol === 'btc');
     const bitcoinOnlyDefaultNetworkSelection =
         device.firmwareType === FirmwareType.BitcoinOnly &&
         supportedMainnets.length === 1 &&
         allTestnetNetworksDisabled
-            ? bitcoinNetwork
+            ? networks.btc
             : undefined;
 
     const [selectedNetwork, setSelectedNetwork] = useState<Network | undefined>(
         preselectedNetwork || bitcoinOnlyDefaultNetworkSelection,
     );
+    const [selectedAccount, setSelectedAccount] = useState<NetworkAccount | undefined>(undefined);
 
     const isSelectedNetworkEnabled =
         !!selectedNetwork && enabledNetworkSymbols.includes(selectedNetwork.symbol);
@@ -89,7 +89,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
     );
 
     // Collect all empty accounts related to selected device and selected accountType
-    const currentType = selectedNetwork?.accountType ?? 'normal';
+    const currentType = selectedAccount?.accountType ?? 'normal';
     const emptyAccounts = selectedNetwork
         ? accounts.filter(
               a =>
@@ -102,27 +102,33 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
 
     const isCoinjoinVisible = isCoinjoinPublic || isDebug;
 
-    // Collect possible accountTypes
+    const getAvailableAccountTypes = (network: Network) => {
+        const defaultAccount: NetworkAccount = {
+            bip43Path: network.bip43Path,
+            accountType: 'normal',
+        };
+        const otherAccounts = Object.values(network.accountTypes)
+            /**
+             * Filter out coinjoin account type if it is not visible.
+             * Visibility of coinjoin account type depends on coinjoin feature config in message system.
+             * By default it is visible publicly, but it can be remotely hidden under debug menu.
+             */
+            .filter(({ backendType }) => backendType !== 'coinjoin' || isCoinjoinVisible)
+            .filter(({ isDebugOnlyAccountType }) => !isDebugOnlyAccountType || isDebug);
+
+        // the default account is expected to be the first one
+        return [defaultAccount, ...otherAccounts];
+    };
+
     const accountTypes = isSelectedNetworkEnabled
-        ? networksCompatibility
-              .filter(n => n.symbol === selectedNetwork.symbol)
-              /**
-               * Filter out coinjoin account type if it is not visible.
-               * Visibility of coinjoin account type depends on coinjoin feature config in message system.
-               * By default it is visible publicly, but it can be remotely hidden under debug menu.
-               */
-              .filter(({ backendType }) => backendType !== 'coinjoin' || isCoinjoinVisible)
-              .filter(
-                  ({ isDebugOnlyAccountType }) =>
-                      isDebugOnlyAccountType === undefined || (isDebugOnlyAccountType && isDebug),
-              )
+        ? getAvailableAccountTypes(selectedNetwork)
         : undefined;
 
     const selectedNetworks = selectedNetwork ? [selectedNetwork.symbol] : [];
 
-    const selectNetwork = (symbol?: Network['symbol']) => {
+    const selectNetwork = (symbol?: NetworkSymbol) => {
         if (symbol) {
-            const networkToSelect = networksCompatibility.find(n => n.symbol === symbol);
+            const networkToSelect = networks[symbol];
 
             // To prevent account type selection reset
             const alreadySelected =
@@ -187,9 +193,9 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                   description: <Translation id="TR_SELECT_TYPE" />,
                   children: (
                       <AccountTypeSelect
-                          network={selectedNetwork}
+                          selectedAccountType={selectedAccount}
                           accountTypes={accountTypes}
-                          onSelectAccountType={setSelectedNetwork}
+                          onSelectAccountType={setSelectedAccount}
                       />
                   ),
                   onBackClick: () => setSelectedNetwork(undefined),
@@ -270,6 +276,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                 (isSelectedNetworkEnabled ? (
                     <AddAccountButton
                         network={selectedNetwork}
+                        selectedAccount={selectedAccount}
                         emptyAccounts={emptyAccounts}
                         onEnableAccount={addAccount}
                     />

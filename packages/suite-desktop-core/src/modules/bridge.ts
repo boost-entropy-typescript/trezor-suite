@@ -4,14 +4,14 @@
 import { TrezordNode } from '@trezor/transport-bridge';
 import { isDevEnv } from '@suite-common/suite-utils';
 import { validateIpcMessage } from '@trezor/ipc-proxy';
+import { scheduleAction } from '@trezor/utils';
 
 import { app, ipcMain } from '../typed-electron';
 import { BridgeProcess } from '../libs/processes/BridgeProcess';
 import { b2t } from '../libs/utils';
-import { Logger } from '../libs/logger';
-import { convertILoggerToLog } from '../utils/IloggerToLog';
+import { ThreadProxy } from '../libs/thread-proxy';
 
-import type { Module, Dependencies } from './index';
+import type { Dependencies } from './index';
 
 const bridgeLegacy = app.commandLine.hasSwitch('bridge-legacy');
 const bridgeLegacyDev = app.commandLine.hasSwitch('bridge-legacy-dev');
@@ -24,7 +24,50 @@ const skipNewBridgeRollout = app.commandLine.hasSwitch('skip-new-bridge-rollout'
 
 export const SERVICE_NAME = 'bridge';
 
-const handleBridgeStatus = async (bridge: BridgeProcess | TrezordNode) => {
+type BridgeInterface = Pick<BridgeProcess, 'start' | 'startDev' | 'startTest' | 'stop' | 'status'>;
+
+/** Wrapper around TrezordNode ThreadProxy which unifies its api with legacy BridgeProcess */
+class TrezordNodeProcess implements BridgeInterface {
+    private readonly proxy;
+
+    constructor() {
+        this.proxy = new ThreadProxy<TrezordNode>({ name: 'bridge', keepAlive: true });
+    }
+
+    private async startProxy(mode: 'start' | 'startDev' | 'startTest') {
+        if (this.proxy.running) return;
+        await this.proxy.run({ port: 21325, api: bridgeDev || bridgeTest ? 'udp' : 'usb' });
+        // Call `start` again in case of respawning due to keepAlive
+        this.proxy.watch('started', () => this.proxy.request(mode, []));
+        await this.proxy.request(mode, []);
+    }
+
+    start() {
+        return this.startProxy('start');
+    }
+
+    startDev() {
+        return this.startProxy('startDev');
+    }
+
+    startTest() {
+        return this.startProxy('startTest');
+    }
+
+    async stop() {
+        if (!this.proxy.running) return;
+        await this.proxy.request('stop', []);
+        this.proxy.dispose();
+    }
+
+    status() {
+        return this.proxy
+            .request('status', [])
+            .catch(() => ({ service: false, process: this.proxy.running }));
+    }
+}
+
+const handleBridgeStatus = async (bridge: BridgeInterface) => {
     const { logger } = global;
 
     logger.info('bridge', `Getting status`);
@@ -36,7 +79,7 @@ const handleBridgeStatus = async (bridge: BridgeProcess | TrezordNode) => {
     return status;
 };
 
-const start = async (bridge: BridgeProcess | TrezordNode) => {
+const start = async (bridge: BridgeInterface) => {
     if (bridgeLegacy) {
         await bridge.start();
     } else if (bridgeLegacyDev) {
@@ -48,7 +91,7 @@ const start = async (bridge: BridgeProcess | TrezordNode) => {
     }
 };
 
-const getBridgeInstance = (store: Dependencies['store']) => {
+const shouldUseLegacyBridge = (store: Dependencies['store']) => {
     const legacyRequestedBySettings = store.getBridgeSettings().legacy;
     const { allowPrerelease } = store.getUpdateSettings();
 
@@ -61,50 +104,20 @@ const getBridgeInstance = (store: Dependencies['store']) => {
     }
     const newBridgeRollout = store.getBridgeSettings().newBridgeRollout || 0;
     // note that this variable is duplicated with UI
-    const NEW_BRIDGE_ROLLOUT_THRESHOLD = 0.2;
+    const NEW_BRIDGE_ROLLOUT_THRESHOLD = 1;
     const legacyBridgeReasonRollout =
         !isDevEnv && !skipNewBridgeRollout && newBridgeRollout >= NEW_BRIDGE_ROLLOUT_THRESHOLD;
 
-    if (
+    return (
         legacyRequestedBySettings ||
         legacyRequestedByArg ||
         legacyBridgeReasonRollout ||
         !allowPrerelease
-    ) {
-        return new BridgeProcess();
-    }
-
-    /**
-     * We need a different instance from the global logger instance. Because we want to save bridge logs to memory
-     * to make them available from bridge status page.
-     */
-    const bridgeLogger = new Logger('debug', {
-        writeToDisk: false,
-        writeToMemory: true,
-        // by default, bridge logs are not printed to console to avoid too much noise. The other reason why this is set to false
-        // is that global logger has logic of turning it on and off depending on 'debug' mode (see logger/config message) and we don't have this implemented here
-        // it would require putting bridgeLogger to the global scope which might be perceived as controversial
-        writeToConsole: false,
-        dedupeTimeout: 0,
-    });
-
-    return new TrezordNode({
-        port: 21325,
-        api: bridgeDev || bridgeTest ? 'udp' : 'usb',
-        assetPrefix: '../build/node-bridge',
-        // passing down ILogger where Log is expected.
-        logger: convertILoggerToLog(bridgeLogger, { serviceName: 'trezord-node' }),
-    });
+    );
 };
 
-const load = async ({ store }: Dependencies) => {
+const load = async (bridge: BridgeInterface, store: Dependencies['store']) => {
     const { logger } = global;
-    const bridge = getBridgeInstance(store);
-
-    app.on('before-quit', () => {
-        logger.info(SERVICE_NAME, 'Stopping (app quit)');
-        bridge.stop();
-    });
 
     ipcMain.handle('bridge/toggle', async ipcEvent => {
         validateIpcMessage(ipcEvent);
@@ -176,17 +189,34 @@ const load = async ({ store }: Dependencies) => {
         await start(bridge);
         handleBridgeStatus(bridge);
     } catch (err) {
+        bridge.stop();
         logger.error(SERVICE_NAME, `Start failed: ${err.message}`);
     }
 };
 
-export const init: Module = dependencies => {
-    let loaded = false;
+type BridgeModule = ({ store }: Pick<Dependencies, 'store'>) => {
+    onLoad: () => void;
+};
 
-    return () => {
+export const init: BridgeModule = ({ store }) => {
+    let loaded = false;
+    let bridge: BridgeInterface;
+
+    const onLoad = () => {
         if (loaded) return;
         loaded = true;
-        // TODO intentionally not awaited to mimic previous behavior, resolve later!
-        load(dependencies);
+
+        bridge = shouldUseLegacyBridge(store) ? new BridgeProcess() : new TrezordNodeProcess();
+
+        return scheduleAction(() => load(bridge, store), { timeout: 3000 }).catch(err => {
+            // Error ignored, user will see transport error afterwards
+            logger.error(SERVICE_NAME, `Failed to load: ${err.message}`);
+        });
     };
+
+    const onQuit = async () => {
+        await bridge?.stop();
+    };
+
+    return { onLoad, onQuit };
 };

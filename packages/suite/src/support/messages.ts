@@ -189,10 +189,6 @@ export default defineMessages({
         defaultMessage: 'All',
         id: 'TR_FRACTION_BUTTONS_ALL',
     },
-    TR_EXCHANGE_NO_PROVIDERS: {
-        defaultMessage: 'No providers',
-        id: 'TR_EXCHANGE_NO_PROVIDERS',
-    },
     TR_EXCHANGE_PROVIDER: {
         defaultMessage: 'Provider',
         id: 'TR_EXCHANGE_PROVIDER',
@@ -221,10 +217,6 @@ export default defineMessages({
         id: 'TR_EXCHANGE_FEES_INFO',
         defaultMessage:
             'All fees included; the transaction fee is estimated at {feeAmount} ({feeAmountFiat}).',
-    },
-    TR_EXCHANGE_SHOW_OFFERS: {
-        defaultMessage: 'Compare offers',
-        id: 'TR_EXCHANGE_SHOW_OFFERS',
     },
     TR_EXCHANGE_MODAL_FOR_YOUR_SAFETY: {
         defaultMessage: 'Exchange {fromCrypto} to {toCrypto} with {provider}',
@@ -442,10 +434,6 @@ export default defineMessages({
         defaultMessage: 'Go to provider support',
         id: 'TR_EXCHANGE_DETAIL_CONVERTING_SUPPORT',
     },
-    TR_EXCHANGE_RECEIVING_ACCOUNT: {
-        defaultMessage: 'Receive account',
-        id: 'TR_EXCHANGE_RECEIVING_ACCOUNT',
-    },
     TR_EXCHANGE_VERIFY_ADDRESS_STEP: {
         defaultMessage: 'Receive address',
         id: 'TR_EXCHANGE_VERIFY_ADDRESS_STEP',
@@ -594,11 +582,6 @@ export default defineMessages({
         defaultMessage: 'Confirm on Trezor & send',
         id: 'TR_EXCHANGE_CONFIRM_ON_TREZOR_SEND',
     },
-    TR_EXCHANGE_RECEIVE_ACCOUNT_QUESTION_TOOLTIP: {
-        id: 'TR_EXCHANGE_RECEIVE_ACCOUNT_QUESTION_TOOLTIP',
-        defaultMessage:
-            "This is the account where you'll find your coins once the transaction is finished.",
-    },
     TR_EXCHANGE_RECEIVE_NON_SUITE_ACCOUNT_QUESTION_TOOLTIP: {
         id: 'TR_EXCHANGE_RECEIVE_NON_SUITE_ACCOUNT_QUESTION_TOOLTIP',
         defaultMessage: 'Receive account is outside of Suite.',
@@ -627,11 +610,6 @@ export default defineMessages({
         defaultMessage: 'Receive address is invalid',
         id: 'TR_EXCHANGE_RECEIVING_ADDRESS_INVALID',
     },
-    TR_EXCHANGE_RECEIVE_ADDRESS_QUESTION_TOOLTIP: {
-        id: 'TR_EXCHANGE_RECEIVE_ADDRESS_QUESTION_TOOLTIP',
-        defaultMessage:
-            'This is the specific alphanumeric address that will receive your coins. Verify this address on your Trezor.',
-    },
     TR_EXCHANGE_EXTRA_FIELD: {
         defaultMessage: '{extraFieldName}',
         id: 'TR_EXCHANGE_EXTRA_FIELD',
@@ -655,14 +633,6 @@ export default defineMessages({
     TR_EXCHANGE_USE_NON_SUITE_ACCOUNT: {
         defaultMessage: "Use an account ({symbol}) that isn't in Suite",
         id: 'TR_EXCHANGE_USE_NON_SUITE_ACCOUNT',
-    },
-    TR_EXCHANGE_CONFIRM_ON_TREZOR: {
-        defaultMessage: 'Confirm on Trezor',
-        id: 'TR_EXCHANGE_CONFIRM_ON_TREZOR',
-    },
-    TR_EXCHANGE_GO_TO_PAYMENT: {
-        defaultMessage: 'Continue transaction',
-        id: 'TR_EXCHANGE_GO_TO_PAYMENT',
     },
     TR_EXCHANGE_SELL: {
         defaultMessage: 'Exchange',
@@ -695,18 +665,6 @@ export default defineMessages({
     TR_SELL_STATUS_PENDING: {
         defaultMessage: 'Pending',
         id: 'TR_SELL_STATUS_PENDING',
-    },
-    TR_SELL_NO_PROVIDERS: {
-        defaultMessage: 'No providers',
-        id: 'TR_SELL_NO_PROVIDERS',
-    },
-    TR_SELL_OFFERS_FOR: {
-        defaultMessage: 'Offers for',
-        id: 'TR_SELL_OFFERS_FOR',
-    },
-    TR_SELL_SHOW_OFFERS: {
-        defaultMessage: 'Show offers',
-        id: 'TR_SELL_SHOW_OFFERS',
     },
     TR_REQUIRED_FIELD: {
         defaultMessage: 'Required',
@@ -788,22 +746,6 @@ export default defineMessages({
     TR_SELL_REGISTER: {
         id: 'TR_SELL_REGISTER',
         defaultMessage: 'Register',
-    },
-    TR_SELL_PROVIDER: {
-        defaultMessage: 'Provider',
-        id: 'TR_SELL_PROVIDER',
-    },
-    TR_SELL_PAID_BY: {
-        defaultMessage: 'paid by',
-        id: 'TR_SELL_PAID_BY',
-    },
-    TR_SELL_SPEND: {
-        defaultMessage: 'spend',
-        id: 'TR_SELL_SPEND',
-    },
-    TR_SELL_RECEIVE: {
-        defaultMessage: 'receive',
-        id: 'TR_SELL_RECEIVE',
     },
     TR_SELL_BANK_ACCOUNT_STEP: {
         defaultMessage: 'Bank account',
@@ -1192,10 +1134,6 @@ export default defineMessages({
         defaultMessage: 'Buy',
         id: 'TR_BUY_BUY',
     },
-    TR_BUY_PAID_BY: {
-        defaultMessage: 'Payment method',
-        id: 'TR_BUY_PAID_BY',
-    },
     TR_BUY_PROVIDER: {
         defaultMessage: 'Provider',
         id: 'TR_BUY_PROVIDER',
@@ -1365,6 +1303,10 @@ export default defineMessages({
         defaultMessage: 'You get',
         id: 'TR_COINMARKET_YOU_GET',
     },
+    TR_COINMARKET_YOU_RECEIVE: {
+        defaultMessage: 'You receive',
+        id: 'TR_COINMARKET_YOU_RECEIVE',
+    },
     TR_COINMARKET_COUNTRY: {
         defaultMessage: 'Country of residence',
         id: 'TR_COINMARKET_COUNTRY',
@@ -1418,25 +1360,17 @@ export default defineMessages({
         defaultMessage: 'Select',
         id: 'TR_COINMARKET_OFFERS_SELECT',
     },
-    TR_COINMARKET_CRYPTO_CATEGORY_A: {
+    TR_COINMARKET_POPULAR_CURRENCIES: {
         defaultMessage: 'Popular currencies',
-        id: 'TR_COINMARKET_CRYPTO_CATEGORY_A',
+        id: 'TR_COINMARKET_POPULAR_CURRENCIES',
     },
-    TR_COINMARKET_CRYPTO_CATEGORY_B: {
-        defaultMessage: 'Ethereum ERC-20 tokens',
-        id: 'TR_COINMARKET_CRYPTO_CATEGORY_B',
-    },
-    TR_COINMARKET_CRYPTO_CATEGORY_C: {
-        defaultMessage: 'Solana tokens',
-        id: 'TR_COINMARKET_CRYPTO_CATEGORY_C',
-    },
-    TR_COINMARKET_CRYPTO_CATEGORY_D: {
-        defaultMessage: 'Polygon ERC-20 tokens',
-        id: 'TR_COINMARKET_CRYPTO_CATEGORY_D',
-    },
-    TR_COINMARKET_CRYPTO_CATEGORY_E: {
+    TR_COINMARKET_OTHER_CURRENCIES: {
         defaultMessage: 'Other currencies',
-        id: 'TR_COINMARKET_CRYPTO_CATEGORY_E',
+        id: 'TR_COINMARKET_OTHER_CURRENCIES',
+    },
+    TR_COINMARKET_NETWORK_TOKENS: {
+        defaultMessage: '{networkName} tokens',
+        id: 'TR_COINMARKET_NETWORK_TOKENS',
     },
     TR_COINMARKET_TOKEN_NETWORK: {
         defaultMessage: '{tokenName} on {networkName} network',
@@ -1470,6 +1404,16 @@ export default defineMessages({
         id: 'TR_COINMARKET_FLOATING_RATE_DESCRIPTION',
         defaultMessage: 'Get an estimated rate that may adjust with real-time market changes.',
     },
+    TR_COINMARKET_CEX_TOOLTIP: {
+        id: 'TR_COINMARKET_CEX_TOOLTIP',
+        defaultMessage: 'Centralized exchange',
+        dynamic: true,
+    },
+    TR_COINMARKET_DEX_TOOLTIP: {
+        id: 'TR_COINMARKET_DEX_TOOLTIP',
+        defaultMessage: 'Decentralized exchange',
+        dynamic: true,
+    },
     TR_COINMARKET_NO_CEX_PROVIDER_FOUND: {
         id: 'TR_COINMARKET_NO_CEX_PROVIDER_FOUND',
         defaultMessage: 'No CEX provider found',
@@ -1492,17 +1436,93 @@ export default defineMessages({
         id: 'TR_COINMARKET_FEATURED_OFFER_PAYMENT_METHOD_SELL_LABEL',
         dynamic: true,
     },
-    TR_COINMARKET_FEATURED_OFFER_BUY: {
-        defaultMessage: 'Buy',
-        id: 'TR_COINMARKET_FEATURED_OFFER_BUY',
-    },
-    TR_COINMARKET_FEATURED_OFFER_SELL: {
-        defaultMessage: 'Sell',
-        id: 'TR_COINMARKET_FEATURED_OFFER_SELL',
-    },
     TR_COINMARKET_NO_METHODS_AVAILABLE: {
         defaultMessage: 'No methods available',
         id: 'TR_COINMARKET_NO_METHODS_AVAILABLE',
+    },
+    TR_COINMARKET_EXCHANGE: {
+        defaultMessage: 'Exchange',
+        id: 'TR_COINMARKET_EXCHANGE',
+    },
+    TR_COINMARKET_EXCHANGE_AMOUNT: {
+        defaultMessage: 'Exchange amount',
+        id: 'TR_COINMARKET_EXCHANGE_AMOUNT',
+    },
+    TR_COINMARKET_ON_NETWORK_CHAIN: {
+        defaultMessage: 'On {networkName} chain',
+        id: 'TR_COINMARKET_ON_NETWORK_CHAIN',
+    },
+    TR_COINMARKET_KYC_POLICY: {
+        defaultMessage: 'KYC policy',
+        id: 'TR_COINMARKET_KYC_POLICY',
+    },
+    TR_COINMARKET_KYC_POLICY_NEVER_REQUIRED: {
+        defaultMessage: 'KYC never required',
+        id: 'TR_COINMARKET_KYC_POLICY_NEVER_REQUIRED',
+    },
+    TR_COINMARKET_KYC_NO_REFUND: {
+        defaultMessage: 'KYC requested in exceptional cases. KYC required for refunds. 👈',
+        id: 'TR_COINMARKET_KYC_NO_REFUND',
+    },
+    TR_COINMARKET_KYC_YES_REFUND: {
+        defaultMessage: 'KYC requested in exceptional cases. KYC not required for refunds. 🤝',
+        id: 'TR_COINMARKET_KYC_YES_REFUND',
+    },
+    TR_COINMARKET_KYC_NO_KYC: {
+        defaultMessage: 'KYC never required. Exceptional cases automatically refunded. 👍',
+        id: 'TR_COINMARKET_KYC_NO_KYC',
+    },
+    TR_COINMARKET_KYC_DEX: {
+        defaultMessage: 'KYC never required. DEX swaps either succeed or fail. 👍',
+        id: 'TR_COINMARKET_KYC_DEX',
+    },
+    TR_COINMARKET_DCA_HEADING: {
+        defaultMessage: 'Save in Bitcoin with Invity app',
+        id: 'TR_COINMARKET_DCA_HEADING',
+    },
+    TR_COINMARKET_DCA_FEATURE_1_SUBHEADING: {
+        defaultMessage: 'Developed by SatoshiLabs',
+        id: 'TR_COINMARKET_DCA_FEATURE_1_SUBHEADING',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_1_DESCRIPTION: {
+        defaultMessage: 'Safe & simple custodial DCA savings plan.',
+        id: 'TR_COINMARKET_DCA_FEATURE_1_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_2_SUBHEADING: {
+        defaultMessage: 'Free withdrawals',
+        id: 'TR_COINMARKET_DCA_FEATURE_2_SUBHEADING',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_2_DESCRIPTION: {
+        defaultMessage: 'Withdraw to self-custody with no extra charge.',
+        id: 'TR_COINMARKET_DCA_FEATURE_2_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_3_SUBHEADING: {
+        defaultMessage: 'Easy to use',
+        id: 'TR_COINMARKET_DCA_FEATURE_3_SUBHEADING',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_3_DESCRIPTION: {
+        defaultMessage: 'Quick, streamlined, user-friendly interface.',
+        id: 'TR_COINMARKET_DCA_FEATURE_3_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_4_SUBHEADING: {
+        defaultMessage: 'DCA Overview',
+        id: 'TR_COINMARKET_DCA_FEATURE_4_SUBHEADING',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_FEATURE_4_DESCRIPTION: {
+        defaultMessage: 'Monitor your investment history, amount, and frequency.',
+        id: 'TR_COINMARKET_DCA_FEATURE_4_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_COINMARKET_DCA_DOWNLOAD: {
+        defaultMessage: 'Download Invity mobile app to start saving in Bitcoin',
+        id: 'TR_COINMARKET_DCA_DOWNLOAD',
     },
     TR_ADDRESS_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy address',
@@ -1650,6 +1670,10 @@ export default defineMessages({
     TR_CONNECT: {
         defaultMessage: 'Connect',
         id: 'TR_CONNECT',
+    },
+    TR_CONNECTION_LOST: {
+        defaultMessage: 'Connection lost',
+        id: 'TR_CONNECTION_LOST',
     },
     TR_DISCONNECT: {
         defaultMessage: 'Disconnect',
@@ -3370,6 +3394,11 @@ export default defineMessages({
         description: '',
         id: 'TR_NO_TRANSPORT',
     },
+    TR_NO_TRANSPORT_DESKTOP: {
+        defaultMessage: "App can't communicate with device",
+        description: 'similar to TR_NO_TRANSPORT but for desktop',
+        id: 'TR_NO_TRANSPORT_DESKTOP',
+    },
     TR_TRY_AGAIN: {
         defaultMessage: 'Try again',
         description: 'Try to run the process again',
@@ -4347,6 +4376,10 @@ export default defineMessages({
         defaultMessage:
             'To create additional addresses for a coinjoin account, you must ensure that you have already received bitcoin at the initial address.',
     },
+    TR_RECEIVE_ADDRESS_SECURITY_CHECK_FAILED: {
+        id: 'TR_RECEIVE_ADDRESS_SECURITY_CHECK_FAILED',
+        defaultMessage: 'Your device may have been compromised. Do not send funds to it.',
+    },
     RECEIVE_ADDRESS_LIMIT_REACHED: {
         id: 'RECEIVE_ADDRESS_LIMIT_REACHED',
         defaultMessage: "You've reached the maximum limit of 21 fresh, unused addresses",
@@ -4429,9 +4462,9 @@ export default defineMessages({
         defaultMessage:
             'This is the specific alphanumeric address that will receive your coins. Verify this address on your Trezor.',
     },
-    TR_TRADE_SELECT_COIN: {
-        id: 'TR_TRADE_SELECT_COIN',
-        defaultMessage: 'Select a coin...',
+    TR_TRADE_ENTER_COIN: {
+        id: 'TR_TRADE_ENTER_COIN',
+        defaultMessage: 'Enter crypto name or symbol...',
     },
     TR_TRADE_BUYS: {
         id: 'TR_TRADE_BUYS',
@@ -4968,7 +5001,7 @@ export default defineMessages({
     },
     TR_EXPERIMENTAL_AUTOMATIC_UPDATE: {
         id: 'TR_EXPERIMENTAL_AUTOMATIC_UPDATE',
-        defaultMessage: ' Automatic Trezor Suite updates',
+        defaultMessage: 'Automatic Trezor Suite updates',
     },
     TR_EXPERIMENTAL_AUTOMATIC_UPDATE_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_AUTOMATIC_UPDATE_DESCRIPTION',
@@ -5230,6 +5263,10 @@ export default defineMessages({
     TR_NAV_EXCHANGE: {
         id: 'TR_NAV_EXCHANGE',
         defaultMessage: 'Exchange',
+    },
+    TR_NAV_DCA: {
+        id: 'TR_NAV_DCA',
+        defaultMessage: 'DCA',
     },
     TR_NAV_SELL: {
         id: 'TR_NAV_SELL',
@@ -6223,7 +6260,7 @@ export default defineMessages({
     },
     TR_BACKUP_CHECKBOX_2_TITLE: {
         id: 'TR_BACKUP_CHECKBOX_2_TITLE',
-        defaultMessage: 'Never take a picture or make a digital copy of your backup.',
+        defaultMessage: 'Never take a picture of your backup or store it anywhere digital.',
     },
     TR_BACKUP_CHECKBOX_2_DESCRIPTION: {
         id: 'TR_BACKUP_CHECKBOX_2_DESCRIPTION',
@@ -6800,18 +6837,6 @@ export default defineMessages({
         id: 'TR_USE_CHAT',
         defaultMessage: 'Click below and use the <b>Chat</b> option on the next page.',
     },
-    TR_DISCONNECT_DEVICE_SOFT: {
-        id: 'TR_DISCONNECT_DEVICE_SOFT',
-        defaultMessage: 'Disconnect your device from your laptop or computer.',
-    },
-    TR_AVOID_USING_DEVICE_SOFT: {
-        id: 'TR_AVOID_USING_DEVICE_SOFT',
-        defaultMessage: 'Avoid using this device or sending any funds to it.',
-    },
-    TR_USE_CHAT_SOFT: {
-        id: 'TR_USE_CHAT_SOFT',
-        defaultMessage: 'Click below and use the <b>Chat</b> option on the next screen.',
-    },
     TR_CONTACT_TREZOR_SUPPORT: {
         id: 'TR_CONTACT_TREZOR_SUPPORT',
         defaultMessage: 'Contact Trezor Support',
@@ -6973,6 +6998,10 @@ export default defineMessages({
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_DESCRIPTION_3',
         defaultMessage:
             'Trezor Support will never ask you to turn off the firmware revision check. This feature is designed to protect your security.',
+    },
+    TR_FIRMWARE_REVISION_CHECK_FAILED: {
+        id: 'TR_FIRMWARE_REVISION_CHECK_FAILED',
+        defaultMessage: 'Firmware revision check failed. Your Trezor may be counterfeit.',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_UNABLE_TO_PERFORM: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_UNABLE_TO_PERFORM',
@@ -8397,10 +8426,6 @@ export default defineMessages({
         defaultMessage:
             'Send only through the {network} network. The address must be on the {network} network for the sent crypto to be received.',
     },
-    TR_EVM_EXPLANATION_EXCHANGE_TITLE: {
-        id: 'TR_EVM_EXPLANATION_EXCHANGE_TITLE',
-        defaultMessage: 'Did you choose the correct network?',
-    },
     TR_EVM_EXPLANATION_EXCHANGE_DESCRIPTION: {
         id: 'TR_EVM_EXPLANATION_EXCHANGE_DESCRIPTION',
         defaultMessage:
@@ -8739,11 +8764,7 @@ export default defineMessages({
     },
     TR_STAKE_YOUR_FUNDS_MAINTAINED: {
         id: 'TR_STAKE_YOUR_FUNDS_MAINTAINED',
-        defaultMessage: 'Your staked funds are <h>maintained by Everstake</h>',
-    },
-    TR_STAKE_POWERED_BY: {
-        id: 'TR_STAKE_POWERED_BY',
-        defaultMessage: 'Powered by',
+        defaultMessage: 'Your staked funds are maintained by Everstake',
     },
     TR_STAKE_EVERSTAKE_MANAGES: {
         id: 'TR_STAKE_EVERSTAKE_MANAGES',
@@ -8753,7 +8774,7 @@ export default defineMessages({
     TR_STAKE_TREZOR_NO_LIABILITY: {
         id: 'TR_STAKE_TREZOR_NO_LIABILITY',
         defaultMessage:
-            "<t>When staking, the responsibility for</t> your funds' security transitions from your Trezor to Everstake.",
+            "When staking, the responsibility for your funds' security transitions from your Trezor to Everstake.",
     },
     TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE: {
         id: 'TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE',

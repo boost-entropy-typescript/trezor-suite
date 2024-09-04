@@ -26,6 +26,7 @@ type ButtonContainerProps = TransientProps<AllowedFrameProps> & {
     $hasIcon?: boolean;
     $isFullWidth?: boolean;
     $isSubtle: boolean;
+    $borderRadius?: typeof borders.radii.sm | typeof borders.radii.full; // Do not allow all, we want consistency
 };
 
 export const ButtonContainer = styled.button<ButtonContainerProps>`
@@ -36,7 +37,7 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
     gap: ${({ $hasIcon }) => $hasIcon && spacingsPx.xs};
     padding: ${({ $size }) => getPadding($size, true)};
     width: ${({ $isFullWidth }) => $isFullWidth && '100%'};
-    border-radius: ${borders.radii.full};
+    border-radius: ${({ $borderRadius }) => $borderRadius ?? borders.radii.full};
     transition:
         ${focusStyleTransition},
         background 0.1s ease-out;
@@ -59,6 +60,7 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
 interface ContentProps {
     $size: ButtonSize;
     $disabled: boolean;
+    $textWrap: boolean;
 }
 
 const getTypography = (size: ButtonSize) => {
@@ -73,7 +75,7 @@ const getTypography = (size: ButtonSize) => {
 };
 
 const Content = styled.div<ContentProps>`
-    white-space: normal;
+    white-space: ${({ $textWrap }) => ($textWrap ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
 
@@ -100,6 +102,7 @@ export type ButtonProps = SelectedHTMLButtonProps &
         title?: string;
         className?: string;
         'data-testid'?: string;
+        textWrap?: boolean;
     };
 
 export const Button = ({
@@ -115,6 +118,7 @@ export const Button = ({
     type = 'button',
     children,
     margin,
+    textWrap = true,
     ...rest
 }: ButtonProps) => {
     const frameProps = {
@@ -153,7 +157,7 @@ export const Button = ({
             {isLoading && Loader}
 
             {children && (
-                <Content $size={size} $disabled={isDisabled || isLoading}>
+                <Content $size={size} $disabled={isDisabled || isLoading} $textWrap={textWrap}>
                     {children}
                 </Content>
             )}

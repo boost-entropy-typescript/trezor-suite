@@ -1,11 +1,13 @@
-import type { Account, NetworkSymbol } from 'src/types/wallet';
-import { CryptoSymbol } from 'invity-api';
+import type { Account } from 'src/types/wallet';
+import { NetworkSymbol } from '@suite-common/wallet-config';
+import { CryptoId } from 'invity-api';
 import { UseFormReturn } from 'react-hook-form';
 import { AccountAddress } from '@trezor/connect';
 import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
 
 export interface CoinmarketVerifyFormProps {
     address?: string;
+    extraField?: string;
 }
 
 export type CoinmarketAccountType = 'SUITE' | 'ADD_SUITE' | 'NON_SUITE';
@@ -15,7 +17,7 @@ export interface CoinmarketVerifyFormAccountOptionProps {
 }
 
 export interface CoinmarketVerifyAccountProps {
-    currency: CryptoSymbol | undefined;
+    currency: CryptoId | undefined;
 }
 
 export interface CoinmarketGetTranslationIdsProps {
@@ -26,7 +28,7 @@ export interface CoinmarketGetTranslationIdsProps {
 export interface CoinmarketVerifyAccountReturnProps {
     form: UseFormReturn<CoinmarketVerifyFormProps>;
     accountAddress: AccountAddress | Pick<AccountAddress, 'path' | 'address'> | undefined;
-    receiveNetwork: NetworkSymbol | CryptoSymbol | undefined;
+    receiveNetwork: CryptoId | undefined;
     selectAccountOptions: CoinmarketVerifyFormAccountOptionProps[];
     selectedAccountOption?: CoinmarketVerifyFormAccountOptionProps;
     isMenuOpen: boolean | undefined;
@@ -36,7 +38,7 @@ export interface CoinmarketVerifyAccountReturnProps {
     onChangeAccount: (account: CoinmarketVerifyFormAccountOptionProps) => void;
 }
 
-export type CoinmarketSelectedOfferVerifyOptionsProps = Pick<
+export type CoinmarketVerifyOptionsProps = Pick<
     CoinmarketVerifyAccountReturnProps,
     | 'receiveNetwork'
     | 'selectAccountOptions'
@@ -45,13 +47,13 @@ export type CoinmarketSelectedOfferVerifyOptionsProps = Pick<
     | 'isMenuOpen'
 >;
 
-export interface CoinmarketSelectedOfferVerifyOptionsItemProps {
+export interface CoinmarketVerifyOptionsItemProps {
     option: CoinmarketVerifyFormAccountOptionProps;
-    receiveNetwork: NetworkSymbol | CryptoSymbol | undefined;
+    receiveNetwork: CryptoId | undefined;
 }
 
 export interface CoinmarketGetSuiteReceiveAccountsProps {
-    currency: CryptoSymbol | undefined;
+    currency: CryptoId | undefined;
     device: TrezorDevice | undefined;
     receiveNetwork: NetworkSymbol | undefined;
     isDebug: boolean;

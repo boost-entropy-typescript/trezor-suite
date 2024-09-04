@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import styled from 'styled-components';
-import { Button, Paragraph, Tooltip, Warning } from '@trezor/components';
+import { Button, Paragraph, Tooltip, Banner } from '@trezor/components';
 import { Translation, FiatValue, FormattedCryptoAmount } from 'src/components/suite';
 import { useDevice, useSelector } from 'src/hooks/suite';
 import { useClaimEthFormContext } from 'src/hooks/wallet/useClaimEthForm';
@@ -27,7 +27,8 @@ const GreenTxt = styled.span`
     color: ${({ theme }) => theme.textPrimaryDefault};
 `;
 
-const StyledWarning = styled(Warning)`
+// eslint-disable-next-line local-rules/no-override-ds-component
+const StyledWarning = styled(Banner)`
     margin: ${spacingsPx.sm} 0 ${spacingsPx.sm} 0;
     justify-content: flex-start;
 `;
@@ -40,6 +41,7 @@ const ClaimingPeriodWrapper = styled.div`
     border-top: 1px solid ${({ theme }) => theme.borderElevation2};
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const GreyP = styled(Paragraph)`
     color: ${({ theme }) => theme.textSubdued};
 `;

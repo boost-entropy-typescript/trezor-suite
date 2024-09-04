@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-import { NetworkSymbol } from '@suite-common/wallet-config';
+import { Network, NetworkSymbol } from '@suite-common/wallet-config';
 import { Paragraph } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 
 import { CoinList } from 'src/components/suite';
-import type { Network } from 'src/types/wallet';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const Title = styled(Paragraph)`
     color: ${({ theme }) => theme.textSubdued};
     margin-bottom: ${spacingsPx.sm};

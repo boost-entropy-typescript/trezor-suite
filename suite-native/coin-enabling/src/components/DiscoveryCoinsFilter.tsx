@@ -1,29 +1,38 @@
 import { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useFocusEffect } from '@react-navigation/native';
 
 import { VStack, Text } from '@suite-native/atoms';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { Translation } from '@suite-native/intl';
-import { Icon } from '@suite-common/icons';
+import { Icon } from '@suite-common/icons-deprecated';
+import {
+    applyDiscoveryChangesThunk,
+    selectDiscoverySupportedNetworks,
+    selectEnabledDiscoveryNetworkSymbols,
+} from '@suite-native/discovery';
 
-import { useCoinEnabling } from '../hooks/useCoinEnabling';
 import { NetworkSymbolSwitchItem } from './NetworkSymbolSwitchItem';
 
 type DiscoveryCoinsFilterProps = {
     allowDeselectLastCoin?: boolean; // If true, the last coin can be deselected
+    allowChangeAnalytics?: boolean; // If true, analytics will be sent
 };
 
 export const DiscoveryCoinsFilter = ({
     allowDeselectLastCoin = false,
+    allowChangeAnalytics = true,
 }: DiscoveryCoinsFilterProps) => {
-    const { enabledNetworkSymbols, availableNetworks, applyDiscoveryChanges } = useCoinEnabling();
+    const dispatch = useDispatch();
+    const enabledNetworkSymbols = useSelector(selectEnabledDiscoveryNetworkSymbols);
+    const availableNetworks = useSelector(selectDiscoverySupportedNetworks);
 
     useFocusEffect(
         useCallback(() => {
             // run on leaving the screen
-            return () => applyDiscoveryChanges();
-        }, [applyDiscoveryChanges]),
+            return () => dispatch(applyDiscoveryChangesThunk());
+        }, [dispatch]),
     );
 
     const uniqueNetworkSymbols = [...new Set(availableNetworks.map(n => n.symbol))];
@@ -36,6 +45,7 @@ export const DiscoveryCoinsFilter = ({
                     networkSymbol={networkSymbol}
                     isEnabled={enabledNetworkSymbols.includes(networkSymbol)}
                     allowDeselectLastCoin={allowDeselectLastCoin}
+                    allowChangeAnalytics={allowChangeAnalytics}
                 />
             ))}
             <VStack paddingTop="small" paddingBottom="extraLarge" alignItems="center">

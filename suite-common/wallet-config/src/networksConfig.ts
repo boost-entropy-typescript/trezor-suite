@@ -1,8 +1,18 @@
 import { DeviceModelInternal } from '@trezor/connect';
-import type { Keys, Without } from '@trezor/type-utils';
+import type { Without } from '@trezor/type-utils';
+
+import {
+    AccountType,
+    BackendType,
+    Explorer,
+    NetworkFeature,
+    Networks,
+    NetworkSymbol,
+} from './types';
 
 export const networks = {
     btc: {
+        symbol: 'btc',
         name: 'Bitcoin',
         networkType: 'bitcoin',
         bip43Path: "m/84'/0'/i'",
@@ -17,24 +27,30 @@ export const networks = {
         customBackends: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
+                accountType: 'coinjoin',
                 bip43Path: "m/10025'/0'/i'/1'", // https://github.com/satoshilabs/slips/blob/master/slip-0025.md#public-key-derivation
                 backendType: 'coinjoin', // use non-standard backend
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             taproot: {
+                accountType: 'taproot',
                 bip43Path: "m/86'/0'/i'",
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             segwit: {
+                accountType: 'segwit',
                 bip43Path: "m/49'/0'/i'",
             },
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/0'/i'",
             },
         },
         coingeckoId: 'bitcoin',
+        coingeckoNativeId: 'bitcoin',
     },
     ltc: {
+        symbol: 'ltc',
         name: 'Litecoin',
         networkType: 'bitcoin',
         bip43Path: "m/84'/2'/i'",
@@ -49,15 +65,19 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {
             segwit: {
+                accountType: 'segwit',
                 bip43Path: "m/49'/2'/i'",
             },
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/2'/i'",
             },
         },
         coingeckoId: 'litecoin',
+        coingeckoNativeId: 'litecoin',
     },
     eth: {
+        symbol: 'eth',
         name: 'Ethereum',
         networkType: 'ethereum',
         chainId: 1,
@@ -82,18 +102,22 @@ export const networks = {
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
+                accountType: 'ledger',
                 bip43Path: "m/44'/60'/i'/0/0",
                 isDebugOnlyAccountType: true,
             },
             legacy: {
                 // ledger (legacy)
+                accountType: 'legacy',
                 bip43Path: "m/44'/60'/0'/i",
                 isDebugOnlyAccountType: true,
             },
         },
         coingeckoId: 'ethereum',
+        coingeckoNativeId: 'ethereum',
     },
     etc: {
+        symbol: 'etc',
         name: 'Ethereum Classic',
         networkType: 'ethereum',
         chainId: 61,
@@ -110,9 +134,11 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'ethereum-classic',
+        coingeckoNativeId: 'ethereum-classic',
     },
     // Ripple
     xrp: {
+        symbol: 'xrp',
         name: 'XRP',
         networkType: 'ripple',
         bip43Path: "m/44'/144'/i'/0/0",
@@ -127,8 +153,10 @@ export const networks = {
         customBackends: [],
         accountTypes: {},
         coingeckoId: 'ripple',
+        coingeckoNativeId: 'ripple',
     },
     bch: {
+        symbol: 'bch',
         name: 'Bitcoin Cash',
         networkType: 'bitcoin',
         bip43Path: "m/44'/145'/i'",
@@ -143,8 +171,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'bitcoin-cash',
+        coingeckoNativeId: 'bitcoin-cash',
     },
     btg: {
+        symbol: 'btg',
         name: 'Bitcoin Gold',
         networkType: 'bitcoin',
         bip43Path: "m/49'/156'/i'",
@@ -159,12 +189,15 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/156'/i'",
             },
         },
         coingeckoId: 'bitcoin-gold',
+        coingeckoNativeId: 'bitcoin-gold',
     },
     dash: {
+        symbol: 'dash',
         name: 'Dash',
         networkType: 'bitcoin',
         bip43Path: "m/44'/5'/i'",
@@ -179,8 +212,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'dash',
+        coingeckoNativeId: 'dash',
     },
     dgb: {
+        symbol: 'dgb',
         name: 'DigiByte',
         networkType: 'bitcoin',
         bip43Path: "m/49'/20'/i'",
@@ -195,12 +230,15 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/20'/i'",
             },
         },
         coingeckoId: 'digibyte',
+        coingeckoNativeId: 'digibyte',
     },
     doge: {
+        symbol: 'doge',
         name: 'Dogecoin',
         networkType: 'bitcoin',
         bip43Path: "m/44'/3'/i'",
@@ -215,8 +253,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'dogecoin',
+        coingeckoNativeId: 'dogecoin',
     },
     nmc: {
+        symbol: 'nmc',
         name: 'Namecoin',
         networkType: 'bitcoin',
         bip43Path: "m/44'/7'/i'",
@@ -231,8 +271,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'namecoin',
+        coingeckoNativeId: 'namecoin',
     },
     vtc: {
+        symbol: 'vtc',
         name: 'Vertcoin',
         networkType: 'bitcoin',
         bip43Path: "m/84'/28'/i'",
@@ -247,15 +289,19 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {
             segwit: {
+                accountType: 'segwit',
                 bip43Path: "m/49'/28'/i'",
             },
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/28'/i'",
             },
         },
         coingeckoId: 'vertcoin',
+        coingeckoNativeId: 'vertcoin',
     },
     zec: {
+        symbol: 'zec',
         name: 'Zcash',
         networkType: 'bitcoin',
         bip43Path: "m/44'/133'/i'",
@@ -270,9 +316,11 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'zcash',
+        coingeckoNativeId: 'zcash',
     },
     ada: {
         // icarus derivation
+        symbol: 'ada',
         name: 'Cardano',
         networkType: 'cardano',
         bip43Path: "m/1852'/1815'/i'",
@@ -294,18 +342,22 @@ export const networks = {
         accountTypes: {
             legacy: {
                 // icarus-trezor derivation, differs from default just for 24 words seed
+                accountType: 'legacy',
                 bip43Path: "m/1852'/1815'/i'",
                 isDebugOnlyAccountType: true,
             },
             ledger: {
                 // ledger derivation
+                accountType: 'ledger',
                 bip43Path: "m/1852'/1815'/i'",
                 isDebugOnlyAccountType: true,
             },
         },
         coingeckoId: 'cardano',
+        coingeckoNativeId: 'cardano',
     },
     sol: {
+        symbol: 'sol',
         name: 'Solana',
         networkType: 'solana',
         bip43Path: "m/44'/501'/i'/0'", // phantom - bip44Change
@@ -326,13 +378,16 @@ export const networks = {
         accountTypes: {
             ledger: {
                 // bip44Change - Ledger Live
+                accountType: 'ledger',
                 bip43Path: "m/44'/501'/i'",
                 isDebugOnlyAccountType: true,
             },
         },
         coingeckoId: 'solana',
+        coingeckoNativeId: 'solana',
     },
     matic: {
+        symbol: 'matic',
         name: 'Polygon PoS',
         networkType: 'ethereum',
         chainId: 137,
@@ -350,13 +405,16 @@ export const networks = {
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
+                accountType: 'ledger',
                 bip43Path: "m/44'/60'/i'/0/0",
                 isDebugOnlyAccountType: true,
             },
         },
         coingeckoId: 'polygon-pos',
+        coingeckoNativeId: 'matic-network',
     },
     bnb: {
+        symbol: 'bnb',
         name: 'BNB Smart Chain',
         networkType: 'ethereum',
         chainId: 56,
@@ -374,14 +432,17 @@ export const networks = {
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
+                accountType: 'ledger',
                 bip43Path: "m/44'/60'/i'/0/0",
                 isDebugOnlyAccountType: true,
             },
         },
         coingeckoId: 'binance-smart-chain',
+        coingeckoNativeId: 'binancecoin',
     },
     // testnets
     test: {
+        symbol: 'test',
         name: 'Bitcoin Testnet',
         networkType: 'bitcoin',
         bip43Path: "m/84'/1'/i'",
@@ -396,24 +457,30 @@ export const networks = {
         customBackends: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
+                accountType: 'coinjoin',
                 bip43Path: "m/10025'/1'/i'/1'", // https://github.com/satoshilabs/slips/blob/master/slip-0025.md#public-key-derivation
                 backendType: 'coinjoin', // use non-standard backend
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             taproot: {
+                accountType: 'taproot',
                 bip43Path: "m/86'/1'/i'",
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             segwit: {
+                accountType: 'segwit',
                 bip43Path: "m/49'/1'/i'",
             },
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/1'/i'",
             },
         },
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     regtest: {
+        symbol: 'regtest',
         name: 'Bitcoin Regtest',
         networkType: 'bitcoin',
         bip43Path: "m/84'/1'/i'",
@@ -428,25 +495,31 @@ export const networks = {
         customBackends: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
+                accountType: 'coinjoin',
                 bip43Path: "m/10025'/1'/i'/1'", // https://github.com/satoshilabs/slips/blob/master/slip-0025.md#public-key-derivation
                 backendType: 'coinjoin', // use non-standard backend
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             taproot: {
+                accountType: 'taproot',
                 bip43Path: "m/86'/1'/i'",
                 features: ['rbf', 'amount-unit'], // no sign-verify
             },
             segwit: {
+                accountType: 'segwit',
                 bip43Path: "m/49'/1'/i'",
             },
             legacy: {
+                accountType: 'legacy',
                 bip43Path: "m/44'/1'/i'",
             },
         },
         isDebugOnlyNetwork: true,
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     tsep: {
+        symbol: 'tsep',
         name: 'Ethereum Sepolia',
         networkType: 'ethereum',
         bip43Path: "m/44'/1'/0'/0/i",
@@ -463,8 +536,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     thol: {
+        symbol: 'thol',
         name: 'Ethereum Holesky',
         networkType: 'ethereum',
         bip43Path: "m/44'/1'/0'/0/i",
@@ -481,8 +556,10 @@ export const networks = {
         customBackends: ['blockbook'],
         accountTypes: {},
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     txrp: {
+        symbol: 'txrp',
         name: 'XRP Testnet',
         networkType: 'ripple',
         bip43Path: "m/44'/144'/i'/0/0",
@@ -497,9 +574,11 @@ export const networks = {
         customBackends: [],
         accountTypes: {},
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     tada: {
         // icarus derivation
+        symbol: 'tada',
         name: 'Cardano Testnet',
         networkType: 'cardano',
         bip43Path: "m/1852'/1815'/i'",
@@ -521,16 +600,20 @@ export const networks = {
         accountTypes: {
             legacy: {
                 // icarus-trezor derivation
+                accountType: 'legacy',
                 bip43Path: "m/1852'/1815'/i'",
             },
             ledger: {
                 // ledger derivation
+                accountType: 'ledger',
                 bip43Path: "m/1852'/1815'/i'",
             },
         },
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
     dsol: {
+        symbol: 'dsol',
         name: 'Solana Devnet',
         networkType: 'solana',
         bip43Path: "m/44'/501'/i'/0'",
@@ -551,46 +634,17 @@ export const networks = {
         customBackends: ['solana'],
         accountTypes: {},
         coingeckoId: undefined,
+        coingeckoNativeId: undefined,
     },
-} as const;
+} as const satisfies Networks;
 
-export const TREZOR_CONNECT_BACKENDS = [
-    'blockbook',
-    'electrum',
-    'ripple',
-    'blockfrost',
-    'solana',
-] as const;
-export const NON_STANDARD_BACKENDS = ['coinjoin'] as const;
+type InferredNetworks = typeof networks;
+type InferredNetwork = InferredNetworks[NetworkSymbol];
 
-export type BackendType =
-    | (typeof TREZOR_CONNECT_BACKENDS)[number]
-    | (typeof NON_STANDARD_BACKENDS)[number];
-
-type Networks = typeof networks;
-export type NetworkSymbol = keyof Networks;
-export type NetworkType = Network['networkType'];
-type NetworkValue = Networks[NetworkSymbol];
-export type AccountType = Keys<NetworkValue['accountTypes']> | 'imported' | 'taproot' | 'normal';
-export type NetworkFeature =
-    | 'rbf'
-    | 'sign-verify'
-    | 'amount-unit'
-    | 'tokens'
-    | 'staking'
-    | 'coin-definitions'
-    | 'nft-definitions';
-
-export type Explorer = {
-    tx: string;
-    account: string;
-    address: string;
-    nft?: string;
-    token?: string;
-    queryString?: string;
-};
-
-export type Network = Without<NetworkValue, 'accountTypes'> & {
+/**
+ * @deprecated Old network object interface for backwards copatibility.
+ */
+export type NetworkCompatible = Without<InferredNetwork, 'accountTypes'> & {
     symbol: NetworkSymbol;
     accountType?: AccountType;
     backendType?: BackendType;
@@ -607,11 +661,14 @@ export type Network = Without<NetworkValue, 'accountTypes'> & {
     coingeckoId?: string;
 };
 
-// Transforms the network object into the previously used format so we don't have to change
-// every occurence. We could gradually start to use the network object directly and in the end
-// this could be removed.
-export const networksCompatibility: Network[] = Object.entries(networks).flatMap(
-    ([symbol, { accountTypes, ...network }]) => [
+/**
+ * @deprecated Please use `networks` instead.
+ * Transforms the network object into the previously used format so we don't have to change
+ * every occurence. We could gradually start to use the network object directly and in the end
+ * this could be removed.
+ */
+export const networksCompatibility: NetworkCompatible[] = Object.values(networks).flatMap(
+    ({ symbol, accountTypes, ...network }) => [
         { symbol, ...network },
         ...Object.entries(accountTypes).map(([accountType, networkOverride]) => ({
             symbol,
@@ -621,50 +678,3 @@ export const networksCompatibility: Network[] = Object.entries(networks).flatMap
         })),
     ],
 );
-
-export const getMainnets = (debug = false, bnb = false) =>
-    networksCompatibility.filter(
-        n =>
-            !n.accountType &&
-            !n.testnet &&
-            (!n.isDebugOnlyNetwork || debug) &&
-            (bnb || n.symbol !== 'bnb'),
-    );
-
-export const getTestnets = (debug = false) =>
-    networksCompatibility.filter(
-        n => !n.accountType && n.testnet === true && (!n.isDebugOnlyNetwork || debug),
-    );
-
-export const getAllNetworkSymbols = () => networksCompatibility.map(n => n.symbol);
-
-export const getEthereumTypeNetworkSymbols = () =>
-    networksCompatibility.filter(n => n.networkType === 'ethereum').map(n => n.symbol);
-
-export const getTestnetSymbols = () => getTestnets().map(n => n.symbol);
-
-export const isBlockbookBasedNetwork = (symbol: NetworkSymbol) =>
-    networks[symbol]?.customBackends.some(backend => backend === 'blockbook');
-
-export const isDebugOnlyAccountType = (
-    accountType: AccountType,
-    symbol?: NetworkSymbol,
-): boolean => {
-    if (!symbol) return false;
-
-    const network = networks?.[symbol];
-
-    if (!network) return false;
-
-    const accountTypeInfo = (network.accountTypes as Record<AccountType, Network>)[accountType];
-
-    return !!accountTypeInfo?.isDebugOnlyAccountType;
-};
-
-export const getNetworkType = (symbol: NetworkSymbol) => networks[symbol]?.networkType;
-
-// Takes into account just network features, not features for specific accountTypes.
-export const getNetworkFeatures = (symbol: NetworkSymbol) =>
-    networks[symbol]?.features as unknown as NetworkFeature;
-
-export const getCoingeckoId = (symbol: NetworkSymbol) => networks[symbol]?.coingeckoId;

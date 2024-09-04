@@ -18,6 +18,7 @@ import { ChangeEvent, MutableRefObject, ReactNode, RefObject } from 'react';
 import { WalletType } from './types';
 import { DOT } from './consts';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const PassphraseInput = styled(Input)`
     input {
         color: ${({ theme }) => theme.textSubdued};
@@ -32,6 +33,7 @@ const Actions = styled.div`
     justify-content: center;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const ActionButton = styled(Button)`
     margin-top: ${spacingsPx.xs};
 
@@ -133,7 +135,7 @@ export const PassphraseTypeCardContent = ({
             <Column gap={spacings.sm} alignItems="stretch">
                 {type === 'hidden' && (
                     <>
-                        <Row flex={1}>
+                        <Row flex="1">
                             {/* Show passphrase input */}
                             <Description>
                                 <PassphraseInput

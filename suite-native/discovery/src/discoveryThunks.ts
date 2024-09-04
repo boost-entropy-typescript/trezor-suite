@@ -16,12 +16,18 @@ import {
     LIMIT,
     selectDeviceAccountsForNetworkSymbolAndAccountType,
     selectDeviceState,
+    disableAccountsThunk,
 } from '@suite-common/wallet-core';
 import { selectIsAccountAlreadyDiscovered } from '@suite-native/accounts';
 import TrezorConnect from '@trezor/connect';
 import { Account, DiscoveryItem } from '@suite-common/wallet-types';
 import { getDerivationType, tryGetAccountIdentity } from '@suite-common/wallet-utils';
-import { AccountType, Network, NetworkSymbol, getNetworkType } from '@suite-common/wallet-config';
+import {
+    AccountType,
+    NetworkCompatible,
+    NetworkSymbol,
+    getNetworkType,
+} from '@suite-common/wallet-config';
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import { requestDeviceAccess } from '@suite-native/device-mutex';
 import { analytics, EventType } from '@suite-native/analytics';
@@ -331,7 +337,7 @@ const discoverAccountsByDescriptorThunk = createThunk(
 export const addAndDiscoverNetworkAccountThunk = createThunk<
     Account,
     {
-        network: Network;
+        network: NetworkCompatible;
         deviceState: string;
     },
     { rejectValue: string }
@@ -416,7 +422,7 @@ const discoverNetworkBatchThunk = createThunk(
         }: {
             deviceState: string;
             round?: number;
-            network: Network;
+            network: NetworkCompatible;
         },
         { dispatch, getState },
     ) => {
@@ -529,7 +535,7 @@ export const createDescriptorPreloadedDiscoveryThunk = createThunk(
             availableCardanoDerivations,
         }: {
             deviceState: string;
-            networks: readonly Network[];
+            networks: readonly NetworkCompatible[];
             availableCardanoDerivations: ('normal' | 'legacy' | 'ledger')[] | undefined;
         },
         { dispatch, getState },
@@ -681,5 +687,15 @@ export const discoveryCheckThunk = createThunk(
         if (canRunDiscoveryForDevice && shouldRunDiscoveryForDevice) {
             dispatch(startDescriptorPreloadedDiscoveryThunk({}));
         }
+    },
+);
+
+// Called when there are changes in enabled/disabled networks
+// It removes accounts for disabled networks and checks whether to start discovery and start if needed
+export const applyDiscoveryChangesThunk = createThunk(
+    `${DISCOVERY_MODULE_PREFIX}/applyDiscoveryChangesThunk`,
+    (_, { dispatch }) => {
+        dispatch(disableAccountsThunk());
+        dispatch(discoveryCheckThunk());
     },
 );

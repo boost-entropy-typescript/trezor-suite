@@ -73,12 +73,15 @@ export enum SendStackRoutes {
     SendAccounts = 'SendAccounts',
     SendOutputs = 'SendOutputs',
     SendFees = 'SendFees',
-    SendReview = 'SendReview',
+    SendAddressReview = 'SendAddressReview',
+    SendOutputsReview = 'SendOutputsReview',
 }
 
 export enum AddCoinAccountStackRoutes {
     AddCoinAccount = 'AddCoinAccount',
     SelectAccountType = 'SelectAccountType',
+    AddCoinDiscoveryFinished = 'AddCoinDiscoveryFinished',
+    AddCoinDiscoveryRunning = 'AddCoinDiscoveryRunning',
 }
 
 export enum SettingsStackRoutes {

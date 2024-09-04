@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 import styled, { useTheme } from 'styled-components';
 
-import { Icon, Warning, variables } from '@trezor/components';
+import { Icon, Banner, variables } from '@trezor/components';
 import { breakpointMediaQueries } from '@trezor/styles';
 import { spacingsPx } from '@trezor/theme';
 import { FiatCurrencyCode } from '@suite-common/suite-config';
@@ -72,6 +72,7 @@ const TokenBalanceValue = styled.span`
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledTransferIcon = styled(Icon)`
     margin: 0 20px 46px;
     align-self: end;
@@ -311,9 +312,9 @@ export const Amount = ({ output, outputId }: AmountProps) => {
 
             {isLowAnonymity && (
                 <WarningWrapper>
-                    <Warning icon>
+                    <Banner icon>
                         <Translation id="TR_NOT_ENOUGH_ANONYMIZED_FUNDS_WARNING" />
-                    </Warning>
+                    </Banner>
                 </WarningWrapper>
             )}
         </>

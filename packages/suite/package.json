@@ -1,6 +1,6 @@
 {
     "name": "@trezor/suite",
-    "suiteVersion": "24.9.0",
+    "suiteVersion": "24.10.0",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -123,7 +123,7 @@
         "@testing-library/react": "14.2.1",
         "@testing-library/user-event": "14.5.2",
         "@types/file-saver": "^2.0.6",
-        "@types/invity-api": "^1.0.24",
+        "@types/invity-api": "^1.1.0",
         "@types/jws": "^3.2.10",
         "@types/pako": "^2.0.3",
         "@types/pdfmake": "^0.2.9",

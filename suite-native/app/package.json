@@ -1,7 +1,7 @@
 {
     "name": "@suite-native/app",
     "version": "1.0.0",
-    "suiteNativeVersion": "24.8.2",
+    "suiteNativeVersion": "24.9.1",
     "main": "index.js",
     "scripts": {
         "android": "expo run:android",
@@ -20,6 +20,7 @@
         "reverse-ports": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:21325 tcp:21325 && adb reverse tcp:19121 tcp:19121"
     },
     "dependencies": {
+        "@mobily/ts-belt": "^3.13.1",
         "@react-native-community/netinfo": "11.3.2",
         "@react-native/metro-config": "0.75.2",
         "@react-navigation/bottom-tabs": "6.6.1",
@@ -32,7 +33,7 @@
         "@suite-common/analytics": "workspace:*",
         "@suite-common/connect-init": "workspace:*",
         "@suite-common/formatters": "workspace:*",
-        "@suite-common/icons": "workspace:*",
+        "@suite-common/icons-deprecated": "workspace:*",
         "@suite-common/message-system": "workspace:*",
         "@suite-common/redux-utils": "workspace:*",
         "@suite-common/suite-constants": "workspace:*",
@@ -48,6 +49,7 @@
         "@suite-native/connection-status": "workspace:*",
         "@suite-native/device": "workspace:*",
         "@suite-native/device-authorization": "workspace:*",
+        "@suite-native/discovery": "workspace:*",
         "@suite-native/feature-flags": "workspace:*",
         "@suite-native/intl": "workspace:*",
         "@suite-native/message-system": "workspace:*",

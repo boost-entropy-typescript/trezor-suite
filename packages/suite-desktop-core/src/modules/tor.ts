@@ -228,31 +228,40 @@ const load = async ({ mainWindow, store, mainThreadEmitter }: Dependencies) => {
         handleTorProcessStatus(status);
     });
 
-    app.on('before-quit', () => {
-        logger.info('tor', 'Stopping (app quit)');
-        tor.stop();
-    });
-
     if (app.commandLine.hasSwitch('tor')) {
         logger.info('tor', 'Tor enabled by command line option.');
         store.setTorSettings({ ...store.getTorSettings(), running: true });
     }
+
+    return tor;
 };
 
-type TorModule = (dependencies: Dependencies) => () => Promise<HandshakeTorModule>;
+type TorModule = (dependencies: Dependencies) => {
+    onLoad: () => Promise<HandshakeTorModule>;
+    onQuit: () => Promise<void>;
+};
 
 export const init: TorModule = dependencies => {
     let loaded = false;
+    let tor: TorProcess | undefined;
 
-    return async () => {
+    const onLoad = async () => {
         if (loaded) return { shouldRunTor: false };
 
         loaded = true;
-        await load(dependencies);
+        tor = await load(dependencies);
         const torSettings = dependencies.store.getTorSettings();
 
         return {
             shouldRunTor: torSettings.running,
         };
     };
+
+    const onQuit = async () => {
+        const { logger } = global;
+        logger.info('tor', 'Stopping (app quit)');
+        await tor?.stop();
+    };
+
+    return { onLoad, onQuit };
 };

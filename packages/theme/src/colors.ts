@@ -28,11 +28,6 @@ export const mapElevationToBorder = ({
 const light = {
     transparent: '#00000000',
 
-    // Deprecated
-    gradientNeutralBottomFadeSurfaceElevation1Start: '#FFFFFF33', // Don't use it, use elevation colors
-    gradientNeutralBottomFadeSurfaceElevation1End: '#FFFFFF', // Don't use it, use elevation colors
-    backGroundOnboardingCard: '#FFFFFFBD',
-
     // Figma Colors
     backgroundAlertBlueBold: palette.lightAccentBlue600,
     backgroundAlertBlueBoldAlt: palette.lightAccentBlue700,
@@ -55,6 +50,7 @@ const light = {
     backgroundAlertYellowSubtleOnElevation2: palette.lightAccentYellow100,
     backgroundAlertYellowSubtleOnElevation3: palette.lightAccentYellow50,
     backgroundAlertYellowSubtleOnElevationNegative: palette.lightAccentYellow400,
+    backgroundAlertPurpleSubtleOnElevationNegative: palette.lightAccentPurple400,
     backgroundNeutralBold: palette.lightGray1000,
     backgroundNeutralBoldInverted: palette.lightWhiteAlpha1000,
     backgroundNeutralDisabled: palette.lightGray200,
@@ -97,6 +93,7 @@ const light = {
     iconAlertBlue: palette.lightAccentBlue800,
     iconAlertRed: palette.lightAccentRed700,
     iconAlertYellow: palette.lightAccentYellow800,
+    iconAlertPurple: palette.lightAccentPurple800,
     iconDefault: palette.lightGray1000,
     iconDefaultInverted: palette.lightWhiteAlpha1000,
     iconDisabled: palette.lightGray600,
@@ -153,6 +150,7 @@ const light = {
     textAlertBlue: palette.lightAccentBlue800,
     textAlertRed: palette.lightAccentRed700,
     textAlertYellow: palette.lightAccentYellow800,
+    textAlertPurple: palette.lightAccentPurple800,
     textDefault: palette.lightGray1000,
     textDefaultInverted: palette.lightWhiteAlpha1000,
     textDisabled: palette.lightGray600,
@@ -194,11 +192,6 @@ export const colorVariants: Record<ThemeColorVariant, Colors> = {
     dark: {
         transparent: '#00000000',
 
-        // Deprecated
-        gradientNeutralBottomFadeSurfaceElevation1Start: '#00000033', // Don't use it, use elevation colors
-        gradientNeutralBottomFadeSurfaceElevation1End: '#000000', // Don't use it, use elevation colors
-        backGroundOnboardingCard: '#000000BD',
-
         // Figma Colors
         backgroundAlertBlueBold: palette.darkAccentBlue600,
         backgroundAlertBlueBoldAlt: palette.darkAccentBlue700,
@@ -221,6 +214,7 @@ export const colorVariants: Record<ThemeColorVariant, Colors> = {
         backgroundAlertYellowSubtleOnElevation2: palette.darkAccentYellow200,
         backgroundAlertYellowSubtleOnElevation3: palette.darkAccentYellow300,
         backgroundAlertYellowSubtleOnElevationNegative: '#FFFFFF',
+        backgroundAlertPurpleSubtleOnElevationNegative: palette.darkAccentPurple400,
         backgroundNeutralBold: palette.darkGray1000,
         backgroundNeutralBoldInverted: palette.darkGray000,
         backgroundNeutralDisabled: palette.darkGray200,
@@ -263,6 +257,7 @@ export const colorVariants: Record<ThemeColorVariant, Colors> = {
         iconAlertBlue: palette.darkAccentBlue700,
         iconAlertRed: palette.darkAccentRed700,
         iconAlertYellow: palette.darkAccentYellow600,
+        iconAlertPurple: palette.darkAccentPurple800,
         iconDefault: palette.darkGray1000,
         iconDefaultInverted: palette.darkGray000,
         iconDisabled: palette.darkGray600,
@@ -319,6 +314,7 @@ export const colorVariants: Record<ThemeColorVariant, Colors> = {
         textAlertBlue: palette.darkAccentBlue800,
         textAlertRed: palette.darkAccentRed800,
         textAlertYellow: palette.darkAccentYellow700,
+        textAlertPurple: palette.darkAccentPurple800,
         textDefault: palette.darkGray1000,
         textDefaultInverted: palette.darkGray000,
         textDisabled: palette.darkGray600,

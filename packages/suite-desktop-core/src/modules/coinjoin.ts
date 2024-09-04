@@ -2,7 +2,7 @@
  * Uses @trezor/coinjoin package in nodejs context
  */
 
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import { captureMessage, withScope } from '@sentry/electron';
 
 import { coinjoinReportTag, coinjoinNetworkTag } from '@suite-common/sentry';
@@ -72,11 +72,11 @@ export const init: Module = ({ mainWindow, store, mainThreadEmitter }) => {
             await backend.run({ ...settings, torSettings: store.getTorSettings() });
             backends.push(backend);
 
-            backend.on('interceptor', (event: InterceptedEvent) =>
+            backend.subscribe('interceptor', (event: InterceptedEvent) =>
                 mainThreadEmitter.emit('module/request-interceptor', event),
             );
 
-            backend.on('log', ({ level, payload }) => {
+            backend.subscribe('log', ({ level, payload }) => {
                 if (level === 'error') {
                     sentryError(settings.network, payload);
                 }
@@ -87,7 +87,7 @@ export const init: Module = ({ mainWindow, store, mainThreadEmitter }) => {
                 backend.request('setTorSettings', [torSettings]),
             );
 
-            backend.on('disposed', unsubscribeTorSettingsChange);
+            backend.watch('disposed', unsubscribeTorSettingsChange);
 
             return {
                 onRequest: (method, params) => {
@@ -104,12 +104,12 @@ export const init: Module = ({ mainWindow, store, mainThreadEmitter }) => {
                 onAddListener: (eventName, listener) => {
                     logger.debug(SERVICE_NAME, `${BACKEND_CHANNEL} add listener ${eventName}`);
 
-                    return backend.on(eventName, listener);
+                    return backend.subscribe(eventName, listener);
                 },
                 onRemoveListener: (eventName: any) => {
                     logger.debug(SERVICE_NAME, `${BACKEND_CHANNEL} remove listener ${eventName}`);
 
-                    return backend.removeAllListeners(eventName) as any;
+                    return backend.unsubscribe(eventName) as any;
                 },
             };
         },
@@ -207,7 +207,7 @@ export const init: Module = ({ mainWindow, store, mainThreadEmitter }) => {
         };
     };
 
-    const dispose = () => {
+    const dispose = async () => {
         backends.forEach(b => b.dispose());
         backends.splice(0, backends.length);
 
@@ -224,14 +224,16 @@ export const init: Module = ({ mainWindow, store, mainThreadEmitter }) => {
         clients.splice(0, clients.length);
 
         unregisterProxies();
-        logger.info(SERVICE_NAME, 'Stopping (app quit)');
-        synchronize(killCoinjoinProcess);
+        await synchronize(killCoinjoinProcess);
         powerSaveBlocker.stopBlockingPowerSave();
     };
 
-    app.on('before-quit', dispose);
+    const onQuit = async () => {
+        await dispose();
+    };
+
     mainWindow.webContents.on('did-start-loading', dispose);
     ipcMain.once('app/restart', dispose);
 
-    return registerProxies;
+    return { onLoad: registerProxies, onQuit };
 };

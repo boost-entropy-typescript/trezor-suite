@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
-import { Type, TSchema } from '@sinclair/typebox';
+import { Object, type TSchema } from '@sinclair/typebox';
 
 import { CollapsibleBox, Select, Switch, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
@@ -39,6 +39,7 @@ const ApiPlaygroundWrapper = styled.div`
     } */
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const CollapsibleBoxStyled = styled(CollapsibleBox)`
     margin: 0;
     border: 0;
@@ -107,7 +108,7 @@ export const ApiPlayground = ({ options }: ApiPlaygroundProps) => {
             actions.onSetMethod(option.legacyConfig);
         } else {
             const { method, schema } = option;
-            actions.onSetSchema(method, schema ?? Type.Object({}));
+            actions.onSetSchema(method, schema ?? Object({}));
         }
     }, [actions, options, selectedOption]);
     useEffect(() => {

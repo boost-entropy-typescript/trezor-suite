@@ -28,6 +28,7 @@ const Version = styled.div`
     }
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const VersionTooltip = styled(Tooltip)`
     display: inline-flex;
 `;
@@ -120,7 +121,7 @@ export const FirmwareVersion = ({ isDeviceLocked }: FirmwareVersionProps) => {
             />
             <ActionColumn>
                 <ActionButton
-                    variant="tertiary"
+                    variant="primary"
                     onClick={handleUpdate}
                     data-testid="@settings/device/update-button"
                     isDisabled={isDeviceLocked}

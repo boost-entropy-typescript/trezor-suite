@@ -1,28 +1,28 @@
-import { H3, Divider, Warning, WarningProps, Column } from '@trezor/components';
+import { H3, Divider, Banner, BannerProps, Column } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { ReactNode } from 'react';
 import { spacings } from '@trezor/theme/src';
 
 interface Props {
     onClose: () => void;
-    variant: WarningProps['variant'];
+    variant: BannerProps['variant'];
     title: ReactNode;
     children: React.ReactNode;
 }
 
 export const CloseableBanner = ({ onClose, variant, title, children }: Props) => (
-    <Warning
+    <Banner
         variant={variant}
         rightContent={
-            <Warning.Button onClick={onClose}>
+            <Banner.Button onClick={onClose}>
                 <Translation id="TR_GOT_IT" />
-            </Warning.Button>
+            </Banner.Button>
         }
     >
-        <Column flex={1} alignItems="flex-start">
+        <Column flex="1" alignItems="flex-start">
             <H3>{title}</H3>
             <Divider margin={{ top: spacings.xs, bottom: spacings.md }} />
             {children}
         </Column>
-    </Warning>
+    </Banner>
 );

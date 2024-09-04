@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { FieldPath, UseFormReturn } from 'react-hook-form';
+import { isFulfilled } from '@reduxjs/toolkit';
 
 import { FeeLevel } from '@trezor/connect';
 import { useDebounce } from '@trezor/react-utils';
@@ -24,9 +25,7 @@ import { SendContextValues, UseSendFormState } from '../../../types/wallet/sendF
 const DEFAULT_FIELD = 'outputs.0.amount';
 
 interface Props<TFieldValues extends FormState> extends UseFormReturn<TFieldValues> {
-    // theoretically state should be always defined (and it is in case of useRbfForm/useSendForm)
-    // TODO: but it is not in Coinmarket hooks (Exchange, Sell)
-    state?: ComposeActionContext;
+    state: ComposeActionContext;
     defaultField?: FieldPath<TFieldValues>;
 }
 
@@ -90,7 +89,7 @@ export const useCompose = <TFieldValues extends FormState>({
                         formState,
                         composeContext: state,
                     }),
-                ).unwrap();
+                ).then(res => (isFulfilled(res) ? res.payload : undefined));
             });
 
             // RACE-CONDITION NOTE:

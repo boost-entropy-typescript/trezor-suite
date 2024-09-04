@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { useTheme } from 'styled-components';
-import { Network } from 'src/types/wallet';
+import { NetworkCompatible } from '@suite-common/wallet-config';
 
 import {
     AmountUnitSwitchWrapper,
@@ -24,6 +24,7 @@ import { AssetCardInfo, AssetCardInfoSkeleton } from './AssetCardInfo';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 import { useFiatFromCryptoValue } from 'src/hooks/suite/useFiatFromCryptoValue';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledCard = styled(Card)`
     transition: box-shadow 0.2s;
 
@@ -37,6 +38,7 @@ const Content = styled.div`
     flex: 1;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const WarningIcon = styled(Icon)`
     padding-left: ${spacingsPx.xxs};
     padding-bottom: ${spacingsPx.xxxs};
@@ -47,6 +49,7 @@ const FiatAmount = styled.div`
     align-content: flex-end;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const IntegerValue = styled(H2)`
     font-variant-numeric: tabular-nums;
     line-height: 34px;
@@ -85,7 +88,7 @@ const FailedContainer = styled.div`
 `;
 
 interface AssetCardProps {
-    network: Network;
+    network: NetworkCompatible;
     failed: boolean;
     cryptoValue: string;
     assetsFiatBalances: AssetFiatBalance[];

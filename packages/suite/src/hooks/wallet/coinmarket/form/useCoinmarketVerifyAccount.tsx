@@ -1,13 +1,17 @@
 import { isDebugOnlyAccountType, networksCompatibility } from '@suite-common/wallet-config';
 import { selectDevice } from '@suite-common/wallet-core';
-import { useEffect, useState } from 'react';
+import { CryptoId } from 'invity-api';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
-import { cryptoToNetworkSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
 import { openModal } from 'src/actions/suite/modalActions';
 import { Account } from '@suite-common/wallet-types';
-import { getUnusedAddressFromAccount } from 'src/utils/wallet/coinmarket/coinmarketUtils';
+import {
+    cryptoIdToNetworkSymbol,
+    getUnusedAddressFromAccount,
+    parseCryptoId,
+} from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
     CoinmarketAccountType,
     CoinmarketGetSuiteReceiveAccountsProps,
@@ -65,7 +69,6 @@ const getSuiteReceiveAccounts = ({
     isDebug,
     accounts,
 }: CoinmarketGetSuiteReceiveAccountsProps): Account[] | undefined => {
-    // exchangeStep === 'RECEIVING_ADDRESS'
     if (currency) {
         const unavailableCapabilities = device?.unavailableCapabilities ?? {};
 
@@ -125,20 +128,31 @@ const useCoinmarketVerifyAccount = ({
         CoinmarketVerifyFormAccountOptionProps | undefined
     >();
 
-    const receiveNetwork = currency && cryptoToNetworkSymbol(currency);
-    const suiteReceiveAccounts = getSuiteReceiveAccounts({
-        currency,
-        device,
-        receiveNetwork,
-        isDebug,
-        accounts,
-    });
-    const selectAccountOptions = getSelectAccountOptions(suiteReceiveAccounts, device);
-    const preselectedAccount =
-        selectAccountOptions.find(
-            accountOption =>
-                accountOption.account?.descriptor === selectedAccount.account?.descriptor,
-        ) ?? selectAccountOptions[0];
+    const { networkId } = parseCryptoId(currency as CryptoId);
+    const receiveNetwork = currency && cryptoIdToNetworkSymbol(currency);
+    const suiteReceiveAccounts = useMemo(
+        () =>
+            getSuiteReceiveAccounts({
+                currency,
+                device,
+                receiveNetwork,
+                isDebug,
+                accounts,
+            }),
+        [accounts, currency, device, isDebug, receiveNetwork],
+    );
+    const selectAccountOptions = useMemo(
+        () => getSelectAccountOptions(suiteReceiveAccounts, device),
+        [device, suiteReceiveAccounts],
+    );
+    const preselectedAccount = useMemo(
+        () =>
+            selectAccountOptions.find(
+                accountOption =>
+                    accountOption.account?.descriptor === selectedAccount.account?.descriptor,
+            ) ?? selectAccountOptions[0],
+        [selectAccountOptions, selectedAccount],
+    );
 
     const { address } = methods.getValues();
     const addressDictionary = useAccountAddressDictionary(selectedAccountOption?.account);
@@ -191,7 +205,7 @@ const useCoinmarketVerifyAccount = ({
             ...methods,
         },
         accountAddress,
-        receiveNetwork,
+        receiveNetwork: networkId,
         selectAccountOptions,
         selectedAccountOption,
         isMenuOpen,

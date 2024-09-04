@@ -11,7 +11,9 @@
         {
             "path": "../../suite-common/formatters"
         },
-        { "path": "../../suite-common/icons" },
+        {
+            "path": "../../suite-common/icons-deprecated"
+        },
         {
             "path": "../../suite-common/message-system"
         },
@@ -37,6 +39,7 @@
         { "path": "../connection-status" },
         { "path": "../device" },
         { "path": "../device-authorization" },
+        { "path": "../discovery" },
         { "path": "../feature-flags" },
         { "path": "../intl" },
         { "path": "../message-system" },

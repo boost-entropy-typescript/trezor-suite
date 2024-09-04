@@ -5,7 +5,12 @@
         {
             "path": "../../suite-common/formatters"
         },
-        { "path": "../../suite-common/icons" },
+        {
+            "path": "../../suite-common/icons-deprecated"
+        },
+        {
+            "path": "../../suite-common/token-definitions"
+        },
         {
             "path": "../../suite-common/validators"
         },

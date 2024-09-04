@@ -1,17 +1,20 @@
 import styled from 'styled-components';
 import { UIVariant } from '../../../config/types';
-import { CSSColor, Color, Colors, TypographyStyle, typography } from '@trezor/theme';
+import { CSSColor, Color, Colors, TypographyStyle } from '@trezor/theme';
 import { ReactNode } from 'react';
-import { TransientProps } from '../../../utils/transientProps';
+import { makePropsTransient, TransientProps } from '../../../utils/transientProps';
 import { FrameProps, FramePropsKeys, withFrameProps } from '../../../utils/frameProps';
+import { TextPropsKeys, TextWrap, withTextProps, TextProps as TextPropsCommon } from '../utils';
+
+export const allowedTextTextProps: TextPropsKeys[] = ['typographyStyle', 'textWrap'];
+type AllowedTextTextProps = Pick<TextPropsCommon, (typeof allowedTextTextProps)[number]>;
 
 export const allowedTextFrameProps: FramePropsKeys[] = ['margin'];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedTextFrameProps)[number]>;
 
-export type TextVariant = Extract<
-    UIVariant,
-    'primary' | 'secondary' | 'tertiary' | 'info' | 'warning' | 'destructive'
->;
+export type TextVariant =
+    | Extract<UIVariant, 'primary' | 'secondary' | 'tertiary' | 'info' | 'warning' | 'destructive'>
+    | 'purple';
 
 type ExclusiveColorOrVariant =
     | { variant?: TextVariant; color?: undefined }
@@ -28,6 +31,7 @@ const variantColorMap: Record<TextVariant, Color> = {
     info: 'textAlertBlue',
     warning: 'textAlertYellow',
     destructive: 'textAlertRed',
+    purple: 'textAlertPurple',
 };
 
 type ColorProps = {
@@ -44,22 +48,23 @@ const getColorForTextVariant = ({ $variant, theme, $color }: ColorProps): CSSCol
 
 type StyledTextProps = {
     $typographyStyle?: TypographyStyle;
+    $textWrap?: TextWrap;
 } & ExclusiveColorOrVariant &
-    TransientProps<AllowedFrameProps>;
+    TransientProps<AllowedFrameProps> &
+    TransientProps<AllowedTextTextProps>;
 
 const StyledText = styled.span<StyledTextProps>`
     color: ${getColorForTextVariant};
-    ${({ $typographyStyle }) => ($typographyStyle ? typography[$typographyStyle] : '')}
-
+    ${withTextProps}
     ${withFrameProps}
 `;
 
 type TextProps = {
     children: ReactNode;
     className?: string;
-    typographyStyle?: TypographyStyle;
 } & ExclusiveColorOrVariant &
-    AllowedFrameProps;
+    AllowedFrameProps &
+    AllowedTextTextProps;
 
 export const Text = ({
     variant,
@@ -68,13 +73,13 @@ export const Text = ({
     className,
     typographyStyle,
     margin,
+    textWrap,
 }: TextProps) => {
     return (
         <StyledText
             {...(variant !== undefined ? { $variant: variant } : { $color: color })}
             className={className}
-            $typographyStyle={typographyStyle}
-            $margin={margin}
+            {...makePropsTransient({ margin, typographyStyle, textWrap })}
         >
             {children}
         </StyledText>

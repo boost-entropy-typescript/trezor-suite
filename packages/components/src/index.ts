@@ -9,6 +9,7 @@ export { Checkbox, type CheckboxProps } from './components/form/Checkbox/Checkbo
 export * from './components/animations/DeviceAnimation';
 export * from './components/animations/LottieAnimation';
 export * from './components/AssetShareIndicator/AssetShareIndicator';
+export * from './components/AssetLogo/AssetLogo';
 export * from './components/CoinLogo/CoinLogo';
 export * from './components/Flag/Flag';
 export * from './components/TrezorLogo/TrezorLogo';
@@ -18,9 +19,9 @@ export * from './components/buttons/Button/Button';
 export * from './components/buttons/ButtonGroup/ButtonGroup';
 export * from './components/buttons/IconButton/IconButton';
 export * from './components/Icon/Icon';
+export { ComponentWithSubIcon } from './components/ComponentWithSubIcon/ComponentWithSubIcon';
 export * from './components/buttons/PinButton/PinButton';
 export * from './components/buttons/TextButton/TextButton';
-export * from './components/buttons/TooltipButton/TooltipButton';
 export { Card, type CardProps } from './components/Card/Card';
 export {
     CollapsibleBox,
@@ -71,12 +72,13 @@ export * from './components/typography/Link/Link';
 export * from './components/typography/Paragraph/Paragraph';
 export * from './components/typography/Text/Text';
 export * from './components/typography/TruncateWithTooltip/TruncateWithTooltip';
-export * from './components/Warning/Warning';
+export * from './components/Banner/Banner';
 export { StoryColumn, StoryWrapper } from './support/Story';
 
 export * from './constants/keyboardEvents';
 
 export * from './utils/useScrollShadow';
 export * from './utils/transientProps';
+export { useMediaQuery } from './utils/useMediaQuery';
 
 export { colors, THEME, intermediaryTheme, type SuiteThemeColors };

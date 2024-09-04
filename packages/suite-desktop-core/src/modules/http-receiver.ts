@@ -14,7 +14,7 @@ export const init: Module = ({ mainWindow }) => {
     const { logger } = global;
     let httpReceiver: ReturnType<typeof createHttpReceiver> | null = null;
 
-    return async () => {
+    const onLoad = async () => {
         if (httpReceiver) {
             return httpReceiver.getInfo();
         }
@@ -45,11 +45,6 @@ export const init: Module = ({ mainWindow }) => {
             });
         });
 
-        app.on('before-quit', () => {
-            logger.info(SERVICE_NAME, 'Stopping server (app quit)');
-            receiver.stop();
-        });
-
         // when httpReceiver was asked to provide current address for given pathname
         ipcMain.handle('server/request-address', (ipcEvent, pathname) => {
             validateIpcMessage(ipcEvent);
@@ -62,4 +57,10 @@ export const init: Module = ({ mainWindow }) => {
 
         return receiver.getInfo();
     };
+
+    const onQuit = async () => {
+        await httpReceiver?.stop();
+    };
+
+    return { onLoad, onQuit };
 };

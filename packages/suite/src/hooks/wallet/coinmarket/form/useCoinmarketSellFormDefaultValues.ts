@@ -4,6 +4,7 @@ import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants'
 import {
     buildFiatOption,
     coinmarketBuildAccountOptions,
+    cryptoIdToNetworkSymbol,
     getDefaultCountry,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { Account } from 'src/types/wallet';
@@ -12,14 +13,16 @@ import {
     CoinmarketPaymentMethodListProps,
     CoinmarketTradeSellExchangeType,
 } from 'src/types/coinmarket/coinmarket';
-import { formDefaultCurrency } from 'src/constants/wallet/coinmarket/formDefaults';
 import { CoinmarketSellFormDefaultValuesProps } from 'src/types/coinmarket/coinmarketForm';
 import { FormState, Output } from '@suite-common/wallet-types';
 import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
 import { useSelector } from 'src/hooks/suite';
 import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
 import { useAccountLabel } from 'src/components/suite/AccountLabel';
-import { cryptoToNetworkSymbol } from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
+import {
+    FORM_DEFAULT_FIAT_CURRENCY,
+    FORM_DEFAULT_PAYMENT_METHOD,
+} from 'src/constants/wallet/coinmarket/form';
 
 export const useCoinmarketBuildAccountGroups = (
     type: CoinmarketTradeSellExchangeType,
@@ -28,7 +31,6 @@ export const useCoinmarketBuildAccountGroups = (
     const accountLabels = useSelector(selectAccountLabels);
     const device = useSelector(selectDevice);
     const { defaultAccountLabelString } = useAccountLabel();
-    const { symbolsInfo } = useSelector(state => state.wallet.coinmarket.info);
     const { tokenDefinitions } = useSelector(state => state);
     const supportedSymbols = useSelector(state =>
         type === 'sell'
@@ -41,14 +43,12 @@ export const useCoinmarketBuildAccountGroups = (
             coinmarketBuildAccountOptions({
                 accounts,
                 deviceState: device?.state,
-                symbolsInfo,
                 accountLabels,
                 tokenDefinitions,
-                supportedSymbols,
+                supportedCryptoIds: supportedSymbols,
                 defaultAccountLabelString,
             }),
         [
-            symbolsInfo,
             accounts,
             supportedSymbols,
             accountLabels,
@@ -64,38 +64,35 @@ export const useCoinmarketBuildAccountGroups = (
 export const useCoinmarketSellFormDefaultValues = (
     account: Account,
     sellInfo: SellInfo | undefined,
-    paymentMethods: CoinmarketPaymentMethodListProps[],
-    defaultAddress?: string,
 ): CoinmarketSellFormDefaultValuesProps => {
     const country = sellInfo?.sellList?.country;
     const cryptoGroups = useCoinmarketBuildAccountGroups('sell');
     const cryptoOptions = cryptoGroups.flatMap(group => group.options);
-    const defaultCrypto = useMemo(
+    const defaultSendCryptoSelect = useMemo(
         () =>
             cryptoOptions.find(
                 option =>
                     option.descriptor === account.descriptor &&
-                    cryptoToNetworkSymbol(option.value) === account.symbol,
+                    cryptoIdToNetworkSymbol(option.value) === account.symbol,
             ),
         [account.descriptor, account.symbol, cryptoOptions],
     );
     const defaultCountry = useMemo(() => getDefaultCountry(country), [country]);
     const defaultPaymentMethod: CoinmarketPaymentMethodListProps = useMemo(
-        () =>
-            paymentMethods.find(paymentMethod => paymentMethod.value === 'creditCard') ?? {
-                value: '',
-                label: '',
-            },
-        [paymentMethods],
+        () => ({
+            value: FORM_DEFAULT_PAYMENT_METHOD,
+            label: '',
+        }),
+        [],
     );
-    const defaultCurrency = useMemo(() => buildFiatOption(formDefaultCurrency), []);
+    const defaultCurrency = useMemo(() => buildFiatOption(FORM_DEFAULT_FIAT_CURRENCY), []);
     const defaultPayment: Output = useMemo(
         () => ({
             ...DEFAULT_PAYMENT,
-            address: defaultAddress ?? defaultCrypto?.descriptor ?? '',
-            token: defaultCrypto?.contractAddress ?? '',
+            currency: defaultCurrency,
+            token: defaultSendCryptoSelect?.contractAddress ?? '',
         }),
-        [defaultCrypto?.contractAddress, defaultCrypto?.descriptor, defaultAddress],
+        [defaultSendCryptoSelect?.contractAddress, defaultCurrency],
     );
     const defaultFormState: FormState = useMemo(
         () => ({
@@ -109,15 +106,12 @@ export const useCoinmarketSellFormDefaultValues = (
     const defaultValues = useMemo(
         () => ({
             ...defaultFormState,
-            fiatInput: '',
-            cryptoInput: '',
-            currencySelect: defaultCurrency,
-            cryptoSelect: defaultCrypto,
+            sendCryptoSelect: defaultSendCryptoSelect,
             countrySelect: defaultCountry,
             paymentMethod: defaultPaymentMethod,
             amountInCrypto: true,
         }),
-        [defaultCurrency, defaultCrypto, defaultCountry, defaultPaymentMethod, defaultFormState],
+        [defaultSendCryptoSelect, defaultCountry, defaultPaymentMethod, defaultFormState],
     );
 
     return { defaultValues, defaultCountry, defaultCurrency, defaultPaymentMethod };

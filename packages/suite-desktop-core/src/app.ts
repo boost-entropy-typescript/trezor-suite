@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron';
 import { isDevEnv } from '@suite-common/suite-utils';
 import type { HandshakeClient } from '@trezor/suite-desktop-api';
 import { validateIpcMessage } from '@trezor/ipc-proxy';
+import { createTimeoutPromise } from '@trezor/utils';
 import { isMacOs } from '@trezor/env-utils';
 
 import { ipcMain } from './typed-electron';
@@ -14,7 +15,7 @@ import { getBuildInfo, getComputerInfo } from './libs/info';
 import { restartApp, processStatePatch } from './libs/app-utils';
 import { clearAppCache, initUserData } from './libs/user-data';
 import { initSentry } from './libs/sentry';
-import { Dependencies, initModules, mainThreadEmitter } from './modules';
+import { initModules, mainThreadEmitter } from './modules';
 import { init as initTorModule } from './modules/tor';
 import { init as initBridgeModule } from './modules/bridge';
 import { createInterceptor } from './libs/request-interceptor';
@@ -125,21 +126,19 @@ const init = async () => {
         restartApp();
     });
 
+    await app.whenReady();
+
     // No UI mode with bridge only
     const { wasOpenedAtLogin } = app.getLoginItemSettings();
     if (app.commandLine.hasSwitch('bridge-daemon') || wasOpenedAtLogin) {
         logger.info('main', 'App is hidden, starting bridge only');
         app.dock?.hide(); // hide dock icon on macOS
         app.releaseSingleInstanceLock(); // allow user to open new instance with UI
-        const loadBridgeModule = initBridgeModule({ store } as Dependencies); // bridge module only needs store
-        if (loadBridgeModule) {
-            loadBridgeModule(null);
-        }
+        const { onLoad: loadBridgeModule } = initBridgeModule({ store }); // bridge module only needs store
+        await loadBridgeModule();
 
         return;
     }
-
-    await app.whenReady();
 
     const buildInfo = getBuildInfo();
     logger.info('build', buildInfo);
@@ -158,14 +157,9 @@ const init = async () => {
         mainWindow.focus();
     });
 
-    app.on('before-quit', () => {
-        mainWindow.removeAllListeners();
-        logger.exit();
-    });
-
     // init modules
     const interceptor = createInterceptor();
-    const loadModules = initModules({
+    const { loadModules, quitModules } = initModules({
         mainWindow,
         store,
         interceptor,
@@ -193,7 +187,7 @@ const init = async () => {
 
     // Tor module initializes separated from general `initModules` because Tor is different
     // since it is allowed to fail and then the user decides whether to `try again` or `disable`.
-    const loadTorModule = initTorModule({
+    const { onLoad: loadTorModule, onQuit: quitTorModule } = initTorModule({
         mainWindow,
         store,
         interceptor,
@@ -204,6 +198,28 @@ const init = async () => {
         validateIpcMessage(ipcEvent);
 
         return loadTorModule();
+    });
+
+    let readyToQuit = false;
+    app.on('before-quit', async event => {
+        if (readyToQuit) return;
+        event.preventDefault();
+        logger.info('modules', 'Quitting all modules');
+
+        await Promise.race([
+            // await quitting all registered modules
+            Promise.allSettled([quitModules(), quitTorModule()]),
+            // or timeout after 5s
+            createTimeoutPromise(5000),
+        ]);
+
+        // global cleanup
+        logger.info('modules', 'All modules quit, exiting');
+        mainWindow.removeAllListeners();
+        logger.exit();
+
+        readyToQuit = true;
+        app.quit();
     });
 
     const statePatch = processStatePatch();

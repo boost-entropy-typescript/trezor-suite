@@ -85,7 +85,11 @@ export type Dependencies = {
 
 type ModuleLoad = (payload: HandshakeClient) => any | Promise<any>;
 
-type ModuleInit = (dependencies: Dependencies) => ModuleLoad | void;
+type ModuleQuit = () => void | Promise<void>;
+
+type ModuleInit = (
+    dependencies: Dependencies,
+) => { onLoad?: ModuleLoad; onQuit?: ModuleQuit } | void;
 
 export type Module = ModuleInit;
 
@@ -94,36 +98,34 @@ export const initModules = (dependencies: Dependencies) => {
 
     logger.info('modules', `Initializing ${MODULES.length} modules`);
 
-    const modules = MODULES.map(moduleToInit => {
+    const modulesToLoad: [(typeof MODULES)[number], ModuleLoad][] = [];
+    const modulesToQuit: [(typeof MODULES)[number], ModuleQuit][] = [];
+
+    MODULES.forEach(moduleToInit => {
         logger.debug('modules', `Initializing ${moduleToInit.SERVICE_NAME}`);
         try {
             const initModule: Module = moduleToInit.init;
-            const loadModule = initModule(dependencies);
-            if (loadModule) {
-                return [moduleToInit, loadModule] as const;
-            }
+            const { onLoad, onQuit } = initModule(dependencies) ?? {};
+            if (onLoad) modulesToLoad.push([moduleToInit, onLoad]);
+            if (onQuit) modulesToQuit.push([moduleToInit, onQuit]);
         } catch (err) {
             logger.error(
                 'modules',
                 `Couldn't initialize ${moduleToInit.SERVICE_NAME} (${err.toString()})`,
             );
         }
-
-        return undefined;
     });
     logger.info('modules', 'All modules initialized');
 
-    const modulesToLoad = modules.filter(isNotUndefined);
-
-    return (handshake: HandshakeClient) => {
+    const loadModules = (handshake: HandshakeClient) => {
         let loaded = 0;
 
         return Promise.all(
-            modulesToLoad.map(async ([moduleToLoad, loadModule]) => {
+            modulesToLoad.map(async ([moduleToLoad, onLoad]) => {
                 const moduleName = moduleToLoad.SERVICE_NAME;
                 logger.debug('modules', `Loading ${moduleName}`);
                 try {
-                    const payload = await loadModule(handshake);
+                    const payload = await onLoad(handshake);
                     logger.debug('modules', `Loaded ${moduleName}`);
                     dependencies.mainWindow.webContents.send('handshake/event', {
                         type: 'progress',
@@ -163,4 +165,14 @@ export const initModules = (dependencies: Dependencies) => {
                 }),
             );
     };
+
+    const quitModules = () =>
+        Promise.allSettled(
+            modulesToQuit.map(async ([moduleToQuit, onQuit]) => {
+                logger.info(moduleToQuit.SERVICE_NAME, 'Stopping (app quit)');
+                await onQuit();
+            }),
+        );
+
+    return { loadModules, quitModules };
 };

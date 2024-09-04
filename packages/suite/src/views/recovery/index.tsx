@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
-import { getCheckBackupUrl } from '@suite-common/suite-utils';
+import { getCheckBackupUrl, isDeviceAcquired } from '@suite-common/suite-utils';
 import { Button, H2, Paragraph, Image } from '@trezor/components';
 import { pickByDeviceModel } from '@trezor/device-utils';
 import TrezorConnect, { DeviceModelInternal } from '@trezor/connect';
@@ -31,6 +31,7 @@ const StyledModal = styled(Modal)`
     }
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledButton = styled(Button)`
     width: 224px;
 `;
@@ -39,10 +40,12 @@ const StepsContainer = styled.div`
     margin: 40px 0;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledP = styled(Paragraph)`
     color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledImage = styled(Image)`
     margin-bottom: 24px;
     align-self: center;
@@ -52,10 +55,12 @@ const LeftAlignedP = styled(StyledP)`
     text-align: left;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StatusImage = styled(Image)`
     padding-bottom: 24px;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StatusTitle = styled(H2)`
     margin: 0 0 12px;
 `;
@@ -98,7 +103,7 @@ export const Recovery = ({ onCancel }: ForegroundAppProps) => {
               ]
             : ['initial', 'in-progress', 'finished'];
 
-    if (!device || !device.features || !deviceModelInternal) {
+    if (!isDeviceAcquired(device) || !deviceModelInternal) {
         return (
             <Modal
                 heading={<Translation id="TR_RECONNECT_HEADER" />}

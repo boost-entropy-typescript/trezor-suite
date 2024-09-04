@@ -27,6 +27,7 @@ const Wrapper = styled.div`
     width: 100%;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const Title = styled(H3)`
     color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
 `;
@@ -37,6 +38,7 @@ const Description = styled.div`
     text-align: center;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledImage = styled(Image)`
     margin: 24px 0;
 `;
@@ -105,10 +107,19 @@ interface ExceptionProps {
     discovery?: Discovery;
 }
 
+const getAccountError = (accountError: string) => {
+    if (accountError === 'All backends are down') {
+        return <Translation id="TR_CONNECTION_LOST" />;
+    }
+
+    return accountError;
+};
+
 const discoveryFailedMessage = (discovery?: Discovery) => {
     if (!discovery) return '';
     if (discovery.error) return <div>{discovery.error}</div>;
-    // group all failed networks into array of errors
+
+    // Group all failed networks into array of errors.
     const networkError: string[] = [];
     const details = discovery.failed.reduce((value, account) => {
         const n = accountUtils.getNetwork(account.symbol)!;
@@ -117,7 +128,7 @@ const discoveryFailedMessage = (discovery?: Discovery) => {
 
         return value.concat(
             <div key={account.symbol}>
-                {n.name}: {account.error}
+                {n.name}: {getAccountError(account.error)}
             </div>,
         );
     }, [] as JSX.Element[]);
@@ -136,6 +147,7 @@ export const Exception = ({ exception, discovery }: ExceptionProps) => {
                     description="TR_ACCOUNT_EXCEPTION_AUTH_ERROR_DESC"
                     cta={{
                         action: () => dispatch(authorizeDeviceThunk()),
+                        icon: 'refresh',
                     }}
                     dataTestBase={exception.type}
                 />
@@ -144,7 +156,10 @@ export const Exception = ({ exception, discovery }: ExceptionProps) => {
             return (
                 <Container
                     title="TR_AUTH_CONFIRM_FAILED_TITLE"
-                    cta={{ action: () => dispatch(authConfirm()) }}
+                    cta={{
+                        action: () => dispatch(authConfirm()),
+                        icon: 'refresh',
+                    }}
                     dataTestBase={exception.type}
                 />
             );

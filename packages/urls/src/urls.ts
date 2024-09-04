@@ -90,6 +90,8 @@ export const HELP_CENTER_TRANSACTION_FEES_URL =
     'https://trezor.io/learn/a/transaction-fees-in-trezor-suite';
 export const HELP_CENTER_EVM_ADDRESS_CHECKSUM =
     'https://trezor.io/learn/a/evm-address-checksum-in-trezor-suite';
+export const HELP_CENTER_FIRMWARE_REVISION_CHECK =
+    'https://trezor.io/learn/a/trezor-firmware-revision-check';
 
 export const INVITY_URL = 'https://invity.io/';
 export const INVITY_SCHEDULE_OF_FEES = 'https://blog.invity.io/schedule-of-fees';
@@ -119,3 +121,5 @@ export const CROWDIN_URL = 'https://crowdin.com/project/trezor-suite';
 
 export const TREZOR_SAFE_5_URL = 'https://trezor.io/trezor-safe-5';
 export const ESHOP_KEEP_METAL_SINGLE_SHARE_URL = 'https://trezor.io/trezor-keep-metal-single-share';
+
+export const COINMARKET_DOWNLOAD_INVITY_APP_URL = 'https://get.invity.io';

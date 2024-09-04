@@ -5,9 +5,14 @@
         {
             "path": "../../suite-common/formatters"
         },
-        { "path": "../../suite-common/icons" },
+        {
+            "path": "../../suite-common/icons-deprecated"
+        },
         {
             "path": "../../suite-common/redux-utils"
+        },
+        {
+            "path": "../../suite-common/suite-utils"
         },
         {
             "path": "../../suite-common/validators"
@@ -26,10 +31,12 @@
         },
         { "path": "../accounts" },
         { "path": "../atoms" },
+        { "path": "../device" },
         { "path": "../device-manager" },
         { "path": "../device-mutex" },
         { "path": "../formatters" },
         { "path": "../forms" },
+        { "path": "../helpers" },
         { "path": "../intl" },
         { "path": "../navigation" },
         { "path": "../settings" },

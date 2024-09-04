@@ -8,7 +8,7 @@ import { spacings } from '@trezor/theme';
 import { selectDeviceSupportedNetworks, selectDeviceModel } from '@suite-common/wallet-core';
 import { useSelector } from 'src/hooks/suite';
 import { DeviceModelInternal } from '@trezor/connect';
-import type { Network } from 'src/types/wallet';
+import { Network } from '@suite-common/wallet-config';
 
 const Separator = styled.hr`
     height: 1px;

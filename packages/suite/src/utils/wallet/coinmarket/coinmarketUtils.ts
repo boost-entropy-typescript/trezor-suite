@@ -1,49 +1,78 @@
-import { Account, Network } from 'src/types/wallet';
-import TrezorConnect, { TokenInfo } from '@trezor/connect';
-import regional from 'src/constants/wallet/coinmarket/regional';
-import { TrezorDevice } from 'src/types/suite';
-import { BuyTrade, CryptoSymbol, SellFiatTrade } from 'invity-api';
+import { Account } from 'src/types/wallet';
 import {
-    cryptoToCoinSymbol,
-    cryptoToNetworkSymbol,
-    getNetworkName,
-    isCryptoSymbolToken,
-    networkToCryptoSymbol,
-    tokenToCryptoSymbol,
-} from 'src/utils/wallet/coinmarket/cryptoSymbolUtils';
-import { getNetworkFeatures, networksCompatibility } from '@suite-common/wallet-config';
+    NetworkCompatible,
+    NetworkSymbol,
+    getCoingeckoId,
+    getNetworkByCoingeckoId,
+    getNetworkByCoingeckoNativeId,
+    getNetworkFeatures,
+    networks,
+    networksCompatibility,
+} from '@suite-common/wallet-config';
+import TrezorConnect from '@trezor/connect';
+import regional from 'src/constants/wallet/coinmarket/regional';
+import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
+import { BuyTrade, SellFiatTrade, CryptoId } from 'invity-api';
 import {
     DefinitionType,
-    TokenDefinitions,
+    getContractAddressForNetwork,
     isTokenDefinitionKnown,
 } from '@suite-common/token-definitions';
 import {
     CoinmarketAccountOptionsGroupOptionProps,
     CoinmarketAccountsOptionsGroupProps,
     CoinmarketBuildAccountOptionsProps,
-    CoinmarketBuildOptionsProps,
-    CoinmarketCryptoListProps,
     CoinmarketGetAmountLabelsProps,
     CoinmarketGetAmountLabelsReturnProps,
     CoinmarketGetSortedAccountsProps,
-    CoinmarketOptionsGroupProps,
     CoinmarketTradeBuySellDetailMapProps,
     CoinmarketTradeBuySellType,
     CoinmarketTradeDetailMapProps,
     CoinmarketTradeDetailType,
     CoinmarketTradeType,
-    CryptoCategoryType,
 } from 'src/types/coinmarket/coinmarket';
 import { v4 as uuidv4 } from 'uuid';
 import { BigNumber } from '@trezor/utils';
-import CryptoCategories, {
-    CryptoCategoryA,
-    CryptoCategoryB,
-    CryptoCategoryC,
-    CryptoCategoryD,
-    CryptoCategoryE,
-} from 'src/constants/wallet/coinmarket/cryptoCategories';
-import { sortByCoin } from '@suite-common/wallet-utils';
+import { isTestnet, sortByCoin } from '@suite-common/wallet-utils';
+
+export const cryptoPlatformSeparator = '--';
+
+interface ParsedCryptoId {
+    networkId: CryptoId;
+    contractAddress: string | undefined;
+}
+
+export function parseCryptoId(cryptoId: CryptoId): ParsedCryptoId {
+    const parts = cryptoId.split(cryptoPlatformSeparator);
+
+    return { networkId: parts[0] as CryptoId, contractAddress: parts[1] };
+}
+
+export function cryptoIdToNetwork(cryptoId: CryptoId): NetworkCompatible | undefined {
+    const { networkId, contractAddress } = parseCryptoId(cryptoId);
+
+    const network = contractAddress
+        ? getNetworkByCoingeckoId(networkId)
+        : getNetworkByCoingeckoNativeId(networkId);
+
+    return networksCompatibility.find(n => n.symbol === network?.symbol); // TODO: use Network only
+}
+
+export function cryptoIdToNetworkSymbol(cryptoId: CryptoId): NetworkSymbol | undefined {
+    return cryptoIdToNetwork(cryptoId)?.symbol;
+}
+
+export function toTokenCryptoId(networkId: NetworkSymbol, contractAddress: string): CryptoId {
+    return `${getCoingeckoId(networkId)}${cryptoPlatformSeparator}${contractAddress}` as CryptoId;
+}
+
+export const getNetworkName = (networkSymbol: NetworkSymbol) => {
+    return networks[networkSymbol].name;
+};
+
+export const getNetworkDecimals = (networkDecimals: number | undefined) => {
+    return networkDecimals ?? 8;
+};
 
 /** @deprecated */
 const suiteToInvitySymbols: {
@@ -56,16 +85,6 @@ export const buildFiatOption = (currency: string) => ({
     label: currency.toUpperCase(),
 });
 
-export const buildCryptoOption = (cryptoSymbol: CryptoSymbol): CoinmarketCryptoListProps => {
-    const networkSymbol = cryptoToNetworkSymbol(cryptoSymbol);
-
-    return {
-        value: cryptoSymbol,
-        label: cryptoToCoinSymbol(cryptoSymbol),
-        cryptoName: networkSymbol ? getNetworkName(networkSymbol) : null,
-    };
-};
-
 /** @deprecated */
 export const invityApiSymbolToSymbol = (symbol?: string) => {
     if (!symbol) return 'UNKNOWN';
@@ -73,70 +92,6 @@ export const invityApiSymbolToSymbol = (symbol?: string) => {
     const result = suiteToInvitySymbols.find(s => s.invitySymbol === lowercaseSymbol);
 
     return result ? result.suiteSymbol : lowercaseSymbol;
-};
-
-/** @deprecated */
-export const symbolToInvityApiSymbol = (symbol?: string) => {
-    if (!symbol) return 'UNKNOWN';
-    const result = suiteToInvitySymbols.find(s => s.suiteSymbol === symbol.toLowerCase());
-
-    return result ? result.invitySymbol : symbol;
-};
-
-/** @deprecated */
-export const getSendCryptoOptions = (
-    account: Account,
-    supportedSymbols: Set<CryptoSymbol>,
-    coinDefinitions?: TokenDefinitions[DefinitionType.COIN],
-) => {
-    const cryptoSymbol = networkToCryptoSymbol(account.symbol);
-    if (!cryptoSymbol) {
-        return [];
-    }
-
-    const options: {
-        value: CryptoSymbol;
-        label: string;
-        token?: TokenInfo;
-        cryptoSymbol: CryptoSymbol;
-    }[] = [{ value: cryptoSymbol, label: cryptoSymbol, cryptoSymbol }];
-
-    if (account.tokens) {
-        const hasCoinDefinitions = getNetworkFeatures(account.symbol).includes('coin-definitions');
-
-        account.tokens.forEach(token => {
-            if (!token.symbol || token.balance === '0') {
-                return;
-            }
-
-            const tokenCryptoSymbol = tokenToCryptoSymbol(token.symbol, account.symbol);
-            if (!tokenCryptoSymbol) {
-                return;
-            }
-
-            if (!supportedSymbols.has(tokenCryptoSymbol)) {
-                return;
-            }
-
-            // exclude unknown tokens
-            if (
-                hasCoinDefinitions &&
-                coinDefinitions &&
-                !isTokenDefinitionKnown(coinDefinitions.data, account.symbol, token.contract)
-            ) {
-                return;
-            }
-
-            options.push({
-                label: token.symbol.toUpperCase(),
-                value: tokenCryptoSymbol,
-                token,
-                cryptoSymbol: tokenCryptoSymbol,
-            });
-        });
-    }
-
-    return options;
 };
 
 export const getUnusedAddressFromAccount = (account: Account) => {
@@ -183,7 +138,7 @@ export const getCountryLabelParts = (label: string) => {
 
 export const getComposeAddressPlaceholder = async (
     account: Account,
-    network: Network,
+    network: NetworkCompatible,
     device?: TrezorDevice,
     accounts?: Account[],
     chunkify?: boolean,
@@ -232,7 +187,8 @@ export const getComposeAddressPlaceholder = async (
         case 'cardano':
             // it is not possible to use change address of the current account as the placeholder, some exchanges use Byron addresses
             // which need more fees than Shelley addresses used in the Suite, using dummy Byron address for the placeholder
-            return '37btjrVyb4KDXBNC4haBVPCrro8AQPHwvCMp3RFhhSVWwfFmZ6wwzSK6JK1hY6wHNmtrpTf1kdbva8TCneM2YsiXT7mrzT21EacHnPpz5YyUdj64na';
+            // return '37btjrVyb4KDXBNC4haBVPCrro8AQPHwvCMp3RFhhSVWwfFmZ6wwzSK6JK1hY6wHNmtrpTf1kdbva8TCneM2YsiXT7mrzT21EacHnPpz5YyUdj64na';
+            return '';
         case 'ethereum':
         case 'ripple':
         case 'solana':
@@ -241,7 +197,7 @@ export const getComposeAddressPlaceholder = async (
     }
 };
 
-export const mapTestnetSymbol = (symbol: Network['symbol']) => {
+export const mapTestnetSymbol = (symbol: NetworkSymbol) => {
     if (symbol === 'test') return 'btc';
     if (symbol === 'tsep') return 'eth';
     if (symbol === 'thol') return 'eth';
@@ -333,81 +289,21 @@ export const getBestRatedQuote = (
     return bestRatedQuote;
 };
 
-export const coinmarketBuildCryptoOptions = ({
-    symbolsInfo,
-    cryptoCurrencies,
-}: CoinmarketBuildOptionsProps) => {
-    const groups: CoinmarketOptionsGroupProps[] = Object.keys(CryptoCategories).map(category => ({
-        label: category as CryptoCategoryType,
-        options: [],
-    }));
-
-    cryptoCurrencies.forEach(symbol => {
-        const coinSymbol = cryptoToCoinSymbol(symbol);
-        const symbolInfo = symbolsInfo?.find(symbolInfoItem => symbolInfoItem.symbol === symbol);
-        const cryptoSymbol = cryptoToNetworkSymbol(symbol);
-
-        const option = {
-            value: symbol,
-            label: coinSymbol.toUpperCase(),
-            cryptoName: symbolInfo?.name ?? null,
-        };
-
-        const pushOption = (category: CryptoCategoryType) => {
-            const group = groups.find(g => g.label === category);
-
-            group?.options.push(option);
-        };
-
-        // popular
-        if (symbolInfo?.category === CryptoCategoryA) {
-            pushOption(CryptoCategoryA);
-
-            return;
-        }
-
-        // tokens
-        if (isCryptoSymbolToken(symbol)) {
-            const networksWithCategoryName: CryptoCategoryType[] = [
-                CryptoCategoryB,
-                CryptoCategoryC,
-                CryptoCategoryD,
-            ];
-
-            networksWithCategoryName.forEach(network => {
-                if (CryptoCategories[network]?.network === cryptoSymbol) {
-                    pushOption(network);
-
-                    return;
-                }
-            });
-
-            return;
-        }
-
-        // default
-        pushOption(CryptoCategoryE);
-    });
-
-    return groups;
-};
-
 export const coinmarketGetSortedAccounts = ({
     accounts,
     deviceState,
 }: CoinmarketGetSortedAccountsProps) => {
     if (!deviceState) return [];
 
-    return sortByCoin(accounts.filter(a => a.deviceState === deviceState));
+    return sortByCoin(accounts.filter(a => a.deviceState === deviceState && a.visible));
 };
 
 export const coinmarketBuildAccountOptions = ({
-    symbolsInfo,
     deviceState,
     accounts,
     accountLabels,
     tokenDefinitions,
-    supportedSymbols,
+    supportedCryptoIds,
     defaultAccountLabelString,
 }: CoinmarketBuildAccountOptionsProps): CoinmarketAccountsOptionsGroupProps[] => {
     const accountsSorted = coinmarketGetSortedAccounts({
@@ -415,7 +311,9 @@ export const coinmarketBuildAccountOptions = ({
         deviceState,
     });
 
-    const groups: CoinmarketAccountsOptionsGroupProps[] = accountsSorted.map(account => {
+    const groups: CoinmarketAccountsOptionsGroupProps[] = [];
+
+    accountsSorted.forEach(account => {
         const {
             descriptor,
             tokens,
@@ -425,6 +323,8 @@ export const coinmarketBuildAccountOptions = ({
             accountType,
         } = account;
 
+        if (isTestnet(accountSymbol)) return;
+
         const groupLabel =
             accountLabels[account.key] ??
             defaultAccountLabelString({
@@ -432,20 +332,18 @@ export const coinmarketBuildAccountOptions = ({
                 symbol: accountSymbol,
                 index,
             });
-        const foundSymbolInfo = symbolsInfo?.find(
-            item => item.symbol === networkToCryptoSymbol(accountSymbol),
-        );
 
         const options: CoinmarketAccountOptionsGroupOptionProps[] = [
             {
-                value: foundSymbolInfo?.symbol ?? (accountSymbol.toUpperCase() as CryptoSymbol),
+                value: networks[accountSymbol].coingeckoNativeId as CryptoId,
                 label: accountSymbol.toUpperCase(),
-                cryptoName: foundSymbolInfo?.name ?? null,
+                cryptoName: getNetworkName(accountSymbol),
                 descriptor,
                 balance: formattedBalance ?? '',
                 accountType: account.accountType,
             },
         ];
+
         // add crypto tokens to options
         if (tokens && tokens.length > 0) {
             const hasCoinDefinitions = getNetworkFeatures(account.symbol).includes(
@@ -454,19 +352,15 @@ export const coinmarketBuildAccountOptions = ({
             const coinDefinitions = tokenDefinitions?.[account.symbol]?.[DefinitionType.COIN];
 
             tokens.forEach(token => {
-                const { symbol, balance, contract } = token;
-
+                const { symbol, balance, contract, name } = token;
                 if (!symbol || !balance || balance === '0') {
                     return;
                 }
 
-                const tokenCryptoSymbol = tokenToCryptoSymbol(symbol, account.symbol);
+                const contractAddress = getContractAddressForNetwork(accountSymbol, contract);
 
-                if (!tokenCryptoSymbol) {
-                    return;
-                }
-
-                if (supportedSymbols && !supportedSymbols.has(tokenCryptoSymbol)) {
+                const tokenCryptoId = toTokenCryptoId(accountSymbol, contractAddress);
+                if (supportedCryptoIds && !supportedCryptoIds.has(tokenCryptoId)) {
                     return;
                 }
 
@@ -479,14 +373,10 @@ export const coinmarketBuildAccountOptions = ({
                     return;
                 }
 
-                const tokenSymbolInfo = symbolsInfo?.find(
-                    item => item.symbol === tokenCryptoSymbol,
-                );
-
                 options.push({
-                    value: tokenSymbolInfo?.symbol ?? (symbol as CryptoSymbol),
+                    value: tokenCryptoId,
                     label: symbol.toUpperCase(),
-                    cryptoName: tokenSymbolInfo?.name ?? null,
+                    cryptoName: name,
                     contractAddress: contract,
                     descriptor,
                     accountType,
@@ -495,10 +385,10 @@ export const coinmarketBuildAccountOptions = ({
             });
         }
 
-        return {
+        groups.push({
             label: groupLabel,
             options,
-        };
+        });
     });
 
     return groups;
@@ -508,22 +398,40 @@ export const coinmarketGetAmountLabels = ({
     type,
     amountInCrypto,
 }: CoinmarketGetAmountLabelsProps): CoinmarketGetAmountLabelsReturnProps => {
+    const youGet = 'TR_COINMARKET_YOU_GET';
+    const youPay = 'TR_COINMARKET_YOU_PAY';
+    const youWillGet = 'TR_COINMARKET_YOU_WILL_GET';
+    const youWillPay = 'TR_COINMARKET_YOU_WILL_PAY';
+    const youReceive = 'TR_COINMARKET_YOU_RECEIVE';
+    const exchange = 'TR_COINMARKET_EXCHANGE';
+    const exchangeAmount = 'TR_COINMARKET_EXCHANGE_AMOUNT';
+
+    if (type === 'exchange') {
+        return {
+            inputLabel: exchangeAmount,
+            offerLabel: youGet,
+            labelComparatorOffer: youWillGet,
+            sendLabel: exchange,
+            receiveLabel: youReceive,
+        };
+    }
+
     if (type === 'sell') {
         return {
-            label1: amountInCrypto ? 'TR_COINMARKET_YOU_PAY' : 'TR_COINMARKET_YOU_GET',
-            label2: amountInCrypto ? 'TR_COINMARKET_YOU_GET' : 'TR_COINMARKET_YOU_PAY',
-            labelComparatorOffer: amountInCrypto
-                ? 'TR_COINMARKET_YOU_WILL_GET'
-                : 'TR_COINMARKET_YOU_WILL_PAY',
+            inputLabel: amountInCrypto ? youPay : youGet,
+            offerLabel: amountInCrypto ? youGet : youPay,
+            labelComparatorOffer: amountInCrypto ? youWillGet : youWillPay,
+            sendLabel: youGet,
+            receiveLabel: youPay,
         };
     }
 
     return {
-        label1: amountInCrypto ? 'TR_COINMARKET_YOU_GET' : 'TR_COINMARKET_YOU_PAY',
-        label2: amountInCrypto ? 'TR_COINMARKET_YOU_PAY' : 'TR_COINMARKET_YOU_GET',
-        labelComparatorOffer: amountInCrypto
-            ? 'TR_COINMARKET_YOU_WILL_PAY'
-            : 'TR_COINMARKET_YOU_WILL_GET',
+        inputLabel: amountInCrypto ? youGet : youPay,
+        offerLabel: amountInCrypto ? youPay : youGet,
+        labelComparatorOffer: amountInCrypto ? youWillPay : youWillGet,
+        sendLabel: youPay,
+        receiveLabel: youGet,
     };
 };
 
@@ -542,3 +450,15 @@ export const coinmarketGetRoundedFiatAmount = (amount: string | undefined): stri
 
 export const coinmarketGetAccountLabel = (label: string, shouldSendInSats: boolean | undefined) =>
     label === 'BTC' && shouldSendInSats ? 'sat' : label;
+
+export const coinmarketGetSectionActionLabel = (
+    type: CoinmarketTradeType,
+): Extract<
+    ExtendedMessageDescriptor['id'],
+    'TR_BUY' | 'TR_COINMARKET_SELL' | 'TR_COINMARKET_EXCHANGE'
+> => {
+    if (type === 'buy') return 'TR_BUY';
+    if (type === 'sell') return 'TR_COINMARKET_SELL';
+
+    return 'TR_COINMARKET_EXCHANGE';
+};

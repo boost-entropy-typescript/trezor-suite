@@ -53,15 +53,17 @@ export class UsbApi extends AbstractApi {
         this.usbInterface.onconnect = event => {
             this.logger?.debug(`usb: onconnect: ${this.formatDeviceForLog(event.device)}`);
 
-            this.createDevices([event.device], this.abortController.signal)
-                .then(newDevices => {
-                    this.devices = [...this.devices, ...newDevices];
-                    this.emit('transport-interface-change', this.devicesToDescriptors());
-                })
-                .catch(err => {
-                    // empty
-                    this.logger?.error(`usb: createDevices error: ${err.message}`);
-                });
+            this.synchronize(() => {
+                this.createDevices([event.device], this.abortController.signal)
+                    .then(newDevices => {
+                        this.devices = [...this.devices, ...newDevices];
+                        this.emit('transport-interface-change', this.devicesToDescriptors());
+                    })
+                    .catch(err => {
+                        // empty
+                        this.logger?.error(`usb: createDevices error: ${err.message}`);
+                    });
+            });
         };
 
         this.usbInterface.ondisconnect = event => {
@@ -126,8 +128,8 @@ export class UsbApi extends AbstractApi {
     }
 
     private abortableMethod<R>(
-        method: () => R,
-        { signal, onAbort }: { signal?: AbortSignal; onAbort?: () => void },
+        method: () => Promise<R>,
+        { signal, onAbort }: { signal?: AbortSignal; onAbort?: () => Promise<void> | void },
     ) {
         if (!signal) {
             return method();
@@ -136,23 +138,29 @@ export class UsbApi extends AbstractApi {
             return Promise.reject(new Error(ERRORS.ABORTED_BY_SIGNAL));
         }
 
-        const abort = () => {
-            if (!onAbort) return;
-            try {
-                onAbort();
-            } catch (err) {
-                this.logger?.error(`usb: onAbort error: ${err}`);
-            }
-        };
-
         const dfd = createDeferred<R>();
-        const abortListener = () => {
-            abort();
+        const abortListener = async () => {
+            this.logger?.debug('usb: abortableMethod onAbort start');
+            try {
+                await onAbort?.();
+            } catch {}
+            this.logger?.debug('usb: abortableMethod onAbort done');
             dfd.reject(new Error(ERRORS.ABORTED_BY_SIGNAL));
         };
         signal?.addEventListener('abort', abortListener);
 
-        return Promise.race([method(), dfd.promise])
+        const methodPromise = method().catch(error => {
+            // NOTE: race condition
+            // method() rejects error triggered by signal (device.reset) before dfd.promise (before onAbort finish)
+            this.logger?.debug(`usb: abortableMethod method() aborted: ${signal.aborted} ${error}`);
+            if (signal.aborted) {
+                return dfd.promise;
+            }
+            dfd.reject(error);
+            throw error;
+        });
+
+        return Promise.race([methodPromise, dfd.promise])
             .then(r => {
                 dfd.resolve(r);
 
@@ -163,20 +171,22 @@ export class UsbApi extends AbstractApi {
             });
     }
 
-    public async enumerate(signal?: AbortSignal) {
-        try {
-            this.logger?.debug('usb: enumerate');
-            const devices = await this.abortableMethod(() => this.usbInterface.getDevices(), {
-                signal,
-            });
+    public enumerate(signal?: AbortSignal) {
+        return this.synchronize(async () => {
+            try {
+                this.logger?.debug('usb: enumerate');
+                const devices = await this.abortableMethod(() => this.usbInterface.getDevices(), {
+                    signal,
+                });
 
-            this.devices = await this.createDevices(devices, signal);
+                this.devices = await this.createDevices(devices, signal);
 
-            return this.success(this.devicesToDescriptors());
-        } catch (err) {
-            // this shouldn't throw
-            return this.unknownError(err, []);
-        }
+                return this.success(this.devicesToDescriptors());
+            } catch (err) {
+                // this shouldn't throw
+                return this.unknownError(err, []);
+            }
+        });
     }
 
     public async read(path: string, signal?: AbortSignal) {
@@ -356,6 +366,10 @@ export class UsbApi extends AbstractApi {
             try {
                 const interfaceId = this.debugLink ? DEBUGLINK_INTERFACE_ID : INTERFACE_ID;
                 this.logger?.debug(`usb: device.releaseInterface: ${interfaceId}`);
+                if (!this.debugLink) {
+                    // NOTE: `device.reset()` interrupts transfers for all interfaces (debugLink and normal)
+                    await device.reset();
+                }
                 await device.releaseInterface(interfaceId);
                 this.logger?.debug(
                     `usb: device.releaseInterface done: ${interfaceId}. device: ${this.formatDeviceForLog(device)}`,
@@ -429,7 +443,12 @@ export class UsbApi extends AbstractApi {
             nonHidDevices.map(async device => {
                 this.logger?.debug(`usb: creating device ${this.formatDeviceForLog(device)}`);
 
-                if (this.forceReadSerialOnConnect) {
+                if (
+                    this.forceReadSerialOnConnect &&
+                    // device already has serialNumber or it is open - both cases mean that we already seen it before and don't need to bother
+                    !device.opened &&
+                    !device.serialNumber
+                ) {
                     // try to load serialNumber. if this doesn't succeed, we can still continue normally. the only problem is that multiple devices
                     // connected at the same time will not be properly distinguished.
                     await this.loadSerialNumber(device, signal);

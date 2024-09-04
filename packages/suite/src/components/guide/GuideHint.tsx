@@ -1,10 +1,11 @@
 import { Children, BlockquoteHTMLAttributes, cloneElement, isValidElement } from 'react';
 import styled from 'styled-components';
 
-import { Warning } from '@trezor/components';
+import { Banner } from '@trezor/components';
 import { typography } from '@trezor/theme';
 
-const StyledWarning = styled(Warning)`
+// eslint-disable-next-line local-rules/no-override-ds-component
+const StyledBanner = styled(Banner)`
     background: ${({ theme }) => theme.backgroundSurfaceElevation1};
     color: ${({ theme }) => theme.textDefault};
     gap: 10px;
@@ -69,8 +70,8 @@ export const GuideHint = ({ children }: BlockquoteHTMLAttributes<HTMLQuoteElemen
     });
 
     return (
-        <StyledWarning icon variant={variant}>
+        <StyledBanner icon variant={variant}>
             {clonedChildren}
-        </StyledWarning>
+        </StyledBanner>
     );
 };

@@ -5,7 +5,7 @@ import {
     ExchangeProviderInfo,
     ExchangeTradeQuoteRequest,
     ExchangeTrade,
-    CryptoSymbol,
+    CryptoId,
 } from 'invity-api';
 import invityAPI from 'src/services/suite/invityAPI';
 import { COINMARKET_EXCHANGE, COINMARKET_COMMON } from './constants';
@@ -15,8 +15,8 @@ import { verifyAddress as verifyExchangeAddress } from 'src/actions/wallet/coinm
 export interface ExchangeInfo {
     exchangeList?: ExchangeListResponse;
     providerInfos: { [name: string]: ExchangeProviderInfo };
-    buySymbols: Set<CryptoSymbol>;
-    sellSymbols: Set<CryptoSymbol>;
+    buySymbols: Set<CryptoId>;
+    sellSymbols: Set<CryptoId>;
 }
 
 export type CoinmarketExchangeAction =
@@ -30,6 +30,10 @@ export type CoinmarketExchangeAction =
     | {
           type: typeof COINMARKET_EXCHANGE.SAVE_QUOTES;
           quotes: ExchangeTrade[];
+      }
+    | {
+          type: typeof COINMARKET_EXCHANGE.SAVE_QUOTE;
+          quote: ExchangeTrade | undefined;
       }
     | { type: typeof COINMARKET_EXCHANGE.CLEAR_QUOTES }
     | { type: typeof COINMARKET_EXCHANGE.SET_COINMARKET_ACCOUNT; account: Account }
@@ -58,8 +62,8 @@ export const loadExchangeInfo = async (): Promise<ExchangeInfo> => {
     exchangeList.forEach(e => (providerInfos[e.name] = e));
 
     // merge symbols supported by at least one partner
-    const buySymbolsArray: CryptoSymbol[] = [];
-    const sellSymbolsArray: CryptoSymbol[] = [];
+    const buySymbolsArray: CryptoId[] = [];
+    const sellSymbolsArray: CryptoId[] = [];
     exchangeList.forEach(p => {
         if (p.buyTickers) {
             buySymbolsArray.push(...p.buyTickers);
@@ -69,8 +73,8 @@ export const loadExchangeInfo = async (): Promise<ExchangeInfo> => {
         }
     });
 
-    const buySymbols = new Set<CryptoSymbol>(buySymbolsArray);
-    const sellSymbols = new Set<CryptoSymbol>(sellSymbolsArray);
+    const buySymbols = new Set<CryptoId>(buySymbolsArray);
+    const sellSymbols = new Set<CryptoId>(sellSymbolsArray);
 
     return {
         exchangeList,
@@ -132,9 +136,19 @@ export const saveQuotes = (quotes: ExchangeTrade[]): CoinmarketExchangeAction =>
     quotes,
 });
 
+export const saveSelectedQuote = (quote: ExchangeTrade | undefined): CoinmarketExchangeAction => ({
+    type: COINMARKET_EXCHANGE.SAVE_QUOTE,
+    quote,
+});
+
 export const clearQuotes = (): CoinmarketExchangeAction => ({
     type: COINMARKET_EXCHANGE.CLEAR_QUOTES,
 });
 
 export const verifyAddress = (account: Account, address?: string, path?: string) =>
     verifyExchangeAddress(account, address, path, COINMARKET_EXCHANGE.VERIFY_ADDRESS);
+
+export const setCoinmarketExchangeAccount = (account: Account): CoinmarketExchangeAction => ({
+    type: COINMARKET_EXCHANGE.SET_COINMARKET_ACCOUNT,
+    account,
+});

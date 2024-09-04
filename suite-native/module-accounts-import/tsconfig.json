@@ -2,7 +2,9 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": { "outDir": "libDev" },
     "references": [
-        { "path": "../../suite-common/icons" },
+        {
+            "path": "../../suite-common/icons-deprecated"
+        },
         {
             "path": "../../suite-common/redux-utils"
         },
@@ -42,9 +44,6 @@
         { "path": "../settings" },
         { "path": "../tokens" },
         { "path": "../video-assets" },
-        {
-            "path": "../../packages/blockchain-link-types"
-        },
         { "path": "../../packages/connect" },
         { "path": "../../packages/styles" },
         { "path": "../../packages/utxo-lib" }

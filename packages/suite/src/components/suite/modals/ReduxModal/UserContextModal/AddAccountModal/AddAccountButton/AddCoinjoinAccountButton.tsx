@@ -12,7 +12,8 @@ import { useSelector, useDispatch } from 'src/hooks/suite';
 import { createCoinjoinAccount } from 'src/actions/wallet/coinjoinAccountActions';
 import { toggleTor } from 'src/actions/suite/suiteActions';
 import { openDeferredModal, openModal } from 'src/actions/suite/modalActions';
-import { Account, Network, NetworkSymbol } from 'src/types/wallet';
+import { Account } from 'src/types/wallet';
+import { Network, NetworkAccount, NetworkSymbol } from '@suite-common/wallet-config';
 import { selectTorState } from 'src/reducers/suite/suiteReducer';
 
 import { AddButton } from './AddButton';
@@ -46,9 +47,10 @@ const verifyAvailability = ({
 
 interface AddCoinjoinAccountProps {
     network: Network;
+    selectedAccount: NetworkAccount;
 }
 
-export const AddCoinjoinAccountButton = ({ network }: AddCoinjoinAccountProps) => {
+export const AddCoinjoinAccountButton = ({ network, selectedAccount }: AddCoinjoinAccountProps) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const { isTorEnabled } = useSelector(selectTorState);
@@ -64,7 +66,7 @@ export const AddCoinjoinAccountButton = ({ network }: AddCoinjoinAccountProps) =
         a =>
             a.deviceState === device?.state &&
             a.symbol === network.symbol &&
-            a.accountType === network.accountType,
+            a.accountType === selectedAccount.accountType,
     );
 
     const disabledMessage = verifyAvailability({
@@ -75,7 +77,7 @@ export const AddCoinjoinAccountButton = ({ network }: AddCoinjoinAccountProps) =
 
     const onCreateCoinjoinAccountClick = async () => {
         const createAccount = async () => {
-            await dispatch(createCoinjoinAccount(network));
+            await dispatch(createCoinjoinAccount(network, selectedAccount));
             setIsLoading(false);
         };
 

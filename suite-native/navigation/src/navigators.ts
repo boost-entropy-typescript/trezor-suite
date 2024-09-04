@@ -4,6 +4,7 @@ import { RequireAllOrNone } from 'type-fest';
 import {
     AccountKey,
     GeneralPrecomposedLevels,
+    GeneralPrecomposedTransactionFinal,
     TokenAddress,
     XpubAddress,
 } from '@suite-common/wallet-types';
@@ -75,7 +76,11 @@ export type SendStackParamList = {
         feeLevels: GeneralPrecomposedLevels;
         accountKey: AccountKey;
     };
-    [SendStackRoutes.SendReview]: {
+    [SendStackRoutes.SendAddressReview]: {
+        transaction: GeneralPrecomposedTransactionFinal;
+        accountKey: AccountKey;
+    };
+    [SendStackRoutes.SendOutputsReview]: {
         accountKey: AccountKey;
     };
 };
@@ -122,6 +127,14 @@ export type AddCoinAccountStackParamList = {
     };
     [AddCoinAccountStackRoutes.SelectAccountType]: {
         accountType: AccountType;
+        networkSymbol: NetworkSymbol;
+        flowType: AddCoinFlowType;
+    };
+    [AddCoinAccountStackRoutes.AddCoinDiscoveryRunning]: {
+        networkSymbol: NetworkSymbol;
+        flowType: AddCoinFlowType;
+    };
+    [AddCoinAccountStackRoutes.AddCoinDiscoveryFinished]: {
         networkSymbol: NetworkSymbol;
         flowType: AddCoinFlowType;
     };

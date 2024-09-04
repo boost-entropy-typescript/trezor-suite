@@ -16,6 +16,7 @@ const AddWallet = styled.div`
     margin-top: 10px;
 `;
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const StyledTooltip = styled(Tooltip)`
     width: 100%;
 `;
@@ -54,7 +55,7 @@ export const AddWalletButton = ({ device, instances, onCancel }: AddWalletButton
                 cursor="pointer"
                 placement="bottom"
             >
-                <Column flex={1} gap={spacings.xs}>
+                <Column flex="1" gap={spacings.xs}>
                     {!emptyPassphraseWalletExists && (
                         <Button
                             data-testid="@switch-device/add-wallet-button"

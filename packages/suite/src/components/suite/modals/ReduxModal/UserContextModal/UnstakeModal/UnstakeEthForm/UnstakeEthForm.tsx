@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Button, Divider, Paragraph, Tooltip, Warning } from '@trezor/components';
+import { Button, Divider, Paragraph, Tooltip, Banner } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 import { Translation } from 'src/components/suite';
 import { useDevice, useSelector } from 'src/hooks/suite';
@@ -13,6 +13,7 @@ import { selectValidatorsQueueData } from '@suite-common/wallet-core';
 import { getAccountEverstakeStakingPool } from '@suite-common/wallet-utils';
 import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const GreyP = styled(Paragraph)`
     color: ${({ theme }) => theme.textSubdued};
 `;
@@ -25,7 +26,8 @@ const DividerWrapper = styled.div`
     }
 `;
 
-const StyledWarning = styled(Warning)`
+// eslint-disable-next-line local-rules/no-override-ds-component
+const StyledWarning = styled(Banner)`
     justify-content: flex-start;
 `;
 

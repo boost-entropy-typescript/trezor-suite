@@ -6,6 +6,7 @@ import { Discovery, FormDraftKeyPrefix } from '@suite-common/wallet-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { selectHistoricRatesByTransactions, getFormDraftKey } from '@suite-common/wallet-utils';
 import { FormDraftPrefixKeyValues } from '@suite-common/wallet-constants';
+import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { selectDevices, deviceActions } from '@suite-common/wallet-core';
 
 import { db } from 'src/storage';
@@ -15,7 +16,8 @@ import {
     serializeCoinjoinAccount,
 } from 'src/utils/suite/storage';
 import type { AppState, Dispatch, GetState, TrezorDevice } from 'src/types/suite';
-import type { Account, Network } from 'src/types/wallet';
+import type { Account } from 'src/types/wallet';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import type { FormState, RatesByTimestamps } from '@suite-common/wallet-types';
 import type { Trade } from 'src/types/wallet/coinmarketCommonTypes';
 import type { PreloadStoreAction } from 'src/support/suite/preloadStore';
@@ -25,7 +27,6 @@ import { selectCoinjoinAccountByKey } from 'src/reducers/wallet/coinjoinReducer'
 
 import { STORAGE } from './constants';
 import { MetadataState } from '@suite-common/metadata-types';
-import { NetworkSymbol } from '@suite-common/wallet-config';
 import { DefinitionType, TokenManagementAction } from '@suite-common/token-definitions';
 import { selectSuiteSettings } from '../../reducers/suite/suiteReducer';
 
@@ -134,7 +135,7 @@ const removeAccountFormDraft = async (prefix: FormDraftKeyPrefix, accountKey: st
 
 export const saveDevice = async (device: TrezorDevice, forceRemember?: true) => {
     if (!(await db.isAccessible())) return;
-    if (!device || !device.features || !device.state) return;
+    if (!isDeviceAcquired(device) || !device.state) return;
 
     return db.addItem('devices', serializeDevice(device, forceRemember), device.state, true);
 };
@@ -249,7 +250,7 @@ export const rememberDevice =
     (device: TrezorDevice, remember: boolean, forcedRemember?: true) =>
     async (dispatch: Dispatch, getState: GetState) => {
         if (!(await db.isAccessible())) return;
-        if (!device || !device.features || !device.state) return;
+        if (!isDeviceAcquired(device) || !device.state) return;
         if (!remember) {
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
             dispatch(forgetDeviceMetadataError(device));
@@ -309,7 +310,7 @@ export const saveWalletSettings = () => async (_dispatch: Dispatch, getState: Ge
 };
 
 export const saveBackend =
-    (coin: Network['symbol']) => async (_dispatch: Dispatch, getState: GetState) => {
+    (coin: NetworkSymbol) => async (_dispatch: Dispatch, getState: GetState) => {
         if (!(await db.isAccessible())) return;
         await db.addItem(
             'backendSettings',
@@ -325,7 +326,11 @@ export const saveSuiteSettings = () => async (_dispatch: Dispatch, getState: Get
     db.addItem(
         'suiteSettings',
         {
-            settings: suite.settings,
+            settings: {
+                ...suite.settings,
+                // Temporary measure to always start Suite with password manager off
+                experimental: suite.settings.experimental?.filter(e => e !== 'password-manager'),
+            },
             flags: suite.flags,
             evmSettings: suite.evmSettings,
         },
