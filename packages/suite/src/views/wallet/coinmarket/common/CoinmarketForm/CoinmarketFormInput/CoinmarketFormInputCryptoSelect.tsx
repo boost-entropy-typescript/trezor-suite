@@ -22,7 +22,7 @@ import {
 } from 'src/types/coinmarket/coinmarketForm';
 import { createFilter } from 'react-select';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
-import { cryptoIdToNetwork, parseCryptoId } from 'src/utils/wallet/coinmarket/coinmarketUtils';
+import { parseCryptoId } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { useCoinmarketFormContext } from 'src/hooks/wallet/coinmarket/form/useCoinmarketCommonForm';
 import { isCoinmarketExchangeOffers } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import { CryptoId } from 'invity-api';
@@ -37,22 +37,23 @@ export const CoinmarketFormInputCryptoSelect = <
     openMenuOnInput,
 }: CoinmarketFormInputCryptoSelectProps<TFieldValues>) => {
     const context = useCoinmarketFormContext();
-    const { buildCryptoOptions } = useCoinmarketInfo();
+    const { buildCryptoOptions, cryptoIdToPlatformName } = useCoinmarketInfo();
     const { elevation } = useElevation();
     const { control } = methods;
 
     const [isOpen, setIsOpen] = useState(false);
     const [isFocus, setIsFocus] = useState(false);
+    const sendCryptoSelectValue = isCoinmarketExchangeOffers(context)
+        ? (context.getValues()?.sendCryptoSelect?.value as CryptoId)
+        : null;
 
     const options = useMemo(
         () =>
             buildCryptoOptions(
                 supportedCryptoCurrencies ?? new Set(),
-                isCoinmarketExchangeOffers(context) && context.getValues()?.sendCryptoSelect?.value
-                    ? new Set([context.getValues()?.sendCryptoSelect?.value as CryptoId])
-                    : new Set(),
+                sendCryptoSelectValue ? new Set([sendCryptoSelectValue]) : new Set(),
             ),
-        [buildCryptoOptions, supportedCryptoCurrencies, context],
+        [buildCryptoOptions, supportedCryptoCurrencies, sendCryptoSelectValue],
     );
 
     return (
@@ -91,7 +92,7 @@ export const CoinmarketFormInputCryptoSelect = <
                         }}
                         formatOptionLabel={(option: CoinmarketAccountOptionsGroupOptionProps) => {
                             const { networkId, contractAddress } = parseCryptoId(option.value);
-                            const network = cryptoIdToNetwork(networkId);
+                            const platform = cryptoIdToPlatformName(networkId);
 
                             return (
                                 <CoinmarketFormOption>
@@ -104,7 +105,7 @@ export const CoinmarketFormInputCryptoSelect = <
                                     </CoinmarketFormOptionLabelLong>
                                     {contractAddress && (
                                         <CoinmarketFormOptionNetwork $elevation={elevation}>
-                                            {network?.name}
+                                            {platform}
                                         </CoinmarketFormOptionNetwork>
                                     )}
                                 </CoinmarketFormOption>

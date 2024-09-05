@@ -11,9 +11,9 @@ DIST='./packages/connect-common/files'
 #         SRC='../trezor-firmware/common/tools'
 # fi
 
-# BUID coins.json using tezor-common cointool
-# exlude unused fields
-$SRC/cointool.py dump -p -d connect -o $DIST/coins.json \
+# BUILD coins.json using trezor-common cointool
+# exclude unused fields
+$SRC/cointool.py dump -p -o $DIST/coins.json \
     -e blockbook \
     -e icon \
     -e cooldown \
@@ -32,9 +32,12 @@ $SRC/cointool.py dump -p -d connect -o $DIST/coins.json \
     -E eth \
     -E erc20 \
 
+# Exclude coins that are not supported by any device model
+yarn tsx "$(dirname "${BASH_SOURCE[0]}")"/filterCoins.ts
+
 yarn prettier --write $DIST/coins.json
 
-$SRC/cointool.py dump -p -d connect -o $DIST/coins-eth.json \
+$SRC/cointool.py dump -p -o $DIST/coins-eth.json \
     -e blockbook \
     -e icon \
     -e cooldown \

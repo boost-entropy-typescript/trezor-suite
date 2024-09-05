@@ -22,6 +22,7 @@ import {
     getUnusedAddressFromAccount,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
+    coinmarketGetExchangeReceiveCryptoId,
     getAmountLimits,
     getCexQuotesByRateType,
     getSuccessQuotesOrdered,
@@ -63,6 +64,7 @@ import { CoinmarketExchangeStepType } from 'src/types/coinmarket/coinmarketOffer
 import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketModalCrypto';
 import { NetworkCompatible } from '@suite-common/wallet-config';
 import { useCoinmarketAccount } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketAccount';
+import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 
 export const useCoinmarketExchangeForm = ({
     selectedAccount,
@@ -78,6 +80,7 @@ export const useCoinmarketExchangeForm = ({
         selectedQuote,
         addressVerified,
     } = useSelector(state => state.wallet.coinmarket.exchange);
+    const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
     // selectedAccount is used as initial state if this is form page
     // coinmarketAccount is used on offers page
     const [account, setAccount] = useCoinmarketAccount({
@@ -87,6 +90,7 @@ export const useCoinmarketExchangeForm = ({
     });
     const { callInProgress, timer, device, setCallInProgress, checkQuotesTimer } =
         useCoinmarketCommonOffers({ selectedAccount, type });
+    const { buildDefaultCryptoOption } = useCoinmarketInfo();
 
     const dispatch = useDispatch();
     const { recomposeAndSign } = useCoinmarketRecomposeAndSign();
@@ -143,10 +147,15 @@ export const useCoinmarketExchangeForm = ({
         if (!draft) return null;
         if (isNotFormPage) return draft;
 
+        const defaultReceiveCryptoSelect = coinmarketGetExchangeReceiveCryptoId(
+            defaultValues.sendCryptoSelect?.value,
+            draft.receiveCryptoSelect?.value,
+        );
+
         return {
             ...defaultValues,
             amountInCrypto: draft.amountInCrypto,
-            receiveCryptoSelect: draft.receiveCryptoSelect,
+            receiveCryptoSelect: buildDefaultCryptoOption(defaultReceiveCryptoSelect),
             rateType: draft.rateType,
             exchangeType: draft.exchangeType,
         };
@@ -272,6 +281,11 @@ export const useCoinmarketExchangeForm = ({
 
             if (Array.isArray(allQuotes)) {
                 const limits = getAmountLimits(allQuotes);
+                if (limits) {
+                    limits.currency =
+                        cryptoIdToCoinSymbol(limits.currency as CryptoId) ?? limits.currency;
+                }
+
                 const successQuotes = addIdsToQuotes<CoinmarketTradeExchangeType>(
                     getSuccessQuotesOrdered(allQuotes),
                     'exchange',
@@ -295,7 +309,15 @@ export const useCoinmarketExchangeForm = ({
 
             timer.reset();
         },
-        [timer, values, getQuoteRequestData, getQuotesRequest, dispatch, composeRequest],
+        [
+            timer,
+            values,
+            cryptoIdToCoinSymbol,
+            getQuoteRequestData,
+            getQuotesRequest,
+            dispatch,
+            composeRequest,
+        ],
     );
 
     const helpers = useCoinmarketFormActions({
@@ -635,6 +657,7 @@ export const useCoinmarketExchangeForm = ({
         receiveAccount,
         selectedQuote,
         addressVerified,
+        shouldSendInSats,
         setReceiveAccount,
         composeRequest,
         changeFeeLevel,
