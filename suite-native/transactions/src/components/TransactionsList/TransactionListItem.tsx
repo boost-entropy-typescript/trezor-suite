@@ -1,20 +1,20 @@
 import { useSelector } from 'react-redux';
 
-import { SignValue } from '@suite-common/suite-types';
-import { AccountsRootState, selectIsTestnetAccount } from '@suite-common/wallet-core';
-import { AccountKey, TransactionType } from '@suite-common/wallet-types';
-import { Box } from '@suite-native/atoms';
+import { AccountKey } from '@suite-common/wallet-types';
 import {
     CryptoAmountFormatter,
     CryptoToFiatAmountFormatter,
     SignValueFormatter,
 } from '@suite-native/formatters';
+import { Box } from '@suite-native/atoms';
+import { AccountsRootState, selectIsTestnetAccount } from '@suite-common/wallet-core';
 import { EmptyAmountText } from '@suite-native/formatters/src/components/EmptyAmountText';
 import { WalletAccountTransaction } from '@suite-native/tokens';
 
 import { useTransactionFiatRate } from '../../hooks/useTransactionFiatRate';
 import { TokenTransferListItem } from './TokenTransferListItem';
 import { TransactionListItemContainer } from './TransactionListItemContainer';
+import { getTransactionValueSign } from '../../utils';
 
 type TransactionListItemProps = {
     transaction: WalletAccountTransaction;
@@ -23,16 +23,6 @@ type TransactionListItemProps = {
     isFirst?: boolean;
     isLast?: boolean;
 };
-
-export const signValueMap = {
-    recv: 'positive',
-    sent: 'negative',
-    self: undefined,
-    joint: undefined,
-    contract: undefined,
-    failed: undefined,
-    unknown: undefined,
-} as const satisfies Record<TransactionType, SignValue | undefined>;
 
 export const TransactionListItemValues = ({
     accountKey,
@@ -53,7 +43,7 @@ export const TransactionListItemValues = ({
                 <EmptyAmountText />
             ) : (
                 <Box flexDirection="row">
-                    <SignValueFormatter value={signValueMap[transaction.type]} />
+                    <SignValueFormatter value={getTransactionValueSign(transaction.type)} />
 
                     <CryptoToFiatAmountFormatter
                         value={transaction.amount}

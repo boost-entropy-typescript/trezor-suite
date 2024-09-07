@@ -9,9 +9,14 @@ import {
 import { borders, spacingsPx } from '@trezor/theme';
 import { TransientProps } from '../../utils/transientProps';
 import { ReactNode } from 'react';
-import { FramePropsKeys, FrameProps, withFrameProps } from '../../utils/frameProps';
+import {
+    FramePropsKeys,
+    FrameProps,
+    withFrameProps,
+    pickAndPrepareFrameProps,
+} from '../../utils/frameProps';
 
-export const allowedComponentWithSubIconFrameProps: FramePropsKeys[] = ['margin'];
+export const allowedComponentWithSubIconFrameProps = ['margin'] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedComponentWithSubIconFrameProps)[number]>;
 
 const Container = styled.div<TransientProps<AllowedFrameProps>>`
@@ -26,8 +31,14 @@ type SubIconWrapperProps = TransientProps<ExclusiveColorOrVariant> & {
 };
 
 const SubIconWrapper = styled.div<SubIconWrapperProps>`
-    position: absolute;
+    width: ${spacingsPx.sm};
+    height: ${spacingsPx.sm};
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
     right: -${({ $subIconSize }) => $subIconSize / 2 + 3}px;
     top: -${({ $subIconSize }) => $subIconSize / 2 + 3}px;
 
@@ -35,7 +46,6 @@ const SubIconWrapper = styled.div<SubIconWrapperProps>`
         getColorForIconVariant({ theme, variant: $variant, color: $color })};
     border-radius: ${borders.radii.full};
     border: 1px solid ${({ theme }) => theme['borderElevationNegative']};
-    padding: ${spacingsPx.xxxs};
 `;
 
 export type ComponentWithSubIconProps = AllowedFrameProps &
@@ -49,12 +59,13 @@ export const ComponentWithSubIcon = ({
     color,
     children,
     subIconProps,
-    margin,
+    ...rest
 }: ComponentWithSubIconProps) => {
     const theme = useTheme();
+    const frameProps = pickAndPrepareFrameProps(rest, allowedComponentWithSubIconFrameProps);
 
     if (subIconProps === undefined) {
-        return <Container $margin={margin}>{children}</Container>;
+        return <Container {...frameProps}>{children}</Container>;
     }
 
     const backgroundIconColor = getColorForIconVariant({
@@ -72,7 +83,7 @@ export const ComponentWithSubIcon = ({
     const subIconSize = getIconSize(subIconProps.size ?? 12);
 
     return (
-        <Container $margin={margin}>
+        <Container {...frameProps}>
             {children}
             <SubIconWrapper
                 $color={backgroundIconColor}

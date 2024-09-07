@@ -12,11 +12,20 @@ import {
     useVariantStyle,
 } from '../buttonStyleUtils';
 import { focusStyleTransition, getFocusShadowStyle } from '../../../utils/utils';
-import { makePropsTransient, TransientProps } from '../../../utils/transientProps';
-import { FrameProps, FramePropsKeys, withFrameProps } from '../../../utils/frameProps';
+import { TransientProps } from '../../../utils/transientProps';
+import {
+    FrameProps,
+    FramePropsKeys,
+    pickAndPrepareFrameProps,
+    withFrameProps,
+} from '../../../utils/frameProps';
 import { Icon, IconName } from '../../Icon/Icon';
 
-export const allowedButtonFrameProps: FramePropsKeys[] = ['margin'];
+export const allowedButtonFrameProps = [
+    'margin',
+    'minWidth',
+    'maxWidth',
+] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedButtonFrameProps)[number]>;
 
 type ButtonContainerProps = TransientProps<AllowedFrameProps> & {
@@ -26,6 +35,7 @@ type ButtonContainerProps = TransientProps<AllowedFrameProps> & {
     $hasIcon?: boolean;
     $isFullWidth?: boolean;
     $isSubtle: boolean;
+    as?: 'a' | 'button';
     $borderRadius?: typeof borders.radii.sm | typeof borders.radii.full; // Do not allow all, we want consistency
 };
 
@@ -36,7 +46,7 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
     flex-direction: ${({ $iconAlignment }) => $iconAlignment === 'right' && 'row-reverse'};
     gap: ${({ $hasIcon }) => $hasIcon && spacingsPx.xs};
     padding: ${({ $size }) => getPadding($size, true)};
-    width: ${({ $isFullWidth }) => $isFullWidth && '100%'};
+    width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'fit-content')};
     border-radius: ${({ $borderRadius }) => $borderRadius ?? borders.radii.full};
     transition:
         ${focusStyleTransition},
@@ -87,8 +97,16 @@ type SelectedHTMLButtonProps = Pick<
     'onClick' | 'onMouseOver' | 'onMouseLeave' | 'type' | 'tabIndex'
 >;
 
+type ExclusiveAProps =
+    | { href?: undefined; target?: undefined }
+    | {
+          href?: string;
+          target?: string;
+      };
+
 export type ButtonProps = SelectedHTMLButtonProps &
-    AllowedFrameProps & {
+    AllowedFrameProps &
+    ExclusiveAProps & {
         variant?: ButtonVariant;
         isSubtle?: boolean;
         size?: ButtonSize;
@@ -117,14 +135,12 @@ export const Button = ({
     iconAlignment = 'left',
     type = 'button',
     children,
-    margin,
+    target,
+    href,
     textWrap = true,
     ...rest
 }: ButtonProps) => {
-    const frameProps = {
-        margin,
-    };
-
+    const frameProps = pickAndPrepareFrameProps(rest, allowedButtonFrameProps);
     const theme = useTheme();
 
     const IconComponent = icon ? (
@@ -139,8 +155,12 @@ export const Button = ({
         <Spinner size={getIconSize(size)} data-testid={`${rest['data-testid']}/spinner`} />
     );
 
+    const isLink = href !== undefined;
+
     return (
         <ButtonContainer
+            as={isLink ? 'a' : 'button'}
+            href={href}
             $variant={variant}
             $size={size}
             $iconAlignment={iconAlignment}
@@ -151,7 +171,7 @@ export const Button = ({
             $hasIcon={!!icon || isLoading}
             {...rest}
             onClick={isDisabled ? undefined : rest?.onClick}
-            {...makePropsTransient(frameProps)}
+            {...frameProps}
         >
             {!isLoading && icon && IconComponent}
             {isLoading && Loader}

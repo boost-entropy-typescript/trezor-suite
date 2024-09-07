@@ -3,11 +3,16 @@ import styled, { css, DefaultTheme, useTheme } from 'styled-components';
 import { borders, Color, CSSColor, spacings, spacingsPx, typography } from '@trezor/theme';
 import { focusStyleTransition, getFocusShadowStyle } from '../../utils/utils';
 import type { UISize, UIVariant } from '../../config/types';
-import { FrameProps, FramePropsKeys, withFrameProps } from '../../utils/frameProps';
+import {
+    FrameProps,
+    FramePropsKeys,
+    pickAndPrepareFrameProps,
+    withFrameProps,
+} from '../../utils/frameProps';
 import { TransientProps } from '../../utils/transientProps';
 import { Icon, IconName } from '../Icon/Icon';
 
-export const allowedBadgeFrameProps: FramePropsKeys[] = ['margin'];
+export const allowedBadgeFrameProps = ['margin'] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedBadgeFrameProps)[number]>;
 
 export type BadgeSize = Extract<UISize, 'tiny' | 'small' | 'medium'>;
@@ -16,6 +21,7 @@ type BadgeVariant = Extract<UIVariant, 'primary' | 'tertiary' | 'destructive'>;
 export type BadgeProps = AllowedFrameProps & {
     size?: BadgeSize;
     variant?: BadgeVariant;
+    onElevation?: boolean;
     isDisabled?: boolean;
     icon?: IconName;
     hasAlert?: boolean;
@@ -26,6 +32,7 @@ export type BadgeProps = AllowedFrameProps & {
 
 type MapArgs = {
     $variant: BadgeVariant;
+    $onElevation?: boolean;
     theme: DefaultTheme;
 };
 
@@ -34,12 +41,13 @@ type BadgeContainerProps = {
     $variant: BadgeVariant;
     $hasAlert: boolean;
     $inline: boolean;
+    $onElevation: boolean;
 } & TransientProps<AllowedFrameProps>;
 
-const mapVariantToBackgroundColor = ({ $variant, theme }: MapArgs): CSSColor => {
+const mapVariantToBackgroundColor = ({ $variant, $onElevation, theme }: MapArgs): CSSColor => {
     const colorMap: Record<BadgeVariant, Color> = {
         primary: 'backgroundPrimarySubtleOnElevation0',
-        tertiary: 'backgroundNeutralSubtleOnElevation0',
+        tertiary: `backgroundNeutralSubtleOnElevation${$onElevation ? 1 : 0}`,
         destructive: 'backgroundAlertRedSubtleOnElevation0',
     };
 
@@ -77,8 +85,6 @@ const mapVariantToPadding = ({ $size }: { $size: BadgeSize }): string => {
 };
 
 const Container = styled.div<BadgeContainerProps>`
-    ${withFrameProps}
-
     display: ${({ $inline }) => ($inline ? 'inline-flex' : 'flex')};
     align-items: center;
     gap: ${spacingsPx.xxs};
@@ -102,6 +108,8 @@ const Container = styled.div<BadgeContainerProps>`
                 box-shadow: 0 0 0 1px ${theme.borderAlertRed};
             }
         `}
+
+    ${withFrameProps}
 `;
 
 const Content = styled.span<{ $isDisabled: boolean; $variant: BadgeVariant; $size: BadgeSize }>`
@@ -113,24 +121,27 @@ const Content = styled.span<{ $isDisabled: boolean; $variant: BadgeVariant; $siz
 export const Badge = ({
     size = 'medium',
     variant = 'tertiary',
+    onElevation,
     isDisabled,
     icon,
     hasAlert,
     className,
     children,
     inline,
-    margin,
+    ...rest
 }: BadgeProps) => {
     const theme = useTheme();
+    const frameProps = pickAndPrepareFrameProps(rest, allowedBadgeFrameProps);
 
     return (
         <Container
             $size={size}
             $variant={variant}
             $hasAlert={!!hasAlert}
+            $onElevation={!!onElevation}
             className={className}
-            $margin={margin}
             $inline={inline === true}
+            {...frameProps}
         >
             {icon && (
                 <Icon

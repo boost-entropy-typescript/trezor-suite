@@ -7,11 +7,50 @@ import {
     selectTransactionByTxidAndAccountKey,
 } from '@suite-common/wallet-core';
 import { AccountKey } from '@suite-common/wallet-types';
-import { ErrorMessage, VStack } from '@suite-native/atoms';
+import { Box, ErrorMessage, VStack } from '@suite-native/atoms';
+import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
 import { selectTransactionAddresses } from '../../selectors';
 import { TransactionDetailAddressesSection } from './TransactionDetailAddressesSection';
-import { TransactionDetailStatusSection } from './TransactionDetailStatusSection';
+
+type VerticalSeparatorProps = { inputsCount: number };
+
+const SEPARATOR_TOP_OFFSET = 37;
+const SEPARATOR_LEFT_OFFSET = 7.5;
+const SINGLE_INPUT_SEPARATOR_HEIGHT = 34;
+const TWO_INPUTS_SEPARATOR_HEIGHT = 60;
+const MULTIPLE_INPUT_SEPARATOR_HEIGHT = 90;
+
+const separatorStyle = prepareNativeStyle<VerticalSeparatorProps>((utils, { inputsCount }) => ({
+    position: 'absolute',
+    left: SEPARATOR_LEFT_OFFSET,
+    top: SEPARATOR_TOP_OFFSET,
+    width: utils.borders.widths.small,
+    height: SINGLE_INPUT_SEPARATOR_HEIGHT,
+    backgroundColor: utils.colors.backgroundNeutralSubdued,
+
+    extend: [
+        {
+            condition: inputsCount === 2,
+            style: {
+                height: TWO_INPUTS_SEPARATOR_HEIGHT,
+            },
+        },
+        {
+            // Two addresses are displayed at maximum, other is hidden behind `Show more` button.
+            condition: inputsCount > 2,
+            style: {
+                height: MULTIPLE_INPUT_SEPARATOR_HEIGHT,
+            },
+        },
+    ],
+}));
+
+export const VerticalSeparator = ({ inputsCount }: VerticalSeparatorProps) => {
+    const { applyStyle } = useNativeStyles();
+
+    return <Box style={applyStyle(separatorStyle, { inputsCount })} />;
+};
 
 export const NetworkTransactionDetailSummary = ({
     accountKey,
@@ -37,7 +76,7 @@ export const NetworkTransactionDetailSummary = ({
     }
 
     return (
-        <VStack>
+        <VStack spacing="large">
             {A.isNotEmpty(transactionInputAddresses) && (
                 <TransactionDetailAddressesSection
                     addressesType="inputs"
@@ -46,7 +85,6 @@ export const NetworkTransactionDetailSummary = ({
                     icon={transaction.symbol}
                 />
             )}
-            <TransactionDetailStatusSection txid={txid} accountKey={accountKey} />
             {A.isNotEmpty(transactionOutputAddresses) && (
                 <TransactionDetailAddressesSection
                     addressesType="outputs"
@@ -54,6 +92,7 @@ export const NetworkTransactionDetailSummary = ({
                     onShowMore={onShowMore}
                 />
             )}
+            <VerticalSeparator inputsCount={transactionInputAddresses.length} />
         </VStack>
     );
 };

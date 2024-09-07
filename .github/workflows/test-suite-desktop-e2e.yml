@@ -1,7 +1,6 @@
 name: "[Test] suite-desktop e2e"
-# this action builds a desktop version of Suite and runs basic test suite for it
+# this workflow builds a desktop version of Suite and runs basic test suite for it
 
-# run only if there are changes in suite or related libs paths
 on:
   pull_request:
     branches:
@@ -16,6 +15,9 @@ on:
       - ".github/workflows/build-desktop*"
       - ".github/workflows/release*"
       - ".github/workflows/template*"
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   run-desktop-tests:
@@ -25,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - TEST_FILE: "spawn-bridge suite-guide wallet-discovery"
+          - TEST_FILE: "spawn-bridge spawn-bridge-daemon suite-guide wallet-discovery"
             CONTAINERS: "trezor-user-env-unix"
           - TEST_FILE: "electrum"
             CONTAINERS: "trezor-user-env-unix electrum-regtest"
@@ -85,7 +87,7 @@ jobs:
         run: |
           docker compose pull
           docker compose up -d ${{ matrix.CONTAINERS }}
-          docker compose run test-run
+          yarn workspace @trezor/suite-desktop-core test:e2e ${{ env.TEST_FILE }}
 
       - name: cleanup
         env:

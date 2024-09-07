@@ -16,6 +16,10 @@ import {
     NetworkFeature,
     NetworkSymbol,
     NetworkType,
+    Network,
+    networks,
+    AccountType,
+    Bip43Path,
 } from '@suite-common/wallet-config';
 import {
     Account,
@@ -28,7 +32,6 @@ import {
 } from '@suite-common/wallet-types';
 import { FiatCurrencyCode } from '@suite-common/suite-config';
 import { TrezorDevice } from '@suite-common/suite-types';
-import { ACCOUNT_TYPE } from '@suite-common/wallet-constants';
 import {
     HELP_CENTER_ADDRESSES_URL,
     HELP_CENTER_COINJOIN_URL,
@@ -220,7 +223,36 @@ export const getBip43Type = (path: string) => {
     }
 };
 
-export const getAccountTypeName = (path: string) => {
+type getAccountTypeNameProps = {
+    path?: Bip43Path;
+    networkType?: NetworkType;
+    accountType?: AccountType;
+};
+
+export const getAccountTypeName = ({ path, accountType, networkType }: getAccountTypeNameProps) => {
+    if (!networkType) return null;
+    if (networkType !== 'bitcoin') {
+        switch (accountType?.toLowerCase()) {
+            case 'ledger':
+                return 'TR_ACCOUNT_TYPE_LEDGER';
+            case 'legacy':
+                return 'TR_ACCOUNT_TYPE_LEGACY';
+            case 'normal':
+                return 'TR_ACCOUNT_TYPE_NORMAL';
+        }
+    } else {
+        switch (accountType?.toLowerCase()) {
+            case 'segwit':
+                return 'TR_ACCOUNT_TYPE_SEGWIT';
+            case 'taproot':
+                return 'TR_ACCOUNT_TYPE_TAPROOT';
+            case 'normal':
+                return 'TR_ACCOUNT_TYPE_BIP84_NAME';
+            case 'legacy':
+                return 'TR_ACCOUNT_TYPE_LEGACY';
+        }
+    }
+    if (!path) return null;
     const accountTypePrefix = getAccountTypePrefix(path);
     if (accountTypePrefix) return `${accountTypePrefix}_NAME` as const;
     const bip43 = getBip43Type(path);
@@ -233,7 +265,7 @@ export const getAccountTypeName = (path: string) => {
     return 'TR_ACCOUNT_TYPE_BIP44_NAME';
 };
 
-export const getAccountTypeTech = (path: string) => {
+export const getAccountTypeTech = (path: Bip43Path) => {
     const accountTypePrefix = getAccountTypePrefix(path);
     if (accountTypePrefix) return `${accountTypePrefix}_TECH` as const;
     const bip43 = getBip43Type(path);
@@ -246,15 +278,46 @@ export const getAccountTypeTech = (path: string) => {
     return 'TR_ACCOUNT_TYPE_BIP44_TECH';
 };
 
-export const getAccountTypeDesc = (path: string) => {
+type getAccountTypeDescProps = {
+    path: Bip43Path;
+    accountType?: AccountType;
+    networkType?: NetworkType;
+};
+
+export const getAccountTypeDesc = ({ path, accountType, networkType }: getAccountTypeDescProps) => {
+    switch (accountType?.toLowerCase()) {
+        case 'ledger':
+            return 'TR_ACCOUNT_TYPE_LEDGER_DESC';
+        case 'legacy':
+            return 'TR_ACCOUNT_TYPE_LEGACY_DESC';
+    }
+
+    switch (networkType?.toLowerCase()) {
+        case 'ethereum':
+            return 'TR_ACCOUNT_TYPE_NORMAL_EVM_DESC';
+        case 'solana':
+            return 'TR_ACCOUNT_TYPE_NORMAL_SOLANA_DESC';
+        case 'cardano':
+            return 'TR_ACCOUNT_TYPE_NORMAL_CARDANO_DESC';
+        case 'ripple':
+            return 'TR_ACCOUNT_TYPE_NORMAL_XRP_DESC';
+    }
+
     const accountTypePrefix = getAccountTypePrefix(path);
     if (accountTypePrefix) return `${accountTypePrefix}_DESC` as const;
     const bip43 = getBip43Type(path);
-    if (bip43 === 'bip86') return 'TR_ACCOUNT_TYPE_BIP86_DESC';
-    if (bip43 === 'bip84') return 'TR_ACCOUNT_TYPE_BIP84_DESC';
-    if (bip43 === 'bip49') return 'TR_ACCOUNT_TYPE_BIP49_DESC';
-    if (bip43 === 'shelley') return 'TR_ACCOUNT_TYPE_SHELLEY_DESC';
-    if (bip43 === 'slip25') return 'TR_ACCOUNT_TYPE_SLIP25_DESC';
+    switch (bip43) {
+        case 'bip86':
+            return 'TR_ACCOUNT_TYPE_BIP86_DESC';
+        case 'bip84':
+            return 'TR_ACCOUNT_TYPE_BIP84_DESC';
+        case 'bip49':
+            return 'TR_ACCOUNT_TYPE_BIP49_DESC';
+        case 'shelley':
+            return 'TR_ACCOUNT_TYPE_SHELLEY_DESC';
+        case 'slip25':
+            return 'TR_ACCOUNT_TYPE_SLIP25_DESC';
+    }
 
     return 'TR_ACCOUNT_TYPE_BIP44_DESC';
 };
@@ -273,11 +336,7 @@ export const getAccountTypeUrl = (path: string) => {
     }
 };
 
-export const getAccountDecimals = (symbol: NetworkSymbol) => {
-    const network = networksCompatibility.find(n => n.symbol === symbol);
-
-    return network?.decimals;
-};
+export const getAccountDecimals = (symbol: NetworkSymbol) => networks[symbol]?.decimals;
 
 export const stripNetworkAmount = (amount: string, decimals: number) =>
     new BigNumber(amount).toFixed(decimals, 1);
@@ -366,22 +425,32 @@ export const formatTokenAmount = (tokenTransfer: TokenTransfer) => {
     return formattedTokenSymbol ? `${formattedAmount} ${formattedTokenSymbol}` : formattedAmount;
 };
 
-export const sortByCoin = (accounts: Account[]) =>
-    accounts.sort((a, b) => {
-        const aIndex = networksCompatibility.findIndex(n => {
-            const accountType = n.accountType || ACCOUNT_TYPE.NORMAL;
+/**
+ * Sort accounts as they are defined in `networksConfig`, by two criteria:
+ * - primary: by network `symbol`
+ * - secondary: by `accountType`
+ */
+export const sortByCoin = (accounts: Account[]) => {
+    const orderedNetworkSymbols = Object.keys(networks) as NetworkSymbol[];
 
-            return accountType === a.accountType && n.symbol === a.symbol;
-        });
-        const bIndex = networksCompatibility.findIndex(n => {
-            const accountType = n.accountType || ACCOUNT_TYPE.NORMAL;
+    return accounts.sort((a, b) => {
+        // primary sorting: by order of network keys
+        const aSymbolIndex = orderedNetworkSymbols.indexOf(a.symbol);
+        const bSymbolIndex = orderedNetworkSymbols.indexOf(b.symbol);
+        if (aSymbolIndex !== bSymbolIndex) return aSymbolIndex - bSymbolIndex;
 
-            return accountType === b.accountType && n.symbol === b.symbol;
-        });
-        if (aIndex === bIndex) return a.index - b.index;
+        // when it is sorted by network, sort by order of accountType keys within the same network
+        const network = networks[a.symbol];
+        const orderedAccountTypes = Object.keys(network.accountTypes) as AccountType[];
+        const aAccountTypeIndex = orderedAccountTypes.indexOf(a.accountType);
+        const bAccountTypeIndex = orderedAccountTypes.indexOf(b.accountType);
 
-        return aIndex - bIndex;
+        if (aAccountTypeIndex !== bAccountTypeIndex) return aAccountTypeIndex - bAccountTypeIndex;
+
+        // if both are same, keep the original order in `accounts`
+        return a.index - b.index;
     });
+};
 
 export const findAccountsByNetwork = (symbol: NetworkSymbol, accounts: Account[]) =>
     accounts.filter(a => a.symbol === symbol);
@@ -418,6 +487,9 @@ export const getAllAccounts = (deviceState: string | typeof undefined, accounts:
     return accounts.filter(a => a.deviceState === deviceState && a.visible);
 };
 
+/**
+ * @deprecated use directly networks[symbol], you can import { networks } from '@suite-common/wallet-config'
+ */
 export const getNetwork = (symbol: string): NetworkCompatible | null =>
     networksCompatibility.find(c => c.symbol === symbol) || null;
 
@@ -672,11 +744,7 @@ export const getTotalFiatBalance = ({
     return instanceBalance;
 };
 
-export const isTestnet = (symbol: NetworkSymbol) => {
-    const net = networksCompatibility.find(n => n.symbol === symbol);
-
-    return net?.testnet ?? false;
-};
+export const isTestnet = (symbol: NetworkSymbol) => networks[symbol].testnet;
 
 export const isAccountOutdated = (account: Account, freshInfo: AccountInfo) => {
     if (
@@ -723,10 +791,7 @@ export const isAccountOutdated = (account: Account, freshInfo: AccountInfo) => {
 };
 
 // Used in accountActions and failed accounts
-export const getAccountSpecific = (
-    accountInfo: Partial<AccountInfo>,
-    networkType: NetworkCompatible['networkType'],
-) => {
+export const getAccountSpecific = (accountInfo: Partial<AccountInfo>, networkType: NetworkType) => {
     const { misc } = accountInfo;
     if (networkType === 'ripple') {
         return {
@@ -814,7 +879,7 @@ export const getFailedAccounts = (discovery: Discovery): Account[] =>
             metadata: {
                 key: descriptor,
             },
-            ...getAccountSpecific({}, getNetwork(f.symbol)!.networkType),
+            ...getAccountSpecific({}, networks[f.symbol].networkType),
         };
     });
 
@@ -837,7 +902,7 @@ export const accountSearchFn = (
     const searchString = rawSearchString?.trim().toLowerCase();
     if (!searchString) return true; // no search string
 
-    const network = getNetwork(account.symbol);
+    const network = networks[account.symbol];
 
     // helper func for searching in account's addresses
     const matchAddressFn = (u: NonNullable<Account['addresses']>['used'][number]) =>
@@ -1010,17 +1075,16 @@ export const getPendingAccount = ({
     };
 };
 
-export const getNetworkFeatures = ({
-    networkType,
+export const getNetworkAccountFeatures = ({
     symbol,
     accountType,
-}: Pick<Account, 'networkType' | 'symbol' | 'accountType'>) =>
-    networksCompatibility.find(
-        network =>
-            network.networkType === networkType &&
-            network.symbol === symbol &&
-            (network.accountType || 'normal') === accountType,
-    )?.features || [];
+}: Pick<Account, 'symbol' | 'accountType'>): NetworkFeature[] => {
+    const matchedNetwork: Network = networks[symbol];
+
+    return accountType === 'normal'
+        ? matchedNetwork.features
+        : matchedNetwork.accountTypes[accountType]?.features ?? [];
+};
 
 export const hasNetworkFeatures = (
     account: Account | undefined,
@@ -1030,11 +1094,7 @@ export const hasNetworkFeatures = (
         return false;
     }
 
-    const networkFeatures = getNetworkFeatures(account);
-
-    if (!networkFeatures) {
-        return false;
-    }
+    const networkFeatures = getNetworkAccountFeatures(account);
 
     const areFeaturesPresent = ([] as NetworkFeature[])
         .concat(features)

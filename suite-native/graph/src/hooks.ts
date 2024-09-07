@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { captureException } from '@sentry/react-native';
+import { A } from '@mobily/ts-belt';
 
 import {
     AccountItem,
@@ -187,6 +188,7 @@ export const useGraphForAllDeviceAccounts = ({ fiatCurrency }: CommonUseGraphPar
 
     return {
         ...graphForAccounts,
+        isAnyMainnetAccountPresent: A.isNotEmpty(accounts),
         timeframe: portfolioGraphTimeframe,
         onSelectTimeFrame: handleSelectPortfolioTimeframe,
     };

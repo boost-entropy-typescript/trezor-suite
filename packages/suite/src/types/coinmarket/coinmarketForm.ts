@@ -14,7 +14,7 @@ import {
     CoinmarketTradeType,
 } from 'src/types/coinmarket/coinmarket';
 import type { Account } from 'src/types/wallet';
-import { NetworkCompatible } from '@suite-common/wallet-config';
+import { Network, NetworkCompatible } from '@suite-common/wallet-config';
 import type { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
 import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
 import type {
@@ -128,7 +128,7 @@ export interface CoinmarketCommonFormProps {
     callInProgress: boolean;
     timer: Timer;
     account: Account;
-    network: NetworkCompatible;
+    network: Network;
 
     goToOffers: () => Promise<void>;
 }
@@ -231,7 +231,7 @@ export interface CoinmarketExchangeFormContextProps
     removeDraft: (key: string) => void;
 
     setExchangeStep: (step: CoinmarketExchangeStepType) => void;
-    confirmTrade: (address: string, extraField?: string) => Promise<boolean>;
+    confirmTrade: (address: string, extraField?: string, trade?: ExchangeTrade) => Promise<boolean>;
     sendTransaction: () => void;
     selectQuote: (quote: ExchangeTrade) => void;
     verifyAddress: (account: Account, address?: string, path?: string) => Promise<void>;
@@ -333,7 +333,7 @@ export interface CoinmarketUseFormActionsReturnProps {
 
 export interface CoinmarketUseComposeTransactionProps<T extends CoinmarketSellExchangeFormProps> {
     account: Account;
-    network: NetworkCompatible;
+    network: Network;
     methods: UseFormReturn<T>;
     values: T;
 }

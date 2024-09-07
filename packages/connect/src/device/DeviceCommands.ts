@@ -20,14 +20,14 @@ import { resolveDescriptorForTaproot } from './resolveDescriptorForTaproot';
 
 type MessageType = Messages.MessageType;
 type MessageKey = keyof MessageType;
-export type TypedResponseMessage<T extends MessageKey> = {
+type TypedPayload<T extends MessageKey> = {
     type: T;
     message: MessageType[T];
 };
 type TypedCallResponseMap = {
-    [K in keyof MessageType]: TypedResponseMessage<K>;
+    [K in keyof MessageType]: TypedPayload<K>;
 };
-type DefaultMessageResponse = TypedCallResponseMap[keyof MessageType];
+type DefaultPayloadMessage = TypedCallResponseMap[keyof MessageType];
 
 export type PassphrasePromptResponse = {
     passphrase?: string;
@@ -37,7 +37,7 @@ export type PassphrasePromptResponse = {
 
 const logger = initLog('DeviceCommands');
 
-const assertType = (res: DefaultMessageResponse, resType: MessageKey | MessageKey[]) => {
+const assertType = (res: DefaultPayloadMessage, resType: MessageKey | MessageKey[]) => {
     const splitResTypes = Array.isArray(resType) ? resType : resType.split('|');
     if (!splitResTypes.includes(res.type)) {
         throw ERRORS.TypedError(
@@ -90,8 +90,7 @@ export class DeviceCommands {
     device: Device;
 
     transport: Transport;
-
-    sessionId: Session;
+    transportSession: Session;
 
     disposed: boolean;
 
@@ -101,10 +100,10 @@ export class DeviceCommands {
     _cancelableRequest?: (error?: any) => void;
     _cancelableRequestBySend?: boolean;
 
-    constructor(device: Device, transport: Transport, sessionId: Session) {
+    constructor(device: Device, transport: Transport, transportSession: Session) {
         this.device = device;
         this.transport = transport;
-        this.sessionId = sessionId;
+        this.transportSession = transportSession;
         this.disposed = false;
     }
 
@@ -315,12 +314,12 @@ export class DeviceCommands {
     // Sends an async message to the opened device.
     private async call(
         type: MessageKey,
-        msg: DefaultMessageResponse['message'] = {},
-    ): Promise<DefaultMessageResponse> {
+        msg: DefaultPayloadMessage['message'] = {},
+    ): Promise<DefaultPayloadMessage> {
         logger.debug('Sending', type, filterForLog(type, msg));
 
         this.callPromise = this.transport.call({
-            session: this.sessionId,
+            session: this.transportSession,
             name: type,
             data: msg,
             protocol: this.device.protocol,
@@ -354,11 +353,11 @@ export class DeviceCommands {
         type: T,
         resType: R,
         msg?: MessageType[T],
-    ): Promise<TypedResponseMessage<R>>;
+    ): Promise<TypedPayload<R>>;
     async typedCall(
         type: MessageKey,
         resType: MessageKey | MessageKey[],
-        msg?: DefaultMessageResponse['message'],
+        msg?: DefaultPayloadMessage['message'],
     ) {
         if (this.disposed) {
             throw ERRORS.TypedError('Runtime', 'typedCall: DeviceCommands already disposed');
@@ -373,7 +372,7 @@ export class DeviceCommands {
             // handle possible race condition
             // Bridge may have some unread message in buffer, read it
             await this.transport.receive({
-                session: this.sessionId,
+                session: this.transportSession,
                 protocol: this.device.protocol,
             }).promise;
             // throw error anyway, next call should be resolved properly
@@ -383,7 +382,7 @@ export class DeviceCommands {
         return response;
     }
 
-    async _commonCall(type: MessageKey, msg?: DefaultMessageResponse['message']) {
+    async _commonCall(type: MessageKey, msg?: DefaultPayloadMessage['message']) {
         const resp = await this.call(type, msg);
         if (this.disposed) {
             throw ERRORS.TypedError('Runtime', 'typedCall: DeviceCommands already disposed');
@@ -392,7 +391,7 @@ export class DeviceCommands {
         return this._filterCommonTypes(resp);
     }
 
-    _filterCommonTypes(res: DefaultMessageResponse): Promise<DefaultMessageResponse> {
+    _filterCommonTypes(res: DefaultPayloadMessage): Promise<DefaultPayloadMessage> {
         this._cancelableRequestBySend = false;
 
         if (res.type === 'Failure') {
@@ -669,7 +668,7 @@ export class DeviceCommands {
         } else {
             await this.transport.send({
                 protocol: this.device.protocol,
-                session: this.sessionId,
+                session: this.transportSession,
                 name: 'Cancel',
                 data: {},
             }).promise;
@@ -680,7 +679,7 @@ export class DeviceCommands {
             // if my observations are correct, it is not necessary to transport.receive after send
             // transport.call -> transport.send -> transport call returns Failure meaning it won't be
             // returned in subsequent calls
-            // await this.transport.receive({ session: this.sessionId }).promise;
+            // await this.transport.receive({ session: this.transportSession }).promise;
         }
     }
 }
