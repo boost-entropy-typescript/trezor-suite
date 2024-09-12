@@ -21,6 +21,7 @@ export const en = {
         default: 'Default',
         orSeparator: 'OR',
         offline: "You're offline.",
+        tokens: '+ Tokens',
     },
     messageSystem: {
         killswitch: {
@@ -84,7 +85,7 @@ export const en = {
         },
     },
     accountList: {
-        numberOfTokens: '+{numberOfTokens} tokens',
+        numberOfTokens: '+{numberOfTokens} Tokens',
         tokens: 'Tokens',
     },
     assets: {
@@ -547,7 +548,7 @@ export const en = {
                 coinDisabled: '{coin} disabled',
             },
             btcOnly: {
-                title: 'This device is BTC only.',
+                title: 'Your Trezor is BTC only.',
                 subtitle: 'So what exactly are you looking for?',
             },
             oneNetworkSymbolAlert: {
@@ -753,6 +754,9 @@ export const en = {
         addressCopied: 'Address copied',
         copyButton: 'Copy',
         shareButton: 'Share',
+        qrCodeHint: 'Point the camera directly at the QR code',
+        pickImageButton: 'Upload from gallery',
+        pickImageError: 'QR code not found in the image.',
     },
     graph: {
         retrievingData: 'Retrieving data...',
@@ -847,17 +851,21 @@ export const en = {
         },
     },
     moduleSend: {
+        accountsList: {
+            title: 'Send from',
+        },
         outputs: {
             recipients: {
                 title: 'Amount & recipients',
                 addressLabel: 'Recipient address',
+                addressQrLabel: 'Scan recipient address',
                 amountLabel: 'Amount to be sent',
             },
         },
         fees: {
             recipient: { singular: 'Recipient' },
             description: {
-                title: 'Mining fee',
+                title: 'Transaction fee',
                 body: 'Fees are paid directly to network miners for processing your transactions.',
             },
             levels: {

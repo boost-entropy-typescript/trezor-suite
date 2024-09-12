@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Translation, AccountLabeling } from 'src/components/suite';
 import { Button, Spinner, Radio, variables, Paragraph } from '@trezor/components';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
-import { DexApprovalType, ExchangeTrade } from 'invity-api';
-import useTimeoutFn from 'react-use/lib/useTimeoutFn';
-import useUnmount from 'react-use/lib/useUnmount';
-import invityAPI from 'src/services/suite/invityAPI';
+import { DexApprovalType } from 'invity-api';
 import { CoinmarketTradeExchangeType } from 'src/types/coinmarket/coinmarket';
 import { useCoinmarketFormContext } from 'src/hooks/wallet/coinmarket/form/useCoinmarketCommonForm';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
+import { useCoinmarketExchangeWatchSendApproval } from 'src/hooks/wallet/coinmarket/form/useCoinmarketExchangeWatchSendApproval';
 
 // add APPROVED means no approval request is necessary
 type ExtendedDexApprovalType = DexApprovalType | 'APPROVED';
@@ -75,9 +73,6 @@ const ErrorWrapper = styled(LoaderWrapper)`
     color: ${({ theme }) => theme.legacy.TYPE_RED};
 `;
 
-const REFRESH_SECONDS = 15;
-const shouldRefresh = (quote?: ExchangeTrade) => quote?.status === 'APPROVAL_PENDING';
-
 export const CoinmarketOfferExchangeSendApproval = () => {
     const {
         account,
@@ -93,43 +88,12 @@ export const CoinmarketOfferExchangeSendApproval = () => {
         selectedQuote?.status === 'CONFIRM' ? 'APPROVED' : 'MINIMAL',
     );
 
-    // watch the trade if transaction in confirmation
-    const [refreshCount, setRefreshCount] = useState(0);
-    const invokeRefresh = () => {
-        if (shouldRefresh(selectedQuote)) {
-            setRefreshCount(prevValue => prevValue + 1);
-        }
-    };
-    const [, cancelRefresh, resetRefresh] = useTimeoutFn(invokeRefresh, REFRESH_SECONDS * 1000);
-    useUnmount(() => {
-        cancelRefresh();
-    });
-    useEffect(() => {
-        if (selectedQuote && shouldRefresh(selectedQuote)) {
-            const watchTradeAsync = async () => {
-                cancelRefresh();
-                const response = await invityAPI.watchTrade<'exchange'>(
-                    selectedQuote,
-                    'exchange',
-                    refreshCount,
-                );
-
-                if (response.status && response.status !== selectedQuote.status) {
-                    selectedQuote.status = response.status;
-                    selectedQuote.error = response.error;
-                    selectedQuote.approvalType = undefined;
-                    if (selectedQuote.dexTx) {
-                        confirmTrade(selectedQuote.dexTx.from);
-                    }
-                }
-                resetRefresh();
-            };
-
-            watchTradeAsync();
-        }
-    }, [cancelRefresh, confirmTrade, refreshCount, resetRefresh, selectedQuote]);
-
     const { navigateToExchangeForm } = useCoinmarketNavigation(account);
+
+    useCoinmarketExchangeWatchSendApproval({
+        selectedQuote,
+        confirmTrade,
+    });
 
     if (!selectedQuote) return null;
 
@@ -154,12 +118,30 @@ export const CoinmarketOfferExchangeSendApproval = () => {
         provider: providerName,
     };
 
-    const selectApprovalValue = (type: ExtendedDexApprovalType) => {
+    const selectApprovalValue = async (type: ExtendedDexApprovalType) => {
         setApprovalType(type);
         if (type !== 'APPROVED') {
-            selectedQuote.approvalType = type;
-            confirmTrade(dexTx.from);
+            await confirmTrade(dexTx.from, undefined, {
+                ...selectedQuote,
+                approvalType: type,
+            });
         }
+    };
+
+    // if the last step was change in approval, we have to recompute the swap request
+    const proceedToSwap = async () => {
+        if (selectedQuote.approvalType) {
+            const confirmedTrade = await confirmTrade(dexTx.from, undefined, {
+                ...selectedQuote,
+                approvalType: undefined,
+            });
+
+            if (!confirmedTrade) {
+                return;
+            }
+        }
+
+        setExchangeStep('SEND_TRANSACTION');
     };
 
     return (
@@ -350,16 +332,7 @@ export const CoinmarketOfferExchangeSendApproval = () => {
                     <Button
                         isLoading={callInProgress}
                         isDisabled={callInProgress}
-                        onClick={async () => {
-                            // if the last step was change in approval, we have to recompute the swap request
-                            if (selectedQuote.approvalType) {
-                                selectedQuote.approvalType = undefined;
-                                if (!(await confirmTrade(dexTx.from))) {
-                                    return;
-                                }
-                            }
-                            setExchangeStep('SEND_TRANSACTION');
-                        }}
+                        onClick={proceedToSwap}
                     >
                         <Translation id="TR_EXCHANGE_APPROVAL_TO_SWAP_BUTTON" />
                     </Button>

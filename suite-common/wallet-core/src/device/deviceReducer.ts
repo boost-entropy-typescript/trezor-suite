@@ -7,6 +7,7 @@ import { Device, Features, UI } from '@trezor/connect';
 import {
     getFirmwareVersion,
     getFirmwareVersionArray,
+    hasBitcoinOnlyFirmware,
     isBitcoinOnlyDevice,
 } from '@trezor/device-utils';
 import { NetworkDeviceSupport, NetworkSymbol, networks } from '@suite-common/wallet-config';
@@ -950,6 +951,12 @@ export const selectDeviceInstances = memoize((state: DeviceRootState) => {
     return getDeviceInstances(device, allDevices);
 });
 
+export const selectNumberOfDeviceInstances = (state: DeviceRootState) => {
+    const deviceInstances = selectDeviceInstances(state);
+
+    return deviceInstances.length;
+};
+
 export const selectInstacelessUnselectedDevices = memoize((state: DeviceRootState) => {
     const device = selectDevice(state);
     const allDevices = selectDevices(state);
@@ -957,5 +964,10 @@ export const selectInstacelessUnselectedDevices = memoize((state: DeviceRootStat
     return deviceUtils.getSortedDevicesWithoutInstances(allDevices, device?.id);
 });
 
+// Bitcoin only Trezor with bitcoin-only firmware
 export const selectIsBitcoinOnlyDevice = (state: DeviceRootState) =>
     isBitcoinOnlyDevice(selectDevice(state));
+
+// Any Trezor that has BTC only firmware
+export const selectHasBitcoinOnlyFirmware = (state: DeviceRootState) =>
+    hasBitcoinOnlyFirmware(selectDevice(state));

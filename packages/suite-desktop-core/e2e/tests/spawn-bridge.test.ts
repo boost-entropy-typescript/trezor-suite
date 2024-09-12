@@ -3,9 +3,11 @@ import { test as testPlaywright, expect as expectPlaywright } from '@playwright/
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 import { launchSuite, waitForDataTestSelector } from '../support/common';
+import { onDashboardPage } from '../support/pageActions/dashboardActions';
 
 testPlaywright.describe.serial('Bridge', () => {
-    testPlaywright.beforeAll(async () => {
+    const expectedBridgeVersion = '2.0.33';
+    testPlaywright.beforeEach(async () => {
         // We make sure that bridge from trezor-user-env is stopped.
         // So we properly test the electron app starting node-bridge module.
         await TrezorUserEnvLink.connect();
@@ -30,14 +32,52 @@ testPlaywright.describe.serial('Bridge', () => {
         const bridgeRes1 = await request.get('http://127.0.0.1:21325/status/');
         await expectPlaywright(bridgeRes1).toBeOK();
 
+        const response = await request.post('http://127.0.0.1:21325/', {
+            headers: {
+                Origin: 'https://wallet.trezor.io',
+            },
+        });
+
+        const json = await response.json();
+        const { version } = json;
+        expectPlaywright(version).toEqual(expectedBridgeVersion);
+
+        // bridge is running after renderer window is refreshed
+        await suite.window.reload();
+        await suite.window.title();
+        // bridge is running
+        const bridgeRes2 = await request.get('http://127.0.0.1:21325/status/');
+        await expectPlaywright(bridgeRes2).toBeOK();
+
         await suite.electronApp.close();
 
         // bridge is not running
         try {
             await request.get('http://127.0.0.1:21325/status/');
             throw new Error('should have thrown!');
-        } catch (err) {
+        } catch {
             // ok
         }
     });
+
+    testPlaywright(
+        'App acquired device, EXTERNAL bridge is restarted, app reconnects',
+        async () => {
+            await TrezorUserEnvLink.startEmu({ wipe: true, version: '2-latest', model: 'T2T1' });
+            await TrezorUserEnvLink.setupEmu({});
+            await TrezorUserEnvLink.startBridge();
+
+            const suite = await launchSuite();
+            await suite.window.title();
+            await waitForDataTestSelector(suite.window, '@welcome/title');
+            await onDashboardPage.passThroughInitialRun(suite.window);
+
+            await TrezorUserEnvLink.stopBridge();
+
+            await waitForDataTestSelector(suite.window, '@connect-device-prompt');
+
+            await TrezorUserEnvLink.startBridge();
+            await waitForDataTestSelector(suite.window, '@dashboard/index');
+        },
+    );
 });

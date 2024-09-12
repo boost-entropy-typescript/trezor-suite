@@ -48,6 +48,7 @@ import { useCoinmarketCurrencySwitcher } from 'src/hooks/wallet/coinmarket/form/
 import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketModalCrypto';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { networks } from '@suite-common/wallet-config';
+import { analytics, EventType } from '@trezor/suite-analytics';
 
 const useCoinmarketBuyForm = ({
     selectedAccount,
@@ -188,7 +189,6 @@ const useCoinmarketBuyForm = ({
             }
 
             abortControllerRef.current = new AbortController();
-            invityAPI.createInvityAPIKey(account.descriptor);
 
             const allQuotes = await invityAPI.getBuyQuotes(
                 request,
@@ -197,7 +197,7 @@ const useCoinmarketBuyForm = ({
 
             return allQuotes;
         },
-        [account.descriptor, timer],
+        [timer],
     );
 
     const getQuoteRequestData = useCallback((): BuyTradeQuoteRequest => {
@@ -348,6 +348,13 @@ const useCoinmarketBuyForm = ({
     const confirmTrade = async (address: string) => {
         setCallInProgress(true);
         if (!selectedQuote) return;
+
+        analytics.report({
+            type: EventType.CoinmarketConfirmTrade,
+            payload: {
+                type,
+            },
+        });
 
         const returnUrl = await createTxLink(selectedQuote, account);
         const quote = { ...selectedQuote, receiveAddress: address };

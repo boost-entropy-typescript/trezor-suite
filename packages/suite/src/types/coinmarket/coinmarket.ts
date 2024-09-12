@@ -155,6 +155,7 @@ export type CoinmarketUtilsProvidersProps = {
 export interface CoinmarketInfoProps {
     cryptoIdToPlatformName: (cryptoId: CryptoId) => string | undefined;
     cryptoIdToCoinSymbol: (cryptoId: CryptoId) => string | undefined;
+    cryptoIdToNativeCoinSymbol: (cryptoId: CryptoId) => string | undefined;
     buildCryptoOptions: (
         cryptoIds: Set<CryptoId>,
         excludedCryptoIds?: Set<CryptoId>,
@@ -217,8 +218,8 @@ export interface CoinmarketGetAmountLabelsProps {
 
 export type CoinmarketPayGetLabelType =
     | Extract<ExtendedMessageDescriptor['id'], `TR_COINMARKET_YOU_${'PAY' | 'GET' | 'RECEIVE'}`>
-    | 'TR_COINMARKET_EXCHANGE'
-    | 'TR_COINMARKET_EXCHANGE_AMOUNT';
+    | 'TR_COINMARKET_SWAP'
+    | 'TR_COINMARKET_SWAP_AMOUNT';
 
 export interface CoinmarketGetAmountLabelsReturnProps {
     inputLabel: CoinmarketPayGetLabelType;

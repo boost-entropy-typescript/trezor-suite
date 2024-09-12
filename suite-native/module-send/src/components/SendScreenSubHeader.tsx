@@ -1,24 +1,27 @@
-import { ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 
-import { useNativeStyles } from '@trezor/styles';
-import { GoBackIcon, Screen, ScreenSubHeader } from '@suite-native/navigation';
-import { Text, HStack, VStack } from '@suite-native/atoms';
-import { AccountKey } from '@suite-common/wallet-types';
 import { CryptoIcon } from '@suite-common/icons-deprecated';
 import {
     AccountsRootState,
-    selectAccountAvailableBalance,
     selectAccountLabel,
     selectAccountNetworkSymbol,
+    selectAccountAvailableBalance,
 } from '@suite-common/wallet-core';
+import { AccountKey } from '@suite-common/wallet-types';
+import { VStack, HStack, Text } from '@suite-native/atoms';
 import { CryptoAmountFormatter, CryptoToFiatAmountFormatter } from '@suite-native/formatters';
+import { ScreenSubHeader, GoBackIcon, ScreenSubHeaderProps } from '@suite-native/navigation';
+import { nativeSpacings } from '@trezor/theme';
 
-type SendScreenSubHeaderProps = {
+type AccountBalanceScreenHeaderProps = {
     accountKey?: AccountKey;
 };
 
-const SendScreenSubHeader = ({ accountKey }: SendScreenSubHeaderProps) => {
+export const SendScreenSubHeader = (props: ScreenSubHeaderProps) => (
+    <ScreenSubHeader {...props} customHorizontalPadding={nativeSpacings.medium} />
+);
+
+export const AccountBalanceScreenHeader = ({ accountKey }: AccountBalanceScreenHeaderProps) => {
     const accountLabel = useSelector((state: AccountsRootState) =>
         selectAccountLabel(state, accountKey),
     );
@@ -35,7 +38,7 @@ const SendScreenSubHeader = ({ accountKey }: SendScreenSubHeaderProps) => {
     }
 
     return (
-        <ScreenSubHeader
+        <SendScreenSubHeader
             content={
                 <VStack spacing="extraSmall" alignItems="center">
                     <HStack spacing="small" alignItems="center">
@@ -64,23 +67,5 @@ const SendScreenSubHeader = ({ accountKey }: SendScreenSubHeaderProps) => {
             }
             leftIcon={<GoBackIcon />}
         />
-    );
-};
-
-type SendScreenProps = {
-    children: ReactNode;
-    accountKey?: AccountKey;
-};
-
-export const SendFormScreenWrapper = ({ children, accountKey }: SendScreenProps) => {
-    const { utils } = useNativeStyles();
-
-    return (
-        <Screen
-            customHorizontalPadding={utils.spacings.medium}
-            subheader={<SendScreenSubHeader accountKey={accountKey} />}
-        >
-            {children}
-        </Screen>
     );
 };

@@ -218,126 +218,126 @@ export default defineMessages({
         defaultMessage:
             'All fees included; the transaction fee is estimated at {feeAmount} ({feeAmountFiat}).',
     },
-    TR_EXCHANGE_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Exchange {fromCrypto} to {toCrypto} with {provider}',
-        id: 'TR_EXCHANGE_MODAL_FOR_YOUR_SAFETY',
+    TR_COINMARKET_SWAP_MODAL_FOR_YOUR_SAFETY: {
+        defaultMessage: 'Swap {fromCrypto} to {toCrypto} with {provider}',
+        id: 'TR_COINMARKET_SWAP_MODAL_FOR_YOUR_SAFETY',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to exchange',
-        id: 'TR_EXCHANGE_MODAL_CONFIRM',
+    TR_COINMARKET_SWAP_MODAL_CONFIRM: {
+        defaultMessage: 'I’m ready to swap',
+        id: 'TR_COINMARKET_SWAP_MODAL_CONFIRM',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_SECURITY_HEADER: {
+    TR_COINMARKET_SWAP_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
-        id: 'TR_EXCHANGE_MODAL_SECURITY_HEADER',
+        id: 'TR_COINMARKET_SWAP_MODAL_SECURITY_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_1: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_1: {
         defaultMessage:
-            "You're here to exchange cryptocurrency. If you were directed to this site for any other reason, please contact support before proceeding.",
-        id: 'TR_EXCHANGE_MODAL_TERMS_1',
+            "You're here to swap cryptocurrency. If you were directed to this site for any other reason, please contact support before proceeding.",
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_1',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_2: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_2: {
         defaultMessage:
-            "You're exchanging cryptocurrency for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_EXCHANGE_MODAL_TERMS_2',
+            "You're swapping cryptocurrency for your own account. You acknowledge that the provider's policies may require identity verification.",
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_2',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_3: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_3: {
         defaultMessage:
             'You understand that cryptocurrency transactions are irreversible and may not be refunded. Thus, fraudulent or accidental losses may be unrecoverable.',
-        id: 'TR_EXCHANGE_MODAL_TERMS_3',
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_3',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_VERIFIED_PARTNERS_HEADER: {
+    TR_COINMARKET_SWAP_MODAL_VERIFIED_PARTNERS_HEADER: {
         defaultMessage: 'Verified partners by Invity',
-        id: 'TR_EXCHANGE_MODAL_VERIFIED_PARTNERS_HEADER',
+        id: 'TR_COINMARKET_SWAP_MODAL_VERIFIED_PARTNERS_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_4: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_4: {
         defaultMessage:
             'You understand that Invity does not provide this service. {provider}’s terms govern the service.',
-        id: 'TR_EXCHANGE_MODAL_TERMS_4',
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_4',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_LEGAL_HEADER: {
+    TR_COINMARKET_SWAP_MODAL_LEGAL_HEADER: {
         defaultMessage: 'Legal notice',
-        id: 'TR_EXCHANGE_MODAL_LEGAL_HEADER',
+        id: 'TR_COINMARKET_SWAP_MODAL_LEGAL_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_5: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_5: {
         defaultMessage:
             "You're not using this feature for gambling, fraud or any other violation of either Invity’s or the provider's Terms of service, or of any applicable regulations.",
-        id: 'TR_EXCHANGE_MODAL_TERMS_5',
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_5',
         dynamic: true,
     },
-    TR_EXCHANGE_MODAL_TERMS_6: {
+    TR_COINMARKET_SWAP_MODAL_TERMS_6: {
         defaultMessage:
             'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_EXCHANGE_MODAL_TERMS_6',
+        id: 'TR_COINMARKET_SWAP_MODAL_TERMS_6',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Exchange {fromCrypto} to {toCrypto} with {provider}',
-        id: 'TR_EXCHANGE_DEX_MODAL_FOR_YOUR_SAFETY',
+    TR_COINMARKET_SWAP_DEX_MODAL_FOR_YOUR_SAFETY: {
+        defaultMessage: 'Swap {fromCrypto} to {toCrypto} with {provider}',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_FOR_YOUR_SAFETY',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to exchange',
-        id: 'TR_EXCHANGE_DEX_MODAL_CONFIRM',
+    TR_COINMARKET_SWAP_DEX_MODAL_CONFIRM: {
+        defaultMessage: 'I’m ready to swap',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_CONFIRM',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_SECURITY_HEADER: {
+    TR_COINMARKET_SWAP_DEX_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
-        id: 'TR_EXCHANGE_DEX_MODAL_SECURITY_HEADER',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_SECURITY_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_1: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_1: {
         defaultMessage:
-            "You're here to exchange cryptocurrency using DEX (Decentralized Exchange) by using {provider}'s contract.",
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_1',
+            "You're here to swap cryptocurrency using DEX (Decentralized Exchange) by using {provider}'s contract.",
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_1',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_2: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_2: {
         defaultMessage:
-            "You're exchanging cryptocurrency for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_2',
+            "You're swapping cryptocurrency for your own account. You acknowledge that the provider's policies may require identity verification.",
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_2',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_3: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_3: {
         defaultMessage:
             'You understand that cryptocurrency transactions are irreversible and may not be refunded. Thus, fraudulent or accidental losses may be unrecoverable.',
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_3',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_3',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_VERIFIED_PARTNERS_HEADER: {
+    TR_COINMARKET_SWAP_DEX_MODAL_VERIFIED_PARTNERS_HEADER: {
         defaultMessage: 'Verified partners by Invity',
-        id: 'TR_EXCHANGE_DEX_MODAL_VERIFIED_PARTNERS_HEADER',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_VERIFIED_PARTNERS_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_4: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_4: {
         defaultMessage:
             'You understand that Invity does not provide this service. {provider}’s terms govern the service.',
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_4',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_4',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_LEGAL_HEADER: {
+    TR_COINMARKET_SWAP_DEX_MODAL_LEGAL_HEADER: {
         defaultMessage: 'Legal notice',
-        id: 'TR_EXCHANGE_DEX_MODAL_LEGAL_HEADER',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_LEGAL_HEADER',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_5: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_5: {
         defaultMessage:
             "You're not using this feature for gambling, fraud or any other violation of either Invity’s or the provider's Terms of service, or of any applicable regulations.",
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_5',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_5',
         dynamic: true,
     },
-    TR_EXCHANGE_DEX_MODAL_TERMS_6: {
+    TR_COINMARKET_SWAP_DEX_MODAL_TERMS_6: {
         defaultMessage:
             'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_EXCHANGE_DEX_MODAL_TERMS_6',
+        id: 'TR_COINMARKET_SWAP_DEX_MODAL_TERMS_6',
         dynamic: true,
     },
     TR_EXCHANGE_STATUS_ERROR: {
@@ -633,6 +633,14 @@ export default defineMessages({
     TR_EXCHANGE_USE_NON_SUITE_ACCOUNT: {
         defaultMessage: "Use an account ({symbol}) that isn't in Suite",
         id: 'TR_EXCHANGE_USE_NON_SUITE_ACCOUNT',
+    },
+    TR_EXCHANGE_CONFIRM_ON_TREZOR: {
+        defaultMessage: 'Confirm on Trezor',
+        id: 'TR_EXCHANGE_CONFIRM_ON_TREZOR',
+    },
+    TR_EXCHANGE_GO_TO_PAYMENT: {
+        defaultMessage: 'Continue transaction',
+        id: 'TR_EXCHANGE_GO_TO_PAYMENT',
     },
     TR_EXCHANGE_SELL: {
         defaultMessage: 'Exchange',
@@ -1324,7 +1332,7 @@ export default defineMessages({
         id: 'TR_COINMARKET_OFFER_LOOKING',
     },
     TR_COINMARKET_OFFER_NO_FOUND: {
-        defaultMessage: 'No offers available for your request.',
+        defaultMessage: 'No offers available for your request. Change amount or currency.',
         id: 'TR_COINMARKET_OFFER_NO_FOUND',
     },
     TR_COINMARKET_CHANGE_AMOUNT_OR_CURRENCY: {
@@ -1444,13 +1452,9 @@ export default defineMessages({
         defaultMessage: 'No methods available',
         id: 'TR_COINMARKET_NO_METHODS_AVAILABLE',
     },
-    TR_COINMARKET_EXCHANGE: {
-        defaultMessage: 'Exchange',
-        id: 'TR_COINMARKET_EXCHANGE',
-    },
-    TR_COINMARKET_EXCHANGE_AMOUNT: {
-        defaultMessage: 'Exchange amount',
-        id: 'TR_COINMARKET_EXCHANGE_AMOUNT',
+    TR_COINMARKET_SWAP_AMOUNT: {
+        defaultMessage: 'Swap amount',
+        id: 'TR_COINMARKET_SWAP_AMOUNT',
     },
     TR_COINMARKET_ON_NETWORK_CHAIN: {
         defaultMessage: 'On {networkName} chain',
@@ -1527,6 +1531,14 @@ export default defineMessages({
     TR_COINMARKET_DCA_DOWNLOAD: {
         defaultMessage: 'Download Invity mobile app to start saving in Bitcoin',
         id: 'TR_COINMARKET_DCA_DOWNLOAD',
+    },
+    TR_COINMARKET_BUY_AND_SELL: {
+        defaultMessage: 'Buy & Sell',
+        id: 'TR_COINMARKET_BUY_AND_SELL',
+    },
+    TR_COINMARKET_SWAP: {
+        defaultMessage: 'Swap',
+        id: 'TR_COINMARKET_SWAP',
     },
     TR_ADDRESS_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy address',
@@ -1909,7 +1921,7 @@ export default defineMessages({
         id: 'TR_CREATE_SHARES_CARD_2',
     },
     TR_CREATE_SHARES_CARD_3: {
-        defaultMessage: "Make sure it's just you, no curious onlookers",
+        defaultMessage: "Make sure it's just you—no curious onlookers",
         id: 'TR_CREATE_SHARES_CARD_3',
     },
     TR_ENTER_EXISTING_BACKUP: {
@@ -2735,9 +2747,9 @@ export default defineMessages({
         id: 'TR_ACCOUNT_TYPE_IMPORTED',
         dynamic: true,
     },
-    TR_ACCOUNT_TYPE_NORMAL: {
-        defaultMessage: 'Normal',
-        id: 'TR_ACCOUNT_TYPE_NORMAL',
+    TR_ACCOUNT_TYPE_DEFAULT: {
+        defaultMessage: 'Default',
+        id: 'TR_ACCOUNT_TYPE_DEFAULT',
         dynamic: true,
     },
     TR_ACCOUNT_TYPE_SEGWIT: {
@@ -3978,12 +3990,30 @@ export default defineMessages({
         id: 'TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED',
         defaultMessage: 'Enabled',
     },
-    TR_TOR_ENABLED: { id: 'TR_TOR_ENABLED', defaultMessage: 'Enabled' },
-    TR_TOR_DISABLED: { id: 'TR_TOR_DISABLED', defaultMessage: 'Disabled' },
-    TR_TOR_DISABLING: { id: 'TR_TOR_DISABLING', defaultMessage: 'Disabling' },
-    TR_TOR_ENABLING: { id: 'TR_TOR_ENABLING', defaultMessage: 'Enabling' },
-    TR_TOR_ERROR: { id: 'TR_TOR_ERROR', defaultMessage: 'Error' },
-    TR_TOR_MISBEHAVING: { id: 'TR_TOR_MISBEHAVING', defaultMessage: 'Misbehaving' },
+    TR_TOR_ENABLED: {
+        id: 'TR_TOR_ENABLED',
+        defaultMessage: 'Enabled',
+    },
+    TR_TOR_DISABLED: {
+        id: 'TR_TOR_DISABLED',
+        defaultMessage: 'Disabled',
+    },
+    TR_TOR_DISABLING: {
+        id: 'TR_TOR_DISABLING',
+        defaultMessage: 'Disabling',
+    },
+    TR_TOR_ENABLING: {
+        id: 'TR_TOR_ENABLING',
+        defaultMessage: 'Enabling',
+    },
+    TR_TOR_ERROR: {
+        id: 'TR_TOR_ERROR',
+        defaultMessage: 'Error',
+    },
+    TR_TOR_MISBEHAVING: {
+        id: 'TR_TOR_MISBEHAVING',
+        defaultMessage: 'Misbehaving',
+    },
     TR_TOR_TITLE: {
         id: 'TR_TOR_TITLE',
         defaultMessage: 'Tor',
@@ -5047,7 +5077,8 @@ export default defineMessages({
     },
     TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON: {
         id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON',
-        defaultMessage: 'Enable the BNB Smart Chain without historical internal transactions.',
+        defaultMessage:
+            'Allows to enable network BNB Smart Chain. Missing historical internal transactions.',
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER',
@@ -8527,7 +8558,7 @@ export default defineMessages({
     },
     TR_STAKE_ETH_CARD_TITLE: {
         id: 'TR_STAKE_ETH_CARD_TITLE',
-        defaultMessage: 'The easiest way to earn {symbol}.',
+        defaultMessage: 'The easiest way to earn {symbol}',
     },
     TR_STAKE_ETH_EARN_REPEAT: {
         id: 'TR_STAKE_ETH_EARN_REPEAT',
@@ -8543,7 +8574,7 @@ export default defineMessages({
     },
     TR_STAKE_APY_DESC: {
         id: 'TR_STAKE_APY_DESC',
-        defaultMessage: 'Annual Percentage Yield',
+        defaultMessage: '*Annual Percentage Yield',
     },
     TR_STAKE_ETH_LOCK_FUNDS: {
         id: 'TR_STAKE_ETH_LOCK_FUNDS',

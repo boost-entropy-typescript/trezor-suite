@@ -238,7 +238,7 @@ export const getAccountTypeName = ({ path, accountType, networkType }: getAccoun
             case 'legacy':
                 return 'TR_ACCOUNT_TYPE_LEGACY';
             case 'normal':
-                return 'TR_ACCOUNT_TYPE_NORMAL';
+                return 'TR_ACCOUNT_TYPE_DEFAULT';
         }
     } else {
         switch (accountType?.toLowerCase()) {
@@ -349,7 +349,7 @@ export const formatAmount = (amount: BigNumberValue, decimals: number) => {
         }
 
         return bAmount.div(10 ** decimals).toString(10);
-    } catch (error) {
+    } catch {
         return '-1'; // TODO: this is definitely not correct return value
     }
 };
@@ -362,7 +362,7 @@ export const amountToSatoshi = (amount: BigNumberValue, decimals: number) => {
         }
 
         return bAmount.times(10 ** decimals).toString(10);
-    } catch (error) {
+    } catch {
         // TODO: return null, so we can decide how to handle missing value in caller component
         return '-1';
     }
@@ -376,7 +376,7 @@ export const satoshiAmountToBtc = (amount: BigNumberValue) => {
         }
 
         return satsAmount.times(10 ** -8).toString(10);
-    } catch (error) {
+    } catch {
         // TODO: return null, so we can decide how to handle missing value in caller component
         return '-1';
     }

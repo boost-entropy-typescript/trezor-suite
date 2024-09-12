@@ -11,7 +11,7 @@ const wait = (ms = 1000) =>
         }, ms);
     });
 
-const getDescriptor = (descriptor: any): Descriptor => ({
+const getDescriptor = (descriptor: Partial<Descriptor>): Descriptor => ({
     ...fixtureDescriptor,
     session: '1',
     ...descriptor,
@@ -23,7 +23,7 @@ describe('bridge', () => {
     let bridge1: BridgeTransport;
     let bridge2: BridgeTransport;
 
-    let descriptors: any[];
+    let descriptors: Descriptor[];
 
     /**
      * set bridge1 and bridge2 descriptors and start listening
@@ -93,32 +93,12 @@ describe('bridge', () => {
             session: '1',
         });
 
-        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [expectedDescriptor1],
-            acquiredByMyself: [expectedDescriptor1], // difference here
-            acquiredElsewhere: [],
-            changedSessions: [expectedDescriptor1],
-            connected: [],
-            descriptors: [expectedDescriptor1],
-            didUpdate: true,
-            disconnected: [],
-            released: [],
-            releasedByMyself: [],
-            releasedElsewhere: [],
-        });
-        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [expectedDescriptor1],
-            acquiredByMyself: [],
-            acquiredElsewhere: [expectedDescriptor1], // difference here
-            changedSessions: [expectedDescriptor1],
-            connected: [],
-            descriptors: [expectedDescriptor1],
-            didUpdate: true,
-            disconnected: [],
-            released: [],
-            releasedByMyself: [],
-            releasedElsewhere: [],
-        });
+        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'acquired', subtype: 'here', descriptor: expectedDescriptor1 },
+        ]);
+        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'acquired', subtype: 'elsewhere', descriptor: expectedDescriptor1 },
+        ]);
 
         expect(session1.success).toBe(true);
         if (!session1.success) {
@@ -134,33 +114,13 @@ describe('bridge', () => {
             session: null,
         });
 
-        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [],
-            acquiredByMyself: [],
-            acquiredElsewhere: [],
-            changedSessions: [expectedDescriptor2],
-            connected: [],
-            descriptors: [expectedDescriptor2],
-            didUpdate: true,
-            disconnected: [],
-            released: [expectedDescriptor2],
-            releasedByMyself: [expectedDescriptor2], // difference here
-            releasedElsewhere: [],
-        });
+        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'released', subtype: 'here', descriptor: expectedDescriptor2 },
+        ]);
 
-        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [],
-            acquiredByMyself: [],
-            acquiredElsewhere: [],
-            changedSessions: [expectedDescriptor2],
-            connected: [],
-            descriptors: [expectedDescriptor2],
-            didUpdate: true,
-            disconnected: [],
-            released: [expectedDescriptor2],
-            releasedByMyself: [],
-            releasedElsewhere: [expectedDescriptor2], // difference here
-        });
+        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'released', subtype: 'elsewhere', descriptor: expectedDescriptor2 },
+        ]);
 
         const session2 = await bridge2.acquire({
             input: { previous: null, path: descriptors[0].path },
@@ -199,33 +159,13 @@ describe('bridge', () => {
 
         await wait(); // wait for event to be propagated
 
-        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [expectedDescriptor],
-            acquiredByMyself: [],
-            acquiredElsewhere: [expectedDescriptor],
-            changedSessions: [expectedDescriptor],
-            connected: [],
-            descriptors: [expectedDescriptor],
-            didUpdate: true,
-            disconnected: [],
-            released: [],
-            releasedByMyself: [],
-            releasedElsewhere: [],
-        });
+        expect(bride1spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'acquired', subtype: 'elsewhere', descriptor: expectedDescriptor },
+        ]);
 
-        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', {
-            acquired: [expectedDescriptor],
-            acquiredByMyself: [expectedDescriptor],
-            acquiredElsewhere: [],
-            changedSessions: [expectedDescriptor],
-            connected: [],
-            descriptors: [expectedDescriptor],
-            didUpdate: true,
-            disconnected: [],
-            released: [],
-            releasedByMyself: [],
-            releasedElsewhere: [],
-        });
+        expect(bride2spy).toHaveBeenLastCalledWith('transport-update', [
+            { type: 'acquired', subtype: 'here', descriptor: expectedDescriptor },
+        ]);
     });
 
     // todo: udp not implemented correctly yet in new bridge

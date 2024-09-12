@@ -12,10 +12,15 @@ import { formattedAccountTypeMap } from './accountsConstants';
 import {
     DeviceRootState,
     selectDevice,
+    selectDeviceState,
     selectHasOnlyPortfolioDevice,
 } from '../device/deviceReducer';
 import { deviceActions } from '../device/deviceActions';
-import { DiscoveryRootState, selectIsDeviceDiscoveryActive } from '../discovery/discoveryReducer';
+import {
+    DiscoveryRootState,
+    selectHasDeviceDiscovery,
+    selectIsDeviceDiscoveryActive,
+} from '../discovery/discoveryReducer';
 
 export type AccountsState = Account[];
 
@@ -143,15 +148,14 @@ export const prepareAccountsReducer = createReducerWithExtraDeps(
 
 export const selectAccounts = (state: AccountsRootState) => state.wallet.accounts;
 
-export const selectAccountsByDeviceState = memoizeWithArgs(
-    (state: AccountsRootState, deviceState: string): Account[] =>
-        pipe(
-            selectAccounts(state),
-            A.filter(account => account.deviceState === deviceState),
-        ) as Account[],
-    // cache up to 3 devices to make sure it works correctly
-    { size: 3 },
-);
+export const selectAccountsByDeviceState = (
+    state: AccountsRootState,
+    deviceState: string,
+): Account[] =>
+    pipe(
+        selectAccounts(state),
+        A.filter(account => account.deviceState === deviceState),
+    ) as Account[];
 
 export const selectAccountsByDeviceStateAndNetworkSymbol = (
     state: AccountsRootState,
@@ -270,6 +274,9 @@ export const selectVisibleNonEmptyDeviceAccountsByNetworkSymbol = (
         account => !account.empty || account.visible,
     );
 
+export const selectNonEmptyDeviceAccounts = (state: AccountsRootState & DeviceRootState) =>
+    selectDeviceAccounts(state).filter(account => !account.empty);
+
 export const selectAccountsByNetworkAndDeviceState = memoizeWithArgs(
     (state: AccountsRootState, deviceState: string, networkSymbol: NetworkSymbol) => {
         const accounts = selectAccounts(state);
@@ -280,6 +287,16 @@ export const selectAccountsByNetworkAndDeviceState = memoizeWithArgs(
     },
     {
         size: 80,
+    },
+);
+
+export const selectFirstNormalAccountForNetworkSymbol = memoizeWithArgs(
+    (state: AccountsRootState & DeviceRootState, networkSymbol: NetworkSymbol) =>
+        selectDeviceAccountsForNetworkSymbolAndAccountType(state, networkSymbol, 'normal').filter(
+            account => account.index === 0,
+        )[0] ?? null,
+    {
+        size: Object.keys(networks).length,
     },
 );
 
@@ -386,7 +403,7 @@ export const selectIsDeviceAccountless = (state: AccountsRootState & DeviceRootS
     pipe(selectVisibleDeviceAccounts(state), A.isEmpty);
 
 // Selected device has no accounts and no active discovery. It can be empty portfolio device.
-export const selectIsEmptyDevice = (
+export const selectIsDiscoveredDeviceAccountless = (
     state: AccountsRootState & DeviceRootState & DiscoveryRootState,
 ) => {
     const isDeviceAccountless = selectIsDeviceAccountless(state);
@@ -397,9 +414,31 @@ export const selectIsEmptyDevice = (
 
 export const selectHasOnlyEmptyPortfolioTracker = memoize(
     (state: AccountsRootState & DeviceRootState & DiscoveryRootState) => {
-        const isEmptyDevice = selectIsEmptyDevice(state);
+        const isDiscoveredDeviceAccountless = selectIsDiscoveredDeviceAccountless(state);
         const hasOnlyPortfolioDevice = selectHasOnlyPortfolioDevice(state);
 
-        return isEmptyDevice && hasOnlyPortfolioDevice;
+        return isDiscoveredDeviceAccountless && hasOnlyPortfolioDevice;
     },
 );
+
+// If we know that device is not empty, we can return true right away.
+// Otherwise we return null and wait until discovery finishes
+export const selectIsDeviceNotEmpty = (
+    state: AccountsRootState & DeviceRootState & DiscoveryRootState,
+) => {
+    const deviceState = selectDeviceState(state);
+    const nonEmptyAccounts = selectNonEmptyDeviceAccounts(state);
+    const hasDiscovery = selectHasDeviceDiscovery(state);
+
+    const isNotEmpty = A.isNotEmpty(nonEmptyAccounts);
+
+    if (isNotEmpty) {
+        return true;
+    }
+
+    if (hasDiscovery || !deviceState) {
+        return null;
+    }
+
+    return isNotEmpty;
+};

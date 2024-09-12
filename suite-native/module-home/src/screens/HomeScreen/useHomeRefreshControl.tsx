@@ -8,10 +8,10 @@ import { useNativeStyles } from '@trezor/styles';
 import { PortfolioGraphRef } from './components/PortfolioGraph';
 
 export const useHomeRefreshControl = ({
-    isEmptyDevice,
+    isDiscoveredDeviceAccountless,
     portfolioContentRef,
 }: {
-    isEmptyDevice: boolean;
+    isDiscoveredDeviceAccountless: boolean;
     portfolioContentRef: React.MutableRefObject<PortfolioGraphRef | null>;
 }) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -27,14 +27,14 @@ export const useHomeRefreshControl = ({
                 portfolioContentRef.current?.refetchGraph?.(),
                 dispatch(syncAllAccountsWithBlockchainThunk()),
             ]);
-        } catch (error) {
+        } catch {
             // Do nothing
         }
         setIsRefreshing(false);
     }, [dispatch, portfolioContentRef]);
 
     const refreshControl = useMemo(() => {
-        if (isEmptyDevice) return undefined;
+        if (isDiscoveredDeviceAccountless) return undefined;
 
         return (
             <RefreshControl
@@ -43,7 +43,7 @@ export const useHomeRefreshControl = ({
                 colors={[colors.backgroundPrimaryDefault]}
             />
         );
-    }, [isEmptyDevice, handleRefresh, colors, isRefreshing]);
+    }, [isDiscoveredDeviceAccountless, handleRefresh, colors, isRefreshing]);
 
     return refreshControl;
 };

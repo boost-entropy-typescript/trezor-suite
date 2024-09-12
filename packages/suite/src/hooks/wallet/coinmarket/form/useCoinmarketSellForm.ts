@@ -48,6 +48,7 @@ import { useCoinmarketCurrencySwitcher } from 'src/hooks/wallet/coinmarket/form/
 import { networks } from '@suite-common/wallet-config';
 import { useCoinmarketAccount } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketAccount';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
+import { analytics, EventType } from '@trezor/suite-analytics';
 
 export const useCoinmarketSellForm = ({
     selectedAccount,
@@ -200,24 +201,17 @@ export const useCoinmarketSellForm = ({
         },
     });
 
-    const getQuotesRequest = useCallback(
-        async (request: SellFiatTradeQuoteRequest) => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
+    const getQuotesRequest = useCallback(async (request: SellFiatTradeQuoteRequest) => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
 
-            abortControllerRef.current = new AbortController();
-            invityAPI.createInvityAPIKey(account.descriptor);
+        abortControllerRef.current = new AbortController();
 
-            const allQuotes = await invityAPI.getSellQuotes(
-                request,
-                abortControllerRef.current.signal,
-            );
+        const allQuotes = await invityAPI.getSellQuotes(request, abortControllerRef.current.signal);
 
-            return allQuotes;
-        },
-        [account.descriptor],
-    );
+        return allQuotes;
+    }, []);
 
     const getQuoteRequestData = useCallback((): SellFiatTradeQuoteRequest | null => {
         const { outputs, countrySelect, sendCryptoSelect, amountInCrypto } = methods.getValues();
@@ -455,6 +449,14 @@ export const useCoinmarketSellForm = ({
 
     const confirmTrade = async (bankAccount: BankAccount) => {
         if (!selectedQuote) return;
+
+        analytics.report({
+            type: EventType.CoinmarketConfirmTrade,
+            payload: {
+                type,
+            },
+        });
+
         const quote = { ...selectedQuote, bankAccount };
         const response = await doSellTrade(quote);
         if (response) {
@@ -469,6 +471,8 @@ export const useCoinmarketSellForm = ({
     };
 
     const sendTransaction = async () => {
+        dispatch(coinmarketCommonActions.setCoinmarketModalAccount(account));
+
         // destinationAddress may be set by useCoinmarketWatchTrade hook to the trade object
         const destinationAddress =
             selectedQuote?.destinationAddress || trade?.data?.destinationAddress;
