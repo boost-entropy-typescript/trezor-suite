@@ -1,26 +1,61 @@
-import { spacingsPx, typography } from '@trezor/theme';
 import { ReactNode } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
-export interface TableCellProps {
-    children: ReactNode;
-    $alignRight?: boolean;
-    $isHeader?: boolean;
-}
+import { typography, spacingsPx, Elevation, mapElevationToBackground } from '@trezor/theme';
 
-export const TableCell = styled(({ $isHeader, $alignRight, ...props }: TableCellProps) =>
-    $isHeader ? <th {...props} /> : <td {...props} />,
-)<TableCellProps>`
+import { useTableHeader } from './TableHeader';
+import { UIHorizontalAlignment } from '../../config/types';
+import { useElevation } from '../ElevationContext/ElevationContext';
+
+export type TableCellProps = {
+    children?: ReactNode;
+    colSpan?: number;
+    align?: UIHorizontalAlignment;
+};
+
+const mapAlignmentToJustifyContent = (align: UIHorizontalAlignment) => {
+    const map: Record<UIHorizontalAlignment, string> = {
+        left: 'flex-start',
+        center: 'center',
+        right: 'flex-end',
+    };
+
+    return map[align];
+};
+
+const Cell = styled.td<{ $isHeader: boolean; $elevation: Elevation }>`
     ${({ $isHeader }) => ($isHeader ? typography.hint : typography.body)}
     color: ${({ theme, $isHeader }) => ($isHeader ? theme.textSubdued : theme.textDefault)};
-    display: flex;
-    align-items: center;
-    justify-self: left;
+    text-align: left;
+    padding: ${spacingsPx.sm} ${spacingsPx.lg};
+    max-width: 300px;
+    overflow: hidden;
 
-    ${({ $alignRight }) =>
-        $alignRight &&
-        css`
-            justify-self: right;
-            padding-right: ${spacingsPx.xxxl};
-        `}
+    &:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: linear-gradient(to right, ${mapElevationToBackground} 90%, rgba(0 0 0 / 0%));
+    }
 `;
+
+const Content = styled.div<{ $align: UIHorizontalAlignment }>`
+    display: flex;
+    justify-content: ${({ $align }) => mapAlignmentToJustifyContent($align)};
+`;
+
+export const TableCell = ({ children, colSpan = 1, align = 'left' }: TableCellProps) => {
+    const isHeader = useTableHeader();
+    const { parentElevation } = useElevation();
+
+    return (
+        <Cell
+            as={isHeader ? 'th' : 'td'}
+            colSpan={colSpan}
+            $isHeader={isHeader}
+            $elevation={parentElevation}
+        >
+            <Content $align={align}>{children}</Content>
+        </Cell>
+    );
+};

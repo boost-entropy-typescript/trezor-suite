@@ -1,7 +1,10 @@
 import { networks, networksCompatibility } from './networksConfig';
 import { AccountType, Network, NetworkFeature, Networks, NetworkSymbol } from './types';
 
-const networksCollection: Network[] = Object.values(networks);
+/**
+ * array from `networks` as a `Network[]` type instead of inferred type
+ */
+export const networksCollection: Network[] = Object.values(networks);
 
 /**
  * @deprecated See `networksCompatibility`
@@ -30,10 +33,6 @@ export const getMainnets = (debug = false, bnb = false) =>
 
 export const getTestnets = (debug = false) =>
     networksCollection.filter(n => n.testnet === true && (!n.isDebugOnlyNetwork || debug));
-
-export const ethereumTypeNetworkSymbols = networksCollection
-    .filter(n => n.networkType === 'ethereum')
-    .map(n => n.symbol);
 
 export const getTestnetSymbols = () => getTestnets().map(n => n.symbol);
 
@@ -65,6 +64,16 @@ export const getCoingeckoId = (symbol: NetworkSymbol) => networks[symbol]?.coing
 
 export const isNetworkSymbol = (symbol: NetworkSymbol | string): symbol is NetworkSymbol =>
     networks.hasOwnProperty(symbol);
+
+/**
+ * Get network object by symbol as a generic `Network` type.
+ * If you need the exact inferred type, use `networks[symbol]` directly.
+ * @param symbol
+ */
+export const getNetwork = (symbol: NetworkSymbol): Network => networks[symbol];
+
+export const getNetworkOptional = (symbol?: string) =>
+    symbol && isNetworkSymbol(symbol) ? getNetwork(symbol) : undefined;
 
 export const getNetworkByCoingeckoId = (coingeckoId: string) =>
     networksCollection.find(n => n.coingeckoId === coingeckoId);

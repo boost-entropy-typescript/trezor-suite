@@ -1,56 +1,63 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 
-import { borders, Elevation, mapElevationToBackground } from '@trezor/theme';
-
+import { mapElevationToBackgroundToken } from '@trezor/theme';
+import { FrameProps, FramePropsKeys, withFrameProps } from '../../utils/frameProps';
+import { makePropsTransient, TransientProps } from '../../utils/transientProps';
 import { TableHeader } from './TableHeader';
-import { TableCell, TableCellProps } from './TableCell';
+import { TableCell } from './TableCell';
 import { TableRow } from './TableRow';
+import { TableBody } from './TableBody';
+import { useScrollShadow } from '../../utils/useScrollShadow';
 import { useElevation } from '../ElevationContext/ElevationContext';
-import {
-    FrameProps,
-    FramePropsKeys,
-    pickAndPrepareFrameProps,
-    withFrameProps,
-} from '../../utils/frameProps';
-import { TransientProps } from '../../utils/transientProps';
 
 export const allowedTableFrameProps = ['margin'] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedTableFrameProps)[number]>;
 
-const Container = styled.table<{ $elevation: Elevation } & TransientProps<AllowedFrameProps>>`
-    display: flex;
+const Container = styled.table<TransientProps<AllowedFrameProps>>`
     width: 100%;
-    flex-direction: column;
-    background: ${mapElevationToBackground};
-    border-radius: ${borders.radii.md};
-    box-shadow: ${({ theme, $elevation }) => $elevation === 1 && theme.boxShadowBase};
+    border-collapse: collapse;
+    position: relative;
 
     ${withFrameProps}
 `;
 
-interface TableProps {
-    children: ReactNode;
-}
+const ScrollContainer = styled.div`
+    overflow: auto hidden;
+    -webkit-overflow-scrolling: touch;
+`;
 
-export const Table = ({ children, ...rest }: TableProps) => {
-    const frameProps = pickAndPrepareFrameProps(rest, allowedTableFrameProps);
-    const { elevation } = useElevation();
+export type TableProps = AllowedFrameProps & {
+    children: ReactNode;
+    colWidths?: string[];
+};
+
+export const Table = ({ children, margin, colWidths }: TableProps) => {
+    const { scrollElementRef, onScroll, ShadowContainer, ShadowRight } = useScrollShadow();
+    const { parentElevation } = useElevation();
 
     return (
-        <Container $elevation={elevation} {...frameProps}>
-            {children}
-        </Container>
+        <ShadowContainer>
+            <ScrollContainer onScroll={onScroll} ref={scrollElementRef}>
+                <Container {...makePropsTransient({ margin })}>
+                    {colWidths && (
+                        <colgroup>
+                            {colWidths.map((width, index) => (
+                                <col key={index} style={{ width }} />
+                            ))}
+                        </colgroup>
+                    )}
+                    {children}
+                </Container>
+            </ScrollContainer>
+            <ShadowRight
+                backgroundColor={mapElevationToBackgroundToken({ $elevation: parentElevation })}
+            />
+        </ShadowContainer>
     );
 };
 
 Table.Row = TableRow;
 Table.Cell = TableCell;
-Table.HeaderRow = TableHeader;
-Table.HeaderCell = (props: TableCellProps) => (
-    <TableCell $isHeader {...props}>
-        {props.children}
-    </TableCell>
-);
-
-export default Table;
+Table.Header = TableHeader;
+Table.Body = TableBody;

@@ -13,7 +13,7 @@ import {
     selectAccountsByNetworkAndDeviceState,
     selectDeviceAccounts,
     selectDeviceAuthFailed,
-    selectDeviceDiscovery,
+    selectHasDeviceDiscovery,
     selectDeviceFirmwareVersion,
     selectDeviceModel,
     selectDeviceState,
@@ -30,7 +30,7 @@ import { FeatureFlagsRootState } from '@suite-native/feature-flags';
 import {
     DiscoveryConfigSliceRootState,
     selectDiscoverySupportedNetworks,
-    selectEnabledDiscoveryNetworkSymbols,
+    selectDeviceEnabledDiscoveryNetworkSymbols,
     selectIsCoinEnablingInitFinished,
 } from './discoveryConfigSlice';
 import { getNetworksWithUnfinishedDiscovery } from './utils';
@@ -108,7 +108,7 @@ export const selectNetworksWithUnfinishedDiscovery = (
         DiscoveryConfigSliceRootState,
     forcedAreTestnetsEnabled?: boolean,
 ) => {
-    const enabledNetworkSymbols = selectEnabledDiscoveryNetworkSymbols(
+    const enabledNetworkSymbols = selectDeviceEnabledDiscoveryNetworkSymbols(
         state,
         forcedAreTestnetsEnabled,
     );
@@ -152,7 +152,7 @@ export const selectCanRunDiscoveryForDevice = (
     }
 
     const isCoinEnablingInitFinished = selectIsCoinEnablingInitFinished(state);
-    const discovery = selectDeviceDiscovery(state);
+    const hasDiscovery = selectHasDeviceDiscovery(state);
     const deviceModel = selectDeviceModel(state);
     const deviceFwVersion = selectDeviceFirmwareVersion(state);
     const isDeviceConnectedAndAuthorized = selectIsDeviceConnectedAndAuthorized(state);
@@ -170,7 +170,7 @@ export const selectCanRunDiscoveryForDevice = (
 
     return (
         isCoinEnablingInitFinished &&
-        !discovery &&
+        !hasDiscovery &&
         isDeviceConnectedAndAuthorized &&
         !isPortfolioTrackerDevice &&
         !isDeviceInViewOnlyMode &&
