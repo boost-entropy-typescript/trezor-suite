@@ -21,7 +21,7 @@ import {
     selectHasDeviceDiscovery,
 } from '@suite-common/wallet-core';
 import { selectIsAccountAlreadyDiscovered } from '@suite-native/accounts';
-import TrezorConnect from '@trezor/connect';
+import TrezorConnect, { StaticSessionId } from '@trezor/connect';
 import { Account, DiscoveryItem } from '@suite-common/wallet-types';
 import { getDerivationType, tryGetAccountIdentity } from '@suite-common/wallet-utils';
 import {
@@ -33,7 +33,6 @@ import {
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import { requestDeviceAccess } from '@suite-native/device-mutex';
 import { analytics, EventType } from '@suite-native/analytics';
-import { FeatureFlag, selectIsFeatureFlagEnabled } from '@suite-native/feature-flags';
 
 import {
     selectDiscoveryInfo,
@@ -192,7 +191,7 @@ const getCardanoSupportedAccountTypesThunk = createThunk(
         {
             deviceState,
         }: {
-            deviceState: string;
+            deviceState: StaticSessionId;
         },
         { dispatch, getState },
     ) => {
@@ -233,7 +232,7 @@ export const addAccountByDescriptorThunk = createThunk(
             bundleItem,
             identity,
         }: {
-            deviceState: string;
+            deviceState: StaticSessionId;
             bundleItem: DiscoveryDescriptorItem;
             identity?: string;
         },
@@ -293,7 +292,7 @@ const discoverAccountsByDescriptorThunk = createThunk(
             identity,
         }: {
             descriptorsBundle: DiscoveryDescriptorItem[];
-            deviceState: string;
+            deviceState: StaticSessionId;
             identity?: string;
         },
         { dispatch, getState },
@@ -326,18 +325,12 @@ const discoverAccountsByDescriptorThunk = createThunk(
                 if (accountInfo.empty) {
                     isFinalRound = true;
                 }
-                const isCoinEnablingActive = selectIsFeatureFlagEnabled(
-                    getState(),
-                    FeatureFlag.IsCoinEnablingActive,
-                );
 
                 const isVisible =
                     // If the account is not empty, it should be visible.
                     !accountInfo.empty ||
-                    // If the feature flag is enabled, first normal account should be visible.
-                    (isCoinEnablingActive &&
-                        bundleItem.accountType === 'normal' &&
-                        bundleItem.index === 0);
+                    // first normal account should be visible every time
+                    (bundleItem.accountType === 'normal' && bundleItem.index === 0);
 
                 dispatch(
                     accountsActions.createIndexLabeledAccount({
@@ -358,7 +351,7 @@ export const addAndDiscoverNetworkAccountThunk = createThunk<
     Account,
     {
         network: NetworkCompatible;
-        deviceState: string;
+        deviceState: StaticSessionId;
     },
     { rejectValue: string }
 >(
@@ -440,7 +433,7 @@ const discoverNetworkBatchThunk = createThunk(
             round = 1,
             network,
         }: {
-            deviceState: string;
+            deviceState: StaticSessionId;
             round?: number;
             network: NetworkCompatible;
         },
@@ -554,7 +547,7 @@ export const createDescriptorPreloadedDiscoveryThunk = createThunk(
             networks,
             availableCardanoDerivations,
         }: {
-            deviceState: string;
+            deviceState: StaticSessionId;
             networks: readonly NetworkCompatible[];
             availableCardanoDerivations: ('normal' | 'legacy' | 'ledger')[] | undefined;
         },
@@ -607,7 +600,7 @@ export const startDescriptorPreloadedDiscoveryThunk = createThunk(
         {
             forcedAreTestnetsEnabled,
             forcedDeviceState, // device state can be pushed from outside (e.g. in middleware when fetched from action)
-        }: { forcedAreTestnetsEnabled?: boolean; forcedDeviceState?: string },
+        }: { forcedAreTestnetsEnabled?: boolean; forcedDeviceState?: StaticSessionId },
         { dispatch, getState },
     ) => {
         const deviceState = forcedDeviceState ?? selectDeviceState(getState());
@@ -715,28 +708,22 @@ export const discoveryCheckThunk = createThunk(
 export const applyDiscoveryChangesThunk = createThunk(
     `${DISCOVERY_MODULE_PREFIX}/applyDiscoveryChangesThunk`,
     (_, { dispatch, getState }) => {
-        const isCoinEnablingActive = selectIsFeatureFlagEnabled(
-            getState(),
-            FeatureFlag.IsCoinEnablingActive,
-        );
-
-        // Make sure that first normal account is visible for enabled networks when coin enabling is active
+        // Make sure that first normal account is visible for enabled networks
         // This might be needed in case user has View only device from before coin enabling was active
         // in such case the first normal account can be invisible. We need to make it visible.
-        if (isCoinEnablingActive) {
-            const enabledDiscoveryNetworkSymbols =
-                selectDeviceEnabledDiscoveryNetworkSymbols(getState());
-            enabledDiscoveryNetworkSymbols.forEach(networkSymbol => {
-                const firstNormalAccount = selectFirstNormalAccountForNetworkSymbol(
-                    getState(),
-                    networkSymbol,
-                );
+        const enabledDiscoveryNetworkSymbols =
+            selectDeviceEnabledDiscoveryNetworkSymbols(getState());
+        enabledDiscoveryNetworkSymbols.forEach(networkSymbol => {
+            const firstNormalAccount = selectFirstNormalAccountForNetworkSymbol(
+                getState(),
+                networkSymbol,
+            );
 
-                if (firstNormalAccount && !firstNormalAccount.visible) {
-                    dispatch(accountsActions.changeAccountVisibility(firstNormalAccount, true));
-                }
-            });
-        }
+            if (firstNormalAccount && !firstNormalAccount.visible) {
+                dispatch(accountsActions.changeAccountVisibility(firstNormalAccount, true));
+            }
+        });
+
         dispatch(disableAccountsThunk());
         dispatch(discoveryCheckThunk());
     },

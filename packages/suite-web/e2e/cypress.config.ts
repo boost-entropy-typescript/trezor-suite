@@ -158,17 +158,13 @@ export default defineConfig({
                     return null;
                 },
                 stealBridgeSession: async () => {
-                    const abortController = new AbortController();
-                    const bridge = new BridgeTransport({
-                        messages,
-                        signal: abortController.signal,
-                    });
-                    await bridge.init().promise;
-                    const enumerateRes = await bridge.enumerate().promise;
+                    const bridge = new BridgeTransport({ messages });
+                    await bridge.init();
+                    const enumerateRes = await bridge.enumerate();
                     if (!enumerateRes.success) return null;
                     await bridge.acquire({
                         input: { path: enumerateRes.payload[0].path, previous: null },
-                    }).promise;
+                    });
 
                     return null;
                 },

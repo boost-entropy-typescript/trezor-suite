@@ -22,11 +22,11 @@ import type {
     HandleMessageParams,
     HandleMessageResponse,
 } from './types';
-import type { Descriptor, Success } from '../types';
+import type { Descriptor, PathInternal, PathPublic, Success } from '../types';
 
 import * as ERRORS from '../errors';
 
-type DescriptorsDict = Record<string, Descriptor>;
+type DescriptorsDict = Record<PathInternal, Descriptor>;
 
 // in nodeusb, enumeration operation takes ~3 seconds
 const lockDuration = 1000 * 4;
@@ -42,18 +42,13 @@ export class SessionsBackground extends TypedEmitter<{
      * Dictionary where key is path and value is Descriptor
      */
     private descriptors: DescriptorsDict = {};
+    private pathInternalPathPublicMap: Record<PathInternal, PathPublic> = {};
 
     // if lock is set, somebody is doing something with device. we have to wait
     private locksQueue: { id: ReturnType<typeof setTimeout>; dfd: Deferred<void> }[] = [];
     private locksTimeoutQueue: ReturnType<typeof setTimeout>[] = [];
     private lastSessionId = 0;
-
-    constructor({ signal }: { signal: AbortSignal }) {
-        super();
-        signal.addEventListener('abort', () => {
-            this.locksQueue.forEach(lock => clearTimeout(lock.id));
-        });
-    }
+    private lastPathId = 0;
 
     public async handleMessage<M extends HandleMessageParams>(
         message: M,
@@ -102,6 +97,9 @@ export class SessionsBackground extends TypedEmitter<{
 
             return result;
         } catch (err) {
+            // if you are running this in a Sharedworker, you will find logs from here in chrome://inspect/#workers
+            console.error('Session background error', err);
+
             // catch unexpected errors and notify client.
             // background should never stay in "hanged" state
             return {
@@ -125,18 +123,25 @@ export class SessionsBackground extends TypedEmitter<{
      * - caller informs about current descriptors
      */
     private enumerateDone(payload: EnumerateDoneRequest) {
-        const disconnectedDevices = this.filterDisconnectedDevices(
-            Object.values(this.descriptors),
-            payload.descriptors.map(d => d.path), // which paths are occupied paths after last interface read
+        const disconnectedDevices = Object.keys(this.descriptors).filter(
+            pathInternal => !payload.descriptors.find(d => d.path === pathInternal),
         );
 
         disconnectedDevices.forEach(d => {
-            delete this.descriptors[d.path];
+            delete this.descriptors[d];
+            delete this.pathInternalPathPublicMap[d];
         });
 
         payload.descriptors.forEach(d => {
+            if (!this.pathInternalPathPublicMap[d.path]) {
+                this.pathInternalPathPublicMap[d.path] = `${(this.lastPathId += 1)}`;
+            }
             if (!this.descriptors[d.path]) {
-                this.descriptors[d.path] = { ...d, session: null };
+                this.descriptors[d.path] = {
+                    ...d,
+                    path: this.pathInternalPathPublicMap[d.path],
+                    session: null,
+                };
             }
         });
 
@@ -151,20 +156,26 @@ export class SessionsBackground extends TypedEmitter<{
      * acquire intent
      */
     private async acquireIntent(payload: AcquireIntentRequest) {
-        const previous = this.descriptors[payload.path]?.session;
+        const pathInternal = this.getInternal(payload.path);
+
+        if (!pathInternal) {
+            return this.error(ERRORS.DESCRIPTOR_NOT_FOUND);
+        }
+
+        const previous = this.descriptors[pathInternal]?.session;
 
         if (payload.previous && payload.previous !== previous) {
             return this.error(ERRORS.SESSION_WRONG_PREVIOUS);
         }
 
-        if (!this.descriptors[payload.path]) {
+        if (!this.descriptors[pathInternal]) {
             return this.error(ERRORS.DESCRIPTOR_NOT_FOUND);
         }
 
         await this.waitInQueue();
 
         // in case there are 2 simultaneous acquireIntents, one goes through, the other one waits and gets error here
-        if (previous !== this.descriptors[payload.path]?.session) {
+        if (previous !== this.descriptors[pathInternal]?.session) {
             this.clearLock();
 
             return this.error(ERRORS.SESSION_WRONG_PREVIOUS);
@@ -175,10 +186,11 @@ export class SessionsBackground extends TypedEmitter<{
         const unconfirmedSessions: DescriptorsDict = JSON.parse(JSON.stringify(this.descriptors));
 
         this.lastSessionId++;
-        unconfirmedSessions[payload.path].session = `${this.lastSessionId}`;
+        unconfirmedSessions[pathInternal].session = `${this.lastSessionId}`;
 
         return this.success({
-            session: unconfirmedSessions[payload.path].session,
+            session: unconfirmedSessions[pathInternal].session,
+            path: pathInternal,
             descriptors: Object.values(unconfirmedSessions),
         });
     }
@@ -189,10 +201,12 @@ export class SessionsBackground extends TypedEmitter<{
      */
     private acquireDone(payload: AcquireDoneRequest) {
         this.clearLock();
-        if (!this.descriptors[payload.path]) {
+        const pathInternal = this.getInternal(payload.path);
+
+        if (!pathInternal || !this.descriptors[pathInternal]) {
             return this.error(ERRORS.DESCRIPTOR_NOT_FOUND);
         }
-        this.descriptors[payload.path].session = `${this.lastSessionId}`;
+        this.descriptors[pathInternal].session = `${this.lastSessionId}`;
 
         return Promise.resolve(
             this.success({
@@ -227,12 +241,9 @@ export class SessionsBackground extends TypedEmitter<{
     }
 
     private getPathBySession({ session }: GetPathBySessionRequest) {
-        let path: string | undefined;
-        Object.keys(this.descriptors).forEach(pathKey => {
-            if (this.descriptors[pathKey]?.session === session) {
-                path = pathKey;
-            }
-        });
+        const path = Object.keys(this.descriptors).find(
+            pathKey => this.descriptors[pathKey]?.session === session,
+        );
 
         if (!path) {
             return this.error(ERRORS.SESSION_NOT_FOUND);
@@ -283,10 +294,6 @@ export class SessionsBackground extends TypedEmitter<{
         await this.waitForUnlocked(myIndex);
     }
 
-    private filterDisconnectedDevices(prevDevices: Descriptor[], paths: string[]) {
-        return prevDevices.filter(d => !paths.find(p => d.path === p));
-    }
-
     private success<T>(payload: T): Success<T> {
         return {
             success: true as const,
@@ -299,6 +306,12 @@ export class SessionsBackground extends TypedEmitter<{
             success: false as const,
             error,
         };
+    }
+
+    private getInternal(pathPublic: PathPublic): PathInternal | undefined {
+        return Object.keys(this.pathInternalPathPublicMap).find(
+            internal => this.pathInternalPathPublicMap[internal] === pathPublic,
+        );
     }
 
     dispose() {

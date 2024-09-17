@@ -17,8 +17,7 @@ import { success, unknownError } from '@trezor/transport/src/utils/result';
 export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) => {
     let api: AbstractApi;
 
-    const abortController = new AbortController();
-    const sessionsBackground = new SessionsBackground({ signal: abortController.signal });
+    const sessionsBackground = new SessionsBackground();
 
     const sessionsClient = new SessionsClient({
         requestFn: args => sessionsBackground.handleMessage(args),
@@ -107,7 +106,7 @@ export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) =>
         } catch (err) {
             logger?.debug(`core: readUtil catch: ${err.message}`);
 
-            return unknownError(err, []);
+            return unknownError(err);
         }
     };
 
@@ -139,7 +138,11 @@ export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) =>
             return acquireIntentResult;
         }
 
-        const openDeviceResult = await api.openDevice(acquireInput.path, true, acquireInput.signal);
+        const openDeviceResult = await api.openDevice(
+            acquireIntentResult.payload.path,
+            true,
+            acquireInput.signal,
+        );
         logger?.debug(`core: openDevice: result: ${JSON.stringify(openDeviceResult)}`);
 
         if (!openDeviceResult.success) {
@@ -300,7 +303,7 @@ export const createCore = (apiArg: 'usb' | 'udp' | AbstractApi, logger?: Log) =>
     };
 
     const dispose = () => {
-        abortController.abort();
+        sessionsBackground.dispose();
         api.dispose();
         sessionsClient.dispose();
     };

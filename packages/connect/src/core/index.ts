@@ -36,7 +36,7 @@ import { initLog, enableLog, setLogWriter, LogWriter } from '../utils/debug';
 import { dispose as disposeBackend } from '../backend/BlockchainLink';
 import { InteractionTimeout } from '../utils/interactionTimeout';
 import type { DeviceEvents, Device } from '../device/Device';
-import type { ConnectSettings, Device as DeviceTyped } from '../types';
+import type { ConnectSettings, Device as DeviceTyped, StaticSessionId } from '../types';
 import { onCallFirmwareUpdate } from './onCallFirmwareUpdate';
 
 // custom log
@@ -179,7 +179,7 @@ const getInvalidDeviceState = async (
     { sendCoreMessage }: CoreContext,
     device: Device,
     preauthorized?: boolean,
-): Promise<string | undefined> => {
+): Promise<StaticSessionId | undefined> => {
     for (let i = 0; i < MAX_PIN_TRIES - 1; ++i) {
         try {
             return await device.validateState(preauthorized);
@@ -531,12 +531,8 @@ const onCallDevice = async (
     const { origin, env, useCoreInPopup } = DataManager.getSettings();
 
     if (!deviceList.isConnected() && !deviceList.pendingConnection()) {
-        const { transports, pendingTransportEvent } = DataManager.getSettings();
         // transport is missing try to initialize it once again
-        // TODO bridge transport is probably not reusable, so I can't remove this setTransports yet.
-        deviceList.setTransports(transports);
-        // TODO is pendingTransportEvent needed here?
-        deviceList.init({ pendingTransportEvent });
+        deviceList.init();
     }
     await deviceList.pendingConnection();
 

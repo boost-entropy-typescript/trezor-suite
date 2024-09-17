@@ -47,26 +47,22 @@ class TestUsbTransport extends AbstractApiTransport {
         messages,
         api,
         sessionsClient,
-        signal,
     }: ConstructorParameters<typeof AbstractApiTransport>[0]) {
         super({
             messages,
             api,
             sessionsClient,
-            signal,
         });
     }
 }
 // we cant directly use abstract class (UsbTransport)
 const initTest = async () => {
-    let abortController = new AbortController();
-
     let sessionsBackground: SessionsBackground;
     let sessionsClient: SessionsClient;
     let transport: AbstractTransport;
     let testUsbApi: UsbApi;
 
-    sessionsBackground = new SessionsBackground({ signal: abortController.signal });
+    sessionsBackground = new SessionsBackground();
 
     sessionsClient = new SessionsClient({
         requestFn: params => sessionsBackground.handleMessage(params),
@@ -90,16 +86,14 @@ const initTest = async () => {
         api: testUsbApi,
         sessionsClient,
         messages,
-        signal: abortController.signal,
     });
-    await transport.init().promise;
+    await transport.init();
 
     return {
         sessionsBackground,
         sessionsClient,
         transport,
         testUsbApi,
-        abortController,
     };
 };
 
@@ -128,22 +122,19 @@ describe('Usb', () => {
             const transport = new TestUsbTransport({
                 api: testUsbApi,
                 sessionsClient,
-                signal: new AbortController().signal,
             });
 
             // there are no loaded messages
             expect(transport.getMessage()).toEqual(false);
 
-            const res = await transport.init().promise;
+            const res = await transport.init();
             expect(res).toMatchObject({
                 success: false,
             });
         });
 
         it('enumerate error', async () => {
-            const abortController = new AbortController();
-
-            const sessionsBackground = new SessionsBackground({ signal: abortController.signal });
+            const sessionsBackground = new SessionsBackground();
 
             const sessionsClient = new SessionsClient({
                 requestFn: params => sessionsBackground.handleMessage(params),
@@ -162,11 +153,10 @@ describe('Usb', () => {
             const transport = new TestUsbTransport({
                 api: testUsbApi,
                 sessionsClient,
-                signal: abortController.signal,
             });
 
-            await transport.init().promise;
-            const res = await transport.enumerate().promise;
+            await transport.init();
+            const res = await transport.enumerate();
 
             expect(res).toEqual({
                 success: false,
@@ -174,22 +164,22 @@ describe('Usb', () => {
                 message: 'crazy error nobody expects',
             });
 
-            abortController.abort();
+            sessionsBackground.dispose();
         });
     });
 
     describe('with initiated transport', () => {
         it('listen twice -> error', async () => {
-            const { transport, abortController } = await initTest();
+            const { transport, sessionsBackground } = await initTest();
             const res1 = transport.listen();
             expect(res1.success).toEqual(true);
             const res2 = transport.listen();
             expect(res2.success).toEqual(false);
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('handleDescriptorsChange', async () => {
-            const { transport, abortController } = await initTest();
+            const { transport, sessionsBackground } = await initTest();
             const spy = jest.fn();
             transport.on('transport-update', spy);
 
@@ -202,24 +192,24 @@ describe('Usb', () => {
             expect(spy).toHaveBeenCalledWith([
                 { type: 'disconnected', descriptor: { path: '1', session: null, type: 1 } },
             ]);
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('enumerate', async () => {
-            const { transport, abortController } = await initTest();
-            const res = await transport.enumerate().promise;
+            const { transport, sessionsBackground } = await initTest();
+            const res = await transport.enumerate();
             expect(res).toEqual({
                 success: true,
                 payload: [
                     {
-                        path: '123',
+                        path: '1',
                         session: null,
                         type: 1,
                         product: 21441,
                         vendor: 4617,
                     },
                     {
-                        path: 'bootloader1',
+                        path: '2',
                         session: null,
                         type: 1,
                         product: 21441,
@@ -227,37 +217,35 @@ describe('Usb', () => {
                     },
                 ],
             });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('acquire. transport is not listening', async () => {
-            const { transport, abortController } = await initTest();
+            const { transport, sessionsBackground } = await initTest();
             jest.useFakeTimers();
             const spy = jest.fn();
             transport.on('transport-update', spy);
 
-            await transport.enumerate().promise;
+            await transport.enumerate();
 
             jest.runAllTimers();
 
-            const result = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const result = await transport.acquire({ input: { path: '1', previous: null } });
             expect(result).toEqual({
                 success: true,
                 payload: '1',
             });
 
             expect(spy).toHaveBeenCalledTimes(0);
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('acquire. transport listening. missing descriptor', async () => {
-            const { transport, sessionsClient, sessionsBackground, abortController } =
-                await initTest();
+            const { transport, sessionsClient, sessionsBackground } = await initTest();
 
             sessionsBackground.removeAllListeners();
 
-            const enumerateResult = await transport.enumerate().promise;
+            const enumerateResult = await transport.enumerate();
 
             expect(enumerateResult.success).toEqual(true);
             // @ts-expect-error
@@ -266,26 +254,25 @@ describe('Usb', () => {
             transport.listen();
 
             // set some initial descriptors
-            const acquireCall = transport.acquire({ input: { path: '123', previous: null } });
+            const acquireCall = transport.acquire({ input: { path: '1', previous: null } });
 
             setTimeout(() => {
                 sessionsClient.emit('descriptors', [{ path: '321', session: '1', type: 1 }]);
             }, 1);
 
-            const res = await acquireCall.promise;
+            const res = await acquireCall;
 
             expect(res).toMatchObject({
                 success: false,
                 error: 'device disconnected during action',
             });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('acquire. transport listening. unexpected session', async () => {
-            const { transport, sessionsClient, sessionsBackground, abortController } =
-                await initTest();
+            const { transport, sessionsClient, sessionsBackground } = await initTest();
             sessionsBackground.removeAllListeners();
-            const enumerateResult = await transport.enumerate().promise;
+            const enumerateResult = await transport.enumerate();
             expect(enumerateResult.success).toEqual(true);
             // @ts-expect-error
             transport.handleDescriptorsChange(enumerateResult.payload);
@@ -293,35 +280,34 @@ describe('Usb', () => {
             transport.listen();
 
             // set some initial descriptors
-            const acquireCall = transport.acquire({ input: { path: '123', previous: null } });
+            const acquireCall = transport.acquire({ input: { path: '1', previous: null } });
             setTimeout(() => {
                 sessionsClient.emit('descriptors', [
-                    { path: '123', session: '2', type: 1, product: 21441 },
+                    { path: '1', session: '2', type: 1, product: 21441 },
                 ]);
             }, 1);
 
-            const res = await acquireCall.promise;
+            const res = await acquireCall;
             expect(res).toMatchObject({ success: false, error: 'wrong previous session' });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('call error - called without acquire.', async () => {
-            const { transport, abortController } = await initTest();
+            const { transport, sessionsBackground } = await initTest();
             const res = await transport.call({
                 name: 'GetAddress',
                 data: {},
                 session: '1',
                 protocol: v1Protocol,
-            }).promise;
+            });
             expect(res).toEqual({ success: false, error: 'device disconnected during action' });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('call - with valid and invalid message.', async () => {
-            const { transport, abortController } = await initTest();
-            await transport.enumerate().promise;
-            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const { transport, sessionsBackground } = await initTest();
+            await transport.enumerate();
+            const acquireRes = await transport.acquire({ input: { path: '1', previous: null } });
             expect(acquireRes.success).toEqual(true);
             if (!acquireRes.success) return;
 
@@ -335,7 +321,7 @@ describe('Usb', () => {
                 data: {},
                 session: acquireRes.payload,
                 protocol: v1Protocol,
-            }).promise;
+            });
             expect(res1).toEqual({
                 success: true,
                 payload: {
@@ -351,21 +337,20 @@ describe('Usb', () => {
                 data: {},
                 session: acquireRes.payload,
                 protocol: v1Protocol,
-            }).promise;
+            });
             expect(res2).toEqual({
                 success: false,
                 error: 'unexpected error',
                 message: 'no such type: Foo-bar message',
             });
 
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('send and receive.', async () => {
-            const { transport, abortController } = await initTest();
-            await transport.enumerate().promise;
-            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const { transport, sessionsBackground } = await initTest();
+            await transport.enumerate();
+            const acquireRes = await transport.acquire({ input: { path: '1', previous: null } });
             expect(acquireRes.success).toEqual(true);
             if (!acquireRes.success) return;
 
@@ -377,7 +362,7 @@ describe('Usb', () => {
                 data: {},
                 session: acquireRes.payload,
                 protocol: v1Protocol,
-            }).promise;
+            });
             expect(sendRes).toEqual({
                 success: true,
                 payload: undefined,
@@ -385,7 +370,7 @@ describe('Usb', () => {
             const receiveRes = await transport.receive({
                 session: acquireRes.payload,
                 protocol: v1Protocol,
-            }).promise;
+            });
             expect(receiveRes).toEqual({
                 success: true,
                 payload: {
@@ -395,14 +380,13 @@ describe('Usb', () => {
                     },
                 },
             });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('send protocol-v1 with custom chunkSize', async () => {
-            const { transport, testUsbApi, abortController } = await initTest();
-            await transport.enumerate().promise;
-            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const { transport, testUsbApi, sessionsBackground } = await initTest();
+            await transport.enumerate();
+            const acquireRes = await transport.acquire({ input: { path: '1', previous: null } });
             expect(acquireRes.success).toEqual(true);
             if (!acquireRes.success) return;
 
@@ -418,7 +402,7 @@ describe('Usb', () => {
                     },
                     session: acquireRes.payload,
                     protocol: v1Protocol,
-                }).promise;
+                });
 
             // count encoded/sent chunks
             await send(); // 64 default chunkSize for usb
@@ -434,14 +418,13 @@ describe('Usb', () => {
             await send(); // bigger chunks
             expect(writeSpy).toHaveBeenCalledTimes(2);
             writeSpy.mockClear();
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('release', async () => {
-            const { transport, abortController } = await initTest();
-            await transport.enumerate().promise;
-            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const { transport, sessionsBackground } = await initTest();
+            await transport.enumerate();
+            const acquireRes = await transport.acquire({ input: { path: '1', previous: null } });
             expect(acquireRes.success).toEqual(true);
             if (!acquireRes.success) return;
 
@@ -452,35 +435,36 @@ describe('Usb', () => {
                 session: acquireRes.payload,
                 path: '123',
                 onClose: false,
-            }).promise;
+            });
             expect(res).toEqual({
                 success: true,
                 payload: undefined,
             });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
 
         it('call - with use abort', async () => {
-            const { transport, abortController } = await initTest();
-            await transport.enumerate().promise;
-            const acquireRes = await transport.acquire({ input: { path: '123', previous: null } })
-                .promise;
+            const { transport, sessionsBackground } = await initTest();
+            await transport.enumerate();
+            const acquireRes = await transport.acquire({ input: { path: '1', previous: null } });
             if (!acquireRes.success) return;
 
-            const { promise, abort } = transport.call({
+            const abort = new AbortController();
+            const promise = transport.call({
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
                 protocol: v1Protocol,
+                signal: abort.signal,
             });
-            abort();
+            abort.abort();
 
             expect(promise).resolves.toMatchObject({
                 success: false,
                 error: 'Aborted by signal',
             });
 
-            const { promise: promise2 } = transport.call({
+            const promise2 = transport.call({
                 name: 'GetAddress',
                 data: {},
                 session: acquireRes.payload,
@@ -496,7 +480,7 @@ describe('Usb', () => {
                     },
                 },
             });
-            abortController.abort();
+            sessionsBackground.dispose();
         });
     });
 });

@@ -9,10 +9,11 @@ import { SessionsBackground } from '../sessions/background';
 export class UdpTransport extends AbstractApiTransport {
     public name = 'UdpTransport' as const;
     private enumerateTimeout: ReturnType<typeof setTimeout> | undefined;
+    private readonly sessionsBackground;
 
     constructor(params: AbstractTransportParams) {
-        const { messages, logger, signal, debugLink } = params;
-        const sessionsBackground = new SessionsBackground({ signal });
+        const { messages, logger, debugLink } = params;
+        const sessionsBackground = new SessionsBackground();
 
         // in udp there is no synchronization yet. it depends where this transport runs (node or browser)
         const sessionsClient = new SessionsClient({
@@ -29,8 +30,8 @@ export class UdpTransport extends AbstractApiTransport {
             api: new UdpApi({ logger, debugLink }),
             logger,
             sessionsClient,
-            signal,
         });
+        this.sessionsBackground = sessionsBackground;
     }
 
     public listen() {
@@ -44,6 +45,7 @@ export class UdpTransport extends AbstractApiTransport {
             clearTimeout(this.enumerateTimeout);
             this.enumerateTimeout = undefined;
         }
+        this.sessionsBackground.dispose();
 
         return super.stop();
     }

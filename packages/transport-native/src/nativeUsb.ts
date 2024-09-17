@@ -11,9 +11,11 @@ export class NativeUsbTransport extends AbstractApiTransport {
     // TODO: Not sure how to solve this type correctly.
     public name = 'NativeUsbTransport' as any;
 
+    private readonly sessionsBackground;
+
     constructor(params: ConstructorParameters<typeof AbstractTransport>[0]) {
-        const { messages, logger, signal } = params;
-        const sessionsBackground = new SessionsBackground({ signal });
+        const { messages, logger } = params;
+        const sessionsBackground = new SessionsBackground();
 
         const sessionsClient = new SessionsClient({
             requestFn: args => sessionsBackground.handleMessage(args),
@@ -31,12 +33,13 @@ export class NativeUsbTransport extends AbstractApiTransport {
                 logger,
             }),
             sessionsClient,
-            signal,
         });
+        this.sessionsBackground = sessionsBackground;
     }
 
     public listen() {
         this.api.listen();
+        this.sessionsBackground.dispose();
 
         return super.listen();
     }
