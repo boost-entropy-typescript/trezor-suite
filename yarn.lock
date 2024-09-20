@@ -9498,6 +9498,7 @@ __metadata:
     "@suite-common/icons-deprecated": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@trezor/styles": "workspace:*"
+    "@trezor/theme": "workspace:*"
     jotai: "npm:1.9.1"
     react: "npm:18.2.0"
     react-native: "npm:0.75.2"
@@ -9711,7 +9712,6 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
-    "@suite-common/wallet-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -9933,6 +9933,7 @@ __metadata:
   resolution: "@suite-native/forms@workspace:suite-native/forms"
   dependencies:
     "@hookform/resolvers": "npm:3.9.0"
+    "@mobily/ts-belt": "npm:^3.13.1"
     "@suite-common/icons-deprecated": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     react: "npm:18.2.0"
@@ -9997,6 +9998,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/intl@workspace:suite-native/intl"
   dependencies:
+    intl-pluralrules: "npm:^2.0.1"
     react: "npm:18.2.0"
     react-intl: "npm:^6.6.8"
   languageName: unknown
@@ -10194,7 +10196,6 @@ __metadata:
     "@sentry/react-native": "npm:5.31.1"
     "@suite-common/icons-deprecated": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
-    "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/discovery": "workspace:*"
@@ -10304,9 +10305,9 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/accounts": "workspace:*"
+    "@suite-native/alerts": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/device": "workspace:*"
-    "@suite-native/device-manager": "workspace:*"
     "@suite-native/device-mutex": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/forms": "workspace:*"
@@ -25759,6 +25760,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"intl-pluralrules@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "intl-pluralrules@npm:2.0.1"
+  checksum: 10/562964d81c4477ab0b66e051c31cdbb2ca599307ffdfdc88a1e16d2cf137e481082b90d5ad81f9d2d5f6767ec5528d764a44462f6752109ac035c04604973e23
+  languageName: node
+  linkType: hard
+
 "into-stream@npm:^6.0.0":
   version: 6.0.0
   resolution: "into-stream@npm:6.0.0"
@@ -26943,7 +26951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-node@npm:29.7.0, jest-environment-node@npm:^29.6.3, jest-environment-node@npm:^29.7.0":
+"jest-environment-node@npm:^29.6.3, jest-environment-node@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-environment-node@npm:29.7.0"
   dependencies:
@@ -40340,7 +40348,6 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     jest: "npm:29.7.0"
     jest-environment-jsdom: "npm:29.7.0"
-    jest-environment-node: "npm:29.7.0"
     jest-expo: "npm:^50.0.2"
     metro-react-native-babel-preset: "npm:0.77.0"
     nx: "npm:^18.0.3"

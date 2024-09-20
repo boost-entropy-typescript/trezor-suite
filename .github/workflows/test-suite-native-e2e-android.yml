@@ -7,6 +7,7 @@ on:
       - "suite-native/**"
       - "suite-common/**"
       - "packages/connect/**"
+      - ".github/workflows/test-suite-native-e2e-android.yml"
   workflow_dispatch:
 
 concurrency:
@@ -52,7 +53,10 @@ jobs:
           key: node_modules/${{ github.ref }}/${{github.run_id}}
 
       - name: Install Yarn dependencies
-        run: yarn install
+        run: |
+          echo -e "\nenableScripts: false" >> .yarnrc.yml
+          echo -e "\nenableHardenedMode: false" >> .yarnrc.yml
+          yarn install
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -114,7 +118,10 @@ jobs:
           key: node_modules/${{ github.ref }}/${{github.run_id}}
 
       - name: Install Yarn dependencies
-        run: yarn install
+        run: |
+          echo -e "\nenableScripts: false" >> .yarnrc.yml
+          echo -e "\nenableHardenedMode: false" >> .yarnrc.yml
+          yarn install
 
       - name: Get device name from detox config file
         id: device

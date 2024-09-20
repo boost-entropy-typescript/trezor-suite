@@ -32,6 +32,7 @@ import {
 import { models } from '../data/models';
 import { getLanguage } from '../data/getLanguage';
 import { checkFirmwareRevision } from './checkFirmwareRevision';
+import { IStateStorage } from './StateStorage';
 
 // custom log
 const _log = initLog('Device');
@@ -83,7 +84,6 @@ export interface DeviceEvents {
     [DEVICE.PASSPHRASE_ON_DEVICE]: () => void;
     [DEVICE.BUTTON]: (device: Device, payload: DeviceButtonRequestPayload) => void;
     [DEVICE.ACQUIRED]: () => void;
-    [DEVICE.SAVE_STATE]: (state: string) => void;
 }
 
 /**
@@ -120,7 +120,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     private runPromise?: Deferred<void>;
     private transportSession?: Session | null;
     keepTransportSession = false;
-    private commands?: DeviceCommands;
+    public commands?: DeviceCommands;
 
     loaded = false;
 
@@ -131,6 +131,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     // DeviceState list [this.instance]: DeviceState | undefined
     private state: DeviceState[] = [];
+    private stateStorage?: IStateStorage = undefined;
 
     unavailableCapabilities: UnavailableCapabilities = {};
 
@@ -147,6 +148,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
     authenticityChecks: NonNullable<KnownDevice['authenticityChecks']> = {
         firmwareRevision: null,
     };
+
+    private useCardanoDerivation = false;
 
     constructor(transport: Transport, descriptor: Descriptor) {
         super();
@@ -331,7 +334,12 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.releasePromise;
         }
 
-        if (!this.isUsedHere() || this.commands?.disposed || !this.getState()?.staticSessionId) {
+        if (
+            !this.isUsedHere() ||
+            this.commands?.disposed ||
+            !this.getState()?.staticSessionId ||
+            this.useCardanoDerivation != !!options.useCardanoDerivation
+        ) {
             // acquire session
             await this.acquire();
 
@@ -476,9 +484,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             };
 
             this.state[this.instance] = newState;
-            if (newState.sessionId && newState.sessionId !== prevState?.sessionId) {
-                this.emit(DEVICE.SAVE_STATE, newState.sessionId);
-            }
+            this.stateStorage?.saveState(this, newState);
         }
     }
 
@@ -516,6 +522,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             // If the user has BIP-39 seed, and Initialize(derive_cardano=True) is not sent,
             // all Cardano calls will fail because the root secret will not be available.
             payload.derive_cardano = useCardanoDerivation;
+            this.useCardanoDerivation = useCardanoDerivation;
             if (sessionId) {
                 payload.session_id = sessionId;
             }
@@ -523,6 +530,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         const { message } = await this.getCommands().typedCall('Initialize', 'Features', payload);
         this._updateFeatures(message);
+    }
+
+    initStorage(storage: IStateStorage) {
+        this.stateStorage = storage;
+        this.setState(storage.loadState(this));
     }
 
     async getFeatures() {
