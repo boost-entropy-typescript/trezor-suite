@@ -106,19 +106,25 @@ const CardContainer = styled.div<
     ${withFrameProps}
 `;
 
-export type CardProps = AllowedFrameProps &
-    AccessibilityProps & {
-        paddingType?: PaddingType;
-        onMouseEnter?: HTMLAttributes<HTMLDivElement>['onMouseEnter'];
-        onMouseLeave?: HTMLAttributes<HTMLDivElement>['onMouseLeave'];
-        onClick?: HTMLAttributes<HTMLDivElement>['onClick'];
-        children?: ReactNode;
-        className?: string;
-        label?: ReactNode;
-        forceElevation?: Elevation;
-    };
+type CommonCardProps = AccessibilityProps & {
+    paddingType?: PaddingType;
+    onMouseEnter?: HTMLAttributes<HTMLDivElement>['onMouseEnter'];
+    onMouseLeave?: HTMLAttributes<HTMLDivElement>['onMouseLeave'];
+    onClick?: HTMLAttributes<HTMLDivElement>['onClick'];
+    children?: ReactNode;
+    className?: string;
+    label?: ReactNode;
+    forceElevation?: Elevation;
+    'data-testid'?: string;
+};
 
-const CardComponent = forwardRef<HTMLDivElement, CardProps & { $paddingType: PaddingType }>(
+export type CardPropsWithTransientProps = CommonCardProps & TransientProps<AllowedFrameProps>;
+export type CardProps = CommonCardProps & AllowedFrameProps;
+
+const CardComponent = forwardRef<
+    HTMLDivElement,
+    CardPropsWithTransientProps & { $paddingType: PaddingType }
+>(
     (
         {
             children,
@@ -129,6 +135,8 @@ const CardComponent = forwardRef<HTMLDivElement, CardProps & { $paddingType: Pad
             onMouseLeave,
             className,
             tabIndex,
+            'data-testid': dataTest,
+            ...rest
         },
         ref,
     ) => {
@@ -145,6 +153,8 @@ const CardComponent = forwardRef<HTMLDivElement, CardProps & { $paddingType: Pad
                 className={className}
                 onMouseLeave={onMouseLeave}
                 {...withAccessibilityProps({ tabIndex })}
+                {...rest}
+                data-testid={dataTest}
             >
                 <ElevationContext baseElevation={elevation}>{children}</ElevationContext>
             </CardContainer>
@@ -163,6 +173,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             className,
             tabIndex,
             children,
+            'data-testid': dataTest,
             ...rest
         },
         ref,
@@ -175,6 +186,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             tabIndex,
             $paddingType: paddingType,
             children,
+            'data-testid': dataTest,
         };
         const frameProps = pickAndPrepareFrameProps(rest, allowedCardFrameProps);
 

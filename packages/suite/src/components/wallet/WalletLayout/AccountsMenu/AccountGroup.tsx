@@ -6,6 +6,8 @@ import { Account } from 'src/types/wallet';
 import { AnimationWrapper } from '../../AnimationWrapper';
 import { spacingsPx, spacings, typography } from '@trezor/theme';
 
+const ICON_SIZE = 18;
+
 const IconWrapper = styled.div<{ $isActive: boolean }>`
     padding: ${spacingsPx.xs};
     border-radius: 50%;
@@ -20,7 +22,7 @@ const Header = styled.header<{ $isOpen: boolean; onClick?: () => void }>`
     top: 0;
     z-index: 30;
     display: flex;
-    gap: ${spacings.sm - 2}px;
+    gap: ${spacings.sm - 1}px;
     padding: 0 ${spacingsPx.sm};
     cursor: ${props => (props.onClick ? 'pointer' : 'default')};
     background-color: ${({ theme }) => theme.backgroundSurfaceElevationNegative};
@@ -38,7 +40,7 @@ const Header = styled.header<{ $isOpen: boolean; onClick?: () => void }>`
 
 const HeadingWrapper = styled.div`
     &:only-child {
-        padding-left: ${spacingsPx.xxs};
+        padding-left: ${spacings.sm + spacings.md + ICON_SIZE - 1}px;
     }
 `;
 
@@ -113,7 +115,7 @@ export const AccountGroup = ({
                         <IconWrapper $isActive={isOpen}>
                             <Icon
                                 data-testid="@account-menu/arrow"
-                                size={18}
+                                size={ICON_SIZE}
                                 variant="tertiary"
                                 name="chevronDown"
                             />
@@ -125,15 +127,12 @@ export const AccountGroup = ({
                 </Header>
             )}
 
-            <AnimationWrapper
-                opened={isOpen}
-                onUpdate={onUpdate}
-                data-testid={`@account-menu/${type}/group`}
-            >
+            <AnimationWrapper opened={isOpen} onUpdate={onUpdate}>
                 <Column
                     alignItems="stretch"
                     gap={spacings.xxs}
                     margin={{ left: spacings.xs, right: spacings.xs }}
+                    data-testid={`@account-menu/${type}/group`}
                 >
                     {children}
                 </Column>

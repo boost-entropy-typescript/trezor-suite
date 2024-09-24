@@ -37,9 +37,18 @@ interface AddAccountProps {
     onCancel: () => void;
     symbol?: NetworkSymbol;
     noRedirect?: boolean;
+    isCoinjoinDisabled?: boolean;
+    isBackClickDisabled?: boolean;
 }
 
-export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAccountProps) => {
+export const AddAccountModal = ({
+    device,
+    onCancel,
+    symbol,
+    noRedirect,
+    isCoinjoinDisabled,
+    isBackClickDisabled,
+}: AddAccountProps) => {
     const accounts = useSelector(state => state.wallet.accounts);
     const supportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
     const app = useSelector(state => state.router.app);
@@ -102,7 +111,7 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
           )
         : [];
 
-    const isCoinjoinVisible = isCoinjoinPublic || isDebug;
+    const isCoinjoinVisible = (isCoinjoinPublic || isDebug) && !isCoinjoinDisabled;
 
     const getAvailableAccountTypes = (network: Network) => {
         const defaultAccount: NetworkAccount = {
@@ -202,7 +211,9 @@ export const AddAccountModal = ({ device, onCancel, symbol, noRedirect }: AddAcc
                           symbol={selectedNetwork.symbol}
                       />
                   ),
-                  onBackClick: () => setSelectedNetwork(undefined),
+                  onBackClick: !isBackClickDisabled
+                      ? () => setSelectedNetwork(undefined)
+                      : undefined,
               }
             : {
                   heading: <Translation id="TR_ADD_ACCOUNT" />,

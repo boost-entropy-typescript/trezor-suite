@@ -14,10 +14,11 @@ import { uiVariants } from '../../../config/types';
 export const allowedTextTextProps = [
     'typographyStyle',
     'textWrap',
+    'align',
 ] as const satisfies TextPropsKeys[];
 type AllowedTextTextProps = Pick<TextPropsCommon, (typeof allowedTextTextProps)[number]>;
 
-export const allowedTextFrameProps = ['margin'] as const satisfies FramePropsKeys[];
+export const allowedTextFrameProps = ['margin', 'maxWidth'] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedTextFrameProps)[number]>;
 
 export const textVariants = [...uiVariants, 'purple'] as const;
@@ -32,6 +33,7 @@ type ExclusiveColorOrVariant =
       };
 
 const variantColorMap: Record<TextVariant, Color> = {
+    default: 'textDefault',
     primary: 'textPrimaryDefault',
     secondary: 'textSecondaryHighlight',
     tertiary: 'textSubdued',
@@ -50,7 +52,7 @@ const getColorForTextVariant = ({ $variant, theme, $color }: ColorProps): CSSCol
         return $color;
     }
 
-    return theme[$variant !== undefined ? variantColorMap[$variant] : 'textDefault'];
+    return $variant !== undefined ? theme[variantColorMap[$variant]] : 'inherit';
 };
 
 type StyledTextProps = ExclusiveColorOrVariant &
@@ -63,10 +65,11 @@ const StyledText = styled.span<StyledTextProps>`
     ${withFrameProps}
 `;
 
-type TextProps = {
+export type TextProps = {
     children: ReactNode;
     className?: string;
     as?: string;
+    'data-testid'?: string;
 } & ExclusiveColorOrVariant &
     AllowedFrameProps &
     AllowedTextTextProps;
@@ -78,7 +81,9 @@ export const Text = ({
     className,
     typographyStyle,
     textWrap,
+    align,
     as = 'span',
+    'data-testid': dataTest,
     ...rest
 }: TextProps) => {
     const frameProps = pickAndPrepareFrameProps(rest, allowedTextFrameProps);
@@ -88,7 +93,8 @@ export const Text = ({
             {...(variant !== undefined ? { $variant: variant } : { $color: color })}
             className={className}
             as={as}
-            {...makePropsTransient({ typographyStyle, textWrap })}
+            data-testid={dataTest}
+            {...makePropsTransient({ typographyStyle, textWrap, align })}
             {...frameProps}
         >
             {children}

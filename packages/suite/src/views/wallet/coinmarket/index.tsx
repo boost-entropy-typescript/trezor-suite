@@ -4,7 +4,6 @@ import {
     SelectBar,
     Paragraph,
     TextButton,
-    H2,
     Card,
     Spinner,
     Icon,
@@ -227,13 +226,14 @@ export const CoinmarketAmountContainer = styled.div`
     }
 `;
 
-// eslint-disable-next-line local-rules/no-override-ds-component
-export const CoinmarketAmountWrapper = styled(H2)`
+export const CoinmarketAmountWrapper = styled.div`
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: ${spacingsPx.xs};
+    ${typography.titleMedium}
     line-height: unset;
+    padding: ${spacingsPx.xxxs} ${spacingsPx.zero};
 
     ${SCREEN_QUERY.BELOW_DESKTOP} {
         font-size: 28px;
@@ -254,6 +254,7 @@ export const CoinmarketAmountWrapperText = styled.div`
     font-variant-numeric: tabular-nums;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1;
 `;
 
 export const CoinmarketInfoLeftColumn = styled.div`
