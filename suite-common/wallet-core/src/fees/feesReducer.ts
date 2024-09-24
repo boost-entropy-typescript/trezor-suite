@@ -1,7 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { NetworkSymbol, networksCompatibility } from '@suite-common/wallet-config';
-import { FeeInfo } from '@suite-common/wallet-types';
+import { FeeInfo, FeeLevelLabel } from '@suite-common/wallet-types';
+import { formatDuration } from '@suite-common/suite-utils';
+import { FeeLevel } from '@trezor/connect';
 
 import { blockchainActions } from '../blockchain/blockchainActions';
 
@@ -40,3 +42,39 @@ export const feesReducer = createReducer(initialState, builder => {
 
 export const selectNetworkFeeInfo = (state: FeesRootState, networkSymbol?: NetworkSymbol) =>
     networkSymbol ? state.wallet.fees[networkSymbol] : null;
+
+export const selectNetworkFeeLevel = (
+    state: FeesRootState,
+    level: FeeLevelLabel,
+    networkSymbol?: NetworkSymbol,
+): FeeLevel | null => {
+    const networkFeeInfo = selectNetworkFeeInfo(state, networkSymbol);
+    if (!networkFeeInfo) return null;
+
+    const feeLevel = networkFeeInfo.levels.find(x => x.label === level);
+
+    return feeLevel ?? null;
+};
+
+export const selectNetworkFeeLevelTimeEstimate = (
+    state: FeesRootState,
+    level: FeeLevelLabel,
+    networkSymbol?: NetworkSymbol,
+): string | null => {
+    const networkFeeInfo = selectNetworkFeeInfo(state, networkSymbol);
+    const feeLevel = selectNetworkFeeLevel(state, level, networkSymbol);
+    if (!feeLevel || !networkFeeInfo) return null;
+
+    return formatDuration(networkFeeInfo.blockTime * feeLevel.blocks * 60);
+};
+
+export const selectNetworkFeeLevelFeePerUnit = (
+    state: FeesRootState,
+    level: FeeLevelLabel,
+    networkSymbol?: NetworkSymbol,
+): string | null => {
+    const feeLevel = selectNetworkFeeLevel(state, level, networkSymbol);
+    if (!feeLevel) return null;
+
+    return feeLevel.feePerUnit;
+};

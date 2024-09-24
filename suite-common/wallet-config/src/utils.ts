@@ -1,30 +1,19 @@
-import { networks, networksCompatibility } from './networksConfig';
-import { AccountType, Network, NetworkFeature, Networks, NetworkSymbol } from './types';
+import { networks } from './networksConfig';
+import {
+    AccountType,
+    Network,
+    NetworkFeature,
+    Networks,
+    NetworkSymbol,
+    NormalizedNetworkAccount,
+} from './types';
+
+export const NORMAL_ACCOUNT_TYPE = 'normal' satisfies AccountType;
 
 /**
  * array from `networks` as a `Network[]` type instead of inferred type
  */
 export const networksCollection: Network[] = Object.values(networks);
-
-/**
- * @deprecated See `networksCompatibility`
- */
-export const getMainnetsCompatible = (debug = false, bnb = false) =>
-    networksCompatibility.filter(
-        n =>
-            !n.accountType &&
-            !n.testnet &&
-            (!n.isDebugOnlyNetwork || debug) &&
-            (bnb || n.symbol !== 'bnb'),
-    );
-
-/**
- * @deprecated See `networksCompatibility`
- */
-export const getTestnetsCompatible = (debug = false) =>
-    networksCompatibility.filter(
-        n => !n.accountType && n.testnet === true && (!n.isDebugOnlyNetwork || debug),
-    );
 
 export const getMainnets = (debug = false, bnb = false) =>
     networksCollection.filter(
@@ -35,6 +24,23 @@ export const getTestnets = (debug = false) =>
     networksCollection.filter(n => n.testnet === true && (!n.isDebugOnlyNetwork || debug));
 
 export const getTestnetSymbols = () => getTestnets().map(n => n.symbol);
+
+/**
+ * For a given network, return a collection of accounts incl. 'normal', and with missing properties backfilled from 'normal'
+ */
+export const normalizeNetworkAccounts = (network: Network): NormalizedNetworkAccount[] => {
+    const normalAccount: NormalizedNetworkAccount = {
+        accountType: NORMAL_ACCOUNT_TYPE,
+        bip43Path: network.bip43Path,
+        features: network.features,
+    };
+    const alternativeAccounts = Object.values(network.accountTypes).map(account => ({
+        ...normalAccount,
+        ...account,
+    }));
+
+    return [normalAccount, ...alternativeAccounts];
+};
 
 export const isBlockbookBasedNetwork = (symbol: NetworkSymbol) =>
     networks[symbol]?.customBackends.some(backend => backend === 'blockbook');
