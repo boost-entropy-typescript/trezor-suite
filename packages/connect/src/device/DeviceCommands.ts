@@ -3,7 +3,7 @@
 import { randomBytes } from 'crypto';
 import { Transport, Session } from '@trezor/transport';
 import { MessagesSchema as Messages } from '@trezor/protobuf';
-import { versionUtils } from '@trezor/utils';
+import { createTimeoutPromise, versionUtils } from '@trezor/utils';
 import { ERRORS } from '../constants';
 import { DEVICE } from '../events';
 import * as hdnodeUtils from '../utils/hdnodeUtils';
@@ -17,6 +17,7 @@ import type { CoinInfo, BitcoinNetworkInfo, Network } from '../types';
 import type { HDNodeResponse } from '../types/api/getPublicKey';
 import { Assert } from '@trezor/schema-utils';
 import { resolveDescriptorForTaproot } from './resolveDescriptorForTaproot';
+import { promptPin, promptPassphrase, promptWord, cancelPrompt } from './prompts';
 
 type MessageType = Messages.MessageType;
 type MessageKey = keyof MessageType;
@@ -28,12 +29,6 @@ type TypedCallResponseMap = {
     [K in keyof MessageType]: TypedPayload<K>;
 };
 type DefaultPayloadMessage = TypedCallResponseMap[keyof MessageType];
-
-export type PassphrasePromptResponse = {
-    passphrase?: string;
-    passphraseOnDevice?: boolean;
-    cache?: boolean;
-};
 
 const logger = initLog('DeviceCommands');
 
@@ -96,10 +91,6 @@ export class DeviceCommands {
 
     callPromise?: ReturnType<Transport['call']>;
 
-    // see DeviceCommands.cancel
-    _cancelableRequest?: (error?: any) => void;
-    _cancelableRequestBySend?: boolean;
-
     constructor(device: Device, transport: Transport, transportSession: Session) {
         this.device = device;
         this.transport = transport;
@@ -109,7 +100,6 @@ export class DeviceCommands {
 
     dispose() {
         this.disposed = true;
-        this._cancelableRequest = undefined;
     }
 
     isDisposed() {
@@ -392,7 +382,7 @@ export class DeviceCommands {
     }
 
     _filterCommonTypes(res: DefaultPayloadMessage): Promise<DefaultPayloadMessage> {
-        this._cancelableRequestBySend = false;
+        this.device.clearCancelableAction();
 
         if (res.type === 'Failure') {
             const { code } = res.message;
@@ -424,7 +414,7 @@ export class DeviceCommands {
         }
 
         if (res.type === 'ButtonRequest') {
-            this._cancelableRequestBySend = true;
+            this.device.setCancelableAction(() => this.cancelWithFallback());
 
             if (res.message.code === 'ButtonRequest_PassphraseEntry') {
                 this.device.emit(DEVICE.PASSPHRASE_ON_DEVICE);
@@ -442,7 +432,7 @@ export class DeviceCommands {
         }
 
         if (res.type === 'PinMatrixRequest') {
-            return this._promptPin(res.message.type).then(
+            return promptPin(this.device, res.message.type).then(
                 pin =>
                     this._commonCall('PinMatrixAck', { pin }).then(response => {
                         if (!this.device.features.unlocked) {
@@ -452,32 +442,25 @@ export class DeviceCommands {
 
                         return response;
                     }),
-                () => this._commonCall('Cancel', {}),
+                error => Promise.reject(error),
             );
         }
 
         if (res.type === 'PassphraseRequest') {
-            return this._promptPassphrase().then(
-                response => {
-                    const { passphrase, passphraseOnDevice } = response;
-
+            return promptPassphrase(this.device).then(
+                ({ value, passphraseOnDevice }) => {
                     return !passphraseOnDevice
-                        ? this._commonCall('PassphraseAck', { passphrase })
+                        ? this._commonCall('PassphraseAck', { passphrase: value.normalize('NFKD') })
                         : this._commonCall('PassphraseAck', { on_device: true });
                 },
-                // todo: does it make sense? error might have resulted from device disconnected.
-                // with webusb, this leads to pretty common "Session not found"
-                err =>
-                    this._commonCall('Cancel', {}).catch((e: any) => {
-                        throw err || e;
-                    }),
+                error => Promise.reject(error),
             );
         }
 
         if (res.type === 'WordRequest') {
-            return this._promptWord(res.message.type).then(
+            return promptWord(this.device, res.message.type).then(
                 word => this._commonCall('WordAck', { word }),
-                () => this._commonCall('Cancel', {}),
+                error => Promise.reject(error),
             );
         }
 
@@ -492,71 +475,6 @@ export class DeviceCommands {
         });
 
         return message.address;
-    }
-
-    _promptPin(type?: Messages.PinMatrixRequestType) {
-        return new Promise<string>((resolve, reject) => {
-            if (this.device.listenerCount(DEVICE.PIN) > 0) {
-                this._cancelableRequest = reject;
-                this.device.emit(DEVICE.PIN, this.device, type, (err, pin) => {
-                    this._cancelableRequest = undefined;
-                    if (err || pin == null) {
-                        reject(err);
-                    } else {
-                        resolve(pin);
-                    }
-                });
-            } else {
-                console.warn(
-                    '[DeviceCommands] [call] PIN callback not configured, cancelling request',
-                );
-                reject(ERRORS.TypedError('Runtime', '_promptPin: PIN callback not configured'));
-            }
-        });
-    }
-
-    _promptPassphrase() {
-        return new Promise<PassphrasePromptResponse>((resolve, reject) => {
-            if (this.device.listenerCount(DEVICE.PASSPHRASE) > 0) {
-                this._cancelableRequest = reject;
-                this.device.emit(
-                    DEVICE.PASSPHRASE,
-                    this.device,
-                    (response: PassphrasePromptResponse, error?: Error) => {
-                        this._cancelableRequest = undefined;
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(response);
-                        }
-                    },
-                );
-            } else {
-                console.warn(
-                    '[DeviceCommands] [call] Passphrase callback not configured, cancelling request',
-                );
-                reject(
-                    ERRORS.TypedError(
-                        'Runtime',
-                        '_promptPassphrase: Passphrase callback not configured',
-                    ),
-                );
-            }
-        });
-    }
-
-    _promptWord(type: Messages.WordRequestType) {
-        return new Promise<string>((resolve, reject) => {
-            this._cancelableRequest = reject;
-            this.device.emit(DEVICE.WORD, this.device, type, (err, word) => {
-                this._cancelableRequest = undefined;
-                if (err || word == null) {
-                    reject(err);
-                } else {
-                    resolve(word.toLocaleLowerCase());
-                }
-            });
-        });
     }
 
     async getAccountDescriptor(
@@ -633,53 +551,37 @@ export class DeviceCommands {
         );
     }
 
-    async cancel() {
-        // _cancelableRequest is transport.call({ name: 'Cancel' }).
-        if (this._cancelableRequest) {
-            this._cancelableRequest();
-            this._cancelableRequest = undefined;
-
-            return;
+    async cancelWithFallback() {
+        const { name, version } = this.transport;
+        if (name === 'BridgeTransport' && !versionUtils.isNewer(version, '2.0.28')) {
+            /**
+             * Bridge version =< 2.0.28 throws "other call in progress" error.
+             * as workaround takeover transportSession (acquire) before sending Cancel, this will resolve previous pending call.
+             */
+            try {
+                // UI_EVENT is send right before ButtonAck, make sure that ButtonAck is sent
+                await createTimeoutPromise(1);
+                await this.device.acquire();
+                await cancelPrompt(this.device, false);
+            } catch (err) {
+                // ignore whatever happens
+            }
+        } else {
+            return cancelPrompt(this.device, false);
         }
+    }
 
+    async cancel() {
         if (this.disposed) {
             return;
         }
         this.dispose();
-
-        if (!this._cancelableRequestBySend) {
-            if (this.callPromise) {
-                await this.callPromise;
-            }
-
-            return;
-        }
-        /**
-         * Bridge version =< 2.0.28 has a bug that doesn't permit it to cancel
-         * user interactions in progress, so we have to do it manually.
-         */
-        const { name, version } = this.transport;
-        if (name === 'BridgeTransport' && !versionUtils.isNewer(version, '2.0.28')) {
+        if (this.callPromise) {
             try {
-                await this.device.legacyForceRelease();
-            } catch (err) {
-                // ignore
-            }
-        } else {
-            await this.transport.send({
-                protocol: this.device.protocol,
-                session: this.transportSession,
-                name: 'Cancel',
-                data: {},
-            });
-
-            if (this.callPromise) {
                 await this.callPromise;
+            } catch {
+                // do nothing
             }
-            // if my observations are correct, it is not necessary to transport.receive after send
-            // transport.call -> transport.send -> transport call returns Failure meaning it won't be
-            // returned in subsequent calls
-            // await this.transport.receive({ session: this.transportSession }).promise;
         }
     }
 }

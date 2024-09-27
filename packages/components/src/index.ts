@@ -1,4 +1,4 @@
-import { colors, THEME, intermediaryTheme, SuiteThemeColors } from './config/colors';
+import { THEME, intermediaryTheme, SuiteThemeColors } from './config/colors';
 
 export * as variables from './config/variables';
 export * as animations from './config/animations';
@@ -8,9 +8,7 @@ export * from './support/ThemeProvider';
 export { Checkbox, type CheckboxProps } from './components/form/Checkbox/Checkbox';
 export * from './components/animations/DeviceAnimation';
 export * from './components/animations/LottieAnimation';
-export * from './components/AssetShareIndicator/AssetShareIndicator';
 export { AssetLogo, type AssetLogoProps } from './components/AssetLogo/AssetLogo';
-export * from './components/CoinLogo/CoinLogo';
 export * from './components/Flag/Flag';
 export * from './components/AutoScalingInput/AutoScalingInput';
 export * from './components/Badge/Badge';
@@ -74,6 +72,7 @@ export * from './components/typography/TruncateWithTooltip/TruncateWithTooltip';
 export * from './components/Banner/Banner';
 export { Table, type TableProps } from './components/Table/Table';
 export { VirtualizedList } from './components/VirtualizedList/VirtualizedList';
+export { List, type ListProps } from './components/List/List';
 export { StoryColumn, StoryWrapper } from './support/Story';
 
 export * from './constants/keyboardEvents';
@@ -82,4 +81,4 @@ export * from './utils/useScrollShadow';
 export * from './utils/transientProps';
 export { useMediaQuery } from './utils/useMediaQuery';
 
-export { colors, THEME, intermediaryTheme, type SuiteThemeColors };
+export { THEME, intermediaryTheme, type SuiteThemeColors };

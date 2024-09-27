@@ -10,7 +10,6 @@ import {
     getBip43Type,
     getFiatValue,
     getFirstFreshAddress,
-    getNetworkCompatible,
     getTitleForNetwork,
     getTitleForCoinjoinAccount,
     getUtxoFromSignedTransaction,
@@ -137,16 +136,6 @@ describe('account utils', () => {
         );
     });
 
-    it('getSelectedNetwork', () => {
-        const res = getNetworkCompatible('btc');
-        if (res) {
-            expect(res.name).toEqual('Bitcoin');
-        } else {
-            expect(res).toBeNull();
-        }
-        expect(getNetworkCompatible('doesntexist')).toBeNull();
-    });
-
     it('getAccountKey', () => {
         expect(getAccountKey('descriptor', 'symbol', '1stTestnetAddress@device_id:0')).toEqual(
             'descriptor-symbol-1stTestnetAddress@device_id:0',
@@ -228,11 +217,9 @@ describe('account utils', () => {
 
     it('getNetworkAccountFeatures', () => {
         const btcAcc = getWalletAccount({ symbol: 'btc' });
-
         const btcTaprootAcc = getWalletAccount({ symbol: 'btc', accountType: 'taproot' });
-
+        const btcLegacy = getWalletAccount({ symbol: 'btc', accountType: 'legacy' });
         const ethAcc = getWalletAccount();
-
         const coinjoinAcc = getWalletAccount({ symbol: 'regtest', accountType: 'coinjoin' });
 
         expect(getNetworkAccountFeatures(btcAcc)).toEqual(['rbf', 'sign-verify', 'amount-unit']);
@@ -246,6 +233,8 @@ describe('account utils', () => {
             'staking',
         ]);
         expect(getNetworkAccountFeatures(coinjoinAcc)).toEqual(['rbf', 'amount-unit']);
+        // when account does not have features defined, take them from root network object
+        expect(getNetworkAccountFeatures(btcLegacy)).toEqual(getNetworkAccountFeatures(btcAcc));
     });
 
     it('hasNetworkFeatures', () => {

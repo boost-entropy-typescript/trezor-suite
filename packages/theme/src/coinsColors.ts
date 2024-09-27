@@ -1,24 +1,32 @@
+import { NetworkSymbol } from '@suite-common/wallet-config';
+
 import { CSSColor } from './types';
 
-export type CoinsColors = Record<string, CSSColor>;
+export type CoinsColors = Record<NetworkSymbol, CSSColor>;
 
 export const coinsColors: CoinsColors = {
-    vtc: '#1B9065',
-    bch: '#0AC18E',
-    etc: '#60C67E',
-    xrp: '#24292E',
-    dash: '#1796E4',
-    dgb: '#3A75C9',
-    name: '#2D78A4',
-    btg: '#3B5185',
-    eth: '#454A75',
-    ltc: '#A6A8A9',
-    doge: '#C8AF47',
-    zec: '#F5B300',
-    btc: '#F29937',
-    test: '#E75F5F',
-    txrp: '#E75F5F',
-    gnt: '#8A92B2',
-    ada: '#3468D1',
+    ada: '#3468d1',
+    bch: '#0ac18e',
+    bnb: '#f0b90b',
+    btc: '#f29937',
+    btg: '#3b5185',
+    dash: '#1796e4',
+    dgb: '#3a75c9',
+    doge: '#c8af47',
+    dsol: '#9945ff',
+    etc: '#60c67e',
+    eth: '#454a75',
+    ltc: '#a6a8a9',
     matic: '#7b3fe4',
-} as const;
+    nmc: '#186c9d',
+    regtest: '#e75f5f',
+    sol: '#9945ff',
+    tada: '#3468d1',
+    test: '#e75f5f',
+    thol: '#454a75',
+    tsep: '#454a75',
+    txrp: '#e75f5f',
+    vtc: '#1b9065',
+    xrp: '#24292e',
+    zec: '#f5b300',
+};

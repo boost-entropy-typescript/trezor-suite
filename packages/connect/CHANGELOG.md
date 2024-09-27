@@ -1,16 +1,41 @@
 |             Package              | Stable | Canary |
 | :------------------------------: | :----: | :----: |
-|       npm @trezor/connect        | 9.4.1  |   -    |
-|     npm @trezor/connect-web      | 9.4.1  |   -    |
-| npm @trezor/connect-webextension | 9.4.1  |   -    |
+|       npm @trezor/connect        | 9.4.2  |   -    |
+|     npm @trezor/connect-web      | 9.4.2  |   -    |
+| npm @trezor/connect-webextension | 9.4.2  |   -    |
 
 |     Deployment     | Stable | Canary |
 | :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.4.1  |   -    |
+| connect.trezor.io/ | 9.4.2  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-## 9.4.1
+# 9.4.2
+
+### Features
+
+-   feat(connect): return device info with method response (a378def)
+-   docs(connect-explorer): flowchart for auto core mode (9501d3d)
+-   docs(connect-explorer): diagram and explanation for core in popup (3bbb032)
+
+### Fixes
+
+-   Fixing an issue with typescript not being able to resolve @sinclair/typebox and USB types correctly ((98d6437))
+-   Fixing regression that made it impossible to acquire (steal) device session over webusb (5cf83b4)
+-   Couple of other fixes and improvements of device handling:
+
+    -   fix(connect): pending transport event fix (231899f)
+    -   fix(connect): DeviceList create devices sequentially (b4a915b)
+
+-   fix(connect-explorer): icons on index page (fef3791)
+
+### Dependencies update
+
+-   npm-release: @trezor/connect-common 0.2.2
+-   npm-release: @trezor/transport 1.3.2
+-   npm-release: @trezor/protobuf 1.2.2
+
+# 9.4.1
 
 Automatic retry for no transport issue: If the transport (bridge) is initially not available, the automatic retry feature allows the user to continue after starting the transport, without having to restart the entire flow.
 
@@ -28,7 +53,7 @@ NodeBridge new version compatibility fix: Resolved an issue where NodeBridge ver
 -   docs(connect-explorer): step by step tutorial to build connect webextension (9d5ba70)
 -   docs(connect-explorer): add more ways to test getAccountInfo (62101d6)
 
-### Fixes:
+### Fixes
 
 -   New NodeBridge version not parsed correctly - ignore semver labels in version utils (6501704)
 -   fw releases value for custom device model (265028d)

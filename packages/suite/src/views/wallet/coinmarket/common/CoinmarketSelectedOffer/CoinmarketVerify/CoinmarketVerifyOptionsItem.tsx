@@ -1,7 +1,10 @@
-import { CoinLogo, Column, Icon, Row, variables } from '@trezor/components';
+import { Column, Icon, Row, variables } from '@trezor/components';
+import { CoinLogo } from '@trezor/product-components';
 import { spacingsPx } from '@trezor/theme';
 import { AccountLabeling, Translation } from 'src/components/suite';
+import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { CoinmarketVerifyOptionsItemProps } from 'src/types/coinmarket/coinmarketVerify';
+import { parseCryptoId } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { CoinmarketBalance } from 'src/views/wallet/coinmarket/common/CoinmarketBalance';
 import styled, { useTheme } from 'styled-components';
 
@@ -22,6 +25,7 @@ export const CoinmarketVerifyOptionsItem = ({
     option,
     receiveNetwork,
 }: CoinmarketVerifyOptionsItemProps) => {
+    const { cryptoIdToPlatformName, cryptoIdToCoinName } = useCoinmarketInfo();
     const theme = useTheme();
     const iconSize = 24;
 
@@ -56,6 +60,12 @@ export const CoinmarketVerifyOptionsItem = ({
             </Row>
         );
     }
+
+    const { networkId, contractAddress } = parseCryptoId(receiveNetwork);
+    const networkName = contractAddress
+        ? cryptoIdToPlatformName(networkId)
+        : cryptoIdToCoinName(networkId);
+
     if (option.type === 'ADD_SUITE') {
         return (
             <Row>
@@ -69,7 +79,7 @@ export const CoinmarketVerifyOptionsItem = ({
                         <Translation
                             id="TR_EXCHANGE_CREATE_SUITE_ACCOUNT"
                             values={{
-                                symbol: receiveNetwork?.toUpperCase(),
+                                symbol: networkName,
                             }}
                         />
                     </Column>
@@ -90,7 +100,7 @@ export const CoinmarketVerifyOptionsItem = ({
                     <Translation
                         id="TR_EXCHANGE_USE_NON_SUITE_ACCOUNT"
                         values={{
-                            symbol: receiveNetwork?.toUpperCase(),
+                            symbol: networkName,
                         }}
                     />
                 </Column>

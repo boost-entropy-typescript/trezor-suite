@@ -136,7 +136,6 @@ const getPlugins = (): ExpoPlugins => {
               ]),
         // These should come last
         './plugins/withRemoveXcodeLocalEnv.js',
-        ['./plugins/withEnvFile.js', { buildType }],
         './plugins/withRemoveiOSNotificationEntitlement.js',
     ] as ExpoPlugins;
 };
@@ -151,6 +150,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     return {
         ...config,
         name,
+        scheme: buildType === 'production' ? undefined : 'trezorsuitelite',
         slug: appSlugs[buildType],
         owner: 'trezorcompany',
         version: suiteNativeVersion,
@@ -168,6 +168,29 @@ export default ({ config }: ConfigContext): ExpoConfig => {
                 monochromeImage: './assets/appIcon_android.png',
                 ...appIconAndroid,
             },
+            intentFilters:
+                buildType === 'production'
+                    ? []
+                    : [
+                          {
+                              action: 'VIEW',
+                              autoVerify: true,
+                              data: [
+                                  {
+                                      scheme: 'https',
+                                      host: 'dev.suite.sldev.cz',
+                                      pathPattern: '/connect/.*/deeplink/.*',
+                                  },
+                                  {
+                                      scheme: 'https',
+                                      host: 'dev.suite.sldev.cz',
+                                      // for branches with a slash in the name
+                                      pathPattern: '/connect/.*/.*/deeplink/.*',
+                                  },
+                              ],
+                              category: ['BROWSABLE', 'DEFAULT'],
+                          },
+                      ],
         },
         ios: {
             bundleIdentifier,
@@ -201,7 +224,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             eas: {
                 projectId,
             },
-            isDetoxTestBuild: !!process.env.IS_DETOX_BUILD,
         },
     };
 };

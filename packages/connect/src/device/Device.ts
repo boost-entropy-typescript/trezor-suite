@@ -2,9 +2,16 @@
 import { versionUtils, createDeferred, Deferred, TypedEmitter } from '@trezor/utils';
 import { Session } from '@trezor/transport';
 import { TransportProtocol, v1 as v1Protocol } from '@trezor/protocol';
-import { DeviceCommands, PassphrasePromptResponse } from './DeviceCommands';
+import { DeviceCommands } from './DeviceCommands';
 import { PROTO, ERRORS, NETWORK } from '../constants';
-import { DEVICE, DeviceButtonRequestPayload, UI } from '../events';
+import {
+    DEVICE,
+    DeviceButtonRequestPayload,
+    UI,
+    UiResponsePin,
+    UiResponsePassphrase,
+    UiResponseWord,
+} from '../events';
 import { getAllNetworks } from '../data/coinInfo';
 import { DataManager } from '../data/DataManager';
 import { getFirmwareStatus, getRelease, getReleases } from '../data/firmwareInfo';
@@ -33,6 +40,7 @@ import { models } from '../data/models';
 import { getLanguage } from '../data/getLanguage';
 import { checkFirmwareRevision } from './checkFirmwareRevision';
 import { IStateStorage } from './StateStorage';
+import type { PromptCallback } from './prompts';
 
 // custom log
 const _log = initLog('Device');
@@ -69,17 +77,17 @@ const parseRunOptions = (options?: RunOptions): RunOptions => {
 export interface DeviceEvents {
     [DEVICE.PIN]: (
         device: Device,
-        b: PROTO.PinMatrixRequestType | undefined,
-        callback: (err: any, pin: string) => void,
+        type: PROTO.PinMatrixRequestType | undefined,
+        callback: PromptCallback<UiResponsePin['payload']>,
     ) => void;
     [DEVICE.WORD]: (
         device: Device,
-        b: PROTO.WordRequestType,
-        callback: (err: any, word: string) => void,
+        type: PROTO.WordRequestType,
+        callback: PromptCallback<UiResponseWord['payload']>,
     ) => void;
     [DEVICE.PASSPHRASE]: (
         device: Device,
-        callback: (response: PassphrasePromptResponse) => void,
+        callback: PromptCallback<UiResponsePassphrase['payload']>,
     ) => void;
     [DEVICE.PASSPHRASE_ON_DEVICE]: () => void;
     [DEVICE.BUTTON]: (device: Device, payload: DeviceButtonRequestPayload) => void;
@@ -118,9 +126,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
     private acquirePromise?: ReturnType<Transport['acquire']>;
     private releasePromise?: ReturnType<Transport['release']>;
     private runPromise?: Deferred<void>;
-    private transportSession?: Session | null;
+    transportSession?: Session | null;
     keepTransportSession = false;
     public commands?: DeviceCommands;
+    private cancelableAction?: (err?: Error) => Promise<unknown>;
 
     loaded = false;
 
@@ -289,16 +298,31 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
+    setCancelableAction(callback: NonNullable<typeof this.cancelableAction>) {
+        this.cancelableAction = (e?: Error) =>
+            callback(e)
+                .catch(e => {
+                    _log.debug('cancelableAction error', e);
+                })
+                .finally(() => {
+                    this.clearCancelableAction();
+                });
+    }
+
+    clearCancelableAction() {
+        this.cancelableAction = undefined;
+    }
+
     async interruptionFromUser(error: Error) {
         _log.debug('interruptionFromUser');
+
+        await this.cancelableAction?.(error);
+        await this.commands?.cancel();
 
         if (this.runPromise) {
             // reject inner defer
             this.runPromise.reject(error);
             delete this.runPromise;
-        }
-        if (this.commands) {
-            await this.commands.cancel();
         }
     }
 
@@ -748,9 +772,9 @@ export class Device extends TypedEmitter<DeviceEvents> {
         // TODO: cleanup everything
         _log.debug('Disconnect cleanup');
 
-        this.transportSession = null; // set to null to prevent transport.release
-        this.interruptionFromUser(ERRORS.TypedError('Device_Disconnected'));
-        delete this.runPromise;
+        this.transportSession = null; // set to null to prevent transport.release and cancelableAction
+
+        return this.interruptionFromUser(ERRORS.TypedError('Device_Disconnected'));
     }
 
     isBootloader() {
@@ -856,9 +880,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
         this.removeAllListeners();
         if (this.isUsedHere() && this.transportSession) {
             try {
-                if (this.commands) {
-                    await this.commands.cancel();
-                }
+                await this.cancelableAction?.();
+                await this.commands?.cancel();
 
                 return this.transport.release({
                     session: this.transportSession,
@@ -923,13 +946,5 @@ export class Device extends TypedEmitter<DeviceEvents> {
             availableTranslations: this.availableTranslations,
             authenticityChecks: this.authenticityChecks,
         };
-    }
-
-    async legacyForceRelease() {
-        if (this.isUsedHere()) {
-            await this.acquire();
-            await this.getFeatures();
-            await this.release();
-        }
     }
 }
