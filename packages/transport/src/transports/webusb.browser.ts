@@ -1,9 +1,10 @@
-import { AbstractTransportParams } from './abstract';
+import { AbstractTransportMethodParams, AbstractTransportParams } from './abstract';
 import { AbstractApiTransport } from './abstractApi';
-import { SessionsClient } from '../sessions/client';
 import { UsbApi } from '../api/usb';
 
 import { initBackgroundInBrowser } from '../sessions/background-browser';
+
+type WebUsbTransportParams = AbstractTransportParams & { sessionsBackgroundUrl?: string };
 
 /**
  * WebUsbTransport
@@ -13,10 +14,9 @@ import { initBackgroundInBrowser } from '../sessions/background-browser';
 export class WebUsbTransport extends AbstractApiTransport {
     public name = 'WebUsbTransport' as const;
 
-    constructor(params: AbstractTransportParams) {
-        const { messages, logger } = params;
-        const { requestFn, registerBackgroundCallbacks } = initBackgroundInBrowser();
+    private readonly sessionsBackgroundUrl;
 
+    constructor({ messages, logger, sessionsBackgroundUrl }: WebUsbTransportParams) {
         super({
             messages,
             api: new UsbApi({
@@ -24,13 +24,29 @@ export class WebUsbTransport extends AbstractApiTransport {
                 logger,
             }),
             logger,
-            // sessions client with a request fn facilitating communication with a session backend (shared worker in case of webusb)
-            sessionsClient: new SessionsClient({
-                // @ts-expect-error
-                requestFn,
-                registerBackgroundCallbacks,
-            }),
         });
+        this.sessionsBackgroundUrl = sessionsBackgroundUrl;
+    }
+
+    public init({ signal }: AbstractTransportMethodParams<'init'> = {}) {
+        return this.scheduleAction(
+            async () => {
+                const { sessionsBackgroundUrl } = this;
+                const { requestFn, registerBackgroundCallbacks } =
+                    await initBackgroundInBrowser(sessionsBackgroundUrl);
+                // sessions client initiated with a request fn facilitating communication with a session backend (shared worker in case of webusb)
+                this.sessionsClient.init({
+                    requestFn,
+                    registerBackgroundCallbacks,
+                });
+
+                const handshakeRes = await this.sessionsClient.handshake();
+                this.stopped = !handshakeRes.success;
+
+                return handshakeRes;
+            },
+            { signal },
+        );
     }
 
     public listen() {

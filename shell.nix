@@ -1,8 +1,8 @@
-# pinned to nixos-24.05 on commit https://github.com/NixOS/nixpkgs/commit/4a92571f9207810b559c9eac203d1f4d79830073
+# pinned to nixos-24.05 on commit https://github.com/NixOS/nixpkgs/commit/759537f06e6999e141588ff1c9be7f3a5c060106
 with import
   (builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/4a92571f9207810b559c9eac203d1f4d79830073.tar.gz";
-    sha256 = "0sp7qjbb7dvrh4zvd40i6y7jwsd1v1qj44f0c95q88g7fikda8gq";
+    url = "https://github.com/NixOS/nixpkgs/archive/759537f06e6999e141588ff1c9be7f3a5c060106.tar.gz";
+    sha256 = "1an5d5a68ip1bk0l7375jwlrnmg1q9iaxjwymi11z76k4kqch0r9";
   })
 { };
 

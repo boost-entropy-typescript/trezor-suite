@@ -21,22 +21,26 @@ export class SessionsClient extends TypedEmitter<{
     descriptors: Descriptor[];
 }> {
     // request method responsible for communication with sessions background.
-    private request: SessionsBackground['handleMessage'];
+    private request: SessionsBackground['handleMessage'] = () => {
+        throw new Error('SessionsClient: request method not provided');
+    };
 
     // used only for debugging - discriminating sessions clients in sessions background log
     private caller = getWeakRandomId(3);
-    private id: number;
+    private id: number = 0;
 
-    constructor({
+    public init({
         requestFn,
         registerBackgroundCallbacks,
     }: {
         requestFn: SessionsBackground['handleMessage'];
         registerBackgroundCallbacks?: RegisterBackgroundCallbacks;
     }) {
-        super();
         this.id = 0;
         this.request = params => {
+            if (!requestFn) {
+                throw new Error('SessionsClient: requestFn not provided');
+            }
             params.caller = this.caller;
             params.id = this.id;
             this.id++;
@@ -51,31 +55,31 @@ export class SessionsClient extends TypedEmitter<{
         }
     }
 
-    handshake() {
+    public handshake() {
         return this.request({ type: 'handshake' });
     }
-    enumerateDone(payload: EnumerateDoneRequest) {
+    public enumerateDone(payload: EnumerateDoneRequest) {
         return this.request({ type: 'enumerateDone', payload });
     }
-    acquireIntent(payload: AcquireIntentRequest) {
+    public acquireIntent(payload: AcquireIntentRequest) {
         return this.request({ type: 'acquireIntent', payload });
     }
-    acquireDone(payload: AcquireDoneRequest) {
+    public acquireDone(payload: AcquireDoneRequest) {
         return this.request({ type: 'acquireDone', payload });
     }
-    releaseIntent(payload: ReleaseIntentRequest) {
+    public releaseIntent(payload: ReleaseIntentRequest) {
         return this.request({ type: 'releaseIntent', payload });
     }
-    releaseDone(payload: ReleaseDoneRequest) {
+    public releaseDone(payload: ReleaseDoneRequest) {
         return this.request({ type: 'releaseDone', payload });
     }
-    getSessions() {
+    public getSessions() {
         return this.request({ type: 'getSessions' });
     }
-    getPathBySession(payload: GetPathBySessionRequest) {
+    public getPathBySession(payload: GetPathBySessionRequest) {
         return this.request({ type: 'getPathBySession', payload });
     }
-    dispose() {
+    public dispose() {
         this.removeAllListeners('descriptors');
 
         return this.request({ type: 'dispose' });

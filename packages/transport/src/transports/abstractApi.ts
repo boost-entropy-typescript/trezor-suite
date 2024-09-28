@@ -1,3 +1,4 @@
+import { SessionsBackground } from '../sessions/background';
 import { createDeferred } from '@trezor/utils';
 import { v1 as v1Protocol } from '@trezor/protocol';
 
@@ -15,7 +16,6 @@ import { Session } from '../types';
 
 interface ConstructorParams extends AbstractTransportParams {
     api: AbstractApi;
-    sessionsClient: (typeof SessionsClient)['prototype'];
 }
 
 /**
@@ -24,24 +24,34 @@ interface ConstructorParams extends AbstractTransportParams {
 export abstract class AbstractApiTransport extends AbstractTransport {
     // sessions client is a standardized interface for communicating with sessions backend
     // which can live in couple of context (shared worker, local module, websocket server etc)
-    private sessionsClient: ConstructorParams['sessionsClient'];
+    protected sessionsClient = new SessionsClient();
+    private sessionsBackground = new SessionsBackground();
+
     protected api: AbstractApi;
 
-    constructor({ messages, api, sessionsClient, logger }: ConstructorParams) {
+    constructor({ messages, api, logger }: ConstructorParams) {
         super({ messages, logger });
-        this.sessionsClient = sessionsClient;
         this.api = api;
     }
 
     public init({ signal }: AbstractTransportMethodParams<'init'> = {}) {
         return this.scheduleAction(
             async () => {
+                // in nodeusb there is no synchronization yet. this is a followup and needs to be decided
+                // so far, sessionsClient has direct access to sessionBackground
+                this.sessionsClient.init({
+                    requestFn: args => this.sessionsBackground.handleMessage(args),
+                    registerBackgroundCallbacks: () => {},
+                });
+
+                this.sessionsBackground.on('descriptors', descriptors => {
+                    this.sessionsClient.emit('descriptors', descriptors);
+                });
+
                 const handshakeRes = await this.sessionsClient.handshake();
                 this.stopped = !handshakeRes.success;
 
-                return handshakeRes.success
-                    ? this.success(undefined)
-                    : this.unknownError('handshake error');
+                return handshakeRes;
             },
             { signal },
         );
@@ -335,5 +345,6 @@ export abstract class AbstractApiTransport extends AbstractTransport {
         this.api.on('transport-interface-change', () => {
             this.logger?.debug('device connected after transport stopped');
         });
+        this.sessionsBackground.dispose();
     }
 }

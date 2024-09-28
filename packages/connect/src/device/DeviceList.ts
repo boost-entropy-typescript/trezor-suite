@@ -82,7 +82,7 @@ export const assertDeviceListConnected: (
     if (!deviceList.isConnected()) throw ERRORS.TypedError('Transport_Missing');
 };
 
-type ConstructorParams = Pick<ConnectSettings, 'priority' | 'debug'> & {
+type ConstructorParams = Pick<ConnectSettings, 'priority' | 'debug' | '_sessionsBackgroundUrl'> & {
     messages: Record<string, any>;
 };
 type InitParams = Pick<ConnectSettings, 'pendingTransportEvent' | 'transportReconnect'>;
@@ -115,19 +115,16 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         return this.initPromise;
     }
 
-    constructor({ messages, priority, debug }: ConstructorParams) {
+    constructor({ messages, priority, debug, _sessionsBackgroundUrl }: ConstructorParams) {
         super();
 
         const transportLogger = initLog('@trezor/transport', debug);
-
-        // todo: this should be passed from above
-        const abortController = new AbortController();
 
         this.authPenaltyManager = createAuthPenaltyManager(priority);
         this.transportCommonArgs = {
             messages,
             logger: transportLogger,
-            signal: abortController.signal,
+            sessionsBackgroundUrl: _sessionsBackgroundUrl,
         };
 
         this.transports = [

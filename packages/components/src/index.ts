@@ -1,9 +1,6 @@
-import { THEME, intermediaryTheme, SuiteThemeColors } from './config/colors';
-
 export * as variables from './config/variables';
 export * as animations from './config/animations';
 export { motionAnimation, motionEasing } from './config/motion';
-export * from './support/ThemeProvider';
 
 export { Checkbox, type CheckboxProps } from './components/form/Checkbox/Checkbox';
 export * from './components/animations/DeviceAnimation';
@@ -81,4 +78,5 @@ export * from './utils/useScrollShadow';
 export * from './utils/transientProps';
 export { useMediaQuery } from './utils/useMediaQuery';
 
-export { THEME, intermediaryTheme, type SuiteThemeColors };
+export { intermediaryTheme } from './config/colors';
+export type { SuiteThemeColors } from './config/colors';

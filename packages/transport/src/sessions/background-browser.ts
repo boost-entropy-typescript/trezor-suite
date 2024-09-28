@@ -1,9 +1,13 @@
 import type { Descriptor } from '../types';
 import { SessionsBackground } from './background';
-// @ts-expect-error (typescript does not know this is worker constructor, this is done by webpack)
-import BackgroundSharedworker from './background-sharedworker';
 
 import { RegisterBackgroundCallbacks } from './types';
+
+const defaultSessionsBackgroundUrl =
+    window.location.origin +
+    `${process.env.ASSET_PREFIX || ''}/workers/sessions-background-sharedworker.js`
+        // just in case so that whoever defines ASSET_PREFIX does not need to worry about trailing slashes
+        .replace(/\/+/g, '/');
 
 /**
  * calling initBackgroundInBrowser initiates sessions-background for browser based environments and returns:
@@ -13,15 +17,31 @@ import { RegisterBackgroundCallbacks } from './types';
  * if possible sessions background utilizes native Sharedworker. If for whatever reason
  * Sharedworker is not available, it fallbacks to local module behavior
  */
-export const initBackgroundInBrowser = () => {
+export const initBackgroundInBrowser = async (
+    sessionsBackgroundUrl = defaultSessionsBackgroundUrl,
+): Promise<{
+    background: SessionsBackground | SharedWorker;
+    requestFn: SessionsBackground['handleMessage'];
+    registerBackgroundCallbacks: RegisterBackgroundCallbacks;
+}> => {
     try {
-        const background: SharedWorker = new BackgroundSharedworker();
+        // fetch to validate - failed fetch via SharedWorker constructor does not throw. It even hangs resulting in all kinds of weird behaviors
+        await fetch(sessionsBackgroundUrl, { method: 'HEAD' }).then(response => {
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to fetch sessions-background SharedWorker from url: ${sessionsBackgroundUrl}`,
+                );
+            }
+        });
+        const background = new SharedWorker(sessionsBackgroundUrl, {
+            name: '@trezor/connect-web transport sessions worker',
+        });
 
-        const requestFn = (params: Parameters<SessionsBackground['handleMessage']>[0]) =>
-            new Promise<Awaited<ReturnType<SessionsBackground['handleMessage']>>>(resolve => {
-                const onmessage = (
-                    message: MessageEvent<Awaited<ReturnType<SessionsBackground['handleMessage']>>>,
-                ) => {
+        const requestFn: SessionsBackground['handleMessage'] = (
+            params: Parameters<SessionsBackground['handleMessage']>[0],
+        ) =>
+            new Promise(resolve => {
+                const onmessage = (message: MessageEvent<any>) => {
                     if (params.id === message.data.id) {
                         resolve(message.data);
                         background.port.removeEventListener('message', onmessage);
@@ -62,7 +82,8 @@ export const initBackgroundInBrowser = () => {
         return { background, requestFn, registerBackgroundCallbacks };
     } catch (err) {
         console.warn(
-            'Unable to load background-sharedworker. Falling back to use local module. Say bye bye to tabs synchronization',
+            'Unable to load background-sharedworker. Falling back to use local module. Say bye bye to tabs synchronization. Error details: ',
+            err.message,
         );
 
         const background = new SessionsBackground();
