@@ -657,19 +657,23 @@ export default defineMessages({
     TR_COINMARKET_EXCHANGE_FIXED_OFFERS_HEADING: {
         defaultMessage: 'Fixed-rate CEX',
         id: 'TR_COINMARKET_EXCHANGE_FIXED_OFFERS_HEADING',
+        dynamic: true,
     },
     TR_COINMARKET_EXCHANGE_FLOAT_OFFERS_HEADING: {
         defaultMessage: 'Floating-rate CEX',
         id: 'TR_COINMARKET_EXCHANGE_FLOAT_OFFERS_HEADING',
+        dynamic: true,
     },
     TR_COINMARKET_EXCHANGE_DEX_OFFERS_HEADING: {
         defaultMessage: 'DEX',
         id: 'TR_COINMARKET_EXCHANGE_DEX_OFFERS_HEADING',
+        dynamic: true,
     },
     TR_COINMARKET_EXCHANGE_DEX_OFFERS_HEADING_TOOLTIP: {
         defaultMessage:
-            'Decentralized exchange - trade crypto through blockchain transactions without a centralized intermediary.',
+            'A decentralized exchange (DEX) allows you to trade crypto directly on the blockchain without the need for a central authority or intermediary.',
         id: 'TR_COINMARKET_EXCHANGE_DEX_OFFERS_HEADING_TOOLTIP',
+        dynamic: true,
     },
     TR_COINMARKET_EXCHANGE_COMPARATOR_FILTER_KYC_ALL: {
         defaultMessage: 'All KYC options',
@@ -680,7 +684,7 @@ export default defineMessages({
         id: 'TR_COINMARKET_EXCHANGE_COMPARATOR_FILTER_NO_KYC',
     },
     TR_COINMARKET_EXCHANGE_COMPARATOR_FILTER_RATE_ALL: {
-        defaultMessage: 'All CEX and DEX offers',
+        defaultMessage: 'All CEX & DEX offers',
         id: 'TR_COINMARKET_EXCHANGE_COMPARATOR_FILTER_RATE_ALL',
     },
     TR_COINMARKET_EXCHANGE_COMPARATOR_FILTER_RATE_FIXED_CEX: {
@@ -3290,13 +3294,14 @@ export default defineMessages({
     TR_SHOW_UNVERIFIED_ADDRESS: {
         defaultMessage: 'Show unverified address',
         id: 'TR_SHOW_UNVERIFIED_ADDRESS',
+        dynamic: true,
     },
     TR_SHOW_UNVERIFIED_XPUB: {
         defaultMessage: 'Show unverified public key',
         id: 'TR_SHOW_UNVERIFIED_XPUB',
     },
     TR_PROCEED_UNVERIFIED_ADDRESS: {
-        defaultMessage: 'Proceed with unverified address',
+        defaultMessage: 'Continue with unverified address',
         id: 'TR_PROCEED_UNVERIFIED_ADDRESS',
     },
     TR_SIGN: {
@@ -7107,6 +7112,10 @@ export default defineMessages({
         defaultMessage:
             "Firmware revision check couldn't be performed. Go online to verify your firmware version.",
     },
+    TR_FIRMWARE_REVISION_CHECK_OTHER_ERROR: {
+        id: 'TR_FIRMWARE_REVISION_CHECK_OTHER_ERROR',
+        defaultMessage: 'Firmware revision check could not be performed.',
+    },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
         defaultMessage: 'Activate coins',
@@ -7438,6 +7447,14 @@ export default defineMessages({
         id: 'TR_INSTANT_STAKING',
         defaultMessage: 'Staked instantly',
     },
+    TR_STAKING_AMOUNT_STAKED_INSTANTLY: {
+        id: 'TR_STAKING_AMOUNT_STAKED_INSTANTLY',
+        defaultMessage: '{amount} {symbol} staked instantly!',
+    },
+    TR_STAKING_AMOUNT_UNSTAKED_INSTANTLY: {
+        id: 'TR_STAKING_AMOUNT_UNSTAKED_INSTANTLY',
+        defaultMessage: '{amount} {symbol} unstaked instantly!',
+    },
     TR_STAKING_INSTANT_UNSTAKING: {
         id: 'TR_INSTANT_UNSTAKING',
         defaultMessage: 'Unstaked instantly',
@@ -7445,7 +7462,7 @@ export default defineMessages({
     TR_STAKING_INSTANTLY_STAKED: {
         id: 'TR_STAKING_INSTANTLY_STAKED',
         defaultMessage:
-            "You've instantly staked {amount} {symbol}. {days, plural, =0 {} one {The remaining {symbol} is staked within # day.} other { The remaining {symbol} is staked within # days}}",
+            "You've instantly staked {amount} {symbol}. {days, plural, =0 {} one {The remaining {symbol} will be staked within # day.} other { The remaining {symbol} will be staked within # days}}",
     },
     TR_STAKING_INSTANTLY_UNSTAKED: {
         id: 'TR_STAKE_INSTANTLY_UNSTAKED_WITH_DAYS',
@@ -8667,17 +8684,17 @@ export default defineMessages({
     },
     TR_STAKE_STAKED_ETH_AMOUNT_LOCKED: {
         id: 'TR_STAKE_STAKED_ETH_AMOUNT_LOCKED',
-        defaultMessage: 'Your staked {symbol} is locked and can’t be traded or sent.',
+        defaultMessage: 'The staked amount of {symbol} is locked and can’t be traded or sent.',
     },
     TR_STAKE_UNSTAKING_TAKES: {
         id: 'TR_STAKE_UNSTAKING_TAKES',
         defaultMessage:
-            'Unstaking usually takes about {count, plural, one {# day} other {# days}}. Once completed, you can claim it instantly.',
+            'Unstaking currently takes {count, plural, one {# day} other {# days}}. Once completed, you can trade or send your funds.',
     },
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
         defaultMessage:
-            'Your rewards also earn. Keep them staked and watch your {symbol} rewards grow.',
+            'Your rewards also earn. Keep them staked and watch your {symbol} rewards soar.',
     },
     TR_STAKE_AVAILABLE: {
         id: 'TR_STAKE_AVAILABLE',

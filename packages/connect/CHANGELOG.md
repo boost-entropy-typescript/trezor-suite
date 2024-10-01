@@ -12,6 +12,9 @@ Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to a
 
 # 9.4.2
 
+This release fixes an issue with TypeScript and certain libraries not being resolved correctly in the previous version.
+If you are still seeing issues with USB types, please add `w3c-web-usb` to your `tsconfig.json` file under `types`.
+
 ### Features
 
 -   feat(connect): return device info with method response (a378def)
@@ -20,14 +23,21 @@ Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to a
 
 ### Fixes
 
--   Fixing an issue with typescript not being able to resolve @sinclair/typebox and USB types correctly ((98d6437))
+-   Fixing an issue with typescript not being able to resolve @sinclair/typebox and USB types correctly (98d6437)
 -   Fixing regression that made it impossible to acquire (steal) device session over webusb (5cf83b4)
 -   Couple of other fixes and improvements of device handling:
 
     -   fix(connect): pending transport event fix (231899f)
     -   fix(connect): DeviceList create devices sequentially (b4a915b)
+    -   chore(connect): use cancelableAction instead of \_cancelableRequestBySend (66c9beb)
+    -   fix(connect): Device prompts cancel action (pin, word, passphrase) (e8257f4)
 
--   fix(connect-explorer): icons on index page (fef3791)
+-   Connect Explorer fixes:
+
+    -   fix(connect-explorer): icons on index page (fef3791)
+    -   fix(connect-explorer): Button as Link not working (d788a06)
+    -   chore(connect-explorer): improve fallback schema illustration (d0619b7)
+    -   chore(connect-explorer): improve typography (f730904)
 
 ### Dependencies update
 
@@ -35,7 +45,7 @@ Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to a
 -   npm-release: @trezor/transport 1.3.2
 -   npm-release: @trezor/protobuf 1.2.2
 
-# 9.4.1
+## 9.4.1
 
 Automatic retry for no transport issue: If the transport (bridge) is initially not available, the automatic retry feature allows the user to continue after starting the transport, without having to restart the entire flow.
 

@@ -2,7 +2,7 @@ import { isEqual } from '@trezor/utils/src/versionUtils';
 import { PROTO } from '../constants';
 import { downloadReleasesMetadata } from '../data/downloadReleasesMetadata';
 import { FirmwareRelease, VersionArray } from '../types';
-import { FirmwareRevisionCheckResult } from '../types/device';
+import { FirmwareRevisionCheckError, FirmwareRevisionCheckResult } from '../types/device';
 import { calculateRevisionForDevice } from './calculateRevisionForDevice';
 
 type GetOnlineReleaseMetadataParams = {
@@ -20,8 +20,8 @@ const getOnlineReleaseMetadata = async ({
 };
 
 const failFirmwareRevisionCheck = (
-    error: 'revision-mismatch' | 'firmware-version-unknown' | 'firmware-version-unknown',
-): FirmwareRevisionCheckResult => ({ success: false, error });
+    error: FirmwareRevisionCheckError,
+): Extract<FirmwareRevisionCheckResult, { success: false }> => ({ success: false, error });
 
 export type CheckFirmwareRevisionParams = {
     firmwareVersion: VersionArray;
@@ -86,10 +86,11 @@ export const checkFirmwareRevision = async ({
 
             return { success: true };
         } catch (e) {
-            return {
-                success: false,
-                error: 'cannot-perform-check-offline',
-            };
+            if (e.name === 'FetchError' && e.code === 'ENOTFOUND') {
+                return failFirmwareRevisionCheck('cannot-perform-check-offline');
+            }
+
+            return failFirmwareRevisionCheck('other-error');
         }
     }
 
