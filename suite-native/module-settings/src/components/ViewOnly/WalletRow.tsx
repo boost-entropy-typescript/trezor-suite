@@ -21,7 +21,7 @@ type WalletRowProps = {
 };
 
 const walletRowStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: utils.spacings.medium,
+    paddingHorizontal: utils.spacings.sp16,
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 60,
@@ -109,7 +109,7 @@ export const WalletRow = ({ device }: WalletRowProps) => {
 
     return (
         <HStack key={device.instance} style={applyStyle(walletRowStyle)}>
-            <HStack spacing={12} alignItems="center">
+            <HStack spacing="sp12" alignItems="center">
                 <Icon
                     name={device.useEmptyPassphrase ? 'standardWallet' : 'password'}
                     size="mediumLarge"

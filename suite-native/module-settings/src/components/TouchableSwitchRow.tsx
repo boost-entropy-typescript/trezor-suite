@@ -13,8 +13,8 @@ type TouchableSwitchRowProps = {
     iconName: IconName;
 };
 
-const textStyle = prepareNativeStyle(_ => ({
-    marginLeft: 12,
+const textStyle = prepareNativeStyle(utils => ({
+    marginLeft: utils.spacings.sp12,
     flex: 1,
 }));
 
@@ -46,7 +46,7 @@ export const TouchableSwitchRow = ({
                 flexDirection="row"
                 justifyContent="space-between"
                 alignItems="flex-start"
-                marginVertical="medium"
+                marginVertical="sp16"
             >
                 <Box style={applyStyle(contentStyle)} flexDirection="row">
                     <RoundedIcon name={iconName} color="iconSubdued" />

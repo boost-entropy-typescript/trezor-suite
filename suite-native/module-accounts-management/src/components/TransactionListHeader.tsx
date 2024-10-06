@@ -12,7 +12,6 @@ import {
     selectAccountByKey,
     selectIsPortfolioTrackerDevice,
 } from '@suite-common/wallet-core';
-import { isEthereumAccountSymbol } from '@suite-common/wallet-utils';
 import {
     AppTabsParamList,
     RootStackParamList,
@@ -23,6 +22,7 @@ import {
 import { Translation } from '@suite-native/intl';
 import { FeatureFlag, useFeatureFlag } from '@suite-native/feature-flags';
 import { NetworkSymbol } from '@suite-common/wallet-config';
+import { isCoinWithTokens } from '@suite-native/tokens';
 
 import { AccountDetailGraph } from './AccountDetailGraph';
 import { AccountDetailCryptoValue } from './AccountDetailCryptoValue';
@@ -132,7 +132,7 @@ export const TransactionListHeader = memo(
         };
 
         const isTokenDetail = !!tokenContract;
-        const isEthereumAccountDetail = !isTokenDetail && isEthereumAccountSymbol(account.symbol);
+        const canHaveTokens = !isTokenDetail && isCoinWithTokens(account.symbol);
         const isPriceCardDisplayed = !isTestnetAccount && !isTokenDetail;
 
         const isSendButtonDisplayed =
@@ -141,14 +141,14 @@ export const TransactionListHeader = memo(
             !isPortfolioTrackerDevice;
 
         return (
-            <Box marginBottom="small">
-                <VStack spacing="large">
+            <Box marginBottom="sp8">
+                <VStack spacing="sp24">
                     <TransactionListHeaderContent
                         accountKey={accountKey}
                         tokenContract={tokenContract}
                     />
                     {accountHasTransactions && (
-                        <HStack marginVertical="medium" paddingHorizontal="medium" flex={1}>
+                        <HStack marginVertical="sp16" paddingHorizontal="sp16" flex={1}>
                             <Box flex={1}>
                                 <Button viewLeft="receive" size="large" onPress={handleReceive}>
                                     <Translation id="transactions.receive" />
@@ -164,7 +164,7 @@ export const TransactionListHeader = memo(
                         </HStack>
                     )}
                     {isPriceCardDisplayed && (
-                        <Box marginBottom={accountHasTransactions ? undefined : 'medium'}>
+                        <Box marginBottom={accountHasTransactions ? undefined : 'sp16'}>
                             <CoinPriceCard accountKey={accountKey} />
                         </Box>
                     )}
@@ -172,7 +172,7 @@ export const TransactionListHeader = memo(
                     {accountHasTransactions && (
                         <>
                             <Divider />
-                            <Box marginVertical="small" marginHorizontal="large">
+                            <Box marginVertical="sp8" marginHorizontal="sp24">
                                 <Text variant="titleSmall">
                                     <Translation id="transactions.title" />
                                 </Text>
@@ -181,7 +181,7 @@ export const TransactionListHeader = memo(
                     )}
                 </VStack>
 
-                {isEthereumAccountDetail && accountHasTransactions && (
+                {canHaveTokens && accountHasTransactions && (
                     <IncludeTokensToggle
                         isToggled={areTokensIncluded}
                         onToggle={toggleIncludeTokenTransactions}

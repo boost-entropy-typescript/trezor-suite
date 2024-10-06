@@ -12,8 +12,8 @@ import { Radio } from './Radio';
 
 const cardStyle = prepareNativeStyle((utils, { isSelected }: { isSelected: boolean }) => ({
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
-    borderRadius: utils.borders.radii.medium,
-    padding: utils.spacings.medium,
+    borderRadius: utils.borders.radii.r16,
+    padding: utils.spacings.sp16,
     ...utils.boxShadows.small,
     extend: [
         {
@@ -21,7 +21,7 @@ const cardStyle = prepareNativeStyle((utils, { isSelected }: { isSelected: boole
             style: {
                 borderColor: utils.colors.iconPrimaryDefault,
                 borderWidth: utils.borders.widths.large,
-                padding: utils.spacings.medium - utils.borders.widths.large,
+                padding: utils.spacings.sp16 - utils.borders.widths.large,
                 ...utils.boxShadows.medium,
             },
         },
@@ -33,18 +33,18 @@ const titleWrapperStyle = prepareNativeStyle(_ => ({
     justifyContent: 'space-between',
 }));
 
-const radioWrapperStyle = prepareNativeStyle(_ => ({
+const radioWrapperStyle = prepareNativeStyle(utils => ({
     width: '100%',
     alignItems: 'flex-end',
-    paddingTop: 12,
+    paddingTop: utils.spacings.sp12,
 }));
 
 const subtitleWrapperStyle = prepareNativeStyle(utils => ({
-    paddingBottom: utils.spacings.extraSmall,
+    paddingBottom: utils.spacings.sp4,
 }));
 
 const badgeWrapperStyle = prepareNativeStyle(utils => ({
-    paddingTop: utils.spacings.extraSmall,
+    paddingTop: utils.spacings.sp4,
 }));
 
 type SelectableItemProps = {
@@ -72,7 +72,7 @@ export const SelectableItem = ({
             activeOpacity={0.6}
             style={applyStyle(cardStyle, { isSelected })}
         >
-            <VStack spacing={utils.spacings.extraSmall}>
+            <VStack spacing={utils.spacings.sp4}>
                 <Box style={applyStyle(titleWrapperStyle)}>
                     <Text variant="titleSmall" color="textDefault">
                         {title}

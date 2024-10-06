@@ -15,8 +15,8 @@ import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
 import { groupTransactionsByDate, isPending, MonthKey } from '@suite-common/wallet-utils';
 import { Box, Loader } from '@suite-native/atoms';
 import {
-    EthereumTokenTransfer,
-    selectAccountOrTokenAccountTransactions,
+    TypedTokenTransfer,
+    selectAccountOrTokenTransactions,
     WalletAccountTransaction,
 } from '@suite-native/tokens';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
@@ -49,7 +49,7 @@ type RenderTransactionItemParams = {
     isLast: boolean;
 };
 
-type EthereumTokenTransferWithTx = EthereumTokenTransfer & {
+type TypedTokenTransferWithTx = TypedTokenTransfer & {
     originalTransaction: WalletAccountTransaction;
 };
 
@@ -57,21 +57,21 @@ type RenderTokenTransferItemParams = Omit<
     RenderTransactionItemParams,
     'areTokensIncluded' | 'item'
 > & {
-    item: EthereumTokenTransferWithTx;
+    item: TypedTokenTransferWithTx;
     txid: string;
 };
 
 type TransactionListItem =
-    | (EthereumTokenTransferWithTx | MonthKey)
+    | (TypedTokenTransferWithTx | MonthKey)
     | (WalletAccountTransaction | MonthKey);
 
 const sectionListStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: utils.spacings.small,
+    paddingHorizontal: utils.spacings.sp8,
     flex: 1,
 }));
 
 const sectionListContainerStyle = prepareNativeStyle(utils => ({
-    paddingVertical: utils.spacings.small,
+    paddingVertical: utils.spacings.sp8,
 }));
 
 const sortKeysPendingFirst = (a: string, b: string) => {
@@ -150,7 +150,7 @@ export const TransactionList = ({
     );
 
     const transactions = useSelector((state: TransactionsRootState & TokenDefinitionsRootState) =>
-        selectAccountOrTokenAccountTransactions(
+        selectAccountOrTokenTransactions(
             state,
             accountKey,
             tokenContract ?? null,
@@ -232,7 +232,7 @@ export const TransactionList = ({
                                 ({
                                     ...tokenTransfer,
                                     originalTransaction: transaction,
-                                }) as EthereumTokenTransferWithTx,
+                                }) as TypedTokenTransferWithTx,
                         ),
                 ),
             ]);
@@ -247,7 +247,7 @@ export const TransactionList = ({
     const renderItem = useCallback(
         ({ item, index }: { item: TransactionListItem; index: number }) => {
             if (typeof item === 'string') {
-                return renderSectionHeader({ section: { monthKey: item } });
+                return renderSectionHeader({ section: { monthKey: item as MonthKey } });
             }
             const isFirstInSection = typeof data.at(index - 1) === 'string';
             const isLastInSection =
@@ -255,7 +255,7 @@ export const TransactionList = ({
 
             const getIsTokenTransfer = (
                 itemForCheck: TransactionListItem,
-            ): itemForCheck is EthereumTokenTransferWithTx => 'originalTransaction' in itemForCheck;
+            ): itemForCheck is TypedTokenTransferWithTx => 'originalTransaction' in itemForCheck;
 
             return getIsTokenTransfer(item)
                 ? renderTokenTransferItem({

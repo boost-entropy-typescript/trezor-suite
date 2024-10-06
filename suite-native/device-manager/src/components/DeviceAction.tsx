@@ -13,14 +13,14 @@ type DeviceActionProps = {
 };
 
 const contentStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: utils.spacings.medium,
-    paddingVertical: 12,
+    paddingHorizontal: utils.spacings.sp16,
+    paddingVertical: utils.spacings.sp12,
     alignItems: 'center',
     height: 44 * ACCESSIBILITY_FONTSIZE_MULTIPLIER,
-    gap: utils.spacings.small,
+    gap: utils.spacings.sp8,
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
     borderWidth: utils.borders.widths.small,
-    borderRadius: 12,
+    borderRadius: utils.borders.radii.r12,
     borderColor: utils.colors.borderElevation1,
 }));
 

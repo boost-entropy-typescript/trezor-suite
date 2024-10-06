@@ -44,6 +44,9 @@ export const SendAddressReviewScreen = ({
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('beforeRemove', e => {
+            // We want to modify only behavior of back button actions.
+            if (e.data.action.type !== 'GO_BACK') return;
+
             if (isReviewInProgress) {
                 e.preventDefault();
                 showReviewCancellationAlert();
@@ -66,8 +69,8 @@ export const SendAddressReviewScreen = ({
             // TODO: improve the illustration: https://github.com/trezor/trezor-suite/issues/13965
             footer={isReviewInProgress && <SendConfirmOnDeviceImage />}
         >
-            <Box flex={1} justifyContent="space-between" marginTop="medium">
-                <VStack justifyContent="center" alignItems="center" spacing="large">
+            <Box flex={1} justifyContent="space-between" marginTop="sp16">
+                <VStack justifyContent="center" alignItems="center" spacing="sp24">
                     <Text variant="titleSmall">
                         <Translation id="moduleSend.review.address.title" />
                     </Text>

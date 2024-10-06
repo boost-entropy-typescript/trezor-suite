@@ -24,7 +24,7 @@ import { QuestionMarks } from '../../assets/passphrase/QuestionMarks';
 const cardStyle = prepareNativeStyle(utils => ({
     borderColor: utils.colors.borderElevation0,
     borderWidth: utils.borders.widths.small,
-    gap: 12,
+    gap: utils.spacings.sp12,
 }));
 
 const cardContentStyle = prepareNativeStyle(() => ({
@@ -78,7 +78,7 @@ export const PassphraseEmptyWalletScreen = () => {
             title={<Translation id="modulePassphrase.emptyPassphraseWallet.title" />}
         >
             <Card style={applyStyle(cardStyle)}>
-                <VStack alignItems="center" spacing="medium" style={applyStyle(cardContentStyle)}>
+                <VStack alignItems="center" spacing="sp16" style={applyStyle(cardContentStyle)}>
                     <QuestionMarks />
                     <Text variant="highlight" textAlign="center">
                         <Translation id="modulePassphrase.emptyPassphraseWallet.confirmCard.description" />
@@ -93,8 +93,8 @@ export const PassphraseEmptyWalletScreen = () => {
                 lineColor="borderElevation0"
                 textColor="textSubdued"
             />
-            <VStack spacing={20}>
-                <VStack alignItems="center" spacing="extraSmall">
+            <VStack spacing="sp20">
+                <VStack alignItems="center" spacing="sp4">
                     <Text
                         textAlign="center"
                         variant="highlight"

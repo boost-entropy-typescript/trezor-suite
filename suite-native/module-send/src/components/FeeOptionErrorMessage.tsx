@@ -12,7 +12,7 @@ type FeeOptionErrorMessageProps = {
 const ERROR_HEIGHT = 40;
 
 const errorStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: 12,
+    paddingHorizontal: utils.spacings.sp12,
     justifyContent: 'center',
     backgroundColor: utils.colors.backgroundAlertRedSubtleOnElevation1,
     overflow: 'hidden',
@@ -30,7 +30,7 @@ export const FeeOptionErrorMessage = ({ isVisible }: FeeOptionErrorMessageProps)
 
     return (
         <Animated.View style={[applyStyle(errorStyle), animatedErrorStyle]}>
-            <HStack alignItems="center" spacing="small">
+            <HStack alignItems="center" spacing="sp8">
                 <Icon name="warningCircle" size="mediumLarge" color="iconAlertRed" />
                 <Text variant="hint">
                     <Translation id="moduleSend.fees.error" />

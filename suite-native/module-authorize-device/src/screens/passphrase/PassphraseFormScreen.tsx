@@ -15,10 +15,10 @@ const ANIMATION_DURATION = 300;
 
 const cardStyle = prepareNativeStyle(utils => ({
     backgroundColor: utils.colors.backgroundAlertBlueSubtleOnElevation1,
-    borderRadius: utils.borders.radii.medium,
+    borderRadius: utils.borders.radii.r16,
     borderColor: utils.colors.backgroundAlertBlueSubtleOnElevationNegative,
     borderWidth: utils.borders.widths.small,
-    padding: utils.spacings.medium,
+    padding: utils.spacings.sp16,
     flex: 1,
     justifyContent: 'center',
 }));
@@ -27,8 +27,8 @@ const cardTextStyle = prepareNativeStyle(_ => ({
     width: '90%',
 }));
 
-const warningIconWrapperStyle = prepareNativeStyle(_ => ({
-    paddingTop: 2,
+const warningIconWrapperStyle = prepareNativeStyle(utils => ({
+    paddingTop: utils.spacings.sp2,
 }));
 
 const animationWrapperStyle = prepareNativeStyle(() => ({
@@ -81,7 +81,7 @@ export const PassphraseFormScreen = () => {
                 />
             }
         >
-            <VStack spacing="medium">
+            <VStack spacing="sp16">
                 <View
                     style={applyStyle(animationWrapperStyle)}
                     onLayout={(event: LayoutChangeEvent) =>
@@ -90,8 +90,8 @@ export const PassphraseFormScreen = () => {
                 >
                     <Animated.View style={animationStyle}>
                         <Box style={applyStyle(cardStyle)}>
-                            <VStack spacing="medium">
-                                <VStack spacing={12}>
+                            <VStack spacing="sp16">
+                                <VStack spacing="sp12">
                                     <HStack>
                                         <View style={applyStyle(warningIconWrapperStyle)}>
                                             <Icon

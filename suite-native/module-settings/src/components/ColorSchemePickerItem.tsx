@@ -12,7 +12,7 @@ type ColorSchemePickerItemProps = {
 const pickerItemWrapperStyle = prepareNativeStyle<{ isColorSchemeActive: boolean }>(
     (utils, { isColorSchemeActive }) => ({
         backgroundColor: utils.colors.backgroundSurfaceElevationNegative,
-        borderRadius: utils.borders.radii.medium,
+        borderRadius: utils.borders.radii.r16,
         minHeight: 114,
         flex: 1,
         paddingTop: 33,
@@ -36,7 +36,7 @@ const pickerItemDotStyle = prepareNativeStyle<PickerItemDotStyleProps>(
         extend: {
             condition: !isFirstItem,
             style: {
-                marginLeft: utils.negative(utils.spacings.small),
+                marginLeft: utils.negative(utils.spacings.sp8),
             },
         },
     }),
@@ -46,8 +46,8 @@ const textStyle = prepareNativeStyle(utils => ({
     alignSelf: 'center',
     textAlign: 'center',
     paddingTop: 23,
-    paddingBottom: utils.spacings.small,
-    paddingHorizontal: utils.spacings.small,
+    paddingBottom: utils.spacings.sp8,
+    paddingHorizontal: utils.spacings.sp8,
     textTransform: 'capitalize',
 }));
 

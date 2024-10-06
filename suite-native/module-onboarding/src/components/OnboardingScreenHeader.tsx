@@ -10,14 +10,14 @@ type OnboardingScreenHeaderProps = {
     activeStep: number;
 };
 
-const titleStyle = prepareNativeStyle(() => ({
+const titleStyle = prepareNativeStyle(utils => ({
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: utils.spacings.sp12,
 }));
 
-const wrapperStyle = prepareNativeStyle(() => ({
-    paddingHorizontal: 16,
-    paddingTop: 32,
+const wrapperStyle = prepareNativeStyle(utils => ({
+    paddingHorizontal: utils.spacings.sp16,
+    paddingTop: utils.spacings.sp32,
 }));
 
 const subtitleStyle = prepareNativeStyle(() => ({
@@ -36,7 +36,7 @@ export const OnboardingScreenHeader = ({
 
     return (
         <Box alignItems="center" style={applyStyle(wrapperStyle)} alignSelf="center">
-            <Box marginBottom="extraLarge">
+            <Box marginBottom="sp32">
                 <StepsProgressBar
                     numberOfSteps={isUsbDeviceConnectFeatureEnabled ? 3 : 2}
                     activeStep={activeStep}

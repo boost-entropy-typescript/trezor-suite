@@ -18,9 +18,12 @@ import {
     selectNetworkFeeLevelFeePerUnit,
 } from '@suite-common/wallet-core';
 import {
+    AuthorizeDeviceStackRoutes,
+    RootStackParamList,
+    RootStackRoutes,
     SendStackParamList,
     SendStackRoutes,
-    StackNavigationProps,
+    StackToStackCompositeNavigationProps,
 } from '@suite-native/navigation';
 import { Translation } from '@suite-native/intl';
 
@@ -33,7 +36,11 @@ type SendFormProps = {
     feeLevels: GeneralPrecomposedLevels;
 };
 
-type SendFeesNavigationProps = StackNavigationProps<SendStackParamList, SendStackRoutes.SendFees>;
+type SendFeesNavigationProps = StackToStackCompositeNavigationProps<
+    SendStackParamList,
+    SendStackRoutes.SendFees,
+    RootStackParamList
+>;
 
 const DEFAULT_FEE = 'normal';
 
@@ -43,7 +50,6 @@ export const SendFeesForm = ({ accountKey, feeLevels }: SendFormProps) => {
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
-
     const form = useForm<SendFeesFormValues>({
         validation: sendFeesFormValidationSchema,
         defaultValues: {
@@ -66,6 +72,21 @@ export const SendFeesForm = ({ accountKey, feeLevels }: SendFormProps) => {
             accountKey,
             transaction: selectedFeeLevelTransaction,
         });
+
+        // In case that view only device is not connected, show connect screen first.
+        navigation.navigate(RootStackRoutes.AuthorizeDeviceStack, {
+            screen: AuthorizeDeviceStackRoutes.ConnectAndUnlockDevice,
+            params: {
+                // If user cancels, navigate back to the send fees screen.
+                onCancelNavigationTarget: {
+                    name: RootStackRoutes.SendStack,
+                    params: {
+                        screen: SendStackRoutes.SendFees,
+                        params: { accountKey, feeLevels },
+                    },
+                },
+            },
+        });
     });
 
     const normalFee = feeLevels.normal as PrecomposedTransactionFinal; // user is not allowed to enter this screen if normal fee is not final
@@ -79,8 +100,8 @@ export const SendFeesForm = ({ accountKey, feeLevels }: SendFormProps) => {
     return (
         <Form form={form}>
             <Box flex={1} justifyContent="space-between">
-                <VStack spacing="medium">
-                    <VStack spacing="extraSmall">
+                <VStack spacing="sp16">
+                    <VStack spacing="sp4">
                         <Text variant="titleSmall">
                             <Translation id="moduleSend.fees.description.title" />
                         </Text>

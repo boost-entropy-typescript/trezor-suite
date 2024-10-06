@@ -30,15 +30,15 @@ const alertWrapperStyle = prepareNativeStyle<AlertWrapperStyleType>(
         borderWidth: 1,
         borderColor: utils.colors[borderColor],
         backgroundColor: utils.colors[backgroundColor],
-        paddingVertical: utils.spacings.small,
-        paddingHorizontal: utils.spacings.medium,
-        gap: 12,
+        paddingVertical: utils.spacings.sp8,
+        paddingHorizontal: utils.spacings.sp16,
+        gap: utils.spacings.sp12,
     }),
 );
 
-const textStyle = prepareNativeStyle(_ => ({
+const textStyle = prepareNativeStyle(utils => ({
     flex: 1,
-    paddingTop: 2,
+    paddingTop: utils.spacings.sp2,
 }));
 
 const variantToColorMap = {
@@ -94,7 +94,7 @@ const AlertSpinner = ({ color }: { color: Color }) => {
 export const AlertBox = ({
     title,
     variant = 'info',
-    borderRadius = nativeBorders.radii.medium,
+    borderRadius = nativeBorders.radii.r16,
 }: AlertBoxProps) => {
     const { applyStyle } = useNativeStyles();
     const { contentColor, backgroundColor, borderColor } = variantToColorMap[variant];

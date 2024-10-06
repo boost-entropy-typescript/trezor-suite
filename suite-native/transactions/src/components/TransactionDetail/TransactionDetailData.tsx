@@ -12,7 +12,7 @@ import {
     selectTransactionBlockTimeById,
 } from '@suite-common/wallet-core';
 import { getFiatRateKey } from '@suite-common/wallet-utils';
-import { EthereumTokenTransfer, WalletAccountTransaction } from '@suite-native/tokens';
+import { TypedTokenTransfer, WalletAccountTransaction } from '@suite-native/tokens';
 import { Translation, useTranslate } from '@suite-native/intl';
 import { Link } from '@suite-native/link';
 import { TokenDefinitionsRootState } from '@suite-common/token-definitions';
@@ -27,7 +27,7 @@ import { TransactionDetailSheets } from './TransactionDetailSheets';
 type TransactionDetailDataProps = {
     transaction: WalletAccountTransaction;
     accountKey: AccountKey;
-    tokenTransfer?: EthereumTokenTransfer;
+    tokenTransfer?: TypedTokenTransfer;
 };
 
 export const TransactionDetailData = ({
@@ -62,7 +62,7 @@ export const TransactionDetailData = ({
     const hasIncludedCoins = isMultiTokenTransaction || isNetworkTransactionWithTokens;
 
     return (
-        <VStack spacing="medium">
+        <VStack spacing="sp16">
             {isPhishingTransaction && (
                 <AlertBox
                     variant="error"
@@ -84,7 +84,7 @@ export const TransactionDetailData = ({
                 />
             )}
             <Card borderColor="borderElevation1" style={applyStyle(cardStyle)}>
-                <VStack spacing="large">
+                <VStack spacing="sp24">
                     <TransactionDetailRow title={translate('transactions.detail.feeLabel')}>
                         <Box alignItems="flex-end">
                             <CryptoAmountFormatter

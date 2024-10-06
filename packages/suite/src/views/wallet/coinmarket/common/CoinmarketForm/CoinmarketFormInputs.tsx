@@ -33,6 +33,7 @@ import { CoinmarketBalance } from 'src/views/wallet/coinmarket/common/Coinmarket
 import { TokenAddress } from '@suite-common/wallet-types';
 import { formatAmount } from '@suite-common/wallet-utils';
 import { getNetworkDecimals } from 'src/utils/wallet/coinmarket/coinmarketUtils';
+import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 
 const CoinmarketFeesWrapper = styled.div`
     margin-bottom: ${spacingsPx.md};
@@ -198,7 +199,6 @@ export const CoinmarketFormInputs = () => {
                         cryptoSelectName={FORM_RECEIVE_CRYPTO_CURRENCY_SELECT}
                         supportedCryptoCurrencies={supportedCryptoCurrencies}
                         methods={{ ...context }}
-                        openMenuOnInput
                     />
                 </CoinmarketFormInput>
                 <CoinmarketBorder
@@ -225,7 +225,7 @@ export const CoinmarketFormInputs = () => {
         );
     }
 
-    const { buyInfo } = context;
+    const { buyInfo, device } = context;
     const { currencySelect, cryptoSelect } = context.getValues();
     const supportedCryptoCurrencies = buyInfo?.supportedCryptoCurrencies;
 
@@ -237,6 +237,7 @@ export const CoinmarketFormInputs = () => {
                     cryptoSelectName={FORM_CRYPTO_CURRENCY_SELECT}
                     supportedCryptoCurrencies={supportedCryptoCurrencies}
                     methods={{ ...context }}
+                    isDisabled={hasBitcoinOnlyFirmware(device)}
                 />
             </CoinmarketFormInput>
             <CoinmarketFormInput>

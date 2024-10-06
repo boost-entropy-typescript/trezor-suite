@@ -37,16 +37,16 @@ const cardStyle = prepareNativeStyle<{ isEnabled: boolean }>((utils, { isEnabled
     ],
 }));
 
-const wrapperStyle = prepareNativeStyle(_ => ({
+const wrapperStyle = prepareNativeStyle(utils => ({
     paddingVertical: 6,
     paddingHorizontal: 14,
-    gap: 12,
+    gap: utils.spacings.sp12,
     alignItems: 'center',
     flex: 1,
 }));
 
 const iconWrapperStyle = prepareNativeStyle(utils => ({
-    paddingVertical: utils.spacings.small,
+    paddingVertical: utils.spacings.sp8,
 }));
 
 export const NetworkSymbolSwitchItem = ({
@@ -128,7 +128,7 @@ export const NetworkSymbolSwitchItem = ({
                     </View>
                     <HStack
                         justifyContent="space-between"
-                        spacing={12}
+                        spacing="sp12"
                         flex={1}
                         alignItems="center"
                     >

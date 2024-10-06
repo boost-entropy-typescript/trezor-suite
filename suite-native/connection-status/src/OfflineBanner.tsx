@@ -16,8 +16,8 @@ const containerStyle = prepareNativeStyle(utils => ({
 const contentStyle = prepareNativeStyle<{ topSafeAreaInset: number }>(
     (utils, { topSafeAreaInset }) => ({
         marginTop: topSafeAreaInset,
-        paddingTop: utils.spacings.small,
-        paddingBottom: 12,
+        paddingTop: utils.spacings.sp8,
+        paddingBottom: utils.spacings.sp12,
         alignItems: 'center',
     }),
 );

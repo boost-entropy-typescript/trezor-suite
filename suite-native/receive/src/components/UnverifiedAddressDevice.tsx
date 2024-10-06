@@ -32,9 +32,9 @@ const PAN_GESTURE_THRESHOLD = 50;
 
 const deviceFrameStyle = prepareNativeStyle(utils => ({
     width: DEVICE_SCREEN_WIDTH,
-    padding: utils.spacings.extraSmall,
+    padding: utils.spacings.sp4,
     borderWidth: utils.borders.widths.small,
-    borderRadius: utils.borders.radii.large / 2,
+    borderRadius: utils.borders.radii.r12,
     borderColor: utils.colors.borderElevation2,
 }));
 
@@ -43,10 +43,10 @@ const deviceScreenStyle = prepareNativeStyle<{ isPaginationEnabled: boolean }>(
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: DEVICE_SCREEN_HEIGHT,
-        paddingVertical: isPaginationEnabled ? utils.spacings.large : 40,
+        paddingVertical: isPaginationEnabled ? utils.spacings.sp24 : 40,
         maxWidth: DEVICE_SCREEN_WIDTH,
         backgroundColor: DEVICE_SCREEN_BACKGROUND_COLOR,
-        borderRadius: utils.borders.radii.large / 2,
+        borderRadius: utils.borders.radii.r12,
     }),
 );
 
@@ -91,12 +91,12 @@ export const UnverifiedAddressDevice = ({
     };
 
     return (
-        <VStack spacing="medium" alignItems="center">
+        <VStack spacing="sp16" alignItems="center">
             <Box style={applyStyle(deviceFrameStyle)}>
                 <PanGestureHandler onGestureEvent={handlePaginationPanGesture}>
                     <Animated.View>
                         <VStack
-                            spacing="large"
+                            spacing="sp24"
                             style={applyStyle(deviceScreenStyle, { isPaginationEnabled })}
                         >
                             <Pressable onLongPress={isAddressRevealed ? handleCopyAddress : null}>

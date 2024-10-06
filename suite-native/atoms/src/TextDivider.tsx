@@ -24,8 +24,8 @@ const separatorStyle = prepareNativeStyle<{ horizontalMargin?: number; color: Co
 );
 
 const separatorTitleStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: 12,
-    paddingVertical: utils.spacings.extraSmall,
+    paddingHorizontal: utils.spacings.sp12,
+    paddingVertical: utils.spacings.sp4,
 }));
 
 export const TextDivider = ({

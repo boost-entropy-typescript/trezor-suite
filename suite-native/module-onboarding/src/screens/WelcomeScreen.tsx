@@ -15,14 +15,14 @@ import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { OnboardingFooter } from '../components/OnboardingFooter';
 import { OnboardingScreen } from '../components/OnboardingScreen';
 
-const titleStyle = prepareNativeStyle(_ => ({
+const titleStyle = prepareNativeStyle(utils => ({
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: utils.spacings.sp12,
     alignItems: 'center',
 }));
 
 const trezorLinkStyle = prepareNativeStyle(utils => ({
-    paddingBottom: utils.spacings.large,
+    paddingBottom: utils.spacings.sp24,
     justifyContent: 'flex-end',
 }));
 
@@ -56,7 +56,7 @@ export const WelcomeScreen = () => {
             <Box flex={1} />
             <Box alignItems="center" justifyContent="center">
                 <Box alignItems="center">
-                    <Box marginBottom="large">
+                    <Box marginBottom="sp24">
                         <Icon size="extraLarge" name="trezor" color="iconDefault" />
                     </Box>
                     <Box style={applyStyle(titleStyle)}>

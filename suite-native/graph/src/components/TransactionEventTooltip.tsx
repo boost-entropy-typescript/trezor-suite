@@ -17,10 +17,7 @@ import { SignValue } from '@suite-common/suite-types';
 import { NetworkSymbol, getNetworkType } from '@suite-common/wallet-config';
 import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
 import { AccountsRootState } from '@suite-common/wallet-core';
-import {
-    selectEthereumAccountTokenInfo,
-    selectEthereumAccountTokenSymbol,
-} from '@suite-native/tokens';
+import { selectAccountTokenInfo, selectAccountTokenSymbol } from '@suite-native/tokens';
 
 export type TransactionEventTooltipProps =
     EventTooltipComponentProps<GroupedBalanceMovementEventPayload>;
@@ -54,7 +51,7 @@ const TooltipContainerStyle = prepareNativeStyle<{ x: number; y: number }>((_, {
 }));
 
 const TooltipCardStyle = prepareNativeStyle(utils => ({
-    paddingVertical: 1.5 * utils.spacings.small,
+    paddingVertical: utils.spacings.sp12,
     // fade in/out animation doesn't work for elevation (shadow) on Android
     elevation: 0,
 }));
@@ -71,10 +68,10 @@ const TokenAmountTooltipFormatter = ({
     value: number;
 }) => {
     const tokenInfo = useSelector((state: AccountsRootState) =>
-        selectEthereumAccountTokenInfo(state, accountKey, tokenAddress),
+        selectAccountTokenInfo(state, accountKey, tokenAddress),
     );
     const tokenSymbol = useSelector((state: AccountsRootState) =>
-        selectEthereumAccountTokenSymbol(state, accountKey, tokenAddress),
+        selectAccountTokenSymbol(state, accountKey, tokenAddress),
     );
     const tokenDecimals = tokenInfo?.decimals;
 

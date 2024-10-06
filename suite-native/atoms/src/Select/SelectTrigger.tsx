@@ -22,10 +22,10 @@ const selectStyle = prepareNativeStyle(utils => ({
     alignItems: 'center',
     backgroundColor: utils.colors.backgroundNeutralSubtleOnElevation1,
     borderWidth: utils.borders.widths.small,
-    borderRadius: utils.borders.radii.small,
+    borderRadius: utils.borders.radii.r8,
     borderColor: utils.colors.backgroundNeutralSubtleOnElevation1,
     color: utils.colors.textSubdued,
-    paddingLeft: 12,
+    paddingLeft: utils.spacings.sp12,
     paddingRight: 23.25,
     height: SELECT_HEIGHT,
 }));

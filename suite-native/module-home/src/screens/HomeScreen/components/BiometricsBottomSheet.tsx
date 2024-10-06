@@ -23,19 +23,19 @@ const SHOW_TIMEOUT = 1500;
 const cardStyle = prepareNativeStyle(utils => ({
     alignItems: 'center',
     textAlign: 'center',
-    borderRadius: utils.borders.radii.medium,
+    borderRadius: utils.borders.radii.r16,
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
-    padding: utils.spacings.large,
-    marginBottom: utils.spacings.large,
-    gap: utils.spacings.large,
+    padding: utils.spacings.sp24,
+    marginBottom: utils.spacings.sp24,
+    gap: utils.spacings.sp24,
 }));
 const textContentStyle = prepareNativeStyle(utils => ({
-    gap: utils.spacings.small,
+    gap: utils.spacings.sp8,
 }));
 
 const buttonWrapperStyle = prepareNativeStyle(utils => ({
-    gap: utils.spacings.medium,
-    paddingHorizontal: utils.spacings.small,
+    gap: utils.spacings.sp16,
+    paddingHorizontal: utils.spacings.sp8,
 }));
 
 export const BiometricsBottomSheet = () => {

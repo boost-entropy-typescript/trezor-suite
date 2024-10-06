@@ -26,6 +26,7 @@ import {
 import { TOKEN_ACCOUNT_LAYOUT } from './tokenUtils';
 import { getBaseFee, getPriorityFee } from './fee';
 import { confirmTransactionWithResubmit } from './transactionConfirmation';
+import { getSuiteVersion } from '@trezor/env-utils';
 
 export type SolanaAPI = Connection;
 
@@ -153,14 +154,21 @@ const getAccountInfo = async (request: Request<MessageTypes.GetAccountInfo>) => 
 
     const allAccounts = [payload.descriptor, ...tokenAccounts.value.map(a => a.pubkey.toString())];
 
-    const allTxIds = Array.from(
-        new Set(
-            (await Promise.all(allAccounts.map(account => getAllSignatures(api, account))))
-                .flat()
-                .sort((a, b) => b.slot - a.slot)
-                .map(it => it.signature),
-        ),
-    );
+    const allTxIds =
+        details === 'basic' || details === 'txs' || details === 'txids'
+            ? Array.from(
+                  new Set(
+                      (
+                          await Promise.all(
+                              allAccounts.map(account => getAllSignatures(api, account)),
+                          )
+                      )
+                          .flat()
+                          .sort((a, b) => b.slot - a.slot)
+                          .map(it => it.signature),
+                  ),
+              )
+            : [];
 
     const pageNumber = payload.page ? payload.page - 1 : 0;
     // for the first page of txs, payload.page is undefined, for the second page is 2
@@ -514,7 +522,13 @@ class SolanaWorker extends BaseWorker<SolanaAPI> {
     private lazyTokens = createLazy(() => solanaUtils.getTokenMetadata());
 
     async tryConnect(url: string): Promise<SolanaAPI> {
-        const api = new Connection(url, { wsEndpoint: url.replace('https', 'wss') });
+        const api = new Connection(url, {
+            wsEndpoint: url.replace('https', 'wss'),
+            httpHeaders: {
+                Origin: 'https://node.trezor.io',
+                'User-Agent': `Trezor Suite ${getSuiteVersion()}`,
+            },
+        });
         await api.getLatestBlockhash('finalized');
         this.post({ id: -1, type: RESPONSES.CONNECTED });
 

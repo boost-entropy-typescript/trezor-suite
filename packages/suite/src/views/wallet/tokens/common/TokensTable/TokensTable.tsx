@@ -16,7 +16,7 @@ const IconWrapper = styled.div<{ $isActive: boolean }>`
 `;
 
 const ZeroBalanceToggle = styled.div`
-    cursor: pointer;
+    user-select: none;
 `;
 
 interface TokensTableProps {
@@ -42,10 +42,6 @@ export const TokensTable = ({
 }: TokensTableProps) => {
     const [isZeroBalanceOpen, setIsZeroBalanceOpen] = useState(false);
 
-    // first two columns have fixed width, the rest have variable width
-    // in case of 2nd column, it's due to HiddenPlaceholder - it changes content width when hovered
-    const colWidths = ['250px', '250px'];
-
     return (
         <Card paddingType="none" overflow="hidden">
             {tokensWithBalance.length === 0 && tokensWithoutBalance.length === 0 && searchQuery ? (
@@ -57,7 +53,14 @@ export const TokensTable = ({
                     <Translation id="TR_NO_SEARCH_RESULTS" />
                 </Paragraph>
             ) : (
-                <Table margin={{ top: spacings.xs, bottom: spacings.xs }} colWidths={colWidths}>
+                <Table
+                    margin={{ top: spacings.xs, bottom: spacings.xs }}
+                    colWidths={[
+                        { minWidth: '200px', maxWidth: '250px' },
+                        { minWidth: '140px', maxWidth: '250px' }, // due to HiddenPlaceholder - it changes content width when hovered
+                    ]}
+                    highlightRowOnHover={true}
+                >
                     <Table.Header>
                         <Table.Row>
                             <Table.Cell>
@@ -92,11 +95,9 @@ export const TokensTable = ({
                         ))}
                         {tokensWithoutBalance.length !== 0 && (
                             <>
-                                <Table.Row>
-                                    <Table.Cell colSpan={2}>
-                                        <ZeroBalanceToggle
-                                            onClick={() => setIsZeroBalanceOpen(!isZeroBalanceOpen)}
-                                        >
+                                <Table.Row onClick={() => setIsZeroBalanceOpen(!isZeroBalanceOpen)}>
+                                    <Table.Cell colSpan={5}>
+                                        <ZeroBalanceToggle>
                                             <Row gap={spacings.xs} margin={{ top: spacings.md }}>
                                                 <IconWrapper $isActive={isZeroBalanceOpen}>
                                                     <Icon

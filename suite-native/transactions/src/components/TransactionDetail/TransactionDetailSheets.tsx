@@ -28,7 +28,10 @@ const sheetToAnalyticsEventMap: Record<SheetType, TransactionSheetAnalyticsEvent
     inputs: EventType.TransactionDetailInputOutput,
 };
 
-const cardStyle = prepareNativeStyle(() => ({ paddingVertical: 12, paddingRight: 12 }));
+const cardStyle = prepareNativeStyle(utils => ({
+    paddingVertical: utils.spacings.sp12,
+    paddingRight: utils.spacings.sp12,
+}));
 
 export const TransactionDetailSheets = ({
     transaction,
@@ -49,7 +52,7 @@ export const TransactionDetailSheets = ({
 
     return (
         <Card style={applyStyle(cardStyle)} borderColor="borderElevation1">
-            <VStack spacing="large">
+            <VStack spacing="sp24">
                 <TransactionDetailParametersSheet
                     isVisible={expandedSheet === 'parameters'}
                     transaction={transaction}

@@ -37,14 +37,14 @@ const feeLabelsMap = {
 
 const wrapperStyle = prepareNativeStyle(utils => ({
     overflow: 'hidden',
-    borderRadius: utils.borders.radii.medium,
+    borderRadius: utils.borders.radii.r16,
     borderWidth: utils.borders.widths.large,
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
     borderColor: utils.colors.backgroundSurfaceElevation0,
 }));
 
 const valuesWrapperStyle = prepareNativeStyle(utils => ({
-    padding: utils.spacings.medium,
+    padding: utils.spacings.sp16,
 }));
 
 type FeeOptionProps = {
@@ -129,12 +129,12 @@ export const FeeOption = ({
             >
                 <Box style={applyStyle(valuesWrapperStyle)}>
                     <HStack
-                        spacing="large"
+                        spacing="sp24"
                         justifyContent="space-between"
                         flex={1}
                         alignItems="center"
                     >
-                        <VStack alignItems="flex-start" spacing="extraSmall">
+                        <VStack alignItems="flex-start" spacing="sp4">
                             <Box alignItems="center" flexDirection="row">
                                 <Text variant="highlight">
                                     <Translation id={label} />
@@ -148,7 +148,7 @@ export const FeeOption = ({
                                 {`~ ${feeTimeEstimate}`}
                             </Text>
                         </VStack>
-                        <VStack flex={1} alignItems="flex-end" spacing="extraSmall">
+                        <VStack flex={1} alignItems="flex-end" spacing="sp4">
                             <CryptoToFiatAmountFormatter
                                 variant="body"
                                 color="textDefault"

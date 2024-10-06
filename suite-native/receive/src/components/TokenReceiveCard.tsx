@@ -9,9 +9,9 @@ import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
 import { AccountsRootState, selectAccountLabel } from '@suite-common/wallet-core';
 import {
-    getEthereumTokenName,
-    selectEthereumAccountTokenInfo,
-    selectEthereumAccountTokenSymbol,
+    getTokenName,
+    selectAccountTokenInfo,
+    selectAccountTokenSymbol,
 } from '@suite-native/tokens';
 
 type TokenReceiveCardProps = {
@@ -27,7 +27,7 @@ const valuesContainerStyle = prepareNativeStyle(utils => ({
     maxWidth: '40%',
     flexShrink: 0,
     alignItems: 'flex-end',
-    paddingLeft: utils.spacings.small,
+    paddingLeft: utils.spacings.sp8,
 }));
 
 export const TokenReceiveCard = ({ contract, accountKey }: TokenReceiveCardProps) => {
@@ -38,22 +38,22 @@ export const TokenReceiveCard = ({ contract, accountKey }: TokenReceiveCardProps
     );
 
     const token = useSelector((state: AccountsRootState) =>
-        selectEthereumAccountTokenInfo(state, accountKey, contract),
+        selectAccountTokenInfo(state, accountKey, contract),
     );
 
     const tokenSymbol = useSelector((state: AccountsRootState) =>
-        selectEthereumAccountTokenSymbol(state, accountKey, contract),
+        selectAccountTokenSymbol(state, accountKey, contract),
     );
 
     if (!token) return <ErrorMessage errorMessage="Token not found." />;
 
-    const tokenName = getEthereumTokenName(token.name);
+    const tokenName = getTokenName(token.name);
 
     return (
         <VStack>
             <Box flexDirection="row" justifyContent="space-between" alignItems="center">
                 <Box flex={1} flexDirection="row" alignItems="center">
-                    <Box marginRight="medium">
+                    <Box marginRight="sp16">
                         <RoundedIcon name={contract} />
                     </Box>
                     <Box style={applyStyle(tokenDescriptionStyle)}>

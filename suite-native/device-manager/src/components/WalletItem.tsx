@@ -23,8 +23,8 @@ const walletItemStyle = prepareNativeStyle<WalletItemStyleProps>(
         justifyContent: 'space-between',
         alignItems: 'center',
         height: 60,
-        gap: 12,
-        borderRadius: 12,
+        gap: utils.spacings.sp12,
+        borderRadius: utils.borders.radii.r12,
         borderColor: utils.colors.borderElevation1,
         flex: 1,
         extend: [
@@ -38,7 +38,7 @@ const walletItemStyle = prepareNativeStyle<WalletItemStyleProps>(
             {
                 condition: isSelectable,
                 style: {
-                    paddingHorizontal: utils.spacings.medium,
+                    paddingHorizontal: utils.spacings.sp16,
                     backgroundColor: utils.colors.backgroundSurfaceElevation1,
                     borderWidth: utils.borders.widths.small,
                 },
@@ -92,7 +92,7 @@ export const WalletItem = ({ deviceState, onPress, isSelectable = true }: Wallet
                         {walletNameLabel}
                     </Text>
                 </HStack>
-                <HStack alignItems="center" spacing={12}>
+                <HStack alignItems="center" spacing="sp12">
                     <FiatAmountFormatter
                         value={String(fiatBalance)}
                         variant="hint"

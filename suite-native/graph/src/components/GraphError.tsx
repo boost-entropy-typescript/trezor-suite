@@ -11,10 +11,10 @@ type GraphErrorProps = {
     onTryAgain: () => void;
 };
 
-const errorIconStyle = prepareNativeStyle(({ colors }) => ({
+const errorIconStyle = prepareNativeStyle(({ borders, colors }) => ({
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: borders.radii.round,
     backgroundColor: colors.backgroundAlertYellowSubtleOnElevation1,
     borderColor: colors.backgroundAlertYellowSubtleOnElevation0,
     borderWidth: 3,
@@ -23,7 +23,7 @@ const errorIconStyle = prepareNativeStyle(({ colors }) => ({
 }));
 
 const tryAgainButtonStyle = prepareNativeStyle(({ spacings }) => ({
-    marginTop: spacings.small,
+    marginTop: spacings.sp8,
 }));
 
 const ErrorIcon = () => {
@@ -40,7 +40,7 @@ export const GraphError = ({ error, onTryAgain }: GraphErrorProps) => {
     const { applyStyle } = useNativeStyles();
 
     return (
-        <VStack spacing="small" alignItems="center" paddingHorizontal="medium">
+        <VStack spacing="sp8" alignItems="center" paddingHorizontal="sp16">
             <ErrorIcon />
             <Animated.View entering={FadeInDown} exiting={FadeOutUp}>
                 <Text variant="hint" color="textSubdued" textAlign="center">

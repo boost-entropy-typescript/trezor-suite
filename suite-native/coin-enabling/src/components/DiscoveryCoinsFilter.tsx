@@ -38,7 +38,7 @@ export const DiscoveryCoinsFilter = ({
     const uniqueNetworkSymbols = [...new Set(availableNetworks.map(n => n.symbol))];
 
     return (
-        <VStack spacing={12}>
+        <VStack spacing="sp12">
             {uniqueNetworkSymbols.map((networkSymbol: NetworkSymbol) => (
                 <NetworkSymbolSwitchItem
                     key={networkSymbol}
@@ -48,7 +48,7 @@ export const DiscoveryCoinsFilter = ({
                     allowChangeAnalytics={allowChangeAnalytics}
                 />
             ))}
-            <VStack paddingTop="small" paddingBottom="extraLarge" alignItems="center">
+            <VStack paddingTop="sp8" paddingBottom="sp32" alignItems="center">
                 <Icon name="questionLight" color="textSubdued" size="large" />
                 <Text color="textSubdued" textAlign="center">
                     <Translation id="moduleSettings.coinEnabling.bottomNote" />

@@ -13,6 +13,7 @@ import {
     coinmarketGetRoundedFiatAmount,
     coinmarketGetAmountLabels,
     coinmarketGetAccountLabel,
+    testnetToProdCryptoId,
 } from '../coinmarketUtils';
 import {
     FIXTURE_ACCOUNTS,
@@ -149,9 +150,9 @@ describe('coinmarket utils', () => {
 
         expect(sortedAccounts).toStrictEqual([
             FIXTURE_ACCOUNTS[0],
-            FIXTURE_ACCOUNTS[1],
             FIXTURE_ACCOUNTS[2],
             FIXTURE_ACCOUNTS[5],
+            FIXTURE_ACCOUNTS[1],
         ]);
     });
 
@@ -196,20 +197,6 @@ describe('coinmarket utils', () => {
                 options: [
                     {
                         accountType: 'normal',
-                        balance: '0.101213',
-                        cryptoName: 'Litecoin',
-                        descriptor: 'descriptor2',
-                        label: 'LTC',
-                        value: 'litecoin',
-                        decimals: 8,
-                    },
-                ],
-            },
-            {
-                label,
-                options: [
-                    {
-                        accountType: 'normal',
                         balance: '0',
                         cryptoName: 'Ethereum',
                         descriptor: 'descriptor3',
@@ -240,6 +227,20 @@ describe('coinmarket utils', () => {
                         label: 'POL',
                         value: 'polygon-ecosystem-token',
                         decimals: 18,
+                    },
+                ],
+            },
+            {
+                label,
+                options: [
+                    {
+                        accountType: 'normal',
+                        balance: '0.101213',
+                        cryptoName: 'Litecoin',
+                        descriptor: 'descriptor2',
+                        label: 'LTC',
+                        value: 'litecoin',
+                        decimals: 8,
                     },
                 ],
             },
@@ -301,5 +302,24 @@ describe('coinmarket utils', () => {
         expect(coinmarketGetAccountLabel('BTC', false)).toBe('BTC');
         expect(coinmarketGetAccountLabel('USDT', true)).toBe('USDT');
         expect(coinmarketGetAccountLabel('USDT', false)).toBe('USDT');
+    });
+
+    it('testnetToProdCryptoId', () => {
+        expect(testnetToProdCryptoId('test-bitcoin' as CryptoId)).toEqual('bitcoin');
+        expect(testnetToProdCryptoId('bitcoin' as CryptoId)).toEqual('bitcoin');
+
+        expect(testnetToProdCryptoId('test-ripple' as CryptoId)).toEqual('ripple');
+        expect(testnetToProdCryptoId('ripple' as CryptoId)).toEqual('ripple');
+
+        expect(
+            testnetToProdCryptoId(
+                'test-ethereum--0x1234123412341234123412341234123412341236' as CryptoId,
+            ),
+        ).toEqual('ethereum--0x1234123412341234123412341234123412341236');
+        expect(
+            testnetToProdCryptoId(
+                'ethereum--0x1234123412341234123412341234123412341236' as CryptoId,
+            ),
+        ).toEqual('ethereum--0x1234123412341234123412341234123412341236');
     });
 });

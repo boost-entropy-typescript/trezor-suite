@@ -15,10 +15,10 @@ type ReviewOutputCardProps = {
 const cardStyle = prepareNativeStyle<{ isConfirmed: boolean }>((utils, { isConfirmed }) => ({
     borderWidth: utils.borders.widths.small,
     borderColor: utils.colors.borderElevation1,
-    marginHorizontal: utils.spacings.small,
-    paddingHorizontal: utils.spacings.medium,
-    paddingVertical: 12,
-    borderRadius: 12,
+    marginHorizontal: utils.spacings.sp8,
+    paddingHorizontal: utils.spacings.sp16,
+    paddingVertical: utils.spacings.sp12,
+    borderRadius: utils.borders.radii.r12,
     extend: {
         condition: isConfirmed,
         style: {
@@ -36,13 +36,13 @@ export const ReviewOutputCard = ({ children, title, outputState }: ReviewOutputC
 
     return (
         <Card style={applyStyle(cardStyle, { isConfirmed })}>
-            <VStack spacing={12}>
+            <VStack spacing="sp12">
                 <HStack alignItems="center">
                     <ReviewOutputStatusBadge status={outputState} />
                     <Text variant="callout">{title}</Text>
                 </HStack>
-                <CardDivider color={dividerColor} horizontalPadding="medium" />
-                <Box paddingLeft="large">{children}</Box>
+                <CardDivider color={dividerColor} horizontalPadding="sp16" />
+                <Box paddingLeft="sp24">{children}</Box>
             </VStack>
         </Card>
     );

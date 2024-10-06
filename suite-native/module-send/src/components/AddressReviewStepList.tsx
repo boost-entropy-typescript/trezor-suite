@@ -7,7 +7,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 import {
     RootStackParamList,
-    RootStackRoutes,
     SendStackParamList,
     SendStackRoutes,
     StackProps,
@@ -18,16 +17,20 @@ import { Translation } from '@suite-native/intl';
 import { AccountsRootState, DeviceRootState, SendRootState } from '@suite-common/wallet-core';
 import { nativeSpacings } from '@trezor/theme';
 
-import { signTransactionNativeThunk as signTransactionThunk } from '../sendFormThunks';
+import {
+    cleanupSendFormThunk,
+    signTransactionNativeThunk as signTransactionThunk,
+} from '../sendFormThunks';
 import { selectIsFirstTransactionAddressConfirmed } from '../selectors';
 import { SlidingFooterOverlay } from '../components/SlidingFooterOverlay';
 import { AddressReviewStep } from '../components/AddressReviewStep';
 import { CompareAddressHelpButton } from '../components/CompareAddressHelpButton';
 import { AddressOriginHelpButton } from '../components/AddressOriginHelpButton';
+import { useHandleSendReviewFailure } from '../hooks/useHandleSendReviewFailure';
 
 const NUMBER_OF_STEPS = 3;
 const OVERLAY_INITIAL_POSITION = 75;
-const LIST_VERTICAL_SPACING = nativeSpacings.medium;
+const LIST_VERTICAL_SPACING = nativeSpacings.sp16;
 
 type RouteProps = StackProps<SendStackParamList, SendStackRoutes.SendAddressReview>['route'];
 type NavigationProps = StackToStackCompositeNavigationProps<
@@ -38,15 +41,16 @@ type NavigationProps = StackToStackCompositeNavigationProps<
 
 export const AddressReviewStepList = () => {
     const route = useRoute<RouteProps>();
+    const { accountKey, transaction } = route.params;
     const navigation = useNavigation<NavigationProps>();
     const dispatch = useDispatch();
 
     const [childHeights, setChildHeights] = useState<number[]>([]);
     const [stepIndex, setStepIndex] = useState(0);
+    const handleSendReviewFailure = useHandleSendReviewFailure({ accountKey, transaction });
 
     const areAllStepsDone = stepIndex === NUMBER_OF_STEPS - 1;
     const isLayoutReady = childHeights.length === NUMBER_OF_STEPS;
-    const { accountKey, transaction } = route.params;
 
     const isAddressConfirmed = useSelector(
         (state: AccountsRootState & DeviceRootState & SendRootState) =>
@@ -69,6 +73,11 @@ export const AddressReviewStepList = () => {
         });
     };
 
+    const restartAddressReview = () => {
+        setStepIndex(0);
+        dispatch(cleanupSendFormThunk({ accountKey, shouldDeleteDraft: false }));
+    };
+
     const handleNextStep = async () => {
         setStepIndex(prevStepIndex => prevStepIndex + 1);
 
@@ -81,10 +90,8 @@ export const AddressReviewStepList = () => {
             );
 
             if (isRejected(response)) {
-                navigation.navigate(RootStackRoutes.AccountDetail, {
-                    accountKey,
-                    closeActionType: 'back',
-                });
+                restartAddressReview();
+                handleSendReviewFailure(response);
             }
         }
     };

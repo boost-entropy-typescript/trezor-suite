@@ -8,7 +8,7 @@ import {
     EthereumTokenToFiatAmountFormatter,
     SignValueFormatter,
 } from '@suite-native/formatters';
-import { EthereumTokenTransfer, WalletAccountTransaction } from '@suite-native/tokens';
+import { TypedTokenTransfer, WalletAccountTransaction } from '@suite-native/tokens';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Translation } from '@suite-native/intl';
 
@@ -18,7 +18,7 @@ import { getTransactionValueSign } from '../../utils';
 
 type TransactionDetailHeaderProps = {
     transaction: WalletAccountTransaction;
-    tokenTransfer?: EthereumTokenTransfer;
+    tokenTransfer?: TypedTokenTransfer;
     accountKey: AccountKey;
 };
 
@@ -26,7 +26,7 @@ const ICON_SIZE = 56;
 const ICON_SPINNER_WIDTH = 3;
 
 const fiatValueStyle = prepareNativeStyle(utils => ({
-    marginTop: -utils.spacings.extraSmall,
+    marginTop: -utils.spacings.sp4,
 }));
 
 export const TransactionDetailHeader = ({
@@ -49,7 +49,7 @@ export const TransactionDetailHeader = ({
     return (
         <DiscreetTextTrigger>
             <Box alignItems="center">
-                <VStack spacing="medium" alignItems="center" justifyContent="center">
+                <VStack spacing="sp16" alignItems="center" justifyContent="center">
                     <TransactionIcon
                         transactionType={type}
                         isAnimated={isPendingTx}
