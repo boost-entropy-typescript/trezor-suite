@@ -1,16 +1,11 @@
 import { Translation } from 'src/components/suite';
-import { CoinmarketParagraph } from '../..';
-import { Card } from '@trezor/components';
+import { Card, Paragraph } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
-const CoinmarketOffersEmpty = () => {
-    return (
-        <Card margin={{ top: spacings.md }}>
-            <CoinmarketParagraph>
-                <Translation id="TR_COINMARKET_OFFERS_EMPTY" />
-            </CoinmarketParagraph>
-        </Card>
-    );
-};
-
-export default CoinmarketOffersEmpty;
+export const CoinmarketOffersEmpty = () => (
+    <Card margin={{ top: spacings.md }}>
+        <Paragraph align="center" variant="tertiary">
+            <Translation id="TR_COINMARKET_OFFERS_EMPTY" />
+        </Paragraph>
+    </Card>
+);

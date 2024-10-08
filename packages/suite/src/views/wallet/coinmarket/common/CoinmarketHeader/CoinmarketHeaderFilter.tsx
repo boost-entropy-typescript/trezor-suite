@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { spacingsPx } from '@trezor/theme';
-import CoinmarketFormInputPaymentMethod from '../CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputPaymentMethod';
-import CoinmarketFormInputCountry from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputCountry';
+import { CoinmarketFormInputCountry } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputCountry';
 import {
     isCoinmarketBuyOffers,
     isCoinmarketExchangeOffers,
@@ -20,8 +19,9 @@ import {
     FORM_SEND_CRYPTO_CURRENCY_SELECT,
 } from 'src/constants/wallet/coinmarket/form';
 import { CoinmarketFormInputFiatCrypto } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputFiatCrypto/CoinmarketFormInputFiatCrypto';
-import { CoinmarketOffersExchangeFiltersPanel } from './CoinmarketOffersExchangeFiltersPanel';
 import { Row } from '@trezor/components';
+import { CoinmarketOffersExchangeFiltersPanel } from 'src/views/wallet/coinmarket/common/CoinmarketHeader/CoinmarketOffersExchangeFiltersPanel';
+import { CoinmarketFormInputPaymentMethod } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputPaymentMethod';
 
 const InputWrapper = styled.div`
     width: 254px;
@@ -29,7 +29,7 @@ const InputWrapper = styled.div`
     padding: ${spacingsPx.xxs} ${spacingsPx.md} ${spacingsPx.xxs} 0;
 `;
 
-const CoinmarketHeaderFilter = () => {
+export const CoinmarketHeaderFilter = () => {
     const context = useCoinmarketOffersContext();
 
     if (isCoinmarketExchangeOffers(context)) {
@@ -41,7 +41,7 @@ const CoinmarketHeaderFilter = () => {
     }
 
     return (
-        <Row data-testid="@coinmarket/filter" flexWrap="wrap">
+        <Row data-testid="@coinmarket/filter" flexWrap="wrap" alignItems="flex-start">
             {isCoinmarketBuyOffers(context) ? (
                 <InputWrapper>
                     <CoinmarketFormInputFiatCrypto<CoinmarketBuyFormProps>
@@ -72,5 +72,3 @@ const CoinmarketHeaderFilter = () => {
         </Row>
     );
 };
-
-export default CoinmarketHeaderFilter;

@@ -1,7 +1,7 @@
 import { H2 } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { ExtendedMessageDescriptor } from 'src/types/suite';
-import { InvityAPIReloadQuotesAfterSeconds } from 'src/constants/wallet/coinmarket/metadata';
+import { INVITY_API_RELOAD_QUOTES_AFTER_SECONDS } from 'src/constants/wallet/coinmarket/metadata';
 import styled from 'styled-components';
 import { spacingsPx } from '@trezor/theme';
 import { SCREEN_QUERY } from '@trezor/components/src/config/variables';
@@ -10,9 +10,9 @@ import {
     useCoinmarketOffersContext,
 } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import { getCryptoQuoteAmountProps } from 'src/utils/wallet/coinmarket/coinmarketTypingUtils';
-import CoinmarketHeaderSummary from 'src/views/wallet/coinmarket/common/CoinmarketHeader/CoinmarketHeaderSummary';
+import { CoinmarketHeaderSummary } from 'src/views/wallet/coinmarket/common/CoinmarketHeader/CoinmarketHeaderSummary';
 import { CoinmarketRefreshTime } from 'src/views/wallet/coinmarket/common';
-import CoinmarketHeaderFilter from 'src/views/wallet/coinmarket/common/CoinmarketHeader/CoinmarketHeaderFilter';
+import { CoinmarketHeaderFilter } from 'src/views/wallet/coinmarket/common/CoinmarketHeader/CoinmarketHeaderFilter';
 
 const Header = styled.div`
     padding-top: ${spacingsPx.sm};
@@ -57,7 +57,7 @@ interface CoinmarketHeaderProps {
     titleTimer: ExtendedMessageDescriptor['id'];
 }
 
-const CoinmarketHeader = ({ title, titleTimer }: CoinmarketHeaderProps) => {
+export const CoinmarketHeader = ({ title, titleTimer }: CoinmarketHeaderProps) => {
     const context = useCoinmarketOffersContext();
     const { timer, quotes } = context;
     const headerProps = getCryptoQuoteAmountProps(quotes?.[0], context);
@@ -77,7 +77,7 @@ const CoinmarketHeader = ({ title, titleTimer }: CoinmarketHeaderProps) => {
                 <HeaderCoinmarketRefreshTime>
                     <CoinmarketRefreshTime
                         isLoading={timer.isLoading}
-                        refetchInterval={InvityAPIReloadQuotesAfterSeconds}
+                        refetchInterval={INVITY_API_RELOAD_QUOTES_AFTER_SECONDS}
                         seconds={timer.timeSpend.seconds}
                         label={<Translation id={titleTimer} />}
                     />
@@ -86,5 +86,3 @@ const CoinmarketHeader = ({ title, titleTimer }: CoinmarketHeaderProps) => {
         </Header>
     );
 };
-
-export default CoinmarketHeader;

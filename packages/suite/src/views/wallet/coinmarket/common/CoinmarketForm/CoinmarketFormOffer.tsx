@@ -12,12 +12,12 @@ import {
 import { useState } from 'react';
 import { SCREEN_QUERY } from '@trezor/components/src/config/variables';
 import { Translation } from 'src/components/suite';
-import CoinmarketFormOfferItem from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferItem';
+import { CoinmarketFormOfferItem } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferItem';
 import {
     CoinmarketFormInputLabelText,
     CoinmarketFormInputLabelWrapper,
 } from 'src/views/wallet/coinmarket';
-import CoinmarketFormOfferCryptoAmount from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferCryptoAmount';
+import { CoinmarketFormOfferCryptoAmount } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferCryptoAmount';
 import {
     coinmarketGetAmountLabels,
     coinmarketGetRoundedFiatAmount,
@@ -25,14 +25,14 @@ import {
     getBestRatedQuote,
     parseCryptoId,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import CoinmarketFormOfferFiatAmount from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferFiatAmount';
+import { CoinmarketFormOfferFiatAmount } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOfferFiatAmount';
 import { isCoinmarketExchangeOffers } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
-import { CoinmarketFormOffersSwitcher } from './CoinmarketFormOffersSwitcher';
 import { ExchangeTrade } from 'invity-api';
 import { CoinmarketTradeDetailType, CoinmarketTradeType } from 'src/types/coinmarket/coinmarket';
 import { CoinmarketFormContextValues } from 'src/types/coinmarket/coinmarketForm';
 import { FORM_EXCHANGE_DEX, FORM_EXCHANGE_TYPE } from 'src/constants/wallet/coinmarket/form';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
+import { CoinmarketFormOffersSwitcher } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormOffersSwitcher';
 
 const CoinmarketFormOfferHeader = styled.div`
     display: flex;
@@ -47,6 +47,7 @@ const CoinmarketFormOfferHeader = styled.div`
 `;
 const CoinmarketFormOfferHeaderText = styled.div``;
 
+// reason: special case for loading
 // eslint-disable-next-line local-rules/no-override-ds-component
 const CoinmarketFormOfferHeaderButton = styled(TextButton)`
     ${typography.hint};
@@ -82,7 +83,7 @@ const getSelectedQuote = (
     }
 };
 
-const CoinmarketFormOffer = () => {
+export const CoinmarketFormOffer = () => {
     const [isCompareLoading, setIsCompareLoading] = useState<boolean>(false);
     const context = useCoinmarketFormContext();
     const { cryptoIdToPlatformName } = useCoinmarketInfo();
@@ -204,5 +205,3 @@ const CoinmarketFormOffer = () => {
         </>
     );
 };
-
-export default CoinmarketFormOffer;

@@ -2,8 +2,6 @@ import styled, { useTheme } from 'styled-components';
 import { Badge, Button, Card, Row, Text } from '@trezor/components';
 import { Translation } from 'src/components/suite';
 import { spacings, spacingsPx } from '@trezor/theme';
-import { CoinmarketUtilsProvider } from '../CoinmarketUtils/CoinmarketUtilsProvider';
-import CoinmarketUtilsPrice from '../CoinmarketUtils/CoinmarketUtilsPrice';
 import { SCREEN_QUERY } from '@trezor/components/src/config/variables';
 import {
     isCoinmarketExchangeOffers,
@@ -20,6 +18,8 @@ import { getTagAndInfoNote } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { SellFiatTrade } from 'invity-api';
 import { CoinmarketUtilsKyc } from 'src/views/wallet/coinmarket/common/CoinmarketUtils/CoinmarketUtilsKyc';
 import { CoinmarketTestWrapper } from 'src/views/wallet/coinmarket';
+import { CoinmarketUtilsPrice } from 'src/views/wallet/coinmarket/common/CoinmarketUtils/CoinmarketUtilsPrice';
+import { CoinmarketUtilsProvider } from 'src/views/wallet/coinmarket/common/CoinmarketUtils/CoinmarketUtilsProvider';
 
 const Offer = styled.div`
     display: flex;
@@ -92,7 +92,7 @@ export interface CoinmarketOffersItemProps {
     isBestRate: boolean;
 }
 
-const CoinmarketOffersItem = ({ quote }: CoinmarketOffersItemProps) => {
+export const CoinmarketOffersItem = ({ quote }: CoinmarketOffersItemProps) => {
     const theme = useTheme();
     const context = useCoinmarketOffersContext();
     const { callInProgress } = context;
@@ -172,5 +172,3 @@ const CoinmarketOffersItem = ({ quote }: CoinmarketOffersItemProps) => {
         </CoinmarketTestWrapper>
     );
 };
-
-export default CoinmarketOffersItem;

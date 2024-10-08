@@ -1,5 +1,5 @@
+import { TextButton } from '@trezor/components';
 import { Translation } from 'src/components/suite';
-import { CoinmarketTextButton } from 'src/views/wallet/coinmarket';
 
 interface CoinmarketFormSwitcherCryptoFiatProps {
     symbol?: string;
@@ -7,12 +7,12 @@ interface CoinmarketFormSwitcherCryptoFiatProps {
     toggleAmountInCrypto: () => void;
 }
 
-const CoinmarketFormSwitcherCryptoFiat = ({
+export const CoinmarketFormSwitcherCryptoFiat = ({
     symbol,
     isDisabled,
     toggleAmountInCrypto,
 }: CoinmarketFormSwitcherCryptoFiatProps) => (
-    <CoinmarketTextButton
+    <TextButton
         size="small"
         onClick={() => {
             toggleAmountInCrypto();
@@ -26,7 +26,5 @@ const CoinmarketFormSwitcherCryptoFiat = ({
                 currency: symbol,
             }}
         />
-    </CoinmarketTextButton>
+    </TextButton>
 );
-
-export default CoinmarketFormSwitcherCryptoFiat;

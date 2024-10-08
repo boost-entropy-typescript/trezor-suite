@@ -1,7 +1,7 @@
-import { CoinmarketOffersItemProps } from '../CoinmarketOffers/CoinmarketOffersItem';
 import styled from 'styled-components';
 import { typography } from '@trezor/theme';
 import { Translation } from 'src/components/suite';
+import { CoinmarketOffersItemProps } from 'src/views/wallet/coinmarket/common/CoinmarketOffers/CoinmarketOffersItem';
 
 const TooltipRow = styled.div`
     display: flex;
@@ -20,7 +20,7 @@ const TooltipValue = styled.div`
 `;
 
 // IN TESTING MODE
-const CoinmarketUtilsTooltipFee = (_props: Pick<CoinmarketOffersItemProps, 'quote'>) => {
+export const CoinmarketUtilsTooltipFee = (_props: Pick<CoinmarketOffersItemProps, 'quote'>) => {
     return (
         <>
             <TooltipRow>
@@ -38,5 +38,3 @@ const CoinmarketUtilsTooltipFee = (_props: Pick<CoinmarketOffersItemProps, 'quot
         </>
     );
 };
-
-export default CoinmarketUtilsTooltipFee;

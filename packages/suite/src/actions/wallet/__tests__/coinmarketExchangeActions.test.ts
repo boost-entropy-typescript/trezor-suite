@@ -1,12 +1,12 @@
 import { configureStore } from 'src/support/tests/configureStore';
 
-import coinmarketReducer from 'src/reducers/wallet/coinmarketReducer';
+import { coinmarketReducer } from 'src/reducers/wallet/coinmarketReducer';
 
 import * as coinmarketExchangeActions from '../coinmarketExchangeActions';
 import invityAPI from 'src/services/suite/invityAPI';
 import { CryptoId, ExchangeTrade, ExchangeTradeQuoteRequest } from 'invity-api';
 
-export const getInitialState = () => ({
+const getInitialState = () => ({
     wallet: {
         coinmarket: coinmarketReducer(undefined, { type: 'foo' } as any),
     },

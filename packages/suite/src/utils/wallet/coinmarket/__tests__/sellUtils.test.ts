@@ -1,7 +1,12 @@
-import * as fixtures from '../__fixtures__/sellUtils';
-import { getStatusMessage, formatIban, getAmountLimits, createQuoteLink } from '../sellUtils';
+import {
+    getStatusMessage,
+    formatIban,
+    getAmountLimits,
+    createQuoteLink,
+} from 'src/utils/wallet/coinmarket/sellUtils';
 import { Account } from 'src/types/wallet';
 import { ComposedTransactionInfo } from 'src/reducers/wallet/coinmarketReducer';
+import * as fixtures from 'src/utils/wallet/coinmarket/__fixtures__/sellUtils';
 
 const {
     QUOTE_REQUEST_FIAT,
@@ -21,7 +26,7 @@ describe('coinmarket/sell utils', () => {
             minFiat: 20,
         });
         expect(getAmountLimits(QUOTE_REQUEST_CRYPTO, MIN_MAX_QUOTES_LOW)).toStrictEqual({
-            currency: 'BTC',
+            currency: 'bitcoin',
             minCrypto: 0.002,
         });
 
@@ -30,7 +35,7 @@ describe('coinmarket/sell utils', () => {
             maxFiat: 17045.0,
         });
         expect(getAmountLimits(QUOTE_REQUEST_CRYPTO, MIN_MAX_QUOTES_HIGH)).toStrictEqual({
-            currency: 'BTC',
+            currency: 'bitcoin',
             maxCrypto: 1.67212968,
         });
     });
@@ -51,12 +56,12 @@ describe('coinmarket/sell utils', () => {
         expect(
             await createQuoteLink(QUOTE_REQUEST_FIAT, accountMock, composedInfoMock),
         ).toStrictEqual(
-            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/qf/CZ/EUR/10/BTC/custom/1/2`,
+            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/qf/CZ/EUR/10/bitcoin/custom/1/2`,
         );
         expect(
             await createQuoteLink(QUOTE_REQUEST_CRYPTO, accountMock, composedInfoMock),
         ).toStrictEqual(
-            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/qc/CZ/EUR/0.001/BTC/custom/1/2`,
+            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/qc/CZ/EUR/0.001/bitcoin/custom/1/2`,
         );
         expect(
             await createQuoteLink(
@@ -66,7 +71,7 @@ describe('coinmarket/sell utils', () => {
                 '42134432141234',
             ),
         ).toStrictEqual(
-            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/p-qc/CZ/EUR/0.001/BTC/42134432141234/custom/1/2`,
+            `${window.location.origin}/coinmarket-redirect#sell-offers/btc/normal/1/p-qc/CZ/EUR/0.001/bitcoin/42134432141234/custom/1/2`,
         );
     });
 

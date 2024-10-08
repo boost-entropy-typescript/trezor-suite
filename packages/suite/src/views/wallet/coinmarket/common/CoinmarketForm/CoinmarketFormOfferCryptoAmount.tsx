@@ -4,12 +4,15 @@ import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo
 import { CoinmarketCoinLogo } from 'src/views/wallet/coinmarket/common/CoinmarketCoinLogo';
 import { CryptoId } from 'invity-api';
 
-export interface CoinmarketCryptoAmountProps {
+interface CoinmarketCryptoAmountProps {
     amount: string | number;
     cryptoId: CryptoId;
 }
 
-const CoinmarketFormOfferCryptoAmount = ({ amount, cryptoId }: CoinmarketCryptoAmountProps) => {
+export const CoinmarketFormOfferCryptoAmount = ({
+    amount,
+    cryptoId,
+}: CoinmarketCryptoAmountProps) => {
     const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
     const networkSymbol = cryptoIdToCoinSymbol(cryptoId);
 
@@ -31,5 +34,3 @@ const CoinmarketFormOfferCryptoAmount = ({ amount, cryptoId }: CoinmarketCryptoA
         </CoinmarketAmountContainer>
     );
 };
-
-export default CoinmarketFormOfferCryptoAmount;
