@@ -1,30 +1,26 @@
-import { withSelectedAccountLoaded } from 'src/components/wallet';
 import { UseCoinmarketProps } from 'src/types/coinmarket/coinmarket';
-import { CoinmarketOffersContext } from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import { CoinmarketOffers } from 'src/views/wallet/coinmarket/common/CoinmarketOffers/CoinmarketOffers';
-import { CoinmarketFooter } from 'src/views/wallet/coinmarket/common';
-import { withCoinmarketLayoutWrap } from 'src/views/wallet/coinmarket/common/CoinmarketLayout/withCoinmarketLayoutWrap';
 import { useCoinmarketExchangeForm } from 'src/hooks/wallet/coinmarket/form/useCoinmarketExchangeForm';
+import { CoinmarketContainer } from 'src/views/wallet/coinmarket/common/CoinmarketContainer';
+import { CoinmarketFormContext } from 'src/hooks/wallet/coinmarket/form/useCoinmarketCommonForm';
 
-const CoinmarketExchangeOffersComponent = (props: UseCoinmarketProps) => {
+const CoinmarketExchangeOffersComponent = ({ selectedAccount }: UseCoinmarketProps) => {
     const coinmarketExchangeContextValues = useCoinmarketExchangeForm({
-        ...props,
+        selectedAccount,
         pageType: 'offers',
     });
 
     return (
-        <CoinmarketOffersContext.Provider value={coinmarketExchangeContextValues}>
+        <CoinmarketFormContext.Provider value={coinmarketExchangeContextValues}>
             <CoinmarketOffers />
-            <CoinmarketFooter />
-        </CoinmarketOffersContext.Provider>
+        </CoinmarketFormContext.Provider>
     );
 };
 
-export const CoinmarketExchangeOffers = withSelectedAccountLoaded(
-    withCoinmarketLayoutWrap(CoinmarketExchangeOffersComponent, {
-        backRoute: 'wallet-coinmarket-exchange',
-    }),
-    {
-        title: 'TR_COINMARKET_SWAP',
-    },
+export const CoinmarketExchangeOffers = () => (
+    <CoinmarketContainer
+        title="TR_COINMARKET_SWAP"
+        backRoute="wallet-coinmarket-exchange"
+        SectionComponent={CoinmarketExchangeOffersComponent}
+    />
 );

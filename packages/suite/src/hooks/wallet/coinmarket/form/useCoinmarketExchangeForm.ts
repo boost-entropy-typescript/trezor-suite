@@ -14,6 +14,7 @@ import invityAPI from 'src/services/suite/invityAPI';
 import { saveQuoteRequest, saveQuotes } from 'src/actions/wallet/coinmarketExchangeActions';
 import {
     addIdsToQuotes,
+    coinmarketGetSuccessQuotes,
     getUnusedAddressFromAccount,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
@@ -34,6 +35,7 @@ import {
 import {
     CoinmarketExchangeFormContextProps,
     CoinmarketExchangeFormProps,
+    CoinmarketExchangeStepType,
 } from 'src/types/coinmarket/coinmarketForm';
 import {
     FORM_EXCHANGE_CEX,
@@ -43,10 +45,6 @@ import {
     FORM_EXCHANGE_TYPE,
 } from 'src/constants/wallet/coinmarket/form';
 import { useCoinmarketExchangeFormDefaultValues } from 'src/hooks/wallet/coinmarket/form/useCoinmarketExchangeFormDefaultValues';
-import {
-    getFilteredSuccessQuotes,
-    useCoinmarketCommonOffers,
-} from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import * as coinmarketExchangeActions from 'src/actions/wallet/coinmarketExchangeActions';
 import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -55,13 +53,13 @@ import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarket
 import { useCoinmarketComposeTransaction } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketComposeTransaction';
 import { useCoinmarketFormActions } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketFormActions';
 import { useCoinmarketCurrencySwitcher } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketCurrencySwitcher';
-import { CoinmarketExchangeStepType } from 'src/types/coinmarket/coinmarketOffers';
 import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketModalCrypto';
 import { networks } from '@suite-common/wallet-config';
 import { useCoinmarketAccount } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketAccount';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { analytics, EventType } from '@trezor/suite-analytics';
 import { useCoinmarketFiatValues } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketFiatValues';
+import { useCoinmarketInitializer } from './common/useCoinmarketInitializer';
 
 export const useCoinmarketExchangeForm = ({
     selectedAccount,
@@ -86,7 +84,7 @@ export const useCoinmarketExchangeForm = ({
         isNotFormPage,
     });
     const { callInProgress, timer, device, setCallInProgress, checkQuotesTimer } =
-        useCoinmarketCommonOffers({ selectedAccount, type });
+        useCoinmarketInitializer({ selectedAccount, type });
     const { buildDefaultCryptoOption } = useCoinmarketInfo();
 
     const dispatch = useDispatch();
@@ -95,7 +93,7 @@ export const useCoinmarketExchangeForm = ({
     const [amountLimits, setAmountLimits] = useState<CryptoAmountLimits | undefined>(undefined);
 
     const [innerQuotes, setInnerQuotes] = useState<ExchangeTrade[] | undefined>(
-        getFilteredSuccessQuotes<CoinmarketTradeExchangeType>(quotes),
+        coinmarketGetSuccessQuotes<CoinmarketTradeExchangeType>(quotes),
     );
     const [receiveAccount, setReceiveAccount] = useState<Account | undefined>();
 
@@ -399,7 +397,11 @@ export const useCoinmarketExchangeForm = ({
         } else {
             // CONFIRMING, SUCCESS
             dispatch(
-                coinmarketExchangeActions.saveTrade(response, account, new Date().toISOString()),
+                coinmarketExchangeActions.saveTrade(
+                    response,
+                    selectedAccount.account,
+                    new Date().toISOString(),
+                ),
             );
             dispatch(coinmarketExchangeActions.saveTransactionId(response.orderId));
             ok = true;
@@ -439,7 +441,7 @@ export const useCoinmarketExchangeForm = ({
                     dispatch(
                         coinmarketExchangeActions.saveTrade(
                             quote,
-                            account,
+                            selectedAccount.account,
                             new Date().toISOString(),
                         ),
                     );
@@ -492,7 +494,7 @@ export const useCoinmarketExchangeForm = ({
                 dispatch(
                     coinmarketExchangeActions.saveTrade(
                         selectedQuote,
-                        account,
+                        selectedAccount.account,
                         new Date().toISOString(),
                     ),
                 );

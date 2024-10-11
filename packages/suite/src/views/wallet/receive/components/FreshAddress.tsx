@@ -11,7 +11,7 @@ import { AccountsRootState, selectIsAccountUtxoBased } from '@suite-common/walle
 import { networks } from '@suite-common/wallet-config';
 import { EvmExplanationBox } from 'src/components/wallet/EvmExplanationBox';
 import { spacingsPx, typography } from '@trezor/theme';
-import { selectIsFirmwareRevisionCheckEnabledAndFailed } from 'src/reducers/suite/suiteReducer';
+import { selectIsFirmwareAuthenticityCheckEnabledAndFailed } from 'src/reducers/suite/suiteReducer';
 
 // eslint-disable-next-line local-rules/no-override-ds-component
 const StyledCard = styled(Card)`
@@ -126,7 +126,9 @@ export const FreshAddress = ({
     const isAccountUtxoBased = useSelector((state: AccountsRootState) =>
         selectIsAccountUtxoBased(state, account?.key ?? ''),
     );
-    const isRevisionCheckFailed = useSelector(selectIsFirmwareRevisionCheckEnabledAndFailed);
+    const isAuthenticityCheckFailed = useSelector(
+        selectIsFirmwareAuthenticityCheckEnabledAndFailed,
+    );
     const dispatch = useDispatch();
 
     const firstFreshAddress = useMemo(() => {
@@ -158,7 +160,7 @@ export const FreshAddress = ({
         if (!firstFreshAddress) {
             return <Translation id="RECEIVE_ADDRESS_LIMIT_REACHED" />;
         }
-        if (isRevisionCheckFailed) {
+        if (isAuthenticityCheckFailed) {
             return <Translation id="TR_RECEIVE_ADDRESS_SECURITY_CHECK_FAILED" />;
         }
 
@@ -173,7 +175,7 @@ export const FreshAddress = ({
             locked ||
             coinjoinDisallowReveal ||
             !firstFreshAddress ||
-            isRevisionCheckFailed,
+            isAuthenticityCheckFailed,
         isLoading: locked,
     };
 

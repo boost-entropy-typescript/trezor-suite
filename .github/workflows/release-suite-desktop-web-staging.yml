@@ -179,7 +179,7 @@ jobs:
         run: |
           yarn message-system-sign-config
           yarn workspace @trezor/suite-data build:lib
-          yarn workspace @trezor/connect-iframe build:lib
+          NODE_ENV=production yarn workspace @trezor/connect-iframe build:lib
           yarn workspace @trezor/connect-web build
           yarn workspace @trezor/suite-web build
 
@@ -191,7 +191,7 @@ jobs:
 
   create-test-releases:
     if: github.repository == 'trezor/trezor-suite-release' && github.event.inputs.createTestRelease == 'true'
-    name: Create test versions for autoupdate sudite-desktop
+    name: Create test versions for autoupdate suite-desktop
     environment: suite-production
     needs:
       - suite-desktop

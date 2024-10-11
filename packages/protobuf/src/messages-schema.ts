@@ -1416,6 +1416,7 @@ export const ButtonRequest = Type.Object(
     {
         code: Type.Optional(ButtonRequestType),
         pages: Type.Optional(Type.Number()),
+        name: Type.Optional(Type.String()),
     },
     { $id: 'ButtonRequest' },
 );
@@ -1582,6 +1583,9 @@ export const EnumDebugPhysicalButton = Type.Enum(DebugPhysicalButton);
 
 export type DebugLinkResetDebugEvents = Static<typeof DebugLinkResetDebugEvents>;
 export const DebugLinkResetDebugEvents = Type.Object({}, { $id: 'DebugLinkResetDebugEvents' });
+
+export type DebugLinkOptigaSetSecMax = Static<typeof DebugLinkOptigaSetSecMax>;
+export const DebugLinkOptigaSetSecMax = Type.Object({}, { $id: 'DebugLinkOptigaSetSecMax' });
 
 export type EosGetPublicKey = Static<typeof EosGetPublicKey>;
 export const EosGetPublicKey = Type.Object(
@@ -2519,7 +2523,6 @@ export const WipeDevice = Type.Object({}, { $id: 'WipeDevice' });
 export type ResetDevice = Static<typeof ResetDevice>;
 export const ResetDevice = Type.Object(
     {
-        display_random: Type.Optional(Type.Boolean()),
         strength: Type.Optional(Type.Number()),
         passphrase_protection: Type.Optional(Type.Boolean()),
         pin_protection: Type.Optional(Type.Boolean()),
@@ -2677,16 +2680,6 @@ export const SetBrightness = Type.Object(
     },
     { $id: 'SetBrightness' },
 );
-
-export enum MoneroNetworkType {
-    MAINNET = 0,
-    TESTNET = 1,
-    STAGENET = 2,
-    FAKECHAIN = 3,
-}
-
-export type EnumMoneroNetworkType = Static<typeof EnumMoneroNetworkType>;
-export const EnumMoneroNetworkType = Type.Enum(MoneroNetworkType);
 
 export type NEMGetAddress = Static<typeof NEMGetAddress>;
 export const NEMGetAddress = Type.Object(
@@ -3474,12 +3467,6 @@ export const TezosSignedTx = Type.Object(
     { $id: 'TezosSignedTx' },
 );
 
-export type experimental_message = Static<typeof experimental_message>;
-export const experimental_message = Type.Object({}, { $id: 'experimental_message' });
-
-export type experimental_field = Static<typeof experimental_field>;
-export const experimental_field = Type.Object({}, { $id: 'experimental_field' });
-
 export type MessageType = Static<typeof MessageType>;
 export const MessageType = Type.Object(
     {
@@ -3597,6 +3584,7 @@ export const MessageType = Type.Object(
         GetECDHSessionKey,
         ECDHSessionKey,
         DebugLinkResetDebugEvents,
+        DebugLinkOptigaSetSecMax,
         EosGetPublicKey,
         EosPublicKey,
         EosTxHeader,
@@ -3758,8 +3746,6 @@ export const MessageType = Type.Object(
         TezosBallotOp,
         TezosSignTx,
         TezosSignedTx,
-        experimental_message,
-        experimental_field,
     },
     { $id: 'MessageType' },
 );

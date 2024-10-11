@@ -10,6 +10,10 @@ import { spacingsPx } from '@trezor/theme';
 import { isTranslationMode } from 'src/utils/suite/l10n';
 import { useSelector } from 'src/hooks/suite';
 import { MAX_CONTENT_WIDTH } from 'src/constants/suite/layout';
+import {
+    selectFirmwareHashCheckError,
+    selectFirmwareRevisionCheckError,
+} from 'src/reducers/suite/suiteReducer';
 import { MessageSystemBanner } from '../MessageSystemBanner';
 import { NoConnectionBanner } from './NoConnectionBanner';
 import { UpdateBridge } from './UpdateBridgeBanner';
@@ -36,7 +40,8 @@ export const SuiteBanners = () => {
     const isOnline = useSelector(state => state.suite.online);
     const firmwareHashInvalid = useSelector(state => state.firmware.firmwareHashInvalid);
     const bannerMessage = useSelector(selectBannerMessage);
-    const { isFirmwareRevisionCheckDisabled } = useSelector(state => state.suite.settings);
+    const firmwareRevisionError = useSelector(selectFirmwareRevisionCheckError);
+    const firmwareHashError = useSelector(selectFirmwareHashCheckError);
 
     // The dismissal doesn't need to outlive the session. Use local state.
     const [safetyChecksDismissed, setSafetyChecksDismissed] = useState(false);
@@ -58,15 +63,15 @@ export const SuiteBanners = () => {
 
     let banner = null;
     let priority = 0;
+    // this handles firmware hash being invalid after a firmware update, not the regular firmware hash check
     if (device?.id && firmwareHashInvalid.includes(device.id)) {
         banner = <FirmwareHashMismatch />;
         priority = 92;
-    } else if (
-        !isFirmwareRevisionCheckDisabled &&
-        isDeviceAcquired(device) &&
-        device.authenticityChecks !== undefined &&
-        device.authenticityChecks.firmwareRevision !== null && // check was performed
-        device.authenticityChecks.firmwareRevision.success === false
+    }
+    // the regular firmware hash check, and revision id check, either of them may fail
+    else if (
+        firmwareRevisionError ||
+        (firmwareHashError && firmwareHashError !== 'check-skipped')
     ) {
         banner = <FirmwareRevisionCheckBanner />;
         priority = 91;

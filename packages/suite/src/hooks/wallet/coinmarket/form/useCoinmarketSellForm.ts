@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import invityAPI from 'src/services/suite/invityAPI';
 import {
     addIdsToQuotes,
+    coinmarketGetSuccessQuotes,
     filterQuotesAccordingTags,
     getUnusedAddressFromAccount,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
@@ -21,6 +22,7 @@ import { CoinmarketTradeSellType, UseCoinmarketFormProps } from 'src/types/coinm
 import {
     CoinmarketSellFormContextProps,
     CoinmarketSellFormProps,
+    CoinmarketSellStepType,
 } from 'src/types/coinmarket/coinmarketForm';
 import { useCoinmarketSellFormDefaultValues } from 'src/hooks/wallet/coinmarket/form/useCoinmarketSellFormDefaultValues';
 import useCoinmarketPaymentMethod from 'src/hooks/wallet/coinmarket/form/useCoinmarketPaymentMethod';
@@ -30,17 +32,12 @@ import {
     FORM_OUTPUT_FIAT,
     FORM_PAYMENT_METHOD_SELECT,
 } from 'src/constants/wallet/coinmarket/form';
-import {
-    getFilteredSuccessQuotes,
-    useCoinmarketCommonOffers,
-} from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import { useCoinmarketRecomposeAndSign } from 'src/hooks/wallet/useCoinmarketRecomposeAndSign';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import * as coinmarketSellActions from 'src/actions/wallet/coinmarketSellActions';
 import * as routerActions from 'src/actions/suite/routerActions';
 import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
 import * as coinmarketInfoActions from 'src/actions/wallet/coinmarketInfoActions';
-import { CoinmarketSellStepType } from 'src/types/coinmarket/coinmarketOffers';
 import { useCoinmarketFormActions } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketFormActions';
 import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarketLoadData';
 import { useCoinmarketComposeTransaction } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketComposeTransaction';
@@ -49,6 +46,7 @@ import { networks } from '@suite-common/wallet-config';
 import { useCoinmarketAccount } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketAccount';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { analytics, EventType } from '@trezor/suite-analytics';
+import { useCoinmarketInitializer } from './common/useCoinmarketInitializer';
 
 export const useCoinmarketSellForm = ({
     selectedAccount,
@@ -74,7 +72,7 @@ export const useCoinmarketSellForm = ({
         isNotFormPage,
     });
     const { callInProgress, timer, device, setCallInProgress, checkQuotesTimer } =
-        useCoinmarketCommonOffers({ selectedAccount, type });
+        useCoinmarketInitializer({ selectedAccount, type });
     const { paymentMethods, getPaymentMethods, getQuotesByPaymentMethod } =
         useCoinmarketPaymentMethod<CoinmarketTradeSellType>();
     const {
@@ -98,7 +96,7 @@ export const useCoinmarketSellForm = ({
     const [amountLimits, setAmountLimits] = useState<AmountLimits | undefined>(undefined);
     const [sellStep, setSellStep] = useState<CoinmarketSellStepType>('BANK_ACCOUNT');
     const [innerQuotes, setInnerQuotes] = useState<SellFiatTrade[] | undefined>(
-        getFilteredSuccessQuotes<CoinmarketTradeSellType>(quotes),
+        coinmarketGetSuccessQuotes<CoinmarketTradeSellType>(quotes),
     );
     const [isSubmittingHelper, setIsSubmittingHelper] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -246,7 +244,7 @@ export const useCoinmarketSellForm = ({
                 );
                 // without errors
                 const quotesSuccess =
-                    getFilteredSuccessQuotes<CoinmarketTradeSellType>(quotesDefault) ?? [];
+                    coinmarketGetSuccessQuotes<CoinmarketTradeSellType>(quotesDefault) ?? [];
 
                 const bestQuote = quotesSuccess?.[0];
                 const bestQuotePaymentMethod = bestQuote?.paymentMethod;
@@ -357,7 +355,7 @@ export const useCoinmarketSellForm = ({
                     dispatch(
                         coinmarketSellActions.saveTrade(
                             response.trade,
-                            account,
+                            selectedAccount.account,
                             new Date().toISOString(),
                         ),
                     );
@@ -501,15 +499,19 @@ export const useCoinmarketSellForm = ({
                 }
 
                 dispatch(
-                    coinmarketSellActions.saveTrade(response, account, new Date().toISOString()),
+                    coinmarketSellActions.saveTrade(
+                        response,
+                        selectedAccount.account,
+                        new Date().toISOString(),
+                    ),
                 );
                 dispatch(coinmarketSellActions.saveTransactionId(selectedQuote.orderId));
                 dispatch(
                     routerActions.goto('wallet-coinmarket-sell-detail', {
                         params: {
-                            symbol: account.symbol,
-                            accountIndex: account.index,
-                            accountType: account.accountType,
+                            symbol: selectedAccount.account.symbol,
+                            accountIndex: selectedAccount.account.index,
+                            accountType: selectedAccount.account.accountType,
                         },
                     }),
                 );

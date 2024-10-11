@@ -95,7 +95,7 @@ export const BottomSheet = ({
                 <Pressable style={applyStyle(sheetWithOverlayStyle)} onPress={handlePressOutside}>
                     <PanGestureHandler
                         enabled={isCloseScrollEnabled}
-                        ref={panGestureRef.current}
+                        ref={panGestureRef}
                         activeOffsetY={5}
                         failOffsetY={-5}
                         onGestureEvent={panGestureEvent}

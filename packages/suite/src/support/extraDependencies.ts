@@ -78,6 +78,7 @@ export const extraDependencies: ExtraDependencies = {
         selectLocalCurrency: (state: AppState) => state.wallet.settings.localCurrency,
         selectIsPendingTransportEvent,
         selectDebugSettings: (state: AppState) => state.suite.settings.debug,
+        // FW binaries on desktop are stored in "*/static/connect/data/firmware/*/*.bin" (see "connect-common" package)
         selectDesktopBinDir: (state: AppState) => state.desktop?.paths?.binDir,
         selectDevice: (state: AppState) => state.device.selectedDevice,
         selectLanguage: (state: AppState) => state.suite.settings.language,
@@ -86,8 +87,6 @@ export const extraDependencies: ExtraDependencies = {
             selectDiscoveryByDeviceState(state, state.device.selectedDevice?.state),
         selectRouterApp: (state: AppState) => state.router.app,
         selectRoute: (state: AppState) => state.router.route,
-        selectCheckFirmwareAuthenticity: (state: AppState) =>
-            state.suite.settings.debug.checkFirmwareAuthenticity,
         selectAddressDisplayType: (state: AppState) => state.suite.settings.addressDisplayType,
         selectSelectedAccountStatus: (state: AppState) => state.wallet.selectedAccount.status,
         selectSuiteSettings,

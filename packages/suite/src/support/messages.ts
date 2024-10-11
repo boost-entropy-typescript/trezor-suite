@@ -336,7 +336,7 @@ export default defineMessages({
     },
     TR_ALL_NETWORKS_TOOLTIP: {
         defaultMessage:
-            'View tokens from all {networkCount} networks. Use the buttons on the right to filter by top networks.',
+            'View tokens from all {networkCount} networks. Filter by the most popular networks on the right.',
         id: 'TR_ALL_NETWORKS_TOOLTIP',
     },
     TR_SELECT_TOKEN: {
@@ -344,7 +344,7 @@ export default defineMessages({
         id: 'TR_SELECT_TOKEN',
     },
     TR_SELECT_NAME_OR_ADDRESS: {
-        defaultMessage: 'Search by name, symbol, network or contract address',
+        defaultMessage: 'Search by name, symbol, network, or contract address',
         id: 'TR_SELECT_NAME_OR_ADDRESS',
     },
     TR_TOKEN_NOT_FOUND: {
@@ -352,15 +352,15 @@ export default defineMessages({
         id: 'TR_TOKEN_NOT_FOUND',
     },
     TR_TOKEN_NOT_FOUND_ON_NETWORK: {
-        defaultMessage: 'Token not found on the {networkName} network',
+        defaultMessage: 'Token not found on the {networkName} network.',
         id: 'TR_TOKEN_NOT_FOUND_ON_NETWORK',
     },
     TR_TOKEN_TRY_DIFFERENT_SEARCH: {
-        defaultMessage: 'Please try a different search.',
+        defaultMessage: 'Try a different search.',
         id: 'TR_TOKEN_TRY_DIFFERENT_SEARCH',
     },
     TR_TOKEN_TRY_DIFFERENT_SEARCH_OR_SWITCH: {
-        defaultMessage: 'Please try a different search or switch to another network.',
+        defaultMessage: 'Try a different search or switch to another network.',
         id: 'TR_TOKEN_TRY_DIFFERENT_SEARCH_OR_SWITCH',
     },
     TR_EXCHANGE_STATUS_ERROR: {
@@ -923,7 +923,7 @@ export default defineMessages({
     },
     TR_BUY_FOOTER_TEXT_2: {
         defaultMessage:
-            'Invity does not see any of your payment or KYC information; you share this only with the exchange provider if you choose to finish the transaction.',
+            "Invity doesn't see any of your payment or KYC information; you share this only with the exchange provider if you choose to finish the transaction.",
         id: 'TR_BUY_FOOTER_TEXT_2',
     },
     TR_BUY_MODAL_FOR_YOUR_SAFETY: {
@@ -1165,6 +1165,10 @@ export default defineMessages({
     TR_COINMARKET_LAST_TRANSACTIONS: {
         defaultMessage: 'Last transactions',
         id: 'TR_COINMARKET_LAST_TRANSACTIONS',
+    },
+    TR_COINMARKET_TRANSACTION_COUNTER: {
+        defaultMessage: '{totalBuys} buys • {totalSells} sells • {totalSwaps} swaps',
+        id: 'TR_COINMARKET_TRANSACTION_COUNTER',
     },
     TR_COINMARKET_PAYMENT_METHOD: {
         defaultMessage: 'Payment method',
@@ -2164,7 +2168,7 @@ export default defineMessages({
         id: 'TR_SAFETY_CHECKS_PROMPT_LEVEL',
     },
     TR_SAFETY_CHECKS_PROMPT_LEVEL_WARNING: {
-        defaultMessage: "Do not change this unless you know what you're doing!",
+        defaultMessage: "Only change this if you know what you're doing!",
         id: 'TR_SAFETY_CHECKS_PROMPT_LEVEL_WARNING',
     },
     TR_SAFETY_CHECKS_PROMPT_LEVEL_DESC: {
@@ -2461,9 +2465,19 @@ export default defineMessages({
         defaultMessage: 'Skip PIN',
         id: 'TR_SKIP_PIN',
     },
+    TR_SKIP_PIN_DESCRIPTION: {
+        defaultMessage:
+            'A device PIN prevents unauthorized access to your Trezor. Without it, anyone with your device can access your funds.',
+        id: 'TR_SKIP_PIN_DESCRIPTION',
+    },
     TR_SKIP_BACKUP: {
         defaultMessage: 'Skip Backup',
         id: 'TR_SKIP_BACKUP',
+    },
+    TR_SKIP_BACKUP_DESCRIPTION: {
+        defaultMessage:
+            'A wallet backup lets you recover your funds if your Trezor is lost, stolen, or damaged. Without a backup, you could lose access to your crypto permanently.',
+        id: 'TR_SKIP_BACKUP_DESCRIPTION',
     },
     TR_DONT_SKIP: {
         defaultMessage: "Don't skip",
@@ -2769,6 +2783,10 @@ export default defineMessages({
     TR_NETWORK_BNB: {
         defaultMessage: 'BNB Smart Chain',
         id: 'TR_NETWORK_BNB',
+    },
+    TR_NETWORK_OP: {
+        defaultMessage: 'Optimism',
+        id: 'TR_NETWORK_OP',
     },
     TR_NETWORK_LITECOIN: {
         defaultMessage: 'Litecoin',
@@ -3856,6 +3874,34 @@ export default defineMessages({
         id: 'TR_QUICK_ACTION_TOOLTIP_JUST_UPDATED',
         defaultMessage: 'Just updated ({currentVersion})',
     },
+    TR_QUICK_ACTION_UPDATE_POPOVER_APP_UPDATE_AVAILABLE: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_APP_UPDATE_AVAILABLE',
+        defaultMessage: 'App update available',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_APP_HAS_BEEN_UPDATED: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_APP_HAS_BEEN_UPDATED',
+        defaultMessage: 'App’s been updated!',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_APP_DOWNLOADED: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_APP_DOWNLOADED',
+        defaultMessage: 'Suite downloaded a new Trezor update!',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_TREZOR_UPDATE_AVAILABLE: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_TREZOR_UPDATE_AVAILABLE',
+        defaultMessage: 'Trezor update available',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_CLICK_TO_START_UPDATE: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_CLICK_TO_START_UPDATE',
+        defaultMessage: 'Click to start update',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_CLICK_TO_RESTART_AND_UPDATE: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_CLICK_TO_RESTART_AND_UPDATE',
+        defaultMessage: 'Click to restart & update',
+    },
+    TR_QUICK_ACTION_UPDATE_POPOVER_WHATS_NEW: {
+        id: 'TR_QUICK_ACTION_UPDATE_POPOVER_WHATS_NEW',
+        defaultMessage: 'What’s new?',
+    },
     TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED: {
         id: 'TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED',
         defaultMessage: 'Enabled',
@@ -4426,18 +4472,6 @@ export default defineMessages({
         defaultMessage:
             'This is the specific alphanumeric address that will receive your coins. Verify this address on your Trezor.',
     },
-    TR_TRADE_BUYS: {
-        id: 'TR_TRADE_BUYS',
-        defaultMessage: 'buys',
-    },
-    TR_TRADE_SELLS: {
-        id: 'TR_TRADE_SELLS',
-        defaultMessage: 'sells',
-    },
-    TR_TRADE_EXCHANGES: {
-        id: 'TR_TRADE_EXCHANGES',
-        defaultMessage: 'exchanges',
-    },
     TR_PAYMENT_METHOD_CREDITCARD: {
         id: 'TR_PAYMENT_METHOD_CREDITCARD',
         defaultMessage: 'Credit Card',
@@ -4933,14 +4967,14 @@ export default defineMessages({
         defaultMessage:
             'For experienced users only. Use at your own risk. These features are in testing, may be unstable, and might not have long-term support.',
     },
-    TR_EXPERIMENTAL_BNB_SMART_CHAIN: {
-        id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN',
-        defaultMessage: 'BNB Smart Chain',
+    TR_EXPERIMENTAL_OP_ETHEREUM: {
+        id: 'TR_EXPERIMENTAL_OP_ETHEREUM',
+        defaultMessage: 'Optimism',
     },
-    TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON: {
-        id: 'TR_EXPERIMENTAL_BNB_SMART_CHAIN_DESCRIPTON',
+    TR_EXPERIMENTAL_OP_ETHEREUM_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_OP_ETHEREUM_DESCRIPTION',
         defaultMessage:
-            'Enables the BNB Smart Chain network but without internal transaction data history.',
+            'Enables the Optimism network but with wrong symbol OP instead of ETH and minimum gas 1 gwei.',
     },
     TR_EXPERIMENTAL_PASSWORD_MANAGER: {
         id: 'TR_EXPERIMENTAL_PASSWORD_MANAGER',
@@ -5524,7 +5558,7 @@ export default defineMessages({
     REVIEW_AND_SEND_TRANSACTION: {
         id: 'REVIEW_AND_SEND_TRANSACTION',
         description: 'Sign and send button used in send form',
-        defaultMessage: 'Review & Send',
+        defaultMessage: 'Review & send',
     },
     TR_CONNECT_TREZOR_TO_SEND_BUTTON: {
         id: 'TR_CONNECT_TREZOR_TO_SEND_BUTTON',
@@ -6099,6 +6133,10 @@ export default defineMessages({
         id: 'TR_CHAINED_TXS',
         defaultMessage: 'Chained transactions',
     },
+    TR_DATA: {
+        id: 'TR_DATA',
+        defaultMessage: 'Data',
+    },
     TR_AFFECTED_TXS: {
         id: 'TR_AFFECTED_TXS',
         defaultMessage: 'This operation will remove the following transactions from the mempool',
@@ -6137,6 +6175,22 @@ export default defineMessages({
         id: 'TR_UPDATE_MODAL_AVAILABLE_HEADING',
         defaultMessage: 'Update available',
     },
+    TR_UPDATE_MODAL_WHATS_NEW: {
+        id: 'TR_UPDATE_MODAL_WHATS_NEW',
+        defaultMessage: 'What’s new',
+    },
+    TR_UPDATE_MODAL_YOUR_VERSION: {
+        id: 'TR_UPDATE_MODAL_YOUR_VERSION',
+        defaultMessage: 'Your version: v{version}',
+    },
+    TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES: {
+        id: 'TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES',
+        defaultMessage: 'Enable automatic updates',
+    },
+    TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES_NEW_TAG: {
+        id: 'TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES_NEW_TAG',
+        defaultMessage: 'New',
+    },
     TR_UPDATE_MODAL_NOT_NOW: {
         id: 'TR_UPDATE_MODAL_NOT_NOW',
         defaultMessage: 'Not now',
@@ -6165,13 +6219,18 @@ export default defineMessages({
         id: 'TR_MANAGE',
         defaultMessage: 'manage',
     },
-    TR_VERSION_HAS_BEEN_RELEASED: {
+    TR_VERSION_HAS_RELEASED: {
         id: 'TR_VERSION_HAS_BEEN_RELEASED',
-        defaultMessage: 'Version {version} has been released!',
+        defaultMessage: 'v{version} has released!',
     },
-    TR_CHANGELOG_ON_GITHUB: {
-        id: 'TR_CHANGELOG_ON_GITHUB',
-        defaultMessage: 'Changelog on GitHub',
+    TR_READ_ALL_ON_GITHUB: {
+        id: 'TR_READ_ALL_ON_GITHUB',
+        defaultMessage: 'Read all on Github',
+    },
+    TR_WERE_CONSTANTLY_WORKING_TO_IMPROVE: {
+        id: 'TR_WERE_CONSTANTLY_WORKING_TO_IMPROVE',
+        defaultMessage:
+            'We’re constantly working to improve your Trezor experience, here’s what has changed:',
     },
     TR_UPDATE_MODAL_UPDATE_DOWNLOADED: {
         id: 'TR_UPDATE_MODAL_UPDATE_DOWNLOADED',
@@ -6957,6 +7016,24 @@ export default defineMessages({
     TR_FIRMWARE_REVISION_CHECK_OTHER_ERROR: {
         id: 'TR_FIRMWARE_REVISION_CHECK_OTHER_ERROR',
         defaultMessage: "Couldn't perform firmware revision check.",
+    },
+    TR_DEVICE_FIRMWARE_HASH_CHECK_HASH_MISMATCH: {
+        id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_HASH_MISMATCH',
+        defaultMessage: 'Firmware hash check failed. Your Trezor may be counterfeit.',
+    },
+    TR_DEVICE_FIRMWARE_HASH_CHECK_CHECK_UNSUPPORTED: {
+        id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_CHECK_UNSUPPORTED',
+        defaultMessage:
+            'New Trezor firmware is available! Update your device now to get latest security features.',
+    },
+    TR_DEVICE_FIRMWARE_HASH_CHECK_UNKNOWN_RELEASE: {
+        id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_UNKNOWN_RELEASE',
+        defaultMessage: 'Firmware unrecognized. Your Trezor may be counterfeit.',
+    },
+    TR_DEVICE_FIRMWARE_HASH_CHECK_OTHER_ERROR: {
+        id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_OTHER_ERROR',
+        defaultMessage:
+            "Firmware hash check couldn't be performed. Your Trezor may be counterfeit.",
     },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
@@ -8141,7 +8218,7 @@ export default defineMessages({
     },
     TR_STEP_OF_TOTAL: {
         id: 'TR_STEP_OF_TOTAL',
-        defaultMessage: 'Step {index} of {total}',
+        defaultMessage: 'Select a token',
     },
     TR_COINJOIN_STEP_1_TITLE: {
         id: 'TR_COINJOIN_STEP_1_TITLE',
@@ -8398,6 +8475,26 @@ export default defineMessages({
         id: 'TR_EVM_EXPLANATION_SEND_MODAL_DESCRIPTION',
         defaultMessage:
             'You can only send {network} tokens to a <b>receive address on the {network} network</b>, otherwise your tokens <b>may be lost</b>.',
+    },
+    TR_TX_DATA_METHOD_NAME: {
+        id: 'TR_TX_DATA_METHOD_NAME',
+        defaultMessage: 'Method name',
+    },
+    TR_TX_DATA_METHOD: {
+        id: 'TR_TX_DATA_METHOD',
+        defaultMessage: 'Method',
+    },
+    TR_TX_DATA_FUNCTION: {
+        id: 'TR_TX_DATA_FUNCTION',
+        defaultMessage: 'Function',
+    },
+    TR_TX_DATA_PARAMS: {
+        id: 'TR_TX_DATA_PARAMS',
+        defaultMessage: 'Params',
+    },
+    TR_TX_DATA_INPUT_DATA: {
+        id: 'TR_TX_DATA_INPUT_DATA',
+        defaultMessage: 'Input data',
     },
     TR_FROM: {
         id: 'TR_FROM',

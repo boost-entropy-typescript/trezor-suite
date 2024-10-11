@@ -1,7 +1,7 @@
 {
     "name": "@suite-native/app",
     "version": "1.0.0",
-    "suiteNativeVersion": "24.9.2",
+    "suiteNativeVersion": "24.10.1",
     "main": "index.js",
     "scripts": {
         "android": "expo run:android",
@@ -12,6 +12,7 @@
         "type-check": "yarn g:tsc -b",
         "pods": "npx pod-install",
         "prebuild": "expo prebuild",
+        "build:adhoc": "npx eas-cli build --profile adhoc",
         "eas-build-post-install": "yarn workspace @suite-common/message-system sign-config",
         "eas-build-on-success": "./eas-post-success.sh",
         "prebuild:clean": "expo prebuild --clean",
@@ -41,6 +42,7 @@
         "@suite-common/suite-constants": "workspace:*",
         "@suite-common/token-definitions": "workspace:*",
         "@suite-common/wallet-core": "workspace:*",
+        "@suite-common/wallet-types": "workspace:*",
         "@suite-native/accounts": "workspace:*",
         "@suite-native/alerts": "workspace:*",
         "@suite-native/analytics": "workspace:*",
@@ -79,6 +81,7 @@
         "@trezor/react-native-usb": "workspace:*",
         "@trezor/styles": "workspace:*",
         "@trezor/theme": "workspace:*",
+        "@trezor/trezor-user-env-link": "workspace:*",
         "buffer": "^6.0.3",
         "expo": "51.0.31",
         "expo-av": "14.0.7",

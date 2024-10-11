@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { DeviceSelector } from '../DeviceSelector/DeviceSelector';
 import { Navigation } from './Navigation';
@@ -9,6 +9,8 @@ import { Elevation, mapElevationToBackground, mapElevationToBorder, zIndices } f
 import { useActions, useSelector } from 'src/hooks/suite';
 import * as suiteActions from 'src/actions/suite/suiteActions';
 import { TrafficLightOffset } from '../../../TrafficLightOffset';
+import { UpdateNotificationBanner } from './QuickActions/Update/UpdateNotificationBanner';
+import { useUpdateStatus } from './QuickActions/Update/useUpdateStatus';
 
 const Container = styled.nav<{ $elevation: Elevation }>`
     display: flex;
@@ -29,12 +31,29 @@ const Content = styled.div`
 `;
 
 export const Sidebar = () => {
+    const [closedNotificationDevice, setClosedNotificationDevice] = useState(false);
+    const [closedNotificationSuite, setClosedNotificationSuite] = useState(false);
+
     const { elevation } = useElevation();
+    const { updateStatusDevice, updateStatusSuite } = useUpdateStatus();
 
     const sidebarWidth = useSelector(state => state.suite.settings.sidebarWidth);
     const { setSidebarWidth } = useActions({
         setSidebarWidth: (width: number) => suiteActions.setSidebarWidth({ width }),
     });
+
+    const onNotificationBannerClosed = () => {
+        if (updateStatusSuite !== 'up-to-date') {
+            setClosedNotificationSuite(true);
+        }
+        if (updateStatusDevice !== 'up-to-date') {
+            setClosedNotificationDevice(true);
+        }
+    };
+
+    const showUpdateBannerNotification =
+        (updateStatusSuite !== 'up-to-date' && !closedNotificationSuite) ||
+        (updateStatusDevice !== 'up-to-date' && !closedNotificationDevice);
 
     return (
         <Wrapper>
@@ -54,7 +73,18 @@ export const Sidebar = () => {
                                 <DeviceSelector />
                                 <Navigation />
                                 <AccountsMenu />
-                                <QuickActions />
+
+                                {showUpdateBannerNotification && (
+                                    <UpdateNotificationBanner
+                                        updateStatusDevice={updateStatusDevice}
+                                        updateStatusSuite={updateStatusSuite}
+                                        onClose={onNotificationBannerClosed}
+                                    />
+                                )}
+
+                                <QuickActions
+                                    showUpdateBannerNotification={showUpdateBannerNotification}
+                                />
                             </Content>
                         </TrafficLightOffset>
                     </ElevationUp>

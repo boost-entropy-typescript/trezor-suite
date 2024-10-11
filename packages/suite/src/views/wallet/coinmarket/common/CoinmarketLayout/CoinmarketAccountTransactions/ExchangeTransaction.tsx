@@ -8,7 +8,7 @@ import { goto } from 'src/actions/suite/routerActions';
 import { saveTransactionId } from 'src/actions/wallet/coinmarketExchangeActions';
 import { Account } from 'src/types/wallet';
 import { Translation, FormattedDate, FormattedCryptoAmount } from 'src/components/suite';
-import { useDispatch } from 'src/hooks/suite';
+import { useDispatch, useTranslation } from 'src/hooks/suite';
 import { useCoinmarketWatchTrade } from 'src/hooks/wallet/coinmarket/useCoinmarketWatchTrade';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { CoinmarketTransactionStatus } from 'src/views/wallet/coinmarket/common/CoinmarketLayout/CoinmarketAccountTransactions/CoinmarketTransactionStatus';
@@ -109,6 +109,7 @@ interface ExchangeTransactionProps {
 
 export const ExchangeTransaction = ({ trade, providers, account }: ExchangeTransactionProps) => {
     const dispatch = useDispatch();
+    const { translationString } = useTranslation();
     const theme = useTheme();
     useCoinmarketWatchTrade({ account, trade });
     const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
@@ -129,25 +130,31 @@ export const ExchangeTransaction = ({ trade, providers, account }: ExchangeTrans
         );
     };
 
+    if (!send || !receive) return null;
+
     return (
         <Wrapper>
             <Column>
                 <Row>
                     <Amount>
-                        <FormattedCryptoAmount value={sendStringAmount} symbol={send} />
+                        <FormattedCryptoAmount
+                            value={sendStringAmount}
+                            symbol={cryptoIdToCoinSymbol(send)}
+                        />
                     </Amount>
                     <Arrow>
                         <Icon color={theme.legacy.TYPE_LIGHT_GREY} size={13} name="caretRight" />
                     </Arrow>
                     <FormattedCryptoAmount
                         value={receiveStringAmount}
-                        symbol={cryptoIdToCoinSymbol(receive!)}
+                        symbol={cryptoIdToCoinSymbol(receive)}
                     />
                     {/* TODO FIX THIS LOGO */}
                     {/* <StyledCoinLogo size={13} symbol={symbol} /> */}
                 </Row>
                 <SmallRowStatus>
-                    {trade.tradeType.toUpperCase()} • <FormattedDate value={date} date time /> •{' '}
+                    {translationString('TR_COINMARKET_SWAP').toUpperCase()} •{' '}
+                    <FormattedDate value={date} date time /> •{' '}
                     <StyledStatus trade={data} tradeType={trade.tradeType} />
                 </SmallRowStatus>
                 <SmallRow>

@@ -88,6 +88,7 @@ export const en = {
         numberOfTokens: '+{numberOfTokens, plural, one{1 Token} other{# Tokens}}',
         tokens: 'Tokens',
         staking: 'Staking',
+        stakingDisabled: 'Staking is not available in this context.',
     },
     assets: {
         dashboard: {
@@ -765,6 +766,18 @@ export const en = {
                 3: '3. Install new firmware',
             },
             button: 'Learn more @ Trezor.io',
+        },
+    },
+    deviceSettings: {
+        title: 'Device info', // TODO: Change to "Device settings" once something may be changed
+        firmware: {
+            title: 'Firmware',
+            version: 'Version',
+            type: 'Type',
+            typeUniversal: 'Universal',
+            typeBitcoinOnly: 'Bitcoin-only',
+            upToDate: 'You’re all up to date',
+            newVersionAvailable: 'New version available ({version})',
         },
     },
     qrCode: {

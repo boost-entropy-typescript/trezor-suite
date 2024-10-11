@@ -40,6 +40,7 @@ export type SuiteAction =
     | { type: typeof SUITE.COINJOIN_RECEIVE_WARNING; payload: boolean }
     | { type: typeof SUITE.DEVICE_AUTHENTICITY_OPT_OUT; payload: boolean }
     | { type: typeof SUITE.DEVICE_FIRMWARE_REVISION_CHECK; payload: { isDisabled: boolean } }
+    | { type: typeof SUITE.DEVICE_FIRMWARE_HASH_CHECK; payload: { isDisabled: boolean } }
     | { type: typeof SUITE.COINJOIN_RECEIVE_WARNING; payload: boolean }
     | { type: typeof SUITE.LOCK_UI; payload: boolean }
     | ReturnType<typeof lockDevice>
@@ -85,7 +86,6 @@ export type SuiteAction =
       }
     | { type: typeof deviceActions.requestDeviceReconnect.type }
     | { type: typeof SUITE.SET_SIDEBAR_WIDTH; payload: { width: number } }
-    | { type: typeof SUITE.SET_AUTO_START; enabled?: boolean }
     | {
           type: typeof SUITE.SET_EXPERIMENTAL_FEATURES;
           payload: {
@@ -301,13 +301,17 @@ export const deviceAuthenticityOptOut = (payload: boolean) => (dispatch: Dispatc
     });
 };
 
-export const checkFirmwareRevision =
+export const toggleCheckFirmwareAuthenticity =
     ({ isDisabled }: { isDisabled: boolean }) =>
     (dispatch: Dispatch) => {
         dispatch(notificationsActions.addToast({ type: 'settings-applied' }));
 
         dispatch({
             type: SUITE.DEVICE_FIRMWARE_REVISION_CHECK,
+            payload: { isDisabled },
+        });
+        dispatch({
+            type: SUITE.DEVICE_FIRMWARE_HASH_CHECK,
             payload: { isDisabled },
         });
     };
@@ -362,14 +366,3 @@ export const lockRouter = (payload: boolean): SuiteAction => ({
     type: SUITE.LOCK_ROUTER,
     payload,
 });
-
-/**
- * Set auto start for Suite
- * @param enabled {boolean} - true if Suite should start automatically
- * @returns {SuiteAction}
- */
-export const setAutoStart = (enabled: boolean) => (dispatch: Dispatch) => {
-    desktopApi.appAutoStart(enabled);
-
-    dispatch({ type: SUITE.SET_AUTO_START, enabled });
-};

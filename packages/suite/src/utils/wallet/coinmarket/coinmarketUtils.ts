@@ -12,11 +12,8 @@ import TrezorConnect from '@trezor/connect';
 import regional from 'src/constants/wallet/coinmarket/regional';
 import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
 import { BuyTrade, SellFiatTrade, CryptoId } from 'invity-api';
-import {
-    DefinitionType,
-    getContractAddressForNetwork,
-    isTokenDefinitionKnown,
-} from '@suite-common/token-definitions';
+import { DefinitionType, isTokenDefinitionKnown } from '@suite-common/token-definitions';
+import { getContractAddressForNetwork } from '@suite-common/wallet-utils';
 import {
     CoinmarketAccountOptionsGroupOptionProps,
     CoinmarketAccountsOptionsGroupProps,
@@ -225,6 +222,10 @@ export const getTagAndInfoNote = (quote: { infoNote?: string }) => {
 
     return { tag, infoNote };
 };
+
+export const coinmarketGetSuccessQuotes = <T extends CoinmarketTradeType>(
+    quotes: CoinmarketTradeDetailMapProps[T][] | undefined,
+) => (quotes ? quotes.filter(quote => quote.error === undefined) : undefined);
 
 export const getDefaultCountry = (country: string = regional.unknownCountry) => {
     const label = regional.countriesMap.get(country);

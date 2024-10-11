@@ -16,6 +16,7 @@ import { AmountLimits } from 'src/types/wallet/coinmarketCommonTypes';
 import { CoinmarketTradeBuyType, UseCoinmarketFormProps } from 'src/types/coinmarket/coinmarket';
 import {
     addIdsToQuotes,
+    coinmarketGetSuccessQuotes,
     cryptoIdToNetwork,
     filterQuotesAccordingTags,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
@@ -44,11 +45,8 @@ import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/commo
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import { networks } from '@suite-common/wallet-config';
 import { analytics, EventType } from '@trezor/suite-analytics';
-import {
-    getFilteredSuccessQuotes,
-    useCoinmarketCommonOffers,
-} from 'src/hooks/wallet/coinmarket/offers/useCoinmarketCommonOffers';
 import { useCoinmarketBuyFormDefaultValues } from 'src/hooks/wallet/coinmarket/form/useCoinmarketBuyFormDefaultValues';
+import { useCoinmarketInitializer } from './common/useCoinmarketInitializer';
 
 export const useCoinmarketBuyForm = ({
     selectedAccount,
@@ -61,7 +59,7 @@ export const useCoinmarketBuyForm = ({
         useSelector(state => state.wallet.coinmarket.buy);
     const { cryptoIdToCoinSymbol } = useCoinmarketInfo();
     const { callInProgress, account, timer, device, setCallInProgress, checkQuotesTimer } =
-        useCoinmarketCommonOffers({ selectedAccount, type });
+        useCoinmarketInitializer({ selectedAccount, type });
     const { paymentMethods, getPaymentMethods, getQuotesByPaymentMethod } =
         useCoinmarketPaymentMethod<CoinmarketTradeBuyType>();
     const { navigateToBuyForm, navigateToBuyOffers, navigateToBuyConfirm } =
@@ -206,54 +204,51 @@ export const useCoinmarketBuyForm = ({
             const quoteRequest = getQuoteRequestData();
             const allQuotes = await getQuotesRequest(quoteRequest, offLoading);
 
-            if (Array.isArray(allQuotes)) {
-                if (allQuotes.length === 0) {
-                    timer.stop();
-
-                    return;
-                }
-
-                // processed quotes and without alternative quotes
-                const quotesDefault = filterQuotesAccordingTags<CoinmarketTradeBuyType>(
-                    addIdsToQuotes<CoinmarketTradeBuyType>(allQuotes, 'buy'),
-                );
-                // without errors
-                const quotesSuccess =
-                    getFilteredSuccessQuotes<CoinmarketTradeBuyType>(quotesDefault) ?? [];
-
-                const bestQuote = quotesSuccess?.[0];
-                const bestQuotePaymentMethod = bestQuote?.paymentMethod;
-                const bestQuotePaymentMethodName =
-                    bestQuote?.paymentMethodName ?? bestQuotePaymentMethod;
-                const paymentMethodSelected = values.paymentMethod?.value;
-                const paymentMethodsFromQuotes = getPaymentMethods(quotesSuccess);
-                const isSelectedPaymentMethodAvailable =
-                    paymentMethodsFromQuotes.find(item => item.value === paymentMethodSelected) !==
-                    undefined;
-                const limits = getAmountLimits(quoteRequest, quotesDefault); // from all quotes except alternative
-                if (limits && quoteRequest.wantCrypto) {
-                    limits.currency =
-                        cryptoIdToCoinSymbol(quoteRequest.receiveCurrency) ?? limits.currency;
-                }
-
-                setInnerQuotes(quotesSuccess);
-                dispatch(coinmarketBuyActions.saveQuotes(quotesSuccess));
-                dispatch(coinmarketBuyActions.saveQuoteRequest(quoteRequest));
-                dispatch(coinmarketInfoActions.savePaymentMethods(paymentMethodsFromQuotes));
-                setAmountLimits(limits);
-
-                if (!paymentMethodSelected || !isSelectedPaymentMethodAvailable) {
-                    setValue(FORM_PAYMENT_METHOD_SELECT, {
-                        value: bestQuotePaymentMethod ?? '',
-                        label: bestQuotePaymentMethodName ?? '',
-                    });
-                }
-
-                setIsSubmittingHelper(false);
-            } else {
+            if (!Array.isArray(allQuotes) || allQuotes.length === 0) {
+                timer.stop();
                 setInnerQuotes([]);
+                setIsSubmittingHelper(false);
+
+                return;
             }
 
+            // processed quotes and without alternative quotes
+            const quotesDefault = filterQuotesAccordingTags<CoinmarketTradeBuyType>(
+                addIdsToQuotes<CoinmarketTradeBuyType>(allQuotes, 'buy'),
+            );
+            // without errors
+            const quotesSuccess =
+                coinmarketGetSuccessQuotes<CoinmarketTradeBuyType>(quotesDefault) ?? [];
+
+            const bestQuote = quotesSuccess?.[0];
+            const bestQuotePaymentMethod = bestQuote?.paymentMethod;
+            const bestQuotePaymentMethodName =
+                bestQuote?.paymentMethodName ?? bestQuotePaymentMethod;
+            const paymentMethodSelected = values.paymentMethod?.value;
+            const paymentMethodsFromQuotes = getPaymentMethods(quotesSuccess);
+            const isSelectedPaymentMethodAvailable =
+                paymentMethodsFromQuotes.find(item => item.value === paymentMethodSelected) !==
+                undefined;
+            const limits = getAmountLimits(quoteRequest, quotesDefault); // from all quotes except alternative
+            if (limits && quoteRequest.wantCrypto) {
+                limits.currency =
+                    cryptoIdToCoinSymbol(quoteRequest.receiveCurrency) ?? limits.currency;
+            }
+
+            setInnerQuotes(quotesSuccess);
+            dispatch(coinmarketBuyActions.saveQuotes(quotesSuccess));
+            dispatch(coinmarketBuyActions.saveQuoteRequest(quoteRequest));
+            dispatch(coinmarketInfoActions.savePaymentMethods(paymentMethodsFromQuotes));
+            setAmountLimits(limits);
+
+            if (!paymentMethodSelected || !isSelectedPaymentMethodAvailable) {
+                setValue(FORM_PAYMENT_METHOD_SELECT, {
+                    value: bestQuotePaymentMethod ?? '',
+                    label: bestQuotePaymentMethodName ?? '',
+                });
+            }
+
+            setIsSubmittingHelper(false);
             timer.reset();
         },
         [
