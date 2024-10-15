@@ -19,7 +19,6 @@ export class TrezorConnectDeeplink implements ConnectFactoryDependencies {
     private _settings: ConnectSettings;
     private messagePromises: Record<number, Deferred<any>> = {};
     private messageID = 0;
-    private defaultDeeplinkUrl = 'trezorsuitelite://connect';
 
     public constructor() {
         this._settings = {
@@ -48,7 +47,6 @@ export class TrezorConnectDeeplink implements ConnectFactoryDependencies {
             ...parseConnectSettings({ ...this._settings, ...settings }),
             deeplinkOpen: settings.deeplinkOpen,
             deeplinkCallbackUrl: settings.deeplinkCallbackUrl,
-            deeplinkUrl: settings.deeplinkUrl || this.defaultDeeplinkUrl,
         };
 
         return Promise.resolve();
@@ -125,6 +123,11 @@ export class TrezorConnectDeeplink implements ConnectFactoryDependencies {
             return;
         }
 
+        if (!this.messagePromises[id]) {
+            // Most likely old ID, ignore
+            return;
+        }
+
         const responseParam = parsedUrl.searchParams.get('response');
         if (!responseParam) {
             this.messagePromises[id].resolve({
@@ -156,7 +159,7 @@ export class TrezorConnectDeeplink implements ConnectFactoryDependencies {
         delete this.messagePromises[id];
     }
 
-    resolveMessagePromises(resolvePayload: Record<string, any>) {
+    private resolveMessagePromises(resolvePayload: Record<string, any>) {
         Object.keys(this.messagePromises).forEach(id => {
             this.messagePromises[id as any].resolve({
                 id,

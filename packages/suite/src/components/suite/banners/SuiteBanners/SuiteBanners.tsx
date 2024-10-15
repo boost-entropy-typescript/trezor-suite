@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { selectBannerMessage } from '@suite-common/message-system';
-import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { selectDevice } from '@suite-common/wallet-core';
+import { isArrayMember } from '@trezor/type-utils';
 import { isDesktop } from '@trezor/env-utils';
 import { spacingsPx } from '@trezor/theme';
 
@@ -17,13 +17,12 @@ import {
 import { MessageSystemBanner } from '../MessageSystemBanner';
 import { NoConnectionBanner } from './NoConnectionBanner';
 import { UpdateBridge } from './UpdateBridgeBanner';
-import { UpdateFirmware } from './UpdateFirmwareBanner';
 import { NoBackup } from './NoBackupBanner';
 import { FailedBackup } from './FailedBackupBanner';
 import { SafetyChecksBanner } from './SafetyChecksBanner';
 import { TranslationMode } from './TranslationModeBanner';
 import { FirmwareHashMismatch } from './FirmwareHashMismatchBanner';
-import { FirmwareRevisionCheckBanner } from './FirmwareRevisionCheckBanner';
+import { FirmwareRevisionCheckBanner, skippedHashCheckErrors } from './FirmwareRevisionCheckBanner';
 
 const Container = styled.div<{ $isVisible?: boolean }>`
     width: 100%;
@@ -71,7 +70,7 @@ export const SuiteBanners = () => {
     // the regular firmware hash check, and revision id check, either of them may fail
     else if (
         firmwareRevisionError ||
-        (firmwareHashError && firmwareHashError !== 'check-skipped')
+        (firmwareHashError && !isArrayMember(firmwareHashError, skippedHashCheckErrors))
     ) {
         banner = <FirmwareRevisionCheckBanner />;
         priority = 91;
@@ -97,14 +96,6 @@ export const SuiteBanners = () => {
     } else if (showUpdateBridge()) {
         banner = <UpdateBridge />;
         priority = 30;
-    } else if (
-        device?.connected &&
-        isDeviceAcquired(device) &&
-        device.mode !== 'bootloader' &&
-        ['outdated'].includes(device.firmware)
-    ) {
-        banner = <UpdateFirmware />;
-        priority = 10;
     }
 
     // message system banners should always be visible in the app even if app body is blurred

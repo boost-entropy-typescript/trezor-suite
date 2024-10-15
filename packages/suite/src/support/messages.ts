@@ -2861,10 +2861,6 @@ export default defineMessages({
         defaultMessage: 'New Trezor Bridge is available.',
         id: 'TR_NEW_TREZOR_BRIDGE_IS_AVAILABLE',
     },
-    TR_NEW_TREZOR_FIRMWARE_IS_AVAILABLE_DOT: {
-        defaultMessage: 'New Trezor firmware is available! Update your device now.',
-        id: 'TR_NEW_TREZOR_FIRMWARE_IS_AVAILABLE_DOT',
-    },
     TR_NO_PASSPHRASE_WALLET: {
         defaultMessage: 'Standard wallet',
         id: 'TR_NO_PASSPHRASE_WALLET',
@@ -7024,11 +7020,6 @@ export default defineMessages({
     TR_DEVICE_FIRMWARE_HASH_CHECK_HASH_MISMATCH: {
         id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_HASH_MISMATCH',
         defaultMessage: 'Firmware hash check failed. Your Trezor may be counterfeit.',
-    },
-    TR_DEVICE_FIRMWARE_HASH_CHECK_CHECK_UNSUPPORTED: {
-        id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_CHECK_UNSUPPORTED',
-        defaultMessage:
-            'New Trezor firmware is available! Update your device now to get latest security features.',
     },
     TR_DEVICE_FIRMWARE_HASH_CHECK_UNKNOWN_RELEASE: {
         id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_UNKNOWN_RELEASE',

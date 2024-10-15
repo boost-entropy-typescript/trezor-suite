@@ -275,6 +275,8 @@ export const en = {
         errors: {
             deviceNotConnected: 'Device not connected.',
             invalidCallback: 'Invalid callback URL',
+            invalidParams: 'Invalid parameters from calling app',
+            versionUnsupported: 'Unsupported version. Please update your Trezor Suite app.',
         },
         bottomSheets: {
             confirmOnDeviceMessage: 'Go to your device and verify the details of the operation.',
@@ -359,12 +361,16 @@ export const en = {
         screenTitle: '{coinSymbol} Receive address',
         accountNotFound: 'Account {accountKey} not found.',
         deviceCancelError: 'Address confirmation canceled.',
+        tokens: {
+            runOn: 'Run on {accountLabel}',
+            errorMessage: 'Token not found.',
+        },
         receiveAddressCard: {
             alert: {
                 success: 'Receive address has been confirmed on your Trezor.',
                 longCardanoAddress:
                     'Cardano (ADA) address exceeds Trezor device’s screen. Scroll here and on the device to view it and confirm.',
-                ethereumToken: 'Your receive address is your Ethereum address',
+                token: 'Your receive address is your {networkName} address',
             },
             unverifiedWarning: {
                 portfolioTracker: {
@@ -719,6 +725,10 @@ export const en = {
                 values: 'Compare values',
                 inputs: 'Inputs & Outputs',
             },
+        },
+        tokens: {
+            toggleTokens: 'Include tokens',
+            title: 'Note, your {networkName} balance doesn’t include tokens.',
         },
     },
     deviceManager: {
