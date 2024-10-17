@@ -14,7 +14,7 @@ import {
 } from 'src/utils/suite/validation';
 import { FIAT_INPUT, CRYPTO_INPUT } from 'src/types/wallet/stakeForms';
 import { MIN_ETH_FOR_WITHDRAWALS } from 'src/constants/suite/ethStaking';
-import { spacings, spacingsPx } from '@trezor/theme';
+import { spacingsPx } from '@trezor/theme';
 import { validateStakingMax } from 'src/utils/suite/stake';
 
 const IconWrapper = styled.div`
@@ -36,6 +36,7 @@ export const Inputs = () => {
         onFiatAmountChange,
         localCurrency,
         isAmountForWithdrawalWarningShown,
+        isLessAmountForWithdrawalWarningShown,
         isAdviceForWithdrawalWarningShown,
         currentRate,
     } = useStakeEthFormContext();
@@ -65,6 +66,9 @@ export const Inputs = () => {
             }),
         },
     };
+
+    const shouldShowAmountForWithdrawalWarning =
+        isLessAmountForWithdrawalWarningShown || isAmountForWithdrawalWarningShown;
 
     return (
         <Column>
@@ -102,10 +106,14 @@ export const Inputs = () => {
                 </>
             )}
 
-            {isAmountForWithdrawalWarningShown && (
-                <Banner variant="info" margin={{ top: spacings.md }}>
+            {shouldShowAmountForWithdrawalWarning && (
+                <Banner variant="info">
                     <Translation
-                        id="TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL"
+                        id={
+                            isLessAmountForWithdrawalWarningShown
+                                ? 'TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL'
+                                : 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL'
+                        }
                         values={{
                             amount: MIN_ETH_FOR_WITHDRAWALS.toString(),
                             symbol: account.symbol.toUpperCase(),
@@ -113,8 +121,9 @@ export const Inputs = () => {
                     />
                 </Banner>
             )}
+
             {isAdviceForWithdrawalWarningShown && (
-                <Banner variant="info" margin={{ top: spacings.md }}>
+                <Banner variant="info">
                     <Translation
                         id="TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS"
                         values={{
