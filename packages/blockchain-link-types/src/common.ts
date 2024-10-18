@@ -1,4 +1,4 @@
-import type { SocksProxyAgentOptions } from 'socks-proxy-agent';
+import type tls from 'tls';
 
 import type { Transaction as BlockbookTransaction, VinVout } from './blockbook';
 import type {
@@ -9,6 +9,25 @@ import type {
 } from './blockbook-api';
 
 /* Common types used in both params and responses */
+
+type AgentOptions = {
+    timeout?: number | undefined;
+};
+
+interface BaseSocksProxyAgentOptions {
+    host?: string | null;
+    port?: string | number | null;
+    username?: string | null;
+    tls?: tls.ConnectionOptions | null;
+    ipaddress?: string;
+    type: 4 | 5;
+    userId?: string;
+    password?: string;
+}
+
+// todo: connect10 here we are using the old `SocksProxyAgentOptions` from older version of socks-proxy-agent
+// but we keep the old API so we do not introduce breaking changes.
+interface SocksProxyAgentOptions extends AgentOptions, BaseSocksProxyAgentOptions {}
 
 export interface BlockchainSettings {
     name: string;
@@ -34,7 +53,7 @@ export interface ServerInfo {
     consensusBranchId?: number; // zcash current branch id
 }
 
-export type TokenStandard = 'ERC20' | 'ERC1155' | 'ERC721' | 'SPL';
+export type TokenStandard = 'ERC20' | 'ERC1155' | 'ERC721' | 'SPL' | 'BEP20';
 
 export type TransferType = 'sent' | 'recv' | 'self' | 'unknown';
 

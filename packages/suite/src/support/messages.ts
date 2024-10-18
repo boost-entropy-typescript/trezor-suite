@@ -116,6 +116,10 @@ export default defineMessages({
         id: 'TR_ACTIVE',
         defaultMessage: 'active',
     },
+    TR_ADD: {
+        id: 'TR_ADD',
+        defaultMessage: 'Add',
+    },
     TR_ADD_ACCOUNT: {
         defaultMessage: 'Add account',
         id: 'TR_ADD_ACCOUNT',
@@ -329,6 +333,14 @@ export default defineMessages({
     TR_CONFIRM_ADDRESS: {
         defaultMessage: 'Confirm address',
         id: 'TR_CONFIRM_ADDRESS',
+    },
+    TR_COINS_CHECKED: {
+        defaultMessage: 'Coins checked',
+        id: 'TR_COINS_CHECKED',
+    },
+    TR_CHECKED_BALANCES_ON: {
+        defaultMessage: 'Checked balances on',
+        id: 'TR_CHECKED_BALANCES_ON',
     },
     TR_ALL_NETWORKS: {
         defaultMessage: 'All networks ({networkCount})',
@@ -3664,6 +3676,11 @@ export default defineMessages({
     TOAST_QR_INCORRECT_COIN_SCHEME_PROTOCOL: {
         id: 'TOAST_QR_INCORRECT_COIN_SCHEME_PROTOCOL',
         defaultMessage: 'QR code is defined for {coin} account',
+    },
+    TOAST_QR_UNKNOWN_SCHEME_PROTOCOL: {
+        id: 'TOAST_QR_UNKNOWN_SCHEME_PROTOCOL',
+        defaultMessage:
+            'Unknown protocol scheme: "{scheme}". Please try again or enter the address manually.',
     },
     TOAST_COIN_SCHEME_PROTOCOL: {
         id: 'TOAST_COIN_SCHEME_PROTOCOL',
@@ -8684,6 +8701,11 @@ export default defineMessages({
     TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL: {
         id: 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL',
         defaultMessage: 'We’ve left {amount} {symbol} out so you can pay for withdrawal fees.',
+    },
+    TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL: {
+        id: 'TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL',
+        defaultMessage:
+            'We’ve left a small amount of {symbol} out so you can pay for withdrawal fees.',
     },
     TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS: {
         id: 'TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS',

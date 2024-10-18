@@ -1,6 +1,6 @@
 {
     "name": "@trezor/blockchain-link-types",
-    "version": "1.2.1",
+    "version": "1.2.2-beta.1",
     "license": "See LICENSE.md in repo root",
     "sideEffects": false,
     "main": "src/index.ts",
@@ -22,8 +22,7 @@
     "dependencies": {
         "@solana/web3.js": "^1.95.0",
         "@trezor/type-utils": "workspace:*",
-        "@trezor/utxo-lib": "workspace:*",
-        "socks-proxy-agent": "6.1.1"
+        "@trezor/utxo-lib": "workspace:*"
     },
     "devDependencies": {
         "tsx": "^4.16.3"
