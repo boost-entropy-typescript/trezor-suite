@@ -6,12 +6,12 @@ import { ErrorCode } from '../constants/errors';
 
 export interface DeviceIdentity {
     path?: string;
-    state?: string | DeviceState;
+    state?: DeviceState;
     instance?: number;
 }
 
 export interface CommonParams {
-    device?: DeviceIdentity;
+    device?: DeviceIdentity & { state?: DeviceState | string }; // Note: state as string should be removed https://github.com/trezor/trezor-suite/issues/12710
     useEmptyPassphrase?: boolean;
     useEventListener?: boolean; // this param is set automatically in factory
     allowSeedlessDevice?: boolean;
@@ -20,6 +20,11 @@ export interface CommonParams {
     skipFinalReload?: boolean;
     useCardanoDerivation?: boolean;
     chunkify?: boolean;
+    /**
+     * internal flag. if set to true, call will only return info about the method, not execute it.
+     * todo: this should be moved to another argument instead of mixing this with params
+     */
+    __info?: boolean;
 }
 
 export type Params<T> = CommonParams & T & { bundle?: undefined };

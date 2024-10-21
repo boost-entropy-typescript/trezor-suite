@@ -5,7 +5,12 @@ import { acquireDevice, selectDevice } from '@suite-common/wallet-core';
 import { variables } from '@trezor/components';
 
 import { closeModalApp } from 'src/actions/suite/routerActions';
-import { CheckSeedStep, FirmwareCloseButton, FirmwareInstallation } from 'src/components/firmware';
+import {
+    CheckSeedStep,
+    FirmwareCloseButton,
+    FirmwareInstallation,
+    FirmwareUpdateHashCheckError,
+} from 'src/components/firmware';
 import { Translation, Modal, PrerequisitesGuide } from 'src/components/suite';
 import { OnboardingStepBox } from 'src/components/onboarding';
 import { useDispatch, useFirmware, useSelector } from 'src/hooks/suite';
@@ -33,28 +38,29 @@ const StyledModal = styled(Modal)`
 
 type FirmwareModalProps = {
     children: ReactElement;
-    deviceWillBeWiped?: boolean;
     heading: TranslationKey;
     install: () => void;
     isCustom?: boolean;
+    shouldSwitchFirmwareType?: boolean;
 };
 
 export const FirmwareModal = ({
     children,
-    deviceWillBeWiped,
     heading,
     install,
     isCustom,
+    shouldSwitchFirmwareType,
 }: FirmwareModalProps) => {
     const {
         resetReducer,
         status,
+        deviceWillBeWiped,
         error,
         firmwareHashInvalid,
         uiEvent,
         confirmOnDevice,
         showConfirmationPill,
-    } = useFirmware();
+    } = useFirmware({ shouldSwitchFirmwareType });
     const device = useSelector(selectDevice);
     const dispatch = useDispatch();
 
@@ -77,19 +83,13 @@ export const FirmwareModal = ({
             return <PrerequisitesGuide />;
         }
 
-        // Special and hopefully very rare case. This appears when somebody tried to fool user into using a hacked firmware. This check is skipped when installing custom FW.
-        if (device?.id && firmwareHashInvalid.includes(device.id)) {
-            return (
-                <OnboardingStepBox
-                    image="UNI_ERROR"
-                    heading={<Translation id="TR_FIRMWARE_HASH_MISMATCH" />}
-                    nested
-                />
-            );
-        }
-
         switch (status) {
             case 'error':
+                // Special and hopefully very rare case. This appears when somebody tried to fool user into using a hacked firmware. This check is skipped when installing custom FW.
+                if (device?.id && firmwareHashInvalid.includes(device.id)) {
+                    return <FirmwareUpdateHashCheckError error={error} />;
+                }
+
                 return (
                     <OnboardingStepBox
                         image="FIRMWARE"
@@ -106,9 +106,9 @@ export const FirmwareModal = ({
             case 'check-seed':
                 return (
                     <CheckSeedStep
+                        deviceWillBeWiped={deviceWillBeWiped}
                         onSuccess={install}
                         onClose={onClose}
-                        willBeWiped={deviceWillBeWiped}
                     />
                 );
             case 'started':

@@ -164,8 +164,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         firmwareHash: null,
     };
 
-    private useCardanoDerivation = false;
-
     constructor(transport: Transport, descriptor: Descriptor) {
         super();
 
@@ -366,11 +364,12 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.releasePromise;
         }
 
+        const { staticSessionId, deriveCardano } = this.getState() || {};
         if (
             !this.isUsedHere() ||
             this.commands?.disposed ||
-            !this.getState()?.staticSessionId ||
-            this.useCardanoDerivation != !!options.useCardanoDerivation
+            !staticSessionId ||
+            (!deriveCardano && options.useCardanoDerivation)
         ) {
             // acquire session
             await this.acquire();
@@ -549,12 +548,12 @@ export class Device extends TypedEmitter<DeviceEvents> {
     async initialize(useCardanoDerivation: boolean) {
         let payload: PROTO.Initialize | undefined;
         if (this.features) {
-            const sessionId = this.getState()?.sessionId;
-            payload = {};
+            const { sessionId, deriveCardano } = this.getState() || {};
             // If the user has BIP-39 seed, and Initialize(derive_cardano=True) is not sent,
             // all Cardano calls will fail because the root secret will not be available.
-            payload.derive_cardano = useCardanoDerivation;
-            this.useCardanoDerivation = useCardanoDerivation;
+            payload = {
+                derive_cardano: deriveCardano || useCardanoDerivation,
+            };
             if (sessionId) {
                 payload.session_id = sessionId;
             }
@@ -562,6 +561,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         const { message } = await this.getCommands().typedCall('Initialize', 'Features', payload);
         this._updateFeatures(message);
+        this.setState({ deriveCardano: payload?.derive_cardano });
     }
 
     initStorage(storage: IStateStorage) {
@@ -608,17 +608,19 @@ export class Device extends TypedEmitter<DeviceEvents> {
     async checkFirmwareHash(): Promise<FirmwareHashCheckResult | null> {
         const createFailResult = (error: FirmwareHashCheckError) => ({ success: false, error });
 
+        const baseUrl = DataManager.getSettings('binFilesBaseUrl');
+        const enabled = DataManager.getSettings('enableFirmwareHashCheck');
+        if (!enabled || baseUrl === undefined) return createFailResult('check-skipped');
+
         const firmwareVersion = this.getVersion();
         // device has no features (not yet connected) or no firmware
         if (firmwareVersion === undefined || !this.features || this.features.bootloader_mode) {
             return null;
         }
 
-        // optional setting for `connect`, see types/settings.ts
-        const baseUrl = DataManager.getSettings('binFilesBaseUrl');
         // Initially rolled out only for Model One; in the future we may remove that condition and do it for all models
         const isModelOne = this.features.internal_model === DeviceModelInternal.T1B1;
-        if (baseUrl === undefined || !isModelOne) return createFailResult('check-skipped');
+        if (!isModelOne) return createFailResult('check-skipped');
 
         const checkSupported = this.atLeast(FIRMWARE.FW_HASH_SUPPORTED_VERSIONS);
         if (!checkSupported) return createFailResult('check-unsupported');
