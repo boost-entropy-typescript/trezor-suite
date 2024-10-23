@@ -40,7 +40,7 @@ export const FeaturesSettings = () => {
         <SettingsSection title={<Translation id="moduleSettings.items.features.title" />}>
             {isDevButtonVisible && (
                 <SettingsSectionItem
-                    iconName="placeholder"
+                    iconName="circleDashed"
                     title={<Translation id="moduleSettings.items.features.devUtils.title" />}
                     subtitle={<Translation id="moduleSettings.items.features.devUtils.subtitle" />}
                     onPress={() => navigation.navigate(RootStackRoutes.DevUtilsStack)}
@@ -59,7 +59,7 @@ export const FeaturesSettings = () => {
             {isUsbDeviceConnectFeatureEnabled && (
                 <>
                     <SettingsSectionItem
-                        iconName="bookmark"
+                        iconName="bookmarkSimple"
                         title={<Translation id="moduleSettings.items.features.viewOnly.title" />}
                         subtitle={
                             <Translation id="moduleSettings.items.features.viewOnly.subtitle" />

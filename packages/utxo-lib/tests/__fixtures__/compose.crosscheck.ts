@@ -1,12 +1,30 @@
 import { UTXO } from './compose';
+import {
+    ComposeChangeAddress,
+    ComposeInput,
+    ComposeOutput,
+    ComposeRequest,
+} from '../../src/types/compose';
+import { CoinSelectPaymentType } from '../../src';
 
-export const fixturesCrossCheck = [
+type AnyComposeRequest = ComposeRequest<ComposeInput, ComposeOutput, ComposeChangeAddress>;
+
+type Fixture = {
+    description: string;
+    request: Omit<AnyComposeRequest, 'network'> & {
+        network?: AnyComposeRequest['network'];
+    };
+    result: Partial<Record<`${CoinSelectPaymentType}-${CoinSelectPaymentType}`, { bytes: number }>>;
+};
+
+export const fixturesCrossCheck: Fixture[] = [
     {
         description: '1 input, 1 output, no change',
         request: {
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             utxos: [{ ...UTXO, amount: 'replace-me' }],
             outputs: [
                 {
@@ -45,6 +63,7 @@ export const fixturesCrossCheck = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             utxos: [{ ...UTXO, amount: '202300' }],
             outputs: [
                 {
@@ -83,6 +102,7 @@ export const fixturesCrossCheck = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             utxos: [
                 {
                     ...UTXO,
@@ -133,6 +153,7 @@ export const fixturesCrossCheck = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             utxos: [
                 {
                     ...UTXO,
@@ -206,7 +227,6 @@ export const fixturesCrossCheck = [
                 {
                     type: 'opreturn',
                     dataHex: 'deadbeef',
-                    amount: '0',
                 },
             ],
         },

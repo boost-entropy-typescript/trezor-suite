@@ -1,4 +1,14 @@
-export const UTXO = {
+import {
+    ComposeChangeAddress,
+    ComposeInput,
+    ComposeOutput,
+    ComposeRequest,
+    ComposeResult,
+    ComposeResultFinal,
+} from '../../src/types/compose';
+import { bitcoincash, doge } from '../../src/networks';
+
+export const UTXO: ComposeInput & { path: number[] } = {
     path: [44, 1, 0, 0, 0], // NOTE: this field is not required by the ComposeInput interface, yet it is accepted in and received out
     coinbase: false,
     own: true,
@@ -8,13 +18,28 @@ export const UTXO = {
     amount: '102001',
 };
 
-export const composeTxFixture = [
+type AnyComposeRequest = ComposeRequest<ComposeInput, ComposeOutput, ComposeChangeAddress>;
+type AnyComposeResult = ComposeResult<ComposeInput, ComposeOutput, ComposeChangeAddress>;
+type AnyComposeFinalResult = ComposeResultFinal<ComposeInput, ComposeOutput, ComposeChangeAddress>;
+
+type Fixture = {
+    description: string;
+    request: Omit<AnyComposeRequest, 'network' | 'outputs' | 'changeAddress'> & {
+        network?: AnyComposeRequest['network'];
+        outputs: Array<AnyComposeRequest['outputs'][number] & { customField?: string }>;
+        changeAddress: AnyComposeRequest['changeAddress'] & { path?: number[] | string };
+    };
+    result: AnyComposeResult;
+};
+
+export const composeTxFixture: Fixture[] = [
     {
         description: 'builds a simple tx without change',
         request: {
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -38,7 +63,7 @@ export const composeTxFixture = [
                     amount: '100000',
                     type: 'payment',
                     customField: 'prove that payment output is generic',
-                },
+                } as AnyComposeFinalResult['outputs'][number], // hack for `customField`
             ],
             outputsPermutation: [0],
             type: 'final',
@@ -50,6 +75,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10.33',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -83,6 +109,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     amount: '100000',
@@ -107,6 +134,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     amount: '100000',
@@ -131,6 +159,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -168,6 +197,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -190,7 +220,7 @@ export const composeTxFixture = [
                     amount: '100081',
                     type: 'payment',
                     customField: 'prove that send-max output is generic',
-                },
+                } as AnyComposeFinalResult['outputs'][number], // hack for `customField`
             ],
             outputsPermutation: [0],
             type: 'final',
@@ -205,6 +235,7 @@ export const composeTxFixture = [
             },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -242,7 +273,7 @@ export const composeTxFixture = [
                     path: [44, 1, 1, 0],
                     amount: '49401',
                     type: 'change',
-                },
+                } as AnyComposeFinalResult['outputs'][number], // hack for `path`,
             ],
             outputsPermutation: [1, 0, 2],
             type: 'final',
@@ -257,6 +288,7 @@ export const composeTxFixture = [
             },
             dustThreshold: 546,
             feeRate: '10.71',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -294,7 +326,7 @@ export const composeTxFixture = [
                     address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT',
                     amount: '49216',
                     type: 'change',
-                },
+                } as AnyComposeFinalResult['outputs'][number], // hack for `path`,,
             ],
             outputsPermutation: [1, 0, 2],
             type: 'final',
@@ -307,6 +339,7 @@ export const composeTxFixture = [
             changeAddress: { address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr',
@@ -355,6 +388,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -399,6 +433,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -443,8 +478,8 @@ export const composeTxFixture = [
         request: {
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
-            sortingStrategy: 'bip69',
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -496,6 +531,7 @@ export const composeTxFixture = [
             changeAddress: { address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr',
@@ -545,6 +581,7 @@ export const composeTxFixture = [
             changeAddress: { address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr' },
             dustThreshold: 54600,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr',
@@ -583,6 +620,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     dataHex: 'deadbeef',
@@ -604,7 +642,7 @@ export const composeTxFixture = [
                     dataHex: 'deadbeef',
                     type: 'opreturn',
                     customField: 'prove that opreturn output is generic',
-                },
+                } as AnyComposeFinalResult['outputs'][number], // hack for `customField`
                 {
                     address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT',
                     amount: '99931',
@@ -621,6 +659,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     dataHex: 'deadbeef',
@@ -666,6 +705,7 @@ export const composeTxFixture = [
             changeAddress: { address: 'bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
@@ -706,6 +746,7 @@ export const composeTxFixture = [
             changeAddress: { address: 'bc1qafk4yhqvj4wep57m62dgrmutldusqde8adh20d' },
             dustThreshold: 0,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
@@ -750,6 +791,7 @@ export const composeTxFixture = [
             changeAddress: { address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8',
@@ -785,6 +827,7 @@ export const composeTxFixture = [
             changeAddress: { address: '3LRW7jeCvQCRdPF8S3yUCfRAx4eqXFmdcr' },
             dustThreshold: 0,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8',
@@ -831,6 +874,7 @@ export const composeTxFixture = [
             },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: 'bc1ptxs597p3fnpd8gwut5p467ulsydae3rp9z75hd99w8k3ljr9g9rqx6ynaw',
@@ -873,6 +917,7 @@ export const composeTxFixture = [
             },
             dustThreshold: 0,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: 'bc1ptxs597p3fnpd8gwut5p467ulsydae3rp9z75hd99w8k3ljr9g9rqx6ynaw',
@@ -916,6 +961,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     type: 'send-max-noaddress',
@@ -937,9 +983,10 @@ export const composeTxFixture = [
         description: 'builds a simple tx without change (cashaddr)',
         request: {
             changeAddress: { address: 'bitcoincash:qzppkat2v7xu9fr3yeuqdnggjqqltrs7pcg8swvhl0' },
-            network: 'bitcoincash',
+            network: bitcoincash,
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: 'bitcoincash:qp6e6enhpy0fwwu7nkvlr8rgl06ru0c9lywalz8st5',
@@ -973,6 +1020,7 @@ export const composeTxFixture = [
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
             dustThreshold: 546,
             feeRate: '10',
+            sortingStrategy: 'bip69',
             outputs: [
                 {
                     address: '1BitcoinEaterAddressDontSendf59kuE',
@@ -1060,80 +1108,6 @@ export const composeTxFixture = [
         },
     },
     {
-        description:
-            'skip inputs/outputs permutation when skipPermutation=true (compatibility API)',
-        request: {
-            changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
-            dustThreshold: 546,
-            feeRate: '10',
-            skipPermutation: true,
-            outputs: [
-                {
-                    address: '1BitcoinEaterAddressDontSendf59kuE',
-                    amount: '70000',
-                    type: 'payment',
-                },
-            ],
-            utxos: [
-                {
-                    txid: 'a4dc0ffeee',
-                    vout: 0,
-                    amount: '65291',
-                    coinbase: false,
-                    confirmations: 60,
-                    own: false,
-                },
-                {
-                    txid: 'b4dc0ffeee',
-                    vout: 1,
-                    amount: '55291',
-                    coinbase: false,
-                    confirmations: 50,
-                    own: false,
-                },
-            ],
-        },
-        result: {
-            bytes: 374,
-            fee: '3740',
-            feePerByte: '10',
-            max: undefined,
-            totalSpent: '73740',
-            inputs: [
-                {
-                    txid: 'a4dc0ffeee',
-                    vout: 0,
-                    amount: '65291',
-                    coinbase: false,
-                    confirmations: 60,
-                    own: false,
-                },
-                {
-                    txid: 'b4dc0ffeee',
-                    vout: 1,
-                    amount: '55291',
-                    coinbase: false,
-                    confirmations: 50,
-                    own: false,
-                },
-            ],
-            outputs: [
-                {
-                    address: '1BitcoinEaterAddressDontSendf59kuE',
-                    amount: '70000',
-                    type: 'payment',
-                },
-                {
-                    amount: '46842',
-                    address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT',
-                    type: 'change',
-                },
-            ],
-            outputsPermutation: [0, 1],
-            type: 'final',
-        },
-    },
-    {
         description: 'skip inputs/outputs permutation when sortingStrategy=none',
         request: {
             changeAddress: { address: '1CrwjoKxvdbAnPcGzYjpvZ4no4S71neKXT' },
@@ -1213,7 +1187,8 @@ export const composeTxFixture = [
             changeAddress: { address: 'DKu2a8Wo6zC2dmBBYXwUG3fxWDHbKnNiPj' },
             dustThreshold: 999999,
             feeRate: '1000',
-            network: 'doge',
+            sortingStrategy: 'bip69',
+            network: doge,
             outputs: [
                 {
                     address: 'DDn7UV1CrqVefzwrHyw7H2zEZZKqfzR2ZD',

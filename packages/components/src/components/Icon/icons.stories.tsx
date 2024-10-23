@@ -7,11 +7,11 @@ import { Input } from '../form/Input/Input';
 import { Checkbox } from '../form/Checkbox/Checkbox';
 import { Text } from '../typography/Text/Text';
 import { typography } from '@trezor/theme';
-import { icons, IconName } from '@suite-common/icons';
+import { icons, IconName } from '@suite-common/icons/src/icons';
 import {
     icons as iconsDeprecated,
     IconName as IconNameDeprecated,
-} from '@suite-common/icons-deprecated/src/webComponents';
+} from '@suite-common/icons-deprecated';
 
 const CopiedText = styled.div`
     display: flex;

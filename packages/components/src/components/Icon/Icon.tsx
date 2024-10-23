@@ -5,8 +5,8 @@ import styled, { css, DefaultTheme } from 'styled-components';
 import {
     icons as iconsDeprecated,
     IconName as IconNameDeprecated,
-} from '@suite-common/icons-deprecated/src/webComponents';
-import { icons, IconName as IconNameNew } from '@suite-common/icons';
+} from '@suite-common/icons-deprecated';
+import { icons, IconName as IconNameNew } from '@suite-common/icons/src/icons';
 import { CSSColor, Color } from '@trezor/theme';
 
 import { UIVariant } from '../../config/types';

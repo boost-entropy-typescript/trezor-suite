@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 
-import { Icon, IconName } from '@suite-common/icons-deprecated';
+import { Icon, IconName } from '@suite-native/icons';
 import { AlertBox, AlertBoxProps, Box, Card, HStack, Text, VStack } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
 const contentStyle = prepareNativeStyle(() => ({
     flexGrow: 1,
+    flexShrink: 1,
 }));
 
 export type DeviceSettingsCardProps = {
