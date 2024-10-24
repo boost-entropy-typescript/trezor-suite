@@ -77,6 +77,12 @@
         { "path": "../../packages/theme" },
         {
             "path": "../../packages/trezor-user-env-link"
+        },
+        {
+            "path": "../../suite-common/test-utils"
+        },
+        {
+            "path": "../../packages/connect-mobile"
         }
     ],
     "include": [".", "**.json"]

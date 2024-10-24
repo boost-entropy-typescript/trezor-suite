@@ -67,16 +67,6 @@ const projectIds = {
 } as const satisfies Record<BuildType, string>;
 
 const buildType = (process.env.EXPO_PUBLIC_ENVIRONMENT as BuildType) ?? 'debug';
-const isCI = process.env.CI == 'true' || process.env.CI == '1';
-
-if (isCI) {
-    if (!process.env.EXPO_PUBLIC_ENVIRONMENT) {
-        throw new Error('Missing EXPO_PUBLIC_ENVIRONMENT env variable');
-    }
-    if (!process.env.SENTRY_AUTH_TOKEN && buildType !== 'debug') {
-        throw new Error('Missing SENTRY_AUTH_TOKEN env variable');
-    }
-}
 
 const getPlugins = (): ExpoPlugins => {
     const plugins = [
@@ -169,6 +159,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         slug: appSlugs[buildType],
         owner: appOwners[buildType],
         version: suiteNativeVersion,
+        runtimeVersion: '9',
+        ...(buildType === 'production'
+            ? {}
+            : {
+                  updates: {
+                      url: `https://u.expo.dev/${projectId}`,
+                      requestHeaders: {
+                          'expo-channel-name': buildType,
+                      },
+                  },
+              }),
         orientation: 'portrait',
         splash: {
             image: './assets/splash_icon.png',
@@ -245,7 +246,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
         plugins: getPlugins(),
         extra: {
-            commitHash: process.env.EAS_BUILD_GIT_COMMIT_HASH || '',
+            commitHash: process.env.EAS_BUILD_GIT_COMMIT_HASH || process.env.COMMIT_HASH || '',
             eas: {
                 projectId,
             },

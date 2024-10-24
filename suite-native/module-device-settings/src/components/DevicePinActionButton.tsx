@@ -1,12 +1,13 @@
 import { ReactNode, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { analytics, EventType } from '@suite-native/analytics';
-import { selectDevice, selectHasDeviceDiscovery } from '@suite-common/wallet-core';
+import { removeButtonRequests, selectDevice } from '@suite-common/wallet-core';
 import { useAlert } from '@suite-native/alerts';
+import { analytics, EventType } from '@suite-native/analytics';
 import { Button, ButtonColorScheme } from '@suite-native/atoms';
+import { requestPrioritizedDeviceAccess } from '@suite-native/device-mutex';
 import { Translation, TxKeyPath } from '@suite-native/intl';
 import {
     DeviceSettingsStackParamList,
@@ -21,9 +22,9 @@ type NavigationProp = StackNavigationProps<
     DeviceStackRoutes.DevicePinProtection
 >;
 
-export type ActionType = 'enable' | 'change' | 'disable';
+type ActionType = 'enable' | 'change' | 'disable';
 
-export type DevicePinActionButtonProps = {
+type DevicePinActionButtonProps = {
     children: ReactNode;
     type: ActionType;
     colorScheme?: ButtonColorScheme;
@@ -59,11 +60,11 @@ export const DevicePinActionButton = ({
     colorScheme,
 }: DevicePinActionButtonProps) => {
     const navigation = useNavigation<NavigationProp>();
+    const dispatch = useDispatch();
     const { showToast } = useToast();
     const { showAlert, hideAlert } = useAlert();
 
     const device = useSelector(selectDevice);
-    const hasDiscovery = useSelector(selectHasDeviceDiscovery);
 
     const showSuccess = useCallback(
         (messageKey: TxKeyPath) => {
@@ -102,28 +103,40 @@ export const DevicePinActionButton = ({
         });
 
         const { param, successMessageKey, canceledMessageKey } = actionConfigMap[type];
-        const result = await TrezorConnect.changePin({
-            device: {
-                path: device?.path,
-            },
-            remove: param,
-        });
 
-        if (result.success) {
+        const result = await requestPrioritizedDeviceAccess({
+            deviceCallback: () =>
+                TrezorConnect.changePin({
+                    device: {
+                        path: device?.path,
+                    },
+                    remove: param,
+                }),
+        });
+        dispatch(removeButtonRequests({ device }));
+
+        if (!result.success) {
+            return;
+        }
+
+        const { success, payload } = result.payload;
+        if (success) {
             showSuccess(successMessageKey);
             navigation.goBack();
         } else {
-            const errorCode = result.payload.code;
+            const errorCode = payload.code;
             if (errorCode === 'Failure_ActionCancelled' || errorCode === 'Failure_PinCancelled') {
                 showError(canceledMessageKey, changePin);
             } else if (errorCode === 'Failure_PinInvalid') {
                 showError('moduleDeviceSettings.pinProtection.errors.pinInvalid', changePin);
+            } else if (errorCode === 'Failure_PinMismatch') {
+                showError('moduleDeviceSettings.pinProtection.errors.pinMismatch', changePin);
             }
         }
-    }, [navigation, device, type, showSuccess, showError]);
+    }, [navigation, dispatch, device, type, showSuccess, showError]);
 
     return (
-        <Button onPress={changePin} colorScheme={colorScheme} size="small" isLoading={hasDiscovery}>
+        <Button onPress={changePin} colorScheme={colorScheme} size="small">
             {children}
         </Button>
     );
