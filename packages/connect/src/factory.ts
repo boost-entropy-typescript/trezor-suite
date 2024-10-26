@@ -63,6 +63,8 @@ export const factory = <
     blockchainGetFiatRatesForTimestamps: params =>
         call({ ...params, method: 'blockchainGetFiatRatesForTimestamps' }),
 
+    blockchainEvmRpcCall: params => call({ ...params, method: 'blockchainEvmRpcCall' }),
+
     blockchainDisconnect: params => call({ ...params, method: 'blockchainDisconnect' }),
 
     blockchainEstimateFee: params => call({ ...params, method: 'blockchainEstimateFee' }),
@@ -213,6 +215,8 @@ export const factory = <
     verifyMessage: params => call({ ...params, method: 'verifyMessage' }),
 
     resetDevice: params => call({ ...params, method: 'resetDevice' }),
+
+    loadDevice: params => call({ ...params, method: 'loadDevice' }),
 
     wipeDevice: params => call({ ...params, method: 'wipeDevice' }),
 
