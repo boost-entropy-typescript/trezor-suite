@@ -1,9 +1,8 @@
 import { isWeb, isLinux, isAndroid } from '@trezor/env-utils';
 
 import { Translation } from 'src/components/suite/Translation';
-import { isWebUsb } from 'src/utils/suite/transport';
 
-import { BridgeStatus, BridgeInstall } from './BridgeTip';
+import { BridgeStatus, SuiteDesktopTip } from './BridgeTip';
 import { UdevDescription } from './UdevDescription';
 
 export const TROUBLESHOOTING_TIP_BRIDGE_STATUS = {
@@ -17,13 +16,13 @@ export const TROUBLESHOOTING_TIP_WEBUSB_ENVIRONMENT = {
     key: 'webusb-environment',
     heading: <Translation id="TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_TITLE" />,
     description: <Translation id="TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_DESCRIPTION" />,
-    hide: isWebUsb() || !isWeb(),
+    hide: !isWeb(),
 };
 
 export const TROUBLESHOOTING_TIP_SUITE_DESKTOP = {
     key: 'suite-desktop',
     heading: <Translation id="TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_TITLE" />,
-    description: <BridgeInstall />,
+    description: <SuiteDesktopTip />,
     hide: !isWeb(),
 };
 
