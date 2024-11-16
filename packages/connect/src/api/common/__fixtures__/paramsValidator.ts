@@ -1,3 +1,5 @@
+import { DeviceModelInternal, FirmwareRange } from '../../../exports';
+
 export const validateParams = [
     {
         description: 'array',
@@ -171,13 +173,21 @@ export const validateParams = [
 const DEFAULT_RANGE = {
     T1B1: { min: '1.0.0', max: '0' },
     T2T1: { min: '2.0.0', max: '0' },
-    T2B1: { min: '2.6.1', max: '0' },
-    T3B1: { min: '2.8.1', max: '0' },
-    T3T1: { min: '2.7.1', max: '0' },
+    T2B1: { min: '2.0.0', max: '0' },
+    T3B1: { min: '2.0.0', max: '0' },
+    T3T1: { min: '2.0.0', max: '0' },
+    T3W1: { min: '2.0.0', max: '0' },
 };
 
 const DEFAULT_COIN_INFO = {
-    support: { T1B1: '1.6.2', T2T1: '2.1.0', T2B1: '2.6.1', T3B1: '2.8.1', T3T1: '2.7.1' },
+    support: {
+        T1B1: '1.6.2',
+        T2T1: '2.1.0',
+        T2B1: '2.0.0',
+        T3B1: '2.0.0',
+        T3T1: '2.0.0',
+        T3W1: '2.0.0',
+    },
     shortcut: 'btc',
     type: 'bitcoin',
 };
@@ -197,25 +207,30 @@ export const getFirmwareRange = [
         description: 'range from coinInfo',
         config: EMPTY_CONFIG,
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
-        result: {
-            T1B1: { min: '1.6.2', max: '0' },
-            T2T1: { min: '2.1.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
-        },
+        result: (Object.keys(DEFAULT_RANGE) as DeviceModelInternal[]).reduce(
+            (acc, model: DeviceModelInternal) => {
+                acc[model] = {
+                    min: DEFAULT_COIN_INFO.support[model],
+                    max: '0',
+                };
+
+                return acc;
+            },
+            {} as FirmwareRange,
+        ),
     },
     {
         description: 'coinInfo without support',
         config: EMPTY_CONFIG,
         params: ['signTransaction', { shortcut: 'btc', type: 'bitcoin' }, DEFAULT_RANGE],
-        result: {
-            T1B1: { min: '0', max: '0' },
-            T2T1: { min: '0', max: '0' },
-            T2B1: { min: '0', max: '0' },
-            T3B1: { min: '0', max: '0' },
-            T3T1: { min: '0', max: '0' },
-        },
+        result: (Object.keys(DEFAULT_COIN_INFO.support) as DeviceModelInternal[]).reduce(
+            (acc, model) => {
+                acc[model] = { min: '0', max: '0' };
+
+                return acc;
+            },
+            {} as FirmwareRange,
+        ),
     },
     {
         description: 'coinInfo without T1B1 support',
@@ -223,19 +238,22 @@ export const getFirmwareRange = [
         params: [
             'signTransaction',
             {
-                support: { T1B1: false, T2T1: '2.1.0', T2B1: '2.6.1', T3T1: '2.7.1' },
+                support: {
+                    T1B1: false,
+                    T2T1: '2.1.0',
+                },
                 shortcut: 'btc',
                 type: 'bitcoin',
             },
             DEFAULT_RANGE,
         ],
-        result: {
-            T1B1: { min: '0', max: '0' },
-            T2T1: { min: '2.1.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
-        },
+        result: (
+            Object.entries(DEFAULT_COIN_INFO.support) as [DeviceModelInternal, string][]
+        ).reduce((acc, [model, min]) => {
+            acc[model] = { min: model === 'T1B1' ? '0' : min, max: '0' };
+
+            return acc;
+        }, {} as FirmwareRange),
     },
     {
         description: 'coinInfo without T2 support',
@@ -243,19 +261,26 @@ export const getFirmwareRange = [
         params: [
             'signTransaction',
             {
-                support: { T1B1: '1.6.2', T2T1: false, T2B1: false, T3B1: false, T3T1: false },
+                support: {
+                    T1B1: '1.6.2',
+                    T2T1: false,
+                    T2B1: false,
+                    T3B1: false,
+                    T3T1: false,
+                    T3W1: false,
+                },
                 shortcut: 'btc',
                 type: 'bitcoin',
             },
             DEFAULT_RANGE,
         ],
-        result: {
-            T1B1: { min: '1.6.2', max: '0' },
-            T2T1: { min: '0', max: '0' },
-            T2B1: { min: '0', max: '0' },
-            T3B1: { min: '0', max: '0' },
-            T3T1: { min: '0', max: '0' },
-        },
+        result: (
+            Object.entries(DEFAULT_COIN_INFO.support) as [DeviceModelInternal, string][]
+        ).reduce((acc, [model, min]) => {
+            acc[model] = { min: model === 'T1B1' ? min : '0', max: '0' };
+
+            return acc;
+        }, {} as FirmwareRange),
     },
     {
         description: 'coinInfo support is lower than default',
@@ -287,11 +312,9 @@ export const getFirmwareRange = [
         },
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.11.0', max: '0' },
             T2T1: { min: '2.5.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -305,11 +328,9 @@ export const getFirmwareRange = [
         },
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.0', max: '0' },
             T2T1: { min: '2.4.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -323,11 +344,9 @@ export const getFirmwareRange = [
         },
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.0', max: '0' },
             T2T1: { min: '2.4.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -355,11 +374,9 @@ export const getFirmwareRange = [
         },
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.0', max: '0' },
             T2T1: { min: '2.4.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -387,11 +404,9 @@ export const getFirmwareRange = [
         },
         params: ['decreaseOutput', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.0', max: '0' },
             T2T1: { min: '2.4.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -404,18 +419,16 @@ export const getFirmwareRange = [
         params: [
             'signTransaction',
             {
-                support: { T1B1: '1.10.0', T2T1: '2.4.0', T2B1: '2.6.1' },
+                support: { T1B1: '1.10.0', T2T1: '2.4.0' },
                 shortcut: 'btc',
                 type: 'bitcoin',
             },
             DEFAULT_RANGE,
         ],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.0', max: '0' },
             T2T1: { min: '2.4.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -427,11 +440,9 @@ export const getFirmwareRange = [
         },
         params: ['signTransaction', DEFAULT_COIN_INFO, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.6.2', max: '1.10.0' },
             T2T1: { min: '2.1.0', max: '2.4.0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -457,18 +468,16 @@ export const getFirmwareRange = [
         params: [
             'getAccountInfo',
             {
-                support: { T1B1: '1.0.1', T2T1: '2.0.1', T2B1: '2.6.1' },
+                support: { T1B1: '1.0.1', T2T1: '2.0.1' },
                 shortcut: 'xrp',
                 type: 'ripple',
             },
             DEFAULT_RANGE,
         ],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '0', max: '0' },
             T2T1: { min: '2.1.0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
@@ -481,28 +490,25 @@ export const getFirmwareRange = [
         params: [
             'eip1559',
             {
-                support: { T1B1: '1.6.2', T2T1: '2.1.0', T2B1: '2.6.1' },
+                support: { T1B1: '1.6.2', T2T1: '2.1.0' },
                 shortcut: 'eth',
                 type: 'ethereum',
             },
             DEFAULT_RANGE,
         ],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '1.10.4', max: '0' },
             T2T1: { min: '2.4.2', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
-            T3T1: { min: '2.7.1', max: '0' },
         },
     },
     {
         description: 'method not available for T1B1 and T2T1, defined by config',
         params: ['authenticateDevice', undefined, DEFAULT_RANGE],
         result: {
+            ...DEFAULT_RANGE,
             T1B1: { min: '0', max: '0' },
             T2T1: { min: '0', max: '0' },
-            T2B1: { min: '2.6.1', max: '0' },
-            T3B1: { min: '2.8.1', max: '0' },
             T3T1: { min: '2.8.0', max: '0' },
         },
     },

@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import { Paragraph as P } from './Paragraph';
 import { getFramePropsStory } from '../../../utils/frameProps';
 import { getTextPropsStory } from '../utils';
@@ -19,19 +20,6 @@ export const Paragraph: StoryObj<TextProps> = {
         ...getTextPropsStory(allowedTextTextProps).args,
     },
     argTypes: {
-        typographyStyle: {
-            control: 'select',
-            options: [
-                'titleLarge',
-                'titleMedium',
-                'titleSmall',
-                'highlight',
-                'body',
-                'callout',
-                'hint',
-                'label',
-            ],
-        },
         variant: {
             control: {
                 type: 'select',

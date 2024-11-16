@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+
 import {
     bignumberOrNaN,
     sumOrNaN,
@@ -8,21 +9,16 @@ import {
     finalize,
     ZERO,
 } from '../coinselectUtils';
-import {
-    CoinSelectOptions,
-    CoinSelectInput,
-    CoinSelectOutput,
-    CoinSelectResult,
-} from '../../types';
+import { CoinSelectInput, CoinSelectResult, CoinSelectAlgorithm } from '../../types';
 
 // add inputs until we reach or surpass the target value (or deplete)
 // worst-case: O(n)
-export function accumulative(
-    utxos0: CoinSelectInput[],
-    outputs: CoinSelectOutput[],
-    feeRate: number,
-    options: CoinSelectOptions,
-): CoinSelectResult {
+export const accumulative: CoinSelectAlgorithm = (
+    utxos0,
+    outputs,
+    feeRate,
+    options,
+): CoinSelectResult => {
     let inAccum = ZERO;
     const inputs: CoinSelectInput[] = [];
     const outAccum = sumOrNaN(outputs);
@@ -80,4 +76,4 @@ export function accumulative(
     const fee = getFee(inputs, outputs, feeRate, options);
 
     return { fee };
-}
+};

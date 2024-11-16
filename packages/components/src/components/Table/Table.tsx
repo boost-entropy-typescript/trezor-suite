@@ -1,7 +1,9 @@
 import { createContext, ReactNode, useContext } from 'react';
+
 import styled from 'styled-components';
 
 import { mapElevationToBackgroundToken } from '@trezor/theme';
+
 import { FrameProps, FramePropsKeys, withFrameProps } from '../../utils/frameProps';
 import { makePropsTransient, TransientProps } from '../../utils/transientProps';
 import { TableHeader } from './TableHeader';
@@ -40,6 +42,7 @@ export type TableProps = AllowedFrameProps & {
     colWidths?: {
         minWidth?: string;
         maxWidth?: string;
+        width?: string;
     }[];
     isRowHighlightedOnHover?: boolean;
 };

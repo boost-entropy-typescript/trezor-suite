@@ -9,7 +9,7 @@ describe('Dashboard', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.interceptInvityApi();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
@@ -39,5 +39,3 @@ describe('Dashboard', () => {
     // QA todo: test for graph
     // QA todo: dashboard appearance for seed with tx history vs seed without tx history
 });
-
-export {};

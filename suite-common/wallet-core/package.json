@@ -6,7 +6,6 @@
     "sideEffects": false,
     "main": "src/index",
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "test:unit": "yarn g:jest -c=../../jest.config.base.js",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build"
@@ -36,8 +35,7 @@
         "@trezor/type-utils": "workspace:*",
         "@trezor/utils": "workspace:*",
         "date-fns": "^2.30.0",
-        "proxy-memoize": "2.0.2",
-        "react-hook-form": "^7.53.0",
+        "react-hook-form": "^7.53.1",
         "web3-utils": "^4.3.1"
     }
 }

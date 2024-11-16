@@ -108,6 +108,8 @@ export const en = {
                 alreadySynced: 'Coin already synced',
             },
             subtitle: "Here's what you have in your account.",
+            tokens: 'Tokens:',
+            syncAnotherCoinButton: 'Sync another coin',
         },
         coinList: {
             mainnets: 'Select a coin to sync',
@@ -938,9 +940,33 @@ export const en = {
             title: 'Send from',
         },
         outputs: {
+            correctNetworkMessage:
+                'Make sure that you’re sending to an address\non {networkName} network. <link>Learn more</link>',
+            tokenOfNetworkSheet: {
+                title: 'You’re about to Send {tokenSymbol} that runs on {networkName} network.',
+                body: {
+                    self: {
+                        subtitle: 'Sending to yourself?',
+                        text: 'Make sure your exchange or wallet supports this token on {networkName} network.',
+                    },
+                    outside: {
+                        subtitle: 'Sending to someone else?',
+                        text: 'Check with them if they’re alright with receiving this token on {networkName} network.',
+                    },
+                },
+                warning: 'Sending to a wrong network might result in loss of funds.',
+            },
             recipients: {
                 title: 'Amount & recipients',
                 addressLabel: 'Recipient address',
+                checksum: {
+                    label: 'We’ve adjusted the casing of your address to match checksum format. <link>Learn more</link>',
+                    alert: {
+                        title: 'This address needs to be converted to checksum format.',
+                        body: 'This will adjust the casing of your address to match checksum format and allow us to properly validate your address. <link>Learn more</link>',
+                        primaryButton: 'Convert',
+                    },
+                },
                 addressQrLabel: 'Scan recipient address',
                 amountLabel: 'Amount to be sent',
                 maxButton: 'Send max',
@@ -1006,10 +1032,12 @@ export const en = {
                 title: 'Review with Trezor',
                 addressLabel: 'Recipient address',
                 amountLabel: 'Amount',
-                total: {
+                summary: {
                     label: 'Total including fee',
-                    amount: 'Total amount',
+                    totalAmount: 'Total amount',
+                    amount: 'Amount',
                     fee: 'incl. Transaction fee',
+                    maxFee: 'Maximum fee',
                 },
                 successMessage: 'Everything is ready, you can send the transaction now.',
                 submitButton: 'Send transaction',

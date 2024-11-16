@@ -2,6 +2,7 @@
 // @retry=2
 
 import { NetworkSymbol } from '@suite-common/wallet-config';
+
 import { onAccountsPage } from '../../support/pageObjects/accountsObject';
 
 describe('Check coins XPUB', () => {
@@ -13,7 +14,7 @@ describe('Check coins XPUB', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/accounts');
         cy.passThroughInitialRun();
         cy.discoveryShouldFinish();
@@ -54,5 +55,3 @@ describe('Check coins XPUB', () => {
         });
     });
 });
-
-export {};

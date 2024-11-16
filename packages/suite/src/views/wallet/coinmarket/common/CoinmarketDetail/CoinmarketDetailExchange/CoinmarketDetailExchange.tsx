@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+
+import { Card } from '@trezor/components';
+
 import { goto } from 'src/actions/suite/routerActions';
 import { useDispatch } from 'src/hooks/suite';
 import { useCoinmarketDetailContext } from 'src/hooks/wallet/coinmarket/useCoinmarketDetail';
@@ -13,10 +16,7 @@ import { CoinmarketDetailExchangePaymentKYC } from 'src/views/wallet/coinmarket/
 import { CoinmarketDetailExchangePaymentFailed } from 'src/views/wallet/coinmarket/common/CoinmarketDetail/CoinmarketDetailExchange/CoinmarketDetailExchangePaymentFailed';
 import { CoinmarketDetailExchangePaymentConverting } from 'src/views/wallet/coinmarket/common/CoinmarketDetail/CoinmarketDetailExchange/CoinmarketDetailExchangePaymentConverting';
 import { CoinmarketDetailExchangePaymentSending } from 'src/views/wallet/coinmarket/common/CoinmarketDetail/CoinmarketDetailExchange/CoinmarketDetailExchangePaymentSending';
-import {
-    CoinmarketSideWrapper,
-    CoinmarketWrapper,
-} from 'src/views/wallet/coinmarket/common/CoinmarketWrapper';
+import { CoinmarketWrapper } from 'src/views/wallet/coinmarket/common/CoinmarketWrapper';
 
 const Wrapper = styled.div`
     ${CoinmarketWrapper}
@@ -62,7 +62,7 @@ export const CoinmarketDetailExchange = () => {
 
     return (
         <Wrapper>
-            <CoinmarketSideWrapper side="left">
+            <Card>
                 {tradeStatus === 'SUCCESS' && (
                     <CoinmarketDetailExchangePaymentSuccessful account={account} />
                 )}
@@ -84,8 +84,8 @@ export const CoinmarketDetailExchange = () => {
                     <CoinmarketDetailExchangePaymentConverting supportUrl={supportUrl} />
                 )}
                 {showSending && <CoinmarketDetailExchangePaymentSending supportUrl={supportUrl} />}
-            </CoinmarketSideWrapper>
-            <CoinmarketSideWrapper side="right">
+            </Card>
+            <Card>
                 <CoinmarketSelectedOfferInfo
                     selectedQuote={trade.data}
                     transactionId={trade.key}
@@ -93,7 +93,7 @@ export const CoinmarketDetailExchange = () => {
                     type="exchange"
                     quoteAmounts={quoteAmounts}
                 />
-            </CoinmarketSideWrapper>
+            </Card>
         </Wrapper>
     );
 };

@@ -1,15 +1,16 @@
 import { ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import { useSelector } from 'react-redux';
 
 import { Text, Input } from '@suite-native/atoms';
-import { useFormContext } from '@suite-native/forms';
-import { useField } from '@suite-native/forms';
+import { useFormContext, useField } from '@suite-native/forms';
 import { useCryptoFiatConverters } from '@suite-native/formatters';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { useFormatters } from '@suite-common/formatters';
 import { Color } from '@trezor/theme';
 import { useDebounce } from '@trezor/react-utils';
+import { selectAccountTokenSymbol, TokensRootState } from '@suite-native/tokens';
 
 import { SendAmountInputProps } from '../types';
 import { useSendAmountTransformers } from '../hooks/useSendAmountTransformers';
@@ -43,6 +44,8 @@ export const CryptoAmountInput = ({
     scaleValue,
     translateValue,
     networkSymbol,
+    tokenContract,
+    accountKey,
     onPress,
     onFocus,
     isDisabled = false,
@@ -53,6 +56,10 @@ export const CryptoAmountInput = ({
     const { NetworkSymbolFormatter: formatter } = useFormatters();
     const debounce = useDebounce();
 
+    const tokenSymbol = useSelector((state: TokensRootState) =>
+        selectAccountTokenSymbol(state, accountKey, tokenContract),
+    );
+
     const cryptoFieldName = getOutputFieldName(recipientIndex, 'amount');
     const fiatFieldName = getOutputFieldName(recipientIndex, 'fiat');
 
@@ -61,7 +68,7 @@ export const CryptoAmountInput = ({
         valueTransformer: cryptoAmountTransformer,
     });
 
-    const converters = useCryptoFiatConverters({ networkSymbol });
+    const converters = useCryptoFiatConverters({ networkSymbol, tokenContract });
 
     const cryptoAnimatedStyle = useAnimatedStyle(
         () => ({
@@ -108,7 +115,7 @@ export const CryptoAmountInput = ({
                     hasError={!isDisabled && hasError}
                     rightIcon={
                         <SendAmountCurrencyLabelWrapper isDisabled={isDisabled}>
-                            {formatter.format(networkSymbol)}
+                            {tokenSymbol ?? formatter.format(networkSymbol)}
                         </SendAmountCurrencyLabelWrapper>
                     }
                 />

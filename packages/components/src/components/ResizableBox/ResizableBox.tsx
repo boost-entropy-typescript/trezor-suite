@@ -1,7 +1,11 @@
-import styled, { css } from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import styled, { css } from 'styled-components';
+
 import { createCooldown } from '@trezor/utils';
 import { ZIndexValues, zIndices } from '@trezor/theme';
+
+import { getSafeWindowSize } from '../../utils/getSafeWindowSize';
 
 type Direction = 'top' | 'left' | 'right' | 'bottom';
 type Directions = Array<Direction>;
@@ -250,10 +254,10 @@ export const ResizableBox = ({
         [direction, maxHeight, maxWidth, minHeight, minWidth, newHeight, newWidth, newX, newY],
     );
 
-    const startResizing = (direction: Direction) => {
+    const startResizing = (direction2: Direction) => {
         setIsResizing(true);
         setIsHovering(false);
-        setDirection(direction);
+        setDirection(direction2);
     };
 
     useEffect(() => {
@@ -290,11 +294,12 @@ export const ResizableBox = ({
 
         window.onresize = () => {
             if (resizeCooldown() === true) {
+                const { windowHeight, windowWidth } = getSafeWindowSize();
                 if (updateHeightOnWindowResize) {
-                    setNewHeight(getMaxResult(maxHeight, window.innerHeight));
+                    setNewHeight(getMaxResult(maxHeight, windowHeight));
                 }
                 if (updateWidthOnWindowResize) {
-                    setNewWidth(getMaxResult(maxWidth, window.innerWidth));
+                    setNewWidth(getMaxResult(maxWidth, windowWidth));
                 }
             }
         };
@@ -315,18 +320,18 @@ export const ResizableBox = ({
         updateWidthOnWindowResize,
     ]);
 
-    const handleMouseOverDirection = (direction: Direction) => {
+    const handleMouseOverDirection = (direction2: Direction) => {
         if (!isResizing) {
             setIsHovering(true);
-            setDirection(direction);
+            setDirection(direction2);
         }
     };
 
     const highlightDirection = isHovering || isResizing ? direction : null;
 
-    const handleMouseOver = (direction: Direction) => () => handleMouseOverDirection(direction);
+    const handleMouseOver = (direction2: Direction) => () => handleMouseOverDirection(direction2);
 
-    const handleMouseDown = (direction: Direction) => () => startResizing(direction);
+    const handleMouseDown = (direction2: Direction) => () => startResizing(direction2);
 
     const handleMouseOut = () => {
         if (isHovering) {
@@ -338,10 +343,10 @@ export const ResizableBox = ({
         }
     };
 
-    const divsProps = (direction: Direction) => {
+    const divsProps = (direction2: Direction) => {
         return {
-            onMouseDown: handleMouseDown(direction),
-            onMouseOver: handleMouseOver(direction),
+            onMouseDown: handleMouseDown(direction2),
+            onMouseOver: handleMouseOver(direction2),
             onMouseOut: handleMouseOut,
             $highlightDirection: highlightDirection,
             $zIndex: zIndex,

@@ -9,8 +9,7 @@
  * - we can say we trust the caller but not really thats why we implement auto-unlock
  */
 
-import { createDeferred, Deferred } from '@trezor/utils';
-import { TypedEmitter } from '@trezor/utils';
+import { createDeferred, Deferred, TypedEmitter } from '@trezor/utils';
 
 import type {
     EnumerateDoneRequest,
@@ -215,6 +214,7 @@ export class SessionsBackground
             return this.error(ERRORS.DESCRIPTOR_NOT_FOUND);
         }
         this.descriptors[pathInternal].session = Session(`${this.lastSessionId}`);
+        this.descriptors[pathInternal].sessionOwner = payload.sessionOwner;
 
         return Promise.resolve(
             this.success({
@@ -238,6 +238,7 @@ export class SessionsBackground
 
     private releaseDone(payload: ReleaseDoneRequest) {
         this.descriptors[payload.path].session = null;
+        this.descriptors[payload.path].sessionOwner = undefined;
 
         this.clearLock();
 

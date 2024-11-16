@@ -3,6 +3,7 @@
 
 import { EventType } from '@trezor/suite-analytics';
 import { urlSearchParams } from '@trezor/suite/src/utils/suite/metadata';
+
 import { onNavBar } from '../../support/pageObjects/topBarObject';
 
 type Requests = ReturnType<typeof urlSearchParams>[];
@@ -15,7 +16,7 @@ describe('Analytics Toggle - Enablement and Disablement', () => {
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu');
         cy.task('startBridge');
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
 
         requests = [];
         cy.interceptDataTrezorIo(requests).as('data-fetch');
@@ -160,5 +161,3 @@ describe('Analytics Toggle - Enablement and Disablement', () => {
         });
     });
 });
-
-export {};

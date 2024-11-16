@@ -1,16 +1,17 @@
 import styled from 'styled-components';
-import { HiddenPlaceholder, Sign } from 'src/components/suite';
-import { getNetworkOptional, NetworkSymbol } from '@suite-common/wallet-config';
-import { useSelector } from 'src/hooks/suite';
-import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 
+import { getNetworkOptional, NetworkSymbol } from '@suite-common/wallet-config';
 import { SignValue } from '@suite-common/suite-types';
 import {
     formatCoinBalance,
     localizeNumber,
-    networkAmountToSatoshi,
+    networkAmountToSmallestUnit,
 } from '@suite-common/wallet-utils';
 import { isSignValuePositive } from '@suite-common/formatters';
+
+import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
+import { useSelector } from 'src/hooks/suite';
+import { HiddenPlaceholder, Sign } from 'src/components/suite';
 import { selectLanguage } from 'src/reducers/suite/suiteReducer';
 import { BlurUrls } from 'src/views/wallet/tokens/common/BlurUrls';
 
@@ -68,7 +69,10 @@ export const FormattedCryptoAmount = ({
 
     // convert to satoshis if needed
     if (isSatoshis) {
-        formattedValue = networkAmountToSatoshi(String(value), lowerCaseSymbol as NetworkSymbol);
+        formattedValue = networkAmountToSmallestUnit(
+            String(value),
+            lowerCaseSymbol as NetworkSymbol,
+        );
 
         formattedSymbol = isTestnet ? `sat ${symbol?.toUpperCase()}` : 'sat';
     }

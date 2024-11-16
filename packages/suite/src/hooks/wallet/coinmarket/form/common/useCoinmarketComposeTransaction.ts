@@ -1,9 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+
 import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
 import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
 import { AddressDisplayOptions } from '@suite-common/wallet-types';
 import { getFeeLevels } from '@suite-common/wallet-utils';
-import { useEffect, useMemo, useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+
 import { saveComposedTransactionInfo } from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
 import { FORM_OUTPUT_ADDRESS, FORM_OUTPUT_AMOUNT } from 'src/constants/wallet/coinmarket/form';
 import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
@@ -20,7 +22,7 @@ import {
 } from 'src/types/coinmarket/coinmarketForm';
 import { getComposeAddressPlaceholder } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 
-// shareable sub-hook used in useCoinmarketSellForm & useCoinmarketExchangeForm
+// shareable sub-hook used in useCoinmarketSellForm & useCoinmarketExchangeForm
 export const useCoinmarketComposeTransaction = <T extends CoinmarketSellExchangeFormProps>({
     account,
     network,
@@ -122,10 +124,7 @@ export const useCoinmarketComposeTransaction = <T extends CoinmarketSellExchange
             });
         }
 
-        if (
-            composed.type === 'final' ||
-            (composed.type === 'nonfinal' && account.symbol === 'ada')
-        ) {
+        if (composed.type === 'final' || composed.type === 'nonfinal') {
             if (typeof setMaxOutputId === 'number' && composed.max) {
                 setValue(FORM_OUTPUT_AMOUNT, composed.max, {
                     shouldValidate: true,

@@ -21,6 +21,7 @@ const cardStyle = prepareNativeStyle(utils => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItem: 'center',
+    marginHorizontal: utils.spacings.sp16,
     padding: utils.spacings.sp16,
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
     borderRadius: utils.borders.radii.r16,
@@ -87,7 +88,7 @@ export const CoinPriceCard = ({ accountKey }: CoinPriceCardProps) => {
         <Card style={applyStyle(cardStyle)}>
             <Box flexDirection="row" alignItems="center" flex={1}>
                 <Box marginRight="sp16">
-                    <RoundedIcon name={networkSymbol} />
+                    <RoundedIcon networkSymbol={networkSymbol} />
                 </Box>
                 <Box style={applyStyle(cardContentStyle)}>
                     <Text variant="label" color="textSubdued">

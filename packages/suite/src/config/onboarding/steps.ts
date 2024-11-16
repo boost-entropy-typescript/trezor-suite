@@ -1,6 +1,7 @@
+import { DeviceModelInternal } from '@trezor/connect';
+
 import type { Step } from 'src/types/onboarding';
 import * as STEP from 'src/constants/onboarding/steps';
-import { DeviceModelInternal } from '@trezor/connect';
 
 const commonPrerequisites: Step['prerequisites'] = [
     'transport-bridge',
@@ -40,6 +41,7 @@ const steps: Step[] = [
             DeviceModelInternal.T2B1,
             DeviceModelInternal.T3B1,
             DeviceModelInternal.T3T1,
+            DeviceModelInternal.T3W1,
         ],
         prerequisites: [...commonPrerequisites, 'device-recovery-mode', 'device-different'],
     },
@@ -50,6 +52,7 @@ const steps: Step[] = [
             DeviceModelInternal.T2B1,
             DeviceModelInternal.T3B1,
             { model: DeviceModelInternal.T3T1, minFwVersion: '2.8.0' },
+            DeviceModelInternal.T3W1,
         ],
         prerequisites: [...commonPrerequisites, 'device-recovery-mode', 'device-different'],
     },

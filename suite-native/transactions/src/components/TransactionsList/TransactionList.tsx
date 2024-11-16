@@ -18,10 +18,10 @@ import {
     TypedTokenTransfer,
     selectAccountOrTokenTransactions,
     WalletAccountTransaction,
+    TokensRootState,
 } from '@suite-native/tokens';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { arrayPartition } from '@trezor/utils';
-import { TokenDefinitionsRootState } from '@suite-common/token-definitions';
 
 import { TransactionsEmptyState } from '../TransactionsEmptyState';
 import { TokenTransferListItem } from './TokenTransferListItem';
@@ -64,11 +64,6 @@ type RenderTokenTransferItemParams = Omit<
 type TransactionListItem =
     | (TypedTokenTransferWithTx | MonthKey)
     | (WalletAccountTransaction | MonthKey);
-
-const sectionListStyle = prepareNativeStyle(utils => ({
-    paddingHorizontal: utils.spacings.sp8,
-    flex: 1,
-}));
 
 const sectionListContainerStyle = prepareNativeStyle(utils => ({
     paddingVertical: utils.spacings.sp8,
@@ -149,7 +144,7 @@ export const TransactionList = ({
         selectIsLoadingAccountTransactions(state, accountKey),
     );
 
-    const transactions = useSelector((state: TransactionsRootState & TokenDefinitionsRootState) =>
+    const transactions = useSelector((state: TokensRootState) =>
         selectAccountOrTokenTransactions(
             state,
             accountKey,
@@ -277,7 +272,7 @@ export const TransactionList = ({
     );
 
     return (
-        <Box style={applyStyle(sectionListStyle)}>
+        <Box flex={1}>
             <FlashList<TransactionListItem>
                 data={data}
                 renderItem={renderItem}

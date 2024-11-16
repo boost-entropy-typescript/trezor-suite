@@ -1,4 +1,5 @@
 import { isArrayMember, versionUtils } from '@trezor/utils';
+
 import { PROTO } from '../constants';
 import { config } from '../data/config';
 import { Features, CoinInfo, UnavailableCapabilities, DeviceModelInternal } from '../types';
@@ -63,7 +64,7 @@ export const getUnavailableCapabilities = (features: Features, coins: CoinInfo[]
             } else {
                 const occurrences = coins.filter(coin => shortcut == coin.shortcut.toLowerCase());
                 const allUnsupported = occurrences.every(
-                    info => !info.support || info.support[key] === false,
+                    info2 => !info2.support || info2.support[key] === false,
                 );
 
                 if (allUnsupported) {
@@ -128,7 +129,7 @@ export const getUnavailableCapabilities = (features: Features, coins: CoinInfo[]
     // 4. check if firmware version is in range of capabilities in "config.supportedFirmware"
     config.supportedFirmware.forEach(s => {
         if (!s.capabilities) return;
-        const min = s.min ? s.min[key] : null;
+        const min = s.min ? (s.min as Record<DeviceModelInternal, string | undefined>)[key] : null;
         const max = s.max ? s.max[key] : null;
         if (min && (min === '0' || versionUtils.isNewer(min, fw))) {
             const value = min === '0' ? 'no-support' : 'update-required';

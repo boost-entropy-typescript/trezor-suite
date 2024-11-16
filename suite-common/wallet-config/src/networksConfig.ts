@@ -162,6 +162,7 @@ export const networks = {
         },
         coingeckoId: 'optimistic-ethereum',
         coingeckoNativeId: 'ethereum',
+        isDebugOnlyNetwork: true,
     },
     sol: {
         symbol: 'sol',
@@ -179,8 +180,9 @@ export const networks = {
         support: {
             [DeviceModelInternal.T2T1]: '2.6.4',
             [DeviceModelInternal.T2B1]: '2.6.4',
-            [DeviceModelInternal.T3B1]: '2.8.1',
-            [DeviceModelInternal.T3T1]: '2.7.1',
+            [DeviceModelInternal.T3B1]: '2.0.0',
+            [DeviceModelInternal.T3T1]: '2.0.0',
+            [DeviceModelInternal.T3W1]: '2.0.0',
         },
         customBackends: ['solana'],
         accountTypes: {
@@ -211,9 +213,10 @@ export const networks = {
         },
         support: {
             [DeviceModelInternal.T2T1]: '2.4.3',
-            [DeviceModelInternal.T2B1]: '2.6.1',
-            [DeviceModelInternal.T3B1]: '2.8.1',
-            [DeviceModelInternal.T3T1]: '2.7.1',
+            [DeviceModelInternal.T2B1]: '2.0.0',
+            [DeviceModelInternal.T3B1]: '2.0.0',
+            [DeviceModelInternal.T3T1]: '2.0.0',
+            [DeviceModelInternal.T3W1]: '2.0.0',
         },
         customBackends: ['blockfrost'],
         accountTypes: {
@@ -596,8 +599,9 @@ export const networks = {
         support: {
             [DeviceModelInternal.T2T1]: '2.6.4',
             [DeviceModelInternal.T2B1]: '2.6.4',
-            [DeviceModelInternal.T3B1]: '2.8.1',
-            [DeviceModelInternal.T3T1]: '2.7.1',
+            [DeviceModelInternal.T3B1]: '2.0.0',
+            [DeviceModelInternal.T3T1]: '2.0.0',
+            [DeviceModelInternal.T3W1]: '2.0.0',
         },
         customBackends: ['solana'],
         accountTypes: {},
@@ -622,8 +626,9 @@ export const networks = {
         support: {
             [DeviceModelInternal.T2T1]: '2.4.3',
             [DeviceModelInternal.T2B1]: '2.6.1',
-            [DeviceModelInternal.T3B1]: '2.8.1',
-            [DeviceModelInternal.T3T1]: '2.7.1',
+            [DeviceModelInternal.T3B1]: '2.0.0',
+            [DeviceModelInternal.T3T1]: '2.0.0',
+            [DeviceModelInternal.T3W1]: '2.0.0',
         },
         customBackends: ['blockfrost'],
         accountTypes: {

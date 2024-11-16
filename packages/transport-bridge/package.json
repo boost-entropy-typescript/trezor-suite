@@ -9,7 +9,6 @@
         "test:unit": "yarn g:jest",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build",
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "build:node:bin": "yarn esbuild ./src/bin.ts --bundle --outfile=dist/bin.js --platform=node --target=node18 --external:usb",
         "build:node:module": "yarn esbuild ./src/index.ts --bundle --outfile=dist/index.js --platform=node --target=node18 --external:usb",
         "build:node": "yarn build:node:bin && yarn build:node:module",
@@ -24,10 +23,11 @@
         "esbuild": "^0.23.1",
         "html-webpack-plugin": "^5.6.0",
         "pkg": "^5.8.1",
-        "webpack": "^5.94.0"
+        "webpack": "^5.96.1"
     },
     "dependencies": {
         "@trezor/components": "workspace:*",
+        "@trezor/eslint": "workspace:*",
         "@trezor/node-utils": "workspace:*",
         "@trezor/protocol": "workspace:*",
         "@trezor/theme": "workspace:*",

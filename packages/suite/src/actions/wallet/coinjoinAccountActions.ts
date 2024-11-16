@@ -39,13 +39,12 @@ import {
     selectSessionByAccountKey,
     selectWeightedAnonymityByAccountKey,
 } from 'src/reducers/wallet/coinjoinReducer';
-import { SUITE } from 'src/actions/suite/constants';
 import { openModal } from 'src/actions/suite/modalActions';
+import { selectIsDeviceLocked } from 'src/reducers/suite/suiteReducer';
 
 import * as coinjoinClientActions from './coinjoinClientActions';
 import { goto } from '../suite/routerActions';
 import * as COINJOIN from './constants/coinjoinConstants';
-import { selectLocks } from '../../reducers/suite/suiteReducer';
 
 export const coinjoinAccountUpdateAnonymity = (accountKey: string, targetAnonymity: number) =>
     ({
@@ -120,6 +119,7 @@ const coinjoinAccountAuthorizeFailed = (accountKey: string, error: string) =>
         },
     }) as const;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const coinjoinAccountUnregister = (accountKey: string) =>
     ({
         type: COINJOIN.ACCOUNT_UNREGISTER,
@@ -330,16 +330,16 @@ const coinjoinAccountAddTransactions =
     };
 
 /**
-Action called from coinjoinMiddleware as reaction to prepending tx creation.
-Prepending tx could be created either as result of successful CoinjoinRound (not broadcasted by suite)
-or as result of sendFormActions > addFakePendingTxThunk (broadcasted by suite)
-in both cases Account should:
-- exclude spent utxo
-- mark addresses as used
-- recalculate anonymity
-- recalculate balance
-Prepending txs have deadline (blockHeight) when they should be removed from UI.
-In case of adding a coinjoin transaction, log anonymity gain.
+ Action called from coinjoinMiddleware as reaction to prepending tx creation.
+ Prepending tx could be created either as result of successful CoinjoinRound (not broadcasted by suite)
+ or as result of sendFormActions > addFakePendingTxThunk (broadcasted by suite)
+ in both cases Account should:
+ - exclude spent utxo
+ - mark addresses as used
+ - recalculate anonymity
+ - recalculate balance
+ Prepending txs have deadline (blockHeight) when they should be removed from UI.
+ In case of adding a coinjoin transaction, log anonymity gain.
  */
 export const updatePendingAccountInfo =
     (accountKey: string) => async (dispatch: Dispatch, getState: GetState) => {
@@ -604,7 +604,7 @@ export const createCoinjoinAccount =
         // create empty account
         const coinjoinAccount = dispatch(
             accountsActions.createAccount({
-                deviceState: device!.state!,
+                deviceState: device!.state!.staticSessionId!,
                 discoveryItem: {
                     index: 0,
                     path,
@@ -764,7 +764,7 @@ export const startCoinjoinSession =
 export const restoreCoinjoinSession =
     (accountKey: string) => async (dispatch: Dispatch, getState: GetState) => {
         // TODO: check if device is connected, passphrase is authorized...
-        const locks = selectLocks(getState());
+        const isDeviceLocked = selectIsDeviceLocked(getState());
         const device = selectDevice(getState());
         const account = selectAccountByKey(getState(), accountKey);
 
@@ -785,7 +785,7 @@ export const restoreCoinjoinSession =
             return errorToast('Device disconnected');
         }
 
-        if (locks.includes(SUITE.LOCK_TYPE.DEVICE)) {
+        if (isDeviceLocked) {
             return errorToast('Device locked');
         }
 
@@ -891,7 +891,7 @@ export const stopCoinjoinSessionByDeviceId =
         const disconnectedDevices = devices.filter(d => d.id === deviceID && d.remember);
         const affectedAccounts = disconnectedDevices.flatMap(d =>
             state.wallet.accounts.filter(
-                a => a.accountType === 'coinjoin' && a.deviceState === d.state,
+                a => a.accountType === 'coinjoin' && a.deviceState === d.state?.staticSessionId,
             ),
         );
 

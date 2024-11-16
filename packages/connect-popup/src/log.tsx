@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import styled, { ThemeProvider } from 'styled-components';
 import { createRoot } from 'react-dom/client';
 
@@ -102,7 +103,7 @@ const useLogWorker = (setLogs: React.Dispatch<React.SetStateAction<any[]>>) => {
 
     try {
         logWorker = new SharedWorker('./workers/shared-logger-worker.js');
-    } catch (error) {
+    } catch {
         console.warn('Failed to initialize SharedWorker');
     }
 

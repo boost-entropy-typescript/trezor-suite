@@ -1,15 +1,17 @@
-import styled, { ThemeProvider } from 'styled-components';
 import { ReactNode, MutableRefObject } from 'react';
+
+import styled, { ThemeProvider } from 'styled-components';
 import { transparentize } from 'polished';
+import { Placement, ShiftOptions } from '@floating-ui/react';
+
 import { ZIndexValues, spacingsPx, spacings, zIndices } from '@trezor/theme';
 
 import { Icon } from '../Icon/Icon';
 import { TooltipContent, TooltipFloatingUi, TooltipTrigger } from './TooltipFloatingUi';
-import { Placement, ShiftOptions } from '@floating-ui/react';
 import { TooltipBox, TooltipBoxProps } from './TooltipBox';
 import { TooltipArrow } from './TooltipArrow';
 import { TOOLTIP_DELAY_SHORT, TooltipDelay } from './TooltipDelay';
-import { intermediaryTheme } from '../..';
+import { intermediaryTheme } from '../../config/colors';
 
 export type Cursor = 'inherit' | 'pointer' | 'help' | 'default' | 'not-allowed';
 

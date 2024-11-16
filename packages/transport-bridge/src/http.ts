@@ -272,6 +272,7 @@ export class TrezordNode {
             ]);
 
             app.post('/acquire/:path/:previous', [
+                parseBodyJSON,
                 validateAcquireParams,
                 (req, res) => {
                     res.setHeader('Content-Type', 'text/plain');
@@ -280,6 +281,8 @@ export class TrezordNode {
                         .acquire({
                             path: req.params.path,
                             previous: req.params.previous,
+                            // @ts-expect-error
+                            sessionOwner: req?.body?.sessionOwner,
                             signal,
                         })
                         .then(result => {
@@ -427,7 +430,7 @@ export class TrezordNode {
                 (req, res) => {
                     const parsedUrl = new URL(req.url, `http://${req.headers.host}/`);
 
-                    let pathname = path.join(__dirname, this.assetPrefix, parsedUrl.pathname);
+                    const pathname = path.join(__dirname, this.assetPrefix, parsedUrl.pathname);
 
                     const map: Record<string, string> = {
                         '.ico': 'image/x-icon',

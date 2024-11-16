@@ -1,23 +1,25 @@
 import { memo, useMemo } from 'react';
+
 import styled from 'styled-components';
 
 import { Dropdown, Card, Tooltip, Column } from '@trezor/components';
 import { spacings } from '@trezor/theme';
+import { getTotalFiatBalance } from '@suite-common/wallet-utils';
+import { selectCurrentFiatRates } from '@suite-common/wallet-core';
+import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
+
 import { GraphScaleDropdownItem, GraphSkeleton, Translation } from 'src/components/suite';
 import { DashboardSection } from 'src/components/dashboard';
 import { useDevice, useDiscovery, useDispatch, useSelector } from 'src/hooks/suite';
 import { useFastAccounts } from 'src/hooks/wallet';
 import { goto } from 'src/actions/suite/routerActions';
 import { setFlag } from 'src/actions/suite/suiteActions';
-import { getTotalFiatBalance } from '@suite-common/wallet-utils';
+import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 
 import { PortfolioCardHeader } from './PortfolioCardHeader';
 import { PortfolioCardException } from './PortfolioCardException';
 import { EmptyWallet } from './EmptyWallet';
 import { DashboardGraph } from './DashboardGraph';
-import { selectCurrentFiatRates } from '@suite-common/wallet-core';
-import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
-import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 
 // eslint-disable-next-line local-rules/no-override-ds-component
 const StyledDropdown = styled(Dropdown)`
@@ -77,8 +79,8 @@ export const PortfolioCard = memo(() => {
     }
 
     const isWalletEmpty = !discoveryStatus && isDeviceEmpty;
-    const isWalletLoading = discoveryStatus?.status === 'loading' ?? false;
-    const isWalletError = discoveryStatus?.status === 'exception' ?? false;
+    const isWalletLoading = discoveryStatus?.status === 'loading';
+    const isWalletError = discoveryStatus?.status === 'exception';
     const showGraphControls =
         !isWalletEmpty && !isWalletLoading && !isWalletError && !dashboardGraphHidden;
 
@@ -92,7 +94,6 @@ export const PortfolioCard = memo(() => {
         );
 
     const goToReceive = () => dispatch(goto('wallet-receive'));
-    const goToBuy = () => dispatch(goto('wallet-coinmarket-buy'));
     const heading = <Translation id="TR_MY_PORTFOLIO" />;
 
     return (
@@ -154,7 +155,6 @@ export const PortfolioCard = memo(() => {
                         isWalletError={isWalletError}
                         isDiscoveryRunning={isDiscoveryRunning}
                         receiveClickHandler={goToReceive}
-                        buyClickHandler={goToBuy}
                     />
                 )}
 

@@ -1,4 +1,6 @@
 // original file https://github.com/trezor/connect/blob/develop/src/js/device/Device.js
+import { randomBytes } from 'crypto';
+
 import {
     versionUtils,
     createDeferred,
@@ -8,6 +10,8 @@ import {
 } from '@trezor/utils';
 import { Session } from '@trezor/transport';
 import { TransportProtocol, v1 as v1Protocol } from '@trezor/protocol';
+import { type Transport, type Descriptor, TRANSPORT_ERROR } from '@trezor/transport';
+
 import { DeviceCommands } from './DeviceCommands';
 import { PROTO, ERRORS, FIRMWARE } from '../constants';
 import {
@@ -28,7 +32,6 @@ import {
     ensureInternalModelFeature,
 } from '../utils/deviceFeaturesUtils';
 import { initLog } from '../utils/debug';
-import { type Transport, type Descriptor, TRANSPORT_ERROR } from '@trezor/transport';
 import {
     Device as DeviceTyped,
     DeviceFirmwareStatus,
@@ -51,7 +54,6 @@ import { checkFirmwareRevision } from './checkFirmwareRevision';
 import { IStateStorage } from './StateStorage';
 import type { PromptCallback } from './prompts';
 import { calculateFirmwareHash, getBinaryOptional, stripFwHeaders } from '../api/firmware';
-import { randomBytes } from 'crypto';
 
 // custom log
 const _log = initLog('Device');
@@ -128,8 +130,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
     public readonly protocol: TransportProtocol;
     private readonly transportPath;
+    private readonly transportSessionOwner;
+    private readonly transportDescriptorType;
     private session;
-    private isLocalSession;
+    private lastAcquiredHere;
 
     /**
      * descriptor was detected on transport layer but sending any messages (such as GetFeatures) to it failed either
@@ -214,9 +218,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
         this.uniquePath = id;
         this.transport = transport;
         this.transportPath = descriptor.path;
+        this.transportSessionOwner = descriptor.sessionOwner;
+        this.transportDescriptorType = descriptor.type;
 
         this.session = descriptor.session;
-        this.isLocalSession = false;
+        this.lastAcquiredHere = false;
 
         // this will be released after first run
         this.firstRunPromise = createDeferred();
@@ -264,7 +270,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             .then(result => {
                 if (result.success) {
                     this.session = result.payload;
-                    this.isLocalSession = true;
+                    this.lastAcquiredHere = true;
 
                     this.commands?.dispose();
                     this.commands = new DeviceCommands(this, this.transport, this.session);
@@ -306,7 +312,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
             .then(result => {
                 if (result.success) {
                     this.session = null;
-                    this.isLocalSession = false;
                 }
 
                 return result;
@@ -371,7 +376,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                         // but it did not work out. this device is effectively unreadable and user should do something about it
                         error.code === 'Device_InitializeFailed'
                     ) {
-                        this.unreadableError = error;
+                        this.unreadableError = error?.message;
                         this.emitLifecycle(DEVICE.CONNECT_UNACQUIRED);
                     } else {
                         await createTimeoutPromise(501);
@@ -387,10 +392,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     async updateDescriptor(descriptor: Descriptor) {
         this.sessionDfd?.resolve(descriptor.session);
 
-        const [_acquireResult, releaseResult] = await Promise.all([
-            this.acquirePromise,
-            this.releasePromise,
-        ]);
+        await Promise.all([this.acquirePromise, this.releasePromise]);
 
         // TODO improve these conditions
 
@@ -406,20 +408,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
             const methodStillRunning = !this.commands?.isDisposed();
             if (methodStillRunning) {
                 this.releaseTransportSession();
-            }
-
-            // No release is currently running
-            // -> released by someone else
-            if (!releaseResult) {
-                createTimeoutPromise(1000).then(async () => {
-                    // after device was released in another window wait for a while (the other window might
-                    // have the intention of acquiring it again)
-                    // and if the device is still released and has never been acquired before, acquire it here.
-                    if (!this.isUsed() && this.isUnacquired() && !this.isInconsistent()) {
-                        // TODO this handshake should be different, e.g. no CONNECT_UNACQUIRED should be emitted again
-                        await this.handshake();
-                    }
-                });
             }
         }
 
@@ -469,8 +457,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
     setCancelableAction(callback: NonNullable<typeof this.cancelableAction>) {
         this.cancelableAction = (e?: Error) =>
             callback(e)
-                .catch(e => {
-                    _log.debug('cancelableAction error', e);
+                .catch(e2 => {
+                    _log.debug('cancelableAction error', e2);
                 })
                 .finally(() => {
                     this.clearCancelableAction();
@@ -496,9 +484,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     public usedElsewhere() {
         // only makes sense to continue when device held by this instance
-        if (!this.isLocalSession) {
+        if (!this.lastAcquiredHere) {
             return;
         }
+        this.lastAcquiredHere = false;
         this._featuresNeedsReload = true;
 
         _log.debug('interruptionFromOutside');
@@ -527,16 +516,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.releasePromise;
         }
 
-        const { staticSessionId, deriveCardano } = this.getState() || {};
-        if (
-            !this.isUsedHere() ||
-            this.commands?.disposed ||
-            !staticSessionId ||
-            (!deriveCardano && options.useCardanoDerivation)
-        ) {
+        const acquireNeeded = !this.isUsedHere() || this.commands?.disposed;
+        if (acquireNeeded) {
             // acquire session
             await this.acquire();
+        }
 
+        const { staticSessionId, deriveCardano } = this.getState() || {};
+        if (acquireNeeded || !staticSessionId || (!deriveCardano && options.useCardanoDerivation)) {
             // update features
             try {
                 if (fn) {
@@ -646,7 +633,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             // and device wasn't released in previous call (example: interrupted discovery which set "keepSession" to true but never released)
             // clear "keepTransportSession" and reset "transportSession" to ensure that "initialize" will be called
             if (this.keepTransportSession) {
-                this.isLocalSession = false;
+                this.lastAcquiredHere = false;
                 this.keepTransportSession = false;
             }
         }
@@ -786,8 +773,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         const btcOnly = this.firmwareType === FirmwareType.BitcoinOnly;
         const binary = await getBinaryOptional({ baseUrl, btcOnly, release });
+        // release was found, but not its binary - happens on desktop, where only local files are searched
         if (binary === null) {
-            // release was found, but not its binary - happens on desktop, where only local files are searched
+            return createFailResult('check-unsupported');
+        }
+        // binary was found, but it's likely a git LFS pointer (can happen on dev) - see onCallFirmwareUpdate.ts
+        if (binary.byteLength < 200) {
+            _log.warn(`Firmware binary for hash check suspiciously small (< 200 b)`);
+
             return createFailResult('check-unsupported');
         }
 
@@ -805,7 +798,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 return await this.getCommands().typedCall('GetFirmwareHash', 'FirmwareHash', {
                     challenge,
                 });
-            } catch (e) {
+            } catch {
                 return null;
             }
         };
@@ -1003,7 +996,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         this.sessionDfd?.reject(new Error());
 
-        this.isLocalSession = false; // set to null to prevent transport.release and cancelableAction
+        this.lastAcquiredHere = false; // set to null to prevent transport.release and cancelableAction
 
         this.emitLifecycle(DEVICE.DISCONNECT);
 
@@ -1050,11 +1043,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     isUsedHere() {
-        return this.isUsed() && this.isLocalSession;
+        return this.isUsed() && this.lastAcquiredHere;
     }
 
     isUsedElsewhere() {
-        return this.isUsed() && !this.isUsedHere();
+        return this.isUsed() && !this.lastAcquiredHere;
     }
 
     isRunning() {
@@ -1070,7 +1063,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     getLocalSession() {
-        return this.isLocalSession ? this.session : null;
+        return this.lastAcquiredHere ? this.session : null;
     }
 
     getUniquePath() {
@@ -1106,7 +1099,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     async dispose() {
         this.removeAllListeners();
-        if (this.session && this.isLocalSession) {
+        if (this.session && this.lastAcquiredHere) {
             try {
                 await this.cancelableAction?.();
                 await this.commands?.cancel();
@@ -1116,7 +1109,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     path: this.transportPath,
                     onClose: true,
                 });
-            } catch (err) {
+            } catch {
                 // empty
             }
         }
@@ -1141,6 +1134,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 type: 'unreadable',
                 error: this.unreadableError, // provide error details
                 label: 'Unreadable device',
+                transportDescriptorType: this.transportDescriptorType,
             };
         }
         if (this.isUnacquired()) {
@@ -1148,6 +1142,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 ...base,
                 type: 'unacquired',
                 label: 'Unacquired device',
+                name: this.name,
+                transportSessionOwner: this.transportSessionOwner,
             };
         }
         const defaultLabel = 'My Trezor';

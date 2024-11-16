@@ -2,8 +2,7 @@
 import EventEmitter from 'events';
 
 import { TRANSPORT, TRANSPORT_ERROR } from '@trezor/transport';
-import { createLazy, createDeferred, throwError } from '@trezor/utils';
-import { getSynchronize } from '@trezor/utils';
+import { createLazy, createDeferred, throwError, getSynchronize } from '@trezor/utils';
 import { storage } from '@trezor/connect-common';
 
 import { DataManager } from '../data/DataManager';
@@ -29,7 +28,6 @@ import {
 } from '../events';
 import { getMethod } from './method';
 import { AbstractMethod } from './AbstractMethod';
-import { resolveAfter } from '../utils/promiseUtils';
 import { createUiPromiseManager } from '../utils/uiPromiseManager';
 import { createPopupPromiseManager } from '../utils/popupPromiseManager';
 import { initLog, enableLog, setLogWriter, LogWriter } from '../utils/debug';
@@ -270,8 +268,10 @@ const inner = async (context: CoreContext, method: AbstractMethod<any>, device: 
         return Promise.reject(ERRORS.TypedError('Device_ModeException', unexpectedMode));
     }
 
+    method.checkDeviceCapability();
+
     // check and request permissions [read, write...]
-    method.checkPermissions();
+    method.checkPermissions({ origin: DataManager.getSettings('origin') });
     if (!trustedHost && method.requiredPermissions.length > 0) {
         // wait for popup window
         await waitForPopup(context);
@@ -287,7 +287,7 @@ const inner = async (context: CoreContext, method: AbstractMethod<any>, device: 
         const { granted, remember } = await uiPromise.promise.then(({ payload }) => payload);
 
         if (granted) {
-            method.savePermissions(!remember);
+            method.savePermissions(!remember, { origin: DataManager.getSettings('origin') });
         } else {
             // interrupt process and go to "final" block
             return Promise.reject(ERRORS.TypedError('Method_PermissionsNotGranted'));
@@ -474,16 +474,16 @@ const onCall = async (context: CoreContext, message: IFrameCallMessage) => {
     try {
         method = await methodSynchronize(async () => {
             _log.debug('loading method...');
-            const method = await getMethod(message);
-            _log.debug('method selected', method.name);
+            const method2 = await getMethod(message);
+            _log.debug('method selected', method2.name);
             // bind callbacks
-            method.postMessage = sendCoreMessage;
-            method.createUiPromise = uiPromises.create;
+            method2.postMessage = sendCoreMessage;
+            method2.createUiPromise = uiPromises.create;
             // start validation process
-            method.init();
-            await method.initAsync?.();
+            method2.init();
+            await method2.initAsync?.();
 
-            return method;
+            return method2;
         });
         resolveWaitForFirstMethod();
         callMethods.push(method);
@@ -521,7 +521,7 @@ const onCall = async (context: CoreContext, message: IFrameCallMessage) => {
         return Promise.resolve();
     }
 
-    if (method.isManagementRestricted()) {
+    if (method.isManagementRestricted({ origin: DataManager.getSettings('origin') })) {
         sendCoreMessage(createPopupMessage(POPUP.CANCEL_POPUP_REQUEST));
         sendCoreMessage(
             createResponseMessage(responseID, false, {
@@ -695,25 +695,20 @@ const onCallDevice = async (
         }
         // Work done
 
+        if (
+            method.keepSession &&
+            method.deviceState &&
+            method.deviceState.sessionId !== device.getState()?.sessionId
+        ) {
+            // if session was changed from the one that was sent, send a device changed event
+            sendCoreMessage(createDeviceMessage(DEVICE.CHANGED, device.toMessageObject()));
+        }
+
         // TODO: This requires a massive refactoring https://github.com/trezor/trezor-suite/issues/5323
         // @ts-expect-error TODO: messageResponse should be assigned from the response of "inner" function
         const response = messageResponse;
 
         if (response) {
-            if (method.name === 'rebootToBootloader' && response.success) {
-                // Wait for device to switch to bootloader
-                // This delay is crucial see https://github.com/trezor/trezor-firmware/issues/1983
-                await resolveAfter(1000).promise;
-                // call Device.run with empty function to fetch new Features
-                // (acquire > Initialize > nothing > release)
-                try {
-                    await device.run(() => Promise.resolve(), { skipFinalReload: true });
-                } catch (err) {
-                    // ignore. on model T, this block of code is probably not needed at all. but I am keeping it here for
-                    // backwards compatibility
-                }
-            }
-
             await device.cleanup();
 
             if (useCoreInPopup) {
@@ -1206,7 +1201,7 @@ export class Core extends EventEmitter {
 
         try {
             await DataManager.load(settings);
-            const { debug, priority, _sessionsBackgroundUrl } = DataManager.getSettings();
+            const { debug, priority, _sessionsBackgroundUrl, manifest } = DataManager.getSettings();
             const messages = DataManager.getProtobufMessages();
 
             enableLog(debug);
@@ -1221,6 +1216,7 @@ export class Core extends EventEmitter {
                 messages,
                 priority,
                 _sessionsBackgroundUrl,
+                manifest,
             });
             initDeviceList(this.getCoreContext());
 

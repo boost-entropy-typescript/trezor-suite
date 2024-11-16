@@ -43,13 +43,17 @@ type NavigationProps = StackToStackCompositeNavigationProps<
 
 export const AddressReviewStepList = () => {
     const route = useRoute<RouteProps>();
-    const { accountKey, transaction } = route.params;
+    const { accountKey, transaction, tokenContract } = route.params;
     const navigation = useNavigation<NavigationProps>();
     const dispatch = useDispatch();
 
     const [childHeights, setChildHeights] = useState<number[]>([]);
     const [stepIndex, setStepIndex] = useState(0);
-    const handleSendReviewFailure = useHandleSendReviewFailure({ accountKey, transaction });
+    const handleSendReviewFailure = useHandleSendReviewFailure({
+        accountKey,
+        transaction,
+        tokenContract,
+    });
     const setWasAppLeftDuringReview = useSetAtom(wasAppLeftDuringReviewAtom);
 
     useFocusEffect(
@@ -73,14 +77,14 @@ export const AddressReviewStepList = () => {
 
     const isAddressConfirmed = useSelector(
         (state: AccountsRootState & DeviceRootState & SendRootState) =>
-            selectIsFirstTransactionAddressConfirmed(state, accountKey),
+            selectIsFirstTransactionAddressConfirmed(state, accountKey, tokenContract),
     );
 
     useEffect(() => {
         if (isAddressConfirmed) {
-            navigation.navigate(SendStackRoutes.SendOutputsReview, { accountKey });
+            navigation.navigate(SendStackRoutes.SendOutputsReview, { accountKey, tokenContract });
         }
-    }, [isAddressConfirmed, accountKey, navigation]);
+    }, [isAddressConfirmed, accountKey, navigation, tokenContract]);
 
     const handleReadItemListHeight = (event: LayoutChangeEvent, index: number) => {
         const { height } = event.nativeEvent.layout;
@@ -104,6 +108,7 @@ export const AddressReviewStepList = () => {
             const response = await dispatch(
                 signTransactionThunk({
                     accountKey,
+                    tokenContract,
                     feeLevel: transaction,
                 }),
             );

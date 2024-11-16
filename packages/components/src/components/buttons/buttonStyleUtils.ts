@@ -1,9 +1,10 @@
 import { DefaultTheme, css, useTheme } from 'styled-components';
 
 import { Color, Colors, Elevation, spacings, spacingsPx } from '@trezor/theme';
-import type { UIHorizontalAlignment, UISize, UIVariant } from '../../config/types';
 import { hexToRgba } from '@suite-common/suite-utils';
 import { capitalizeFirstLetter } from '@trezor/utils';
+
+import type { UIHorizontalAlignment, UISize, UIVariant } from '../../config/types';
 
 const SUBTLE_ALPHA = 0.12;
 const SUBTLE_ALPHA_HOVER = 0.2;
@@ -14,7 +15,7 @@ export const buttonVariants = ['primary', 'tertiary', ...subtleButtonVariants] a
 
 export type ButtonVariant = Extract<UIVariant, (typeof buttonVariants)[number]>;
 
-export const buttonSizes: Array<UISize> = ['large', 'medium', 'small', 'tiny'];
+export const buttonSizes = ['large', 'medium', 'small', 'tiny'] as const;
 export type ButtonSize = Extract<UISize, (typeof buttonSizes)[number]>;
 
 export type IconAlignment = Extract<UIHorizontalAlignment, 'left' | 'right'>;

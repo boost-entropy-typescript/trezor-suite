@@ -21,14 +21,13 @@ Development is not possible on Windows. This can be circumvented by tools such a
 ### Getting started
 
 -   `git clone git@github.com:trezor/trezor-suite.git`
+-   `cd trezor-suite`
 -   `git submodule update --init --recursive`
 -   `git lfs install` // Set up Git LFS for your user account. You only need to run this once per user account.
 -   `git lfs pull`
 -   `nvm install`
 -   `yarn`
 -   `yarn build:libs`
-
-For troubleshooting of common issues, [see guide](https://docs.trezor.io/trezor-suite/misc/suite-setup-troubleshooting.html).
 
 It's recommended to enable `git config --global submodule.recurse true` so you don't need to run `git submodule update --init --recursive` every time when submodules are updated.
 

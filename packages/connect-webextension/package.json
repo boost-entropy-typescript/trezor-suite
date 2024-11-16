@@ -1,6 +1,6 @@
 {
     "name": "@trezor/connect-webextension",
-    "version": "9.4.3-beta.1",
+    "version": "9.4.3-beta.2",
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/connect-webextension",
     "description": "High-level javascript interface for Trezor hardware wallet in webextension serviceworker environment.",
@@ -30,7 +30,6 @@
         "!lib/proxy"
     ],
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "build:lib": "yarn g:rimraf ./lib && yarn g:tsc --build tsconfig.lib.json && ../../scripts/replace-imports.sh ./lib",
         "build:content-script": "TS_NODE_PROJECT=\"tsconfig.lib.json\" webpack --config ./webpack/content-script.webpack.config.ts",
         "build:inline": "TS_NODE_PROJECT=\"tsconfig.lib.json\" webpack --config ./webpack/inline.webpack.config.ts",
@@ -46,6 +45,7 @@
     },
     "devDependencies": {
         "@babel/preset-typescript": "^7.24.7",
+        "@trezor/eslint": "workspace:*",
         "@trezor/node-utils": "workspace:*",
         "@trezor/trezor-user-env-link": "workspace:*",
         "@types/chrome": "^0.0.278",
@@ -53,7 +53,7 @@
         "copy-webpack-plugin": "^12.0.2",
         "rimraf": "^6.0.1",
         "terser-webpack-plugin": "^5.3.9",
-        "webpack": "^5.94.0",
+        "webpack": "^5.96.1",
         "webpack-cli": "^5.1.4",
         "webpack-merge": "^6.0.1",
         "webpack-plugin-serve": "^1.6.0",

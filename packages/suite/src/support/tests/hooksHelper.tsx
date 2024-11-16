@@ -1,10 +1,13 @@
 import { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
+
 import { act, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
-import { ConnectedThemeProvider } from 'src/support/suite/ConnectedThemeProvider';
 import userEvent from '@testing-library/user-event';
+
 import { MockedFormatterProvider } from '@suite-common/formatters';
+
+import { ConnectedThemeProvider } from 'src/support/suite/ConnectedThemeProvider';
 
 // used in hooks tests
 export const renderWithProviders = (store: any, children: ReactNode) => {
@@ -27,7 +30,7 @@ export const waitForLoader = (text = /Loading/i) => {
         if (loading) {
             return waitForElementToBeRemoved(() => screen.queryByText(text), { timeout: 5000 });
         }
-    } catch (e) {
+    } catch {
         return true;
     }
 };

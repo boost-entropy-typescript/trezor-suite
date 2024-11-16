@@ -1,3 +1,5 @@
+import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
+import { periodicCheckTokenDefinitionsThunk } from '@suite-common/token-definitions';
 import {
     deviceActions,
     discoveryActions,
@@ -6,7 +8,6 @@ import {
     authorizeDeviceThunk,
     accountsActions,
 } from '@suite-common/wallet-core';
-import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
 import { isFirmwareVersionSupported } from '@suite-native/device';
 
 import { startDescriptorPreloadedDiscoveryThunk, discoveryCheckThunk } from './discoveryThunks';
@@ -14,12 +15,17 @@ import {
     selectAreTestnetsEnabled,
     selectIsCoinEnablingInitFinished,
     toggleAreTestnetsEnabled,
+    setEnabledDiscoveryNetworkSymbols,
+    toggleEnabledDiscoveryNetworkSymbol,
 } from './discoveryConfigSlice';
 
 export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
     (action, { dispatch, next, getState }) => {
-        if (deviceActions.forgetDevice.match(action) && action.payload.device.state) {
-            dispatch(discoveryActions.removeDiscovery(action.payload.device.state));
+        if (
+            deviceActions.forgetDevice.match(action) &&
+            action.payload.device.state?.staticSessionId
+        ) {
+            dispatch(discoveryActions.removeDiscovery(action.payload.device.state.staticSessionId));
         }
 
         const deviceModel = selectDeviceModel(getState());
@@ -58,7 +64,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
         ) {
             dispatch(
                 startDescriptorPreloadedDiscoveryThunk({
-                    forcedDeviceState: action.payload.state,
+                    forcedDeviceState: action.payload.state?.staticSessionId,
                 }),
             );
         }
@@ -70,6 +76,15 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             accountsActions.changeAccountVisibility.match(action) // account visibility changed - e.g. when incoming txn to hidden account
         ) {
             dispatch(discoveryCheckThunk());
+        }
+
+        // if we changed enabled networks, check for token definitions right away
+        if (
+            (toggleEnabledDiscoveryNetworkSymbol.match(action) ||
+                setEnabledDiscoveryNetworkSymbols.match(action)) &&
+            isCoinEnablingInitFinished
+        ) {
+            dispatch(periodicCheckTokenDefinitionsThunk());
         }
 
         return action;

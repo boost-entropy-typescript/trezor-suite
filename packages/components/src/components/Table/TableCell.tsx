@@ -1,16 +1,31 @@
 import { ReactNode } from 'react';
-import styled from 'styled-components';
 
-import { typography, spacingsPx, Elevation, mapElevationToBackground } from '@trezor/theme';
+import styled, { css } from 'styled-components';
+
+import {
+    typography,
+    spacings,
+    Elevation,
+    mapElevationToBackground,
+    SpacingValues,
+} from '@trezor/theme';
 
 import { useTableHeader } from './TableHeader';
 import { UIHorizontalAlignment } from '../../config/types';
 import { useElevation } from '../ElevationContext/ElevationContext';
 
+type Padding = {
+    top?: SpacingValues;
+    bottom?: SpacingValues;
+    left?: SpacingValues;
+    right?: SpacingValues;
+};
+
 export type TableCellProps = {
     children?: ReactNode;
     colSpan?: number;
     align?: UIHorizontalAlignment;
+    padding?: Padding;
 };
 
 const mapAlignmentToJustifyContent = (align: UIHorizontalAlignment) => {
@@ -23,13 +38,19 @@ const mapAlignmentToJustifyContent = (align: UIHorizontalAlignment) => {
     return map[align];
 };
 
-const Cell = styled.td<{ $isHeader: boolean; $elevation: Elevation }>`
+const Cell = styled.td<{ $isHeader: boolean; $elevation: Elevation; $padding?: Padding }>`
     ${({ $isHeader }) => ($isHeader ? typography.hint : typography.body)}
     color: ${({ theme, $isHeader }) => ($isHeader ? theme.textSubdued : theme.textDefault)};
     text-align: left;
-    padding: ${spacingsPx.sm} ${spacingsPx.lg};
     max-width: 300px;
     overflow: hidden;
+
+    ${({ $padding }) =>
+        $padding &&
+        css`
+            padding: ${$padding.top ?? 0}px ${$padding.right ?? 0}px ${$padding.bottom ?? 0}px
+                ${$padding.left ?? 0}px;
+        `}
 
     &:first-child {
         position: sticky;
@@ -44,7 +65,12 @@ const Content = styled.div<{ $align: UIHorizontalAlignment }>`
     justify-content: ${({ $align }) => mapAlignmentToJustifyContent($align)};
 `;
 
-export const TableCell = ({ children, colSpan = 1, align = 'left' }: TableCellProps) => {
+export const TableCell = ({
+    children,
+    colSpan = 1,
+    align = 'left',
+    padding = { top: spacings.sm, right: spacings.lg, bottom: spacings.sm, left: spacings.lg },
+}: TableCellProps) => {
     const isHeader = useTableHeader();
     const { parentElevation } = useElevation();
 
@@ -54,6 +80,7 @@ export const TableCell = ({ children, colSpan = 1, align = 'left' }: TableCellPr
             colSpan={colSpan}
             $isHeader={isHeader}
             $elevation={parentElevation}
+            $padding={padding}
         >
             <Content $align={align}>{children}</Content>
         </Cell>

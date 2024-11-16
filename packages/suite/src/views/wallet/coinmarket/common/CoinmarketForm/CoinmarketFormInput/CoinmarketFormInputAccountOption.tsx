@@ -1,5 +1,7 @@
-import { amountToSatoshi } from '@suite-common/wallet-utils';
-import { useElevation } from '@trezor/components';
+import { amountToSmallestUnit } from '@suite-common/wallet-utils';
+import { Row, Text, Badge } from '@trezor/components';
+import { spacings } from '@trezor/theme';
+
 import { HiddenPlaceholder } from 'src/components/suite';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import {
@@ -11,36 +13,30 @@ import {
     cryptoIdToNetwork,
     parseCryptoId,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import {
-    CoinmarketFormOption,
-    CoinmarketFormOptionLabel,
-    CoinmarketFormOptionLabelLong,
-    CoinmarketFormOptionLogo,
-    CoinmarketFormOptionNetwork,
-} from 'src/views/wallet/coinmarket';
+import { CoinmarketCoinLogo } from 'src/views/wallet/coinmarket/common/CoinmarketCoinLogo';
 
 interface CoinmarketFormInputAccountOptionProps {
     option: CoinmarketAccountOptionsGroupOptionProps;
     optionGroups: CoinmarketAccountsOptionsGroupProps[];
+    decimals: number;
     isSelected: boolean;
 }
 
 export const CoinmarketFormInputAccountOption = ({
     option,
     optionGroups,
+    decimals,
     isSelected,
 }: CoinmarketFormInputAccountOptionProps) => {
     const { contractAddress } = parseCryptoId(option.value);
     const network = cryptoIdToNetwork(option.value);
-
     const { shouldSendInSats } = useBitcoinAmountUnit(network?.symbol);
-    const { elevation } = useElevation();
 
     if (!network) return null;
 
     const balanceLabel = coinmarketGetAccountLabel(option.label, shouldSendInSats);
     const balance = shouldSendInSats
-        ? amountToSatoshi(option.balance, network.decimals)
+        ? amountToSmallestUnit(option.balance, decimals)
         : option.balance;
     const accountType = optionGroups.find(group =>
         group.options.find(
@@ -50,11 +46,13 @@ export const CoinmarketFormInputAccountOption = ({
     )?.label;
 
     return (
-        <CoinmarketFormOption>
-            <CoinmarketFormOptionLogo cryptoId={option.value} size={20} />
-            <CoinmarketFormOptionLabel>{option.label}</CoinmarketFormOptionLabel>
-            <CoinmarketFormOptionLabelLong>{option.cryptoName}</CoinmarketFormOptionLabelLong>
-            <CoinmarketFormOptionLabelLong>
+        <Row gap={spacings.sm}>
+            <CoinmarketCoinLogo cryptoId={option.value} size={20} />
+            <Text>{option.label}</Text>
+            <Text variant="tertiary" typographyStyle="label">
+                {option.cryptoName}
+            </Text>
+            <Text variant="tertiary" typographyStyle="label">
                 {!isSelected ? (
                     <HiddenPlaceholder>
                         ({balance} {balanceLabel})
@@ -62,12 +60,10 @@ export const CoinmarketFormInputAccountOption = ({
                 ) : (
                     accountType && `(${accountType})`
                 )}
-            </CoinmarketFormOptionLabelLong>
+            </Text>
             {option.value && contractAddress && network && (
-                <CoinmarketFormOptionNetwork $elevation={elevation}>
-                    {network.name}
-                </CoinmarketFormOptionNetwork>
+                <Badge size="small">{network.name}</Badge>
             )}
-        </CoinmarketFormOption>
+        </Row>
     );
 };

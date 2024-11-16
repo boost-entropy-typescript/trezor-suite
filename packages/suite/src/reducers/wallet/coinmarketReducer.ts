@@ -1,7 +1,4 @@
 import produce from 'immer';
-import type { WalletAction, Account } from 'src/types/wallet';
-import type { PrecomposedTransactionFinal } from '@suite-common/wallet-types';
-
 import type {
     BuyTrade,
     BuyTradeQuoteRequest,
@@ -13,6 +10,11 @@ import type {
     CryptoId,
     Platforms,
 } from 'invity-api';
+
+import type { PrecomposedTransactionFinal } from '@suite-common/wallet-types';
+import type { FeeLevel } from '@trezor/connect';
+
+import type { WalletAction, Account } from 'src/types/wallet';
 import type { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
 import type { ExchangeInfo } from 'src/actions/wallet/coinmarketExchangeActions';
 import {
@@ -23,11 +25,13 @@ import {
     COINMARKET_INFO,
 } from 'src/actions/wallet/constants';
 import { STORAGE } from 'src/actions/suite/constants';
-import type { Route, Action as SuiteAction } from 'src/types/suite';
+import type { Action as SuiteAction } from 'src/types/suite';
 import type { SellInfo } from 'src/actions/wallet/coinmarketSellActions';
-import type { FeeLevel } from '@trezor/connect';
 import type { Trade } from 'src/types/wallet/coinmarketCommonTypes';
-import { CoinmarketPaymentMethodListProps } from 'src/types/coinmarket/coinmarket';
+import {
+    CoinmarketPaymentMethodListProps,
+    CoinmarketTradeType,
+} from 'src/types/coinmarket/coinmarket';
 
 export interface ComposedTransactionInfo {
     composed?: Pick<
@@ -40,11 +44,6 @@ export interface ComposedTransactionInfo {
 export interface CoinmarketTradeCommonProps {
     transactionId?: string;
 }
-
-export type CoinmarketSuiteBackRouteNameType = Extract<
-    Route['name'],
-    'wallet-index' | 'suite-index'
->;
 
 interface Info {
     platforms?: Platforms;
@@ -97,7 +96,7 @@ export interface State {
     modalAccount: Account | undefined;
     isLoading: boolean;
     lastLoadedTimestamp: number;
-    suiteBackRouteName: CoinmarketSuiteBackRouteNameType;
+    activeSection?: CoinmarketTradeType;
 }
 
 export const initialState: State = {
@@ -145,7 +144,7 @@ export const initialState: State = {
     modalAccount: undefined,
     modalCryptoId: undefined,
     lastLoadedTimestamp: 0,
-    suiteBackRouteName: 'wallet-index',
+    activeSection: 'buy',
 };
 
 export const coinmarketReducer = (
@@ -262,8 +261,8 @@ export const coinmarketReducer = (
             case COINMARKET_COMMON.SET_MODAL_CRYPTO_CURRENCY:
                 draft.modalCryptoId = action.modalCryptoId;
                 break;
-            case COINMARKET_COMMON.SET_SUITE_BACK_ROUTE_NAME:
-                draft.suiteBackRouteName = action.suiteBackRouteName;
+            case COINMARKET_COMMON.SET_COINMARKET_ACTIVE_SECTION:
+                draft.activeSection = action.activeSection;
                 break;
             // no default
         }

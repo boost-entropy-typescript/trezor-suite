@@ -8,6 +8,7 @@ import {
     prepareDeviceReducer,
     prepareDiscoveryReducer,
     prepareFiatRatesReducer,
+    prepareStakeReducer,
     prepareTransactionsReducer,
 } from '@suite-common/wallet-core';
 import { appSettingsReducer, appSettingsPersistWhitelist } from '@suite-native/settings';
@@ -20,6 +21,7 @@ import {
     walletPersistTransform,
     devicePersistTransform,
     walletStopPersistTransform,
+    migrateDeviceState,
 } from '@suite-native/storage';
 import { prepareAnalyticsReducer } from '@suite-common/analytics';
 import {
@@ -45,6 +47,7 @@ const deviceReducer = prepareDeviceReducer(extraDependencies);
 const discoveryReducer = prepareDiscoveryReducer(extraDependencies);
 const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);
 const sendFormReducer = sendFormSlice.prepareReducer(extraDependencies);
+const stakeReducer = prepareStakeReducer(extraDependencies);
 
 export const prepareRootReducers = async () => {
     const appSettingsPersistedReducer = await preparePersistReducer({
@@ -67,6 +70,7 @@ export const prepareRootReducers = async () => {
         discovery: discoveryReducer,
         send: sendFormReducer,
         fees: feesReducer,
+        stake: stakeReducer,
     });
 
     const walletPersistedReducer = await preparePersistReducer({
@@ -113,8 +117,19 @@ export const prepareRootReducers = async () => {
         reducer: deviceReducer,
         persistedKeys: ['devices'],
         key: 'devices',
-        version: 1,
+        version: 2,
         transforms: [devicePersistTransform],
+        migrations: {
+            2: oldState => {
+                if (!oldState.devices) return oldState;
+
+                const oldDevicesState: { devices: any } = { devices: oldState.devices };
+                const migratedDevices = migrateDeviceState(oldDevicesState.devices);
+                const migratedState = { ...oldState, devices: migratedDevices };
+
+                return migratedState;
+            },
+        },
     });
 
     const discoveryConfigPersistedReducer = await preparePersistReducer({

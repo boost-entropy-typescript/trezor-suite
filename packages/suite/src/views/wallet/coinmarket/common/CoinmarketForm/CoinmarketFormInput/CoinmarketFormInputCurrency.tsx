@@ -1,7 +1,9 @@
-import { buildCurrencyOptions } from '@suite-common/wallet-utils';
-import { Select } from '@trezor/components';
 import { useMemo } from 'react';
 import { Control, Controller } from 'react-hook-form';
+
+import { buildCurrencyOptions } from '@suite-common/wallet-utils';
+import { Select } from '@trezor/components';
+
 import {
     FORM_FIAT_CURRENCY_SELECT,
     FORM_FIAT_INPUT,
@@ -21,20 +23,10 @@ import {
     isCoinmarketSellContext,
 } from 'src/utils/wallet/coinmarket/coinmarketTypingUtils';
 import { buildFiatOption } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import { CoinmarketFormOption, CoinmarketFormOptionLabel } from 'src/views/wallet/coinmarket';
-import styled from 'styled-components';
-
-const SelectWrapper = styled.div`
-    /* stylelint-disable selector-class-pattern */
-    .react-select__value-container {
-        padding: 0;
-    }
-`;
 
 export const CoinmarketFormInputCurrency = ({
     isClean = true,
-    size = 'large',
-    isDarkLabel = false,
+    width = 100,
 }: CoinmarketFormInputCurrencyProps) => {
     const context = useCoinmarketFormContext();
     const { control, setAmountLimits, defaultCurrency } = context;
@@ -71,31 +63,22 @@ export const CoinmarketFormInputCurrency = ({
             defaultValue={defaultCurrency}
             control={control as Control<CoinmarketAllFormProps>}
             render={({ field: { onChange, value } }) => (
-                <SelectWrapper>
-                    <Select
-                        value={value}
-                        onChange={(selected: FiatCurrencyOption) => {
-                            onChange(selected);
-                            setAmountLimits(undefined);
+                <Select
+                    value={value}
+                    onChange={(selected: FiatCurrencyOption) => {
+                        onChange(selected);
+                        setAmountLimits(undefined);
 
-                            onChangeAdditional(selected);
-                        }}
-                        options={options}
-                        formatOptionLabel={option => (
-                            <CoinmarketFormOption>
-                                <CoinmarketFormOptionLabel $isDark={isDarkLabel}>
-                                    {option.label}
-                                </CoinmarketFormOptionLabel>
-                            </CoinmarketFormOption>
-                        )}
-                        data-testid="@coinmarket/form/fiat-currency-select"
-                        minValueWidth="58px"
-                        isClearable={false}
-                        isClean={isClean}
-                        size={size}
-                        isSearchable
-                    />
-                </SelectWrapper>
+                        onChangeAdditional(selected);
+                    }}
+                    options={options}
+                    data-testid="@coinmarket/form/fiat-currency-select"
+                    isClearable={false}
+                    isClean={isClean}
+                    size="small"
+                    isSearchable
+                    width={width}
+                />
             )}
         />
     );

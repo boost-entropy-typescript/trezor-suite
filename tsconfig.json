@@ -124,6 +124,7 @@
         { "path": "suite-native/video-assets" },
         { "path": "packages/address-validator" },
         { "path": "packages/analytics" },
+        { "path": "packages/asset-utils" },
         { "path": "packages/auth-server" },
         { "path": "packages/blockchain-link" },
         {
@@ -160,6 +161,7 @@
         { "path": "packages/dom-utils" },
         { "path": "packages/e2e-utils" },
         { "path": "packages/env-utils" },
+        { "path": "packages/eslint" },
         { "path": "packages/ipc-proxy" },
         { "path": "packages/node-utils" },
         { "path": "packages/product-components" },

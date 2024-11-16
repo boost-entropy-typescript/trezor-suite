@@ -1,4 +1,5 @@
 import path from 'path';
+
 import { createInterceptor, TorController } from '../src';
 import { torRunner } from './torRunner';
 
@@ -55,8 +56,8 @@ const intervalBetweenRequests = 1000 * 20;
         identities.push(`Basic ${identity}`);
     }
 
-    const makeRequests = async (identities: any) => {
-        const promises: Promise<Response>[] = identities.map((identity: string) => {
+    const makeRequests = async (identities2: any) => {
+        const promises: Promise<Response>[] = identities2.map((identity: string) => {
             console.log('identity', identity);
 
             return fetch(testGetUrlHttps, {

@@ -1,8 +1,8 @@
 /**
-TrezorConnect is loaded in background script but it is triggered from content script.
-- call for TrezorConnect action
-- show a notification with response
-*/
+ TrezorConnect is loaded in background script but it is triggered from content script.
+ - call for TrezorConnect action
+ - show a notification with response
+ */
 
 const DEFAULT_SRC = 'https://connect.trezor.io/9/';
 
@@ -25,21 +25,23 @@ function getAddress() {
 async function sendMessageToContentScript(tabID, type, data = null) {
     try {
         const response = await chrome.tabs.sendMessage(tabID, { type, data });
+
         return response;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
 
 chrome.runtime.onMessage.addListener((message, sender) => {
     const { tab } = sender;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, data } = message;
     if (type === 'getAddress') {
         getAddress().then(response => {
-            const message = response.success
+            const message2 = response.success
                 ? `BTC Address: ${response.payload.address}`
                 : `Error: ${response.payload.error}`;
-            sendMessageToContentScript(tab.id, 'getAddress', message);
+            sendMessageToContentScript(tab.id, 'getAddress', message2);
         });
     } else if (type === 'pageLoaded') {
         loadTrezorConnect().then(() => {

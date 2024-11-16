@@ -1,13 +1,13 @@
 import { ipcMain } from 'electron';
 
-import TrezorConnect from '@trezor/connect';
+import TrezorConnect, { DEVICE_EVENT } from '@trezor/connect';
 import { createIpcProxyHandler, IpcProxyHandlerOptions } from '@trezor/ipc-proxy';
 
-import type { Module } from './index';
+import { Dependencies, mainThreadEmitter, ModuleInitBackground, ModuleInit } from './index';
 
 export const SERVICE_NAME = '@trezor/connect';
 
-export const init: Module = ({ store }) => {
+export const initBackground: ModuleInitBackground = ({ store }: Pick<Dependencies, 'store'>) => {
     const { logger } = global;
     logger.info(SERVICE_NAME, `Starting service`);
 
@@ -49,8 +49,9 @@ export const init: Module = ({ store }) => {
     const unregisterProxy = createIpcProxyHandler(ipcMain, 'TrezorConnect', ipcProxyOptions);
 
     const onLoad = () => {
-        // reset previous instance, possible left over after renderer refresh (F5)
-        TrezorConnect.dispose();
+        TrezorConnect.on(DEVICE_EVENT, event => {
+            mainThreadEmitter.emit('module/trezor-connect/device-event', event);
+        });
     };
 
     const onQuit = () => {
@@ -59,4 +60,13 @@ export const init: Module = ({ store }) => {
     };
 
     return { onLoad, onQuit };
+};
+
+export const init: ModuleInit = () => {
+    const onLoad = () => {
+        // reset previous instance, possible left over after renderer refresh (F5)
+        TrezorConnect.dispose();
+    };
+
+    return { onLoad };
 };

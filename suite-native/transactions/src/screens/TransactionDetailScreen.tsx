@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import {
     BlockchainRootState,
     selectBlockchainExplorerBySymbol,
-    selectTransactionByTxidAndAccountKey,
+    selectTransactionByAccountKeyAndTxid,
     TransactionsRootState,
 } from '@suite-common/wallet-core';
 import { analytics, EventType } from '@suite-native/analytics';
@@ -39,14 +39,16 @@ export const TransactionDetailScreen = ({
     route,
 }: StackProps<RootStackParamList, RootStackRoutes.TransactionDetail>) => {
     const { utils } = useNativeStyles();
-    const { txid, accountKey, tokenTransfer, closeActionType = 'back' } = route.params;
+    const { txid, accountKey, tokenContract, closeActionType = 'back' } = route.params;
     const openLink = useOpenLink();
     const transaction = useSelector((state: TransactionsRootState) =>
-        selectTransactionByTxidAndAccountKey(state, txid, accountKey),
+        selectTransactionByAccountKeyAndTxid(state, accountKey, txid),
     ) as WalletAccountTransaction;
     const blockchainExplorer = useSelector((state: BlockchainRootState) =>
         selectBlockchainExplorerBySymbol(state, transaction?.symbol),
     );
+
+    const tokenTransfer = transaction?.tokens.find(token => token.contract === tokenContract);
 
     useEffect(() => {
         if (transaction) {

@@ -12,14 +12,17 @@ import {
     transactionsActions,
     selectAccountByKey,
     deviceActions,
-    selectDeviceByState,
     selectHistoricFiatRates,
     updateTxsFiatRatesThunk,
+    selectDeviceByStaticSessionId,
+    sendFormActions,
 } from '@suite-common/wallet-core';
 import { isDeviceRemembered } from '@suite-common/suite-utils';
 import { messageSystemActions } from '@suite-common/message-system';
 import { findAccountDevice } from '@suite-common/wallet-utils';
 import { analyticsActions } from '@suite-common/analytics';
+import { tokenDefinitionsActions } from '@suite-common/token-definitions/src/tokenDefinitionsActions';
+import { TokenManagementAction } from '@suite-common/token-definitions';
 
 import { db } from 'src/storage';
 import { WALLET_SETTINGS } from 'src/actions/settings/constants';
@@ -32,9 +35,6 @@ import * as metadataActions from 'src/actions/suite/metadataActions';
 import { serializeDiscovery } from 'src/utils/suite/storage';
 import type { AppState, Action as SuiteAction, Dispatch } from 'src/types/suite';
 import type { WalletAction } from 'src/types/wallet';
-import { sendFormActions } from '@suite-common/wallet-core';
-import { tokenDefinitionsActions } from '@suite-common/token-definitions/src/tokenDefinitionsActions';
-import { TokenManagementAction } from '@suite-common/token-definitions';
 
 const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
     db.onBlocking = () => api.dispatch({ type: STORAGE.ERROR, payload: 'blocking' });
@@ -136,7 +136,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
             ) {
                 const { deviceState } = action.payload;
                 const devices = selectDevices(api.getState());
-                const device = devices.find(d => d.state === deviceState);
+                const device = devices.find(d => d.state?.staticSessionId === deviceState);
                 // update discovery for remembered device
                 if (isDeviceRemembered(device)) {
                     const discovery = selectDiscoveryByDeviceState(api.getState(), deviceState);
@@ -257,7 +257,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 case GRAPH.ACCOUNT_GRAPH_FAIL: {
                     const devices = selectDevices(api.getState());
                     const device = devices.find(
-                        d => d.state === action.payload.account.deviceState,
+                        d => d.state?.staticSessionId === action.payload.account.deviceState,
                     );
                     if (isDeviceRemembered(device)) {
                         storageActions.saveGraph([action.payload]);
@@ -276,7 +276,10 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     api.dispatch(storageActions.saveMetadataSettings());
                     break;
                 case METADATA.SET_ERROR_FOR_DEVICE: {
-                    const device = selectDeviceByState(api.getState(), action.payload.deviceState);
+                    const device = selectDeviceByStaticSessionId(
+                        api.getState(),
+                        action.payload.deviceState,
+                    );
                     if (isDeviceRemembered(device) && device) {
                         api.dispatch(storageActions.saveDeviceMetadataError(device));
                     }
@@ -285,7 +288,10 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 // au, this hurts, I need to call saveDevice manually. saved device should be updated automatically
                 // anytime any of its properties change
                 case METADATA.SET_DEVICE_METADATA: {
-                    const device = selectDeviceByState(api.getState(), action.payload.deviceState);
+                    const device = selectDeviceByStaticSessionId(
+                        api.getState(),
+                        action.payload.deviceState,
+                    );
                     if (isDeviceRemembered(device) && device) {
                         storageActions.saveDevice({
                             ...device,

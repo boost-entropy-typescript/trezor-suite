@@ -1,6 +1,7 @@
 // @group_passphrase
 // @retry=2
 import { EventType } from '@trezor/suite-analytics';
+
 import { ExtractByEventType, Requests } from '../../support/types';
 
 let requests: Requests;
@@ -19,7 +20,7 @@ describe('Passphrase', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
         cy.discoveryShouldFinish();
@@ -165,5 +166,3 @@ describe('Passphrase', () => {
         cy.task('pressYes');
     });
 });
-
-export {};

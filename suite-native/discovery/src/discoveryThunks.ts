@@ -1,6 +1,6 @@
 import { A, G, pipe } from '@mobily/ts-belt';
 
-import { getWeakRandomId } from '@trezor/utils';
+import { getWeakRandomId, isArrayMember } from '@trezor/utils';
 import { createThunk } from '@suite-common/redux-utils';
 import {
     accountsActions,
@@ -10,16 +10,16 @@ import {
     createDiscovery,
     removeDiscovery,
     getAvailableCardanoDerivationsThunk,
-    selectDeviceByState,
     selectDeviceAccountByDescriptorAndNetworkSymbol,
     selectDevice,
     LIMIT,
     selectDeviceAccountsForNetworkSymbolAndAccountType,
-    selectDeviceState,
     disableAccountsThunk,
     selectFirstNormalAccountForNetworkSymbol,
     selectHasDeviceDiscovery,
     filterUnavailableAccountTypes,
+    selectDeviceStaticSessionId,
+    selectDeviceByStaticSessionId,
 } from '@suite-common/wallet-core';
 import { selectIsAccountAlreadyDiscovered } from '@suite-native/accounts';
 import TrezorConnect, { StaticSessionId } from '@trezor/connect';
@@ -41,7 +41,6 @@ import {
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import { requestDeviceAccess } from '@suite-native/device-mutex';
 import { analytics, EventType } from '@suite-native/analytics';
-import { isArrayMember } from '@trezor/utils';
 
 import {
     selectDiscoveryInfo,
@@ -201,7 +200,7 @@ const getCardanoSupportedAccountTypesThunk = createThunk(
         },
         { dispatch, getState },
     ) => {
-        const device = selectDeviceByState(getState(), deviceState);
+        const device = selectDeviceByStaticSessionId(getState(), deviceState);
         if (!device) {
             return undefined;
         }
@@ -210,7 +209,6 @@ const getCardanoSupportedAccountTypesThunk = createThunk(
                 dispatch(
                     getAvailableCardanoDerivationsThunk({
                         deviceState,
-                        device,
                     }),
                 ).unwrap(),
         });
@@ -400,7 +398,10 @@ export const addAndDiscoverNetworkAccountThunk = createThunk<
         }
 
         const descriptor = deviceAccessResponse.payload[0];
-        const identity = tryGetAccountIdentity({ deviceState, networkType: network.networkType });
+        const identity = tryGetAccountIdentity({
+            deviceState,
+            networkType: network.networkType,
+        });
 
         await dispatch(
             addAccountByDescriptorThunk({
@@ -508,7 +509,10 @@ const discoverNetworkBatchThunk = createThunk(
             return;
         }
 
-        const identity = tryGetAccountIdentity({ deviceState, networkType: network.networkType });
+        const identity = tryGetAccountIdentity({
+            deviceState,
+            networkType: network.networkType,
+        });
 
         const isFinished = await dispatch(
             discoverAccountsByDescriptorThunk({
@@ -547,7 +551,7 @@ export const createDescriptorPreloadedDiscoveryThunk = createThunk(
         },
         { dispatch, getState },
     ) => {
-        const device = selectDeviceByState(getState(), deviceState);
+        const device = selectDeviceByStaticSessionId(getState(), deviceState);
 
         if (!device) {
             return;
@@ -607,7 +611,7 @@ export const startDescriptorPreloadedDiscoveryThunk = createThunk(
         }: { forcedAreTestnetsEnabled?: boolean; forcedDeviceState?: StaticSessionId },
         { dispatch, getState },
     ) => {
-        const deviceState = forcedDeviceState ?? selectDeviceState(getState());
+        const deviceState = forcedDeviceState ?? selectDeviceStaticSessionId(getState());
 
         if (!deviceState) {
             console.warn(
@@ -617,7 +621,7 @@ export const startDescriptorPreloadedDiscoveryThunk = createThunk(
             return;
         }
 
-        const device = selectDeviceByState(getState(), deviceState);
+        const device = selectDeviceByStaticSessionId(getState(), deviceState);
 
         const hasDiscovery1 = selectHasDeviceDiscovery(getState());
         if (hasDiscovery1) {

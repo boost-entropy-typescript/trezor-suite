@@ -10,14 +10,14 @@ import {
     unsubscribeBlockchainThunk,
     deviceActions,
     stakeActions,
+    sendFormActions,
+    convertSendFormDraftsBtcAmountUnitsThunk,
 } from '@suite-common/wallet-core';
 import { getTxsPerPage } from '@suite-common/suite-utils';
 
 import { ROUTER } from 'src/actions/suite/constants';
 import { WALLET_SETTINGS } from 'src/actions/settings/constants';
 import * as selectedAccountActions from 'src/actions/wallet/selectedAccountActions';
-import { sendFormActions } from '@suite-common/wallet-core';
-import { convertSendFormDraftsBtcAmountUnitsThunk } from '@suite-common/wallet-core';
 import * as receiveActions from 'src/actions/wallet/receiveActions';
 import * as cardanoStakingActions from 'src/actions/wallet/cardanoStakingActions';
 import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
@@ -32,7 +32,7 @@ const walletMiddleware =
         const prevState = api.getState();
 
         if (deviceActions.forgetDevice.match(action)) {
-            const deviceState = action.payload.device.state;
+            const deviceState = action.payload.device.state?.staticSessionId;
             const accounts = api
                 .getState()
                 .wallet.accounts.filter(a => a.deviceState === deviceState);
@@ -83,7 +83,8 @@ const walletMiddleware =
 
         if (
             deviceActions.forgetDevice.match(action) &&
-            prevState.wallet.selectedAccount.account?.deviceState === action.payload.device.state
+            prevState.wallet.selectedAccount.account?.deviceState ===
+                action.payload.device.state?.staticSessionId
         ) {
             // if currently selected account is related to forgotten device
             resetReducers = true;

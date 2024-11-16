@@ -1,12 +1,13 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/CardanoGetPublicKey.js
 
+import { Assert } from '@trezor/schema-utils';
+
 import { PROTO } from '../../../constants';
 import { AbstractMethod, MethodReturnType } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
 import { validatePath, fromHardened, getSerializedPath } from '../../../utils/pathUtils';
 import { UI, createUiMessage } from '../../../events';
-import { Assert } from '@trezor/schema-utils';
 import { Bundle } from '../../../types';
 import { CardanoGetPublicKey as CardanoGetPublicKeySchema } from '../../../types/api/cardano';
 
@@ -19,6 +20,7 @@ export default class CardanoGetPublicKey extends AbstractMethod<'cardanoGetPubli
 
     init() {
         this.requiredPermissions = ['read'];
+        this.requiredDeviceCapabilities = ['Capability_Cardano'];
         this.firmwareRange = getFirmwareRange(
             this.name,
             getMiscNetwork('Cardano'),

@@ -1,10 +1,32 @@
 import { useState, useEffect, ReactNode, useCallback, KeyboardEvent } from 'react';
-import styled, { css } from 'styled-components';
-import { breakpointMediaQueries } from '@trezor/styles';
-import { borders, spacings, spacingsPx, typography } from '@trezor/theme';
-import { focusStyleTransition, getFocusShadowStyle } from '../../../utils/utils';
 
-const Wrapper = styled.div<{ $isFullWidth?: boolean }>`
+import styled, { css } from 'styled-components';
+
+import { breakpointMediaQueries } from '@trezor/styles';
+import {
+    borders,
+    spacings,
+    spacingsPx,
+    typography,
+    Elevation,
+    mapElevationToBackground,
+    nextElevation,
+} from '@trezor/theme';
+
+import { focusStyleTransition, getFocusShadowStyle } from '../../../utils/utils';
+import { useElevation } from '../../ElevationContext/ElevationContext';
+import {
+    FrameProps,
+    FramePropsKeys,
+    pickAndPrepareFrameProps,
+    withFrameProps,
+} from '../../../utils/frameProps';
+import { TransientProps } from '../../../utils/transientProps';
+
+export const allowedSelectBarFrameProps = ['margin', 'width'] as const satisfies FramePropsKeys[];
+type AllowedFrameProps = Pick<FrameProps, (typeof allowedSelectBarFrameProps)[number]>;
+
+const Wrapper = styled.div<TransientProps<AllowedFrameProps> & { $isFullWidth?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${spacingsPx.sm};
@@ -15,6 +37,8 @@ const Wrapper = styled.div<{ $isFullWidth?: boolean }>`
         align-items: flex-start;
         width: 100%;
     }
+
+    ${withFrameProps}
 `;
 
 const Label = styled.span`
@@ -35,14 +59,18 @@ const getTranslateValue = (index: number) => {
 const getPuckWidth = (optionsCount: number) =>
     `calc((100% - 8px - ${(optionsCount - 1) * spacings.xxs}px) / ${optionsCount})`;
 
-const Options = styled.div<{ $optionsCount: number; $isFullWidth?: boolean }>`
+const Options = styled.div<{
+    $optionsCount: number;
+    $isFullWidth?: boolean;
+    $elevation: Elevation;
+}>`
     position: relative;
     display: grid;
     grid-auto-columns: ${({ $optionsCount }) => `minmax(${getPuckWidth($optionsCount)}, 1fr)`};
     grid-auto-flow: column;
     gap: ${spacingsPx.xxs};
     padding: ${spacingsPx.xxs};
-    background: ${({ theme }) => theme.backgroundSurfaceElevation0};
+    background: ${mapElevationToBackground};
     border-radius: ${borders.radii.full};
     width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'auto')};
 
@@ -53,16 +81,16 @@ const Options = styled.div<{ $optionsCount: number; $isFullWidth?: boolean }>`
     }
 `;
 
-const Puck = styled.div<{ $optionsCount: number; $selectedIndex: number }>`
+const Puck = styled.div<{ $optionsCount: number; $selectedIndex: number; $elevation: Elevation }>`
     position: absolute;
     left: 4px;
     top: 4px;
     bottom: 4px;
     width: ${({ $optionsCount }) => getPuckWidth($optionsCount)};
     padding: ${spacingsPx.xxs} ${spacingsPx.xl};
-    background: ${({ theme }) => theme.backgroundSurfaceElevation1};
+    background: ${mapElevationToBackground};
     border-radius: ${borders.radii.full};
-    box-shadow: ${({ theme }) => theme.boxShadowBase};
+    box-shadow: ${({ theme, $elevation }) => $elevation === 1 && theme.boxShadowBase};
     transform: ${({ $selectedIndex }) => `translateX(${getTranslateValue($selectedIndex)})`};
     transition:
         transform 0.175s cubic-bezier(1, 0.02, 0.38, 0.74),
@@ -125,12 +153,12 @@ const Option = styled.div<{ $isSelected: boolean; $isDisabled: boolean }>`
 
 type ValueTypes = number | string | boolean;
 
-interface Option<V extends ValueTypes> {
+type Option<V extends ValueTypes> = {
     label: ReactNode;
     value: V;
-}
+};
 
-export interface SelectBarProps<V extends ValueTypes> {
+export type SelectBarProps<V extends ValueTypes> = {
     label?: ReactNode;
     options: Option<V>[];
     selectedOption?: V;
@@ -138,7 +166,8 @@ export interface SelectBarProps<V extends ValueTypes> {
     isDisabled?: boolean;
     isFullWidth?: boolean;
     className?: string;
-}
+    'data-testid'?: string;
+} & AllowedFrameProps;
 
 // Generic type V is determined by selectedOption/options values
 export const SelectBar: <V extends ValueTypes>(props: SelectBarProps<V>) => JSX.Element = ({
@@ -149,9 +178,12 @@ export const SelectBar: <V extends ValueTypes>(props: SelectBarProps<V>) => JSX.
     isDisabled = false,
     isFullWidth,
     className,
+    'data-testid': dataTest,
     ...rest
 }) => {
     const [selectedOptionIn, setSelected] = useState<ValueTypes | undefined>(selectedOption);
+    const { elevation } = useElevation();
+    const frameProps = pickAndPrepareFrameProps(rest, allowedSelectBarFrameProps);
 
     useEffect(() => {
         if (selectedOption !== undefined) {
@@ -203,13 +235,23 @@ export const SelectBar: <V extends ValueTypes>(props: SelectBarProps<V>) => JSX.
     const selectedIndex = options.findIndex(option => option.value === selectedOptionIn);
 
     return (
-        <Wrapper className={className} $isFullWidth={isFullWidth} {...rest}>
+        <Wrapper
+            className={className}
+            $isFullWidth={isFullWidth}
+            data-testid={dataTest}
+            {...frameProps}
+        >
             {label && <Label>{label}</Label>}
 
-            <Options $optionsCount={options.length} $isFullWidth={isFullWidth}>
+            <Options
+                $optionsCount={options.length}
+                $isFullWidth={isFullWidth}
+                $elevation={elevation}
+            >
                 <Puck
                     $optionsCount={options.length}
                     $selectedIndex={selectedIndex}
+                    $elevation={nextElevation[elevation]}
                     tabIndex={0}
                     onKeyDown={handleKeyboardNav}
                 />

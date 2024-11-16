@@ -1,52 +1,18 @@
-import { ReactNode } from 'react';
-import styled from 'styled-components';
-import { BuyCryptoPaymentMethod, SellCryptoPaymentMethod } from 'invity-api';
+import { Row } from '@trezor/components';
+import { spacings } from '@trezor/theme';
+
 import invityAPI from 'src/services/suite/invityAPI';
 import { CoinmarketPaymentPlainType } from 'src/views/wallet/coinmarket/common/CoinmarketPaymentPlainType';
-
-const Wrapper = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
-const Bg = styled.div`
-    background: ${({ theme }) => theme.legacy.BG_ICON};
-    display: flex;
-    align-items: center;
-    border-radius: 4px;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    padding-right: 9px;
-`;
-
-const Icon = styled.img``;
+import { CoinmarketPaymentMethodType } from 'src/types/coinmarket/coinmarket';
 
 interface CoinmarketPaymentTypeProps {
-    children?: ReactNode;
-    method?: BuyCryptoPaymentMethod | SellCryptoPaymentMethod;
+    method?: CoinmarketPaymentMethodType;
     methodName?: string;
 }
 
-export const CoinmarketPaymentType = ({
-    children,
-    method,
-    methodName,
-}: CoinmarketPaymentTypeProps) => (
-    <Wrapper>
-        <>
-            {method && (
-                <IconWrapper>
-                    <Bg>
-                        <Icon width="24px" src={invityAPI.getPaymentMethodUrl(method)} alt="" />
-                    </Bg>
-                </IconWrapper>
-            )}
-            <CoinmarketPaymentPlainType method={method} methodName={methodName}>
-                {children}
-            </CoinmarketPaymentPlainType>
-        </>
-    </Wrapper>
+export const CoinmarketPaymentType = ({ method, methodName }: CoinmarketPaymentTypeProps) => (
+    <Row gap={spacings.xs}>
+        {method && <img width="24px" src={invityAPI.getPaymentMethodUrl(method)} alt="" />}
+        <CoinmarketPaymentPlainType method={method} methodName={methodName} />
+    </Row>
 );

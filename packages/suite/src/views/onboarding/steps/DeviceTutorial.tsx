@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
 import { useIntl } from 'react-intl';
+
 import styled from 'styled-components';
 
 import { selectDevice } from '@suite-common/wallet-core';
 import TrezorConnect from '@trezor/connect';
 import { Button } from '@trezor/components';
+import { spacingsPx } from '@trezor/theme';
+
 import {
     beginOnboardingTutorial,
     goToNextStep,
@@ -16,7 +19,6 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
 import { selectOnboardingTutorialStatus } from 'src/reducers/onboarding/onboardingReducer';
 import messages from 'src/support/messages';
-import { spacingsPx } from '@trezor/theme';
 
 const StyledOnboardingStepBox = styled(OnboardingStepBox)`
     padding: 40px 20px 0;
@@ -74,7 +76,12 @@ export const DeviceTutorial = () => {
                         <Translation id="TR_TREZOR_DEVICE_TUTORIAL_DESCRIPTION" />
                         <ButtonContainer>
                             {isActionAbortable && (
-                                <Button variant="tertiary" size="tiny" onClick={handleSkipClick}>
+                                <Button
+                                    data-testid="@tutorial/skip-button"
+                                    variant="tertiary"
+                                    size="tiny"
+                                    onClick={handleSkipClick}
+                                >
                                     <Translation id="TR_SKIP" />
                                 </Button>
                             )}
@@ -108,7 +115,11 @@ export const DeviceTutorial = () => {
             devicePromptTitle={<Translation id="TR_CONTINUE_ON_TREZOR" />}
             outerActions={
                 isContinueButtonVisible && (
-                    <Button variant="primary" onClick={handleContinue}>
+                    <Button
+                        data-testid="@tutorial/continue-button"
+                        variant="primary"
+                        onClick={handleContinue}
+                    >
                         <Translation id="TR_CONTINUE" />
                     </Button>
                 )

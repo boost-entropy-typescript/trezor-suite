@@ -12,7 +12,7 @@ import * as fixtures from '../__fixtures__/messageSystemActions';
 
 const messageSystemReducer = prepareMessageSystemReducer(extraDependenciesMock);
 
-export const getInitialState = (state?: MessageSystemState) => ({
+const getInitialState = (state?: MessageSystemState) => ({
     messageSystem: {
         ...messageSystemReducer(undefined, { type: 'foo' } as any),
         ...state,
@@ -31,7 +31,6 @@ const initStore = (preloadedState: State) => {
 };
 
 jest.mock('../../files/config.v1.ts', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { validJwsWithSequence10 } = require('../__fixtures__/messageSystemActions');
 
     return {

@@ -7,7 +7,7 @@ import { onNavBar } from '../../support/pageObjects/topBarObject';
 describe(`Metadata - switching between cloud providers`, () => {
     beforeEach(() => {
         // use portrait mode monitor to prevent scrolling in settings
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
     });
 
     it('Start with one and switch to another', () => {
@@ -59,5 +59,3 @@ describe(`Metadata - switching between cloud providers`, () => {
         cy.getTestElement('@account-menu/btc/normal/0/label').should('contain', 'google label');
     });
 });
-
-export {};

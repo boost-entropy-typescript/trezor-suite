@@ -1,13 +1,16 @@
+import { UseFormReturn, useWatch } from 'react-hook-form';
+
 import { Network } from '@suite-common/wallet-config';
 import { Account } from '@suite-common/wallet-types';
-import { amountToSatoshi, formatAmount } from '@suite-common/wallet-utils';
+import { amountToSmallestUnit, formatAmount } from '@suite-common/wallet-utils';
 import { useDidUpdate } from '@trezor/react-utils';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+
 import {
     FORM_CRYPTO_INPUT,
     FORM_FIAT_INPUT,
     FORM_OUTPUT_AMOUNT,
     FORM_OUTPUT_FIAT,
+    FORM_SEND_CRYPTO_CURRENCY_SELECT,
 } from 'src/constants/wallet/coinmarket/form';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import {
@@ -17,7 +20,7 @@ import {
 import { SendContextValues } from 'src/types/wallet/sendForm';
 import {
     coinmarketGetRoundedFiatAmount,
-    getNetworkDecimals,
+    getCoinmarketNetworkDecimals,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 
 interface CoinmarketUseCurrencySwitcherProps<T extends CoinmarketAllFormProps> {
@@ -48,15 +51,19 @@ export const useCoinmarketCurrencySwitcher = <T extends CoinmarketAllFormProps>(
     const { setValue, getValues, control } =
         methods as unknown as UseFormReturn<CoinmarketAllFormProps>;
     const { shouldSendInSats } = useBitcoinAmountUnit(account.symbol);
-    const networkDecimals = getNetworkDecimals(network?.decimals);
     const cryptoInputValue = useWatch({ control, name: inputNames.cryptoInput });
+    const sendCryptoSelect = getValues(FORM_SEND_CRYPTO_CURRENCY_SELECT);
+    const networkDecimals = getCoinmarketNetworkDecimals({
+        sendCryptoSelect,
+        network,
+    });
 
     const toggleAmountInCrypto = () => {
         const { amountInCrypto } = getValues();
 
         if (!amountInCrypto) {
             const amount = shouldSendInSats
-                ? amountToSatoshi(quoteCryptoAmount ?? '', networkDecimals)
+                ? amountToSmallestUnit(quoteCryptoAmount ?? '', networkDecimals)
                 : quoteCryptoAmount;
 
             setValue(inputNames.cryptoInput, amount === '-1' ? '' : amount);
@@ -73,7 +80,7 @@ export const useCoinmarketCurrencySwitcher = <T extends CoinmarketAllFormProps>(
     };
 
     useDidUpdate(() => {
-        const conversion = shouldSendInSats ? amountToSatoshi : formatAmount;
+        const conversion = shouldSendInSats ? amountToSmallestUnit : formatAmount;
 
         if (!cryptoInputValue) {
             return;

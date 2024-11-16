@@ -1,5 +1,6 @@
-import { configureStore } from 'src/support/tests/configureStore';
+import { UI } from '@trezor/connect';
 
+import { configureStore } from 'src/support/tests/configureStore';
 import { coinmarketReducer, initialState } from 'src/reducers/wallet/coinmarketReducer';
 import selectedAccountReducer from 'src/reducers/wallet/selectedAccountReducer';
 import { coinmarketMiddleware } from 'src/middlewares/wallet/coinmarketMiddleware';
@@ -11,7 +12,6 @@ import { accounts } from 'src/reducers/wallet/__fixtures__/transactionConstants'
 import routerReducer, { RouterState } from 'src/reducers/suite/routerReducer';
 import modalReducer, { State as ModalState } from 'src/reducers/suite/modalReducer';
 import { MODAL, ROUTER } from 'src/actions/suite/constants';
-import { UI } from '@trezor/connect';
 
 jest.mock('src/services/suite/invityAPI');
 invityAPI.setInvityServersEnvironment = () => {};
@@ -22,7 +22,7 @@ invityAPI.getInfo = () =>
         platforms: {},
     });
 
-export const ACCOUNT = {
+const ACCOUNT = {
     descriptor: 'btc-descriptor',
 };
 
@@ -45,6 +45,7 @@ const COINMARKET_EXCHANGE_ROUTE = {
 type CoinmarketState = ReturnType<typeof coinmarketReducer>;
 type SelectedAccountState = ReturnType<typeof selectedAccountReducer>;
 type SuiteState = ReturnType<typeof suiteReducer>;
+
 interface Args {
     coinmarket?: CoinmarketState;
     selectedAccount?: SelectedAccountState;
@@ -53,7 +54,7 @@ interface Args {
     modal?: ModalState;
 }
 
-export const getInitialState = ({ coinmarket, selectedAccount }: Args = {}) => ({
+const getInitialState = ({ coinmarket, selectedAccount }: Args = {}) => ({
     wallet: {
         coinmarket:
             coinmarket ||
@@ -321,5 +322,25 @@ describe('coinmarketMiddleware', () => {
 
         expect(store.getState().wallet.coinmarket.sell.coinmarketAccount).toBe(accounts[0]);
         expect(store.getState().wallet.coinmarket.exchange.coinmarketAccount).toEqual(undefined);
+    });
+
+    it('Test of setting activeSection after changing route', () => {
+        const store = initStore(
+            getInitialState({
+                coinmarket: {
+                    ...initialState,
+                },
+            }),
+        );
+
+        // go to coinmarket
+        store.dispatch({
+            type: ROUTER.LOCATION_CHANGE,
+            payload: {
+                ...COINMARKET_EXCHANGE_ROUTE,
+            },
+        });
+
+        expect(store.getState().wallet.coinmarket.activeSection).toBe('exchange');
     });
 });

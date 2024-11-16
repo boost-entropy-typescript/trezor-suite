@@ -1,8 +1,10 @@
+import ReactMarkdown, { Options } from 'react-markdown';
+
 import styled from 'styled-components';
 
-import ReactMarkdown, { Options } from 'react-markdown';
-import { variables } from '../../config';
 import { typography } from '@trezor/theme';
+
+import { variables } from '../../config';
 
 const StyledMarkdown = styled.div`
     ${typography.hint}

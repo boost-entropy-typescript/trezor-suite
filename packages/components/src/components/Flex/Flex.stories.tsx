@@ -1,4 +1,8 @@
 import { ArgTypes, Meta, StoryObj } from '@storybook/react';
+import styled from 'styled-components';
+
+import { spacings } from '@trezor/theme';
+
 import {
     FlexProps,
     flexAlignItems,
@@ -8,8 +12,6 @@ import {
     Column as ColumnComponent,
     allowedFlexFrameProps,
 } from './Flex';
-import { spacings } from '@trezor/theme';
-import styled from 'styled-components';
 import { getFramePropsStory } from '../../utils/frameProps';
 
 const Container = styled.div`
@@ -90,9 +92,9 @@ const meta: Meta = {
 export default meta;
 
 export const Row: StoryObj<FlexProps> = {
-    render: args => (
+    render: rowArgs => (
         <Container>
-            <RowComponent {...args} />
+            <RowComponent {...rowArgs} />
         </Container>
     ),
     args,
@@ -100,9 +102,9 @@ export const Row: StoryObj<FlexProps> = {
 };
 
 export const Column: StoryObj<FlexProps> = {
-    render: args => (
+    render: columnArgs => (
         <Container>
-            <ColumnComponent {...args} />
+            <ColumnComponent {...columnArgs} />
         </Container>
     ),
     args,

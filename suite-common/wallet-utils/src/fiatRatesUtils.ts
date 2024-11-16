@@ -44,17 +44,20 @@ export const roundTimestampsToNearestPastHour = (timestamps: Timestamp[]): Times
 };
 
 const combineFiatRates = (fiatRates: RatesByTimestamps, accountRates: RatesByTimestamps) => {
-    for (let fiatRate in accountRates) {
+    for (const fiatRate in accountRates) {
         const fiatRateKey = fiatRate as FiatRateKey;
 
-        if (accountRates.hasOwnProperty(fiatRateKey)) {
+        if (Object.prototype.hasOwnProperty.call(accountRates, fiatRateKey)) {
             if (!fiatRates[fiatRateKey]) {
                 fiatRates[fiatRateKey] = accountRates[fiatRateKey];
             } else {
-                for (let timestampRate in accountRates[fiatRateKey]) {
+                for (const timestampRate in accountRates[fiatRateKey]) {
                     const timestamp = timestampRate as unknown as Timestamp;
                     if (
-                        accountRates[fiatRateKey].hasOwnProperty(timestamp) &&
+                        Object.prototype.hasOwnProperty.call(
+                            accountRates[fiatRateKey],
+                            timestamp,
+                        ) &&
                         !fiatRates[fiatRateKey][timestamp]
                     ) {
                         fiatRates[fiatRateKey][timestamp] = accountRates[fiatRateKey][timestamp];
@@ -66,11 +69,11 @@ const combineFiatRates = (fiatRates: RatesByTimestamps, accountRates: RatesByTim
 };
 
 export const buildHistoricRatesFromStorage = (storageHistoricRates: RatesByTimestamps[]) => {
-    let historicFiatRates: RatesByTimestamps = {};
+    const historicFiatRates: RatesByTimestamps = {};
 
     storageHistoricRates.forEach(fiatRates => {
-        for (let fiatRate in fiatRates) {
-            if (fiatRates.hasOwnProperty(fiatRate)) {
+        for (const fiatRate in fiatRates) {
+            if (Object.prototype.hasOwnProperty.call(fiatRates, fiatRate)) {
                 const fiatRateKey = fiatRate as FiatRateKey;
 
                 if (!historicFiatRates[fiatRateKey]) {

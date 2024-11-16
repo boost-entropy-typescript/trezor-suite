@@ -1,6 +1,7 @@
 import { Button, Row } from '@trezor/components';
-import { Translation } from 'src/components/suite';
 import { spacings } from '@trezor/theme';
+
+import { Translation } from 'src/components/suite';
 
 interface CoinmarketFractionButtonsProps {
     onFractionClick: (divisor: number) => void;
@@ -22,13 +23,12 @@ export const CoinmarketFractionButtons = ({
     ];
 
     return (
-        <Row data-testid="@coinmarket/form/fraction-buttons">
+        <Row gap={spacings.xs} data-testid="@coinmarket/form/fraction-buttons">
             {buttons.map((button, index) => (
                 <Button
                     variant="tertiary"
                     type="button"
                     size="small"
-                    margin={{ right: spacings.sm }}
                     key={index}
                     isDisabled={disabled}
                     onClick={() => (!button.value ? onAllClick() : onFractionClick(button.value))}

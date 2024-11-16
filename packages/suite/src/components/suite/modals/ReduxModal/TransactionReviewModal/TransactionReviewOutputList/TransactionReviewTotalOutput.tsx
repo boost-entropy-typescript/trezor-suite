@@ -1,16 +1,21 @@
 import { forwardRef } from 'react';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-import { formatAmount, formatNetworkAmount, isTestnet } from '@suite-common/wallet-utils';
-import { selectDevice } from '@suite-common/wallet-core';
-import { TrezorDevice } from 'src/types/suite';
-import { Translation } from 'src/components/suite/Translation';
-import { useSelector } from 'src/hooks/suite/useSelector';
+import { BigNumber } from '@trezor/utils/src/bigNumber';
 import {
+    formatAmount,
+    formatNetworkAmount,
+    isTestnet,
     getTransactionReviewOutputState,
     getIsUpdatedSendFlow,
     getIsUpdatedEthereumSendFlow,
 } from '@suite-common/wallet-utils';
+import { selectDevice } from '@suite-common/wallet-core';
+import { StakeType } from '@suite-common/wallet-types';
+
+import { TrezorDevice } from 'src/types/suite';
+import { Translation } from 'src/components/suite/Translation';
+import { useSelector } from 'src/hooks/suite/useSelector';
+
 import { TransactionReviewStepIndicator } from './TransactionReviewStepIndicator';
 import {
     TransactionReviewOutputElement,
@@ -33,7 +38,7 @@ const StepIndicator = ({ signedTx, outputs, buttonRequestsCount }: StepIndicator
 
 type TransactionReviewTotalOutputProps = Omit<
     TransactionReviewOutputListProps,
-    'precomposedForm' | 'decision' | 'detailsOpen' | 'isRbfAction' | 'actionText'
+    'precomposedForm' | 'decision' | 'detailsOpen' | 'actionText'
 >;
 
 const getLines = (
@@ -41,6 +46,8 @@ const getLines = (
     networkType: TransactionReviewOutputListProps['account']['networkType'],
     symbol: TransactionReviewOutputListProps['account']['symbol'],
     precomposedTx: TransactionReviewOutputListProps['precomposedTx'],
+    isRbfAction?: boolean,
+    ethereumStakeType?: StakeType,
 ): Array<OutputElementLine> => {
     const isUpdatedSendFlow = getIsUpdatedSendFlow(device);
     const isUpdatedEthereumSendFlow = getIsUpdatedEthereumSendFlow(device, networkType);
@@ -63,20 +70,21 @@ const getLines = (
         .toString();
 
     if (isUpdatedEthereumSendFlow) {
-        return [
-            {
-                id: 'amount', // In updated ethereum send flow there is no total amount shown, only amount without fee
-                label: <Translation id="AMOUNT" />,
-                value: tokenInfo
-                    ? formatAmount(precomposedTx.totalSpent, tokenInfo.decimals)
-                    : formatNetworkAmount(amountWithoutFee, symbol),
-            },
-            {
-                id: 'fee',
-                label: <Translation id="MAX_FEE" />,
-                value: formatNetworkAmount(precomposedTx.fee, symbol),
-            },
-        ];
+        const isUnknownStakingClaimValue = isRbfAction && ethereumStakeType === 'claim';
+        const amountLine = {
+            id: 'amount', // In updated ethereum send flow there is no total amount shown, only amount without fee
+            label: <Translation id="AMOUNT" />,
+            value: tokenInfo
+                ? formatAmount(precomposedTx.totalSpent, tokenInfo.decimals)
+                : formatNetworkAmount(amountWithoutFee, symbol),
+        };
+        const feeLine = {
+            id: 'fee',
+            label: <Translation id="MAX_FEE" />,
+            value: formatNetworkAmount(precomposedTx.fee, symbol),
+        };
+
+        return isUnknownStakingClaimValue ? [feeLine] : [amountLine, feeLine];
     }
     if (isUpdatedSendFlow) {
         return [
@@ -110,33 +118,53 @@ const getLines = (
 export const TransactionReviewTotalOutput = forwardRef<
     HTMLDivElement,
     TransactionReviewTotalOutputProps
->(({ account, signedTx, outputs, buttonRequestsCount, precomposedTx }, ref) => {
-    const device = useSelector(selectDevice);
+>(
+    (
+        {
+            account,
+            signedTx,
+            outputs,
+            buttonRequestsCount,
+            precomposedTx,
+            ethereumStakeType,
+            isRbfAction,
+        },
+        ref,
+    ) => {
+        const device = useSelector(selectDevice);
 
-    if (!device) {
-        return null;
-    }
+        if (!device) {
+            return null;
+        }
 
-    const { symbol, networkType } = account;
+        const { symbol, networkType } = account;
 
-    const lines = getLines(device, networkType, symbol, precomposedTx);
+        const lines = getLines(
+            device,
+            networkType,
+            symbol,
+            precomposedTx,
+            isRbfAction,
+            ethereumStakeType,
+        );
 
-    return (
-        <TransactionReviewOutputElement
-            account={account}
-            indicator={
-                <StepIndicator
-                    signedTx={signedTx}
-                    outputs={outputs}
-                    buttonRequestsCount={buttonRequestsCount}
-                />
-            }
-            lines={lines}
-            cryptoSymbol={symbol}
-            fiatSymbol={symbol}
-            fiatVisible={!isTestnet(symbol)}
-            ref={ref}
-            token={precomposedTx?.token}
-        />
-    );
-});
+        return (
+            <TransactionReviewOutputElement
+                account={account}
+                indicator={
+                    <StepIndicator
+                        signedTx={signedTx}
+                        outputs={outputs}
+                        buttonRequestsCount={buttonRequestsCount}
+                    />
+                }
+                lines={lines}
+                cryptoSymbol={symbol}
+                fiatSymbol={symbol}
+                fiatVisible={!isTestnet(symbol)}
+                ref={ref}
+                token={precomposedTx?.token}
+            />
+        );
+    },
+);

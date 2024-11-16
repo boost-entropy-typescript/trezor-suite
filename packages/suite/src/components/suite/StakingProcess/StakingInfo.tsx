@@ -1,16 +1,20 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import {
     selectAccountStakeTransactions,
     selectValidatorsQueue,
     TransactionsRootState,
     StakeRootState,
     selectPoolStatsApyData,
+    AccountsRootState,
 } from '@suite-common/wallet-core';
-import { useSelector } from 'react-redux';
+
 import { Translation } from 'src/components/suite';
 import { getDaysToAddToPool } from 'src/utils/suite/stake';
-import { InfoRow } from './InfoRow';
 import { CoinjoinRootState } from 'src/reducers/wallet/coinjoinReducer';
+
+import { InfoRow } from './InfoRow';
 
 interface StakingInfoProps {
     isExpanded?: boolean;
@@ -22,7 +26,7 @@ export const StakingInfo = ({ isExpanded }: StakingInfoProps) => {
     const { data } =
         useSelector((state: StakeRootState) => selectValidatorsQueue(state, account?.symbol)) || {};
 
-    const stakeTxs = useSelector((state: TransactionsRootState) =>
+    const stakeTxs = useSelector((state: TransactionsRootState & AccountsRootState) =>
         selectAccountStakeTransactions(state, account?.key ?? ''),
     );
 

@@ -2,6 +2,7 @@
 // @retry=2
 
 import { EventType } from '@trezor/suite-analytics';
+
 import { ExtractByEventType, Requests } from '../../support/types';
 import { onNavBar } from '../../support/pageObjects/topBarObject';
 
@@ -12,7 +13,7 @@ describe('Coin Settings', () => {
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu');
         cy.task('startBridge');
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
 
@@ -64,7 +65,7 @@ describe('Coin Settings', () => {
         });
 
         // // this helps with unstable click to btc
-        cy.contains('span', 'Got it!').should('be.visible').click();
+        cy.contains('span', 'Got it!').should('be.visible').click({ scrollBehavior: 'bottom' });
         cy.wait(500);
         // disable Bitcoin
         cy.getTestElement('@settings/wallet/network/btc').click();
@@ -130,5 +131,3 @@ describe('Coin Settings', () => {
         });
     });
 });
-
-export {};

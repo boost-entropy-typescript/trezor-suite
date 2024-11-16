@@ -24,7 +24,7 @@ import {
     selectAccountNetworkSymbol,
     selectDeviceAccountKeyForNetworkSymbolAndAccountTypeWithIndex,
 } from '@suite-common/wallet-core';
-import { selectAccountTokenSymbol } from '@suite-native/tokens';
+import { selectAccountTokenSymbol, TokensRootState } from '@suite-native/tokens';
 import { CryptoIcon } from '@suite-native/icons';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
@@ -70,7 +70,7 @@ const ReceiveModalScreenSubHeader = ({ accountKey, tokenContract }: ScreenSubHea
     const networkSymbol = useSelector((state: AccountsRootState) =>
         selectAccountNetworkSymbol(state, accountKey),
     );
-    const tokenSymbol = useSelector((state: AccountsRootState) =>
+    const tokenSymbol = useSelector((state: TokensRootState) =>
         selectAccountTokenSymbol(state, accountKey, tokenContract),
     );
 
@@ -85,6 +85,7 @@ const ReceiveModalScreenSubHeader = ({ accountKey, tokenContract }: ScreenSubHea
 
     return (
         <ScreenSubHeader
+            customHorizontalPadding="sp16"
             content={
                 <>
                     <Text variant="highlight">
@@ -152,6 +153,7 @@ export const ReceiveModalScreen = () => {
 
     return (
         <Screen
+            customHorizontalPadding="sp16"
             hasBottomInset={false}
             screenHeader={
                 <ReceiveModalScreenSubHeader

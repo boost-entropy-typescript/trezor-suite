@@ -38,12 +38,15 @@
         { "path": "../helpers" },
         { "path": "../icons" },
         { "path": "../intl" },
+        { "path": "../link" },
         { "path": "../navigation" },
         { "path": "../qr-code" },
         { "path": "../settings" },
+        { "path": "../tokens" },
         {
             "path": "../../packages/blockchain-link-types"
         },
+        { "path": "../../packages/connect" },
         { "path": "../../packages/react-utils" },
         { "path": "../../packages/styles" },
         { "path": "../../packages/theme" },

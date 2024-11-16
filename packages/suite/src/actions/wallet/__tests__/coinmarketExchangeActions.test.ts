@@ -1,10 +1,10 @@
-import { configureStore } from 'src/support/tests/configureStore';
+import { CryptoId, ExchangeTrade, ExchangeTradeQuoteRequest } from 'invity-api';
 
+import { configureStore } from 'src/support/tests/configureStore';
 import { coinmarketReducer } from 'src/reducers/wallet/coinmarketReducer';
+import invityAPI from 'src/services/suite/invityAPI';
 
 import * as coinmarketExchangeActions from '../coinmarketExchangeActions';
-import invityAPI from 'src/services/suite/invityAPI';
-import { CryptoId, ExchangeTrade, ExchangeTradeQuoteRequest } from 'invity-api';
 
 const getInitialState = () => ({
     wallet: {
@@ -105,7 +105,7 @@ describe('Coinmarket Exchange Actions', () => {
 
         const store = initStore(getInitialState());
 
-        coinmarketExchangeActions.loadExchangeInfo().then(exchangeInfo => {
+        return coinmarketExchangeActions.loadExchangeInfo().then(exchangeInfo => {
             store.dispatch(coinmarketExchangeActions.saveExchangeInfo(exchangeInfo));
             expect(store.getState().wallet.coinmarket.exchange.exchangeInfo).toEqual({
                 exchangeList,

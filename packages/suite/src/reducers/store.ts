@@ -8,6 +8,7 @@ import { prepareFirmwareReducer } from '@suite-common/wallet-core';
 import { addLog } from '@suite-common/logger';
 import { isCodesignBuild } from '@trezor/env-utils';
 import { mergeDeepObject } from '@trezor/utils';
+import { prepareTokenDefinitionsReducer } from '@suite-common/token-definitions';
 
 import suiteMiddlewares from 'src/middlewares/suite';
 import walletMiddlewares from 'src/middlewares/wallet';
@@ -19,7 +20,6 @@ import walletReducers from 'src/reducers/wallet';
 import onboardingReducers from 'src/reducers/onboarding';
 import recoveryReducers from 'src/reducers/recovery';
 import backupReducers from 'src/reducers/backup';
-
 // toastMiddleware can be used only in suite-desktop and suite-web
 // it's not included into `@suite-middlewares` index
 import toastMiddleware from 'src/middlewares/suite/toastMiddleware';
@@ -27,7 +27,6 @@ import type { PreloadStoreAction } from 'src/support/suite/preloadStore';
 
 import { desktopReducer } from './desktop';
 import { extraDependencies } from '../support/extraDependencies';
-import { prepareTokenDefinitionsReducer } from '@suite-common/token-definitions';
 
 const firmwareReducer = prepareFirmwareReducer(extraDependencies);
 const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);

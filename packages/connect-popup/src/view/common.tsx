@@ -1,5 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/popup/view/common.js
 
+import { createRoot } from 'react-dom/client';
+
 import {
     POPUP,
     ERRORS,
@@ -8,11 +10,10 @@ import {
     CoreRequestMessage,
     CoreEventMessage,
 } from '@trezor/connect';
-import { createRoot } from 'react-dom/client';
-
 import { ConnectUI, State, getDefaultState } from '@trezor/connect-ui';
-import { StyleSheetWrapper } from './react/StylesSheetWrapper';
 import { reactEventBus } from '@trezor/connect-ui/src/utils/eventBus';
+
+import { StyleSheetWrapper } from './react/StylesSheetWrapper';
 
 export const header: HTMLElement = document.getElementsByTagName('header')[0];
 export const container: HTMLElement = document.getElementById('container')!;
@@ -33,10 +34,10 @@ export const createTooltip = (text: string) => {
 
 export const clearLegacyView = () => {
     // clear and hide legacy views
-    const container = document.getElementById('container');
-    if (container) {
-        container.innerHTML = '';
-        container.style.display = 'none';
+    const container2 = document.getElementById('container');
+    if (container2) {
+        container2.innerHTML = '';
+        container2.style.display = 'none';
     }
 };
 
@@ -78,7 +79,7 @@ export const getIframeElement = () => {
             if (frames[i].location.host === window.location.host) {
                 iframe = frames[i];
             }
-        } catch (error) {
+        } catch {
             // do nothing, try next entry
         }
     }
@@ -106,9 +107,9 @@ export const initMessageChannelWithIframe = async (
     const handshakeLoader = (api: Pick<MessagePort, 'addEventListener' | 'removeEventListener'>) =>
         Promise.race([
             new Promise<boolean>(resolve => {
-                api.addEventListener('message', function handler(event) {
+                api.addEventListener('message', function messageHandler(event) {
                     if (event.data.type === POPUP.HANDSHAKE) {
-                        api.removeEventListener('message', handler);
+                        api.removeEventListener('message', messageHandler);
                         resolve(true);
                     }
                 });
@@ -146,7 +147,7 @@ export const initMessageChannelWithIframe = async (
             // otherwise close BroadcastChannel and try to use MessageChannel fallback
             broadcast.close();
             broadcast.removeEventListener('message', handler);
-        } catch (error) {
+        } catch {
             // silent error. use MessageChannel as fallback communication
         }
     }

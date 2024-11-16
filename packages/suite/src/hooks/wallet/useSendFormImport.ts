@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 
-import { importSendFormRequestThunk } from 'src/actions/wallet/send/sendFormThunks';
-import { useDispatch } from 'src/hooks/suite';
-import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { DEFAULT_PAYMENT } from '@suite-common/wallet-constants';
 import { FiatCurrencyCode, fiatCurrencies } from '@suite-common/suite-config';
 import {
-    amountToSatoshi,
+    amountToSmallestUnit,
     formatAmount,
     fromFiatCurrency,
     getFiatRateKey,
@@ -15,6 +12,10 @@ import {
 import { Output, Timestamp, FiatRatesResult, Rate, FiatRates } from '@suite-common/wallet-types';
 import { updateFiatRatesThunk } from '@suite-common/wallet-core';
 import { NetworkSymbol } from '@suite-common/wallet-config';
+
+import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
+import { useDispatch } from 'src/hooks/suite';
+import { importSendFormRequestThunk } from 'src/actions/wallet/send/sendFormThunks';
 import { UseSendFormState } from 'src/types/wallet/sendForm';
 
 type useSendFormImportProps = {
@@ -40,7 +41,7 @@ export const useSendFormImport = ({
         const result = await dispatch(importSendFormRequestThunk()).unwrap();
         if (!result || result.length < 1) return; // cancelled
 
-        let rates: { currency: string; rate?: number }[] = [];
+        const rates: { currency: string; rate?: number }[] = [];
         const currencies = result.map(it => it.currency.toLowerCase());
         const uniqueCurrencies = [...new Set(currencies)];
 
@@ -97,7 +98,7 @@ export const useSendFormImport = ({
                     const cryptoAmount = item.amount || '';
                     if (shouldSendInSats) {
                         // try to convert to satoshis
-                        output.amount = amountToSatoshi(cryptoAmount, network.decimals);
+                        output.amount = amountToSmallestUnit(cryptoAmount, network.decimals);
                     } else {
                         output.amount = cryptoAmount;
                     }
@@ -126,7 +127,7 @@ export const useSendFormImport = ({
                     const cryptoValue = fromFiatCurrency(output.fiat, network.decimals, itemRate);
                     const cryptoAmount =
                         cryptoValue && shouldSendInSats
-                            ? amountToSatoshi(cryptoValue, network.decimals)
+                            ? amountToSmallestUnit(cryptoValue, network.decimals)
                             : cryptoValue ?? '';
 
                     output.amount = cryptoAmount;

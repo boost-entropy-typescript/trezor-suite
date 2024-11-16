@@ -26,14 +26,17 @@ describe('HttpServer', () => {
         });
     });
 
-    afterEach(done => {
-        server.stop().finally(() => {
-            done();
-        });
-    });
+    afterEach(
+        () =>
+            new Promise<void>(done => {
+                server.stop().finally(() => {
+                    done();
+                });
+            }),
+    );
 
     test('getServerAddress before server start', () => {
-        expect(() => server.getServerAddress()).toThrowError();
+        expect(() => server.getServerAddress()).toThrow();
     });
 
     test('getServerAddress after server start', async () => {
@@ -279,7 +282,7 @@ describe('HttpServer', () => {
         res = await post('foo-1/321', undefined); // body != array, fails in parseBodyJSON
         expect(res.status).toEqual(400);
         const { error } = await res.json();
-        expect(error).toMatch('Invalid json body:');
+        expect(error).toMatch('Invalid body');
 
         res = await post('foo-1/not-a-number', { foo: 'bar' });
         expect(res.status).toEqual(400);

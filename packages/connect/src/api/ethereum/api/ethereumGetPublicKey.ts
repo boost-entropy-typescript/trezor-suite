@@ -1,5 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/EthereumGetPublicKey.js
 
+import { Assert } from '@trezor/schema-utils';
+
 import { AbstractMethod, MethodReturnType } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { validatePath } from '../../../utils/pathUtils';
@@ -8,7 +10,6 @@ import { getEthereumNetwork, getUniqueNetworks } from '../../../data/coinInfo';
 import { UI, createUiMessage } from '../../../events';
 import type { PROTO } from '../../../constants';
 import type { EthereumNetworkInfo } from '../../../types';
-import { Assert } from '@trezor/schema-utils';
 import { Bundle, GetPublicKey as GetPublicKeySchema } from '../../../types';
 
 type Params = PROTO.EthereumGetPublicKey & {
@@ -20,6 +21,7 @@ export default class EthereumGetPublicKey extends AbstractMethod<'ethereumGetPub
 
     init() {
         this.requiredPermissions = ['read'];
+        this.requiredDeviceCapabilities = ['Capability_Ethereum'];
 
         // create a bundle with only one batch if bundle doesn't exists
         this.hasBundle = !!this.payload.bundle;

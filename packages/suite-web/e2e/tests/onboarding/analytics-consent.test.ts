@@ -10,7 +10,7 @@ const acceptAnalyticsConsentOnInitializedDevice = () => {
 describe('Onboarding - analytics consent', () => {
     beforeEach(() => {
         cy.task('startBridge');
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
     });
 
     it('analytics consent appears on any route that is visited initially. this time /accounts', () => {
@@ -29,5 +29,3 @@ describe('Onboarding - analytics consent', () => {
         cy.getTestElement('@wallet/menu/wallet-send');
     });
 });
-
-export {};

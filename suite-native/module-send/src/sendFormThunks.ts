@@ -10,7 +10,7 @@ import {
     pushSendFormTransactionThunk,
     selectAccountByKey,
     selectDevice,
-    selectSendFormDraftByAccountKey,
+    selectSendFormDraftByKey,
     sendFormActions,
     signTransactionThunk,
     selectSendFormDrafts,
@@ -24,6 +24,7 @@ import {
     FeeLevelLabel,
     FormState,
     GeneralPrecomposedTransactionFinal,
+    TokenAddress,
 } from '@suite-common/wallet-types';
 import { requestPrioritizedDeviceAccess } from '@suite-native/device-mutex';
 import { hasNetworkFeatures } from '@suite-common/wallet-utils';
@@ -38,13 +39,17 @@ export const signTransactionNativeThunk = createThunk<
     {
         accountKey: AccountKey;
         feeLevel: GeneralPrecomposedTransactionFinal;
+        tokenContract?: TokenAddress;
     },
     { rejectValue: SignTransactionError | undefined }
 >(
     `${SEND_MODULE_PREFIX}/signTransactionNativeThunk`,
-    async ({ accountKey, feeLevel }, { dispatch, rejectWithValue, fulfillWithValue, getState }) => {
+    async (
+        { accountKey, tokenContract, feeLevel },
+        { dispatch, rejectWithValue, fulfillWithValue, getState },
+    ) => {
         const account = selectAccountByKey(getState(), accountKey);
-        const formState = selectSendFormDraftByAccountKey(getState(), accountKey);
+        const formState = selectSendFormDraftByKey(getState(), accountKey, tokenContract);
         const device = selectDevice(getState());
 
         if (!account || !formState)
@@ -185,7 +190,7 @@ export const calculateFeeLevelsMaxAmountThunk = createThunk<
         if (isFulfilled(response)) {
             return pipe(
                 response.payload,
-                D.filter(x => x.type === 'final'),
+                D.filter(x => 'max' in x),
                 D.map(y => (y as GeneralPrecomposedTransactionFinal).max),
             ) as FeeLevelsMaxAmount;
         }
@@ -197,16 +202,20 @@ export const calculateFeeLevelsMaxAmountThunk = createThunk<
 export const updateDraftFeeLevelThunk = createThunk(
     `${SEND_MODULE_PREFIX}/updateDraftFeeLevelThunk`,
     (
-        { accountKey, feeLevel }: { accountKey: AccountKey; feeLevel: FeeLevelLabel },
+        {
+            accountKey,
+            tokenContract,
+            feeLevel,
+        }: { accountKey: AccountKey; tokenContract?: TokenAddress; feeLevel: FeeLevelLabel },
         { dispatch, getState },
     ) => {
-        const draft = selectSendFormDraftByAccountKey(getState(), accountKey);
+        const draft = selectSendFormDraftByKey(getState(), accountKey, tokenContract);
 
         if (!draft) throw Error('Draft not found.');
         const draftCopy = { ...draft };
 
         draftCopy.selectedFee = feeLevel;
 
-        dispatch(sendFormActions.storeDraft({ accountKey, formState: draftCopy }));
+        dispatch(sendFormActions.storeDraft({ accountKey, tokenContract, formState: draftCopy }));
     },
 );

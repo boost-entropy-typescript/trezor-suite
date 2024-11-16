@@ -1,12 +1,13 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/StellarGetAddress.js
 
+import { Assert } from '@trezor/schema-utils';
+
 import { AbstractMethod, MethodReturnType } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
 import { validatePath, fromHardened, getSerializedPath } from '../../../utils/pathUtils';
 import { PROTO, ERRORS } from '../../../constants';
 import { UI, createUiMessage } from '../../../events';
-import { Assert } from '@trezor/schema-utils';
 import { Bundle } from '../../../types';
 import { GetAddress as GetAddressSchema } from '../../../types/api/getAddress';
 
@@ -21,6 +22,7 @@ export default class StellarGetAddress extends AbstractMethod<'stellarGetAddress
     init() {
         this.noBackupConfirmationMode = 'always';
         this.requiredPermissions = ['read'];
+        this.requiredDeviceCapabilities = ['Capability_Stellar'];
         this.firmwareRange = getFirmwareRange(
             this.name,
             getMiscNetwork('Stellar'),

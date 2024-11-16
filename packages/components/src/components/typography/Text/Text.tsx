@@ -1,6 +1,9 @@
-import styled from 'styled-components';
-import { CSSColor, Color, Colors } from '@trezor/theme';
 import { ReactNode } from 'react';
+
+import styled from 'styled-components';
+
+import { CSSColor, Color, Colors } from '@trezor/theme';
+
 import { TransientProps } from '../../../utils/transientProps';
 import {
     FrameProps,
@@ -47,6 +50,7 @@ const variantColorMap: Record<TextVariant, Color> = {
     warning: 'textAlertYellow',
     destructive: 'textAlertRed',
     purple: 'textAlertPurple',
+    disabled: 'textDisabled',
 };
 
 type ColorProps = {
@@ -66,6 +70,7 @@ type StyledTextProps = ExclusiveColorOrVariant &
 
 const StyledText = styled.span<StyledTextProps>`
     color: ${getColorForTextVariant};
+
     ${withTextProps}
     ${withFrameProps}
 `;
@@ -74,6 +79,7 @@ export type TextProps = {
     children: ReactNode;
     className?: string;
     as?: string;
+    onClick?: () => void;
     'data-testid'?: string;
 } & ExclusiveColorOrVariant &
     AllowedFrameProps &
@@ -86,6 +92,7 @@ export const Text = ({
     className,
     as = 'span',
     'data-testid': dataTest,
+    onClick,
     ...rest
 }: TextProps) => {
     const frameProps = pickAndPrepareFrameProps(rest, allowedTextFrameProps);
@@ -96,6 +103,7 @@ export const Text = ({
             {...(variant !== undefined ? { $variant: variant } : { $color: color })}
             className={className}
             as={as}
+            onClick={onClick}
             data-testid={dataTest}
             {...textProps}
             {...frameProps}

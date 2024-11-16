@@ -4,15 +4,12 @@ import type { InvityServerEnvironment } from '@suite-common/invity';
 import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { discoveryActions, DeviceRootState, selectDevice } from '@suite-common/wallet-core';
-import { versionUtils } from '@trezor/utils';
+import { isArrayMember, versionUtils } from '@trezor/utils';
 import { isWeb } from '@trezor/env-utils';
-import {
-    TRANSPORT,
-    TransportInfo,
-    ConnectSettings,
-    FirmwareHashCheckError,
-    FirmwareRevisionCheckError,
-} from '@trezor/connect';
+import { TRANSPORT, TransportInfo, ConnectSettings } from '@trezor/connect';
+import { NetworkSymbol } from '@suite-common/wallet-config';
+import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
+import { AddressDisplayOptions, WalletType } from '@suite-common/wallet-types';
 
 import { getIsTorEnabled, getIsTorLoading } from 'src/utils/suite/tor';
 import type { OAuthServerEnvironment } from 'src/types/suite/metadata';
@@ -20,14 +17,12 @@ import { ensureLocale } from 'src/utils/suite/l10n';
 import type { Locale } from 'src/config/suite/languages';
 import { SUITE, STORAGE } from 'src/actions/suite/constants';
 import { ExperimentalFeature } from 'src/constants/suite/experimental';
-import { Action, AppState, Lock, TorBootstrap, TorStatus } from 'src/types/suite';
+import { Action, AppState, TorBootstrap, TorStatus } from 'src/types/suite';
 import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/prerequisites';
-import { RouterRootState, selectRouter } from './routerReducer';
-import { NetworkSymbol } from '@suite-common/wallet-config';
-import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
-import { AddressDisplayOptions, WalletType } from '@suite-common/wallet-types';
 import { SIDEBAR_WIDTH_NUMERIC } from 'src/constants/suite/layout';
-import { UpdateState } from './desktopUpdateReducer';
+import { skippedHashCheckErrors, skippedRevisionCheckErrors } from 'src/constants/suite/firmware';
+
+import { RouterRootState, selectRouter } from './routerReducer';
 
 export interface SuiteRootState {
     suite: SuiteState;
@@ -115,7 +110,7 @@ export interface SuiteState {
     torBootstrap: TorBootstrap | null;
     lifecycle: SuiteLifecycle;
     transport?: Partial<TransportInfo>;
-    locks: Lock[];
+    locks: Record<(typeof SUITE.LOCK_TYPE)[keyof typeof SUITE.LOCK_TYPE], number>;
     flags: Flags;
     evmSettings: EvmSettings;
     prefillFields: PrefillFields;
@@ -127,7 +122,7 @@ const initialState: SuiteState = {
     torStatus: TorStatus.Disabled,
     torBootstrap: null,
     lifecycle: { status: 'initial' },
-    locks: [],
+    locks: { device: 0, router: 0, ui: 0 },
     flags: {
         initialRun: true,
         // recoveryCompleted: false;
@@ -185,13 +180,12 @@ const initialState: SuiteState = {
     },
 };
 
-const changeLock = (draft: SuiteState, lock: Lock, enabled: boolean) => {
-    if (enabled) {
-        draft.locks.push(lock);
-    } else {
-        const index = draft.locks.lastIndexOf(lock);
-        draft.locks.splice(index, 1);
-    }
+const changeLock = (
+    draft: SuiteState,
+    lock: (typeof SUITE.LOCK_TYPE)[keyof typeof SUITE.LOCK_TYPE],
+    enabled: boolean,
+) => {
+    draft.locks[lock] = Math.max(draft.locks[lock] + (enabled ? 1 : -1), 0);
 };
 
 const setFlag = (draft: SuiteState, key: keyof Flags, value: boolean) => {
@@ -387,11 +381,17 @@ export const selectLanguage = (state: SuiteRootState) => state.suite.settings.la
 export const selectAddressDisplayType = (state: SuiteRootState) =>
     state.suite.settings.addressDisplayType;
 
-export const selectLocks = (state: SuiteRootState) => state.suite.locks;
-
 export const selectIsDeviceLocked = (state: SuiteRootState) =>
-    state.suite.locks.includes(SUITE.LOCK_TYPE.DEVICE) ||
-    state.suite.locks.includes(SUITE.LOCK_TYPE.UI);
+    !!state.suite.locks[SUITE.LOCK_TYPE.DEVICE];
+
+export const selectIsDeviceOrUiLocked = (state: SuiteRootState) =>
+    !!state.suite.locks[SUITE.LOCK_TYPE.DEVICE] || !!state.suite.locks[SUITE.LOCK_TYPE.UI];
+
+export const selectIsRouterLocked = (state: SuiteRootState) =>
+    !!state.suite.locks[SUITE.LOCK_TYPE.ROUTER];
+
+export const selectIsRouterOrUiLocked = (state: SuiteRootState) =>
+    !!state.suite.locks[SUITE.LOCK_TYPE.ROUTER] || !!state.suite.locks[SUITE.LOCK_TYPE.UI];
 
 export const selectIsActionAbortable = (state: SuiteRootState) =>
     state.suite.transport?.type === 'BridgeTransport'
@@ -461,12 +461,8 @@ export const selectFirmwareRevisionCheckError = (state: AppState) => {
  */
 const selectIsFirmwareRevisionCheckEnabledAndFailed = (state: AppState): boolean => {
     const error = selectFirmwareRevisionCheckError(state);
-    const softErrors: FirmwareRevisionCheckError[] = [
-        'cannot-perform-check-offline',
-        'other-error',
-    ];
 
-    return error !== null ? !softErrors.includes(error) : false;
+    return error !== null ? !isArrayMember(error, skippedRevisionCheckErrors) : false;
 };
 
 /**
@@ -484,27 +480,15 @@ export const selectFirmwareHashCheckError = (state: AppState) => {
     return isCheckEnabled && checkResult?.success === false ? checkResult.error : null;
 };
 
-export const selectIsUnrecognizedFirmwareWithOutdatedSuite = (state: AppState): boolean => {
-    const device = selectDevice(state);
-    if (!isDeviceAcquired(device) || !device.authenticityChecks?.firmwareHash) return false;
-    const isUpdateAvailable = state.desktopUpdate.state === UpdateState.Available;
-    const checkResult = device.authenticityChecks.firmwareHash;
-
-    return !checkResult.success && checkResult.error === 'unknown-release' && isUpdateAvailable;
-};
-
 /**
  * Determine hard failure of firmware hash check - specific error types which are severe.
  * If check was skipped, don't consider it failed.
  * If check is unsupported by device, a banner is shown but device is accessible.
  */
 const selectIsFirmwareHashCheckEnabledAndFailed = (state: AppState): boolean => {
-    if (selectIsUnrecognizedFirmwareWithOutdatedSuite(state)) return false; // treat this as a soft failure
-
     const error = selectFirmwareHashCheckError(state);
-    const softErrors: FirmwareHashCheckError[] = ['check-skipped', 'check-unsupported'];
 
-    return error !== null ? !softErrors.includes(error) : false;
+    return error !== null ? !isArrayMember(error, skippedHashCheckErrors) : false;
 };
 
 /**

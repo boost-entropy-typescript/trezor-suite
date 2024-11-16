@@ -4,7 +4,7 @@ import { fromWei } from 'web3-utils';
 
 import { FiatCurrencyCode } from '@suite-common/suite-config';
 import { trezorLogo } from '@suite-common/suite-constants';
-import { TokenDefinitions } from '@suite-common/token-definitions';
+import { TokenDefinitions, getIsPhishingTransaction } from '@suite-common/token-definitions';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import {
     ExportFileType,
@@ -15,7 +15,6 @@ import {
 } from '@suite-common/wallet-types';
 import { TransactionTarget } from '@trezor/connect';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
-
 import {
     formatAmount,
     formatNetworkAmount,
@@ -25,8 +24,6 @@ import {
     localizeNumber,
     roundTimestampToNearestPastHour,
 } from '@suite-common/wallet-utils';
-
-import { getIsPhishingTransaction } from '@suite-common/token-definitions';
 
 type AccountTransactionForExports = Omit<WalletAccountTransaction, 'targets'> & {
     targets: (TransactionTarget & { metadataLabel?: string })[];

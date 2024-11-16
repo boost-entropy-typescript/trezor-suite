@@ -9,7 +9,7 @@ describe('Passphrase', () => {
 
         cy.task('applySettings', { passphrase_always_on_device: false });
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
         cy.discoveryShouldFinish();
@@ -43,5 +43,3 @@ describe('Passphrase', () => {
         // QA todo: continue to discovered wallet
     });
 });
-
-export {};

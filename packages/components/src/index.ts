@@ -27,6 +27,7 @@ export * from './components/Dropdown/Dropdown';
 export type { GroupedMenuItems } from './components/Dropdown/Menu';
 export * from './components/ElevationContext/ElevationContext';
 export * from './components/Flex/Flex';
+export { FormCell, type FormCellProps } from './components/form/FormCell/FormCell';
 export * from './components/form/Input/Input';
 export * from './components/form/InputStyles';
 export * from './components/form/Radio/Radio';
@@ -47,6 +48,7 @@ export {
     type IconCircleVariant,
     type IconCircleColors,
 } from './components/IconCircle/IconCircle';
+export { InfoRow, type InfoRowProps } from './components/InfoRow/InfoRow';
 export * from './components/loaders/LoadingContent/LoadingContent';
 export * from './components/loaders/ProgressBar/ProgressBar';
 export * from './components/loaders/ProgressPie/ProgressPie';
@@ -71,6 +73,7 @@ export * from './components/typography/Heading/Heading';
 export * from './components/typography/Link/Link';
 export * from './components/typography/Paragraph/Paragraph';
 export * from './components/typography/Text/Text';
+export * from './components/typography/Code/Code';
 export * from './components/typography/TruncateWithTooltip/TruncateWithTooltip';
 export * from './components/Banner/Banner';
 export { Table, type TableProps } from './components/Table/Table';
@@ -83,6 +86,7 @@ export * from './constants/keyboardEvents';
 export * from './utils/useScrollShadow';
 export * from './utils/transientProps';
 export { useMediaQuery } from './utils/useMediaQuery';
+export { getSafeWindowSize } from './utils/getSafeWindowSize';
 
 export { intermediaryTheme } from './config/colors';
 export type { SuiteThemeColors } from './config/colors';

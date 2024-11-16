@@ -6,28 +6,14 @@ import TrezorConnect, {
     Unsuccessful,
 } from '@trezor/connect';
 import {
-    transformTxFixtures,
-    stakeFixture,
-    stakeFailedFixture,
-    unstakeFixture,
-    unstakeFailedFixture,
-    claimFixture,
-    claimFailedFixture,
-    getStakeFormsDefaultValuesFixture,
-    getStakeTxGasLimitFixture,
-    getUnstakingPeriodInDaysFixture,
-    getDaysToAddToPoolFixture,
-    getDaysToUnstakeFixture,
-    getDaysToAddToPoolInitialFixture,
-    getAdjustedGasLimitConsumptionFixture,
-    getEthNetworkForWalletSdkFixture,
-    getInstantStakeTypeFixture,
-    getChangedInternalTxFixture,
-    getUnstakingAmountFixtures,
-    simulateUnstakeFixture,
-} from '../__fixtures__/stake';
+    BlockchainEstimatedFee,
+    BlockchainEstimatedFeeLevel,
+} from '@trezor/connect/src/types/api/blockchainEstimateFee';
+import { WalletAccountTransaction } from '@suite-common/wallet-types';
+import { ValidatorsQueue } from '@suite-common/wallet-core';
+import { NetworkSymbol } from '@suite-common/wallet-config';
+
 import {
-    getUnstakingAmount,
     transformTx,
     stake,
     unstake,
@@ -48,12 +34,25 @@ import {
     simulateUnstake,
 } from '../stake';
 import {
-    BlockchainEstimatedFee,
-    BlockchainEstimatedFeeLevel,
-} from '@trezor/connect/src/types/api/blockchainEstimateFee';
-import { WalletAccountTransaction } from '@suite-common/wallet-types';
-import { ValidatorsQueue } from '@suite-common/wallet-core';
-import { NetworkSymbol } from '@suite-common/wallet-config';
+    transformTxFixtures,
+    stakeFixture,
+    stakeFailedFixture,
+    unstakeFixture,
+    unstakeFailedFixture,
+    claimFixture,
+    claimFailedFixture,
+    getStakeFormsDefaultValuesFixture,
+    getStakeTxGasLimitFixture,
+    getUnstakingPeriodInDaysFixture,
+    getDaysToAddToPoolFixture,
+    getDaysToUnstakeFixture,
+    getDaysToAddToPoolInitialFixture,
+    getAdjustedGasLimitConsumptionFixture,
+    getEthNetworkForWalletSdkFixture,
+    getInstantStakeTypeFixture,
+    getChangedInternalTxFixture,
+    simulateUnstakeFixture,
+} from '../__fixtures__/stake';
 
 describe('transformTx', () => {
     transformTxFixtures.forEach(test => {
@@ -61,15 +60,6 @@ describe('transformTx', () => {
             const result = transformTx(test.tx, test.gasPrice, test.nonce, test.chainId);
             expect(result).toEqual(test.result);
             expect(result).not.toHaveProperty('from');
-        });
-    });
-});
-
-describe('getUnstakingAmount', () => {
-    getUnstakingAmountFixtures.forEach(test => {
-        it(test.description, () => {
-            const result = getUnstakingAmount(test.ethereumData);
-            expect(result).toBe(test.expectedAmountWei);
         });
     });
 });

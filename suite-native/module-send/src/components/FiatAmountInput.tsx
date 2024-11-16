@@ -3,8 +3,7 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 
 import { Input } from '@suite-native/atoms';
-import { useFormContext } from '@suite-native/forms';
-import { useField } from '@suite-native/forms';
+import { useFormContext, useField } from '@suite-native/forms';
 import { useCryptoFiatConverters } from '@suite-native/formatters';
 import { useNativeStyles } from '@trezor/styles';
 import { selectFiatCurrencyCode } from '@suite-native/settings';
@@ -21,6 +20,7 @@ export const FiatAmountInput = ({
     translateValue,
     inputRef,
     networkSymbol,
+    tokenContract,
     onPress,
     onFocus,
     isDisabled = false,
@@ -29,7 +29,7 @@ export const FiatAmountInput = ({
     const { setValue } = useFormContext<SendOutputsFormValues>();
     const fiatCurrencyCode = useSelector(selectFiatCurrencyCode);
     const { fiatAmountTransformer } = useSendAmountTransformers(networkSymbol);
-    const converters = useCryptoFiatConverters({ networkSymbol });
+    const converters = useCryptoFiatConverters({ networkSymbol, tokenContract });
 
     const cryptoFieldName = getOutputFieldName(recipientIndex, 'amount');
     const fiatFieldName = getOutputFieldName(recipientIndex, 'fiat');

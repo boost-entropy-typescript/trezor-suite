@@ -1,6 +1,7 @@
 import path from 'path';
 import { merge } from 'webpack-merge';
 import { WebpackPluginServe } from 'webpack-plugin-serve';
+
 import prod from './prod.webpack.config';
 
 const dev = {
@@ -19,4 +20,5 @@ const dev = {
     ],
 };
 
+// eslint-disable-next-line import/no-default-export
 export default merge([prod, dev]);

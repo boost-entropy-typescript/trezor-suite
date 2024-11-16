@@ -5,11 +5,11 @@ import { app } from 'electron';
 
 import { isValidProtocol } from '../libs/protocol';
 
-import type { Module } from './index';
+import type { ModuleInit } from './index';
 
 export const SERVICE_NAME = 'custom-protocols';
 
-export const init: Module = ({ mainWindowProxy }) => {
+export const init: ModuleInit = ({ mainWindowProxy }) => {
     const { logger } = global;
 
     const protocols = process.env.PROTOCOLS as unknown as string[];
@@ -86,6 +86,7 @@ export const init: Module = ({ mainWindowProxy }) => {
 
     // App is launched via custom protocol (macOS)
     if (global.customProtocolUrl) {
+        logger.debug(SERVICE_NAME, 'App is initially launched via custom protocol (macOS)');
         if (isValidProtocol(global.customProtocolUrl, protocols)) {
             return { onLoad: firstRunOnly(global.customProtocolUrl) };
         }

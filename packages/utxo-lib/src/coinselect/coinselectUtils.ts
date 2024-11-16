@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+
 import {
     CoinSelectPaymentType,
     CoinSelectAlgorithm,
@@ -143,7 +144,7 @@ export function bignumberOrNaN(v?: BN | string, forgiving = false) {
 
     try {
         return new BN(v);
-    } catch (error) {
+    } catch {
         return defaultValue;
     }
 }

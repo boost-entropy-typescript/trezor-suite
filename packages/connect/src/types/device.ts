@@ -1,3 +1,5 @@
+import { Descriptor } from '@trezor/transport';
+
 import type { PROTO } from '../constants';
 import type { ReleaseInfo } from './firmware';
 
@@ -96,6 +98,8 @@ export type KnownDevice = BaseDevice & {
         firmwareHash: FirmwareHashCheckResult | null;
         // Maybe add AuthenticityCheck result here?
     };
+    transportSessionOwner?: undefined;
+    transportDescriptorType?: typeof undefined;
 };
 
 export type UnknownDevice = BaseDevice & {
@@ -115,6 +119,8 @@ export type UnknownDevice = BaseDevice & {
     state?: typeof undefined;
     unavailableCapabilities?: typeof undefined;
     availableTranslations?: typeof undefined;
+    transportSessionOwner?: string;
+    transportDescriptorType?: typeof undefined;
 };
 
 export type UnreadableDevice = BaseDevice & {
@@ -134,6 +140,8 @@ export type UnreadableDevice = BaseDevice & {
     state?: typeof undefined;
     unavailableCapabilities?: typeof undefined;
     availableTranslations?: typeof undefined;
+    transportSessionOwner?: undefined;
+    transportDescriptorType: Descriptor['type'];
 };
 
 export type Device = KnownDevice | UnknownDevice | UnreadableDevice;

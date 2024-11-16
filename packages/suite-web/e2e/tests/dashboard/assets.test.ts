@@ -2,6 +2,7 @@
 // @retry=2
 
 import { EventType } from '@trezor/suite-analytics';
+
 import { ExtractByEventType, Requests } from '../../support/types';
 import { onNavBar } from '../../support/pageObjects/topBarObject';
 
@@ -75,5 +76,3 @@ describe.skip('Assets', () => {
         // });
     });
 });
-
-export {};

@@ -2,8 +2,8 @@
 // @retry=2
 
 import { onNavBar } from '../../support/pageObjects/topBarObject';
-import { onSettingsMenu } from '../../support/pageObjects/settingsMenuObject';
-import { onSettingsDevicePage } from '../../support/pageObjects/settingsDeviceObject';
+import { onSettingsMenu } from '../../support/pageObjects/settings/settingsMenuObject';
+import { onSettingsDevicePage } from '../../support/pageObjects/settings/settingsDeviceObject';
 import { onMultiShareBackupModal } from '../../support/pageObjects/multiShareBackupObject';
 
 const mnemonic =
@@ -23,10 +23,8 @@ describe('Backup success', () => {
 
     it('Successful backup happy path', () => {
         // Arrange
-        cy.getTestElement('@analytics/continue-button', { timeout: 40000 })
-            .click()
-            .getTestElement('@onboarding/exit-app-button')
-            .click();
+        cy.getTestElement('@analytics/continue-button', { timeout: 40000 }).click();
+        cy.getTestElement('@onboarding/exit-app-button').click();
         cy.passThroughAuthenticityCheck();
         cy.getTestElement('@onboarding/viewOnly/enable').click();
         cy.getTestElement('@viewOnlyTooltip/gotIt', { timeout: 15000 })
@@ -63,5 +61,3 @@ describe('Backup success', () => {
         onMultiShareBackupModal.finalizeMultiShareBackup();
     });
 });
-
-export {};

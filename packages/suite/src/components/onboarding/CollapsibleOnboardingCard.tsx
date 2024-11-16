@@ -1,6 +1,8 @@
 import { ReactNode, HTMLAttributes } from 'react';
+
 import styled, { css } from 'styled-components';
 import { motion } from 'framer-motion';
+
 import { Elevation, borders, mapElevationToBackground, zIndices, spacings } from '@trezor/theme';
 import {
     ElevationUp,
@@ -242,7 +244,7 @@ export const CollapsibleOnboardingCard = ({
 
                             {heading && (
                                 <H2
-                                    margin={{ bottom: !!description ? spacings.sm : spacings.xxl }}
+                                    margin={{ bottom: description ? spacings.sm : spacings.xxl }}
                                     align="center"
                                 >
                                     {heading}

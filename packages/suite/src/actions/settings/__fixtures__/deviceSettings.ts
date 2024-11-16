@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { testMocks } from '@suite-common/test-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
@@ -5,14 +7,13 @@ import {
     deviceActions,
     prepareDeviceReducer,
 } from '@suite-common/wallet-core';
-import suiteReducer from 'src/reducers/suite/suiteReducer';
+import { TrezorDevice } from '@suite-common/suite-types';
+import { Response } from '@trezor/connect';
 
+import suiteReducer from 'src/reducers/suite/suiteReducer';
 import { extraDependencies } from 'src/support/extraDependencies';
 
 import * as deviceSettingsActions from '../deviceSettingsActions';
-import { TrezorDevice } from '@suite-common/suite-types';
-import { Response } from '@trezor/connect';
-import assert from 'assert';
 
 const { getSuiteDevice } = testMocks;
 
@@ -154,7 +155,7 @@ const fixture: Feature[] = [
                             connected: true,
                             available: false,
                             instance: 1,
-                            state: '1stTestnetAddress@device_1_id:0',
+                            state: { staticSessionId: '1stTestnetAddress@device_1_id:0' },
                             features: { ...deviceChange.features, device_id: 'device-id' },
                         },
                         settings: SUITE_SETTINGS,
@@ -169,7 +170,7 @@ const fixture: Feature[] = [
                             connected: true,
                             available: false,
                             instance: 2,
-                            state: '1stTestnetAddress@device_2_id:0',
+                            state: { staticSessionId: '1stTestnetAddress@device_2_id:0' },
                             features: { ...deviceChange.features, device_id: 'device-id' },
                         },
                         settings: SUITE_SETTINGS,
@@ -197,7 +198,7 @@ const fixture: Feature[] = [
                             connected: true,
                             available: true,
                             instance: 1,
-                            state: '1stTestnetAddress@device_1_id:0',
+                            state: { staticSessionId: '1stTestnetAddress@device_1_id:0' },
                             features: { ...deviceChange.features, device_id: 'new-device-id' },
                         },
                         settings: SUITE_SETTINGS,
@@ -212,7 +213,7 @@ const fixture: Feature[] = [
                             connected: true,
                             available: true,
                             instance: 2,
-                            state: '1stTestnetAddress@device_2_id:0',
+                            state: { staticSessionId: '1stTestnetAddress@device_2_id:0' },
                             features: { ...deviceChange.features, device_id: 'new-device-id' },
                         },
                         settings: SUITE_SETTINGS,

@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+
 const { blockbookFixtures } = require('./blockbook');
 const { rippleFixtures } = require('./ripple');
 const { blockfrostFixtures } = require('./blockfrost');
@@ -36,7 +37,7 @@ const createServer = () => {
         try {
             const data = fn(params, request);
             ws.send(JSON.stringify({ ...data, id: request.id }));
-        } catch (e) {
+        } catch {
             // empty
         }
     };

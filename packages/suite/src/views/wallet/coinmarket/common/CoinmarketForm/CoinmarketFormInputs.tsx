@@ -1,4 +1,9 @@
-import { spacings, spacingsPx } from '@trezor/theme';
+import { spacings } from '@trezor/theme';
+import { Row, Column, Card, ElevationContext } from '@trezor/components';
+import { hasBitcoinOnlyFirmware } from '@trezor/device-utils/src/firmwareUtils';
+import { TokenAddress } from '@suite-common/wallet-types';
+import { formatAmount } from '@suite-common/wallet-utils';
+
 import { Fees } from 'src/components/wallet/Fees/Fees';
 import {
     FORM_CRYPTO_CURRENCY_SELECT,
@@ -15,29 +20,19 @@ import {
     CoinmarketExchangeFormProps,
     CoinmarketSellFormProps,
 } from 'src/types/coinmarket/coinmarketForm';
-import { CoinmarketFormInput, CoinmarketBorder } from 'src/views/wallet/coinmarket';
 import { CoinmarketFormInputCryptoSelect } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputCryptoSelect';
 import { CoinmarketFormInputAccount } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputAccount';
 import { CoinmarketFormInputCountry } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputCountry';
 import { CoinmarketFormInputPaymentMethod } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputPaymentMethod';
-import styled from 'styled-components';
 import { CoinmarketFormSwitcherExchangeRates } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormSwitcherExchangeRates';
 import { CoinmarketFormInputFiatCrypto } from 'src/views/wallet/coinmarket/common/CoinmarketForm/CoinmarketFormInput/CoinmarketFormInputFiatCrypto/CoinmarketFormInputFiatCrypto';
 import { CoinmarketFractionButtons } from 'src/views/wallet/coinmarket/common/CoinmarketFractionButtons';
-import { Row } from '@trezor/components';
 import { CoinmarketBalance } from 'src/views/wallet/coinmarket/common/CoinmarketBalance';
-import { TokenAddress } from '@suite-common/wallet-types';
-import { formatAmount } from '@suite-common/wallet-utils';
-import { getNetworkDecimals } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
+import { getCoinmarketNetworkDecimals } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
     isCoinmarketExchangeContext,
     isCoinmarketSellContext,
 } from 'src/utils/wallet/coinmarket/coinmarketTypingUtils';
-
-const CoinmarketFeesWrapper = styled.div`
-    margin-bottom: ${spacingsPx.md};
-`;
 
 export const CoinmarketFormInputs = () => {
     const context = useCoinmarketFormContext();
@@ -62,19 +57,17 @@ export const CoinmarketFormInputs = () => {
         const tokenAddress = (output.token ?? undefined) as TokenAddress | undefined;
         const outputAmount =
             shouldSendInSats && output.amount
-                ? formatAmount(output.amount, getNetworkDecimals(sendCryptoSelect?.decimals))
+                ? formatAmount(output.amount, getCoinmarketNetworkDecimals({ sendCryptoSelect }))
                 : output.amount;
 
         return (
             <>
-                <CoinmarketFormInput>
-                    <CoinmarketFormInputAccount<CoinmarketSellFormProps>
-                        accountSelectName={FORM_SEND_CRYPTO_CURRENCY_SELECT}
-                        label="TR_COINMARKET_YOU_SELL"
-                        methods={{ ...context }}
-                    />
-                </CoinmarketFormInput>
-                <CoinmarketFormInput $isWithoutPadding={amountInCrypto}>
+                <CoinmarketFormInputAccount<CoinmarketSellFormProps>
+                    accountSelectName={FORM_SEND_CRYPTO_CURRENCY_SELECT}
+                    label="TR_COINMARKET_YOU_SELL"
+                    methods={{ ...context }}
+                />
+                <Column alignItems="stretch" gap={spacings.xs}>
                     <CoinmarketFormInputFiatCrypto<CoinmarketSellFormProps>
                         cryptoInputName={FORM_OUTPUT_AMOUNT}
                         fiatInputName={FORM_OUTPUT_FIAT}
@@ -83,47 +76,42 @@ export const CoinmarketFormInputs = () => {
                         cryptoCurrencyLabel={sendCryptoSelect?.value}
                         methods={{ ...context }}
                     />
-                </CoinmarketFormInput>
-                {amountInCrypto && (
-                    <Row
-                        justifyContent="space-between"
-                        alignItems="center"
-                        margin={{ top: spacings.xs, bottom: spacings.xl }}
-                    >
-                        <CoinmarketFractionButtons
-                            disabled={helpers.isBalanceZero}
-                            onFractionClick={helpers.setRatioAmount}
-                            onAllClick={helpers.setAllAmount}
+                    {amountInCrypto && (
+                        <Row justifyContent="space-between" alignItems="flex-start">
+                            <CoinmarketFractionButtons
+                                disabled={helpers.isBalanceZero}
+                                onFractionClick={helpers.setRatioAmount}
+                                onAllClick={helpers.setAllAmount}
+                            />
+                            <CoinmarketBalance
+                                balance={outputAmount}
+                                cryptoSymbolLabel={sendCryptoSelect?.value}
+                                networkSymbol={account.symbol}
+                                tokenAddress={tokenAddress as TokenAddress}
+                                showOnlyAmount
+                                amountInCrypto={amountInCrypto}
+                                sendCryptoSelect={sendCryptoSelect}
+                            />
+                        </Row>
+                    )}
+                </Column>
+                <Card margin={{ vertical: spacings.sm }}>
+                    <ElevationContext baseElevation={0}>
+                        <Fees
+                            control={control}
+                            feeInfo={feeInfo}
+                            account={account}
+                            composedLevels={composedLevels}
+                            errors={errors}
+                            register={register}
+                            setValue={setValue}
+                            getValues={getValues}
+                            changeFeeLevel={changeFeeLevel}
                         />
-                        <CoinmarketBalance
-                            balance={outputAmount}
-                            cryptoSymbolLabel={sendCryptoSelect?.value}
-                            networkSymbol={account.symbol}
-                            tokenAddress={tokenAddress as TokenAddress}
-                            showOnlyAmount
-                            amountInCrypto={amountInCrypto}
-                        />
-                    </Row>
-                )}
-                <CoinmarketFeesWrapper>
-                    <Fees
-                        control={control}
-                        feeInfo={feeInfo}
-                        account={account}
-                        composedLevels={composedLevels}
-                        errors={errors}
-                        register={register}
-                        setValue={setValue}
-                        getValues={getValues}
-                        changeFeeLevel={changeFeeLevel}
-                    />
-                </CoinmarketFeesWrapper>
-                <CoinmarketFormInput>
-                    <CoinmarketFormInputPaymentMethod label="TR_COINMARKET_RECEIVE_METHOD" />
-                </CoinmarketFormInput>
-                <CoinmarketFormInput>
-                    <CoinmarketFormInputCountry label="TR_COINMARKET_COUNTRY" />
-                </CoinmarketFormInput>
+                    </ElevationContext>
+                </Card>
+                <CoinmarketFormInputPaymentMethod label="TR_COINMARKET_RECEIVE_METHOD" />
+                <CoinmarketFormInputCountry label="TR_COINMARKET_COUNTRY" />
             </>
         );
     }
@@ -150,19 +138,17 @@ export const CoinmarketFormInputs = () => {
         const supportedCryptoCurrencies = exchangeInfo?.buySymbols;
         const outputAmount =
             shouldSendInSats && output.amount
-                ? formatAmount(output.amount, getNetworkDecimals(sendCryptoSelect?.decimals))
+                ? formatAmount(output.amount, getCoinmarketNetworkDecimals({ sendCryptoSelect }))
                 : output.amount;
 
         return (
             <>
-                <CoinmarketFormInput>
-                    <CoinmarketFormInputAccount<CoinmarketExchangeFormProps>
-                        accountSelectName={FORM_SEND_CRYPTO_CURRENCY_SELECT}
-                        label="TR_FROM"
-                        methods={{ ...context }}
-                    />
-                </CoinmarketFormInput>
-                <CoinmarketFormInput $isWithoutPadding={amountInCrypto}>
+                <CoinmarketFormInputAccount<CoinmarketExchangeFormProps>
+                    accountSelectName={FORM_SEND_CRYPTO_CURRENCY_SELECT}
+                    label="TR_FROM"
+                    methods={{ ...context }}
+                />
+                <Column alignItems="stretch" gap={spacings.xs}>
                     <CoinmarketFormInputFiatCrypto<CoinmarketExchangeFormProps>
                         cryptoInputName={FORM_OUTPUT_AMOUNT}
                         fiatInputName={FORM_OUTPUT_FIAT}
@@ -171,55 +157,46 @@ export const CoinmarketFormInputs = () => {
                         cryptoCurrencyLabel={sendCryptoSelect?.value}
                         methods={{ ...context }}
                     />
-                </CoinmarketFormInput>
-                {amountInCrypto && (
-                    <Row
-                        justifyContent="space-between"
-                        alignItems="center"
-                        margin={{ top: spacings.xs, bottom: spacings.xl }}
-                    >
-                        <CoinmarketFractionButtons
-                            disabled={helpers.isBalanceZero}
-                            onFractionClick={helpers.setRatioAmount}
-                            onAllClick={helpers.setAllAmount}
-                        />
-                        <CoinmarketBalance
-                            balance={outputAmount}
-                            cryptoSymbolLabel={sendCryptoSelect?.value}
-                            networkSymbol={account.symbol}
-                            tokenAddress={tokenAddress}
-                            showOnlyAmount
-                            amountInCrypto={amountInCrypto}
-                        />
-                    </Row>
-                )}
-                <CoinmarketFormInput>
-                    <CoinmarketFormInputCryptoSelect<CoinmarketExchangeFormProps>
-                        label="TR_TO"
-                        cryptoSelectName={FORM_RECEIVE_CRYPTO_CURRENCY_SELECT}
-                        supportedCryptoCurrencies={supportedCryptoCurrencies}
-                        methods={{ ...context }}
-                    />
-                </CoinmarketFormInput>
-                <CoinmarketBorder
-                    $margin={{
-                        top: spacings.xs,
-                        bottom: spacings.xxl,
-                    }}
+                    {amountInCrypto && (
+                        <Row justifyContent="space-between" alignItems="flex-start">
+                            <CoinmarketFractionButtons
+                                disabled={helpers.isBalanceZero}
+                                onFractionClick={helpers.setRatioAmount}
+                                onAllClick={helpers.setAllAmount}
+                            />
+                            <CoinmarketBalance
+                                balance={outputAmount}
+                                cryptoSymbolLabel={sendCryptoSelect?.value}
+                                networkSymbol={account.symbol}
+                                tokenAddress={tokenAddress}
+                                showOnlyAmount
+                                amountInCrypto={amountInCrypto}
+                                sendCryptoSelect={sendCryptoSelect}
+                            />
+                        </Row>
+                    )}
+                </Column>
+                <CoinmarketFormInputCryptoSelect<CoinmarketExchangeFormProps>
+                    label="TR_TO"
+                    cryptoSelectName={FORM_RECEIVE_CRYPTO_CURRENCY_SELECT}
+                    supportedCryptoCurrencies={supportedCryptoCurrencies}
+                    methods={{ ...context }}
                 />
-                <CoinmarketFeesWrapper>
-                    <Fees
-                        control={control}
-                        feeInfo={feeInfo}
-                        account={account}
-                        composedLevels={composedLevels}
-                        errors={errors}
-                        register={register}
-                        setValue={setValue}
-                        getValues={getValues}
-                        changeFeeLevel={changeFeeLevel}
-                    />
-                </CoinmarketFeesWrapper>
+                <Card margin={{ vertical: spacings.sm }}>
+                    <ElevationContext baseElevation={0}>
+                        <Fees
+                            control={control}
+                            feeInfo={feeInfo}
+                            account={account}
+                            composedLevels={composedLevels}
+                            errors={errors}
+                            register={register}
+                            setValue={setValue}
+                            getValues={getValues}
+                            changeFeeLevel={changeFeeLevel}
+                        />
+                    </ElevationContext>
+                </Card>
                 <CoinmarketFormSwitcherExchangeRates rateType={rateType} setValue={setValue} />
             </>
         );
@@ -231,31 +208,23 @@ export const CoinmarketFormInputs = () => {
 
     return (
         <>
-            <CoinmarketFormInput>
-                <CoinmarketFormInputCryptoSelect<CoinmarketBuyFormProps>
-                    label="TR_COINMARKET_YOU_BUY"
-                    cryptoSelectName={FORM_CRYPTO_CURRENCY_SELECT}
-                    supportedCryptoCurrencies={supportedCryptoCurrencies}
-                    methods={{ ...context }}
-                    isDisabled={hasBitcoinOnlyFirmware(device)}
-                />
-            </CoinmarketFormInput>
-            <CoinmarketFormInput>
-                <CoinmarketFormInputFiatCrypto<CoinmarketBuyFormProps>
-                    cryptoInputName={FORM_CRYPTO_INPUT}
-                    fiatInputName={FORM_FIAT_INPUT}
-                    cryptoSelectName={FORM_CRYPTO_CURRENCY_SELECT}
-                    currencySelectLabel={currencySelect.label}
-                    cryptoCurrencyLabel={cryptoSelect.value}
-                    methods={{ ...context }}
-                />
-            </CoinmarketFormInput>
-            <CoinmarketFormInput>
-                <CoinmarketFormInputPaymentMethod label="TR_COINMARKET_PAYMENT_METHOD" />
-            </CoinmarketFormInput>
-            <CoinmarketFormInput>
-                <CoinmarketFormInputCountry label="TR_COINMARKET_COUNTRY" />
-            </CoinmarketFormInput>
+            <CoinmarketFormInputCryptoSelect<CoinmarketBuyFormProps>
+                label="TR_COINMARKET_YOU_BUY"
+                cryptoSelectName={FORM_CRYPTO_CURRENCY_SELECT}
+                supportedCryptoCurrencies={supportedCryptoCurrencies}
+                methods={{ ...context }}
+                isDisabled={hasBitcoinOnlyFirmware(device)}
+            />
+            <CoinmarketFormInputFiatCrypto<CoinmarketBuyFormProps>
+                cryptoInputName={FORM_CRYPTO_INPUT}
+                fiatInputName={FORM_FIAT_INPUT}
+                cryptoSelectName={FORM_CRYPTO_CURRENCY_SELECT}
+                currencySelectLabel={currencySelect.label}
+                cryptoCurrencyLabel={cryptoSelect.value}
+                methods={{ ...context }}
+            />
+            <CoinmarketFormInputPaymentMethod label="TR_COINMARKET_PAYMENT_METHOD" />
+            <CoinmarketFormInputCountry label="TR_COINMARKET_COUNTRY" />
         </>
     );
 };

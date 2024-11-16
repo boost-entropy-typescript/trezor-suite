@@ -1,12 +1,13 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/NEMSignTransaction.js
 
+import { AssertWeak } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
 import { validatePath } from '../../../utils/pathUtils';
 import * as helper from '../nemSignTx';
 import type { PROTO } from '../../../constants';
-import { AssertWeak } from '@trezor/schema-utils';
 import { NEMSignTransaction as NEMSignTransactionSchema } from '../../../types/api/nem';
 
 export default class NEMSignTransaction extends AbstractMethod<
@@ -15,6 +16,7 @@ export default class NEMSignTransaction extends AbstractMethod<
 > {
     init() {
         this.requiredPermissions = ['read', 'write'];
+        this.requiredDeviceCapabilities = ['Capability_NEM'];
         this.firmwareRange = getFirmwareRange(this.name, getMiscNetwork('NEM'), this.firmwareRange);
 
         const { payload } = this;

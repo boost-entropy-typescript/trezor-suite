@@ -1,12 +1,16 @@
 import { css } from 'styled-components';
-import { makePropsTransient, TransientProps } from './transientProps';
+
 import { SpacingValues } from '@trezor/theme';
+
+import { makePropsTransient, TransientProps } from './transientProps';
 
 type Margin = {
     top?: SpacingValues | 'auto';
     bottom?: SpacingValues | 'auto';
     left?: SpacingValues | 'auto';
     right?: SpacingValues | 'auto';
+    horizontal?: SpacingValues | 'auto';
+    vertical?: SpacingValues | 'auto';
 };
 const overflows = [
     'auto',
@@ -67,10 +71,10 @@ export const withFrameProps = ({
     return css`
         ${$margin &&
         css`
-            ${$margin.top ? `margin-top: ${getValueWithUnit($margin.top)};` : ''}
-            ${$margin.bottom ? `margin-bottom: ${getValueWithUnit($margin.bottom)};` : ''}
-            ${$margin.left ? `margin-left: ${getValueWithUnit($margin.left)};` : ''}
-            ${$margin.right ? `margin-right: ${getValueWithUnit($margin.right)};` : ''}
+            margin: ${getValueWithUnit($margin.top ?? $margin.vertical ?? 0)}
+                ${getValueWithUnit($margin.right ?? $margin.horizontal ?? 0)}
+                ${getValueWithUnit($margin.bottom ?? $margin.vertical ?? 0)}
+                ${getValueWithUnit($margin.left ?? $margin.horizontal ?? 0)};
         `}
 
         ${$minWidth &&
@@ -171,6 +175,8 @@ export const getFramePropsStory = (allowedFrameProps: Array<FramePropsKeys>) => 
                           right: undefined,
                           bottom: undefined,
                           left: undefined,
+                          horizontal: undefined,
+                          vertical: undefined,
                       },
                   }
                 : {}),

@@ -1,14 +1,20 @@
-import { isAndroid } from '@trezor/env-utils';
-import { AnimatePresence, motion } from 'framer-motion';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Card, Column, Row, Input, Button, motionAnimation, Icon } from '@trezor/components';
-import { PasswordStrengthIndicator } from '../PasswordStrengthIndicator/PasswordStrengthIndicator';
+import { ChangeEvent, MutableRefObject, ReactNode, RefObject } from 'react';
+
+import { AnimatePresence, motion } from 'framer-motion';
 import styled, { useTheme } from 'styled-components';
+
+import { isAndroid } from '@trezor/env-utils';
+import { Button, Card, Column, Icon, Input, motionAnimation, Row } from '@trezor/components';
+import { ButtonVariant } from '@trezor/components/src/components/buttons/buttonStyleUtils';
+import { BannerVariant } from '@trezor/components/src/components/Banner/types';
 import { spacings, spacingsPx, typography } from '@trezor/theme';
 import { useKeyPress } from '@trezor/react-utils';
-import { ChangeEvent, MutableRefObject, ReactNode, RefObject } from 'react';
+
+import { PasswordStrengthIndicator } from '../PasswordStrengthIndicator/PasswordStrengthIndicator';
 import { WalletType } from './types';
 import { DOT } from './consts';
+import { NonAsciiBanner } from './NonAsciiBanner';
 
 // eslint-disable-next-line local-rules/no-override-ds-component
 const PassphraseInput = styled(Input)`
@@ -43,12 +49,15 @@ const Description = styled.div`
 
 type PassphraseTypeCardContentProps = {
     submitLabel: ReactNode;
+    submitVariant?: ButtonVariant;
     type: WalletType;
     singleColModal?: boolean;
     displayValue: string;
     isPassphraseTooLong: boolean;
     value: string;
     setValue: (value: string) => void;
+    showAsciiBanner?: boolean;
+    asciiBannerVariant?: BannerVariant;
     showPassword: boolean;
     setShowPassword: (showPassword: boolean) => void;
     hiddenWalletTouched: boolean;
@@ -59,6 +68,7 @@ type PassphraseTypeCardContentProps = {
 };
 
 export const PassphraseTypeCardContent = ({
+    asciiBannerVariant = 'info',
     type,
     displayValue,
     isPassphraseTooLong,
@@ -66,6 +76,8 @@ export const PassphraseTypeCardContent = ({
     value,
     setValue,
     submitLabel,
+    submitVariant = 'primary',
+    showAsciiBanner,
     showPassword,
     setShowPassword,
     hiddenWalletTouched,
@@ -150,6 +162,7 @@ export const PassphraseTypeCardContent = ({
                                         ) : null
                                     }
                                     inputState={isPassphraseTooLong ? 'error' : undefined}
+                                    // eslint-disable-next-line jsx-a11y/no-autofocus
                                     autoFocus={!isAndroid()}
                                     innerAddon={
                                         <Icon
@@ -175,6 +188,7 @@ export const PassphraseTypeCardContent = ({
                         {value && !isPassphraseTooLong && (
                             <PasswordStrengthIndicator password={value} />
                         )}
+                        {showAsciiBanner && <NonAsciiBanner variant={asciiBannerVariant} />}
                     </>
                 )}
 
@@ -190,7 +204,7 @@ export const PassphraseTypeCardContent = ({
                                             type === 'hidden' ? 'hidden' : 'standard'
                                         }/submit-button`}
                                         isDisabled={isPassphraseEmpty || isPassphraseTooLong}
-                                        variant="primary"
+                                        variant={submitVariant}
                                         onClick={() => submit(value)}
                                         isFullWidth
                                     >

@@ -4,6 +4,8 @@
 
 import { trezorUtils } from '@fivebinaries/coin-selection';
 
+import { AssertWeak, Type } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
@@ -35,7 +37,6 @@ import {
 import { gatherWitnessPaths } from '../cardanoWitnesses';
 import type { AssetGroupWithTokens } from '../cardanoTokenBundle';
 import { tokenBundleToProto } from '../cardanoTokenBundle';
-import { AssertWeak, Type } from '@trezor/schema-utils';
 
 const CardanoSignTransactionFeatures = Object.freeze({
     // FW <2.6.0 is not supported by Connect at all
@@ -77,6 +78,7 @@ export default class CardanoSignTransaction extends AbstractMethod<
 > {
     init() {
         this.requiredPermissions = ['read', 'write'];
+        this.requiredDeviceCapabilities = ['Capability_Cardano'];
         this.firmwareRange = getFirmwareRange(
             this.name,
             getMiscNetwork('Cardano'),

@@ -1,7 +1,19 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useSelector, useDispatch } from 'src/hooks/suite';
+
 import { useDidUpdate } from '@trezor/react-utils';
+import { FormState } from '@suite-common/wallet-types';
+import {
+    getFeeLevels,
+    getDefaultValues,
+    amountToSmallestUnit,
+    formatAmount,
+} from '@suite-common/wallet-utils';
+import { getNetworkSymbolForProtocol } from '@suite-common/suite-utils';
+import { selectCurrentFiatRates } from '@suite-common/wallet-core';
+import { FiatCurrencyCode } from '@suite-common/suite-config';
+
+import { useSelector, useDispatch } from 'src/hooks/suite';
 import {
     getSendFormDraftThunk,
     removeSendFormDraftThunk,
@@ -15,26 +27,16 @@ import {
 import { goto } from 'src/actions/suite/routerActions';
 import { fillSendForm } from 'src/actions/suite/protocolActions';
 import { AppState } from 'src/types/suite';
-import { FormState } from '@suite-common/wallet-types';
-import {
-    getFeeLevels,
-    getDefaultValues,
-    amountToSatoshi,
-    formatAmount,
-} from '@suite-common/wallet-utils';
+import { SendContextValues, UseSendFormState } from 'src/types/wallet/sendForm';
+
 import { useSendFormOutputs } from './useSendFormOutputs';
 import { useSendFormFields } from './useSendFormFields';
 import { useSendFormCompose } from './useSendFormCompose';
 import { useSendFormImport } from './useSendFormImport';
 import { useFees } from './form/useFees';
-import { getNetworkSymbolForProtocol } from '@suite-common/suite-utils';
-
 import { useBitcoinAmountUnit } from './useBitcoinAmountUnit';
 import { useUtxoSelection } from './form/useUtxoSelection';
 import { useExcludedUtxos } from './form/useExcludedUtxos';
-import { selectCurrentFiatRates } from '@suite-common/wallet-core';
-import { FiatCurrencyCode } from '@suite-common/suite-config';
-import { SendContextValues, UseSendFormState } from 'src/types/wallet/sendForm';
 
 export const SendContext = createContext<SendContextValues | null>(null);
 SendContext.displayName = 'SendContext';
@@ -290,7 +292,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
                 const protocolAmount = protocol.sendForm.amount.toString();
 
                 const formattedAmount = shouldSendInSats
-                    ? amountToSatoshi(protocolAmount, state.network.decimals)
+                    ? amountToSmallestUnit(protocolAmount, state.network.decimals)
                     : protocolAmount;
 
                 sendFormUtils.setAmount(outputIndex, formattedAmount);
@@ -356,7 +358,7 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
     useDidUpdate(() => {
         const { outputs } = getValues();
 
-        const conversionToUse = shouldSendInSats ? amountToSatoshi : formatAmount;
+        const conversionToUse = shouldSendInSats ? amountToSmallestUnit : formatAmount;
 
         outputs.forEach((output, index) => {
             if (!output.amount) {

@@ -1,12 +1,12 @@
 import fetch from 'cross-fetch';
 
-import { MessagesSchema } from '@trezor/protobuf';
+import { MessagesSchema, parseConfigure, decode as decodeProtobuf } from '@trezor/protobuf';
 import { trzd } from '@trezor/protocol';
-import { parseConfigure, decode as decodeProtobuf } from '@trezor/protobuf';
+import { Type, Static, Assert } from '@trezor/schema-utils';
+
 import { DataManager } from '../../data/DataManager';
 import { EthereumNetworkInfo } from '../../types';
 import { ethereumNetworkInfoBase } from '../../data/coinInfo';
-import { Type, Static, Assert } from '@trezor/schema-utils';
 
 interface GetEthereumDefinitions {
     chainId?: number;
@@ -152,9 +152,10 @@ export const ethereumNetworkInfoFromDefinition = (
         connect: true,
         T1B1: '1.6.2',
         T2T1: '2.0.7',
-        T2B1: '2.6.1',
-        T3B1: '2.8.1',
-        T3T1: '2.7.1',
+        T2B1: '2.0.0',
+        T3B1: '2.0.0',
+        T3T1: '2.0.0',
+        T3W1: '2.0.0',
     },
     blockchainLink: undefined,
 });

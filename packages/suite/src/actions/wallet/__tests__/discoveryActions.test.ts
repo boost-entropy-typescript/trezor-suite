@@ -18,6 +18,7 @@ import { notificationsActions } from '@suite-common/toast-notifications';
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import * as discoveryActions from '@suite-common/wallet-core';
 import TrezorConnect, { ERRORS } from '@trezor/connect';
+import { BITCOIN_ONLY_NETWORKS } from '@suite-common/suite-constants';
 
 import { configureStore, filterThunkActionTypes } from 'src/support/tests/configureStore';
 import walletSettingsReducer from 'src/reducers/wallet/settingsReducer';
@@ -171,7 +172,7 @@ const setTrezorConnectFixtures = (input?: FixtureInput) => {
 };
 
 const SUITE_DEVICE = getSuiteDevice({ state: '1stTestnetAddress@device_id:0', connected: true });
-export const getInitialState = (device = SUITE_DEVICE) => ({
+const getInitialState = (device = SUITE_DEVICE) => ({
     device: {
         devices: [device],
         selectedDevice: device,
@@ -182,7 +183,7 @@ export const getInitialState = (device = SUITE_DEVICE) => ({
         accounts: accountsReducer(undefined, { type: 'foo' } as any),
         settings: walletSettingsReducer(undefined, {
             type: walletSettingsActions.changeNetworks.type,
-            payload: ['btc', 'test'],
+            payload: BITCOIN_ONLY_NETWORKS,
         }),
     },
 });
@@ -436,25 +437,26 @@ describe('Discovery Actions', () => {
         expect(store.getState().wallet.discovery.length).toEqual(0);
     });
 
-    it('Start/stop', done => {
-        const f = new Promise<any>(resolve => {
-            setTimeout(() => resolve(paramsError('discovery_interrupted')), 100);
-        });
-        // set fixtures in @trezor/connect
-        setTrezorConnectFixtures(f);
-        const store = initStore();
-        store.dispatch(
-            createDiscoveryThunk({
-                deviceState: '1stTestnetAddress@device_id:0',
-                device: SUITE_DEVICE,
-            }),
-        );
-        store.dispatch(startDiscoveryThunk()).then(() => {
-            const action = filterThunkActionTypes(store.getActions()).pop();
-            done(expect(action?.type).toEqual(discoveryActions.stopDiscovery.type));
-        });
-        store.dispatch(stopDiscoveryThunk());
-    });
+    it('Start/stop', () =>
+        new Promise<void>(done => {
+            const f = new Promise<any>(resolve => {
+                setTimeout(() => resolve(paramsError('discovery_interrupted')), 100);
+            });
+            // set fixtures in @trezor/connect
+            setTrezorConnectFixtures(f);
+            const store = initStore();
+            store.dispatch(
+                createDiscoveryThunk({
+                    deviceState: '1stTestnetAddress@device_id:0',
+                    device: SUITE_DEVICE,
+                }),
+            );
+            store.dispatch(startDiscoveryThunk()).then(() => {
+                const action = filterThunkActionTypes(store.getActions()).pop();
+                done(expect(action?.type).toEqual(discoveryActions.stopDiscovery.type));
+            });
+            store.dispatch(stopDiscoveryThunk());
+        }));
 
     it('Stop discovery without device (discovery not exists)', async () => {
         const state = {

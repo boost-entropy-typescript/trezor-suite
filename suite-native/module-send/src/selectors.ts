@@ -7,9 +7,9 @@ import {
     selectAccountByKey,
     selectDevice,
     selectSendPrecomposedTx,
-    selectSendFormDraftByAccountKey,
+    selectSendFormDraftByKey,
     selectSendFormReviewButtonRequestsCount,
-    selectSendSignedTx,
+    selectSendSerializedTx,
 } from '@suite-common/wallet-core';
 import {
     constructTransactionReviewOutputs,
@@ -17,15 +17,16 @@ import {
     getTransactionReviewOutputState,
     isRbfTransaction,
 } from '@suite-common/wallet-utils';
-import { ReviewOutputState } from '@suite-common/wallet-types';
+import { AccountKey, ReviewOutputState, TokenAddress } from '@suite-common/wallet-types';
 
 import { StatefulReviewOutput } from './types';
 
 export const selectTransactionReviewOutputs = (
     state: SendRootState & AccountsRootState & DeviceRootState,
-    accountKey: string,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
 ): StatefulReviewOutput[] | null => {
-    const precomposedForm = selectSendFormDraftByAccountKey(state, accountKey);
+    const precomposedForm = selectSendFormDraftByKey(state, accountKey, tokenContract);
     const precomposedTx = selectSendPrecomposedTx(state);
 
     const decreaseOutputId =
@@ -66,9 +67,10 @@ export const selectTransactionReviewOutputs = (
 
 export const selectIsOutputsReviewInProgress = (
     state: SendRootState & AccountsRootState & DeviceRootState,
-    accountKey: string,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
 ): boolean => {
-    const outputs = selectTransactionReviewOutputs(state, accountKey);
+    const outputs = selectTransactionReviewOutputs(state, accountKey, tokenContract);
 
     return G.isNotNullable(outputs) && A.isNotEmpty(outputs);
 };
@@ -76,23 +78,31 @@ export const selectIsOutputsReviewInProgress = (
 export const selectIsFirstTransactionAddressConfirmed = (
     state: SendRootState & AccountsRootState & DeviceRootState,
     accountKey: string,
+    tokenContract?: TokenAddress,
 ): boolean => {
-    const outputs = selectTransactionReviewOutputs(state, accountKey);
+    const outputs = selectTransactionReviewOutputs(state, accountKey, tokenContract);
 
     return outputs?.[0].state === 'success';
 };
 
+export const selectIsTransactionAlreadySigned = (state: SendRootState) => {
+    const serializedTx = selectSendSerializedTx(state);
+
+    return G.isNotNullable(serializedTx);
+};
+
 export const selectReviewSummaryOutputState = (
     state: SendRootState & AccountsRootState & DeviceRootState,
-    accountKey: string,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
 ): ReviewOutputState => {
-    const signedTx = selectSendSignedTx(state);
+    const isTransactionAlreadySigned = selectIsTransactionAlreadySigned(state);
 
-    if (signedTx) {
+    if (isTransactionAlreadySigned) {
         return 'success';
     }
 
-    const reviewOutputs = selectTransactionReviewOutputs(state, accountKey);
+    const reviewOutputs = selectTransactionReviewOutputs(state, accountKey, tokenContract);
 
     if (reviewOutputs && A.all(reviewOutputs, output => output.state === 'success')) {
         return 'active';
@@ -103,7 +113,8 @@ export const selectReviewSummaryOutputState = (
 
 export const selectReviewSummaryOutput = (
     state: AccountsRootState & DeviceRootState & SendRootState,
-    accountKey: string,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
 ) => {
     const precomposedTx = selectSendPrecomposedTx(state);
 
@@ -111,7 +122,7 @@ export const selectReviewSummaryOutput = (
 
     const { totalSpent, fee } = precomposedTx;
 
-    const outputState = selectReviewSummaryOutputState(state, accountKey);
+    const outputState = selectReviewSummaryOutputState(state, accountKey, tokenContract);
 
     return {
         state: outputState,
@@ -122,9 +133,10 @@ export const selectReviewSummaryOutput = (
 
 export const selectTransactionReviewActiveStepIndex = (
     state: AccountsRootState & DeviceRootState & SendRootState,
-    accountKey: string,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
 ) => {
-    const reviewOutputs = selectTransactionReviewOutputs(state, accountKey);
+    const reviewOutputs = selectTransactionReviewOutputs(state, accountKey, tokenContract);
 
     if (!reviewOutputs) return 0;
 

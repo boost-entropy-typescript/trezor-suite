@@ -2,14 +2,15 @@
 icon: log
 ---
 
+import Markdown from 'react-markdown';
+
 import rehypeSectionize from '@hbsnow/rehype-sectionize';
 import remarkGfm from 'remark-gfm';
 import remarkGemoji from 'remark-gemoji';
 import useSWR from 'swr';
-import Markdown from 'react-markdown';
-import { useMDXComponents } from '@trezor/connect-explorer-theme';
 import { Callout } from 'nextra/components';
 
+import { useMDXComponents } from '@trezor/connect-explorer-theme';
 import { spacings } from '@trezor/theme';
 import { CollapsibleBox } from '@trezor/components';
 import { isNewer } from '@trezor/utils/src/versionUtils';
@@ -30,8 +31,8 @@ export const loadChangelog = branch => {
             content = content.replace(/^(#+)/gm, '$1#');
             // Add links to commit hashes
             content = content.replace(
-                /([a-f0-9]{7,10})([\),])/g,
-                `[\$1](https://github.com/trezor/trezor-suite/commit/\$1)$2`,
+                /([a-f0-9]{7,10})([),])/g,
+                `[$1](https://github.com/trezor/trezor-suite/commit/$1)$2`,
             );
             const versionOverview =  `## Version overview\n\n` + content.substring(0, content.indexOf('##'));
             const changelog = content.substring(content.indexOf('##'));

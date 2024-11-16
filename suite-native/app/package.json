@@ -1,14 +1,13 @@
 {
     "name": "@suite-native/app",
     "version": "1.0.0",
-    "suiteNativeVersion": "24.10.2",
+    "suiteNativeVersion": "24.11.2",
     "main": "index.js",
     "scripts": {
         "android": "expo run:android",
         "android:clean": "cd android && ./gradlew clean",
         "ios": "expo run:ios",
         "start": "expo start --dev-client",
-        "lint:js": "yarn g:eslint .",
         "type-check": "yarn g:tsc -b",
         "pods": "npx pod-install",
         "prebuild": "expo prebuild",
@@ -22,7 +21,7 @@
         "reverse-ports": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:21325 tcp:21325 && adb reverse tcp:19121 tcp:19121"
     },
     "dependencies": {
-        "@gorhom/bottom-sheet": "5.0.1",
+        "@gorhom/bottom-sheet": "5.0.5",
         "@mobily/ts-belt": "^3.13.1",
         "@react-native-community/netinfo": "11.3.2",
         "@react-native/metro-config": "0.75.2",

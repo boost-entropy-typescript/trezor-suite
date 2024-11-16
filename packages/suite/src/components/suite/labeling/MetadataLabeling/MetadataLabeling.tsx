@@ -1,19 +1,23 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
+
 import styled from 'styled-components';
 
 import { Button, DropdownMenuItemProps, Row } from '@trezor/components';
+import type { Timeout } from '@trezor/type-utils';
+import { StaticSessionId } from '@trezor/connect';
+
 import { useDiscovery, useDispatch, useSelector } from 'src/hooks/suite';
 import { addMetadata, init, setEditing } from 'src/actions/suite/metadataLabelingActions';
 import { MetadataAddPayload } from 'src/types/suite/metadata';
 import { Translation } from 'src/components/suite';
-import { Props, ExtendedProps } from './definitions';
-import { withEditable } from './withEditable';
-import { withDropdown } from './withDropdown';
 import {
     selectIsLabelingAvailableForEntity,
     selectIsLabelingInitPossible,
 } from 'src/reducers/suite/metadataReducer';
-import type { Timeout } from '@trezor/type-utils';
+
+import { Props, ExtendedProps } from './definitions';
+import { withEditable } from './withEditable';
+import { withDropdown } from './withDropdown';
 import { AccountTypeBadge } from '../../AccountTypeBadge';
 
 const LabelValue = styled.div`
@@ -301,7 +305,8 @@ export const MetadataLabeling = ({
     }, [payload.defaultValue, timeout]);
 
     const isLabelingInitPossible = useSelector(selectIsLabelingInitPossible);
-    const deviceState = payload.type === 'walletLabel' ? payload.entityKey : undefined;
+    const deviceState =
+        payload.type === 'walletLabel' ? (payload.entityKey as StaticSessionId) : undefined;
     const isLabelingAvailable = useSelector(state =>
         selectIsLabelingAvailableForEntity(state, payload.entityKey, deviceState),
     );

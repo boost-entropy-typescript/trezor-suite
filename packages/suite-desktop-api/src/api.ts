@@ -15,6 +15,7 @@ import {
     Status,
     BridgeSettings,
     TorSettings,
+    TraySettings,
 } from './messages';
 
 // Event messages from renderer to main process
@@ -68,6 +69,8 @@ export interface RendererChannels {
     'bridge/status': Status;
     'bridge/settings': BridgeSettings;
 
+    'tray/settings': TraySettings;
+
     'handshake/event': HandshakeEvent;
 }
 
@@ -94,6 +97,8 @@ export interface InvokeChannels {
     'user-data/open': (directory?: string) => InvokeResult;
     'udev/install': () => InvokeResult;
     'app/auto-start/is-enabled': () => InvokeResult<boolean>;
+    'tray/change-settings': (payload: TraySettings) => InvokeResult;
+    'tray/get-settings': () => InvokeResult<TraySettings>;
 }
 
 type DesktopApiListener = ListenerMethod<RendererChannels>;
@@ -153,4 +158,7 @@ export interface DesktopApi {
     toggleBridge: DesktopApiInvoke<'bridge/toggle'>;
     changeBridgeSettings: DesktopApiInvoke<'bridge/change-settings'>;
     getBridgeSettings: DesktopApiInvoke<'bridge/get-settings'>;
+    // Tray
+    changeTraySettings: DesktopApiInvoke<'tray/change-settings'>;
+    getTraySettings: DesktopApiInvoke<'tray/get-settings'>;
 }

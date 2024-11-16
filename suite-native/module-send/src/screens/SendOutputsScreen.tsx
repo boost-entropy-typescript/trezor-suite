@@ -14,7 +14,7 @@ import {
     composeSendFormTransactionFeeLevelsThunk,
     selectAccountByKey,
     selectNetworkFeeInfo,
-    selectSendFormDraftByAccountKey,
+    selectSendFormDraftByKey,
     sendFormActions,
     updateFeeInfoThunk,
 } from '@suite-common/wallet-core';
@@ -31,6 +31,8 @@ import { useDebounce } from '@trezor/react-utils';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { useForm, Form } from '@suite-native/forms';
 import { selectIsAmountInSats, SettingsSliceRootState } from '@suite-native/settings';
+import { TokenAddress } from '@suite-common/wallet-types';
+import { selectAccountTokenInfo, TokensRootState } from '@suite-native/tokens';
 
 import { SendScreen } from '../components/SendScreen';
 import { SendOutputFields } from '../components/SendOutputFields';
@@ -45,20 +47,27 @@ const buttonWrapperStyle = prepareNativeStyle(utils => ({
     padding: utils.spacings.sp16,
 }));
 
-const DEFAULT_VALUES = {
-    outputs: [
-        {
-            amount: '',
-            address: '',
-            fiat: '',
-        },
-    ],
-} as const satisfies SendOutputsFormValues;
+const getDefaultValues = ({
+    tokenContract,
+}: {
+    tokenContract?: TokenAddress;
+}): Readonly<SendOutputsFormValues> => {
+    return {
+        outputs: [
+            {
+                amount: '',
+                address: '',
+                fiat: '',
+                token: tokenContract ?? null,
+            },
+        ],
+    } as const;
+};
 
 export const SendOutputsScreen = ({
     route: { params },
 }: StackProps<SendStackParamList, SendStackRoutes.SendOutputs>) => {
-    const { accountKey } = params;
+    const { accountKey, tokenContract } = params;
     const dispatch = useDispatch();
     const { applyStyle } = useNativeStyles();
     const debounce = useDebounce();
@@ -70,6 +79,11 @@ export const SendOutputsScreen = ({
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
+
+    const tokenInfo = useSelector((state: TokensRootState) =>
+        selectAccountTokenInfo(state, accountKey, tokenContract),
+    );
+
     const isAmountInSats = useSelector((state: SettingsSliceRootState) =>
         selectIsAmountInSats(state, account?.symbol),
     );
@@ -77,7 +91,7 @@ export const SendOutputsScreen = ({
         selectNetworkFeeInfo(state, account?.symbol),
     );
     const sendFormDraft = useSelector((state: SendRootState) =>
-        selectSendFormDraftByAccountKey(state, accountKey),
+        selectSendFormDraftByKey(state, accountKey, tokenContract),
     );
 
     const network = account ? getNetwork(account.symbol) : null;
@@ -87,12 +101,13 @@ export const SendOutputsScreen = ({
         context: {
             networkFeeInfo,
             networkSymbol: account?.symbol,
-            availableAccountBalance: account?.availableBalance,
+            availableBalance: tokenInfo?.balance ?? account?.availableBalance,
+            isTokenFlow: !!tokenContract,
             isValueInSats: isAmountInSats,
             feeLevelsMaxAmount,
-            decimals: network?.decimals,
+            decimals: tokenInfo?.decimals ?? network?.decimals,
         },
-        defaultValues: DEFAULT_VALUES,
+        defaultValues: getDefaultValues({ tokenContract }),
     });
 
     const {
@@ -110,15 +125,16 @@ export const SendOutputsScreen = ({
         dispatch(
             sendFormActions.storeDraft({
                 accountKey,
-                formState: constructFormDraft(getValues()),
+                tokenContract,
+                formState: constructFormDraft({ formValues: getValues(), tokenContract }),
             }),
         );
-    }, [accountKey, dispatch, getValues]);
+    }, [accountKey, dispatch, getValues, tokenContract]);
 
     const calculateNormalFeeMaxAmount = useCallback(async () => {
         const response = await dispatch(
             calculateFeeLevelsMaxAmountThunk({
-                formState: constructFormDraft(getValues()),
+                formState: constructFormDraft({ formValues: getValues() }),
                 accountKey,
             }),
         );
@@ -148,8 +164,9 @@ export const SendOutputsScreen = ({
     }, [storeFormDraftIfValid, watchedFormValues, debounce, isValid]);
 
     useEffect(() => {
-        calculateNormalFeeMaxAmount();
-    }, [watchedAddress, calculateNormalFeeMaxAmount, networkFeeInfo]);
+        // The max amount is equal to the total token balance for tokens. (fee is paid in mainnet currency)
+        if (!tokenContract) calculateNormalFeeMaxAmount();
+    }, [watchedAddress, calculateNormalFeeMaxAmount, networkFeeInfo, tokenContract]);
 
     // TODO: Fetch periodically. So if the user stays on the screen for a long time, the fee info is updated in the background.
     useEffect(() => {
@@ -166,7 +183,7 @@ export const SendOutputsScreen = ({
 
         const response = await dispatch(
             composeSendFormTransactionFeeLevelsThunk({
-                formState: constructFormDraft(values),
+                formState: constructFormDraft({ formValues: values, tokenContract }),
                 composeContext: {
                     account,
                     network,
@@ -178,6 +195,7 @@ export const SendOutputsScreen = ({
         if (isFulfilled(response)) {
             navigation.navigate(SendStackRoutes.SendFees, {
                 accountKey,
+                tokenContract,
                 feeLevels: response.payload,
             });
 
@@ -187,7 +205,9 @@ export const SendOutputsScreen = ({
 
     return (
         <SendScreen
-            screenHeader={<AccountBalanceScreenHeader accountKey={accountKey} />}
+            screenHeader={
+                <AccountBalanceScreenHeader accountKey={accountKey} tokenContract={tokenContract} />
+            }
             footer={
                 isValid && (
                     <Animated.View
@@ -210,9 +230,7 @@ export const SendOutputsScreen = ({
         >
             <Box marginVertical="sp32">
                 <Form form={form}>
-                    <Box flex={1} justifyContent="space-between">
-                        <SendOutputFields accountKey={accountKey} />
-                    </Box>
+                    <SendOutputFields accountKey={accountKey} />
                 </Form>
             </Box>
         </SendScreen>

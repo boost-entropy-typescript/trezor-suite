@@ -8,6 +8,7 @@ import * as routerActions from 'src/actions/suite/routerActions';
 import { Dispatch, GetState } from 'src/types/suite';
 import { WordCount } from 'src/types/recovery';
 import { DEFAULT_PASSPHRASE_PROTECTION } from 'src/constants/suite/device';
+
 import { isRecoveryInProgress } from '../../utils/device/isRecoveryInProgress';
 
 export type SeedInputStatus =
@@ -21,7 +22,7 @@ export type SeedInputStatus =
 export type RecoveryAction =
     | { type: typeof RECOVERY.SET_WORDS_COUNT; payload: WordCount }
     | { type: typeof RECOVERY.SET_ADVANCED_RECOVERY; payload: boolean }
-    | { type: typeof RECOVERY.SET_ERROR; payload: string }
+    | { type: typeof RECOVERY.SET_ERROR; payload: string | undefined }
     | { type: typeof RECOVERY.SET_STATUS; payload: SeedInputStatus }
     | { type: typeof RECOVERY.RESET_REDUCER };
 
@@ -35,7 +36,7 @@ const setAdvancedRecovery = (value: boolean): RecoveryAction => ({
     payload: value,
 });
 
-const setError = (payload: string): RecoveryAction => ({
+const setError = (payload: string | undefined): RecoveryAction => ({
     type: RECOVERY.SET_ERROR,
     payload,
 });
@@ -59,7 +60,7 @@ const checkSeed = () => async (dispatch: Dispatch, getState: GetState) => {
 
     if (!device?.features) return;
 
-    dispatch(setError(''));
+    dispatch(setError(undefined));
 
     if (device.features.internal_model === DeviceModelInternal.T1B1) {
         dispatch(setStatus('waiting-for-confirmation'));
@@ -100,7 +101,7 @@ const recoverDevice = () => async (dispatch: Dispatch, getState: GetState) => {
     if (!device?.features) {
         return;
     }
-    dispatch(setError(''));
+    dispatch(setError(undefined));
 
     if (device.features.internal_model === DeviceModelInternal.T1B1) {
         dispatch(setStatus('waiting-for-confirmation'));

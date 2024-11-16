@@ -15,11 +15,17 @@ import {
 } from '@suite-common/wallet-core';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { ExtraDependencies } from '@suite-common/redux-utils';
+import { PROTO, StaticSessionId } from '@trezor/connect';
+import {
+    TokenDefinitionsState,
+    buildTokenDefinitionsFromStorage,
+} from '@suite-common/token-definitions';
+import { isDesktop } from '@trezor/env-utils';
+
 import {
     findLabelsToBeMovedOrDeleted,
     moveLabelsForRbfAction,
 } from 'src/actions/wallet/moveLabelsForRbfActions';
-
 import { StorageLoadAction } from 'src/actions/suite/storageActions';
 import * as metadataLabelingActions from 'src/actions/suite/metadataLabelingActions';
 import * as metadataActions from 'src/actions/suite/metadataActions';
@@ -27,17 +33,12 @@ import * as cardanoStakingActions from 'src/actions/wallet/cardanoStakingActions
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
 import { fixLoadedCoinjoinAccount } from 'src/utils/wallet/coinjoinUtils';
 import * as modalActions from 'src/actions/suite/modalActions';
+import { addWalletThunk, openSwitchDeviceDialog } from 'src/actions/wallet/addWalletThunk';
 
 import * as suiteActions from '../actions/suite/suiteActions';
 import { AppState, ButtonRequest, TrezorDevice } from '../types/suite';
 import { METADATA, STORAGE } from '../actions/suite/constants';
-import { PROTO, StaticSessionId } from '@trezor/connect';
-import {
-    TokenDefinitionsState,
-    buildTokenDefinitionsFromStorage,
-} from '@suite-common/token-definitions';
 import { selectSuiteSettings } from '../reducers/suite/suiteReducer';
-import { addWalletThunk, openSwitchDeviceDialog } from 'src/actions/wallet/addWalletThunk';
 
 const connectSrc = resolveStaticPath('connect/');
 // 'https://localhost:8088/';
@@ -50,7 +51,7 @@ const connectInitSettings = {
     popup: false,
     manifest: {
         email: 'info@trezor.io',
-        appUrl: '@trezor/suite',
+        appUrl: isDesktop() ? '@trezor/suite' : window.origin,
     },
     sharedLogger: false,
     enableFirmwareHashCheck: true,
@@ -176,7 +177,9 @@ export const extraDependencies: ExtraDependencies = {
             }: PayloadAction<{ deviceState: StaticSessionId; metadata: TrezorDevice['metadata'] }>,
         ) => {
             const { deviceState, metadata } = payload;
-            const index = state.devices.findIndex((d: TrezorDevice) => d.state === deviceState);
+            const index = state.devices.findIndex(
+                (d: TrezorDevice) => d.state?.staticSessionId === deviceState,
+            );
             const device = state.devices[index];
             if (!device) return;
             device.metadata = metadata;
@@ -185,10 +188,15 @@ export const extraDependencies: ExtraDependencies = {
             state,
             {
                 payload,
-            }: PayloadAction<{ deviceState: StaticSessionId; metadata: TrezorDevice['passwords'] }>,
+            }: PayloadAction<{
+                deviceState: StaticSessionId;
+                metadata: TrezorDevice['passwords'];
+            }>,
         ) => {
             const { deviceState, metadata } = payload;
-            const index = state.devices.findIndex((d: TrezorDevice) => d.state === deviceState);
+            const index = state.devices.findIndex(
+                (d: TrezorDevice) => d.state?.staticSessionId === deviceState,
+            );
             const device = state.devices[index];
             if (!device) return;
             device.passwords = metadata;

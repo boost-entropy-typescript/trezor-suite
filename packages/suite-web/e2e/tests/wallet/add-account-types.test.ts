@@ -1,11 +1,12 @@
 // @group_wallet
 // @retry=2
 
-import { onAccountsPage } from '../../support/pageObjects/accountsObject';
-import { onSettingsCryptoPage } from '../../support/pageObjects/settingsCryptoObject';
-import { onNavBar } from '../../support/pageObjects/topBarObject';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { EventType } from '@trezor/suite-analytics';
+
+import { onAccountsPage } from '../../support/pageObjects/accountsObject';
+import { onSettingsCryptoPage } from '../../support/pageObjects/settings/settingsCryptoObject';
+import { onNavBar } from '../../support/pageObjects/topBarObject';
 import { ExtractByEventType, Requests } from '../../support/types';
 
 let requests: Requests;
@@ -34,7 +35,7 @@ describe('Account types suite', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
 
         cy.passThroughInitialRun();
@@ -89,8 +90,8 @@ describe('Account types suite', () => {
                         cy.getTestElement(`@account-menu/${type}/group`)
                             .children()
                             .not(`[data-testid="@account-menu/account-item-skeleton"]`)
-                            .then(specificAccounts => {
-                                const numberOfAccounts2 = specificAccounts.length;
+                            .then(specificAccounts2 => {
+                                const numberOfAccounts2 = specificAccounts2.length;
                                 expect(numberOfAccounts2).to.be.equal(numberOfAccounts1 + 1);
                             });
                     });
@@ -163,5 +164,3 @@ describe('Account types suite', () => {
         });
     });
 });
-
-export {};

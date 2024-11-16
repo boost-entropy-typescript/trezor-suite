@@ -1,7 +1,9 @@
 import { Meta, StoryFn } from '@storybook/react';
+
 import { DeviceModelInternal } from '@trezor/connect';
-import { ConfirmOnDevice as ConfirmOnDeviceComponent } from './ConfirmOnDevice';
 import { StoryColumn } from '@trezor/components';
+
+import { ConfirmOnDevice as ConfirmOnDeviceComponent } from './ConfirmOnDevice';
 
 const meta: Meta = {
     title: 'ConfirmOnDevice',
@@ -104,6 +106,16 @@ export const ConfirmOnDevice: StoryFn = () => (
                 activeStep={5}
                 onCancel={() => {}}
                 deviceModelInternal={DeviceModelInternal.T3T1}
+            />
+        </StoryColumn>
+        <StoryColumn minWidth={300}>
+            <ConfirmOnDeviceComponent
+                successText="Confirmed"
+                title="Confirm on T3W1"
+                steps={5}
+                activeStep={5}
+                onCancel={() => {}}
+                deviceModelInternal={DeviceModelInternal.T3W1}
             />
         </StoryColumn>
     </>

@@ -1,7 +1,6 @@
 import { DeviceModelInternal } from '@trezor/connect';
 
-import { IconName, IconSize } from './Icon';
-import { Icon } from './Icon';
+import { IconName, IconSize, Icon } from './Icon';
 
 type DeviceModelIconProps = {
     deviceModel: DeviceModelInternal;
@@ -14,6 +13,7 @@ const icons = {
     T2B1: 'trezorSafe3',
     T3B1: 'trezorSafe3',
     T3T1: 'trezorSafe5',
+    T3W1: 'trezorSafe5', // TODO T3W1
 } as const satisfies Record<DeviceModelInternal, IconName>;
 
 export const deviceModelToIconName = (deviceModel: DeviceModelInternal) => icons[deviceModel];

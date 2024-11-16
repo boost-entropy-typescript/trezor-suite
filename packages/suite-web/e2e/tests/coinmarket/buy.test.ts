@@ -61,7 +61,7 @@ function setupAndAssertBuy(selectOffer: () => void) {
     cy.getTestElement('@coinmarket/detail/success').invoke('text').should('be.equal', 'Approved');
 
     // Goes back, then on the Last transactions page after verifies the transaction is listed
-    cy.getTestElement('@account-subpage/back').click();
+    cy.getTestElement('@coinmarket/menu/wallet-coinmarket-transactions').click();
 
     // Verifies fiat amount
     cy.getTestElement('@coinmarket/transaction/fiat-amount')
@@ -152,8 +152,8 @@ describe('Coinmarket buy', () => {
                         // Test provider
                         cy.wrap($el)
                             .find('[data-testid="@coinmarket/offers/quote/provider"]')
-                            .then($el => {
-                                const text = $el.text();
+                            .then($el2 => {
+                                const text = $el2.text();
 
                                 expect(exchangeProvider).to.include(text);
                             });
@@ -196,5 +196,3 @@ describe('Coinmarket buy', () => {
         });
     });
 });
-
-export {};

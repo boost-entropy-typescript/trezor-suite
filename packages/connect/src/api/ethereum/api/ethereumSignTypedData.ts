@@ -1,5 +1,8 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/EthereumSignTypedData.js
 
+import { MessagesSchema } from '@trezor/protobuf';
+import { Assert, Type } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getSlip44ByPath, validatePath } from '../../../utils/pathUtils';
@@ -15,8 +18,6 @@ import { getFieldType, parseArrayType, encodeData } from '../ethereumSignTypedDa
 import { messageToHex } from '../../../utils/formatUtils';
 import { getEthereumDefinitions } from '../ethereumDefinitions';
 import { EthereumNetworkInfo, DeviceModelInternal } from '../../../types';
-import { MessagesSchema } from '@trezor/protobuf';
-import { Assert, Type } from '@trezor/schema-utils';
 
 // This type is not inferred, because it internally uses types that are generic
 type Params = (
@@ -42,6 +43,7 @@ const Params = Type.Intersect([
 export default class EthereumSignTypedData extends AbstractMethod<'ethereumSignTypedData', Params> {
     init() {
         this.requiredPermissions = ['read', 'write'];
+        this.requiredDeviceCapabilities = ['Capability_Ethereum'];
 
         const { payload } = this;
 

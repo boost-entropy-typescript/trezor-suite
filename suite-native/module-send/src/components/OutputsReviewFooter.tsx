@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Animated, { SlideInDown } from 'react-native-reanimated';
 
@@ -8,26 +8,30 @@ import { isFulfilled } from '@reduxjs/toolkit';
 
 import {
     AccountsRootState,
+    pushSendFormTransactionThunk,
     selectAccountByKey,
-    selectSendFormDraftByAccountKey,
-    selectSendSignedTx,
+    selectSendFormDraftByKey,
+    selectTransactionByAccountKeyAndTxid,
     SendRootState,
+    TransactionsRootState,
 } from '@suite-common/wallet-core';
-import { AccountKey } from '@suite-common/wallet-types';
+import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
 import { Button } from '@suite-native/atoms';
 import { RootStackRoutes, AppTabsRoutes, RootStackParamList } from '@suite-native/navigation';
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { analytics, EventType } from '@suite-native/analytics';
+import { selectAccountTokenSymbol, TokensRootState } from '@suite-native/tokens';
 
 import { SendConfirmOnDeviceImage } from '../components/SendConfirmOnDeviceImage';
-import { sendTransactionAndCleanupSendFormThunk } from '../sendFormThunks';
+import { cleanupSendFormThunk } from '../sendFormThunks';
 import { wasAppLeftDuringReviewAtom } from '../atoms/wasAppLeftDuringReviewAtom';
+import { selectIsTransactionAlreadySigned } from '../selectors';
 
 const navigateToAccountDetail = ({
     accountKey,
+    tokenContract,
     txid,
-    closeActionType,
 }: RootStackParamList[RootStackRoutes.TransactionDetail]) =>
     // Reset navigation stack to the account detail screen with HomeStack as a previous step, so the user can navigate back there.
     CommonActions.reset({
@@ -43,14 +47,16 @@ const navigateToAccountDetail = ({
                 name: RootStackRoutes.AccountDetail,
                 params: {
                     accountKey,
+                    tokenContract,
                 },
             },
             {
                 name: RootStackRoutes.TransactionDetail,
                 params: {
                     accountKey,
+                    tokenContract,
                     txid,
-                    closeActionType,
+                    closeActionType: 'close',
                 },
             },
         ],
@@ -61,40 +67,76 @@ const footerStyle = prepareNativeStyle(utils => ({
     paddingHorizontal: utils.spacings.sp16,
 }));
 
-export const OutputsReviewFooter = ({ accountKey }: { accountKey: AccountKey }) => {
+export const OutputsReviewFooter = ({
+    accountKey,
+    tokenContract,
+}: {
+    accountKey: AccountKey;
+    tokenContract?: TokenAddress;
+}) => {
+    const [txid, setTxid] = useState<string>('');
     const dispatch = useDispatch();
     const navigation = useNavigation();
     const { applyStyle } = useNativeStyles();
     const [isSendInProgress, setIsSendInProgress] = useState(false);
     const wasAppLeftDuringReview = useAtomValue(wasAppLeftDuringReviewAtom);
 
+    const isTransactionProcessedByBackend = !!useSelector((state: TransactionsRootState) =>
+        selectTransactionByAccountKeyAndTxid(state, accountKey, txid),
+    );
+
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
-    const signedTransaction = useSelector(selectSendSignedTx);
 
-    const formValues = useSelector((state: SendRootState) =>
-        selectSendFormDraftByAccountKey(state, accountKey),
+    const tokenSymbol = useSelector((state: TokensRootState) =>
+        selectAccountTokenSymbol(state, accountKey, tokenContract),
     );
 
-    {
-        /* TODO: improve the illustration: https://github.com/trezor/trezor-suite/issues/13965 */
-    }
-    if (!signedTransaction || !account) return <SendConfirmOnDeviceImage />;
+    const isTransactionAlreadySigned = useSelector(selectIsTransactionAlreadySigned);
+
+    const formValues = useSelector((state: SendRootState) =>
+        selectSendFormDraftByKey(state, accountKey, tokenContract),
+    );
+
+    useEffect(() => {
+        // Navigate to transaction detail screen only at the moment when the transaction was already processed by backend and we have all its data.
+        if (isTransactionProcessedByBackend) {
+            navigation.dispatch(
+                navigateToAccountDetail({
+                    accountKey,
+                    tokenContract,
+                    txid,
+                }),
+            );
+
+            dispatch(cleanupSendFormThunk({ accountKey }));
+        }
+    }, [isTransactionProcessedByBackend, accountKey, tokenContract, txid, navigation, dispatch]);
+
+    /* TODO: improve the illustration: https://github.com/trezor/trezor-suite/issues/13965 */
+    if (!isTransactionAlreadySigned || !account) return <SendConfirmOnDeviceImage />;
 
     const handleSendTransaction = async () => {
         setIsSendInProgress(true);
 
-        const sendResponse = await dispatch(sendTransactionAndCleanupSendFormThunk({ account }));
+        const sendResponse = await dispatch(
+            pushSendFormTransactionThunk({
+                selectedAccount: account,
+                shouldDiscardTransaction: false,
+            }),
+        );
 
         if (isFulfilled(sendResponse)) {
-            const { txid } = sendResponse.payload;
+            const { txid: sentTxid } = sendResponse.payload.payload;
 
             if (formValues) {
                 analytics.report({
                     type: EventType.SendTransactionDispatched,
                     payload: {
                         symbol: account.symbol,
+                        tokenAddresses: tokenContract ? [tokenContract] : undefined,
+                        tokenSymbols: tokenSymbol ? [tokenSymbol] : undefined,
                         outputsCount: formValues.outputs.length,
                         selectedFee: formValues.selectedFee ?? 'normal',
                         wasAppLeftDuringReview,
@@ -102,9 +144,7 @@ export const OutputsReviewFooter = ({ accountKey }: { accountKey: AccountKey }) 
                 });
             }
 
-            navigation.dispatch(
-                navigateToAccountDetail({ accountKey, txid, closeActionType: 'close' }),
-            );
+            setTxid(sentTxid);
         }
     };
 

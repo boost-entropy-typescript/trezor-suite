@@ -1,6 +1,6 @@
-import { SessionsBackground } from '../sessions/background';
 import { v1 as v1Protocol } from '@trezor/protocol';
 
+import { SessionsBackground } from '../sessions/background';
 import {
     AbstractTransport,
     AbstractTransportParams,
@@ -123,7 +123,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                     return openDeviceResult;
                 }
 
-                this.sessionsClient.acquireDone({ path });
+                this.sessionsClient.acquireDone({ path, sessionOwner: this.id });
 
                 return this.success(acquireIntentResponse.payload.session);
             },

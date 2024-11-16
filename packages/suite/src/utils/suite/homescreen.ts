@@ -23,13 +23,14 @@ export const deviceModelInformation: Record<
     [DeviceModelInternal.T2B1]: safe3Information,
     [DeviceModelInternal.T3B1]: safe3Information,
     [DeviceModelInternal.T3T1]: { width: 240, height: 240, supports: ['jpeg'] },
+    [DeviceModelInternal.T3W1]: { width: 280, height: 520, supports: ['jpeg'] }, // TODO T3W1 - double check values
 };
 
 export const enum ImageValidationError {
     InvalidFormatOnlyPngJpg = 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_PNG_JPG',
     InvalidFormatOnlyJpg = 'IMAGE_VALIDATION_ERROR_INVALID_FORMAT_ONLY_JPG',
     InvalidDimensions = 'IMAGE_VALIDATION_ERROR_INVALID_DIMENSIONS',
-    InvalidSize = 'IMAGE_VALIDATION_ERROR_INVALID_SIZE',
+    InvalidSize = 'IMAGE_VALIDATION_ERROR_INVALID_SIZE_JPG',
     ProgressiveJpgFormat = 'IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG',
     UnexpectedAlpha = 'IMAGE_VALIDATION_ERROR_UNEXPECTED_ALPHA',
     InvalidColorCombination = 'IMAGE_VALIDATION_ERROR_INVALID_COLOR_COMBINATION',
@@ -324,7 +325,7 @@ export const imagePathToHex = async (
         return Buffer.from(arrayBuffer).toString('hex');
     }
 
-    /* 
+    /*
     - However, this method accepts the Canvas format which changes the quality of image
     */
     const blob = await response.blob();

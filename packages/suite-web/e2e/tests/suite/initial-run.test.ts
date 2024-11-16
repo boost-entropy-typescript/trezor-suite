@@ -3,7 +3,7 @@
 
 describe('Suite initial run', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu');
         cy.task('startBridge');
@@ -36,5 +36,3 @@ describe('Suite initial run', () => {
         cy.getTestElement('@menu/switch-device').should('contain.text', 'Connected');
     });
 });
-
-export {};

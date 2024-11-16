@@ -1,37 +1,36 @@
+import { CryptoId } from 'invity-api';
+
 import { isDesktop } from '@trezor/env-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { PROTO } from '@trezor/connect';
 import {
-    amountToSatoshi,
+    amountToSmallestUnit,
     formatAmount,
     getAccountDecimals,
     hasNetworkFeatures,
     parseFormDraftKey,
 } from '@suite-common/wallet-utils';
-import { Output } from '@suite-common/wallet-types/src';
+import { Output, AddressDisplayOptions } from '@suite-common/wallet-types/src';
 import {
     confirmAddressOnDeviceThunk,
     selectDevice,
     toggleRememberDevice,
 } from '@suite-common/wallet-core';
+
 import { GetState, Dispatch } from 'src/types/suite';
 import * as modalActions from 'src/actions/suite/modalActions';
 import { getUnusedAddressFromAccount } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { Account } from 'src/types/wallet';
-import {
-    CoinmarketSuiteBackRouteNameType,
-    ComposedTransactionInfo,
-} from 'src/reducers/wallet/coinmarketReducer';
+import { ComposedTransactionInfo } from 'src/reducers/wallet/coinmarketReducer';
 import { submitRequestForm as envSubmitRequestForm } from 'src/utils/suite/env';
 import * as formDraftActions from 'src/actions/wallet/formDraftActions';
-import { AddressDisplayOptions } from '@suite-common/wallet-types';
 import { selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
-import { CryptoId } from 'invity-api';
 import {
     COINMARKET_BUY,
     COINMARKET_COMMON,
     COINMARKET_EXCHANGE,
 } from 'src/actions/wallet/constants';
+import { CoinmarketTradeType } from 'src/types/coinmarket/coinmarket';
 
 export type CoinmarketCommonAction =
     | {
@@ -55,8 +54,8 @@ export type CoinmarketCommonAction =
           modalAccount: Account | undefined;
       }
     | {
-          type: typeof COINMARKET_COMMON.SET_SUITE_BACK_ROUTE_NAME;
-          suiteBackRouteName: CoinmarketSuiteBackRouteNameType;
+          type: typeof COINMARKET_COMMON.SET_COINMARKET_ACTIVE_SECTION;
+          activeSection: CoinmarketTradeType;
       };
 
 type FormState = {
@@ -76,11 +75,9 @@ export const setCoinmarketModalAccount = (
     modalAccount,
 });
 
-export const setSuiteBackRouteName = (
-    suiteBackRouteName: CoinmarketSuiteBackRouteNameType,
-): CoinmarketCommonAction => ({
-    type: COINMARKET_COMMON.SET_SUITE_BACK_ROUTE_NAME,
-    suiteBackRouteName,
+export const setActiveSection = (activeSection: CoinmarketTradeType): CoinmarketCommonAction => ({
+    type: COINMARKET_COMMON.SET_COINMARKET_ACTIVE_SECTION,
+    activeSection,
 });
 
 export const verifyAddress =
@@ -209,7 +206,7 @@ export const convertDrafts = () => (dispatch: Dispatch, getState: GetState) => {
 
         if (draft) {
             const areSatsSelected = settings.bitcoinAmountUnit === PROTO.AmountUnit.SATOSHI;
-            const conversion = areSatsSelected ? amountToSatoshi : formatAmount;
+            const conversion = areSatsSelected ? amountToSmallestUnit : formatAmount;
             const decimals = getAccountDecimals(relatedAccount.symbol)!;
 
             if (draft.cryptoInput) {

@@ -1,6 +1,6 @@
 import { DeviceAuthenticityConfig } from '@trezor/connect/src/data/deviceAuthenticityConfigTypes';
-import TrezorConnect from '../../../src';
 
+import TrezorConnect from '../../../src';
 import { getController, setup, initTrezorConnect } from '../../common.setup';
 
 const controller = getController();
@@ -37,6 +37,10 @@ describe('TrezorConnect.authenticateDevice', () => {
             caPubKeys: [
                 '04ba6084cb9fba7c86d5d5a86108a91d55a27056da4eabbedde88a95e1cae8bce3620889167aaf7f2db166998f950984aa195e868f96e22803c3cd991be31d39e7',
             ],
+        },
+        T3W1: {
+            rootPubKeys: ['you shall not pass'],
+            caPubKeys: ['you shall not pass'],
         },
     } as DeviceAuthenticityConfig;
 

@@ -10,9 +10,10 @@ import { FeeLevelsMaxAmount } from './types';
 
 export type SendFormFormContext = {
     networkSymbol?: NetworkSymbol;
-    availableAccountBalance?: string;
+    availableBalance?: string;
     networkFeeInfo?: FeeInfo;
     isValueInSats?: boolean;
+    isTokenFlow?: boolean;
     feeLevelsMaxAmount?: FeeLevelsMaxAmount;
     decimals?: number;
 };
@@ -50,22 +51,26 @@ const isAmountHigherThanBalance = (
         return false;
     }
 
-    const { networkSymbol, networkFeeInfo, availableAccountBalance, feeLevelsMaxAmount } = context;
+    const { networkSymbol, networkFeeInfo, availableBalance, feeLevelsMaxAmount, isTokenFlow } =
+        context;
 
-    if (!networkSymbol || !networkFeeInfo || !availableAccountBalance) {
+    if (!networkSymbol || !networkFeeInfo || !availableBalance) {
         return false;
     }
 
     const amountBigNumber = new BigNumber(amount);
+    if (isTokenFlow) {
+        return amountBigNumber.gt(availableBalance);
+    }
 
-    const economyMaxAmount = feeLevelsMaxAmount?.economy;
     const normalMaxAmount = feeLevelsMaxAmount?.normal;
 
     // if send max is enabled, user is allowed submit form even if there is enough balance only for economy fee.
     if (isSendMaxEnabled) {
-        if (!economyMaxAmount) return true;
+        const lowestLevelMaxAmount = feeLevelsMaxAmount?.economy ?? normalMaxAmount;
+        if (!lowestLevelMaxAmount) return true;
 
-        return amountBigNumber.gt(economyMaxAmount);
+        return amountBigNumber.gt(lowestLevelMaxAmount);
     }
 
     return !normalMaxAmount || amountBigNumber.gt(normalMaxAmount);
@@ -127,9 +132,9 @@ export const sendOutputsFormValidationSchema = yup.object({
                         },
                     ),
                 fiat: yup.string(),
+                token: yup.string().required().nullable(),
                 // TODO: other validations have to be added in the following PRs
-                //       1) validation of token amount
-                //       2) check if the amount is not higher than XRP reserve
+                //       e.g. check if the amount is not higher than XRP reserve
             }),
         )
         .required(),

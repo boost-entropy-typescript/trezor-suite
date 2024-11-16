@@ -6,7 +6,6 @@
     "sideEffects": false,
     "main": "src/index",
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build",
         "test:unit": "yarn g:jest -c ../../jest.config.base.js",
@@ -15,7 +14,7 @@
     "dependencies": {
         "@mobily/ts-belt": "^3.13.1",
         "@solana/buffer-layout": "^4.0.1",
-        "@solana/web3.js": "^1.95.0",
+        "@solana/web3.js": "^1.95.4",
         "@suite-common/fiat-services": "workspace:*",
         "@suite-common/metadata-types": "workspace:*",
         "@suite-common/suite-config": "workspace:*",
@@ -33,7 +32,7 @@
         "@trezor/utils": "workspace:*",
         "date-fns": "^2.30.0",
         "react": "18.2.0",
-        "react-hook-form": "^7.53.0",
+        "react-hook-form": "^7.53.1",
         "web3-utils": "^4.3.1"
     }
 }

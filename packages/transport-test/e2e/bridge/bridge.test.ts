@@ -6,7 +6,7 @@ import { controller as TrezorUserEnvLink, env } from './controller';
 import { pathLength, descriptor as expectedDescriptor } from './expect';
 import { assertSuccess } from '../api/utils';
 
-const emulatorStartOpts = { model: 'T2T1', version: '2-main', wipe: true } as const;
+const emulatorStartOpts = { model: 'T2T1', version: '2-latest', wipe: true } as const;
 
 describe('bridge', () => {
     let bridge: BridgeTransport;
@@ -18,11 +18,12 @@ describe('bridge', () => {
         await TrezorUserEnvLink.startEmu(emulatorStartOpts);
         await TrezorUserEnvLink.startBridge();
 
-        bridge = new BridgeTransport({ messages });
+        bridge = new BridgeTransport({ messages, id: '' });
         await bridge.init();
 
         const enumerateResult = await bridge.enumerate();
         assertSuccess(enumerateResult);
+        // eslint-disable-next-line jest/no-standalone-expect
         expect(enumerateResult).toMatchObject({
             success: true,
             payload: [
@@ -35,6 +36,7 @@ describe('bridge', () => {
         });
 
         const { path } = enumerateResult.payload[0];
+        // eslint-disable-next-line jest/no-standalone-expect
         expect(path.length).toEqual(pathLength);
 
         descriptors = enumerateResult.payload;
@@ -43,6 +45,7 @@ describe('bridge', () => {
             input: { path: descriptors[0].path, previous: session },
         });
         assertSuccess(acquireResult);
+        // eslint-disable-next-line jest/no-standalone-expect
         expect(acquireResult).toEqual({
             success: true,
             payload: '1',

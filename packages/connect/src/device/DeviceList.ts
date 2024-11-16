@@ -10,16 +10,16 @@ import {
     TRANSPORT,
     isTransportInstance,
 } from '@trezor/transport';
+import { Descriptor, PathPublic } from '@trezor/transport/src/types';
+
 import { ERRORS } from '../constants';
 import { DEVICE, TransportInfo } from '../events';
 import { Device } from './Device';
 import { ConnectSettings, DeviceUniquePath, Device as DeviceTyped } from '../types';
-
 import { getBridgeInfo } from '../data/transportInfo';
 import { initLog } from '../utils/debug';
 import { resolveAfter } from '../utils/promiseUtils';
 import { typedObjectKeys } from '../types/utils';
-import { Descriptor, PathPublic } from '@trezor/transport/src/types';
 
 // custom log
 const _log = initLog('DeviceList');
@@ -79,7 +79,10 @@ export const assertDeviceListConnected: (
     if (!deviceList.isConnected()) throw ERRORS.TypedError('Transport_Missing');
 };
 
-type ConstructorParams = Pick<ConnectSettings, 'priority' | 'debug' | '_sessionsBackgroundUrl'> & {
+type ConstructorParams = Pick<
+    ConnectSettings,
+    'priority' | 'debug' | '_sessionsBackgroundUrl' | 'manifest'
+> & {
     messages: Record<string, any>;
 };
 type InitParams = Pick<ConnectSettings, 'pendingTransportEvent' | 'transportReconnect'>;
@@ -111,7 +114,13 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         return this.initPromise;
     }
 
-    constructor({ messages, priority, debug, _sessionsBackgroundUrl }: ConstructorParams) {
+    constructor({
+        messages,
+        priority,
+        debug,
+        _sessionsBackgroundUrl,
+        manifest,
+    }: ConstructorParams) {
         super();
 
         const transportLogger = initLog('@trezor/transport', debug);
@@ -122,6 +131,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
             messages,
             logger: transportLogger,
             sessionsBackgroundUrl: _sessionsBackgroundUrl,
+            id: manifest?.appUrl || 'unknown app',
         };
 
         this.transports = [
@@ -253,7 +263,9 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         const { promise, reject } = resolveAfter(1000, initParams);
         this.rejectPending = reject;
 
-        return promise.then(this.createInitPromise.bind(this));
+        return promise.then(this.createInitPromise.bind(this)).finally(() => {
+            this.rejectPending = undefined;
+        });
     }
 
     private async selectTransport([transport, ...rest]: Transport[]): Promise<Transport> {

@@ -1,5 +1,7 @@
-import styled from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
+
+import styled from 'styled-components';
+
 import { Tooltip, Cursor } from '../../Tooltip/Tooltip';
 import { TooltipDelay } from '../../Tooltip/TooltipDelay';
 
@@ -29,8 +31,13 @@ export const TruncateWithTooltip = ({
     useEffect(() => {
         if (!containerRef.current || !scrollWidth || !scrollHeight) return;
         const resizeObserver = new ResizeObserver(entries => {
-            const { inlineSize: elementWidth, blockSize: elementHeight } =
-                entries[0].borderBoxSize?.[0];
+            const borderBoxSize = entries[0].borderBoxSize?.[0];
+            if (!borderBoxSize) {
+                return;
+            }
+
+            const { inlineSize: elementWidth, blockSize: elementHeight } = borderBoxSize;
+
             setIsTooltipVisible(
                 scrollWidth > Math.ceil(elementWidth) || scrollHeight > Math.ceil(elementHeight),
             );

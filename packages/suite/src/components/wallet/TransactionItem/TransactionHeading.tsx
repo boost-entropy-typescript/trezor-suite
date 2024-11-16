@@ -1,26 +1,30 @@
 import { useState } from 'react';
+
 import styled, { useTheme } from 'styled-components';
+
 import { variables, Icon } from '@trezor/components';
 import { HELP_CENTER_ZERO_VALUE_ATTACKS } from '@trezor/urls';
+import {
+    formatNetworkAmount,
+    getTargetAmount,
+    getTxHeaderSymbol,
+    getTxOperation,
+    isSupportedEthStakingNetworkSymbol,
+} from '@suite-common/wallet-utils';
+import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { spacingsPx } from '@trezor/theme';
+
 import {
     FormattedCryptoAmount,
     TooltipSymbol,
     Translation,
     TrezorLink,
 } from 'src/components/suite';
-import {
-    formatNetworkAmount,
-    getTargetAmount,
-    getTxHeaderSymbol,
-    getTxOperation,
-} from '@suite-common/wallet-utils';
-import { TransactionHeader } from './TransactionHeader';
 import { WalletAccountTransaction } from 'src/types/wallet';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+
+import { TransactionHeader } from './TransactionHeader';
 import { BlurWrapper } from './TransactionItemBlurWrapper';
-import { spacingsPx } from '@trezor/theme';
 import { InstantStakeBadge } from './InstantStakeBadge';
-import { isSupportedEthStakingNetworkSymbol } from '@suite-common/wallet-core';
 
 const Wrapper = styled.span`
     display: flex;

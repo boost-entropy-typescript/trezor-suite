@@ -1,22 +1,26 @@
+import { selectNetwork } from '@everstake/wallet-sdk/ethereum';
+import { fromWei, numberToHex, toWei } from 'web3-utils';
+
 import {
     PrecomposedLevels,
     StakeFormState,
     StakeType,
     WalletAccountTransaction,
 } from '@suite-common/wallet-types';
-import { DEFAULT_PAYMENT } from '@suite-common/wallet-constants';
+import {
+    DEFAULT_PAYMENT,
+    STAKE_GAS_LIMIT_RESERVE,
+    MIN_ETH_AMOUNT_FOR_STAKING,
+    MAX_ETH_AMOUNT_FOR_STAKING,
+    UNSTAKE_INTERCHANGES,
+} from '@suite-common/wallet-constants';
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { selectNetwork } from '@everstake/wallet-sdk/ethereum';
-import { fromWei, hexToNumberString, numberToHex, toWei } from 'web3-utils';
 import { getEthereumEstimateFeeParams, isPending, sanitizeHex } from '@suite-common/wallet-utils';
 import TrezorConnect, { EthereumTransaction, Success, InternalTransfer } from '@trezor/connect';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
-import { STAKE_GAS_LIMIT_RESERVE, ValidatorsQueue } from '@suite-common/wallet-core';
+import { ValidatorsQueue } from '@suite-common/wallet-core';
 import { BlockchainEstimatedFee } from '@trezor/connect/src/types/api/blockchainEstimateFee';
-import {
-    MIN_ETH_AMOUNT_FOR_STAKING,
-    MAX_ETH_AMOUNT_FOR_STAKING,
-} from 'src/constants/suite/ethStaking';
+
 import { TranslationFunction } from 'src/hooks/suite/useTranslation';
 
 // source is a required parameter for some functions in the Everstake Wallet SDK.
@@ -364,7 +368,7 @@ export const prepareUnstakeEthTx = async ({
     nonce,
     chainId,
     identity,
-    interchanges = 0,
+    interchanges = UNSTAKE_INTERCHANGES,
 }: PrepareUnstakeEthTxParams): Promise<PrepareStakeEthTxResponse> => {
     try {
         const tx = await unstake({
@@ -468,7 +472,7 @@ export const getStakeTxGasLimit = async ({
             txData = await unstake({
                 from,
                 amount,
-                interchanges: 0,
+                interchanges: UNSTAKE_INTERCHANGES,
                 symbol,
                 identity,
             });
@@ -563,16 +567,6 @@ export const getDaysToAddToPoolInitial = (validatorsQueue?: ValidatorsQueue) => 
     return daysToWait <= 0 ? 1 : daysToWait;
 };
 
-export const getUnstakingAmount = (ethereumData: string | undefined): string | null => {
-    if (!ethereumData) return null;
-
-    // Check if the first two characters are '0x' and remove them if they are
-    const data = ethereumData.startsWith('0x') ? ethereumData.slice(2) : ethereumData;
-    const dataBuffer = Buffer.from(data, 'hex');
-
-    return hexToNumberString(`0x${dataBuffer.subarray(4, 36).toString('hex')}`);
-};
-
 export const getInstantStakeType = (
     internalTransfer: InternalTransfer,
     address?: string,
@@ -652,10 +646,9 @@ export const simulateUnstake = async ({
     if (!amount || !from || !symbol) return null;
 
     const amountWei = toWei(amount, 'ether');
-    const interchanges = 0;
 
     const data = contractPool.methods
-        .unstake(amountWei, interchanges, WALLET_SDK_SOURCE)
+        .unstake(amountWei, UNSTAKE_INTERCHANGES, WALLET_SDK_SOURCE)
         .encodeABI();
     if (!data) return null;
 

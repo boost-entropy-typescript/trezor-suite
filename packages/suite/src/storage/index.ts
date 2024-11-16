@@ -1,10 +1,11 @@
 import SuiteDB, { OnUpgradeFunc } from '@trezor/suite-storage';
-import { reloadApp } from 'src/utils/suite/reload';
-import { migrate } from './migrations';
 
+import { reloadApp } from 'src/utils/suite/reload';
+
+import { migrate } from './migrations';
 import type { SuiteDBSchema } from './definitions';
 
-const VERSION = 47; // don't forget to add migration and CHANGELOG when changing versions!
+const VERSION = 49; // don't forget to add migration and CHANGELOG when changing versions!
 
 /**
  *  If the object stores don't already exist then creates them.

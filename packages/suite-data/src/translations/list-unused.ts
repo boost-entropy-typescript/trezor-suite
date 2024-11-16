@@ -3,12 +3,12 @@ import path from 'path';
 import fs from 'fs';
 
 // See comment in list-duplicates.ts
-// eslint-disable-next-line import/no-extraneous-dependencies
 import messages from '@trezor/suite/src/support/messages';
 
 console.log('unused messages: ');
 
 const rootDir = path.join(__dirname, '..', '..', '..', '..');
+
 function execLocal(cmd: string) {
     return execSync(cmd, {
         encoding: 'utf-8',
@@ -60,7 +60,7 @@ for (const message in messages) {
 
         try {
             execLocal(cmd);
-        } catch (err) {
+        } catch {
             unused.push(message);
         }
     }

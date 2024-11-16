@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
-import { Translation } from 'src/components/suite';
+
 import styled, { css } from 'styled-components';
+
 import { borders, spacingsPx, typography } from '@trezor/theme';
+
+import { Translation } from 'src/components/suite';
 
 const Wrapper = styled.div`
     display: flex;
@@ -99,7 +102,7 @@ export const Pagination = ({
                     <PageItem
                         key={i}
                         data-testid={`@wallet/accounts/pagination/${i}`}
-                        data-test-activated={i === currentPage ?? 'true'}
+                        data-test-activated={i === currentPage}
                         onClick={() => onPageSelected(i)}
                         $isActive={i === currentPage}
                     >

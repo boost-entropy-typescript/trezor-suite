@@ -147,7 +147,6 @@ type StringPath<T extends { path: DeviceUniquePath }> = Omit<T, 'path'> & { path
  */
 const getConnectDevice = (dev?: Partial<StringPath<Device>>, feat?: Partial<Features>): Device => {
     const path = DeviceUniquePath(dev?.path ?? '1');
-
     if (dev && typeof dev.type === 'string' && dev.type === 'unreadable') {
         return {
             type: 'unreadable',
@@ -155,6 +154,7 @@ const getConnectDevice = (dev?: Partial<StringPath<Device>>, feat?: Partial<Feat
             label: 'Unreadable device',
             name: 'name of unreadable device',
             error: 'unreadable device',
+            transportDescriptorType: 0,
         };
     }
 
@@ -164,6 +164,7 @@ const getConnectDevice = (dev?: Partial<StringPath<Device>>, feat?: Partial<Feat
             path,
             label: 'Unacquired device',
             name: 'name of unacquired device',
+            transportSessionOwner: 'another app name',
         };
     }
 
@@ -204,7 +205,11 @@ const getConnectDevice = (dev?: Partial<StringPath<Device>>, feat?: Partial<Feat
  * @returns {TrezorDevice}
  */
 const getSuiteDevice = (
-    dev?: Partial<StringPath<TrezorDevice>>,
+    dev?: Partial<
+        Omit<StringPath<TrezorDevice>, 'state'> & {
+            state?: `${string}@${string}:${number}`;
+        }
+    >,
     feat?: Partial<Features>,
 ): TrezorDevice => {
     const device = getConnectDevice(dev, feat);
@@ -221,6 +226,11 @@ const getSuiteDevice = (
             metadata: {},
             ...dev,
             ...device,
+            state: dev?.state
+                ? {
+                      staticSessionId: dev.state,
+                  }
+                : undefined,
         } as TrezorDevice;
     }
 
@@ -596,7 +606,6 @@ type MockTrezorConnect = jest.Mocked<TrezorConnect> & {
 };
 
 const getTrezorConnectMock = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pkg = require('@trezor/connect');
 
     return {

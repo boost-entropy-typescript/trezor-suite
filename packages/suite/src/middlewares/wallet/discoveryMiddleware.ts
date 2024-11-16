@@ -19,6 +19,7 @@ import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
 import { SUITE, ROUTER, MODAL } from 'src/actions/suite/constants';
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
 import { getApp } from 'src/utils/suite/router';
+import { selectIsDeviceLocked } from 'src/reducers/suite/suiteReducer';
 
 export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
     async (action, { dispatch, next, getState }) => {
@@ -29,8 +30,11 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             prevDiscovery.status > DiscoveryStatus.IDLE &&
             prevDiscovery.status < DiscoveryStatus.STOPPING;
 
-        if (deviceActions.forgetDevice.match(action) && action.payload.device.state) {
-            dispatch(discoveryActions.removeDiscovery(action.payload.device.state));
+        if (
+            deviceActions.forgetDevice.match(action) &&
+            action.payload.device.state?.staticSessionId
+        ) {
+            dispatch(discoveryActions.removeDiscovery(action.payload.device.state.staticSessionId));
         }
 
         // do not close user context modals during discovery
@@ -71,13 +75,13 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             return action;
 
         let authorizationIntent = false;
-        const { locks } = nextState.suite;
         const device = selectDevice(nextState);
+        const isDeviceLocked = selectIsDeviceLocked(nextState);
         // 1. selected device is acquired but doesn't have a state
         if (
             isDeviceAcquired(device) &&
-            !device.state &&
-            !locks.includes(SUITE.LOCK_TYPE.DEVICE) &&
+            !device.state?.staticSessionId &&
+            !isDeviceLocked &&
             (deviceActions.selectDevice.match(action) || action.type === SUITE.APP_CHANGED)
         ) {
             authorizationIntent = true;
@@ -115,19 +119,22 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             // to avoid typescript conditioning use device from action as a fallback (never used)
             dispatch(
                 createDiscoveryThunk({
-                    deviceState: action.payload.state,
+                    deviceState: action.payload.state.staticSessionId!,
                     device: device || action.payload.device,
                 }),
             );
         }
 
         // 5. device state confirmation received
-        if (deviceActions.receiveAuthConfirm.match(action) && action.payload.device.state) {
+        if (
+            deviceActions.receiveAuthConfirm.match(action) &&
+            action.payload.device.state?.staticSessionId
+        ) {
             // from discovery point of view it's irrelevant if authConfirm fails
             // it's a device matter now
             dispatch(
                 discoveryActions.updateDiscovery({
-                    deviceState: action.payload.device.state,
+                    deviceState: action.payload.device.state.staticSessionId,
                     authConfirm: false,
                 }),
             );

@@ -1,9 +1,8 @@
-import * as bscript from '../src/script';
+import minimalData from 'minimaldata';
 
+import * as bscript from '../src/script';
 import { fixtures } from './__fixtures__/script';
 import { templates } from './__fixtures__/templates';
-
-import minimalData from 'minimaldata';
 
 describe('script', () => {
     // TODO
@@ -12,12 +11,14 @@ describe('script', () => {
             // @ts-expect-error
             expect(bscript.isCanonicalPubKey(0)).toBe(false);
         });
+        // eslint-disable-next-line jest/no-commented-out-tests
         // it('rejects smaller than 33', () => {
         //     for (let i = 0; i < 33; i++) {
         //         expect(bscript.isCanonicalPubKey(Buffer.from('', i))).toBe(false);
         //     }
         // });
     });
+    // eslint-disable-next-line jest/no-commented-out-tests
     // describe.skip('isCanonicalSignature', () => {});
 
     describe('fromASM/toASM', () => {

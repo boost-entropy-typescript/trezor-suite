@@ -16,7 +16,7 @@ import {
     selectSendFormDrafts,
     signTransactionThunk,
     sendFormActions,
-    selectSendFormDraftByAccountKey,
+    selectSendFormDraftByKey,
 } from '@suite-common/wallet-core';
 import { isCardanoTx, isRbfTransaction } from '@suite-common/wallet-utils';
 import { MetadataAddPayload } from '@suite-common/metadata-types';
@@ -26,11 +26,12 @@ import {
     selectSelectedAccountKey,
     selectIsSelectedAccountLoaded,
 } from 'src/reducers/wallet/selectedAccountReducer';
-import { findLabelsToBeMovedOrDeleted, moveLabelsForRbfAction } from '../moveLabelsForRbfActions';
 import { selectMetadata } from 'src/reducers/suite/metadataReducer';
 import * as metadataLabelingActions from 'src/actions/suite/metadataLabelingActions';
 import * as modalActions from 'src/actions/suite/modalActions';
 import { RbfLabelsToBeUpdated } from 'src/types/wallet/sendForm';
+
+import { findLabelsToBeMovedOrDeleted, moveLabelsForRbfAction } from '../moveLabelsForRbfActions';
 
 export const MODULE_PREFIX = '@send';
 
@@ -140,7 +141,7 @@ const applySendFormMetadataLabelsThunk = createThunk(
 
         if (!metadata.enabled) return;
 
-        const formDraft = selectSendFormDraftByAccountKey(getState(), selectedAccount.key);
+        const formDraft = selectSendFormDraftByKey(getState(), selectedAccount.key);
 
         const outputsPermutation = isCardanoTx(selectedAccount, precomposedTransaction)
             ? precomposedTransaction?.outputs.map((_o, i) => i) // cardano preserves order of outputs

@@ -1,5 +1,7 @@
-import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
 import { useMemo } from 'react';
+
+import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
+
 import { useDefaultAccountLabel, useSelector } from 'src/hooks/suite';
 import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
 import {
@@ -26,7 +28,7 @@ export const useCoinmarketBuildAccountGroups = (
         () =>
             coinmarketBuildAccountOptions({
                 accounts,
-                deviceState: device?.state,
+                deviceState: device?.state?.staticSessionId,
                 accountLabels,
                 tokenDefinitions,
                 supportedCryptoIds: supportedSymbols,
@@ -35,7 +37,7 @@ export const useCoinmarketBuildAccountGroups = (
 
         [
             accounts,
-            device?.state,
+            device?.state?.staticSessionId,
             accountLabels,
             tokenDefinitions,
             supportedSymbols,

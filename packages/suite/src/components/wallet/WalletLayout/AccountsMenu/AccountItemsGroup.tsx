@@ -1,13 +1,19 @@
 import styled from 'styled-components';
-import { AccountItem } from './AccountItem';
-import { Account } from 'src/types/wallet';
+
 import { borders, spacingsPx, spacings } from '@trezor/theme';
-import { useSelector } from 'src/hooks/suite';
 import { selectCurrentFiatRates } from '@suite-common/wallet-core';
-import { getAccountTotalStakingBalance, getTokensFiatBalance } from '@suite-common/wallet-utils';
+import {
+    getAccountTotalStakingBalance,
+    getAccountTokensFiatBalance,
+} from '@suite-common/wallet-utils';
+import { Column } from '@trezor/components';
+
+import { Account } from 'src/types/wallet';
+import { useSelector } from 'src/hooks/suite';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 import { selectRouteName } from 'src/reducers/suite/routerReducer';
-import { Column } from '@trezor/components';
+
+import { AccountItem } from './AccountItem';
 
 const Section = styled.div<{ $selected?: boolean }>`
     display: flex;
@@ -24,7 +30,7 @@ const Section = styled.div<{ $selected?: boolean }>`
         content: '';
         position: absolute;
         top: 24px;
-        bottom: 24px;
+        bottom: 28px;
         left: 24px;
         border-left: 2px dotted ${({ theme }) => theme.borderDashed};
     }
@@ -53,7 +59,7 @@ export const AccountItemsGroup = ({
     const localCurrency = useSelector(selectLocalCurrency);
     const rates = useSelector(selectCurrentFiatRates);
 
-    const tokensFiatBalance = getTokensFiatBalance(account, localCurrency, rates, tokens);
+    const tokensFiatBalance = getAccountTokensFiatBalance(account, localCurrency, rates, tokens);
 
     const tokensRoutes = ['wallet-tokens', 'wallet-tokens-hidden'];
 

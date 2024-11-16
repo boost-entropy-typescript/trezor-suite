@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
+
 import styled, { css } from 'styled-components';
+
 import { zIndices } from '@trezor/theme';
 
 export type ModalAlignment = { x: 'center' | 'left'; y: 'center' | 'top' };
@@ -13,7 +15,7 @@ export type BackdropProps = {
 
 const Wrapper = styled.div<{ $alignment: ModalAlignment }>`
     position: absolute;
-    z-index: ${zIndices.modal};
+    z-index: ${zIndices.legacyModal};
     inset: 0;
     display: flex;
     flex-direction: column;

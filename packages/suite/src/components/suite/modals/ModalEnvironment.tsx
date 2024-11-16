@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import FocusLock from 'react-focus-lock';
+
 import { Backdrop, ModalAlignment } from '@trezor/components';
 
 type ModalEnvironmentProps = {
@@ -13,6 +14,7 @@ export const ModalEnvironment = ({
     children,
     alignment,
 }: ModalEnvironmentProps) => (
+    // eslint-disable-next-line jsx-a11y/no-autofocus
     <FocusLock autoFocus={false}>
         <Backdrop onClick={onClickBackdrop} alignment={alignment}>
             {children}

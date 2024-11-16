@@ -1,6 +1,9 @@
 import { forwardRef, HTMLAttributes, ReactNode } from 'react';
-import styled from 'styled-components';
+
+import styled, { css } from 'styled-components';
+
 import { borders, Elevation, spacingsPx } from '@trezor/theme';
+
 import { ElevationUp, useElevation } from '../ElevationContext/ElevationContext';
 import {
     FrameProps,
@@ -25,10 +28,11 @@ export const allowedCardFrameProps = [
 ] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedCardFrameProps)[number]>;
 
-const Container = styled.div<TransientProps<AllowedFrameProps>>`
+const Container = styled.div<{ $fillType: FillType } & TransientProps<AllowedFrameProps>>`
     width: 100%;
     border-radius: ${borders.radii.md};
-    background: ${({ theme }) => theme.backgroundTertiaryDefaultOnElevation0};
+    background: ${({ theme, $fillType }) =>
+        $fillType !== 'none' && theme.backgroundTertiaryDefaultOnElevation0};
     padding: ${spacingsPx.xxxs};
 
     ${withFrameProps}
@@ -45,9 +49,14 @@ const CardContainer = styled.div<
         $paddingType: PaddingType;
         $fillType: FillType;
         $isClickable: boolean;
+        $isHiglighted: boolean;
+        $hasLabel: boolean;
     } & TransientProps<AllowedFrameProps>
 >`
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
     padding: ${mapPaddingTypeToPadding};
     border-radius: ${borders.radii.md};
     transition:
@@ -55,6 +64,23 @@ const CardContainer = styled.div<
         box-shadow 0.2s,
         border-color 0.2s;
     cursor: ${({ $isClickable }) => ($isClickable ? 'pointer' : 'default')};
+
+    ${({ theme, $isHiglighted, $paddingType }) =>
+        $isHiglighted &&
+        css`
+            overflow: hidden;
+            padding-left: calc(${spacingsPx.xxs} + ${mapPaddingTypeToPadding({ $paddingType })});
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: ${spacingsPx.xxs};
+                background: ${theme.backgroundSecondaryDefault};
+            }
+        `}
 
     ${mapFillTypeToCSS}
     ${withFrameProps}
@@ -69,6 +95,7 @@ type CommonCardProps = AccessibilityProps & {
     children?: ReactNode;
     className?: string;
     label?: ReactNode;
+    isHiglighted?: boolean;
     'data-testid'?: string;
 };
 
@@ -86,6 +113,8 @@ const CardComponent = forwardRef<HTMLDivElement, CardPropsWithTransientProps>(
             onMouseLeave,
             className,
             tabIndex,
+            label,
+            isHiglighted = false,
             'data-testid': dataTest,
             ...rest
         },
@@ -100,6 +129,8 @@ const CardComponent = forwardRef<HTMLDivElement, CardPropsWithTransientProps>(
                 $paddingType={paddingType}
                 $fillType={fillType}
                 $isClickable={Boolean(onClick)}
+                $isHiglighted={isHiglighted}
+                $hasLabel={Boolean(label)}
                 onClick={onClick}
                 onMouseEnter={onMouseEnter}
                 className={className}
@@ -127,6 +158,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             tabIndex,
             children,
             'data-testid': dataTest,
+            isHiglighted,
             ...rest
         },
         ref,
@@ -140,12 +172,14 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             paddingType,
             fillType,
             children,
+            label,
+            isHiglighted,
             'data-testid': dataTest,
         };
         const frameProps = pickAndPrepareFrameProps(rest, allowedCardFrameProps);
 
         return label ? (
-            <Container {...frameProps}>
+            <Container $fillType={fillType} {...frameProps}>
                 <LabelContainer $paddingType={paddingType}>{label}</LabelContainer>
                 <CardComponent {...commonProps} ref={ref} />
             </Container>

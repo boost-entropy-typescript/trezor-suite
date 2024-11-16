@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+
 import type {
     CryptoId,
     ExchangeTrade,
@@ -7,14 +8,21 @@ import type {
     FiatCurrencyCode,
 } from 'invity-api';
 import useDebounce from 'react-use/lib/useDebounce';
-import { amountToSatoshi, formatAmount, toFiatCurrency } from '@suite-common/wallet-utils';
+
+import { amountToSmallestUnit, formatAmount, toFiatCurrency } from '@suite-common/wallet-utils';
 import { isChanged } from '@suite-common/suite-utils';
+import { Account } from '@suite-common/wallet-types';
+import { notificationsActions } from '@suite-common/toast-notifications';
+import { networks } from '@suite-common/wallet-config';
+import { analytics, EventType } from '@trezor/suite-analytics';
+
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import invityAPI from 'src/services/suite/invityAPI';
 import { saveQuoteRequest, saveQuotes } from 'src/actions/wallet/coinmarketExchangeActions';
 import {
     addIdsToQuotes,
     coinmarketGetSuccessQuotes,
+    getCoinmarketNetworkDecimals,
     getUnusedAddressFromAccount,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
@@ -27,7 +35,6 @@ import { useFormDraft } from 'src/hooks/wallet/useFormDraft';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { CryptoAmountLimits } from 'src/types/wallet/coinmarketCommonTypes';
-import { Account } from '@suite-common/wallet-types';
 import {
     CoinmarketTradeExchangeType,
     UseCoinmarketFormProps,
@@ -47,18 +54,16 @@ import {
 import { useCoinmarketExchangeFormDefaultValues } from 'src/hooks/wallet/coinmarket/form/useCoinmarketExchangeFormDefaultValues';
 import * as coinmarketExchangeActions from 'src/actions/wallet/coinmarketExchangeActions';
 import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
-import { notificationsActions } from '@suite-common/toast-notifications';
 import { useCoinmarketRecomposeAndSign } from 'src/hooks/wallet/useCoinmarketRecomposeAndSign';
 import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarketLoadData';
 import { useCoinmarketComposeTransaction } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketComposeTransaction';
 import { useCoinmarketFormActions } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketFormActions';
 import { useCoinmarketCurrencySwitcher } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketCurrencySwitcher';
 import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketModalCrypto';
-import { networks } from '@suite-common/wallet-config';
 import { useCoinmarketAccount } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketAccount';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
-import { analytics, EventType } from '@trezor/suite-analytics';
 import { useCoinmarketFiatValues } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketFiatValues';
+
 import { useCoinmarketInitializer } from './common/useCoinmarketInitializer';
 
 export const useCoinmarketExchangeForm = ({
@@ -143,12 +148,10 @@ export const useCoinmarketExchangeForm = ({
     });
     const { reset, register, getValues, setValue, formState, control } = methods;
     const values = useWatch<CoinmarketExchangeFormProps>({ control });
-    const { rateType, exchangeType } = getValues();
+    const { rateType, exchangeType, sendCryptoSelect } = getValues();
     const output = values.outputs?.[0];
     const fiatValues = useCoinmarketFiatValues({
-        accountBalance: account.formattedBalance,
-        cryptoSymbol: values?.sendCryptoSelect?.value as CryptoId,
-        tokenAddress: output?.token,
+        sendCryptoSelect,
         fiatCurrency: output?.currency?.value as FiatCurrencyCode,
     });
     const fiatOfBestScoredQuote = innerQuotes?.[0]?.sendStringAmount
@@ -171,6 +174,7 @@ export const useCoinmarketExchangeForm = ({
         [rateType, innerQuotes, exchangeInfo],
     );
     const dexQuotes = useMemo(() => innerQuotes?.filter(q => q.isDex), [innerQuotes]);
+    const decimals = getCoinmarketNetworkDecimals({ sendCryptoSelect, network });
 
     const {
         isComposing,
@@ -218,7 +222,7 @@ export const useCoinmarketExchangeForm = ({
         const unformattedOutputAmount = outputs[0].amount ?? '';
         const sendStringAmount =
             unformattedOutputAmount && shouldSendInSats
-                ? formatAmount(unformattedOutputAmount, network.decimals)
+                ? formatAmount(unformattedOutputAmount, decimals)
                 : unformattedOutputAmount;
 
         if (
@@ -238,7 +242,7 @@ export const useCoinmarketExchangeForm = ({
         };
 
         return request;
-    }, [getValues, network.decimals, shouldSendInSats]);
+    }, [getValues, decimals, shouldSendInSats]);
 
     const handleChange = useCallback(
         async (offLoading?: boolean) => {
@@ -428,15 +432,16 @@ export const useCoinmarketExchangeForm = ({
             // after discussion with 1inch, adjust the gas limit by the factor of 1.25
             // swap can use different swap paths when mining tx than when estimating tx
             // the geth gas estimate may be too low
-            const result = await recomposeAndSign(
+            const result = await recomposeAndSign({
                 account,
-                selectedQuote.dexTx.to,
-                selectedQuote.dexTx.value,
-                selectedQuote.partnerPaymentExtraId,
-                selectedQuote.dexTx.data,
-                true,
-                selectedQuote.status === 'CONFIRM' ? '1.25' : undefined,
-            );
+                address: selectedQuote.dexTx.to,
+                amount: selectedQuote.dexTx.value,
+                destinationTag: selectedQuote.partnerPaymentExtraId,
+                ethereumDataHex: selectedQuote.dexTx.data,
+                recalcCustomLimit: true,
+                ethereumAdjustGasLimit: selectedQuote.status === 'CONFIRM' ? '1.25' : undefined,
+                setMaxOutputId: values.setMaxOutputId,
+            });
 
             // in case of not success, recomposeAndSign shows notification
             if (result?.success) {
@@ -484,18 +489,15 @@ export const useCoinmarketExchangeForm = ({
             selectedQuote.sendStringAmount
         ) {
             const sendStringAmount = shouldSendInSats
-                ? amountToSatoshi(selectedQuote.sendStringAmount, network.decimals)
+                ? amountToSmallestUnit(selectedQuote.sendStringAmount, decimals)
                 : selectedQuote.sendStringAmount;
-            const result = await recomposeAndSign(
+            const result = await recomposeAndSign({
                 account,
-                selectedQuote.sendAddress,
-                sendStringAmount,
-                selectedQuote.partnerPaymentExtraId,
-                undefined,
-                undefined,
-                undefined,
-                ['broadcast'],
-            );
+                address: selectedQuote.sendAddress,
+                amount: sendStringAmount,
+                destinationTag: selectedQuote.partnerPaymentExtraId,
+                setMaxOutputId: values.setMaxOutputId,
+            });
             // in case of not success, recomposeAndSign shows notification
             if (result?.success) {
                 dispatch(

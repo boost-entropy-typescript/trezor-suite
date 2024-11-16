@@ -1,21 +1,23 @@
-import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { toWei } from 'web3-utils';
-import { isDesktop } from '@trezor/env-utils';
-import type { State } from 'src/reducers/wallet/settingsReducer';
-import type { CustomBackend, BlockbookUrl } from 'src/types/wallet/backend';
-import { NetworkSymbol } from '@suite-common/wallet-config';
 
+import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { isDesktop } from '@trezor/env-utils';
+import { NetworkSymbol, networkSymbolCollection } from '@suite-common/wallet-config';
 import type { BackendSettings } from '@suite-common/wallet-types';
 import type { OnUpgradeFunc } from '@trezor/suite-storage';
-import type { DBWalletAccountTransaction, SuiteDBSchema } from '../definitions';
 import {
     formatNetworkAmount,
-    networkAmountToSatoshi,
-    amountToSatoshi,
+    networkAmountToSmallestUnit,
+    amountToSmallestUnit,
 } from '@suite-common/wallet-utils';
-import { updateAll } from './utils';
 import { DeviceModelInternal, FirmwareType } from '@trezor/connect';
 import { parseAsset } from '@trezor/blockchain-link-utils/src/blockfrost';
+
+import type { CustomBackend, BlockbookUrl } from 'src/types/wallet/backend';
+import type { State } from 'src/reducers/wallet/settingsReducer';
+
+import { updateAll } from './utils';
+import type { DBWalletAccountTransaction, SuiteDBSchema } from '../definitions';
 
 type WalletWithBackends = {
     backends?: Partial<{
@@ -307,7 +309,7 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
 
     if (oldVersion < 28) {
         await updateAll(transaction, 'devices', device => {
-            if (device.state?.includes('undefined')) {
+            if ((device.state as string)?.includes('undefined')) {
                 // @ts-expect-error
                 device.state = device.state.replace('undefined', '0');
 
@@ -428,7 +430,8 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
             transaction,
             'txs',
             ({ order, tx: origTx }) => {
-                const unformat = (amount: string) => networkAmountToSatoshi(amount, origTx.symbol);
+                const unformat = (amount: string) =>
+                    networkAmountToSmallestUnit(amount, origTx.symbol);
                 const unformatIfDefined = (amount: string | undefined) =>
                     amount ? unformat(amount) : amount;
 
@@ -439,7 +442,7 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
                     totalSpent: unformat(origTx.totalSpent),
                     tokens: origTx.tokens.map(tok => ({
                         ...tok,
-                        amount: amountToSatoshi(tok.amount, tok.decimals),
+                        amount: amountToSmallestUnit(tok.amount, tok.decimals),
                     })),
                     targets: origTx.targets.map(target => ({
                         ...target,
@@ -1101,6 +1104,35 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
             }
 
             return draft;
+        });
+    }
+
+    if (oldVersion < 48) {
+        // Migrate device state to new object format
+        await updateAll(transaction, 'devices', device => {
+            if (typeof device.state === 'string') {
+                if (typeof (device as any)?._state?.staticSessionId === 'string') {
+                    // Has _state property, migrate to that
+                    device.state = (device as any)._state;
+                } else {
+                    // No _state property, create new object
+                    device.state = {
+                        staticSessionId: device.state,
+                    };
+                }
+            }
+
+            return device;
+        });
+    }
+
+    if (oldVersion < 49) {
+        await updateAll(transaction, 'walletSettings', walletSettings => {
+            walletSettings.enabledNetworks.sort(
+                (a, b) => networkSymbolCollection.indexOf(a) - networkSymbolCollection.indexOf(b),
+            );
+
+            return walletSettings;
         });
     }
 };

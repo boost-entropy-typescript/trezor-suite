@@ -1,8 +1,10 @@
 import { ReactNode } from 'react';
-import styled from 'styled-components';
 import FocusLock from 'react-focus-lock';
-import { zIndices, spacings } from '@trezor/theme';
 import { createPortal } from 'react-dom';
+
+import styled from 'styled-components';
+
+import { zIndices, spacings } from '@trezor/theme';
 
 import { NewModalAlignment } from './types';
 import { mapAlignmentToAlignItems, mapAlignmentToJustifyContent } from './utils';
@@ -42,6 +44,7 @@ export const NewModalBackdrop = ({
     const modalTarget = useModalTarget();
 
     const backdrop = (
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         <FocusLock autoFocus={false}>
             <Wrapper onClick={onClick} $alignment={alignment} $padding={padding}>
                 {children}

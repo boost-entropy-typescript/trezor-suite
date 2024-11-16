@@ -16,7 +16,6 @@
     "sideEffects": false,
     "main": "src/index.ts",
     "scripts": {
-        "lint:js": "eslint '**/*.{ts,js}'",
         "test:unit": "yarn g:jest",
         "test:discovery": "yarn g:tsx ./tests/tools/discovery-test.ts",
         "test:anonymity": "yarn g:tsx ./tests/tools/anonymity-test.ts",
@@ -25,9 +24,11 @@
         "type-check": "yarn g:tsc --build"
     },
     "dependencies": {
+        "@suite-common/suite-constants": "workspace:*",
         "@trezor/blockchain-link": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/blockchain-link-utils": "workspace:*",
+        "@trezor/eslint": "workspace:*",
         "@trezor/utils": "workspace:*",
         "@trezor/utxo-lib": "workspace:*",
         "cross-fetch": "^4.0.0",

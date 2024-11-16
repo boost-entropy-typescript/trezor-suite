@@ -1,8 +1,8 @@
+import { prepareAnalyticsReducer, analyticsActions } from '@suite-common/analytics';
+
 import { extraDependencies } from 'src/support/extraDependencies';
 import { configureStore } from 'src/support/tests/configureStore';
 import { init } from 'src/actions/suite/analyticsActions';
-
-import { prepareAnalyticsReducer, analyticsActions } from '@suite-common/analytics';
 
 const analyticsReducer = prepareAnalyticsReducer(extraDependencies);
 
@@ -12,7 +12,7 @@ type InitialState = {
     analytics: Partial<AnalyticsState>;
 };
 
-export const getInitialState = (state?: InitialState) => ({
+const getInitialState = (state?: InitialState) => ({
     analytics: {
         ...analyticsReducer(undefined, { type: 'foo' } as any),
         ...state?.analytics,

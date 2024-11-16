@@ -1,17 +1,19 @@
-import { isChanged } from '@suite-common/suite-utils';
-import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
-import {
-    amountToSatoshi,
-    formatAmount,
-    fromFiatCurrency,
-    isEthereumAccountSymbol,
-    isZero,
-} from '@suite-common/wallet-utils';
-import { BigNumber } from '@trezor/utils';
-import { FiatCurrencyCode } from 'invity-api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useDebounce } from 'react-use';
+
+import { FiatCurrencyCode } from 'invity-api';
+
+import { isChanged } from '@suite-common/suite-utils';
+import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
+import {
+    amountToSmallestUnit,
+    formatAmount,
+    fromFiatCurrency,
+    isZero,
+} from '@suite-common/wallet-utils';
+import { BigNumber } from '@trezor/utils';
+
 import {
     FORM_CRYPTO_TOKEN,
     FORM_OUTPUT_ADDRESS,
@@ -37,12 +39,12 @@ import {
 import {
     coinmarketGetSortedAccounts,
     cryptoIdToNetworkSymbol,
-    getNetworkDecimals,
+    getCoinmarketNetworkDecimals,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { coinmarketGetExchangeReceiveCryptoId } from 'src/utils/wallet/coinmarket/exchangeUtils';
 
 /**
- * shareable sub-hook used in useCoinmarketSellForm & useCoinmarketExchangeForm
+ * shareable sub-hook used in useCoinmarketSellForm & useCoinmarketExchangeForm
  * managing effects on input changes
  * @return functions and values to handle form inputs and update fee levels
  */
@@ -65,29 +67,28 @@ export const useCoinmarketFormActions = <T extends CoinmarketSellExchangeFormPro
     const device = useSelector(selectDevice);
     const accountsSorted = coinmarketGetSortedAccounts({
         accounts,
-        deviceState: device?.state,
+        deviceState: device?.state?.staticSessionId,
     });
     const [isUsedFractionButton, setIsUsedFractionButton] = useState(false);
     const { buildDefaultCryptoOption } = useCoinmarketInfo();
 
     const { getValues, setValue, clearErrors, handleSubmit, control } =
         methods as unknown as UseFormReturn<CoinmarketSellExchangeFormProps>;
-    const { outputs, sendCryptoSelect, setMaxOutputId } = getValues();
+    const { outputs, sendCryptoSelect } = getValues();
     const values = useWatch<CoinmarketSellExchangeFormProps>({ control });
     const previousValues = useRef<typeof values | null>(isNotFormPage ? draftUpdated : null);
     const tokenAddress = outputs?.[0]?.token;
-    const cryptoAmount = outputs?.[0]?.amount;
     const tokenData = account.tokens?.find(t => t.contract === tokenAddress);
     const isBalanceZero = tokenData
         ? isZero(tokenData.balance || '0')
         : isZero(account.formattedBalance);
     const coinmarketFiatValues = useCoinmarketFiatValues({
-        accountBalance: account.formattedBalance,
-        cryptoSymbol: sendCryptoSelect?.value,
-        tokenAddress,
+        sendCryptoSelect,
         fiatCurrency: getValues().outputs?.[0]?.currency?.value as FiatCurrencyCode,
     });
-    const networkDecimals = getNetworkDecimals(coinmarketFiatValues?.networkDecimals);
+    const networkDecimals = getCoinmarketNetworkDecimals({
+        sendCryptoSelect,
+    });
 
     // on manual change of crypto amount, set fiat amount
     const onFiatCurrencyChange = async (value: FiatCurrencyCode) => {
@@ -132,36 +133,11 @@ export const useCoinmarketFormActions = <T extends CoinmarketSellExchangeFormPro
 
             const formattedCryptoAmount =
                 cryptoAmount && shouldSendInSats
-                    ? amountToSatoshi(cryptoAmount, networkDecimals)
+                    ? amountToSmallestUnit(cryptoAmount, networkDecimals)
                     : cryptoAmount ?? '';
             setValue(FORM_OUTPUT_AMOUNT, formattedCryptoAmount, { shouldValidate: true });
         },
         [getValues, coinmarketFiatValues, networkDecimals, shouldSendInSats, setValue],
-    );
-
-    const calculateFiatAmountFromCrypto = useCallback(
-        (cryptoAmount: string) => {
-            if (!coinmarketFiatValues) return;
-
-            const rate = coinmarketFiatValues.fiatRate;
-            const formattedAmount = new BigNumber(
-                shouldSendInSats ? formatAmount(cryptoAmount, networkDecimals) : cryptoAmount,
-            );
-
-            if (
-                rate?.rate &&
-                formattedAmount &&
-                !formattedAmount.isNaN() &&
-                formattedAmount.gt(0) // formatAmount() returns '-1' on error
-            ) {
-                const fiatValueBigNumber = formattedAmount.multipliedBy(rate.rate);
-
-                setValue(FORM_OUTPUT_FIAT, fiatValueBigNumber.toFixed(2), {
-                    shouldValidate: true,
-                });
-            }
-        },
-        [coinmarketFiatValues, networkDecimals, setValue, shouldSendInSats],
     );
 
     const setExchangeReceiveCrypto = (selected: CoinmarketAccountOptionsGroupOptionProps) => {
@@ -199,12 +175,11 @@ export const useCoinmarketFormActions = <T extends CoinmarketSellExchangeFormPro
         setValue(FORM_OUTPUT_AMOUNT, '');
         setValue(FORM_CRYPTO_TOKEN, selected?.contractAddress ?? null);
 
-        if (networkSymbol && isEthereumAccountSymbol(networkSymbol)) {
+        if (account.networkType === 'ethereum') {
             // set token address for ERC20 transaction to estimate the fees more precisely
             setValue(FORM_OUTPUT_ADDRESS, selected?.contractAddress ?? '');
         }
-
-        if (networkSymbol === 'sol') {
+        if (account.networkType === 'solana' && !selected?.contractAddress) {
             setValue(FORM_OUTPUT_ADDRESS, selected?.descriptor ?? '');
         }
 
@@ -235,14 +210,12 @@ export const useCoinmarketFormActions = <T extends CoinmarketSellExchangeFormPro
                   .decimalPlaces(networkDecimals)
                   .toString();
         const cryptoInputValue = shouldSendInSats
-            ? amountToSatoshi(amount, networkDecimals)
+            ? amountToSmallestUnit(amount, networkDecimals)
             : amount;
         clearErrors([FORM_OUTPUT_FIAT, FORM_OUTPUT_AMOUNT]);
         setValue(FORM_OUTPUT_AMOUNT, cryptoInputValue, { shouldDirty: true });
         setValue(FORM_OUTPUT_MAX, undefined, { shouldDirty: true });
         setIsUsedFractionButton(true);
-
-        calculateFiatAmountFromCrypto(cryptoInputValue);
     };
 
     const setAllAmount = () => {
@@ -254,15 +227,6 @@ export const useCoinmarketFormActions = <T extends CoinmarketSellExchangeFormPro
         setIsUsedFractionButton(true);
         composeRequest(FORM_OUTPUT_AMOUNT);
     };
-
-    // update fiat amount in compute all crypto from the account
-    useEffect(() => {
-        if (cryptoAmount && typeof setMaxOutputId !== 'undefined') {
-            calculateFiatAmountFromCrypto(cryptoAmount);
-        }
-        // compute only if cryptoAmount and setMaxOutputId will changed
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cryptoAmount, setMaxOutputId]);
 
     // call change handler on every change of text inputs with debounce
     useDebounce(

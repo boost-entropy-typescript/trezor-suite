@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useIntl } from 'react-intl';
+
 import {
     AssetLogo,
     Column,
@@ -9,11 +11,11 @@ import {
     VirtualizedList,
 } from '@trezor/components';
 import { mapElevationToBackgroundToken, spacings } from '@trezor/theme';
+import { getNetworkByCoingeckoId, Network } from '@suite-common/wallet-config';
+
 import { AssetItem } from './AssetItem';
 import { NetworkTabs } from './NetworkTabs';
-import { useIntl } from 'react-intl';
 import { AssetItemNotFound } from './AssetItemNotFound';
-import { getNetworkByCoingeckoId, Network } from '@suite-common/wallet-config';
 
 export interface SelectAssetOptionCurrencyProps {
     type: 'currency';
@@ -24,12 +26,14 @@ export interface SelectAssetOptionCurrencyProps {
     contractAddress?: string; // CryptoId (contractAddress)
     networkName?: string;
 }
+
 export interface SelectAssetOptionGroupProps {
     type: 'group';
     label: string;
     networkName?: string;
     coingeckoId?: string;
 }
+
 export type SelectAssetOptionProps = SelectAssetOptionCurrencyProps | SelectAssetOptionGroupProps;
 
 export interface SelectAssetNetworkProps {
@@ -158,6 +162,7 @@ export const SelectAssetModal = ({
                     })}
                     value={search}
                     onChange={event => setSearch(event.target.value)}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     onClear={() => {
                         setSearch('');

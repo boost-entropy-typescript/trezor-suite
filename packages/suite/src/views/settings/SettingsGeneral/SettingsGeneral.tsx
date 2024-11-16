@@ -1,4 +1,5 @@
 import { isDesktop, isWeb } from '@trezor/env-utils';
+import { networks, NetworkFeature } from '@suite-common/wallet-config';
 
 import { SettingsLayout, SettingsSection } from 'src/components/settings';
 import { Translation } from 'src/components/suite';
@@ -7,6 +8,7 @@ import {
     selectHasExperimentalFeature,
     selectIsSettingsDesktopAppPromoBannerShown,
     selectTorState,
+    selectIsDebugModeActive,
 } from 'src/reducers/suite/suiteReducer';
 import { selectEnabledNetworks } from 'src/reducers/wallet/settingsReducer';
 import { selectSelectedProviderForLabels } from 'src/reducers/suite/metadataReducer';
@@ -29,9 +31,10 @@ import { DesktopSuiteBanner } from './DesktopSuiteBanner';
 import { AddressDisplay } from './AddressDisplay';
 import { EnableViewOnly } from './EnableViewOnly';
 import { Experimental } from './Experimental';
-import { networks, NetworkFeature } from '@suite-common/wallet-config';
 import { TorSnowflake } from './TorSnowflake';
 import { AutomaticUpdate } from './AutomaticUpdate';
+import { AutoStart } from './AutoStart';
+import { ShowOnTray } from './ShowOnTray';
 
 export const SettingsGeneral = () => {
     const shouldShowSettingsDesktopAppPromoBanner = useSelector(
@@ -55,6 +58,7 @@ export const SettingsGeneral = () => {
 
     const isMetadataEnabled = metadata.enabled && !metadata.initiating;
     const isProviderConnected = useSelector(selectSelectedProviderForLabels);
+    const isDebugModeActive = useSelector(selectIsDebugModeActive);
 
     return (
         <SettingsLayout data-testid="@settings/index">
@@ -99,6 +103,13 @@ export const SettingsGeneral = () => {
             <SettingsSection title={<Translation id="TR_VIEW_ONLY" />} icon="link">
                 <EnableViewOnly />
             </SettingsSection>
+
+            {isDesktop() && isDebugModeActive && (
+                <SettingsSection title={<Translation id="TR_TREZOR_CONNECT" />} icon="plugs">
+                    <AutoStart />
+                    <ShowOnTray />
+                </SettingsSection>
+            )}
 
             <SettingsSection
                 title={<Translation id="TR_EXPERIMENTAL_FEATURES" />}

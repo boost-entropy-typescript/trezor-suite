@@ -1,6 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/tx/Fees.js
 
 import { BigNumber } from '@trezor/utils/src/bigNumber';
+
 import { Blockchain } from '../../backend/BlockchainLink';
 import type { CoinInfo, FeeLevel } from '../../types';
 
@@ -94,7 +95,7 @@ export class FeeLevels {
                     Math.max(this.coinInfo.minFee, parseInt(response.feePerUnit, 10)),
                 ).toString(),
             };
-        } catch (error) {
+        } catch {
             // silent
         }
 
@@ -146,7 +147,7 @@ export class FeeLevels {
             });
 
             this.longTermFeeRate = findLowest(this.blocks);
-        } catch (error) {
+        } catch {
             // do not throw
         }
 

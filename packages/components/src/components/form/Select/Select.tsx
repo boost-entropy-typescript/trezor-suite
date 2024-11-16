@@ -1,6 +1,8 @@
 import { useCallback, useRef, ReactNode, useMemo } from 'react';
 import ReactSelect, { Props as ReactSelectProps, StylesConfig, SelectInstance } from 'react-select';
+
 import styled, { css, DefaultTheme, useTheme } from 'styled-components';
+
 import {
     borders,
     spacings,
@@ -14,8 +16,13 @@ import {
 } from '@trezor/theme';
 
 import { INPUT_HEIGHTS, LABEL_TRANSFORM, Label, baseInputStyle } from '../InputStyles';
-import { BOTTOM_TEXT_MIN_HEIGHT, BottomText } from '../BottomText';
-import { InputState, InputSize } from '../inputTypes';
+import { InputSize } from '../inputTypes';
+import {
+    FormCell,
+    FormCellProps,
+    allowedFormCellFrameProps,
+    pickFormCellProps,
+} from '../FormCell/FormCell';
 import {
     Control,
     ControlComponentProps,
@@ -27,9 +34,14 @@ import { useOnKeyDown } from './useOnKeyDown';
 import { useDetectPortalTarget } from './useDetectPortalTarget';
 import { DROPDOWN_MENU, menuStyle } from '../../Dropdown/menuStyle';
 import { useElevation } from '../../ElevationContext/ElevationContext';
+import { Spinner } from '../../loaders/Spinner/Spinner';
 import { TransientProps } from '../../../utils/transientProps';
+import { FrameProps } from '../../../utils/frameProps';
 
 const reactSelectClassNamePrefix = 'react-select';
+
+export const allowedSelectFrameProps = allowedFormCellFrameProps;
+type AllowedFrameProps = Pick<FrameProps, (typeof allowedSelectFrameProps)[number]>;
 
 const createSelectStyle = (
     theme: DefaultTheme,
@@ -107,16 +119,14 @@ type WrapperProps = TransientProps<
 > & {
     $isWithLabel: boolean;
     $isWithPlaceholder: boolean;
-    $hasBottomPadding: boolean;
     $elevation: Elevation;
+    $isLoading?: boolean;
 };
 
-const Wrapper = styled.div<WrapperProps>`
+const SelectWrapper = styled.div<WrapperProps>`
     /* stylelint-disable selector-class-pattern */
-    position: relative;
     width: 100%;
-    padding-bottom: ${({ $hasBottomPadding: hasBottomPadding }) =>
-        hasBottomPadding ? `${BOTTOM_TEXT_MIN_HEIGHT}px` : '0'};
+    position: relative;
 
     ${({ $isClean }) =>
         !$isClean &&
@@ -176,7 +186,7 @@ const Wrapper = styled.div<WrapperProps>`
 
     .${reactSelectClassNamePrefix}__single-value {
         position: static;
-        display: flex;
+        display: ${({ $isLoading }) => ($isLoading ? 'none' : 'flex')};
         align-items: center;
         justify-content: ${({ $isClean }) => ($isClean ? 'flex-end' : 'flex-start')};
         max-width: initial;
@@ -244,27 +254,18 @@ const SelectLabel = styled(Label)`
     }
 `;
 
+const SpinnerWrapper = styled.div`
+    position: absolute;
+    top: 50%;
+    left: ${spacingsPx.md};
+    transform: translateY(-50%);
+`;
+
 // Prevent closing the menu when scrolling through options.
 const closeMenuOnScroll = (e: Event) =>
     !(e.target as Element)?.className?.startsWith(reactSelectClassNamePrefix);
 
 export type Option = any;
-
-interface CommonProps extends Omit<ReactSelectProps<Option>, 'onChange' | 'menuIsOpen'> {
-    isClean?: boolean;
-    label?: ReactNode;
-    size?: InputSize;
-    /**
-     * @description pass `null` if bottom text can be `undefined`
-     */
-    bottomText?: ReactNode;
-    hasBottomPadding?: boolean;
-    minValueWidth?: string; // TODO: should be probably removed
-    inputState?: InputState;
-    isMenuOpen?: boolean;
-    onChange?: (value: Option, ref?: SelectInstance<Option, boolean> | null) => void;
-    'data-testid'?: string;
-}
 
 // Make sure isSearchable can't be defined if useKeyPressScroll===true
 // If useKeyPressScroll is false or undefined, isSearchable is a boolean value
@@ -272,33 +273,45 @@ type KeyPressScrollProps =
     | { useKeyPressScroll: true; isSearchable?: never }
     | { useKeyPressScroll?: false; isSearchable?: boolean };
 
-export type SelectProps = CommonProps & KeyPressScrollProps;
+export type SelectProps = KeyPressScrollProps &
+    AllowedFrameProps &
+    Omit<FormCellProps, 'children'> &
+    Omit<ReactSelectProps<Option>, 'onChange' | 'menuIsOpen'> & {
+        isClean?: boolean;
+        label?: ReactNode;
+        size?: InputSize;
+        hasBottomPadding?: boolean;
+        minValueWidth?: string;
+        isMenuOpen?: boolean;
+        isLoading?: boolean;
+        onChange?: (value: Option, ref?: SelectInstance<Option, boolean> | null) => void;
+        'data-testid'?: string;
+    };
 
 export const Select = ({
-    className,
     isClean = false,
     label,
     size = 'large',
-    bottomText,
     hasBottomPadding = true,
     useKeyPressScroll,
     isSearchable = false,
     minValueWidth = 'initial',
     isMenuOpen,
-    inputState,
     components,
     onChange,
     placeholder,
     isDisabled = false,
+    isLoading = false,
     'data-testid': dataTest,
     ...props
 }: SelectProps) => {
     const selectRef = useRef<SelectInstance<Option, boolean>>(null);
     const { elevation } = useElevation();
-
     const theme = useTheme();
     const onKeyDown = useOnKeyDown(selectRef, useKeyPressScroll);
     const menuPortalTarget = useDetectPortalTarget(selectRef);
+    const formCellProps = pickFormCellProps(props);
+
     const isRenderedInModal = menuPortalTarget !== null;
 
     const handleOnChange = useCallback<Required<ReactSelectProps>['onChange']>(
@@ -336,49 +349,50 @@ export const Select = ({
     );
 
     return (
-        <Wrapper
-            className={className}
-            $isClean={isClean}
-            $elevation={elevation}
-            $isSearchable={isSearchable}
-            $size={size}
-            $minValueWidth={minValueWidth}
-            $isDisabled={isDisabled}
-            $isMenuOpen={isMenuOpen}
-            $isWithLabel={!!label}
-            $isWithPlaceholder={!!placeholder}
-            $hasBottomPadding={hasBottomPadding === true && bottomText === null}
-        >
-            <ReactSelect
-                ref={selectRef}
-                onKeyDown={onKeyDown}
-                classNamePrefix={reactSelectClassNamePrefix}
-                openMenuOnFocus
-                closeMenuOnScroll={closeMenuOnScroll}
-                menuPosition="fixed" // Required for closeMenuOnScroll to work properly when near page bottom
-                menuPortalTarget={menuPortalTarget}
-                styles={createSelectStyle(theme, elevation, isRenderedInModal)}
-                onChange={handleOnChange}
-                isSearchable={isSearchable}
-                menuIsOpen={isMenuOpen}
-                isDisabled={isDisabled}
-                menuPlacement="auto"
-                placeholder={placeholder || ''}
-                {...props}
-                components={memoizedComponents}
-            />
+        <FormCell {...formCellProps} isDisabled={isDisabled}>
+            <SelectWrapper
+                $isClean={isClean}
+                $elevation={elevation}
+                $isSearchable={isSearchable}
+                $size={size}
+                $minValueWidth={minValueWidth}
+                $isDisabled={isDisabled}
+                $isLoading={isLoading}
+                $isMenuOpen={isMenuOpen}
+                $isWithLabel={!!label}
+                $isWithPlaceholder={!!placeholder}
+            >
+                <ReactSelect
+                    ref={selectRef}
+                    onKeyDown={onKeyDown}
+                    classNamePrefix={reactSelectClassNamePrefix}
+                    openMenuOnFocus
+                    closeMenuOnScroll={closeMenuOnScroll}
+                    menuPosition="fixed" // Required for closeMenuOnScroll to work properly when near page bottom
+                    menuPortalTarget={menuPortalTarget}
+                    styles={createSelectStyle(theme, elevation, isRenderedInModal)}
+                    onChange={handleOnChange}
+                    isSearchable={isSearchable}
+                    menuIsOpen={isMenuOpen}
+                    isDisabled={isDisabled}
+                    menuPlacement="auto"
+                    placeholder={placeholder || ''}
+                    {...props}
+                    components={memoizedComponents}
+                />
 
-            {label && (
-                <SelectLabel $size={size} $isDisabled={isDisabled}>
-                    {label}
-                </SelectLabel>
-            )}
+                {isLoading && (
+                    <SpinnerWrapper>
+                        <Spinner size={24} isGrey={false} />
+                    </SpinnerWrapper>
+                )}
 
-            {bottomText && (
-                <BottomText inputState={inputState} isDisabled={isDisabled}>
-                    {bottomText}
-                </BottomText>
-            )}
-        </Wrapper>
+                {label && (
+                    <SelectLabel $size={size} $isDisabled={isDisabled}>
+                        {label}
+                    </SelectLabel>
+                )}
+            </SelectWrapper>
+        </FormCell>
     );
 };

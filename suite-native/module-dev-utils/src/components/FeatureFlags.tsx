@@ -3,11 +3,10 @@ import { FeatureFlag as FeatureFlagEnum, useFeatureFlag } from '@suite-native/fe
 
 const featureFlagsTitleMap = {
     [FeatureFlagEnum.IsDeviceConnectEnabled]: 'Connect device',
-    [FeatureFlagEnum.IsBitcoinLikeSendEnabled]: 'Bitcoin-like coins send',
-    [FeatureFlagEnum.IsEthereumSendEnabled]: 'Ethereum send',
+    [FeatureFlagEnum.IsRippleSendEnabled]: 'Ripple send',
+    [FeatureFlagEnum.IsCardanoSendEnabled]: 'Cardano send',
+    [FeatureFlagEnum.IsSolanaSendEnabled]: 'Solana send',
     [FeatureFlagEnum.IsRegtestEnabled]: 'Regtest',
-    [FeatureFlagEnum.IsPolygonEnabled]: 'Polygon',
-    [FeatureFlagEnum.IsBscEnabled]: 'BNB Smart Chain',
     [FeatureFlagEnum.IsSolanaEnabled]: 'Solana',
     [FeatureFlagEnum.IsConnectPopupEnabled]: 'Connect Popup',
 } as const satisfies Record<FeatureFlagEnum, string>;

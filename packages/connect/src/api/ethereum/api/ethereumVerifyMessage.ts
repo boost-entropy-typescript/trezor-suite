@@ -1,10 +1,11 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/EthereumVerifyMessage.js
 
+import { Assert } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { stripHexPrefix, messageToHex } from '../../../utils/formatUtils';
 import type { PROTO } from '../../../constants';
-import { Assert } from '@trezor/schema-utils';
 import { EthereumVerifyMessage as EthereumVerifyMessageSchema } from '../../../types';
 
 export default class EthereumVerifyMessage extends AbstractMethod<
@@ -14,6 +15,7 @@ export default class EthereumVerifyMessage extends AbstractMethod<
     init() {
         this.requiredPermissions = ['read', 'write'];
         this.firmwareRange = getFirmwareRange(this.name, null, this.firmwareRange);
+        this.requiredDeviceCapabilities = ['Capability_Ethereum'];
 
         const { payload } = this;
 

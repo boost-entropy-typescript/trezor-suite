@@ -1,14 +1,12 @@
 import { defineConfig } from 'cypress';
-
 import fs from 'fs';
 import path from 'path';
 import { addMatchImageSnapshotPlugin } from 'cypress-image-snapshot/plugin';
+
 import { BridgeTransport } from '@trezor/transport';
 import * as messages from '@trezor/protobuf/src/messages';
-
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 import * as metadataUtils from '@trezor/suite/src/utils/suite/metadata';
-
 import {
     TrezorBridgeMock,
     DropboxMock,
@@ -158,7 +156,7 @@ export default defineConfig({
                     return null;
                 },
                 stealBridgeSession: async () => {
-                    const bridge = new BridgeTransport({ messages });
+                    const bridge = new BridgeTransport({ messages, id: 'foo-bar' });
                     await bridge.init();
                     const enumerateRes = await bridge.enumerate();
                     if (!enumerateRes.success) return null;
@@ -178,7 +176,7 @@ export default defineConfig({
                     return Promise.resolve(true);
                 },
                 readDir: dir => fs.readdirSync(dir, { encoding: 'utf-8' }),
-                readFile: path => fs.readFileSync(path, { encoding: 'utf-8' }),
+                readFile: path2 => fs.readFileSync(path2, { encoding: 'utf-8' }),
                 rmDir: (opts: {
                     recursive: fs.RmDirOptions['recursive'];
                     dir: string;

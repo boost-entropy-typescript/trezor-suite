@@ -7,15 +7,15 @@ import {
     ClipboardEvent,
     FormEvent,
 } from 'react';
-
 import { Control, FieldValues, useController, UseControllerProps } from 'react-hook-form';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
 
+import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { Input, InputProps } from '@trezor/components';
 import { localizeNumber } from '@suite-common/wallet-utils';
+import { getLocaleSeparators } from '@trezor/utils';
+
 import { Locale } from 'src/config/suite/languages';
 import { useSelector } from 'src/hooks/suite';
-import { getLocaleSeparators } from '@trezor/utils';
 import { selectLanguage } from 'src/reducers/suite/suiteReducer';
 
 const isValidDecimalString = (value: string) => /^([^.]*)\.[^.]+$/.test(value);
@@ -64,13 +64,15 @@ const cleanValueString = (value: string, locale: Locale) => {
 
 const DECIMAL_SEPARATORS = [',', '.'];
 
-export interface NumberInputProps<TFieldValues extends FieldValues>
-    extends Omit<InputProps, 'defaultValue' | 'name' | 'onChange'>,
-        Omit<UseControllerProps<TFieldValues>, 'rules'> {
-    decimalScale?: number;
-    onChange?: (value: string) => void;
-    rules?: UseControllerProps['rules'];
-}
+export type NumberInputProps<TFieldValues extends FieldValues> = Omit<
+    InputProps,
+    'defaultValue' | 'name' | 'onChange'
+> &
+    Omit<UseControllerProps<TFieldValues>, 'rules'> & {
+        decimalScale?: number;
+        onChange?: (value: string) => void;
+        rules?: UseControllerProps['rules'];
+    };
 
 export const NumberInput = <TFieldValues extends FieldValues>({
     name,

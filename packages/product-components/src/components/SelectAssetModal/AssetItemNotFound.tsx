@@ -1,7 +1,9 @@
-import { Column, Paragraph, Text } from '@trezor/components';
 import { FormattedMessage } from 'react-intl';
-import { SelectAssetNetworkProps, SelectAssetSearchCategoryType } from './SelectAssetModal';
+
+import { Column, Paragraph, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
+
+import { SelectAssetNetworkProps, SelectAssetSearchCategoryType } from './SelectAssetModal';
 
 interface AssetItemNotFoundProps {
     searchCategory: SelectAssetSearchCategoryType;

@@ -1,6 +1,6 @@
 {
     "name": "@trezor/blockchain-link-utils",
-    "version": "1.2.2-beta.1",
+    "version": "1.2.2-beta.2",
     "license": "See LICENSE.md in repo root",
     "sideEffects": false,
     "main": "src/index.ts",
@@ -12,7 +12,6 @@
         "!**/*.map"
     ],
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "test:unit": "yarn g:jest -c ../../jest.config.base.js",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build",
@@ -22,12 +21,13 @@
     },
     "dependencies": {
         "@mobily/ts-belt": "^3.13.1",
-        "@solana/web3.js": "^1.95.0",
+        "@solana/web3.js": "^1.95.4",
         "@trezor/env-utils": "workspace:*",
         "@trezor/utils": "workspace:*"
     },
     "devDependencies": {
         "@trezor/blockchain-link-types": "workspace:*",
+        "@trezor/eslint": "workspace:*",
         "@trezor/type-utils": "workspace:*",
         "tsx": "^4.16.3"
     },

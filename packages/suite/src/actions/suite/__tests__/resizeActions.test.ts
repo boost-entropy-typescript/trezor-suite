@@ -1,9 +1,8 @@
 import { configureStore } from 'src/support/tests/configureStore';
-
 import resizeReducer, { State as ResizeState } from 'src/reducers/suite/resizeReducer';
 import * as resizeActions from 'src/actions/suite/resizeActions';
 
-export const getInitialState = (state?: ResizeState) => ({
+const getInitialState = (state?: ResizeState) => ({
     resize: {
         ...resizeReducer(undefined, { type: 'foo' } as any),
         ...state,

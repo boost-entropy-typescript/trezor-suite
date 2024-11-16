@@ -1,4 +1,5 @@
 import UDP from 'dgram';
+
 import { createTimeoutPromise, isNotUndefined, arrayPartition } from '@trezor/utils';
 
 import {
@@ -180,7 +181,7 @@ export class UdpApi extends AbstractApi {
             this.handleDevicesChange(enumerateResult);
 
             return this.success(enumerateResult);
-        } catch (e) {
+        } catch {
             this.handleDevicesChange([]);
 
             return this.error({ error: ERRORS.ABORTED_BY_SIGNAL });

@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
+
 import {
     H2,
     Button,
@@ -13,7 +14,6 @@ import {
     IconCircleVariant,
 } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-import React from 'react';
 
 interface AccountExceptionLayoutProps {
     title: ReactNode;

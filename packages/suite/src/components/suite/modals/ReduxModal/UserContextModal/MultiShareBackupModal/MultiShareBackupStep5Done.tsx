@@ -1,11 +1,14 @@
+import { ReactNode } from 'react';
+
+import styled from 'styled-components';
+
 import { Card, Row, Column, Text, Icon } from '@trezor/components';
+import { borders, spacings, spacingsPx } from '@trezor/theme';
+import { TranslationKey } from '@suite-common/intl-types';
 
 import { Translation } from 'src/components/suite';
+
 import { Body, Section } from './multiShareModalLayout';
-import { borders, spacings, spacingsPx } from '@trezor/theme';
-import { ReactNode } from 'react';
-import { TranslationKey } from '@suite-common/intl-types';
-import styled from 'styled-components';
 
 const GradientCallout = styled.div`
     background-image: linear-gradient(
@@ -69,7 +72,7 @@ export const MultiShareBackupStep5Done = () => (
             </Text>
             <Row gap={spacings.lg} alignItems="stretch">
                 <Callout
-                    header="TR_MULTI_SHARE_BACKUP_SUCCESS_LEFT_HEADER"
+                    header="TR_MULTI_SHARE_BACKUP_SUCCESS_LEFT"
                     items={[
                         <>
                             <Icon name="coins" />
@@ -82,7 +85,7 @@ export const MultiShareBackupStep5Done = () => (
                     ]}
                 />
                 <Callout
-                    header="TR_MULTI_SHARE_BACKUP_SUCCESS_RIGHT_HEADER"
+                    header="TR_MULTI_SHARE_BACKUP_SUCCESS_RIGHT"
                     items={[
                         <>
                             <Icon name="coins" />

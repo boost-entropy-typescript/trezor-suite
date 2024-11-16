@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+
 import styled, { css } from 'styled-components';
 
 import {
@@ -17,8 +18,13 @@ export const Row = styled.tr<{
     $isCollapsed: boolean;
     $isHighlighted: boolean;
     $isHeader: boolean;
+    $hasBorderTop: boolean;
 }>`
-    border-top: 1px solid ${mapElevationToBorder};
+    ${({ $hasBorderTop, theme, $elevation }) =>
+        $hasBorderTop &&
+        css`
+            border-top: 1px solid ${mapElevationToBorder({ theme, $elevation })};
+        `}
 
     &:first-child {
         border-top: 0;
@@ -71,6 +77,7 @@ export interface TableRowProps {
     isHighlightedOnHover?: boolean;
     onClick?: () => void;
     onHover?: (isHovering: boolean) => void;
+    hasBorderTop?: boolean;
 }
 
 export const TableRow = ({
@@ -79,6 +86,7 @@ export const TableRow = ({
     onClick,
     onHover,
     isHighlightedOnHover,
+    hasBorderTop = true,
 }: TableRowProps) => {
     const { elevation } = useElevation();
     const isHeader = useTableHeader();
@@ -90,6 +98,7 @@ export const TableRow = ({
             $isCollapsed={isCollapsed}
             $isHighlighted={isHighlightedOnHover ?? isRowHighlightedOnHover}
             $isHeader={isHeader}
+            $hasBorderTop={hasBorderTop}
             onClick={onClick}
             onMouseEnter={() => onHover?.(true)}
             onMouseLeave={() => onHover?.(false)}

@@ -10,21 +10,26 @@ import {
     getEthereumEstimateFeeParams,
     prepareEthereumTransaction,
     getExternalComposeOutput,
-    amountToSatoshi,
+    amountToSmallestUnit,
     formatAmount,
     isPending,
     getAccountIdentity,
+    getTxStakeNameByDataHex,
+    getUnstakeAmountByEthereumDataHex,
 } from '@suite-common/wallet-utils';
 import { createThunk } from '@suite-common/redux-utils';
-import { ERC20_BACKUP_GAS_LIMIT, ETH_BACKUP_GAS_LIMIT } from '@suite-common/wallet-constants';
+import {
+    ERC20_BACKUP_GAS_LIMIT,
+    ETH_BACKUP_GAS_LIMIT,
+    STAKE_GAS_LIMIT_RESERVE,
+} from '@suite-common/wallet-constants';
 import {
     PrecomposedLevels,
     PrecomposedTransaction,
     ExternalOutput,
+    AddressDisplayOptions,
 } from '@suite-common/wallet-types';
-import { AddressDisplayOptions } from '@suite-common/wallet-types';
 import { getNetwork } from '@suite-common/wallet-config';
-import { getTxStakeNameByDataHex } from '@suite-common/suite-utils';
 
 import { selectTransactions } from '../transactions/transactionsReducer';
 import {
@@ -34,7 +39,6 @@ import {
     SignTransactionError,
 } from './sendFormTypes';
 import { SEND_MODULE_PREFIX } from './sendFormConstants';
-import { STAKE_GAS_LIMIT_RESERVE } from '../stake/stakeTypes';
 
 const calculate = (
     availableBalance: string,
@@ -50,7 +54,7 @@ const calculate = (
     let amount: string;
     let max: string | undefined;
     const availableTokenBalance = token
-        ? amountToSatoshi(token.balance!, token.decimals)
+        ? amountToSmallestUnit(token.balance!, token.decimals)
         : undefined;
     if (output.type === 'send-max' || output.type === 'send-max-noaddress') {
         max = availableTokenBalance || calculateMax(availableBalance, feeInSatoshi);
@@ -121,7 +125,16 @@ export const composeEthereumTransactionFeeLevelsThunk = createThunk<
     `${SEND_MODULE_PREFIX}/composeEthereumTransactionFeeLevelsThunk`,
     async ({ formState, composeContext }, { dispatch, rejectWithValue }) => {
         const { account, network, feeInfo } = composeContext;
-        const composedOutput = getExternalComposeOutput(formState, account, network);
+        const { ethereumDataHex } = formState;
+        const unstakeAmount = getUnstakeAmountByEthereumDataHex(ethereumDataHex);
+
+        const composedOutput = getExternalComposeOutput(
+            formState,
+            account,
+            network,
+            unstakeAmount || undefined,
+        );
+
         if (!composedOutput)
             return rejectWithValue({
                 error: 'fee-levels-compose-failed',

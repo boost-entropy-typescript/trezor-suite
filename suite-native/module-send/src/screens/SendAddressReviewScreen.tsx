@@ -2,10 +2,9 @@ import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 
 import { SendStackParamList, SendStackRoutes, StackProps } from '@suite-native/navigation';
-import { Box, VStack } from '@suite-native/atoms';
+import { Box, VStack, Text } from '@suite-native/atoms';
 import { Translation, useTranslate } from '@suite-native/intl';
 import { AccountsRootState, DeviceRootState, SendRootState } from '@suite-common/wallet-core';
-import { Text } from '@suite-native/atoms';
 
 import {
     selectIsFirstTransactionAddressConfirmed,
@@ -21,26 +20,26 @@ export const SendAddressReviewScreen = ({
     route,
     navigation,
 }: StackProps<SendStackParamList, SendStackRoutes.SendAddressReview>) => {
-    const { accountKey } = route.params;
+    const { accountKey, tokenContract } = route.params;
     const { translate } = useTranslate();
 
     const showReviewCancellationAlert = useShowReviewCancellationAlert();
 
     const isAddressConfirmed = useSelector(
         (state: AccountsRootState & DeviceRootState & SendRootState) =>
-            selectIsFirstTransactionAddressConfirmed(state, accountKey),
+            selectIsFirstTransactionAddressConfirmed(state, accountKey, tokenContract),
     );
 
     const isReviewInProgress = useSelector(
         (state: AccountsRootState & DeviceRootState & SendRootState) =>
-            selectIsOutputsReviewInProgress(state, accountKey),
+            selectIsOutputsReviewInProgress(state, accountKey, tokenContract),
     );
 
     useEffect(() => {
         if (isAddressConfirmed) {
-            navigation.navigate(SendStackRoutes.SendOutputsReview, { accountKey });
+            navigation.navigate(SendStackRoutes.SendOutputsReview, { accountKey, tokenContract });
         }
-    }, [isAddressConfirmed, accountKey, navigation]);
+    }, [isAddressConfirmed, accountKey, navigation, tokenContract]);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('beforeRemove', e => {

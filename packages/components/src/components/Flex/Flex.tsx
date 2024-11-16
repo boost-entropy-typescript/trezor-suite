@@ -1,5 +1,9 @@
-import { Elevation, mapElevationToBorder, SpacingValues } from '@trezor/theme';
+import React from 'react';
+
 import styled, { css, DefaultTheme } from 'styled-components';
+
+import { Elevation, mapElevationToBorder, SpacingValues } from '@trezor/theme';
+
 import {
     FrameProps,
     FramePropsKeys,
@@ -8,13 +12,13 @@ import {
 } from '../../utils/frameProps';
 import { makePropsTransient, TransientProps } from '../../utils/transientProps';
 import { useElevation } from '../ElevationContext/ElevationContext';
-import React from 'react';
 
 export const allowedFlexFrameProps = [
     'margin',
     'width',
     'height',
     'minHeight',
+    'maxWidth',
     'overflow',
 ] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedFlexFrameProps)[number]>;
@@ -112,6 +116,7 @@ type ContainerProps = TransientProps<AllowedFrameProps> & {
     $direction: FlexDirection;
     $flex: Flex;
     $flexWrap: FlexWrap;
+    $order?: number;
     $isReversed: boolean;
     $hasDivider: boolean;
     $dividerColor?: string;
@@ -127,6 +132,7 @@ const Container = styled.div<ContainerProps>`
     gap: ${({ $gap }) => $gap}px;
     justify-content: ${({ $justifyContent }) => $justifyContent};
     align-items: ${({ $alignItems }) => $alignItems};
+    ${({ $order }) => (typeof $order !== 'undefined' ? `order: ${$order};` : '')}
 
     ${({ $hasDivider, ...props }) => $hasDivider && withDivider(props)}
     ${withFrameProps}
@@ -140,6 +146,7 @@ export type FlexProps = AllowedFrameProps & {
     direction?: FlexDirection;
     flex?: Flex;
     flexWrap?: FlexWrap;
+    order?: number;
     isReversed?: boolean;
     hasDivider?: boolean;
     /** @deprecated Use only is case of absolute desperation. Prefer keep it according to elevation. */
@@ -150,14 +157,16 @@ export type FlexProps = AllowedFrameProps & {
     as?: string;
 };
 
-const Flex = ({
+export const Flex = ({
     gap = 0,
     justifyContent = 'flex-start',
     alignItems = 'center',
     children,
     direction = 'row',
     flex = 'initial',
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     flexWrap = 'nowrap',
+    order,
     isReversed = false,
     className,
     'data-testid': dataTestId,
@@ -182,6 +191,7 @@ const Flex = ({
                 direction,
                 flex,
                 flexWrap,
+                order,
                 isReversed,
                 hasDivider,
                 dividerColor,

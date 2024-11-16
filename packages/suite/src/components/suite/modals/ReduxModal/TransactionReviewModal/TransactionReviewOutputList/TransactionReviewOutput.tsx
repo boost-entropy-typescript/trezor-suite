@@ -1,10 +1,16 @@
 import { ReactNode, forwardRef } from 'react';
+
 import { BigNumber } from '@trezor/utils/src/bigNumber';
-import { Translation } from 'src/components/suite';
 import { formatNetworkAmount, formatAmount, isTestnet } from '@suite-common/wallet-utils';
 import { BTC_LOCKTIME_VALUE } from '@suite-common/wallet-constants';
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { ReviewOutput } from '@suite-common/wallet-types';
+import { ReviewOutput, StakeType } from '@suite-common/wallet-types';
+import { TranslationKey } from '@suite-common/intl-types';
+
+import type { Account } from 'src/types/wallet';
+import { useDisplayMode, useTranslation } from 'src/hooks/suite';
+import { Translation } from 'src/components/suite';
+
 import {
     TransactionReviewStepIndicator,
     TransactionReviewStepIndicatorProps,
@@ -13,10 +19,6 @@ import {
     TransactionReviewOutputElement,
     OutputElementLine,
 } from './TransactionReviewOutputElement';
-import type { Account } from 'src/types/wallet';
-import { StakeType } from '@suite-common/wallet-types';
-import { useDisplayMode, useTranslation } from 'src/hooks/suite';
-import { TranslationKey } from '@suite-common/intl-types';
 
 const getFeeLabel = (networkType: Account['networkType']) => {
     switch (networkType) {
@@ -57,7 +59,8 @@ export type TransactionReviewOutputProps = {
 
 export const TransactionReviewOutput = forwardRef<HTMLDivElement, TransactionReviewOutputProps>(
     (props, ref) => {
-        const { type, state, label, value, symbol, token, account, ethereumStakeType } = props;
+        const { type, state, label, value, symbol, token, account, ethereumStakeType, isRbf } =
+            props;
         let outputLabel: ReactNode = label;
         const { networkType } = account;
         const { translationString } = useTranslation();
@@ -156,6 +159,11 @@ export const TransactionReviewOutput = forwardRef<HTMLDivElement, TransactionRev
             ];
         } else if (['data', 'address'].includes(type) && ethereumStakeType) {
             const displayModeStringsMap = getDisplayModeStringsMap();
+
+            // prevents double label when bumping stake type txs
+            if (type === 'address' && isRbf) {
+                return null;
+            }
 
             outputLines = [
                 {

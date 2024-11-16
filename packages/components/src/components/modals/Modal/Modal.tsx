@@ -1,7 +1,8 @@
 import { useCallback, useState, ReactNode, useEffect } from 'react';
+import { useEvent } from 'react-use';
 
 import styled, { css, useTheme } from 'styled-components';
-import { useEvent } from 'react-use';
+
 import { borders, spacings, spacingsPx, typography } from '@trezor/theme';
 
 import { Stepper } from '../../loaders/Stepper/Stepper';
@@ -54,7 +55,7 @@ const Header = styled.header<HeaderProps>`
 `;
 
 const BACK_ICON_WIDTH = spacingsPx.xxxl;
-// eslint-disable-next-line local-rules/no-override-ds-component
+
 const BackIcon = styled(Icon)`
     position: relative;
     width: ${BACK_ICON_WIDTH};
@@ -95,7 +96,6 @@ type HeadingSize = keyof typeof HEADING_SIZES;
 
 type HeadingProps = { $isWithIcon?: boolean; $headingSize: HeadingSize };
 
-// eslint-disable-next-line local-rules/no-override-ds-component
 const Heading = styled(H3)<HeadingProps>`
     ${({ $isWithIcon }) =>
         $isWithIcon &&

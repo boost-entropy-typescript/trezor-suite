@@ -1,5 +1,7 @@
 import { EventHandler, SyntheticEvent, KeyboardEvent, ReactNode } from 'react';
+
 import styled, { useTheme } from 'styled-components';
+
 import { borders, Color, spacingsPx, typography } from '@trezor/theme';
 
 import { KEYBOARD_CODE } from '../../../constants/keyboardEvents';
@@ -142,7 +144,7 @@ const CheckIcon = styled(Icon)<{ $isVisible: boolean }>`
 
 export const Label = styled.div<{ $isRed: boolean }>`
     display: flex;
-    justify-content: center;
+    flex: 1;
     text-align: left;
     user-select: none;
     color: ${({ theme, $isRed }) => $isRed && theme.textAlertRed};

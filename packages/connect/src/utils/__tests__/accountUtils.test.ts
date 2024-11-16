@@ -1,5 +1,4 @@
 import { getAccountLabel, isUtxoBased } from '../accountUtils';
-
 import * as fixtures from '../__fixtures__/accountUtils';
 
 describe('utils/accountUtils', () => {
@@ -20,6 +19,5 @@ describe('utils/accountUtils', () => {
 
     // todo:
     describe.skip('getAccountAddressN', () => {});
-    describe.skip('getAccountLabel', () => {});
     describe.skip('getPublicKeyLabel', () => {});
 });

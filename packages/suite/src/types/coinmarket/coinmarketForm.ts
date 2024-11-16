@@ -1,3 +1,27 @@
+import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
+import React from 'react';
+
+import type {
+    BankAccount,
+    BuyTrade,
+    CryptoId,
+    ExchangeTrade,
+    ExchangeTradeQuoteRequest,
+    FiatCurrencyCode,
+    SellFiatTrade,
+} from 'invity-api';
+
+import { Network } from '@suite-common/wallet-config';
+import { Timer } from '@trezor/react-utils';
+import {
+    FeeInfo,
+    FormState,
+    PrecomposedLevels,
+    PrecomposedLevelsCardano,
+} from '@suite-common/wallet-types';
+import { FeeLevel } from '@trezor/connect';
+import { AccountsState } from '@suite-common/wallet-core';
+
 import {
     CoinmarketAccountOptionsGroupOptionProps,
     CoinmarketCryptoSelectItemProps,
@@ -5,6 +29,7 @@ import {
     CoinmarketGetProvidersInfoProps,
     CoinmarketPaymentMethodListProps,
     CoinmarketPaymentMethodProps,
+    CoinmarketPaymentMethodType,
     CoinmarketTradeBuyType,
     CoinmarketTradeDetailMapProps,
     CoinmarketTradeDetailType,
@@ -14,41 +39,17 @@ import {
     CoinmarketTradeType,
 } from 'src/types/coinmarket/coinmarket';
 import type { Account } from 'src/types/wallet';
-import { Network } from '@suite-common/wallet-config';
 import type { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
-import type { FieldValues, UseFormReturn, FieldPath } from 'react-hook-form';
-import type {
-    BankAccount,
-    BuyCryptoPaymentMethod,
-    BuyTrade,
-    CryptoId,
-    ExchangeTrade,
-    ExchangeTradeQuoteRequest,
-    FiatCurrencyCode,
-    SellCryptoPaymentMethod,
-    SellFiatTrade,
-} from 'invity-api';
-import { Timer } from '@trezor/react-utils';
 import { AppState } from 'src/reducers/store';
-import { Dispatch, ExtendedMessageDescriptor, GetState } from 'src/types/suite';
-import { PropsWithChildren } from 'react';
+import { Dispatch, GetState } from 'src/types/suite';
 import {
     AmountLimits,
     CryptoAmountLimits,
     Option,
     TradeSell,
 } from 'src/types/wallet/coinmarketCommonTypes';
-import {
-    FeeInfo,
-    FormState,
-    PrecomposedLevels,
-    PrecomposedLevelsCardano,
-} from '@suite-common/wallet-types';
-import { FeeLevel } from '@trezor/connect';
 import { SendContextValues } from 'src/types/wallet/sendForm';
 import { SellInfo } from 'src/actions/wallet/coinmarketSellActions';
-
-import { AccountsState } from '@suite-common/wallet-core';
 import { ExchangeInfo } from 'src/actions/wallet/coinmarketExchangeActions';
 import {
     EXCHANGE_COMPARATOR_KYC_FILTER,
@@ -66,6 +67,7 @@ import {
     FORM_RATE_FLOATING,
     FORM_RATE_TYPE,
 } from 'src/constants/wallet/coinmarket/form';
+import type { TranslationKey } from 'src/components/suite/Translation';
 
 export interface CoinmarketBuyFormProps {
     fiatInput?: string;
@@ -287,11 +289,9 @@ export type CoinmarketPaymentMethodHookProps<T extends CoinmarketTradeType> = {
     ) => CoinmarketTradeDetailMapProps[T][] | undefined;
 };
 
-export interface CoinmarketFormInputLabelProps extends PropsWithChildren {
-    label?: ExtendedMessageDescriptor['id'];
+export interface CoinmarketFormInputDefaultProps {
+    label?: TranslationKey;
 }
-
-export interface CoinmarketFormInputDefaultProps extends CoinmarketFormInputLabelProps {}
 
 export interface CoinmarketFormInputCryptoSelectProps<TFieldValues extends FieldValues>
     extends CoinmarketFormInputDefaultProps {
@@ -306,6 +306,8 @@ export interface CoinmarketFormInputFiatCryptoProps<TFieldValues extends FieldVa
     cryptoInputName: FieldPath<TFieldValues>;
     fiatInputName: FieldPath<TFieldValues>;
     cryptoSelectName: FieldPath<TFieldValues>;
+    labelLeft?: React.ReactNode;
+    labelRight?: React.ReactNode;
 }
 
 export interface CoinmarketFormInputFiatCryptoWrapProps<TFieldValues extends FieldValues> {
@@ -319,15 +321,14 @@ export interface CoinmarketFormInputFiatCryptoWrapProps<TFieldValues extends Fie
 }
 
 export interface CoinmarketFormInputAccountProps<TFieldValues extends FieldValues> {
-    label?: ExtendedMessageDescriptor['id'];
+    label?: TranslationKey;
     accountSelectName: FieldPath<TFieldValues>;
     methods: UseFormReturn<TFieldValues>;
 }
 
 export interface CoinmarketFormInputCurrencyProps {
     isClean?: boolean;
-    size?: 'small' | 'large';
-    isDarkLabel?: boolean;
+    width?: number;
 }
 
 export interface CoinmarketUseFormActionsProps<T extends CoinmarketSellExchangeFormProps> {
@@ -382,7 +383,7 @@ export interface CoinmarketOfferCommonProps {
     providers: CoinmarketGetProvidersInfoProps;
     type: CoinmarketTradeType;
     quoteAmounts: CoinmarketGetCryptoQuoteAmountProps | null;
-    paymentMethod?: BuyCryptoPaymentMethod | SellCryptoPaymentMethod;
+    paymentMethod?: CoinmarketPaymentMethodType;
     paymentMethodName?: string;
 }
 

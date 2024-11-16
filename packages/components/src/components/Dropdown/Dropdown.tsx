@@ -11,8 +11,11 @@ import {
     useEffect,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import styled from 'styled-components';
+
 import { useOnClickOutside } from '@trezor/react-utils';
+
 import { Menu, MenuProps, DropdownMenuItemProps } from './Menu';
 import { Coords, getAdjustedCoords } from './getAdjustedCoords';
 import { IconButton } from '../buttons/IconButton/IconButton';
@@ -124,7 +127,7 @@ export const Dropdown = forwardRef(
                 return;
             }
 
-            const { width, height } = menuRef.current?.getBoundingClientRect();
+            const { width, height } = menuRef.current.getBoundingClientRect();
 
             const adjustedCoords = getAdjustedCoords({
                 coords: coordsToUse,
@@ -149,9 +152,9 @@ export const Dropdown = forwardRef(
             }
         }, [isToggled, content]);
 
-        const setToggled = (isToggled: boolean) => {
-            if (onToggle) onToggle(isToggled);
-            setIsToggledState(isToggled);
+        const setToggled = (isToggled2: boolean) => {
+            if (onToggle) onToggle(isToggled2);
+            setIsToggledState(isToggled2);
         };
 
         useImperativeHandle(ref, () => ({

@@ -6,7 +6,6 @@
     "sideEffects": false,
     "main": "src/index",
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "test:unit": "yarn g:jest -c ../../jest.config.base.js",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build"
@@ -21,6 +20,7 @@
         "@suite-common/wallet-utils": "workspace:*",
         "@suite-native/atoms": "workspace:*",
         "@suite-native/settings": "workspace:*",
+        "@suite-native/tokens": "workspace:*",
         "@trezor/env-utils": "workspace:*",
         "@trezor/styles": "workspace:*",
         "@trezor/utils": "workspace:*",

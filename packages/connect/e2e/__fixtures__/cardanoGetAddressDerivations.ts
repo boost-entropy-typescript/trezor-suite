@@ -1,10 +1,18 @@
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
-import commonFixtures from '../../../../submodules/trezor-common/tests/fixtures/cardano/get_base_address.derivations.json';
-
 import { MessagesSchema } from '@trezor/protobuf';
 
+import commonFixtures from '../../../../submodules/trezor-common/tests/fixtures/cardano/get_base_address.derivations.json';
+
 const { CardanoAddressType, CardanoDerivationType } = MessagesSchema;
+
+const legacyResults = {
+    minConnectVersion: {
+        // older FW does support Cardano but Connect does not
+        rules: ['<2.4.3', '1'],
+        payload: false,
+    },
+};
 
 export default {
     method: 'cardanoGetAddress',
@@ -28,5 +36,6 @@ export default {
         result: {
             address: result.expected_address,
         },
+        legacyResults: [legacyResults.minConnectVersion],
     })),
 };

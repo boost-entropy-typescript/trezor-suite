@@ -3,8 +3,7 @@ import * as net from 'net';
 import * as url from 'url';
 
 import type { RequiredKey } from '@trezor/type-utils';
-import { Log, TypedEmitter } from '@trezor/utils';
-import { arrayPartition } from '@trezor/utils';
+import { Log, TypedEmitter, arrayPartition } from '@trezor/utils';
 
 import { getFreePort } from './getFreePort';
 
@@ -478,6 +477,14 @@ export const allowReferers =
 
 export const parseBodyTextHelper = (request: Request) =>
     new Promise<string>(resolve => {
+        const hasData =
+            (request.headers['content-length'] &&
+                Number.parseInt(request.headers['content-length']) > 0) ||
+            request.headers['transfer-encoding'] === 'chunked';
+
+        if (!hasData) {
+            return resolve('');
+        }
         const tmp: Buffer[] = [];
         request
             .on('data', chunk => {
@@ -495,7 +502,13 @@ export const parseBodyTextHelper = (request: Request) =>
  */
 export const parseBodyJSON: RequestHandler<unknown, JSON> = (request, response, next) => {
     parseBodyTextHelper(request)
-        .then(body => JSON.parse(body))
+        .then(body => {
+            if (!body) {
+                return {};
+            }
+
+            return JSON.parse(body);
+        })
         .then(body => {
             next({ ...request, body }, response);
         })

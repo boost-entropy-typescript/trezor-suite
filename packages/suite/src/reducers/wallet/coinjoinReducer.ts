@@ -1,7 +1,6 @@
 import produce from 'immer';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
-import { memoizeWithArgs } from 'proxy-memoize';
 
+import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { getInputSize, getOutputSize, RoundPhase } from '@trezor/coinjoin';
 import { PartialRecord } from '@trezor/type-utils';
 import { Account, AccountKey } from '@suite-common/wallet-types';
@@ -18,6 +17,7 @@ import {
     selectIsFeatureDisabled,
     selectFeatureConfig,
 } from '@suite-common/message-system';
+import { createWeakMapSelector } from '@suite-common/redux-utils';
 
 import { STORAGE } from 'src/actions/suite/constants';
 import {
@@ -29,7 +29,7 @@ import {
 import { COINJOIN } from 'src/actions/wallet/constants';
 import { Action } from 'src/types/suite';
 import {
-    selectIsDeviceLocked,
+    selectIsDeviceOrUiLocked,
     selectTorState,
     SuiteRootState,
 } from 'src/reducers/suite/suiteReducer';
@@ -58,6 +58,7 @@ import {
     ZKSNACKS_LEGAL_DOCUMENTS_VERSION,
     TREZOR_LEGAL_DOCUMENTS_VERSION,
 } from 'src/services/coinjoin';
+
 import { SelectedAccountRootState, selectSelectedAccount } from './selectedAccountReducer';
 
 export interface CoinjoinState {
@@ -609,6 +610,8 @@ export const coinjoinReducer = (
         }
     });
 
+const createMemoizedSelector = createWeakMapSelector.withTypes<CoinjoinRootState>();
+
 export const selectCoinjoinAccounts = (state: CoinjoinRootState) => state.wallet.coinjoin.accounts;
 
 export const selectCoinjoinClients = (state: CoinjoinRootState) => state.wallet.coinjoin.clients;
@@ -671,9 +674,9 @@ export const selectCurrentCoinjoinBalanceBreakdown = (state: CoinjoinRootState) 
     return balanceBreakdown;
 };
 
-export const selectRegisteredUtxosByAccountKey = memoizeWithArgs(
-    (state: CoinjoinRootState, accountKey: AccountKey) => {
-        const coinjoinAccount = selectCoinjoinAccountByKey(state, accountKey);
+export const selectRegisteredUtxosByAccountKey = createMemoizedSelector(
+    [selectCoinjoinAccountByKey],
+    coinjoinAccount => {
         if (!coinjoinAccount?.prison) return;
         const { prison, session, transactionCandidates } = coinjoinAccount;
 
@@ -940,7 +943,7 @@ export const selectCoinjoinSessionBlockerByAccountKey = (
     if (account?.backendType === 'coinjoin' && account?.status === 'out-of-sync') {
         return 'ACCOUNT_OUT_OF_SYNC';
     }
-    if (selectIsDeviceLocked(state)) {
+    if (selectIsDeviceOrUiLocked(state)) {
         return 'DEVICE_LOCKED';
     }
     if (selectHasAnonymitySetError(state)) {

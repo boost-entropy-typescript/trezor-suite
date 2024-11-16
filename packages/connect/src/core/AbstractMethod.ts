@@ -1,7 +1,8 @@
 import { storage } from '@trezor/connect-common';
 import { versionUtils } from '@trezor/utils';
-import { DataManager } from '../data/DataManager';
-import { NETWORK } from '../constants';
+import { Capability } from '@trezor/protobuf/src/messages';
+
+import { NETWORK, ERRORS } from '../constants';
 import {
     UI,
     DEVICE,
@@ -15,8 +16,14 @@ import {
 } from '../events';
 import { getHost } from '../utils/urlUtils';
 import type { Device } from '../device/Device';
-import type { FirmwareRange, DeviceState, StaticSessionId, DeviceUniquePath } from '../types';
-import { ERRORS } from '../constants';
+import type {
+    FirmwareRange,
+    DeviceState,
+    StaticSessionId,
+    DeviceUniquePath,
+    ConnectSettings,
+} from '../types';
+import { config } from '../data/config';
 
 export type Payload<M> = Extract<CallMethodPayload, { method: M }> & { override?: boolean };
 export type MethodReturnType<M extends CallMethodPayload['method']> = CallMethodResponse<M>;
@@ -30,6 +37,7 @@ export const DEFAULT_FIRMWARE_RANGE: FirmwareRange = {
     T2B1: { min: '2.6.1', max: '0' },
     T3B1: { min: '2.8.1', max: '0' },
     T3T1: { min: '2.7.1', max: '0' },
+    T3W1: { min: '2.7.1', max: '0' }, // TODO T3W1
 };
 
 function validateStaticSessionId(input: unknown): StaticSessionId {
@@ -133,6 +141,8 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     requireDeviceMode: DeviceMode[];
 
+    requiredDeviceCapabilities: Capability[] = [];
+
     network: NETWORK.NetworkType;
 
     useCardanoDerivation: boolean;
@@ -204,8 +214,7 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         this.createUiPromise = (t, d) => originalFn(t, d || device);
     }
 
-    private getOriginPermissions() {
-        const origin = DataManager.getSettings('origin');
+    private getOriginPermissions({ origin }: Pick<ConnectSettings, 'origin'>) {
         if (!origin) {
             return [];
         }
@@ -213,8 +222,8 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         return storage.loadForOrigin(origin)?.permissions || [];
     }
 
-    checkPermissions() {
-        const originPermissions = this.getOriginPermissions();
+    checkPermissions({ origin }: Pick<ConnectSettings, 'origin'>) {
+        const originPermissions = this.getOriginPermissions({ origin });
         let notPermitted = [...this.requiredPermissions];
         if (originPermissions.length > 0) {
             // check if permission was granted
@@ -229,8 +238,8 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         this.requiredPermissions = notPermitted;
     }
 
-    savePermissions(temporary = false) {
-        const originPermissions = this.getOriginPermissions();
+    savePermissions(temporary = false, { origin }: Pick<ConnectSettings, 'origin'>) {
+        const originPermissions = this.getOriginPermissions({ origin });
 
         let permissionsToSave = this.requiredPermissions.map(p => ({
             type: p,
@@ -259,13 +268,12 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
             });
         }
 
-        const origin = DataManager.getSettings('origin')!;
         storage.saveForOrigin(
             state => ({
                 ...state,
                 permissions: [...(state.permissions || []), ...permissionsToSave],
             }),
-            origin,
+            origin!,
             temporary,
         );
 
@@ -310,11 +318,10 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         }
     }
 
-    isManagementRestricted() {
-        const { popup, origin } = DataManager.getSettings();
+    isManagementRestricted({ popup, origin }: Pick<ConnectSettings, 'popup' | 'origin'>) {
         if (popup && this.requiredPermissions.includes('management')) {
             const host = getHost(origin);
-            const allowed = DataManager.getConfig().management.find(
+            const allowed = config.management.find(
                 item => item.origin === host || item.origin === origin,
             );
 
@@ -331,6 +338,24 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
             name: this.name,
             // this could be used for more. it could tell clients what are min firmware versions (firmwareRange) and much more
         };
+    }
+
+    checkDeviceCapability() {
+        const deviceHasAllRequiredCapabilities = (this.requiredDeviceCapabilities || []).every(
+            capability => this.device.features.capabilities.includes(capability),
+        );
+        if (!deviceHasAllRequiredCapabilities) {
+            if (this.device.firmwareType === 'bitcoin-only') {
+                throw ERRORS.TypedError(
+                    'Device_MissingCapabilityBtcOnly',
+                    `Trezor has Bitcoin-only firmware installed, which does not support this operation. Please install Universal firmware through Trezor Suite.`,
+                );
+            }
+            throw ERRORS.TypedError(
+                'Device_MissingCapability',
+                'Device does not have capability to call this method. Make sure you have the latest firmware installed.',
+            );
+        }
     }
 
     abstract run(): Promise<MethodReturnType<Name>>;

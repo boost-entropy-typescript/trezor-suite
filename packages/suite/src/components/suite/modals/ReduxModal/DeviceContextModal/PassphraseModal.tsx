@@ -10,14 +10,16 @@ import TrezorConnect from '@trezor/connect';
 import { spacings } from '@trezor/theme';
 import { HELP_CENTER_PASSPHRASE_URL } from '@trezor/urls';
 import { PassphraseTypeCard } from '@trezor/product-components';
+
 import { useSelector, useDispatch } from 'src/hooks/suite';
 import { Translation } from 'src/components/suite';
 import type { TrezorDevice } from 'src/types/suite';
 import { OpenGuideFromTooltip } from 'src/components/guide';
 import { CardWithDevice } from 'src/views/suite/SwitchDevice/CardWithDevice';
-import { PassphraseWalletConfirmation } from './PassphraseWalletConfirmation';
 import { SwitchDeviceModal } from 'src/views/suite/SwitchDevice/SwitchDeviceModal';
 import { TrezorLink } from 'src/components/suite/TrezorLink';
+
+import { PassphraseWalletConfirmation } from './PassphraseWalletConfirmation';
 
 interface PassphraseModalProps {
     device: TrezorDevice;
@@ -99,6 +101,7 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
                             offerPassphraseOnDevice={onDeviceOffer}
                             onSubmit={onSubmit}
                             deviceModel={deviceModel ?? undefined}
+                            deviceBackup={device.features?.backup_type}
                             learnMoreTooltipOnClick={
                                 <OpenGuideFromTooltip
                                     data-testid="@tooltip/guideAnchor"
@@ -151,6 +154,7 @@ export const PassphraseModal = ({ device }: PassphraseModalProps) => {
                             offerPassphraseOnDevice={onDeviceOffer}
                             onSubmit={onSubmit}
                             deviceModel={deviceModel ?? undefined}
+                            deviceBackup={device.features?.backup_type}
                             learnMoreTooltipOnClick={
                                 <OpenGuideFromTooltip
                                     data-testid="@tooltip/guideAnchor"

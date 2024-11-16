@@ -1,7 +1,8 @@
 import { testMocks } from '@suite-common/test-utils';
-import type { TrezorDevice } from 'src/types/suite';
 import { DeviceModelInternal } from '@trezor/connect';
 import * as URLS from '@trezor/urls';
+
+import type { TrezorDevice } from 'src/types/suite';
 
 const { getSuiteDevice } = testMocks;
 
@@ -540,7 +541,7 @@ const getCheckBackupUrl = [
                 internal_model: DeviceModelInternal.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_DRY_RUN_${DeviceModelInternal.T2B1}_URL`],
+        result: URLS[`HELP_CENTER_DRY_RUN_${DeviceModelInternal.T3B1}_URL`],
     },
 ];
 
@@ -558,7 +559,7 @@ const getPackagingUrl = [
                 internal_model: DeviceModelInternal.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_PACKAGING_${DeviceModelInternal.T2B1}_URL`],
+        result: URLS[`HELP_CENTER_PACKAGING_${DeviceModelInternal.T3B1}_URL`],
     },
 ];
 
@@ -576,7 +577,7 @@ const getFirmwareDowngradeUrl = [
                 internal_model: DeviceModelInternal.T2B1,
             },
         } as TrezorDevice,
-        result: URLS[`HELP_CENTER_FW_DOWNGRADE_${DeviceModelInternal.T2B1}_URL`],
+        result: URLS[`HELP_CENTER_FW_DOWNGRADE_${DeviceModelInternal.T3B1}_URL`],
     },
 ];
 

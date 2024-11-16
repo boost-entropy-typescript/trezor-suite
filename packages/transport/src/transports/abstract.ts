@@ -1,6 +1,6 @@
 import * as protobuf from 'protobufjs/light';
-import { scheduleAction, ScheduleActionParams, ScheduledAction } from '@trezor/utils';
-import { TypedEmitter } from '@trezor/utils';
+
+import { scheduleAction, ScheduleActionParams, ScheduledAction, TypedEmitter } from '@trezor/utils';
 import { PROTOCOL_MALFORMED, TransportProtocol } from '@trezor/protocol';
 import { MessageFromTrezor } from '@trezor/protobuf';
 
@@ -16,7 +16,6 @@ import {
     PathPublic,
 } from '../types';
 import { success, error, unknownError } from '../utils/result';
-
 import * as ERRORS from '../errors';
 import { ACTION_TIMEOUT, TRANSPORT } from '../constants';
 
@@ -35,6 +34,7 @@ export interface AbstractTransportParams {
     messages?: Record<string, any>;
     logger?: Logger;
     debugLink?: boolean;
+    id: string;
 }
 
 export const isTransportInstance = (transport?: AbstractTransport) => {
@@ -122,13 +122,19 @@ export abstract class AbstractTransport extends TransportEmitter {
      * and instance of logger from @trezor/connect/src/utils/debug could be passed to activate logs from transport
      */
     protected logger?: Logger;
+    /**
+     * identifier this transport
+     * todo: or app implementing this transport?
+     */
+    protected id: string;
 
-    constructor({ messages, logger }: AbstractTransportParams) {
+    constructor({ messages, logger, id }: AbstractTransportParams) {
         super();
         this.descriptors = [];
         this.messages = protobuf.Root.fromJSON(messages || {});
         this.abortController = new AbortController();
         this.logger = logger;
+        this.id = id;
     }
 
     /**

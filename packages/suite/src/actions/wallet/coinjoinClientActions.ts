@@ -13,9 +13,10 @@ import { arrayDistinct, arrayToDictionary, promiseAllSequence } from '@trezor/ut
 import { getOsName } from '@trezor/env-utils';
 import { selectAccountByKey, selectDevices } from '@suite-common/wallet-core';
 import { getUtxoOutpoint } from '@suite-common/wallet-utils';
-import { Account } from '@suite-common/wallet-types';
+import { Account, AddressDisplayOptions } from '@suite-common/wallet-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { getDeviceInstances } from '@suite-common/suite-utils';
+import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 
 import {
     prepareCoinjoinTransaction,
@@ -26,19 +27,15 @@ import { CoinjoinService, getCoinjoinConfig } from 'src/services/coinjoin';
 import { Dispatch, GetState } from 'src/types/suite';
 import { CoinjoinAccount, EndRoundState, CoinjoinDebugSettings } from 'src/types/wallet/coinjoin';
 import { onCancel as closeModal, openModal } from 'src/actions/suite/modalActions';
-import { SUITE } from 'src/actions/suite/constants';
 import {
     selectRoundsNeededByAccountKey,
     selectRoundsLeftByAccountKey,
     selectRoundsDurationInHours,
     selectCoinjoinAccounts,
 } from 'src/reducers/wallet/coinjoinReducer';
+import { selectAddressDisplayType, selectIsDeviceLocked } from 'src/reducers/suite/suiteReducer';
 
 import * as COINJOIN from './constants/coinjoinConstants';
-import { AddressDisplayOptions } from '@suite-common/wallet-types';
-
-import { selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
-import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 
 const clientEnable = (symbol: Account['symbol']) =>
     ({
@@ -230,7 +227,7 @@ export const setBusyScreen =
         // collect unique physical devices (by device.id)
         const uniquePhysicalDevices = uniqueDeviceStates.reduce(
             (result, state) => {
-                const device = devices.find(d => d.connected && d.state === state);
+                const device = devices.find(d => d.connected && d.state?.staticSessionId === state);
                 if (device && !result.find(d => d.id === device.id)) {
                     return result.concat(device);
                 }
@@ -306,7 +303,9 @@ export const stopCoinjoinSession =
         client?.unregisterAccount(account.key);
 
         // cancelCoinjoinAuthorization should be called only if there is no other registered coinjoin account
-        const device = selectDevices(state).find(d => d.state === account.deviceState);
+        const device = selectDevices(state).find(
+            d => d.state?.staticSessionId === account.deviceState,
+        );
         let shouldCancelAuthorization = device?.connected;
         if (device) {
             // find all instances of this physical device
@@ -318,7 +317,7 @@ export const stopCoinjoinSession =
                     a =>
                         a.accountType === 'coinjoin' &&
                         a.key !== accountKey &&
-                        a.deviceState === d.state,
+                        a.deviceState === d.state?.staticSessionId,
                 ),
             );
             // find coinjoin account with session
@@ -449,11 +448,12 @@ const coinjoinResponseError = (utxos: CoinjoinRequestEvent['inputs'], error: str
 const getOwnershipProof =
     (request: Extract<CoinjoinRequestEvent, { type: 'ownership' }>) =>
     async (_dispatch: Dispatch, getState: GetState) => {
+        const state = getState();
         const {
-            suite: { locks },
             wallet: { coinjoin, accounts },
-        } = getState();
-        const devices = selectDevices(getState());
+        } = state;
+        const devices = selectDevices(state);
+        const isDeviceLocked = selectIsDeviceLocked(state);
 
         // prepare empty response object
         const response: CoinjoinResponseEvent = {
@@ -487,14 +487,14 @@ const getOwnershipProof =
                 return [];
             }
 
-            const device = devices.find(d => d.state === realAccount.deviceState);
+            const device = devices.find(d => d.state?.staticSessionId === realAccount.deviceState);
             if (!device?.connected) {
                 response.inputs.push(...coinjoinResponseError(utxos, 'Device disconnected'));
 
                 return [];
             }
 
-            if (locks.includes(SUITE.LOCK_TYPE.DEVICE)) {
+            if (isDeviceLocked) {
                 response.inputs.push(...coinjoinResponseError(utxos, 'Device locked'));
 
                 return [];
@@ -604,7 +604,7 @@ const signCoinjoinTx =
                 return [];
             }
 
-            const device = devices.find(d => d.state === realAccount.deviceState);
+            const device = devices.find(d => d.state?.staticSessionId === realAccount.deviceState);
             if (!device?.connected) {
                 response.inputs.push(...coinjoinResponseError(utxos, 'Device disconnected'));
 

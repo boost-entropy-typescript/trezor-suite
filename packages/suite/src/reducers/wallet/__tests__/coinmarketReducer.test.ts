@@ -1,3 +1,11 @@
+import {
+    BuyTradeQuoteRequest,
+    CryptoId,
+    ExchangeTradeQuoteRequest,
+    InfoResponse,
+    SellFiatTradeQuoteRequest,
+} from 'invity-api';
+
 import { coinmarketReducer, initialState } from 'src/reducers/wallet/coinmarketReducer';
 import { TradeBuy, TradeExchange } from 'src/types/wallet/coinmarketCommonTypes';
 import { STORAGE } from 'src/actions/suite/constants';
@@ -8,13 +16,6 @@ import {
     COINMARKET_INFO,
     COINMARKET_SELL,
 } from 'src/actions/wallet/constants';
-import {
-    BuyTradeQuoteRequest,
-    CryptoId,
-    ExchangeTradeQuoteRequest,
-    InfoResponse,
-    SellFiatTradeQuoteRequest,
-} from 'invity-api';
 import { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
 import { ExchangeInfo } from 'src/actions/wallet/coinmarketExchangeActions';
 import {
@@ -86,6 +87,18 @@ describe('settings reducer', () => {
         ).toEqual({
             ...initialState,
             modalCryptoId: undefined,
+        });
+    });
+
+    it('COINMARKET_COMMON.SET_COINMARKET_ACTIVE_SECTION', () => {
+        expect(
+            coinmarketReducer(undefined, {
+                type: COINMARKET_COMMON.SET_COINMARKET_ACTIVE_SECTION,
+                activeSection: 'exchange',
+            }),
+        ).toEqual({
+            ...initialState,
+            activeSection: 'exchange',
         });
     });
 

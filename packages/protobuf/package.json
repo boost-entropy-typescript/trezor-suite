@@ -1,6 +1,6 @@
 {
     "name": "@trezor/protobuf",
-    "version": "1.2.3-beta.1",
+    "version": "1.2.3-beta.2",
     "license": "See LICENSE.md in repo root",
     "repository": {
         "type": "git",
@@ -24,7 +24,6 @@
         "messages.json"
     ],
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "test:unit": "yarn g:jest -c ../../jest.config.base.js",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build",

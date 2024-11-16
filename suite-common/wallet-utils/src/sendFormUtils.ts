@@ -30,9 +30,12 @@ import type {
     CurrencyOption,
     ExcludedUtxos,
     GeneralPrecomposedTransactionFinal,
+    AccountKey,
+    TokenAddress,
+    SendFormDraftKey,
 } from '@suite-common/wallet-types';
 
-import { amountToSatoshi, getUtxoOutpoint, networkAmountToSatoshi } from './accountUtils';
+import { amountToSmallestUnit, getUtxoOutpoint, networkAmountToSmallestUnit } from './accountUtils';
 import { sanitizeHex } from './ethUtils';
 
 export const calculateTotal = (amount: string, fee: string): string => {
@@ -96,7 +99,7 @@ const getSerializedErc20Transfer = (token: TokenInfo, to: string, amount: string
     // 32 bytes address parameter, remove '0x' prefix
     const erc20recipient = padLeft(to, 64).substring(2);
     // convert amount to satoshi
-    const tokenAmount = amountToSatoshi(amount, token.decimals);
+    const tokenAmount = amountToSmallestUnit(amount, token.decimals);
     // 32 bytes amount paramter, remove '0x' prefix
     const erc20amount = padLeft(numberToHex(tokenAmount), 64).substring(2);
 
@@ -283,7 +286,7 @@ export const getBitcoinComposeOutputs = (
         } else if (output.amount) {
             const amount = isSatoshis
                 ? output.amount
-                : networkAmountToSatoshi(output.amount, symbol);
+                : networkAmountToSmallestUnit(output.amount, symbol);
 
             if (address) {
                 result.push({
@@ -324,6 +327,7 @@ export const getExternalComposeOutput = (
     values: Partial<FormState>,
     account: Account,
     network: Network,
+    formattedFallbackAmount?: string, // for cases when value is zero but amount is available in eth data
 ) => {
     if (!values || !Array.isArray(values.outputs) || !values.outputs[0]) return;
     const out = values.outputs[0];
@@ -335,7 +339,7 @@ export const getExternalComposeOutput = (
 
     const tokenInfo = findToken(account.tokens, token);
     const decimals = tokenInfo ? tokenInfo.decimals : network.decimals;
-    const amountInSatoshi = amountToSatoshi(amount, decimals);
+    const formattedAmount = amountToSmallestUnit(amount, decimals);
 
     let output: ExternalOutput;
     if (isMaxActive) {
@@ -353,12 +357,12 @@ export const getExternalComposeOutput = (
         output = {
             type: 'payment',
             address,
-            amount: amountInSatoshi,
+            amount: formattedFallbackAmount || formattedAmount,
         };
     } else {
         output = {
             type: 'payment-noaddress',
-            amount: amountInSatoshi,
+            amount: formattedAmount,
         };
     }
 
@@ -459,6 +463,13 @@ export const getExcludedUtxos = ({
     });
 
     return excludedUtxos;
+};
+
+export const getSendFormDraftKey = (
+    accountKey: AccountKey,
+    tokenAddress?: TokenAddress,
+): SendFormDraftKey => {
+    return tokenAddress ? `${accountKey}-${tokenAddress}` : accountKey;
 };
 
 // SOL Specific

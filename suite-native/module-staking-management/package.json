@@ -7,11 +7,11 @@
     "main": "src/index",
     "scripts": {
         "depcheck": "yarn g:depcheck",
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "type-check": "yarn g:tsc --build"
     },
     "dependencies": {
         "@react-navigation/native": "6.1.18",
+        "@reduxjs/toolkit": "1.9.5",
         "@suite-common/wallet-core": "workspace:*",
         "@suite-native/atoms": "workspace:*",
         "@suite-native/formatters": "workspace:*",

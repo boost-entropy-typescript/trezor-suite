@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 
 import { selectDevice } from '@suite-common/wallet-core';
+import { TrezorDevice } from '@suite-common/suite-types';
 
-import { SUITE } from 'src/actions/suite/constants';
+import { selectIsDeviceOrUiLocked } from 'src/reducers/suite/suiteReducer';
 
 import { useSelector } from './useSelector';
-import { TrezorDevice } from '@suite-common/suite-types';
 
 type Result = {
     device?: TrezorDevice;
@@ -14,17 +14,16 @@ type Result = {
 
 export const useDevice = (): Result => {
     const device = useSelector(selectDevice);
-    const locks = useSelector(state => state.suite.locks);
+    const isDeviceOrUiLocked = useSelector(selectIsDeviceOrUiLocked);
 
     const isLocked = useCallback(
         (ignoreDisconnectedDevice = false) => {
             if (!device?.connected && !ignoreDisconnectedDevice) return true;
-            if (locks.includes(SUITE.LOCK_TYPE.DEVICE) || locks.includes(SUITE.LOCK_TYPE.UI))
-                return true;
+            if (isDeviceOrUiLocked) return true;
 
             return false;
         },
-        [device, locks],
+        [device, isDeviceOrUiLocked],
     );
 
     return {

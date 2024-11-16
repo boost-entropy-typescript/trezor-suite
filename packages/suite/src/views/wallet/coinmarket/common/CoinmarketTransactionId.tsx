@@ -1,10 +1,12 @@
 import styled from 'styled-components';
+
 import { Button, Row } from '@trezor/components';
 import { copyToClipboard } from '@trezor/dom-utils';
-import { useDispatch } from 'src/hooks/suite';
-import { Translation } from 'src/components/suite';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { spacings, spacingsPx, typography } from '@trezor/theme';
+
+import { useDispatch } from 'src/hooks/suite';
+import { Translation } from 'src/components/suite';
 
 const LabelWrapper = styled.div`
     width: 100%;
@@ -37,11 +39,11 @@ export const CoinmarketTransactionId = ({ transactionId }: CoinmarketTransaction
     return (
         <Row alignItems="center" justifyContent="space-between" margin={{ top: spacings.sm }}>
             <LabelWrapper>
-                <Translation id="TR_BUY_TRANS_ID" /> {transactionId}
+                <Translation id="TR_COINMARKET_TRANS_ID" /> {transactionId}
             </LabelWrapper>
             <ButtonWrapper>
                 <Button size="tiny" variant="tertiary" onClick={copy}>
-                    <Translation id="TR_COPY_TO_CLIPBOARD_TX_ID" />
+                    <Translation id="TR_COPY_TO_CLIPBOARD" />
                 </Button>
             </ButtonWrapper>
         </Row>

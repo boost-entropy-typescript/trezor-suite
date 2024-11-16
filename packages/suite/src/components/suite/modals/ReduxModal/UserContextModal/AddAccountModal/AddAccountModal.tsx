@@ -1,16 +1,15 @@
 import { useState } from 'react';
+
 import styled from 'styled-components';
 
-import {
-    accountsActions,
-    selectDeviceSupportedNetworks,
-    selectDeviceModel,
-} from '@suite-common/wallet-core';
+import { accountsActions, selectDeviceModel } from '@suite-common/wallet-core';
 import { arrayPartition } from '@trezor/utils';
 import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 import { networks, Network, NetworkSymbol, NetworkAccount } from '@suite-common/wallet-config';
 import { CollapsibleBox, NewModal, Tooltip } from '@trezor/components';
 import { spacings, spacingsPx } from '@trezor/theme';
+import { DeviceModelInternal } from '@trezor/connect';
+
 import { Translation, CoinList } from 'src/components/suite';
 import { Account } from 'src/types/wallet';
 import { TrezorDevice } from 'src/types/suite';
@@ -18,12 +17,13 @@ import { useSelector, useDispatch } from 'src/hooks/suite';
 import { changeCoinVisibility } from 'src/actions/settings/walletSettingsActions';
 import { goto } from 'src/actions/suite/routerActions';
 import { selectIsPublic } from 'src/reducers/wallet/coinjoinReducer';
-import { useEnabledNetworks } from 'src/hooks/settings/useEnabledNetworks';
+import { useNetworkSupport } from 'src/hooks/settings/useNetworkSupport';
+import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
+import { selectEnabledNetworks } from 'src/reducers/wallet/settingsReducer';
+
 import { AccountTypeSelect } from './AccountTypeSelect/AccountTypeSelect';
 import { SelectNetwork } from './SelectNetwork';
 import { AddAccountButton } from './AddAccountButton/AddAccountButton';
-import { DeviceModelInternal } from '@trezor/connect';
-import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
 
 const NetworksWrapper = styled.div`
     display: flex;
@@ -49,25 +49,17 @@ export const AddAccountModal = ({
     isBackClickDisabled,
 }: AddAccountProps) => {
     const accounts = useSelector(state => state.wallet.accounts);
-    const supportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
     const app = useSelector(state => state.router.app);
     const isDebug = useSelector(selectIsDebugModeActive);
     const isCoinjoinPublic = useSelector(selectIsPublic);
     const deviceModel = useSelector(selectDeviceModel);
+    const enabledNetworkSymbols = useSelector(selectEnabledNetworks);
     const dispatch = useDispatch();
 
-    const { mainnets, testnets, enabledNetworks: enabledNetworkSymbols } = useEnabledNetworks();
+    const { supportedMainnets, unsupportedMainnets, supportedTestnets } = useNetworkSupport();
 
-    const getNetworks = (networksToFilterFrom: Network[], getUnsupported = false) =>
-        networksToFilterFrom.filter(
-            ({ symbol }) => getUnsupported !== supportedNetworkSymbols.includes(symbol),
-        );
-
-    const supportedMainnets = getNetworks(mainnets);
-    const supportedTestnets = getNetworks(testnets);
-    const unsupportedNetworks = getNetworks(mainnets, true);
     const supportedNetworks = [...supportedMainnets, ...supportedTestnets];
-    const allTestnetNetworksDisabled = supportedTestnets.some(network =>
+    const allTestnetNetworksDisabled = !supportedTestnets.some(network =>
         enabledNetworkSymbols.includes(network.symbol),
     );
     const isBitcoinOnlyFirmware = hasBitcoinOnlyFirmware(device);
@@ -77,9 +69,7 @@ export const AddAccountModal = ({
     const preselectedNetwork = symbol && supportedNetworks.find(n => n.symbol === symbol);
     // or in case of only btc is enabled on bitcoin-only firmware
     const bitcoinOnlyDefaultNetworkSelection =
-        hasBitcoinOnlyFirmware(device) &&
-        supportedMainnets.length === 1 &&
-        allTestnetNetworksDisabled
+        isBitcoinOnlyFirmware && supportedMainnets.length === 1 && allTestnetNetworksDisabled
             ? networks.btc
             : undefined;
 
@@ -103,7 +93,7 @@ export const AddAccountModal = ({
     const emptyAccounts = selectedNetwork
         ? accounts.filter(
               a =>
-                  a.deviceState === device.state &&
+                  a.deviceState === device.state?.staticSessionId &&
                   a.symbol === selectedNetwork.symbol &&
                   a.accountType === currentType &&
                   a.empty,
@@ -254,7 +244,7 @@ export const AddAccountModal = ({
                                   />
                               </CollapsibleBox>
                           )}
-                          {!!isBitcoinOnlyFirmware && deviceModel === DeviceModelInternal.T1B1 && (
+                          {!isBitcoinOnlyFirmware && deviceModel === DeviceModelInternal.T1B1 && (
                               <CollapsibleBox
                                   heading={
                                       <Tooltip
@@ -271,7 +261,7 @@ export const AddAccountModal = ({
                               >
                                   <CoinList
                                       onToggle={selectNetwork}
-                                      networks={unsupportedNetworks}
+                                      networks={unsupportedMainnets}
                                       enabledNetworks={selectedNetworks}
                                   />
                               </CollapsibleBox>

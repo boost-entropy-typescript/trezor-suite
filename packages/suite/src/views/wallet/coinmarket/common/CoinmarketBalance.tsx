@@ -1,20 +1,16 @@
 import { networks, NetworkSymbol } from '@suite-common/wallet-config';
 import { TokenAddress } from '@suite-common/wallet-types';
-import { amountToSatoshi } from '@suite-common/wallet-utils';
-import { typography } from '@trezor/theme';
+import { amountToSmallestUnit } from '@suite-common/wallet-utils';
+import { Text } from '@trezor/components';
+
 import { FiatValue, HiddenPlaceholder, Translation } from 'src/components/suite';
 import { useFiatFromCryptoValue } from 'src/hooks/suite/useFiatFromCryptoValue';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
+import { CoinmarketAccountOptionsGroupOptionProps } from 'src/types/coinmarket/coinmarket';
 import {
     coinmarketGetAccountLabel,
-    getNetworkDecimals,
+    getCoinmarketNetworkDecimals,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
-import styled from 'styled-components';
-
-const CoinmarketBalanceWrapper = styled.div`
-    ${typography.label}
-    color: ${({ theme }) => theme.textSubdued};
-`;
 
 interface CoinmarketBalanceProps {
     balance: string | undefined;
@@ -23,6 +19,7 @@ interface CoinmarketBalanceProps {
     tokenAddress?: TokenAddress | undefined;
     showOnlyAmount?: boolean;
     amountInCrypto?: boolean;
+    sendCryptoSelect?: CoinmarketAccountOptionsGroupOptionProps;
 }
 
 export const CoinmarketBalance = ({
@@ -32,14 +29,18 @@ export const CoinmarketBalance = ({
     tokenAddress,
     showOnlyAmount,
     amountInCrypto,
+    sendCryptoSelect,
 }: CoinmarketBalanceProps) => {
     const { shouldSendInSats } = useBitcoinAmountUnit(networkSymbol);
     const balanceCurrency = coinmarketGetAccountLabel(cryptoSymbolLabel ?? '', shouldSendInSats);
-    const networkDecimals = getNetworkDecimals(networks[networkSymbol].decimals);
+    const networkDecimals = getCoinmarketNetworkDecimals({
+        sendCryptoSelect,
+        network: networks[networkSymbol],
+    });
     const stringBalance = !isNaN(Number(balance)) ? balance : '0';
     const formattedBalance =
         stringBalance && shouldSendInSats
-            ? amountToSatoshi(stringBalance, networkDecimals)
+            ? amountToSmallestUnit(stringBalance, networkDecimals)
             : stringBalance;
 
     const { fiatAmount } = useFiatFromCryptoValue({
@@ -48,10 +49,10 @@ export const CoinmarketBalance = ({
     });
 
     if (showOnlyAmount) {
-        if (!balance ?? isNaN(Number(balance))) return null;
+        if (Number(balance) === 0 || isNaN(Number(balance))) return null;
 
         return (
-            <CoinmarketBalanceWrapper>
+            <Text variant="tertiary" typographyStyle="label">
                 &asymp;{' '}
                 {!amountInCrypto ? (
                     <HiddenPlaceholder>
@@ -60,8 +61,7 @@ export const CoinmarketBalance = ({
                 ) : (
                     stringBalance &&
                     fiatAmount &&
-                    networkSymbol &&
-                    stringBalance !== '0' && (
+                    networkSymbol && (
                         <FiatValue
                             amount={stringBalance}
                             symbol={networkSymbol}
@@ -69,12 +69,12 @@ export const CoinmarketBalance = ({
                         />
                     )
                 )}
-            </CoinmarketBalanceWrapper>
+            </Text>
         );
     }
 
     return (
-        <CoinmarketBalanceWrapper>
+        <Text variant="tertiary" typographyStyle="label">
             <Translation id="TR_BALANCE" />
             {': '}
             <HiddenPlaceholder>
@@ -92,6 +92,6 @@ export const CoinmarketBalance = ({
                     )
                 </>
             )}
-        </CoinmarketBalanceWrapper>
+        </Text>
     );
 };

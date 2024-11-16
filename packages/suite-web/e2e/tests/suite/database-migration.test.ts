@@ -31,7 +31,7 @@ describe('Database migration', () => {
         // this test can be run only in sldev so we ignore baseUrl env variable
         const baseUrl = 'https://dev.suite.sldev.cz/suite-web';
         const workaroundBtcAddressInputSelector = 'outputs.0.address';
-        cy.viewport(1440, 2560);
+        cy.viewport('macbook-13').resetDb();
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu', {
             passphrase_protection: true,
@@ -48,12 +48,9 @@ describe('Database migration', () => {
 
         cy.visit(`${baseUrl}/${from}`);
         // naming of data-tests has been changed in current version so we need to use the old ones
-        cy.get('[data-test="@onboarding/continue-button"]', { timeout: 40000 })
-            .click()
-            .get('[data-test="@onboarding/exit-app-button"]')
-            .click()
-            .get('[data-test="@suite/loading"]')
-            .should('not.exist');
+        cy.get('[data-test="@onboarding/continue-button"]', { timeout: 40000 }).click();
+        cy.get('[data-test="@onboarding/exit-app-button"]').click();
+        cy.get('[data-test="@suite/loading"]').should('not.exist');
         cy.get('[data-test="@passphrase-type/standard"]').click();
         cy.get('[data-test="@wallet/discovery-progress-bar"]', { timeout: 45_000 });
         cy.get('[data-test="@wallet/discovery-progress-bar"]', { timeout: 45_000 }).should(
@@ -93,10 +90,13 @@ describe('Database migration', () => {
         cy.get('[data-test="@wallet/menu/wallet-send"]').click();
         cy.get('[data-test="outputs[0].address"]').should('be.visible').type(testData.btcAddress);
         cy.wait(500); // wait has to be for a state save to happen
-        cy.get('[data-test="@wallet/menu/close-button"]').last().click();
+        cy.get('[data-test="@wallet/menu/close-button"]')
+            .last()
+            .click({ scrollBehavior: 'bottom' });
 
         // check and store address of first btc tx
-        cy.get('[data-test^="@metadata/outputLabel"] > span').should('be.visible');
+        cy.get('[data-test^="@metadata/outputLabel"] > span').first().scrollIntoView();
+        cy.get('[data-test^="@metadata/outputLabel"] > span').first().should('be.visible');
         cy.get('[data-test^="@metadata/outputLabel"] > span')
             .first()
             .invoke('text')
@@ -105,7 +105,8 @@ describe('Database migration', () => {
         cy.get('[data-test="@menu/switch-device"]').click();
         cy.contains('[data-test^="@switch-device/wallet-on-index"]', 'Hidden wallet #1')
             .find('[data-test*="toggle-remember-switch"]')
-            .click()
+            .click();
+        cy.contains('[data-test^="@switch-device/wallet-on-index"]', 'Hidden wallet #1')
             .find('input')
             .should('be.checked');
         cy.task('stopEmu');
@@ -125,6 +126,7 @@ describe('Database migration', () => {
 
         cy.getTestElement('@switch-device/cancel-button').click();
 
+        cy.get('[data-testid^="@metadata/outputLabel"]').first().scrollIntoView();
         cy.get('[data-testid^="@metadata/outputLabel"]').first().should('be.visible');
 
         // TODO: cypress alias is empty for unknown reason, refactor this test to playwright
@@ -145,9 +147,11 @@ describe('Database migration', () => {
 
         // device not connected warning modal
         cy.getTestElement('@modal');
-        cy.getTestElement('@modal/close-button').click().should('not.exist');
+        cy.getTestElement('@modal/close-button').click();
+        cy.getTestElement('@modal/close-button').should('not.exist');
 
         cy.task('startEmu');
+        cy.disableFirmwareHashCheck(); // only applicable for the `to` version, not the older `from` version
         cy.getTestElement('@deviceStatus-connected').should('be.visible');
         cy.getTestElement('@account-subpage/back').last().click();
 
@@ -163,5 +167,3 @@ describe('Database migration', () => {
         cy.get('body').should('have.css', 'background-color', 'rgb(23, 23, 23)');
     });
 });
-
-export {};

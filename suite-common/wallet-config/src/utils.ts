@@ -14,10 +14,13 @@ export const NORMAL_ACCOUNT_TYPE = 'normal' satisfies AccountType;
  */
 export const networksCollection: Network[] = Object.values(networks);
 
-export const getMainnets = (debug = false, op = false) =>
-    networksCollection.filter(
-        n => !n.testnet && (!n.isDebugOnlyNetwork || debug) && (op || n.symbol !== 'op'),
-    );
+/**
+ * array of network symbols
+ */
+export const networkSymbolCollection = networksCollection.map(n => n.symbol);
+
+export const getMainnets = (debug = false) =>
+    networksCollection.filter(n => !n.testnet && (!n.isDebugOnlyNetwork || debug));
 
 export const getTestnets = (debug = false) =>
     networksCollection.filter(n => n.testnet === true && (!n.isDebugOnlyNetwork || debug));
@@ -50,10 +53,10 @@ export const getNetworkType = (symbol: NetworkSymbol) => networks[symbol]?.netwo
 export const getNetworkFeatures = (symbol: NetworkSymbol): NetworkFeature[] =>
     networks[symbol]?.features;
 
-export const getCoingeckoId = (symbol: NetworkSymbol) => networks[symbol]?.coingeckoId;
+export const getCoingeckoId = (symbol: NetworkSymbol) => networks[symbol].coingeckoId;
 
 export const isNetworkSymbol = (symbol: NetworkSymbol | string): symbol is NetworkSymbol =>
-    networks.hasOwnProperty(symbol);
+    Object.prototype.hasOwnProperty.call(networks, symbol);
 
 /**
  * Get network object by symbol as a generic `Network` type.
@@ -69,7 +72,8 @@ export const isAccountOfNetwork = (
     network: Network,
     accountType: string,
 ): accountType is AccountType =>
-    network.accountTypes.hasOwnProperty(accountType) || accountType === 'normal';
+    Object.prototype.hasOwnProperty.call(network.accountTypes, accountType) ||
+    accountType === 'normal';
 
 export const getNetworkByCoingeckoId = (coingeckoId: string) =>
     networksCollection.find(n => n.coingeckoId === coingeckoId);

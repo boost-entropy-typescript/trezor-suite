@@ -22,7 +22,7 @@ const fixtures = [
 
 describe('Metadata - suite is watching cloud provider and syncs periodically', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
     });
     fixtures.forEach(f => {
         it(`${f.provider}-${f.desc}`, () => {
@@ -52,10 +52,8 @@ describe('Metadata - suite is watching cloud provider and syncs periodically', (
             });
             cy.disableFirmwareHashCheck();
             cy.tick(1000);
-            cy.getTestElement('@analytics/continue-button', { timeout: 30_000 })
-                .click()
-                .getTestElement('@onboarding/exit-app-button')
-                .click();
+            cy.getTestElement('@analytics/continue-button', { timeout: 30_000 }).click();
+            cy.getTestElement('@onboarding/exit-app-button').click();
             cy.getTestElement('@onboarding/viewOnly/enable').click();
             cy.log(
                 'Wait for discovery to finish. There is "add label" button, but no actual metadata appeared',
@@ -92,5 +90,3 @@ describe('Metadata - suite is watching cloud provider and syncs periodically', (
         });
     });
 });
-
-export {};

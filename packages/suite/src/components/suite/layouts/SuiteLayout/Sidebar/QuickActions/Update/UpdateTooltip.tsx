@@ -1,6 +1,13 @@
 import styled, { useTheme } from 'styled-components';
-import { useDevice, useSelector } from '../../../../../../../hooks/suite';
+
 import { Column, getIconSize, Icon, IconSize, iconSizes } from '@trezor/components';
+import { spacings } from '@trezor/theme';
+import { TranslationKey } from '@suite-common/intl-types';
+import { getFirmwareVersion } from '@trezor/device-utils';
+import { isDesktop } from '@trezor/env-utils';
+import { mapTrezorModelToIcon } from '@trezor/product-components';
+
+import { Translation } from '../../../../../Translation';
 import {
     mapUpdateStatusToIcon,
     mapUpdateStatusToVariant,
@@ -8,12 +15,7 @@ import {
     UpdateStatusSuite,
     UpdateStatusDevice,
 } from './updateQuickActionTypes';
-import { Translation } from '../../../../../Translation';
-import { spacings } from '@trezor/theme';
-import { TranslationKey } from '@suite-common/intl-types';
-import { getFirmwareVersion } from '@trezor/device-utils';
-import { isDesktop } from '@trezor/env-utils';
-import { mapTrezorModelToIcon } from '@trezor/product-components';
+import { useDevice, useSelector } from '../../../../../../../hooks/suite';
 import { TooltipRow } from '../TooltipRow';
 
 const SuiteIconRectangle = styled.div<{ $size: IconSize }>`
@@ -29,6 +31,7 @@ const SuiteIconRectangle = styled.div<{ $size: IconSize }>`
 `;
 
 const mapUpdateStatusToTranslation: Record<UpdateStatus, TranslationKey> = {
+    disconnected: 'TR_QUICK_ACTION_TOOLTIP_DEVICE_DISCONNECTED',
     'update-downloaded-manual': 'TR_QUICK_ACTION_TOOLTIP_UPDATE_AVAILABLE',
     'update-downloaded-auto-restart-to-update': 'TR_QUICK_ACTION_TOOLTIP_RESTART_TO_UPDATE',
     'up-to-date': 'TR_QUICK_ACTION_TOOLTIP_UP_TO_DATE',

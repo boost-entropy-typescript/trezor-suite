@@ -6,7 +6,6 @@
     "sideEffects": false,
     "main": "src/index",
     "scripts": {
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build"
     },
@@ -30,7 +29,6 @@
         "@suite-native/settings": "workspace:*",
         "@suite-native/staking": "workspace:*",
         "@suite-native/tokens": "workspace:*",
-        "proxy-memoize": "2.0.2",
         "react": "^18.2.0",
         "react-native": "0.75.2",
         "react-native-reanimated": "3.16.1",

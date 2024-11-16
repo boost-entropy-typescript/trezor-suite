@@ -1,9 +1,16 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+
 import useDebounce from 'react-use/lib/useDebounce';
 import type { BuyTrade, BuyTradeQuoteRequest, CryptoId } from 'invity-api';
+
 import { isChanged } from '@suite-common/suite-utils';
 import { formatAmount } from '@suite-common/wallet-utils';
+import { notificationsActions } from '@suite-common/toast-notifications';
+import { isDesktop } from '@trezor/env-utils';
+import { networks } from '@suite-common/wallet-config';
+import { analytics, EventType } from '@trezor/suite-analytics';
+
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import invityAPI from 'src/services/suite/invityAPI';
 import {
@@ -19,6 +26,7 @@ import {
     coinmarketGetSuccessQuotes,
     cryptoIdToNetwork,
     filterQuotesAccordingTags,
+    getCoinmarketNetworkDecimals,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import {
     CoinmarketBuyFormContextProps,
@@ -28,8 +36,6 @@ import * as coinmarketInfoActions from 'src/actions/wallet/coinmarketInfoActions
 import * as coinmarketCommonActions from 'src/actions/wallet/coinmarket/coinmarketCommonActions';
 import * as coinmarketBuyActions from 'src/actions/wallet/coinmarketBuyActions';
 import * as routerActions from 'src/actions/suite/routerActions';
-import { notificationsActions } from '@suite-common/toast-notifications';
-import { isDesktop } from '@trezor/env-utils';
 import useCoinmarketPaymentMethod from 'src/hooks/wallet/coinmarket/form/useCoinmarketPaymentMethod';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { useCoinmarketNavigation } from 'src/hooks/wallet/useCoinmarketNavigation';
@@ -43,9 +49,8 @@ import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarket
 import { useCoinmarketCurrencySwitcher } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketCurrencySwitcher';
 import { useCoinmarketModalCrypto } from 'src/hooks/wallet/coinmarket/form/common/useCoinmarketModalCrypto';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
-import { networks } from '@suite-common/wallet-config';
-import { analytics, EventType } from '@trezor/suite-analytics';
 import { useCoinmarketBuyFormDefaultValues } from 'src/hooks/wallet/coinmarket/form/useCoinmarketBuyFormDefaultValues';
+
 import { useCoinmarketInitializer } from './common/useCoinmarketInitializer';
 
 export const useCoinmarketBuyForm = ({
@@ -178,10 +183,9 @@ export const useCoinmarketBuyForm = ({
             countrySelect,
             amountInCrypto,
         } = methods.getValues();
+        const decimals = getCoinmarketNetworkDecimals({ network });
         const cryptoStringAmount =
-            cryptoInput && shouldSendInSats
-                ? formatAmount(cryptoInput, network.decimals)
-                : cryptoInput;
+            cryptoInput && shouldSendInSats ? formatAmount(cryptoInput, decimals) : cryptoInput;
 
         const request = {
             wantCrypto: amountInCrypto,
@@ -195,7 +199,7 @@ export const useCoinmarketBuyForm = ({
         };
 
         return request;
-    }, [methods, network.decimals, shouldSendInSats, quotesRequest]);
+    }, [methods, network, shouldSendInSats, quotesRequest]);
 
     const handleChange = useCallback(
         async (offLoading?: boolean) => {

@@ -8,7 +8,7 @@ describe('ApplicationLog', () => {
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu');
         cy.task('startBridge');
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
     });
@@ -30,5 +30,3 @@ describe('ApplicationLog', () => {
         // todo: check it really exports something;
     });
 });
-
-export {};

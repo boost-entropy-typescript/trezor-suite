@@ -1,6 +1,10 @@
+import { MouseEvent } from 'react';
+
 import styled from 'styled-components';
+
 import { Column, ElevationContext, Icon, Row, Text } from '@trezor/components';
 import { borders, Elevation, mapElevationToBackground, spacingsPx } from '@trezor/theme';
+
 import {
     UpdateStatus,
     UpdateStatusSuite,
@@ -10,7 +14,6 @@ import {
 } from './updateQuickActionTypes';
 import { Translation, TranslationKey } from '../../../../../Translation';
 import { useDispatch } from '../../../../../../../hooks/suite';
-import { MouseEvent } from 'react';
 
 type ContainerProps = { $elevation: Elevation };
 
@@ -44,6 +47,7 @@ type UpdateNotificationBannerProps = {
 };
 
 const mapDeviceUpdateStatusToTranslation: Record<UpdateStatusDevice, TranslationKey | null> = {
+    disconnected: null,
     'up-to-date': null,
     'update-available': 'TR_QUICK_ACTION_UPDATE_POPOVER_TREZOR_UPDATE_AVAILABLE',
 };
@@ -58,6 +62,7 @@ const mapSuiteUpdateStatusToHeaderTranslation: Record<UpdateStatusSuite, Transla
 };
 
 const mapSuiteUpdateStatusToCallToActionTranslation: Record<UpdateStatus, TranslationKey | null> = {
+    disconnected: null,
     'just-updated': 'TR_QUICK_ACTION_UPDATE_POPOVER_WHATS_NEW',
     'up-to-date': null,
     'update-available': 'TR_QUICK_ACTION_UPDATE_POPOVER_CLICK_TO_START_UPDATE',

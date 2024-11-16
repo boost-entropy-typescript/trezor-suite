@@ -1,5 +1,7 @@
 import React, { forwardRef, useEffect, useState } from 'react';
+
 import styled, { css, keyframes, useTheme } from 'styled-components';
+
 import {
     borders,
     spacings,
@@ -9,6 +11,7 @@ import {
     mapElevationToBackground,
     nextElevation,
 } from '@trezor/theme';
+
 import type { Coords } from './getAdjustedCoords';
 import { menuStyle } from './menuStyle';
 import { useElevation } from '../ElevationContext/ElevationContext';
@@ -270,11 +273,11 @@ const getNextIndex =
                 nextIndex = getPrevIndex(nextIndex);
             }
         } else if (keyboardKey === 'ArrowDown') {
-            const getNextIndex = (current: number) => (current < lastIndex ? current + 1 : 0);
-            nextIndex = getNextIndex(nextIndex);
+            const getNextIndex2 = (current: number) => (current < lastIndex ? current + 1 : 0);
+            nextIndex = getNextIndex2(nextIndex);
             // skip disabled items
             while (flatGroupItems[nextIndex].isDisabled) {
-                nextIndex = getNextIndex(nextIndex);
+                nextIndex = getNextIndex2(nextIndex);
             }
         }
 

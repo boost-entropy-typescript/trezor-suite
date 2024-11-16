@@ -42,7 +42,7 @@ export function validateParams<P extends Record<string, any>>(params: P, schema:
                     validateParams(p, [{ name: field.name, type: t }]);
 
                     return count + 1;
-                } catch (e) {
+                } catch {
                     return count;
                 }
             }, 0);
@@ -166,7 +166,9 @@ export const getFirmwareRange = (
         // 0 may be confusing. means: no-support for "min" and unlimited support for "max"
         if (rule.min) {
             models.forEach(model => {
-                const modelMin = rule.min[model];
+                const modelMin = (rule.min as Record<DeviceModelInternal, string | undefined>)[
+                    model
+                ];
                 if (modelMin) {
                     if (
                         modelMin === '0' ||

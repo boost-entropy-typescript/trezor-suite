@@ -1,6 +1,7 @@
 /* eslint no-await-in-loop: 0 */
 
 import { test, expect, Page } from '@playwright/test';
+
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 const connectUrl = process.env.URL ? process.env.URL : 'https://connect.trezor.io/9/';
@@ -102,7 +103,7 @@ const signTransaction = async (page: Page, iteration: number) => {
             });
             await TrezorUserEnvLink.send({ type: 'emulator-press-yes' });
             await popup.waitForTimeout(501);
-        } catch (err) {
+        } catch {
             confirmOnTrezorScreenStilVisible = false;
         }
     }

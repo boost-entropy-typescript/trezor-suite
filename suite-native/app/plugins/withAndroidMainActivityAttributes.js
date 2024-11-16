@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 const { withAndroidManifest } = require('expo/config-plugins');
 
 function addAttributesToMainApplication(androidManifest, attributes) {
@@ -25,9 +24,9 @@ function addAttributesToMainApplication(androidManifest, attributes) {
 }
 
 module.exports = function withAndroidMainApplicationAttributes(config, attributes) {
-    return withAndroidManifest(config, config => {
-        config.modResults = addAttributesToMainApplication(config.modResults, attributes);
+    return withAndroidManifest(config, config2 => {
+        config2.modResults = addAttributesToMainApplication(config2.modResults, attributes);
 
-        return config;
+        return config2;
     });
 };

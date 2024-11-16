@@ -3,7 +3,9 @@ import fs from 'fs';
 import crypto from 'crypto';
 import util from 'util';
 import path from 'path';
+
 import { promiseAllSequence } from '@trezor/utils';
+
 import { TorConnectionOptions, TorCommandResponse } from './types';
 
 const readFile = util.promisify(fs.readFile);
@@ -67,7 +69,7 @@ export class TorControlPort {
                     let cookieString;
                     try {
                         cookieString = await getCookieString(this.options.torDataDir);
-                    } catch (error) {
+                    } catch {
                         reject(new Error('TOR control port control_auth_cookie cannot be read'));
                     }
                     const serverNonce = authchallengeResponse[2];
@@ -117,7 +119,7 @@ export class TorControlPort {
         }
         try {
             return !!this.write('GETINFO');
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -175,11 +177,11 @@ export class TorControlPort {
                     /^[0-9]+ (LAUNCHED|BUILT|GUARD_WAIT|EXTENDED|FAILED|CLOSED)/.test(line),
                 )
                 .map(line => {
-                    const [id, status, ...values] = line.split(' ');
+                    const [id, status2, ...values] = line.split(' ');
 
                     return {
                         id,
-                        status,
+                        status: status2,
                         // not used for now, left as example:
                         // buildFlags: getValue('BUILD_FLAGS', values),
                         // purpose: getValue('PURPOSE', values),

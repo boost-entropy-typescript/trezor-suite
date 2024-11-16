@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
+
 import styled, { useTheme } from 'styled-components';
 import { Meta, StoryObj } from '@storybook/react';
-import { Icon, IconProps, allowedIconFrameProps, iconVariants, iconSizes } from './Icon';
-import { getFramePropsStory } from '../../utils/frameProps';
-import { Input } from '../form/Input/Input';
-import { Checkbox } from '../form/Checkbox/Checkbox';
-import { Text } from '../typography/Text/Text';
+
 import { typography } from '@trezor/theme';
 import { icons, IconName } from '@suite-common/icons/src/icons';
 import {
     icons as iconsDeprecated,
     IconName as IconNameDeprecated,
 } from '@suite-common/icons-deprecated';
+
+import { Icon, IconProps, allowedIconFrameProps, iconVariants, iconSizes } from './Icon';
+import { getFramePropsStory } from '../../utils/frameProps';
+import { Input } from '../form/Input/Input';
+import { Checkbox } from '../form/Checkbox/Checkbox';
+import { Text } from '../typography/Text/Text';
 
 const CopiedText = styled.div`
     display: flex;
@@ -99,6 +102,7 @@ const Render = (props: IconProps) => {
                     placeholder="Search icon"
                     value={search}
                     onChange={event => setSearch(event.target.value)}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={theme.legacy.THEME === 'light'}
                     onClear={() => setSearch('')}
                     showClearButton="always"

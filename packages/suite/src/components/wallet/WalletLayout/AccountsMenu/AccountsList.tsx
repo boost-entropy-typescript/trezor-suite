@@ -1,16 +1,22 @@
 import { sortByCoin, getFailedAccounts, accountSearchFn } from '@suite-common/wallet-utils';
 import { Account } from '@suite-common/wallet-types';
-import { useAccountSearch, useDiscovery, useSelector } from 'src/hooks/suite';
 import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
+import { spacings } from '@trezor/theme';
+import { Column } from '@trezor/components';
+
+import {
+    useAccountSearch,
+    useDiscovery,
+    useSelector,
+    useDefaultAccountLabel,
+} from 'src/hooks/suite';
 import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
 import { Translation } from 'src/components/suite';
+
 import { AccountItemSkeleton } from './AccountItemSkeleton';
 import { AccountGroup } from './AccountGroup';
 import { AccountsMenuNotice } from './AccountsMenuNotice';
-import { spacings } from '@trezor/theme';
-import { Column } from '@trezor/components';
-import { AccountSection } from './AcccountSection';
-import { useDefaultAccountLabel } from 'src/hooks/suite';
+import { AccountSection } from './AccountSection';
 
 interface AccountListProps {
     onItemClick?: () => void;
@@ -36,12 +42,14 @@ export const AccountsList = ({ onItemClick }: AccountListProps) => {
 
     const failed = getFailedAccounts(discovery);
 
-    const list = sortByCoin(accounts.filter(a => a.deviceState === device.state).concat(failed));
+    const list = sortByCoin(
+        accounts.filter(a => a.deviceState === device.state?.staticSessionId).concat(failed),
+    );
     const filteredAccounts =
         searchString || coinFilter
             ? list.filter(account => {
                   const { key, accountType, symbol, index } = account;
-                  const accountLabel = accountLabels.hasOwnProperty(key)
+                  const accountLabel = Object.prototype.hasOwnProperty.call(accountLabels, key)
                       ? accountLabels[key]
                       : getDefaultAccountLabel({ accountType, symbol, index });
 

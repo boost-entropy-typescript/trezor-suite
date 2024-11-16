@@ -1,14 +1,8 @@
+import { ReactNode } from 'react';
+
 import { Meta, StoryObj } from '@storybook/react';
-import { Card } from '../Card/Card';
-import { Modal } from '../modals/Modal/Modal';
 import styled from 'styled-components';
-import { Textarea } from '../form/Textarea/Textarea';
-import {
-    useElevation,
-    ElevationContext as ElevationContextComponent,
-    ElevationDown,
-    ElevationUp,
-} from './ElevationContext';
+
 import {
     Elevation,
     borders,
@@ -16,7 +10,16 @@ import {
     mapElevationToBorder,
     spacingsPx,
 } from '@trezor/theme';
-import { ReactNode } from 'react';
+
+import { Card } from '../Card/Card';
+import { Modal } from '../modals/Modal/Modal';
+import { Textarea } from '../form/Textarea/Textarea';
+import {
+    useElevation,
+    ElevationContext as ElevationContextComponent,
+    ElevationDown,
+    ElevationUp,
+} from './ElevationContext';
 
 const UiBox = styled.div<{ $elevation: Elevation }>`
     background-color: ${mapElevationToBackground};
@@ -109,12 +112,12 @@ export const ElevationContext: StoryObj = {
 
             <Background>
                 <Card>
-                    Card and Textarea inside it wrapped in the "extender" component with same
-                    elevation as the Textarea has.
+                    Card and Textarea inside it wrapped in the &quot;extender&quot; component with
+                    same elevation as the Textarea has.
                     <TextareaExtender>
                         <Textarea>
-                            "If you don’t believe it or don’t get it, I don’t have the time to try
-                            to convince you, sorry." ― Satoshi Nakamoto
+                            &quot;If you don’t believe it or don’t get it, I don’t have the time to
+                            try to convince you, sorry.&quot; ― Satoshi Nakamoto
                         </Textarea>
                     </TextareaExtender>
                 </Card>

@@ -3,6 +3,7 @@
 // - `fromBase58Check` method is using additional "network" param and bs58check.decodeAddress instead of bs58check.decode. checking multibyte version (Zcash and Decred support).
 
 import { bech32, bech32m } from 'bech32';
+
 import * as bs58check from './bs58check';
 import * as bscript from './script';
 import * as payments from './payments';
@@ -28,7 +29,7 @@ export function fromBech32(address: string): Bech32Result {
     let version: number;
     try {
         result = bech32.decode(address);
-    } catch (e) {
+    } catch {
         // silent
     }
 
@@ -82,32 +83,32 @@ function toFutureSegwitAddress(output: Buffer, network = BITCOIN_NETWORK) {
 export function fromOutputScript(output: Buffer, network = BITCOIN_NETWORK) {
     try {
         return payments.p2pkh({ output, network }).address as string;
-    } catch (e) {
+    } catch {
         // empty
     }
     try {
         return payments.p2sh({ output, network }).address as string;
-    } catch (e) {
+    } catch {
         // empty
     }
     try {
         return payments.p2wpkh({ output, network }).address as string;
-    } catch (e) {
+    } catch {
         // empty
     }
     try {
         return payments.p2wsh({ output, network }).address as string;
-    } catch (e) {
+    } catch {
         // empty
     }
     try {
         return payments.p2tr({ output, network }).address as string;
-    } catch (e) {
+    } catch {
         // empty
     }
     try {
         return toFutureSegwitAddress(output, network);
-    } catch (e) {
+    } catch {
         // empty
     }
 

@@ -4,7 +4,7 @@ import { getSuiteVersion } from '@trezor/env-utils';
 
 describe('There is a hidden route (not accessible in UI)', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
     });
 
     it('/version', () => {
@@ -15,5 +15,3 @@ describe('There is a hidden route (not accessible in UI)', () => {
         cy.getTestElement('@modal/version').screenshot('version-modal');
     });
 });
-
-export {};

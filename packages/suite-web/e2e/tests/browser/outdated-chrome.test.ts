@@ -6,7 +6,7 @@
 
 describe('Windows 7 with outdated chrome ', () => {
     before(() => {
-        cy.viewport(1440, 2560);
+        cy.viewport('macbook-13');
         cy.resetDb();
     });
 
@@ -32,5 +32,3 @@ describe('Windows 7 with outdated chrome ', () => {
         cy.getTestElement('@welcome/title');
     });
 });
-
-export {};

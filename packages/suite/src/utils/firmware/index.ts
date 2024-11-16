@@ -1,8 +1,9 @@
 import { valid, satisfies } from 'semver';
+
 import { getFirmwareVersion } from '@trezor/device-utils';
+import { DeviceModelInternal, FirmwareType } from '@trezor/connect';
 
 import { type TrezorDevice, type ExtendedMessageDescriptor } from 'src/types/suite';
-import { DeviceModelInternal, FirmwareType } from '@trezor/connect';
 
 export const getFormattedFingerprint = (fingerprint: string) =>
     [
@@ -31,6 +32,7 @@ const FORMAT_MAP: { [format in FirmwareFormat]: DeviceModelInternal[] } = {
         DeviceModelInternal.T2B1,
         DeviceModelInternal.T3B1,
         DeviceModelInternal.T3T1,
+        DeviceModelInternal.T3W1,
     ],
 };
 

@@ -3,7 +3,7 @@
 
 describe('Language and theme detection', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
     });
 
     // TODO: [low prio] extend the test to work even when the user has dark settings
@@ -32,5 +32,3 @@ describe('Language and theme detection', () => {
         cy.get('body').should('have.css', 'background-color', 'rgb(23, 23, 23)');
     });
 });
-
-export {};

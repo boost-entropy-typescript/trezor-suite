@@ -1,20 +1,21 @@
-import { configureStore } from 'src/support/tests/configureStore';
-
-import { PROTOCOL } from 'src/actions/suite/constants';
-import protocolMiddleware from '../protocolMiddleware';
-import protocolReducer from 'src/reducers/suite/protocolReducer';
 import {
     NotificationEntry,
     notificationsActions,
     notificationsReducer,
 } from '@suite-common/toast-notifications';
 
+import { configureStore } from 'src/support/tests/configureStore';
+import { PROTOCOL } from 'src/actions/suite/constants';
+import protocolReducer from 'src/reducers/suite/protocolReducer';
+
+import protocolMiddleware from '../protocolMiddleware';
+
 const middlewares = [protocolMiddleware];
 
 type ProtocolState = ReturnType<typeof protocolReducer>;
 type NotificationsState = ReturnType<typeof notificationsReducer>;
 
-export const getInitialState = (
+const getInitialState = (
     notifications: Partial<NotificationsState>,
     protocol?: Partial<ProtocolState>,
 ) => ({

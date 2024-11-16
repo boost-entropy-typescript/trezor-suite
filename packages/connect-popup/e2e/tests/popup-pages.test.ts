@@ -1,5 +1,8 @@
 import { test, Page, BrowserContext, expect } from '@playwright/test';
+import fs from 'fs';
+
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
+
 import {
     getContexts,
     openPopup,
@@ -8,8 +11,6 @@ import {
     formatUrl,
     waitAndClick,
 } from '../support/helpers';
-
-import fs from 'fs';
 
 const url = process.env.URL || 'http://localhost:8088/';
 

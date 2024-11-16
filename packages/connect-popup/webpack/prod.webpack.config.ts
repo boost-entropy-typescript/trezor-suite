@@ -3,10 +3,12 @@ import webpack, { DefinePlugin } from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import { execSync } from 'child_process';
+
 import * as URLS from '@trezor/urls';
 import { DEEPLINK_VERSION } from '@trezor/connect/src/data/version';
+
 import { version } from '../package.json';
-import { execSync } from 'child_process';
 
 const STATIC_SRC = path.join(__dirname, '../src/static');
 const DIST = path.resolve(__dirname, '../build');
@@ -149,4 +151,5 @@ const config: webpack.Configuration = {
     },
 };
 
+// eslint-disable-next-line import/no-default-export
 export default config;

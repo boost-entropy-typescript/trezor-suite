@@ -1,29 +1,36 @@
 import { useState } from 'react';
+
 import styled from 'styled-components';
+
 import { variables } from '@trezor/components';
 import { Deferred } from '@trezor/utils';
 import {
     DeviceRootState,
     selectDevice,
-    selectSendFormDraftByAccountKey,
+    selectSendFormDraftByKey,
     selectSendFormReviewButtonRequestsCount,
     selectStakePrecomposedForm,
     StakeState,
+    SendState,
 } from '@suite-common/wallet-core';
 import { FormState, StakeFormState } from '@suite-common/wallet-types';
-import { constructTransactionReviewOutputs, isRbfTransaction } from '@suite-common/wallet-utils';
-import { SendState } from '@suite-common/wallet-core';
+import {
+    constructTransactionReviewOutputs,
+    isRbfTransaction,
+    getTxStakeNameByDataHex,
+} from '@suite-common/wallet-utils';
+import { ConfirmOnDevice } from '@trezor/product-components';
+import { networks } from '@suite-common/wallet-config';
+
 import { useSelector } from 'src/hooks/suite';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
 import { getTransactionReviewModalActionText } from 'src/utils/suite/transactionReview';
 import { Modal, Translation } from 'src/components/suite';
+import { selectAccountIncludingChosenInCoinmarket } from 'src/reducers/wallet/selectedAccountReducer';
+
 import { TransactionReviewSummary } from './TransactionReviewSummary';
 import { TransactionReviewOutputList } from './TransactionReviewOutputList/TransactionReviewOutputList';
 import { TransactionReviewEvmExplanation } from './TransactionReviewEvmExplanation';
-import { getTxStakeNameByDataHex } from '@suite-common/suite-utils';
-import { ConfirmOnDevice } from '@trezor/product-components';
-import { networks } from '@suite-common/wallet-config';
-import { selectAccountIncludingChosenInCoinmarket } from 'src/reducers/wallet/selectedAccountReducer';
 
 const StyledModal = styled(Modal)`
     ${Modal.Body} {
@@ -69,7 +76,7 @@ export const TransactionReviewModalContent = ({
     const precomposedForm = useSelector(state =>
         isStakeState(txInfoState)
             ? selectStakePrecomposedForm(state)
-            : selectSendFormDraftByAccountKey(state, account?.key),
+            : selectSendFormDraftByKey(state, account?.key),
     );
 
     const isRbfAction = precomposedTx !== undefined && isRbfTransaction(precomposedTx);

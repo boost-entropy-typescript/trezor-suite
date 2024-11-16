@@ -1,8 +1,8 @@
 import { v1 as v1Protocol } from '@trezor/protocol';
-import { AbstractTransport } from '../src/transports/abstract';
+import * as messages from '@trezor/protobuf/messages.json';
+
 import { AbstractApiTransport } from '../src/transports/abstractApi';
 import { UsbApi } from '../src/api/usb';
-import * as messages from '@trezor/protobuf/messages.json';
 import { PathPublic, Session } from '../src/types';
 
 // create devices otherwise returned from navigator.usb.getDevices
@@ -45,18 +45,16 @@ class TestUsbTransport extends AbstractApiTransport {
 
 // we cant directly use abstract class (UsbTransport)
 const initTest = async () => {
-    let transport: AbstractTransport;
-    let testUsbApi: UsbApi;
-
     // create usb api with navigator.usb mock
-    testUsbApi = new UsbApi({
+    const testUsbApi = new UsbApi({
         usbInterface: createUsbMock(),
     });
-
-    transport = new TestUsbTransport({
+    const transport = new TestUsbTransport({
         api: testUsbApi,
         messages,
+        id: 'test',
     });
+
     const initResponse = await transport.init();
     expect(initResponse.success).toEqual(true);
 
@@ -88,6 +86,7 @@ describe('Usb', () => {
 
             const transport = new TestUsbTransport({
                 api: testUsbApi,
+                id: 'test',
             });
 
             await transport.init();
@@ -351,7 +350,7 @@ describe('Usb', () => {
             });
             abort.abort();
 
-            expect(promise).resolves.toMatchObject({
+            await expect(promise).resolves.toMatchObject({
                 success: false,
                 error: 'Aborted by signal',
             });
@@ -363,7 +362,7 @@ describe('Usb', () => {
                 protocol: v1Protocol,
             });
             await promise2;
-            expect(promise2).resolves.toEqual({
+            await expect(promise2).resolves.toEqual({
                 success: true,
                 payload: {
                     type: 'Success',

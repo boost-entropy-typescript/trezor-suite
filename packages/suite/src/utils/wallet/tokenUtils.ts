@@ -1,5 +1,4 @@
 import { BigNumber } from '@trezor/utils/src/bigNumber';
-
 import { Account, Rate, TokenAddress, RatesByKey } from '@suite-common/wallet-types';
 import { TokenInfo } from '@trezor/connect';
 import { getFiatRateKey, isTokenMatchesSearch } from '@suite-common/wallet-utils';
@@ -11,7 +10,7 @@ import {
     isTokenDefinitionKnown,
 } from '@suite-common/token-definitions';
 
-interface TokensWithRates extends TokenInfo {
+export interface TokensWithRates extends TokenInfo {
     fiatValue: BigNumber;
     fiatRate?: Rate;
 }

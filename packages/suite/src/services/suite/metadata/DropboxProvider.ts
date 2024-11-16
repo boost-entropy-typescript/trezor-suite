@@ -1,12 +1,13 @@
 import { Dropbox, DropboxAuth } from 'dropbox';
 import type { users } from 'dropbox';
+
+import { getWeakRandomId } from '@trezor/utils';
+
 import { AbstractMetadataProvider } from 'src/types/suite/metadata';
 import {
     extractCredentialsFromAuthorizationFlow,
     getOauthReceiverUrl,
 } from 'src/utils/suite/oauth';
-
-import { getWeakRandomId } from '@trezor/utils';
 
 // Dropbox messed up types, that's why @ts-expect-error occurs in this file
 
@@ -48,7 +49,7 @@ class DropboxProvider extends AbstractMetadataProvider {
             await this.auth.refreshAccessToken(['']);
 
             return true;
-        } catch (err) {
+        } catch {
             return false;
         }
     }
@@ -237,6 +238,7 @@ class DropboxProvider extends AbstractMetadataProvider {
             return this.handleProviderError(err);
         }
     }
+
     /**
      * Specific implementation in every provider. Returns standardized error
      */

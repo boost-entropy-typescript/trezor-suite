@@ -1,9 +1,10 @@
 import { join } from 'path';
 import * as fs from 'fs-extra';
 
+import type { GuideNode, GuideCategory } from '@suite-common/suite-types';
+
 import { GITBOOK_ASSETS_DIR_PREFIX } from './constants';
 import { transformImagesMarkdown } from './transformer';
-import type { GuideNode, GuideCategory } from '@suite-common/suite-types';
 
 /** @returns true if given path is a directory. */
 const isDirectory = (path: string): boolean => fs.lstatSync(path).isDirectory();
@@ -74,7 +75,7 @@ export class Parser {
                 .match(/^# (.+$)/m)![1]!
                 .replace(/[\\]/g, '')
                 .trim();
-        } catch (e) {
+        } catch {
             throw new Error(`Could not parse title from ${path}.`);
         }
     }
@@ -210,12 +211,12 @@ export class Parser {
                 // Take all locales except the english one
                 .filter(locale => locale !== 'en')
                 // and merge them together.
-                .reduce((englishIndex, locale) => {
+                .reduce((englishIndex2, locale) => {
                     // Parse the locale's version of the content.
                     const otherIndex = this.parseTree(join(this.source, locale), locale);
 
                     // Merge it into the english index.
-                    return this.zip(englishIndex, otherIndex);
+                    return this.zip(englishIndex2, otherIndex);
                 }, englishIndex)
         );
     }

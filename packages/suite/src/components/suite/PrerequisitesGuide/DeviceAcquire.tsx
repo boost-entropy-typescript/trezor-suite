@@ -6,9 +6,10 @@ import { isDesktop } from '@trezor/env-utils';
 
 import { Translation, TroubleshootingTips } from 'src/components/suite';
 import { useDevice, useDispatch } from 'src/hooks/suite';
+import { TROUBLESHOOTING_TIP_RECONNECT } from 'src/components/suite/troubleshooting/tips';
 
 export const DeviceAcquire = () => {
-    const { isLocked } = useDevice();
+    const { isLocked, device } = useDevice();
     const dispatch = useDispatch();
 
     const isDeviceLocked = isLocked();
@@ -26,6 +27,21 @@ export const DeviceAcquire = () => {
 
     const tips = [
         {
+            key: 'device-used-elsewhere',
+            heading: <Translation id="TR_DEVICE_CONNECTED_UNACQUIRED" />,
+            description: device?.transportSessionOwner ? (
+                <Translation
+                    id="TR_DEVICE_CONNECTED_UNACQUIRED_DESCRIPTION"
+                    values={{
+                        transportSessionOwner: device.transportSessionOwner,
+                    }}
+                />
+            ) : (
+                // legacy bridge does not share transportSessionOwner information
+                <Translation id="TR_DEVICE_CONNECTED_UNACQUIRED_DESCRIPTION_UNKNOWN_APP" />
+            ),
+        },
+        {
             key: 'device-acquire',
             heading: <Translation id="TR_TROUBLESHOOTING_CLOSE_TABS" />,
             description: (
@@ -38,19 +54,7 @@ export const DeviceAcquire = () => {
                 />
             ),
         },
-        {
-            key: 'device-reconnect',
-            heading: <Translation id="TR_RECONNECT_YOUR_DEVICE" />,
-            description: (
-                <Translation
-                    id={
-                        isDesktop()
-                            ? 'TR_RECONNECT_DEVICE_DESCRIPTION_DESKTOP'
-                            : 'TR_RECONNECT_DEVICE_DESCRIPTION'
-                    }
-                />
-            ),
-        },
+        TROUBLESHOOTING_TIP_RECONNECT,
     ];
 
     return (

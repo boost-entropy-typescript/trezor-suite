@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import path from 'path';
 import { app, BrowserWindow } from 'electron';
 
@@ -16,13 +15,13 @@ import { getBuildInfo, getComputerInfo } from './libs/info';
 import { restartApp, processStatePatch } from './libs/app-utils';
 import { clearAppCache, initUserData } from './libs/user-data';
 import { initSentry } from './libs/sentry';
-import { initModules, mainThreadEmitter } from './modules';
+import { initModules, initBackgroundModules, mainThreadEmitter } from './modules';
 import { init as initTorModule } from './modules/tor';
-import { init as initBridgeModule, initUi as initBridgeUi } from './modules/bridge';
 import { createInterceptor } from './libs/request-interceptor';
 import { hangDetect } from './hang-detect';
 import { Logger } from './libs/logger';
 import { MainWindowProxy } from './libs/main-window-proxy';
+import { isAutoStartEnabled } from './modules/auto-start';
 
 // @ts-expect-error using internal electron API to set suite version in dev mode correctly
 if (isDevEnv) app.setVersion(process.env.VERSION);
@@ -129,11 +128,23 @@ const init = async () => {
         restartApp();
     });
 
+    // Electron 32 has a bug with Worker due to Chromium changes
+    // https://github.com/electron/electron/issues/43556
+    app.commandLine.appendSwitch('disable-features', 'PlzDedicatedWorker');
+
     await app.whenReady();
 
     // Load bridge module first, it is required in both UI and daemon mode
-    const { onLoad: loadBridgeModule, onQuit: quitBridgeModule } = initBridgeModule({ store });
-    await loadBridgeModule();
+    const interceptor = createInterceptor();
+    const mainWindowProxy = new MainWindowProxy();
+    const { loadModules: loadBackgroundModules, quitModules: quitBackgroundModules } =
+        initBackgroundModules({
+            mainWindowProxy,
+            store,
+            interceptor,
+            mainThreadEmitter,
+        });
+    await loadBackgroundModules(undefined);
 
     // Daemon mode with no UI
     const { wasOpenedAtLogin } = app.getLoginItemSettings();
@@ -149,25 +160,25 @@ const init = async () => {
             app.dock?.show();
             waitForFullStart.resolve();
         };
+        const openURL = (event: Electron.Event, url: string) => {
+            // Handle deeplink in daemon mode
+            event.preventDefault();
+            logger.warn('main', 'Custom protocol URL detected, initializing UI');
+            global.customProtocolUrl = url;
+            handleFullStart();
+        };
         app.on('second-instance', handleFullStart);
         app.on('activate', handleFullStart);
+        app.on('open-url', openURL);
+        mainThreadEmitter.on('app/show', handleFullStart);
         await waitForFullStart.promise;
         app.off('second-instance', handleFullStart);
         app.off('activate', handleFullStart);
+        app.off('open-url', openURL);
+        mainThreadEmitter.off('app/show', handleFullStart);
     }
 
-    await initUi({ store, daemon, quitBridgeModule });
-};
-
-const initUi = async ({
-    store,
-    daemon,
-    quitBridgeModule,
-}: {
-    store: Store;
-    daemon: boolean;
-    quitBridgeModule: () => Promise<void>;
-}) => {
+    // UI is opening
     const buildInfo = getBuildInfo();
     logger.info('build', buildInfo);
 
@@ -177,25 +188,15 @@ const initUi = async ({
     const winBounds = store.getWinBounds();
     logger.debug('init', `Create Browser Window (${winBounds.width}x${winBounds.height})`);
 
-    const mainWindowProxy = new MainWindowProxy();
-
     // init modules
-    const interceptor = createInterceptor();
     const { loadModules, quitModules } = initModules({
         mainWindowProxy,
         store,
         interceptor,
         mainThreadEmitter,
     });
-    // TODO: each module probably should have 2 exports - one to be initiated in the main layer and one to be initiated in UI layer?
-    initBridgeUi({
-        mainWindowProxy,
-        store,
-        interceptor,
-        mainThreadEmitter,
-    });
 
-    app.on('second-instance', () => {
+    const reactivateWindow = () => {
         // Someone tried to run a second instance, we should focus our window.
         logger.info('main', 'Second instance detected, focusing main window');
         let mainWindow = mainWindowProxy.getInstance();
@@ -210,7 +211,13 @@ const initUi = async ({
         if (!mainWindow.isVisible()) mainWindow.show();
         if (mainWindow.isMinimized()) mainWindow.restore();
         mainWindow.focus();
-    });
+    };
+    app.on('second-instance', reactivateWindow);
+    mainThreadEmitter.on('app/show', reactivateWindow);
+    // restore window after click on the macOS Dock icon
+    if (process.platform === 'darwin') {
+        app.on('activate', reactivateWindow);
+    }
 
     // create handler for handshake/load-modules
     const loadModulesResponse = (clientData: HandshakeClient) =>
@@ -247,15 +254,21 @@ const initUi = async ({
     });
 
     let readyToQuit = false;
+    let stoppingDaemon = false;
+    mainThreadEmitter.on('app/fully-quit', () => {
+        stoppingDaemon = true;
+    });
     app.on('before-quit', async event => {
         if (readyToQuit) return;
 
         const mainWindow = mainWindowProxy.getInstance();
         const windowExists =
             mainWindow && !mainWindow.isDestroyed() && mainWindow.isClosable() && !app.isHidden();
+        const autoStartCurrentlyEnabled = isAutoStartEnabled();
         logger.info('main', `Before quit, window exists: ${windowExists}`);
         if (
-            daemon &&
+            !stoppingDaemon &&
+            autoStartCurrentlyEnabled &&
             (!isMacOs() || windowExists) // On Mac the window closing and app quitting are different
         ) {
             // Prevent quitting app when in daemon mode, unless the UI is already closed
@@ -272,7 +285,7 @@ const initUi = async ({
 
         await Promise.race([
             // await quitting all registered modules
-            Promise.allSettled([quitModules(), quitTorModule(), quitBridgeModule()]),
+            Promise.allSettled([quitModules(), quitTorModule(), quitBackgroundModules()]),
             // or timeout after 5s
             createTimeoutPromise(5000),
         ]);

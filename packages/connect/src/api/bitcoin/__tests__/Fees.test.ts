@@ -1,6 +1,7 @@
 import coinsJSON from '@trezor/connect-common/files/coins.json';
 import coinsJSONEth from '@trezor/connect-common/files/coins-eth.json';
 import BlockchainLink from '@trezor/blockchain-link';
+
 import { parseCoinsJson, getBitcoinNetwork } from '../../../data/coinInfo';
 import { initBlockchain } from '../../../backend/BlockchainLink';
 import { FeeLevels } from '../Fees';
@@ -110,6 +111,7 @@ describe('api/bitcoin/Fees', () => {
 
     // const e2eNetworks = ['BTC', 'TEST', 'BCH', 'BTG', 'DASH', 'DGB', 'DOGE', 'LTC', 'NMC', 'VTC'];
     // e2eNetworks.forEach(network => {
+    // eslint-disable-next-line jest/no-commented-out-tests
     //     it.only(`${network} e2e smart FeeLevels`, async () => {
     //         const coinInfo = getBitcoinNetwork(network)!;
     //         if (!coinInfo) throw new Error('coinInfo is missing');

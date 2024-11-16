@@ -1,8 +1,6 @@
 import WebSocket from 'ws';
-import { createDeferred } from '@trezor/utils';
-import { createDeferredManager } from '@trezor/utils';
-import { TypedEmitter } from '@trezor/utils';
 
+import { createDeferred, createDeferredManager, TypedEmitter } from '@trezor/utils';
 import { CustomError } from '@trezor/blockchain-link-types/src/constants/errors';
 
 interface Subscription<T> {
@@ -44,6 +42,7 @@ export abstract class BaseWebsocket<T extends EventMap> extends TypedEmitter<T &
     private connectPromise?: Promise<void>;
 
     protected abstract ping(): Promise<unknown>;
+
     protected abstract createWebsocket(): WebSocket;
 
     constructor(options: Options) {
@@ -81,7 +80,7 @@ export abstract class BaseWebsocket<T extends EventMap> extends TypedEmitter<T &
                 } else {
                     this.ws.close();
                 }
-            } catch (error) {
+            } catch {
                 // empty
             }
         }
@@ -125,7 +124,7 @@ export abstract class BaseWebsocket<T extends EventMap> extends TypedEmitter<T &
                     subs.callback(data);
                 }
             }
-        } catch (error) {
+        } catch {
             // empty
         }
 
@@ -170,7 +169,7 @@ export abstract class BaseWebsocket<T extends EventMap> extends TypedEmitter<T &
                 try {
                     ws.once('error', () => {}); // hack; ws throws uncaughtably when there's no error listener
                     ws.close();
-                } catch (error) {
+                } catch {
                     // empty
                 }
             },

@@ -1,13 +1,17 @@
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { useEffect } from 'react';
+
 import styled from 'styled-components';
-import { NumberInput, Translation } from 'src/components/suite';
-import { useSendFormContext } from 'src/hooks/wallet';
+
+import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { Card, Icon, IconButton } from '@trezor/components';
 import { getInputState, isInteger } from '@suite-common/wallet-utils';
-import { useSelector, useTranslation } from 'src/hooks/suite';
 import { spacingsPx } from '@trezor/theme';
 import { selectNetworkBlockchainInfo } from '@suite-common/wallet-core';
-import { useEffect } from 'react';
+
+import { useSelector, useTranslation } from 'src/hooks/suite';
+import { useSendFormContext } from 'src/hooks/wallet';
+import { NumberInput, Translation } from 'src/components/suite';
+
 import { canLocktimeTxBeBroadcast } from './canLocktimeTxBeBroadcast';
 
 const Label = styled.div`
@@ -31,7 +35,7 @@ export const Locktime = ({ close }: LocktimeProps) => {
         watch,
     } = useSendFormContext();
 
-    const blockchain = useSelector(selectNetworkBlockchainInfo(network.symbol));
+    const blockchain = useSelector(state => selectNetworkBlockchainInfo(state, network.symbol));
 
     const { translationString } = useTranslation();
 

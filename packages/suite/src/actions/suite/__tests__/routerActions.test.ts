@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { configureStore } from 'src/support/tests/configureStore';
-
 import suiteReducer from 'src/reducers/suite/suiteReducer';
 import routerReducer from 'src/reducers/suite/routerReducer';
 import modalReducer from 'src/reducers/suite/modalReducer';
+import { AppState } from 'src/reducers/store';
+
 import * as fixtures from '../__fixtures__/routerActions';
 import * as routerActions from '../routerActions';
-import { AppState } from 'src/reducers/store';
 
 type SuiteState = ReturnType<typeof suiteReducer>;
 type RouterState = ReturnType<typeof routerReducer>;
+
 interface InitialState {
     suite?: Partial<SuiteState>;
     router?: Exclude<RouterState, 'app|url|pathname'>;
@@ -70,7 +70,7 @@ describe('Suite Actions', () => {
     });
     fixtures.onBeforePopState.forEach(f => {
         it(`onBeforePopState: ${f.description}`, () => {
-            const state = getInitialState(f.state as InitialState);
+            const state = getInitialState(f.state as unknown as InitialState);
             const store = initStore(state);
             const result = store.dispatch(routerActions.onBeforePopState());
             expect(result).toEqual(f.result);
@@ -106,10 +106,8 @@ describe('Suite Actions', () => {
 
     it(`onLocationChange with lock`, () => {
         const state = getInitialState({
-            suite: {
-                locks: [1],
-            },
-        });
+            suite: { locks: { router: 1 } },
+        } as InitialState);
         const store = initStore(state);
         store.dispatch(routerActions.onLocationChange('/'));
         expect(store.getActions().length).toEqual(0);

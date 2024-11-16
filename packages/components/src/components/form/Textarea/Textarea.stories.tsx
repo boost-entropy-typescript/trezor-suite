@@ -1,6 +1,8 @@
+import { ChangeEventHandler } from 'react';
+
 import { useArgs } from '@storybook/client-api';
 import { Meta, StoryObj } from '@storybook/react';
-import { ChangeEventHandler } from 'react';
+
 import { Textarea as TextareaComponent, TextareaProps } from './Textarea';
 
 const meta: Meta = {
@@ -26,7 +28,6 @@ export const Textarea: StoryObj<TextareaProps> = {
         rows: 5,
         maxLength: 500,
         characterCount: true,
-        hasBottomPadding: true,
     },
     argTypes: {
         isDisabled: {
@@ -35,10 +36,10 @@ export const Textarea: StoryObj<TextareaProps> = {
             },
         },
         label: {
-            control: { type: 'text' },
+            control: 'text',
         },
         placeholder: {
-            control: { type: 'text' },
+            control: 'text',
         },
         rows: {
             control: {
@@ -51,14 +52,17 @@ export const Textarea: StoryObj<TextareaProps> = {
         maxLength: {
             control: { type: 'number' },
         },
+        labelLeft: {
+            control: 'text',
+        },
         labelHoverRight: {
-            control: { type: 'text' },
+            control: 'text',
         },
         labelRight: {
-            control: { type: 'text' },
+            control: 'text',
         },
         bottomText: {
-            control: { type: 'text' },
+            control: 'text',
         },
         innerRef: {
             table: {
@@ -68,7 +72,7 @@ export const Textarea: StoryObj<TextareaProps> = {
             },
         },
         value: {
-            control: { type: 'text' },
+            control: 'text',
         },
         characterCount: {
             control: {
@@ -80,12 +84,7 @@ export const Textarea: StoryObj<TextareaProps> = {
                 },
             },
         },
-        inputState: {
-            control: {
-                type: 'radio',
-            },
-            options: [null, 'warning', 'error'],
-        },
+        inputState: { control: 'select', options: ['error', 'warning', 'primary'] },
         hasBottomPadding: {
             control: {
                 type: 'boolean',

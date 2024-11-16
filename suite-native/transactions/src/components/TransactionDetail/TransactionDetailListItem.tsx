@@ -53,7 +53,7 @@ export const TransactionDetailListItem = ({
         navigation.push(RootStackRoutes.TransactionDetail, {
             txid: transaction.txid,
             accountKey,
-            tokenTransfer,
+            tokenContract: tokenTransfer?.contract,
         });
     };
 
@@ -64,7 +64,10 @@ export const TransactionDetailListItem = ({
         >
             <Box flexDirection="row" alignItems="center" flex={1}>
                 <Box marginRight="sp16">
-                    <RoundedIcon name={tokenTransfer?.contract || transaction.symbol} />
+                    <RoundedIcon
+                        networkSymbol={transaction.symbol}
+                        contractAddress={tokenTransfer?.contract}
+                    />
                 </Box>
                 <Box style={applyStyle(CoinNameContainerStyle)}>
                     <Text>{tokenTransfer?.name ?? 'Ethereum'}</Text>

@@ -1,16 +1,19 @@
 import { forwardRef, ReactNode } from 'react';
+
 import styled from 'styled-components';
 
 import { variables } from '@trezor/components';
-import { FiatValue, FormattedCryptoAmount, Translation } from 'src/components/suite';
-import { Account } from 'src/types/wallet';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { TokenInfo } from '@trezor/connect';
-import { amountToSatoshi } from '@suite-common/wallet-utils';
-import { TransactionReviewStepIndicatorProps } from './TransactionReviewStepIndicator';
+import { amountToSmallestUnit } from '@suite-common/wallet-utils';
 import { zIndices } from '@trezor/theme';
-import { DeviceDisplay } from '../../../../DeviceDisplay/DeviceDisplay';
+
+import { Account } from 'src/types/wallet';
+import { FiatValue, FormattedCryptoAmount, Translation } from 'src/components/suite';
 import { DisplayMode } from 'src/types/suite';
+
+import { TransactionReviewStepIndicatorProps } from './TransactionReviewStepIndicator';
+import { DeviceDisplay } from '../../../../DeviceDisplay/DeviceDisplay';
 
 const TYPES_TO_BE_DISPLAYED_IN_SCREEN_BOX = ['address', 'regular_legacy', 'data', 'opreturn'];
 
@@ -171,12 +174,13 @@ export const TransactionReviewOutputElement = forwardRef<
         const network = account?.networkType;
         const cardanoFingerprint = getFingerprint(account?.tokens, token?.symbol);
         const isActive = state === 'active';
-        const hasMultipleLines = lines.length > 1;
+
+        const showMultiIndicator = lines.length > 1;
 
         return (
             <OutputWrapper ref={ref}>
-                <OutputLeft $isCentered={hasMultipleLines}>
-                    {hasMultipleLines ? (
+                <OutputLeft $isCentered={showMultiIndicator}>
+                    {showMultiIndicator ? (
                         <MultiIndicatorWrapper $linesCount={lines.length - 1}>
                             {indicator}
                         </MultiIndicatorWrapper>
@@ -245,7 +249,7 @@ export const TransactionReviewOutputElement = forwardRef<
                                         <Translation id="TR_CARDANO_TREZOR_AMOUNT_HEADLINE" />
                                     </OutputHeadline>
                                     <OutputValue>
-                                        {amountToSatoshi(line.value, token.decimals)}
+                                        {amountToSmallestUnit(line.value, token.decimals)}
                                     </OutputValue>
                                 </CardanoTrezorAmountWrapper>
                             )}

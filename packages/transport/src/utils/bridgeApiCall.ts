@@ -1,10 +1,9 @@
 import fetch from 'cross-fetch';
 
-import { success, error, unknownError } from './result';
-
-import * as ERRORS from '../errors';
-
 import { PROTOCOL_MALFORMED } from '@trezor/protocol/src/errors';
+
+import { success, error, unknownError } from './result';
+import * as ERRORS from '../errors';
 import { applyBridgeApiCallHeaders } from './applyBridgeApiCallHeaders';
 
 export type HttpRequestOptions = {
@@ -39,7 +38,7 @@ function wrapBody(body: unknown) {
 function parseResult(text: string): Record<string, unknown> | string {
     try {
         return JSON.parse(text);
-    } catch (e) {
+    } catch {
         return text;
     }
 }

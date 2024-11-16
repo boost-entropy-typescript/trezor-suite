@@ -1,6 +1,5 @@
 import type { Descriptor } from '../types';
 import { SessionsBackground } from './background';
-
 import { HandleMessageParams, HandleMessageResponse, SessionsBackgroundInterface } from './types';
 
 /**
@@ -56,7 +55,7 @@ export class BrowserSessionsBackground implements SessionsBackgroundInterface {
                     | { type: 'descriptors'; payload: Descriptor[] }
                 >,
             ) => {
-                if ('type' in e?.data) {
+                if (e && 'type' in e.data) {
                     if (e.data.type === event) {
                         listener(e.data.payload);
                     }

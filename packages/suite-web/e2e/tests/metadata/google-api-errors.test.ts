@@ -7,7 +7,7 @@ const provider = 'google';
 
 describe('Google api errors', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu', { mnemonic: 'mnemonic_all' });
         cy.task('startBridge');
@@ -67,5 +67,3 @@ describe('Google api errors', () => {
     // todo: add more possible errors
     // https://developers.google.com/drive/api/v3/handle-errors
 });
-
-export {};

@@ -1,8 +1,10 @@
-import { Translation } from 'src/components/suite/Translation';
-import { Card, CollapsibleBox, Column, H3, List } from '@trezor/components';
+import { CollapsibleBox, Column, H3, List } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-import { EstimatedGains } from './EstimatedGains';
+
+import { Translation } from 'src/components/suite/Translation';
 import { StakingInfo } from 'src/components/suite/StakingProcess/StakingInfo';
+
+import { EstimatedGains } from './EstimatedGains';
 
 export const StakingInfoCards = () => {
     const cards = [
@@ -19,21 +21,18 @@ export const StakingInfoCards = () => {
     ];
 
     return (
-        <Column alignItems="stretch" gap={spacings.lg} height="fit-content">
+        <Column alignItems="stretch" gap={spacings.lg} margin={{ bottom: spacings.lg }}>
             {cards.map((card, index) => (
-                <Card key={index} paddingType="small">
-                    <CollapsibleBox
-                        heading={<H3 typographyStyle="highlight">{card.heading}</H3>}
-                        fillType="none"
-                        paddingType="none"
-                        hasDivider={false}
-                        defaultIsOpen={card.defaultIsOpen}
-                    >
-                        <List isOrdered bulletGap={spacings.sm} gap={spacings.md}>
-                            {card.content}
-                        </List>
-                    </CollapsibleBox>
-                </Card>
+                <CollapsibleBox
+                    heading={<H3 typographyStyle="highlight">{card.heading}</H3>}
+                    key={index}
+                    hasDivider={false}
+                    defaultIsOpen={card.defaultIsOpen}
+                >
+                    <List isOrdered bulletGap={spacings.sm} gap={spacings.md}>
+                        {card.content}
+                    </List>
+                </CollapsibleBox>
             ))}
         </Column>
     );

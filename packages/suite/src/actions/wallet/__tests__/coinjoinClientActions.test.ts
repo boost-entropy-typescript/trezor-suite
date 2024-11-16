@@ -36,10 +36,8 @@ const messageSystemReducer = prepareMessageSystemReducer(extraDependencies);
 const rootReducer = combineReducers({
     suite: createReducer(
         {
-            locks: [],
-            settings: {
-                debug: {},
-            },
+            locks: {},
+            settings: { debug: {} },
         },
         () => ({}),
     ),
@@ -234,6 +232,7 @@ describe('coinjoinClientActions', () => {
         spy.mockClear();
 
         // for coverage, init same instance multiple times without waiting
+        // eslint-disable-next-line jest/valid-expect-in-promise
         store.dispatch(initCoinjoinService('test')).then(cli3 => {
             expect(cli3?.client.settings.network).toEqual('test');
         });
@@ -400,7 +399,11 @@ describe('coinjoinClientActions', () => {
     it('stopCoinjoinSession with error from Trezor', async () => {
         const store = initStore({
             accounts: [
-                { key: 'account-A', symbol: 'btc', deviceState: '1stTestnetAddress@device_id:0' },
+                {
+                    key: 'account-A',
+                    symbol: 'btc',
+                    deviceState: '1stTestnetAddress@device_id:0',
+                },
             ],
         } as any);
 
@@ -418,7 +421,10 @@ describe('coinjoinClientActions', () => {
     it('stopCoinjoinSession but not cancel authorization', async () => {
         const store = initStore({
             device: {
-                devices: [fixtures.DEVICE, { ...fixtures.DEVICE, state: 'device-state-2' }],
+                devices: [
+                    fixtures.DEVICE,
+                    { ...fixtures.DEVICE, state: { staticSessionId: 'device-state-2' } },
+                ],
             },
             accounts: [
                 {

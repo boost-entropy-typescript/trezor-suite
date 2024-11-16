@@ -1,5 +1,10 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/EthereumSignTransaction.js
 
+import { FeeMarketEIP1559TxData, LegacyTxData } from '@ethereumjs/tx';
+
+import { MessagesSchema } from '@trezor/protobuf';
+import { Assert } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getSlip44ByPath, validatePath } from '../../../utils/pathUtils';
@@ -17,8 +22,6 @@ import {
     EthereumNetworkInfo,
     EthereumSignTransaction as EthereumSignTransactionSchema,
 } from '../../../types';
-import { MessagesSchema } from '@trezor/protobuf';
-import { Assert } from '@trezor/schema-utils';
 
 type Params = {
     path: number[];
@@ -52,6 +55,7 @@ export default class EthereumSignTransaction extends AbstractMethod<
 > {
     init() {
         this.requiredPermissions = ['read', 'write'];
+        this.requiredDeviceCapabilities = ['Capability_Ethereum'];
 
         const { payload } = this;
         // validate incoming parameters
@@ -118,46 +122,49 @@ export default class EthereumSignTransaction extends AbstractMethod<
     async run() {
         const { type, tx, definitions, chunkify } = this.params;
 
-        const signature =
-            type === 'eip1559'
-                ? await helper.ethereumSignTxEIP1559(
-                      this.device.getCommands().typedCall.bind(this.device.getCommands()),
-                      this.params.path,
-                      tx.to,
-                      tx.value,
-                      tx.gasLimit,
-                      tx.maxFeePerGas,
-                      tx.maxPriorityFeePerGas,
-                      tx.nonce,
-                      tx.chainId,
-                      chunkify,
-                      tx.data,
-                      tx.accessList,
-                      definitions,
-                  )
-                : await helper.ethereumSignTx(
-                      this.device.getCommands().typedCall.bind(this.device.getCommands()),
-                      this.params.path,
-                      tx.to,
-                      tx.value,
-                      tx.gasLimit,
-                      tx.gasPrice,
-                      tx.nonce,
-                      tx.chainId,
-                      chunkify,
-                      tx.data,
-                      tx.txType,
-                      definitions,
-                  );
+        const isLegacy = type === 'legacy';
 
-        const serializedTx = helper.serializeEthereumTx(
-            {
-                ...tx,
-                ...signature,
-                type: type === 'legacy' ? 0 : 2,
-            },
-            tx.chainId,
-        );
+        const signature = isLegacy
+            ? await helper.ethereumSignTx(
+                  this.device.getCommands().typedCall.bind(this.device.getCommands()),
+                  this.params.path,
+                  tx.to,
+                  tx.value,
+                  tx.gasLimit,
+                  tx.gasPrice,
+                  tx.nonce,
+                  tx.chainId,
+                  chunkify,
+                  tx.data,
+                  tx.txType,
+                  definitions,
+              )
+            : await helper.ethereumSignTxEIP1559(
+                  this.device.getCommands().typedCall.bind(this.device.getCommands()),
+                  this.params.path,
+                  tx.to,
+                  tx.value,
+                  tx.gasLimit,
+                  tx.maxFeePerGas,
+                  tx.maxPriorityFeePerGas,
+                  tx.nonce,
+                  tx.chainId,
+                  chunkify,
+                  tx.data,
+                  tx.accessList,
+                  definitions,
+              );
+
+        const txData = {
+            ...tx,
+            ...signature,
+            type: isLegacy ? 0 : 2, // 0 for legacy, 2 for EIP-1559
+            gasPrice: isLegacy ? tx.gasPrice : null,
+            maxFeePerGas: isLegacy ? tx.maxFeePerGas : tx.maxPriorityFeePerGas,
+            maxPriorityFeePerGas: !isLegacy ? tx.maxPriorityFeePerGas : undefined,
+        } as LegacyTxData | FeeMarketEIP1559TxData;
+
+        const serializedTx = helper.serializeEthereumTx(txData, tx.chainId);
 
         return { ...signature, serializedTx };
     }

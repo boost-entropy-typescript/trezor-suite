@@ -12,10 +12,8 @@ class AccountsPage {
     }
 
     applyCoinFilter(coin: NetworkSymbol) {
-        cy.getTestElement(`@account-menu/filter/${coin}`)
-            .click()
-            .invoke('attr', 'data-test-activated')
-            .should('eq', 'true');
+        cy.getTestElement(`@account-menu/filter/${coin}`).as('account').click();
+        cy.get('@account').invoke('attr', 'data-test-activated').should('eq', 'true');
     }
 
     openAddAccountsModal() {
@@ -52,13 +50,13 @@ class AccountsPage {
     }
 
     accountsPaginationCheck() {
+        cy.getTestElement('@wallet/accounts/pagination/5').click();
         cy.getTestElement('@wallet/accounts/pagination/5')
-            .click()
             .invoke('attr', 'data-test-activated')
             .should('eq', 'true');
 
+        cy.getTestElement('@wallet/accounts/pagination/3').click();
         cy.getTestElement('@wallet/accounts/pagination/3')
-            .click()
             .invoke('attr', 'data-test-activated')
             .should('eq', 'true');
     }
@@ -92,7 +90,7 @@ class AccountsPage {
 
     exportDesiredTransactionType(typeOfExport: string) {
         cy.getTestElement('@wallet/accounts/export-transactions/dropdown').click({
-            scrollBehavior: false,
+            scrollBehavior: 'center',
         });
         cy.getTestElement(`@wallet/accounts/export-transactions/${typeOfExport}`)
             .should('be.visible')

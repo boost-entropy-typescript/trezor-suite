@@ -9,11 +9,22 @@ import { validateIpcMessage } from '@trezor/ipc-proxy';
 
 import { app, ipcMain } from '../typed-electron';
 
-import type { Module } from './index';
+import type { ModuleInit } from './index';
 
 export const SERVICE_NAME = 'auto-start';
 
 // Linux autostart desktop file
+const getLinuxExecutable = () => {
+    if (process.env.container) {
+        return 'flatpak run io.trezor.suite';
+    }
+    if (process.env.APPIMAGE) {
+        return `"${process.env.APPIMAGE}"`;
+    }
+
+    return `"${process.execPath}"`;
+};
+
 const LINUX_AUTOSTART_DIR = '.config/autostart/';
 const LINUX_AUTOSTART_FILE = 'Trezor-Suite.desktop';
 const LINUX_DESKTOP = `[Desktop Entry]
@@ -21,10 +32,23 @@ Type=Application
 Version=1.0
 Name=Trezor Suite
 Comment=Trezor Suite startup script
-Exec="${process.env.APPIMAGE || process.execPath}" --bridge-daemon
+Exec=${getLinuxExecutable()} --bridge-daemon
 StartupNotify=false
 Terminal=false
 `;
+
+export const isAutoStartEnabled = () => {
+    if (process.platform === 'linux') {
+        return fs.existsSync(path.join(os.homedir(), LINUX_AUTOSTART_DIR, LINUX_AUTOSTART_FILE));
+    } else if (process.platform === 'win32') {
+        return (
+            app.getLoginItemSettings().openAtLogin ||
+            app.getLoginItemSettings().executableWillLaunchAtLogin
+        );
+    } else {
+        return app.getLoginItemSettings().openAtLogin;
+    }
+};
 
 const linuxAutoStart = (enabled: boolean) => {
     if (enabled) {
@@ -35,19 +59,13 @@ const linuxAutoStart = (enabled: boolean) => {
         );
         fs.chmodSync(path.join(os.homedir(), LINUX_AUTOSTART_DIR, LINUX_AUTOSTART_FILE), 0o755);
     } else {
-        fs.unlinkSync(path.join(os.homedir(), LINUX_AUTOSTART_DIR, LINUX_AUTOSTART_FILE));
+        if (isAutoStartEnabled()) {
+            fs.unlinkSync(path.join(os.homedir(), LINUX_AUTOSTART_DIR, LINUX_AUTOSTART_FILE));
+        }
     }
 };
 
-const isAutoStartEnabled = () => {
-    if (process.platform === 'linux') {
-        return fs.existsSync(path.join(os.homedir(), LINUX_AUTOSTART_DIR, LINUX_AUTOSTART_FILE));
-    } else {
-        return app.getLoginItemSettings().openAtLogin;
-    }
-};
-
-export const init: Module = () => {
+export const init: ModuleInit = () => {
     const { logger } = global;
 
     ipcMain.on('app/auto-start', (_, enabled: boolean) => {

@@ -9,7 +9,9 @@ import BN from 'bn.js';
 import pushdata from 'pushdata-bitcoin';
 import * as varuint from 'varuint-bitcoin';
 import { Int64LE } from 'int64-buffer';
+
 import { bufferUtils } from '@trezor/utils';
+
 import * as types from './types';
 
 const OUT_OF_RANGE_ERROR = 'value out of range';
@@ -36,7 +38,7 @@ export function readUInt64LEasString(buffer: Buffer, offset: number) {
         const result = readUInt64LE(buffer, offset);
 
         return result.toString();
-    } catch (error) {
+    } catch {
         const aUint = buffer.readUInt32LE(offset);
         const bUint = buffer.readUInt32LE(offset + 4);
         const m = new BN(0x100000000);

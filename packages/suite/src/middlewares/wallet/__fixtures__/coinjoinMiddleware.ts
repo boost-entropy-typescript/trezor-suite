@@ -2,15 +2,14 @@ import { accountsActions } from '@suite-common/wallet-core';
 import { SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { AnonymitySet } from '@trezor/blockchain-link';
 import { DEVICE, StaticSessionId } from '@trezor/connect';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 
 import { SuiteState } from 'src/reducers/suite/suiteReducer';
-import { AcquiredDevice } from 'src/types/suite';
 import { ROUTER, SUITE } from 'src/actions/suite/constants';
 import { COINJOIN } from 'src/actions/wallet/constants';
 import { CoinjoinState } from 'src/reducers/wallet/coinjoinReducer';
 import { CoinjoinAccount, CoinjoinSession } from 'src/types/wallet/coinjoin';
 import { Account } from 'src/types/wallet';
-import { NetworkSymbol } from '@suite-common/wallet-config';
 import { RouterState } from 'src/reducers/suite/routerReducer';
 
 const DEVICE_A = {
@@ -18,10 +17,14 @@ const DEVICE_A = {
     connected: true,
     id: 'device-A-id',
     remember: true,
-    state: '1stTestnet@device_A_id:0' as StaticSessionId,
+    state: { staticSessionId: '1stTestnet@device_A_id:0' },
     type: 'acquired',
-} as AcquiredDevice;
-const DEVICE_B = { ...DEVICE_A, id: 'device-B-id', state: '1stTestnet@device_B_id:0' };
+};
+const DEVICE_B = {
+    ...DEVICE_A,
+    id: 'device-B-id',
+    state: { staticSessionId: '1stTestnet@device_B_id:0' },
+};
 
 const ACCOUNT_A = {
     accountType: 'coinjoin',

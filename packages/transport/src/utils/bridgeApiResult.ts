@@ -1,7 +1,6 @@
 // input checks for high-level transports
 
 import type { Descriptor, Session } from '../types';
-
 import { success, error } from './result';
 import { validateProtocolMessage } from './bridgeProtocolMessage';
 import * as ERRORS from '../errors';
@@ -58,6 +57,7 @@ export function devices(res: UnknownPayload) {
             (o: any): Descriptor => ({
                 path: o.path,
                 session: o.session,
+                sessionOwner: o.sessionOwner,
                 product: o.product,
                 type: o.type,
                 vendor: o.vendor,
@@ -83,7 +83,7 @@ export function acquire(res: UnknownPayload) {
 export function call(res: UnknownPayload) {
     try {
         return success(validateProtocolMessage(res, true));
-    } catch (e) {
+    } catch {
         return error({ error: ERRORS.WRONG_RESULT_TYPE });
     }
 }
@@ -91,7 +91,7 @@ export function call(res: UnknownPayload) {
 export function post(res: UnknownPayload) {
     try {
         return success(validateProtocolMessage(res, false));
-    } catch (e) {
+    } catch {
         return error({ error: ERRORS.WRONG_RESULT_TYPE });
     }
 }

@@ -1,14 +1,3 @@
-import type { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
-import type { ExchangeInfo } from 'src/actions/wallet/coinmarketExchangeActions';
-import type { SellInfo } from 'src/actions/wallet/coinmarketSellActions';
-import type {
-    Option,
-    Trade,
-    TradeBuy,
-    TradeExchange,
-    TradeSell,
-    TradeType,
-} from 'src/types/wallet/coinmarketCommonTypes';
 import {
     BuyCryptoPaymentMethod,
     BuyProviderInfo,
@@ -27,11 +16,10 @@ import {
     WatchExchangeTradeResponse,
     WatchSellTradeResponse,
 } from 'invity-api';
-import { Account, SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { AnyAction, Dispatch } from 'redux';
-import { State } from 'src/reducers/wallet/coinmarketReducer';
+
+import { Account, SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { AccountType } from '@suite-common/wallet-config';
-import { ExtendedMessageDescriptor, Route, TrezorDevice } from 'src/types/suite';
 import { Timer } from '@trezor/react-utils';
 import { AccountsState } from '@suite-common/wallet-core';
 import { TokenDefinitionsState } from '@suite-common/token-definitions';
@@ -41,7 +29,22 @@ import {
     SelectAssetOptionGroupProps,
     SelectAssetOptionProps,
 } from '@trezor/product-components/src/components/SelectAssetModal/SelectAssetModal';
+import { StaticSessionId } from '@trezor/connect';
+
 import { GetDefaultAccountLabelParams } from 'src/hooks/suite/useDefaultAccountLabel';
+import { State } from 'src/reducers/wallet/coinmarketReducer';
+import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
+import type {
+    Option,
+    Trade,
+    TradeBuy,
+    TradeExchange,
+    TradeSell,
+    TradeType,
+} from 'src/types/wallet/coinmarketCommonTypes';
+import type { SellInfo } from 'src/actions/wallet/coinmarketSellActions';
+import type { ExchangeInfo } from 'src/actions/wallet/coinmarketExchangeActions';
+import type { BuyInfo } from 'src/actions/wallet/coinmarketBuyActions';
 
 export type UseCoinmarketProps = { selectedAccount: SelectedAccountLoaded };
 export type UseCoinmarketCommonProps = UseCoinmarketProps & {
@@ -185,7 +188,7 @@ export type CoinmarketCryptoSelectOptionProps = SelectAssetOptionProps;
 
 export interface CoinmarketGetSortedAccountsProps {
     accounts: AccountsState;
-    deviceState: string | undefined;
+    deviceState: StaticSessionId | undefined;
 }
 
 export interface CoinmarketBuildAccountOptionsProps extends CoinmarketGetSortedAccountsProps {
@@ -261,8 +264,10 @@ export interface CoinmarketGetCryptoQuoteAmountProps {
     receiveCurrency: CryptoId | undefined;
 }
 
+export type CoinmarketPaymentMethodType = BuyCryptoPaymentMethod | SellCryptoPaymentMethod;
+
 export interface CoinmarketGetPaymentMethodProps {
-    paymentMethod?: BuyCryptoPaymentMethod | SellCryptoPaymentMethod;
+    paymentMethod?: CoinmarketPaymentMethodType;
     paymentMethodName?: string;
 }
 
@@ -273,17 +278,4 @@ export interface CoinmarketCryptoAmountProps {
     receiveAmount: string | number | undefined;
     receiveCurrency: CryptoId | undefined;
     className?: string;
-}
-
-export type CoinmarketContainerBackRouteType =
-    | Extract<Route['name'], `wallet-coinmarket-${string}`>
-    | 'wallet-index'
-    | 'suite-index';
-
-export interface CoinmarketContainerCommonProps {
-    title?: Extract<
-        ExtendedMessageDescriptor['id'],
-        'TR_COINMARKET_BUY_AND_SELL' | 'TR_COINMARKET_SWAP' | 'TR_COINMARKET_LAST_TRANSACTIONS'
-    >;
-    backRoute?: CoinmarketContainerBackRouteType;
 }

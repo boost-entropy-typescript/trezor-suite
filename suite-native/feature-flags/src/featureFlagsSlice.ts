@@ -5,11 +5,10 @@ import { isDebugEnv, isDetoxTestBuild, isDevelopOrDebugEnv } from '@suite-native
 
 export const FeatureFlag = {
     IsDeviceConnectEnabled: 'isDeviceConnectEnabled',
-    IsBitcoinLikeSendEnabled: 'isBitcoinLikeSendEnabled',
-    IsEthereumSendEnabled: 'isEthereumSendEnabled',
+    IsRippleSendEnabled: 'isRippleSendEnabled',
+    IsCardanoSendEnabled: 'isCardanoSendEnabled',
+    IsSolanaSendEnabled: 'isSolanaSendEnabled',
     IsRegtestEnabled: 'isRegtestEnabled',
-    IsPolygonEnabled: 'IsPolygonEnabled',
-    IsBscEnabled: 'IsBscEnabled',
     IsSolanaEnabled: 'IsSolanaEnabled',
     IsConnectPopupEnabled: 'IsConnectPopupEnabled',
 } as const;
@@ -23,22 +22,20 @@ export type FeatureFlagsRootState = {
 
 export const featureFlagsInitialState: FeatureFlagsState = {
     [FeatureFlag.IsDeviceConnectEnabled]: isAndroid() || isDebugEnv(),
-    [FeatureFlag.IsBitcoinLikeSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
-    [FeatureFlag.IsEthereumSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
+    [FeatureFlag.IsRippleSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
+    [FeatureFlag.IsCardanoSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
+    [FeatureFlag.IsSolanaSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
     [FeatureFlag.IsRegtestEnabled]: isDebugEnv() || isDetoxTestBuild(),
-    [FeatureFlag.IsPolygonEnabled]: false,
-    [FeatureFlag.IsBscEnabled]: false,
     [FeatureFlag.IsSolanaEnabled]: false,
     [FeatureFlag.IsConnectPopupEnabled]: isDevelopOrDebugEnv(),
 };
 
 export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
     FeatureFlag.IsDeviceConnectEnabled,
-    FeatureFlag.IsBitcoinLikeSendEnabled,
-    FeatureFlag.IsEthereumSendEnabled,
+    FeatureFlag.IsRippleSendEnabled,
+    FeatureFlag.IsCardanoSendEnabled,
+    FeatureFlag.IsSolanaSendEnabled,
     FeatureFlag.IsRegtestEnabled,
-    FeatureFlag.IsPolygonEnabled,
-    FeatureFlag.IsBscEnabled,
     FeatureFlag.IsSolanaEnabled,
     FeatureFlag.IsConnectPopupEnabled,
 ];
@@ -52,6 +49,10 @@ export const featureFlagsSlice = createSlice({
         },
     },
 });
+
+export const createSelectIsFeatureFlagEnabled =
+    (featureFlagKey: FeatureFlag) => (state: FeatureFlagsRootState) =>
+        state.featureFlags[featureFlagKey];
 
 export const selectIsFeatureFlagEnabled = (state: FeatureFlagsRootState, key: FeatureFlag) =>
     state.featureFlags[key];

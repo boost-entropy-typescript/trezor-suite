@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
+import { ensureDirectoryExists } from '@trezor/node-utils';
+
 import { fixtures } from './__fixtures__/methods';
 import { buildOverview } from '../support/buildOverview';
-import { ensureDirectoryExists } from '@trezor/node-utils';
 import { getContexts, log, formatUrl, openPopup, setConnectSettings } from '../support/helpers';
 
 const url = process.env.URL || 'http://localhost:8088/';
@@ -62,6 +63,7 @@ filteredFixtures.forEach(f => {
         // - fixture require different device than prev fixture, or
         // - fixture is retried
         // FIXME: always reset for now, due to flaky tests with bridge bug
+        // eslint-disable-next-line no-constant-binary-expression,no-constant-condition
         if (true || JSON.stringify(device) !== JSON.stringify(f.device) || retry) {
             device = f.device;
             await TrezorUserEnvLink.stopBridge();

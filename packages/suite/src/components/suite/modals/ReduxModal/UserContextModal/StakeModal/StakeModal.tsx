@@ -1,12 +1,14 @@
 import { Grid, NewModal, useMediaQuery, variables } from '@trezor/components';
 import { SelectedAccountLoaded } from '@suite-common/wallet-types';
+import { spacings } from '@trezor/theme';
+
 import { Translation } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
 import { StakeEthFormContext, useStakeEthForm } from 'src/hooks/wallet/useStakeEthForm';
+
 import { StakeEthForm } from './StakeEthForm/StakeEthForm';
 import { StakeButton } from './StakeEthForm/StakeButton';
 import { StakingInfoCards } from './StakingInfoCards/StakingInfoCards';
-import { spacings } from '@trezor/theme';
 
 interface StakeModalModalProps {
     onCancel?: () => void;
@@ -26,12 +28,12 @@ export const StakeModal = ({ onCancel }: StakeModalModalProps) => {
     return (
         <StakeEthFormContext.Provider value={stakeEthContextValues}>
             <NewModal
-                size="large"
+                size="huge"
                 heading={<Translation id="TR_STAKE_ETH" />}
                 onCancel={onCancel}
                 bottomContent={<StakeButton />}
             >
-                <Grid columns={isBelowTablet ? 1 : 2} gap={spacings.lg}>
+                <Grid columns={isBelowTablet ? 1 : 2} gap={spacings.xxl}>
                     <StakeEthForm />
                     <StakingInfoCards />
                 </Grid>

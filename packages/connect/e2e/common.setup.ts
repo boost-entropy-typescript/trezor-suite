@@ -1,6 +1,4 @@
-import TrezorConnect from '../src';
 import { versionUtils } from '@trezor/utils';
-import { UI } from '../src/events';
 import {
     TrezorUserEnvLink,
     type TrezorUserEnvLinkClass,
@@ -8,6 +6,9 @@ import {
     MNEMONICS,
 } from '@trezor/trezor-user-env-link';
 import { ApplySettings } from '@trezor/protobuf/src/messages-schema';
+
+import { UI } from '../src/events';
+import TrezorConnect from '../src';
 
 const emulatorStartOpts =
     (process.env.emulatorStartOpts as StartEmu) || global.emulatorStartOpts || {};
@@ -36,6 +37,7 @@ type Options = {
     wiped?: boolean;
 };
 export const setup = async (
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     TrezorUserEnvLink: TrezorUserEnvLinkClass,
     options?: Partial<Options>,
 ) => {
@@ -85,6 +87,7 @@ export const setup = async (
 };
 
 export const initTrezorConnect = async (
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     TrezorUserEnvLink: TrezorUserEnvLinkClass,
     options?: Partial<Parameters<typeof TrezorConnect.init>[0]>,
 ) => {
@@ -126,6 +129,7 @@ export const initTrezorConnect = async (
         debug: false,
         popup: false,
         pendingTransportEvent: true,
+        transportReconnect: false,
         connectSrc: process.env.TREZOR_CONNECT_SRC, // custom source for karma tests
         ...options,
     });

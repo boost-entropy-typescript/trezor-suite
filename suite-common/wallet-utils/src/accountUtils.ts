@@ -8,6 +8,8 @@ import {
     PrecomposedTransactionFinalCardano,
     TokenTransfer,
     TokenInfo,
+    DeviceState,
+    StaticSessionId,
 } from '@trezor/connect';
 import { arrayDistinct, bufferUtils } from '@trezor/utils';
 import {
@@ -40,10 +42,8 @@ import { formatTokenSymbol } from '@trezor/blockchain-link-utils';
 
 import { toFiatCurrency } from './fiatConverterUtils';
 import { getFiatRateKey } from './fiatRatesUtils';
-import { getAccountTotalStakingBalance } from './stakingUtils';
+import { getAccountTotalStakingBalance } from './ethereumStakingUtils';
 import { isRbfTransaction } from './transactionUtils';
-
-export const isEthereumAccountSymbol = (symbol: NetworkSymbol) => symbol === 'eth';
 
 export const isUtxoBased = (account: Account) =>
     account.networkType === 'bitcoin' || account.networkType === 'cardano';
@@ -304,9 +304,9 @@ export const getAccountTypeDesc = ({ path, accountType, networkType }: getAccoun
         case 'solana':
             return 'TR_ACCOUNT_TYPE_NORMAL_SOLANA_DESC';
         case 'cardano':
-            return 'TR_ACCOUNT_TYPE_NORMAL_CARDANO_DESC';
+            return 'TR_ACCOUNT_TYPE_CARDANO_DESC';
         case 'ripple':
-            return 'TR_ACCOUNT_TYPE_NORMAL_XRP_DESC';
+            return 'TR_ACCOUNT_TYPE_XRP_DESC';
     }
 
     const accountTypePrefix = getAccountTypePrefix(path);
@@ -360,7 +360,7 @@ export const formatAmount = (amount: BigNumberValue, decimals: number) => {
     }
 };
 
-export const amountToSatoshi = (amount: BigNumberValue, decimals: number) => {
+export const amountToSmallestUnit = (amount: BigNumberValue, decimals: number) => {
     try {
         const bAmount = new BigNumber(amount);
         if (bAmount.isNaN()) {
@@ -388,14 +388,14 @@ export const satoshiAmountToBtc = (amount: BigNumberValue) => {
     }
 };
 
-export const networkAmountToSatoshi = (amount: string | null, symbol: NetworkSymbol) => {
+export const networkAmountToSmallestUnit = (amount: string | null, symbol: NetworkSymbol) => {
     if (!amount) return '0';
 
     const decimals = getAccountDecimals(symbol);
 
     if (!decimals) return amount;
 
-    return amountToSatoshi(amount, decimals);
+    return amountToSmallestUnit(amount, decimals);
 };
 
 export const formatNetworkAmount = (
@@ -485,12 +485,20 @@ export const findAccountsByAddress = (
         });
 
 export const findAccountDevice = (account: Account, devices: TrezorDevice[]) =>
-    devices.find(d => d.state === account.deviceState);
+    devices.find(d => d.state?.staticSessionId === account.deviceState);
 
-export const getAllAccounts = (deviceState: string | typeof undefined, accounts: Account[]) => {
+export const getAllAccounts = (
+    deviceState: DeviceState | StaticSessionId | typeof undefined,
+    accounts: Account[],
+) => {
     if (!deviceState) return [];
 
-    return accounts.filter(a => a.deviceState === deviceState && a.visible);
+    return accounts.filter(
+        a =>
+            (typeof deviceState === 'string'
+                ? a.deviceState === deviceState
+                : a.deviceState === deviceState.staticSessionId) && a.visible,
+    );
 };
 
 /**
@@ -631,7 +639,7 @@ export const enhanceHistory = ({
     addrTxCount,
 });
 
-export const getTokensFiatBalance = (
+export const getAccountTokensFiatBalance = (
     account: Account,
     localCurrency: string,
     rates?: RatesByKey,
@@ -657,6 +665,27 @@ export const getTokensFiatBalance = (
     });
 
     return totalBalance.toFixed();
+};
+
+export const getAssetTokensFiatBalance = (
+    accounts: Account[],
+    localCurrency: FiatCurrencyCode,
+    rates?: RatesByKey,
+) => {
+    const totalBalance = accounts
+        .reduce((total, account) => {
+            const tokensBalance = getAccountTokensFiatBalance(
+                account,
+                localCurrency,
+                rates,
+                account.tokens,
+            );
+
+            return total.plus(tokensBalance ?? 0);
+        }, new BigNumber(0))
+        .toFixed();
+
+    return totalBalance;
 };
 
 export const getStakingFiatBalance = (account: Account, rate: number | undefined) => {
@@ -691,7 +720,12 @@ export const getAccountFiatBalance = ({
 
     // sum fiat value of all tokens
     if (shouldIncludeTokens) {
-        const tokensBalance = getTokensFiatBalance(account, localCurrency, rates, account.tokens);
+        const tokensBalance = getAccountTokensFiatBalance(
+            account,
+            localCurrency,
+            rates,
+            account.tokens,
+        );
         totalBalance = totalBalance.plus(tokensBalance ?? 0);
     }
 

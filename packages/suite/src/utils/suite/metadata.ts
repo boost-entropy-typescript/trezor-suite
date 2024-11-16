@@ -1,8 +1,10 @@
 import * as crypto from 'crypto';
 import base58check from 'bs58check';
-import { FetchIntervalTrackingId } from 'src/actions/suite/metadataProviderActions';
+
 import { DataType, MetadataProvider } from '@suite-common/metadata-types';
-import { TrezorDevice } from '@suite-common/suite-types';
+import { StaticSessionId } from '@trezor/connect';
+
+import { FetchIntervalTrackingId } from 'src/actions/suite/metadataProviderActions';
 
 // note we only need base58 conversion fn from base58check, other functions from there might
 // be supplemented from crypto module
@@ -152,7 +154,7 @@ export const urlSearchParams = (search: string) => {
 export const getFetchTrackingId = (
     dataType: DataType,
     clientId: MetadataProvider['clientId'],
-    deviceState: Required<TrezorDevice>['state'],
+    deviceState: StaticSessionId,
 ): FetchIntervalTrackingId => {
     return `${dataType}-${clientId}-${deviceState}`;
 };

@@ -1,14 +1,16 @@
 import styled from 'styled-components';
 import { AnimatePresence, MotionProps, motion } from 'framer-motion';
-import { hasBitcoinOnlyFirmware, isBitcoinOnlyDevice } from '@trezor/device-utils';
+
 import {
-    selectDeviceSupportedNetworks,
     startDiscoveryThunk,
     selectDeviceModel,
+    selectDeviceSupportedNetworks,
 } from '@suite-common/wallet-core';
 import { Button, motionEasing, Tooltip } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/connect';
-import { Network } from '@suite-common/wallet-config';
+import { BITCOIN_ONLY_NETWORKS } from '@suite-common/suite-constants';
+import { hasBitcoinOnlyFirmware, isBitcoinOnlyDevice } from '@trezor/device-utils';
+import { spacingsPx } from '@trezor/theme';
 
 import {
     DeviceBanner,
@@ -17,7 +19,7 @@ import {
     SettingsSectionItem,
 } from 'src/components/settings';
 import { CoinGroup, TooltipSymbol, Translation } from 'src/components/suite';
-import { useEnabledNetworks } from 'src/hooks/settings/useEnabledNetworks';
+import { useNetworkSupport } from 'src/hooks/settings/useNetworkSupport';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import {
     useDevice,
@@ -26,9 +28,9 @@ import {
     useSelector,
     useDiscovery,
 } from 'src/hooks/suite';
+import { selectEnabledNetworks } from 'src/reducers/wallet/settingsReducer';
 
 import { FirmwareTypeSuggestion } from './FirmwareTypeSuggestion';
-import { spacingsPx } from '@trezor/theme';
 import { selectSuiteFlags } from '../../../reducers/suite/suiteReducer';
 
 const DiscoveryButtonWrapper = styled.div`
@@ -88,8 +90,9 @@ const getDiscoveryButtonAnimationConfig = (isConfirmed: boolean): MotionProps =>
 
 export const SettingsCoins = () => {
     const { firmwareTypeBannerClosed } = useSelector(selectSuiteFlags);
+    const enabledNetworks = useSelector(selectEnabledNetworks);
     const isDiscoveryButtonVisible = useRediscoveryNeeded();
-    const { mainnets, testnets, enabledNetworks, setEnabled } = useEnabledNetworks();
+    const { supportedMainnets, unsupportedMainnets, supportedTestnets } = useNetworkSupport();
     const deviceSupportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
     const deviceModel = useSelector(selectDeviceModel);
     const { device, isLocked } = useDevice();
@@ -101,21 +104,12 @@ export const SettingsCoins = () => {
         deviceSupportedNetworkSymbols.includes(enabledNetwork),
     );
 
-    const getNetworks = (networks: Network[], getUnsupported = false) =>
-        networks.filter(
-            ({ symbol }) => getUnsupported !== deviceSupportedNetworkSymbols.includes(symbol),
-        );
-
-    const supportedNetworks = getNetworks(mainnets);
-    const unsupportedNetworks = getNetworks(mainnets, true);
-    const supportedTestnetNetworks = getNetworks(testnets);
-
     const bitcoinOnlyFirmware = hasBitcoinOnlyFirmware(device);
-    const bitcoinNetworks = ['btc', 'test', 'regtest'];
+    const bitcoinOnlyNetworks = BITCOIN_ONLY_NETWORKS;
 
     const onlyBitcoinNetworksEnabled =
         !!supportedEnabledNetworks.length &&
-        supportedEnabledNetworks.every(coin => bitcoinNetworks.includes(coin));
+        supportedEnabledNetworks.every(network => bitcoinOnlyNetworks.includes(network));
     const bitcoinOnlyDevice = isBitcoinOnlyDevice(device);
 
     const showDeviceBanner = device?.connected === false; // device is remembered and disconnected
@@ -146,11 +140,7 @@ export const SettingsCoins = () => {
 
             <StyledSettingsSection title={<Translation id="TR_COINS" />} icon="coin">
                 <StyledSectionItem anchorId={SettingsAnchor.Crypto}>
-                    <CoinGroup
-                        networks={supportedNetworks}
-                        onToggle={setEnabled}
-                        enabledNetworks={enabledNetworks}
-                    />
+                    <CoinGroup networks={supportedMainnets} enabledNetworks={enabledNetworks} />
                 </StyledSectionItem>
             </StyledSettingsSection>
 
@@ -166,11 +156,7 @@ export const SettingsCoins = () => {
                 icon="coin"
             >
                 <SettingsSectionItem anchorId={SettingsAnchor.TestnetCrypto}>
-                    <CoinGroup
-                        networks={supportedTestnetNetworks}
-                        onToggle={setEnabled}
-                        enabledNetworks={enabledNetworks}
-                    />
+                    <CoinGroup networks={supportedTestnets} enabledNetworks={enabledNetworks} />
                 </SettingsSectionItem>
             </SettingsSection>
 
@@ -188,8 +174,7 @@ export const SettingsCoins = () => {
                 >
                     <SettingsSectionItem anchorId={SettingsAnchor.UnsupportedCrypto}>
                         <CoinGroup
-                            networks={unsupportedNetworks}
-                            onToggle={setEnabled}
+                            networks={unsupportedMainnets}
                             enabledNetworks={enabledNetworks}
                         />
                     </SettingsSectionItem>

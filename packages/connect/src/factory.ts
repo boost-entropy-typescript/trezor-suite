@@ -1,5 +1,6 @@
-import { UI } from './events';
 import type { EventEmitter } from 'events';
+
+import { UI } from './events';
 import type { TrezorConnect } from './types';
 import type { CallMethod } from './events/call';
 import type { InitType } from './types/api/init';
@@ -248,8 +249,6 @@ export const factory = <
     recoveryDevice: params => call({ ...params, method: 'recoveryDevice' }),
 
     getCoinInfo: params => call({ ...params, method: 'getCoinInfo' }),
-
-    rebootToBootloader: params => call({ ...params, method: 'rebootToBootloader' }),
 
     setBrightness: params => call({ ...params, method: 'setBrightness' }),
 

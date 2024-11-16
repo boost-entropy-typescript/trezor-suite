@@ -12,7 +12,7 @@ describe('Look up a BTC account', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
         cy.discoveryShouldFinish();
@@ -46,5 +46,3 @@ describe('Look up a BTC account', () => {
         cy.getTestElement('@account-menu/ltc/normal/0').should('not.exist');
     });
 });
-
-export {};

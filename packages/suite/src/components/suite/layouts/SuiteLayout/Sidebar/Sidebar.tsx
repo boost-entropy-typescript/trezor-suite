@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+
 import styled from 'styled-components';
-import { DeviceSelector } from '../DeviceSelector/DeviceSelector';
-import { Navigation } from './Navigation';
-import { AccountsMenu } from 'src/components/wallet/WalletLayout/AccountsMenu/AccountsMenu';
-import { QuickActions } from './QuickActions/QuickActions';
+
 import { ElevationUp, ResizableBox, useElevation } from '@trezor/components';
 import { Elevation, mapElevationToBackground, mapElevationToBorder, zIndices } from '@trezor/theme';
+
+import { AccountsMenu } from 'src/components/wallet/WalletLayout/AccountsMenu/AccountsMenu';
 import { useActions, useSelector } from 'src/hooks/suite';
 import * as suiteActions from 'src/actions/suite/suiteActions';
+
+import { QuickActions } from './QuickActions/QuickActions';
+import { Navigation } from './Navigation';
+import { DeviceSelector } from '../DeviceSelector/DeviceSelector';
 import { TrafficLightOffset } from '../../../TrafficLightOffset';
 import { UpdateNotificationBanner } from './QuickActions/Update/UpdateNotificationBanner';
 import { useUpdateStatus } from './QuickActions/Update/useUpdateStatus';
@@ -53,7 +57,7 @@ export const Sidebar = () => {
 
     const showUpdateBannerNotification =
         (updateStatusSuite !== 'up-to-date' && !closedNotificationSuite) ||
-        (updateStatusDevice !== 'up-to-date' && !closedNotificationDevice);
+        (!['up-to-date', 'disconnected'].includes(updateStatusDevice) && !closedNotificationDevice);
 
     return (
         <Wrapper>

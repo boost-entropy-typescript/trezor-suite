@@ -1,10 +1,13 @@
+import { css, DefaultTheme, RuleSet } from 'styled-components';
+
 import {
     spacingsPx,
     Elevation,
     mapElevationToBackground,
     mapElevationToBorder,
+    SpacingPxValues,
 } from '@trezor/theme';
-import { css, DefaultTheme, RuleSet } from 'styled-components';
+
 import { PaddingType, FillType } from './types';
 
 type PaddingMapArgs = {
@@ -15,11 +18,12 @@ type FillTypeMapArgs = {
     $fillType: FillType;
     $elevation: Elevation;
     $isClickable: boolean;
+    $hasLabel: boolean;
     theme: DefaultTheme;
 };
 
-export const mapPaddingTypeToLabelPadding = ({ $paddingType }: PaddingMapArgs): number | string => {
-    const paddingMap: Record<PaddingType, number | string> = {
+export const mapPaddingTypeToLabelPadding = ({ $paddingType }: PaddingMapArgs): string => {
+    const paddingMap: Record<PaddingType, string> = {
         none: `${spacingsPx.xxs} 0`,
         small: `${spacingsPx.xxs} ${spacingsPx.sm}`,
         normal: `${spacingsPx.xs} ${spacingsPx.lg}`,
@@ -29,9 +33,9 @@ export const mapPaddingTypeToLabelPadding = ({ $paddingType }: PaddingMapArgs): 
     return paddingMap[$paddingType];
 };
 
-export const mapPaddingTypeToPadding = ({ $paddingType }: PaddingMapArgs): number | string => {
-    const paddingMap: Record<PaddingType, number | string> = {
-        none: 0,
+export const mapPaddingTypeToPadding = ({ $paddingType }: PaddingMapArgs): SpacingPxValues => {
+    const paddingMap: Record<PaddingType, SpacingPxValues> = {
+        none: '0px',
         small: spacingsPx.sm,
         normal: spacingsPx.lg,
         large: spacingsPx.xl,
@@ -44,12 +48,13 @@ export const mapFillTypeToCSS = ({
     $fillType,
     $elevation,
     $isClickable,
+    $hasLabel,
     theme,
 }: FillTypeMapArgs): RuleSet<object> => {
     const cssMap: Record<FillType, RuleSet<object>> = {
         default: css`
             background: ${mapElevationToBackground({ $elevation, theme })};
-            box-shadow: ${$elevation === 1 && theme.boxShadowBase};
+            box-shadow: ${$elevation === 1 && !$hasLabel && theme.boxShadowBase};
 
             ${$isClickable &&
             css`

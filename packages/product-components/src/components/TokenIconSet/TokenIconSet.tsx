@@ -1,10 +1,9 @@
+import styled, { css } from 'styled-components';
+
 import { AssetLogo, useElevation } from '@trezor/components';
-import { getCoingeckoId } from '@suite-common/wallet-config';
-import { NetworkSymbol } from '@suite-common/wallet-config';
+import { getCoingeckoId, NetworkSymbol } from '@suite-common/wallet-config';
 import { TokenInfo } from '@trezor/connect';
 import { getContractAddressForNetwork } from '@suite-common/wallet-utils';
-
-import styled, { css } from 'styled-components';
 import { borders, Elevation, mapElevationToBackground, mapElevationToBorder } from '@trezor/theme';
 
 export type TokenIconSetProps = {
@@ -35,6 +34,9 @@ const TokenIconPlaceholder = styled.div<{ $elevation: Elevation }>`
     background: ${mapElevationToBackground};
 `;
 
+/**
+ * @param tokens - provide already sorted tokens (for example by fiat value).
+ */
 export const TokenIconSet = ({ network, tokens }: TokenIconSetProps) => {
     const { elevation } = useElevation();
     const { length } = tokens;

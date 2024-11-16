@@ -1,11 +1,12 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/RippleSignTransaction.js
 
+import { AssertWeak } from '@trezor/schema-utils';
+
 import { AbstractMethod } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
 import { validatePath } from '../../../utils/pathUtils';
 import type { PROTO } from '../../../constants';
-import { AssertWeak } from '@trezor/schema-utils';
 import { RippleSignTransaction as RippleSignTransactionSchema } from '../../../types/api/ripple';
 
 export default class RippleSignTransaction extends AbstractMethod<
@@ -14,6 +15,7 @@ export default class RippleSignTransaction extends AbstractMethod<
 > {
     init() {
         this.requiredPermissions = ['read', 'write'];
+        this.requiredDeviceCapabilities = ['Capability_Ripple'];
         this.firmwareRange = getFirmwareRange(
             this.name,
             getMiscNetwork('Ripple'),

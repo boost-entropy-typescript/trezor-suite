@@ -4,7 +4,7 @@ import {
     calculateTotal,
     calculateMax,
     getExternalComposeOutput,
-    networkAmountToSatoshi,
+    networkAmountToSmallestUnit,
     formatNetworkAmount,
 } from '@suite-common/wallet-utils';
 import { XRP_FLAG } from '@suite-common/wallet-constants';
@@ -12,9 +12,9 @@ import {
     PrecomposedLevels,
     PrecomposedTransaction,
     ExternalOutput,
+    AddressDisplayOptions,
 } from '@suite-common/wallet-types';
 import { createThunk } from '@suite-common/redux-utils';
-import { AddressDisplayOptions } from '@suite-common/wallet-types';
 
 import {
     ComposeTransactionThunkArguments,
@@ -213,7 +213,10 @@ export const signRippleSendFormTransactionThunk = createThunk<
 
         const payment: RipplePayment = {
             destination: formState.outputs[0].address,
-            amount: networkAmountToSatoshi(formState.outputs[0].amount, selectedAccount.symbol),
+            amount: networkAmountToSmallestUnit(
+                formState.outputs[0].amount,
+                selectedAccount.symbol,
+            ),
         };
 
         if (formState.rippleDestinationTag) {

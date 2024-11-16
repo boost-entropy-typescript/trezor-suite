@@ -1,25 +1,23 @@
 import { H3, Row, Paragraph, Button, Column, IconCircle } from '@trezor/components';
 import { CoinLogo } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
+import { selectIsDeviceUsingPassphrase } from '@suite-common/wallet-core';
 
 import { Translation } from 'src/components/suite';
 import { useSelector, useDispatch } from 'src/hooks/suite';
-import { selectIsDeviceUsingPassphrase } from '@suite-common/wallet-core';
 import { goto } from 'src/actions/suite/routerActions';
-import { useEnabledNetworks } from 'src/hooks/settings/useEnabledNetworks';
-import { selectDeviceSupportedNetworks } from '@suite-common/wallet-core';
+import { useNetworkSupport } from 'src/hooks/settings/useNetworkSupport';
+import { selectEnabledNetworks } from 'src/reducers/wallet/settingsReducer';
 
 export const EmptyWallet = () => {
-    const { enabledNetworks, mainnets } = useEnabledNetworks();
+    const { supportedMainnets } = useNetworkSupport();
     const isPassphraseType = useSelector(selectIsDeviceUsingPassphrase);
-    const deviceSupportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
+    const enabledNetworks = useSelector(selectEnabledNetworks);
     const dispatch = useDispatch();
 
-    const supportedNetworks = mainnets.filter(({ symbol }) =>
-        deviceSupportedNetworkSymbols.includes(symbol),
+    const areAllNetworksEnabled = supportedMainnets.every(network =>
+        enabledNetworks.includes(network.symbol),
     );
-
-    const areAllNetworksEnabled = supportedNetworks.length === enabledNetworks.length;
 
     return (
         <Column gap={spacings.xxs} data-testid="@dashboard/wallet-ready">

@@ -1,4 +1,5 @@
 import { EventType } from '@trezor/suite-analytics';
+
 import { ExtractByEventType, Requests } from '../../support/types';
 
 // @group_device-management
@@ -15,7 +16,7 @@ describe('Backup success', () => {
         });
         cy.task('startBridge');
 
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
 
@@ -64,5 +65,3 @@ describe('Backup success', () => {
         });
     });
 });
-
-export {};

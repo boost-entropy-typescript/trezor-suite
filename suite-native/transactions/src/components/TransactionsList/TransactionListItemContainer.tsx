@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { RequireExactlyOne } from 'type-fest';
 import { useNavigation } from '@react-navigation/native';
 
 import { AccountKey, TransactionType } from '@suite-common/wallet-types';
@@ -28,20 +27,17 @@ import { TokenDefinitionsRootState } from '@suite-common/token-definitions';
 
 import { TransactionIcon } from './TransactionIcon';
 
-type TransactionListItemContainerProps = RequireExactlyOne<
-    {
-        children: ReactNode;
-        txid: string;
-        accountKey: AccountKey;
-        includedCoinsCount: number;
-        isFirst?: boolean;
-        isLast?: boolean;
-        networkSymbol: NetworkSymbol;
-        tokenTransfer: TypedTokenTransfer;
-        transactionType: TransactionType;
-    },
-    'networkSymbol' | 'tokenTransfer'
->;
+type TransactionListItemContainerProps = {
+    children: ReactNode;
+    txid: string;
+    accountKey: AccountKey;
+    includedCoinsCount: number;
+    isFirst?: boolean;
+    isLast?: boolean;
+    networkSymbol?: NetworkSymbol | undefined;
+    tokenTransfer?: TypedTokenTransfer;
+    transactionType: TransactionType;
+};
 
 type TransactionListItemStyleProps = {
     isFirst: boolean;
@@ -54,7 +50,7 @@ const transactionTitleMap = {
     self: 'Self',
     joint: 'Joined',
     contract: 'Contract',
-    failed: 'Failed',
+    failed: 'Transaction failed',
     unknown: 'Unknown',
 } as const satisfies Record<TransactionType, string>;
 
@@ -64,7 +60,7 @@ export const transactionListItemContainerStyle = prepareNativeStyle<TransactionL
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: utils.colors.backgroundSurfaceElevation1,
-        marginHorizontal: utils.spacings.sp8,
+        marginHorizontal: utils.spacings.sp16,
         paddingHorizontal: utils.spacings.sp16,
         paddingTop: utils.spacings.sp12,
         paddingBottom: utils.spacings.sp12,
@@ -144,7 +140,7 @@ export const TransactionListItemContainer = ({
         navigation.navigate(RootStackRoutes.TransactionDetail, {
             txid,
             accountKey,
-            tokenTransfer,
+            tokenContract: tokenTransfer?.contract,
         });
     };
 
@@ -166,7 +162,8 @@ export const TransactionListItemContainer = ({
     );
 
     const iconColor: Color = isTransactionPending ? 'backgroundAlertYellowBold' : 'iconSubdued';
-    const coinSymbol = isPhishingTransaction ? undefined : tokenTransfer?.contract ?? networkSymbol;
+    const coinSymbol = isPhishingTransaction ? undefined : networkSymbol;
+    const contractAddress = isPhishingTransaction ? undefined : tokenTransfer?.contract;
     const transactionTitle = getTransactionTitle(transactionType, isTransactionPending);
 
     const DateTextComponent = isPhishingTransaction ? DiscreetText : Text;
@@ -178,7 +175,8 @@ export const TransactionListItemContainer = ({
         >
             <Box style={applyStyle(descriptionBoxStyle)}>
                 <TransactionIcon
-                    symbol={coinSymbol}
+                    networkSymbol={coinSymbol}
+                    contractAddress={contractAddress}
                     transactionType={transactionType}
                     isAnimated={isTransactionPending}
                     iconColor={iconColor}

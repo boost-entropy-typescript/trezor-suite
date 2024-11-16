@@ -1,7 +1,9 @@
+import { useState } from 'react';
+
 import { selectAccounts, selectDevice } from '@suite-common/wallet-core';
 import { Account, SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { isTestnet } from '@suite-common/wallet-utils';
-import { useState } from 'react';
+
 import { useSelector } from 'src/hooks/suite';
 import {
     coinmarketGetSortedAccounts,
@@ -37,7 +39,7 @@ export const useCoinmarketAccount = ({
             const defaultSymbol = mapTestnetSymbol(selectedAccount.account.symbol);
             const accountsSorted = coinmarketGetSortedAccounts({
                 accounts,
-                deviceState: device?.state,
+                deviceState: device?.state?.staticSessionId,
             });
 
             const accountNotInTestnet = accountsSorted.find(a => a.symbol === defaultSymbol);

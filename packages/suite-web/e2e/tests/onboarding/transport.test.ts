@@ -3,7 +3,7 @@
 
 describe('Onboarding - transport webusb/bridge', () => {
     beforeEach(() => {
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
     });
 
@@ -13,5 +13,3 @@ describe('Onboarding - transport webusb/bridge', () => {
         cy.getTestElement('@connect-device-prompt/no-device-detected').click();
     });
 });
-
-export {};

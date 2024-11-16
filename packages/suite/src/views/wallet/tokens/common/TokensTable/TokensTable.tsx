@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import styled from 'styled-components';
 
 import { Account } from '@suite-common/wallet-types';
@@ -8,6 +9,7 @@ import { spacings } from '@trezor/theme';
 import { Icon, Table, Paragraph, Card, Row, Text } from '@trezor/components';
 
 import { Translation } from 'src/components/suite';
+
 import { TokenRow } from './TokenRow';
 
 const IconWrapper = styled.div<{ $isActive: boolean }>`
@@ -45,16 +47,12 @@ export const TokensTable = ({
     return (
         <Card paddingType="none" overflow="hidden">
             {tokensWithBalance.length === 0 && tokensWithoutBalance.length === 0 && searchQuery ? (
-                <Paragraph
-                    typographyStyle="highlight"
-                    margin={{ top: spacings.xxl, bottom: spacings.xxl }}
-                    align="center"
-                >
+                <Paragraph margin={{ top: spacings.xxl, bottom: spacings.xxl }} align="center">
                     <Translation id="TR_NO_SEARCH_RESULTS" />
                 </Paragraph>
             ) : (
                 <Table
-                    margin={{ top: spacings.xs, bottom: spacings.xs }}
+                    margin={{ top: spacings.xs }}
                     colWidths={[
                         { minWidth: '200px', maxWidth: '250px' },
                         { minWidth: '140px', maxWidth: '250px' }, // due to HiddenPlaceholder - it changes content width when hovered
@@ -95,13 +93,10 @@ export const TokensTable = ({
                         ))}
                         {tokensWithoutBalance.length !== 0 && (
                             <>
-                                <Table.Row
-                                    onClick={() => setIsZeroBalanceOpen(!isZeroBalanceOpen)}
-                                    isHighlightedOnHover={false}
-                                >
-                                    <Table.Cell colSpan={5}>
+                                <Table.Row onClick={() => setIsZeroBalanceOpen(!isZeroBalanceOpen)}>
+                                    <Table.Cell colSpan={1}>
                                         <ZeroBalanceToggle>
-                                            <Row gap={spacings.xs} margin={{ top: spacings.md }}>
+                                            <Row gap={spacings.xs}>
                                                 <IconWrapper $isActive={isZeroBalanceOpen}>
                                                     <Icon
                                                         size={18}
@@ -115,6 +110,7 @@ export const TokensTable = ({
                                             </Row>
                                         </ZeroBalanceToggle>
                                     </Table.Cell>
+                                    <Table.Cell colSpan={hideRates ? 2 : 4} />
                                 </Table.Row>
                                 {tokensWithoutBalance.map(token => (
                                     <TokenRow

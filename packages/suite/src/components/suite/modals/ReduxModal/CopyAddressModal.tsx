@@ -1,12 +1,13 @@
+import { useState } from 'react';
+
 import { copyToClipboard } from '@trezor/dom-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-
-import { Translation } from 'src/components/suite';
-import { useDispatch } from 'src/hooks/suite/useDispatch';
 import { H2, Card, Paragraph, NewModal, Checkbox } from '@trezor/components';
 import { AddressType } from '@suite-common/wallet-types';
 import { spacings } from '@trezor/theme';
-import { useState } from 'react';
+
+import { useDispatch } from 'src/hooks/suite/useDispatch';
+import { Translation } from 'src/components/suite';
 import { setFlag } from 'src/actions/suite/suiteActions';
 
 const getAddressTypeText = (addressType: AddressType) => {
@@ -51,7 +52,7 @@ export const CopyAddressModal = ({ address, onCancel, addressType }: CopyAddress
             bottomContent={
                 <>
                     <NewModal.Button onClick={onCopyAddress}>
-                        <Translation id="TR_UNHIDE" />
+                        <Translation id="TR_COPY_TO_CLIPBOARD" />
                     </NewModal.Button>
                     <NewModal.Button variant="tertiary" onClick={onCancel}>
                         <Translation id="TR_CANCEL" />

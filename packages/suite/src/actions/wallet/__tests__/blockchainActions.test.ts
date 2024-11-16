@@ -10,11 +10,11 @@ import {
     preloadFeeInfoThunk,
     setCustomBackendThunk,
     updateFeeInfoThunk,
+    feesReducer,
 } from '@suite-common/wallet-core';
 
 import { configureStore, filterThunkActionTypes } from 'src/support/tests/configureStore';
 import { accountsReducer, transactionsReducer, blockchainReducer } from 'src/reducers/wallet';
-import { feesReducer } from '@suite-common/wallet-core';
 
 import * as fixtures from '../__fixtures__/blockchainActions';
 
@@ -31,7 +31,7 @@ interface Args {
     transactions?: TransactionsState['transactions'];
 }
 
-export const getInitialState = (
+const getInitialState = (
     { accounts, transactions, blockchain, fees }: Args = {},
     action: any = { type: 'initial' },
 ) => ({
@@ -207,7 +207,7 @@ describe('Blockchain Actions', () => {
                 },
                 fees: {
                     // @ts-expect-error partial params
-                    btc: { blockHeight: 100 },
+                    btc: { blockHeight: 100, levels: [] },
                 },
             }),
         );

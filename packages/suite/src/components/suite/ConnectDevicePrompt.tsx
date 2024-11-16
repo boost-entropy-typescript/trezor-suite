@@ -1,8 +1,8 @@
 import styled, { useTheme } from 'styled-components';
+import { motion } from 'framer-motion';
 
 import {
     variables,
-    Button,
     motionEasing,
     LottieAnimation,
     useElevation,
@@ -10,12 +10,11 @@ import {
     Icon,
 } from '@trezor/components';
 import { isDesktop } from '@trezor/env-utils';
-import { Translation } from 'src/components/suite';
-import { useDevice, useDispatch } from 'src/hooks/suite';
-import { goto } from 'src/actions/suite/routerActions';
-import type { PrerequisiteType } from 'src/types/suite';
-import { motion } from 'framer-motion';
 import { Elevation, mapElevationToBackground, mapElevationToBorder } from '@trezor/theme';
+
+import { Translation } from 'src/components/suite';
+import { useDevice } from 'src/hooks/suite';
+import type { PrerequisiteType } from 'src/types/suite';
 
 const Wrapper = styled(motion.div)<{ $elevation: Elevation }>`
     display: flex;
@@ -28,7 +27,6 @@ const Wrapper = styled(motion.div)<{ $elevation: Elevation }>`
     border: 1px solid ${mapElevationToBorder};
     align-items: center;
     box-shadow: ${({ theme }) => theme.boxShadowElevated};
-    margin-bottom: 60px;
 `;
 
 const ImageWrapper = styled.div`
@@ -76,6 +74,8 @@ const getMessageId = ({
             return isDesktop() ? 'TR_NO_TRANSPORT_DESKTOP' : 'TR_NO_TRANSPORT';
         case 'device-bootloader':
             return 'TR_DEVICE_CONNECTED_BOOTLOADER';
+        case 'device-unacquired':
+            return 'TR_DEVICE_CONNECTED_UNACQUIRED';
         default: {
             if (connected) {
                 return !showWarning ? 'TR_DEVICE_CONNECTED' : 'TR_DEVICE_CONNECTED_WRONG_STATE';
@@ -129,14 +129,8 @@ export const ConnectDevicePrompt = ({
     prerequisite,
     connected,
     showWarning,
-    allowSwitchDevice,
 }: ConnectDevicePromptProps) => {
-    const dispatch = useDispatch();
-
     const { elevation } = useElevation();
-
-    const handleSwitchDeviceClick = () =>
-        dispatch(goto('suite-switch-device', { params: { cancelable: true } }));
 
     return (
         <Wrapper
@@ -151,12 +145,6 @@ export const ConnectDevicePrompt = ({
 
                 <Text>
                     <Translation id={getMessageId({ connected, showWarning, prerequisite })} />
-
-                    {allowSwitchDevice && (
-                        <Button variant="tertiary" onClick={handleSwitchDeviceClick}>
-                            <Translation id="TR_SWITCH_DEVICE" />
-                        </Button>
-                    )}
                 </Text>
             </ElevationUp>
         </Wrapper>

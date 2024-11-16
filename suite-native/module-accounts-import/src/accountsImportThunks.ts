@@ -11,7 +11,13 @@ import { getXpubOrDescriptorInfo } from '@trezor/utxo-lib';
 import { getAccountIdentity, shouldUseIdentities } from '@suite-common/wallet-utils';
 import { Timestamp, TokenAddress } from '@suite-common/wallet-types';
 import { FiatCurrencyCode } from '@suite-common/suite-config';
-import { selectFilterKnownTokens } from '@suite-common/token-definitions';
+import {
+    getSupportedDefinitionTypes,
+    getTokenDefinitionThunk,
+    periodicCheckTokenDefinitionsThunk,
+    selectFilterKnownTokens,
+    selectNetworkTokenDefinitions,
+} from '@suite-common/token-definitions';
 
 import { paymentTypeToAccountType } from './constants';
 
@@ -71,6 +77,7 @@ export const importAccountThunk = createThunk(
                 }),
             );
         }
+        dispatch(periodicCheckTokenDefinitionsThunk());
     },
 );
 
@@ -89,7 +96,9 @@ export const getAccountInfoThunk = createThunk<
                 TrezorConnect.getAccountInfo({
                     coin: networkSymbol,
                     identity: shouldUseIdentities(networkSymbol)
-                        ? getAccountIdentity({ deviceState: PORTFOLIO_TRACKER_DEVICE_STATE })
+                        ? getAccountIdentity({
+                              deviceState: PORTFOLIO_TRACKER_DEVICE_STATE,
+                          })
                         : undefined,
                     descriptor: xpubAddress,
                     details: 'txs',
@@ -110,6 +119,21 @@ export const getAccountInfoThunk = createThunk<
             ]);
 
             if (fetchedAccountInfo?.success) {
+                const tokenDefinitions = selectNetworkTokenDefinitions(getState(), networkSymbol);
+
+                // fetch token definitions for this network in case they are needed
+                if (!tokenDefinitions) {
+                    const definitionTypes = getSupportedDefinitionTypes(networkSymbol);
+
+                    definitionTypes.forEach(async type => {
+                        await dispatch(
+                            getTokenDefinitionThunk({
+                                networkSymbol,
+                                type,
+                            }),
+                        );
+                    });
+                }
                 // fetch fiat rates for all tokens of newly discovered account
                 // Even that there is check in updateFiatRatesThunk, it is better to do it here and do not dispatch thunk at all because it has some overhead and sometimes there could be lot of tokens
                 const knownTokens = selectFilterKnownTokens(

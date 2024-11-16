@@ -17,7 +17,6 @@
         "desktop": "PROJECT=desktop yarn run base",
         "dev:desktop": "yarn run desktop",
         "build:desktop": "NODE_ENV=production yarn run desktop",
-        "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "type-check": "yarn g:tsc --build tsconfig.json",
         "type-check:watch": "yarn type-check -- --watch"
     },
@@ -35,7 +34,7 @@
         "stream-browserify": "^3.0.0",
         "style-loader": "^3.3.4",
         "terser-webpack-plugin": "^5.3.9",
-        "webpack": "^5.94.0",
+        "webpack": "^5.96.1",
         "webpack-bundle-analyzer": "^4.10.1",
         "webpack-merge": "^6.0.1",
         "webpack-nano": "^1.1.1",
@@ -45,6 +44,7 @@
     "devDependencies": {
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
         "@sentry/webpack-plugin": "^2.14.0",
+        "@trezor/eslint": "workspace:*",
         "@types/copy-webpack-plugin": "^10.1.0",
         "@types/webpack-bundle-analyzer": "^4.7.0",
         "@types/webpack-plugin-serve": "^1.4.6",

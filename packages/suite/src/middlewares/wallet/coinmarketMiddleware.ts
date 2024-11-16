@@ -1,4 +1,7 @@
 import { MiddlewareAPI } from 'redux';
+
+import { UI } from '@trezor/connect';
+
 import { AppState, Action, Dispatch } from 'src/types/suite';
 import { COINMARKET_COMMON } from 'src/actions/wallet/constants';
 import { INVITY_API_RELOAD_DATA_AFTER_MS } from 'src/constants/wallet/coinmarket/metadata';
@@ -8,9 +11,7 @@ import * as coinmarketInfoAction from 'src/actions/wallet/coinmarketInfoActions'
 import * as coinmarketBuyActions from 'src/actions/wallet/coinmarketBuyActions';
 import * as coinmarketExchangeActions from 'src/actions/wallet/coinmarketExchangeActions';
 import * as coinmarketSellActions from 'src/actions/wallet/coinmarketSellActions';
-import { UI } from '@trezor/connect';
 import { ROUTER, MODAL } from 'src/actions/suite/constants';
-import { CoinmarketSuiteBackRouteNameType } from 'src/reducers/wallet/coinmarketReducer';
 
 export const coinmarketMiddleware =
     (api: MiddlewareAPI<Dispatch, AppState>) =>
@@ -120,10 +121,10 @@ export const coinmarketMiddleware =
         const exchangeCoinmarketAccount = newState.wallet.coinmarket.exchange.coinmarketAccount;
 
         if (action.type === ROUTER.LOCATION_CHANGE) {
-            const isSell = newState.router.route?.name === 'wallet-coinmarket-sell';
-            const isExchange = newState.router.route?.name === 'wallet-coinmarket-exchange';
-            const currentBackRouteName = action.payload.settingsBackRoute?.name;
-            const { suiteBackRouteName } = newState.wallet.coinmarket;
+            const routeName = newState.router.route?.name;
+            const isBuy = routeName === 'wallet-coinmarket-buy';
+            const isSell = routeName === 'wallet-coinmarket-sell';
+            const isExchange = routeName === 'wallet-coinmarket-exchange';
 
             // clean coinmarketAccount in sell
             if (isSell && sellCoinmarketAccount) {
@@ -135,16 +136,17 @@ export const coinmarketMiddleware =
                 api.dispatch(coinmarketExchangeActions.setCoinmarketExchangeAccount(undefined));
             }
 
-            if (
-                currentBackRouteName &&
-                ['wallet-index', 'suite-index'].includes(currentBackRouteName) &&
-                suiteBackRouteName !== currentBackRouteName
-            ) {
-                api.dispatch(
-                    coinmarketCommonActions.setSuiteBackRouteName(
-                        currentBackRouteName as CoinmarketSuiteBackRouteNameType,
-                    ),
-                );
+            if (isBuy) {
+                api.dispatch(coinmarketCommonActions.setActiveSection('buy'));
+            }
+
+            if (isSell) {
+                api.dispatch(coinmarketCommonActions.setActiveSection('sell'));
+            }
+
+            if (isExchange) {
+                console.log('coinmarketMiddleware ROUTER.LOCATION_CHANGE');
+                api.dispatch(coinmarketCommonActions.setActiveSection('exchange'));
             }
         }
 

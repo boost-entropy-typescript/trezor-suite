@@ -5,6 +5,7 @@ import { TrezordNode } from '@trezor/transport-bridge';
 import { isDevEnv } from '@suite-common/suite-utils';
 import { validateIpcMessage } from '@trezor/ipc-proxy';
 import { scheduleAction } from '@trezor/utils';
+import { InvokeResult } from '@trezor/suite-desktop-api';
 
 import { app, ipcMain } from '../typed-electron';
 import { BridgeProcess } from '../libs/processes/BridgeProcess';
@@ -131,12 +132,7 @@ const loadBridge = async (store: Dependencies['store']) => {
     }
 };
 
-type BridgeModule = ({ store }: Pick<Dependencies, 'store'>) => {
-    onLoad: () => void;
-    onQuit: () => Promise<void>;
-};
-
-export const init: BridgeModule = ({ store }) => {
+export const initBackground = ({ store }: Pick<Dependencies, 'store'>) => {
     let loaded = false;
 
     const onLoad = () => {
@@ -156,7 +152,7 @@ export const init: BridgeModule = ({ store }) => {
     return { onLoad, onQuit };
 };
 
-export const initUi = ({ store, mainWindowProxy }: Dependencies) => {
+export const init = ({ store, mainWindowProxy, mainThreadEmitter }: Dependencies) => {
     ipcMain.handle(
         'bridge/change-settings',
         async (ipcEvent, payload: { doNotStartOnStartup: boolean; legacy?: boolean }) => {
@@ -207,13 +203,12 @@ export const initUi = ({ store, mainWindowProxy }: Dependencies) => {
         logger.info('bridge', `Toggling bridge. Status: ${JSON.stringify(status)}`);
 
         mainWindowProxy.getInstance()?.webContents.send('bridge/status', status);
+        mainThreadEmitter.emit('module/bridge/status', status);
 
         return status;
     };
 
-    ipcMain.handle('bridge/toggle', async ipcEvent => {
-        validateIpcMessage(ipcEvent);
-
+    const toggleBridge = async (): Promise<InvokeResult> => {
         const status = await handleBridgeStatus();
         try {
             if (status.service) {
@@ -228,6 +223,11 @@ export const initUi = ({ store, mainWindowProxy }: Dependencies) => {
         } finally {
             handleBridgeStatus();
         }
+    };
+    ipcMain.handle('bridge/toggle', async ipcEvent => {
+        validateIpcMessage(ipcEvent);
+
+        return await toggleBridge();
     });
 
     ipcMain.handle('bridge/get-status', async ipcEvent => {

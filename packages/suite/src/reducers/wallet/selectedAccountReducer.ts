@@ -1,7 +1,8 @@
 import { accountsActions } from '@suite-common/wallet-core';
-import type { Action } from 'src/types/suite';
+import { MIN_ETH_BALANCE_FOR_STAKING } from '@suite-common/wallet-constants';
 import type { SelectedAccountStatus } from '@suite-common/wallet-types';
-import { MIN_ETH_BALANCE_FOR_STAKING } from 'src/constants/suite/ethStaking';
+
+import type { Action } from 'src/types/suite';
 import { State as CoinmarketState } from 'src/reducers/wallet/coinmarketReducer';
 
 export type State = SelectedAccountStatus;

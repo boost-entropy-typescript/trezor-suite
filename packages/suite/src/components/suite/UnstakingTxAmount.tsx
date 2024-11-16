@@ -1,8 +1,12 @@
 import React from 'react';
-import { isUnstakeTx } from '@suite-common/suite-utils';
+
 import { WalletAccountTransaction } from '@suite-common/wallet-types';
-import { formatNetworkAmount } from '@suite-common/wallet-utils';
-import { getUnstakingAmount } from 'src/utils/suite/stake';
+import {
+    formatNetworkAmount,
+    isUnstakeTx,
+    getUnstakeAmountByEthereumDataHex,
+} from '@suite-common/wallet-utils';
+
 import { FormattedCryptoAmount } from './FormattedCryptoAmount';
 
 interface UnstakingTxAmountProps {
@@ -15,7 +19,7 @@ export const UnstakingTxAmount = ({ transaction }: UnstakingTxAmountProps) => {
 
     if (!isUnstakeTx(txSignature)) return null;
 
-    const amount = getUnstakingAmount(ethereumSpecific?.data);
+    const amount = getUnstakeAmountByEthereumDataHex(ethereumSpecific?.data);
 
     if (!amount) return null;
 

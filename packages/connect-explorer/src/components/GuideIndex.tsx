@@ -1,11 +1,13 @@
-import { getPagesUnderRoute } from 'nextra/context';
-import Link from 'next/link';
 import { ReactNode } from 'react';
 
-import { Card as TrezorCard, H3, Paragraph, Button } from '@trezor/components';
+import { getPagesUnderRoute } from 'nextra/context';
+import Link from 'next/link';
 import styled from 'styled-components';
+
+import { Card as TrezorCard, H3, Paragraph, Button } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 
+// eslint-disable-next-line local-rules/no-override-ds-component
 const SectionCard = styled(TrezorCard)`
     margin-bottom: ${spacingsPx.xl};
 `;

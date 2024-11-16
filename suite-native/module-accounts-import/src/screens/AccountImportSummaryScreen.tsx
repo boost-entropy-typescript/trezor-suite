@@ -1,13 +1,25 @@
+import { useEffect } from 'react';
+import { BackHandler } from 'react-native';
+import { useSelector } from 'react-redux';
+
 import {
-    StackToTabCompositeScreenProps,
-    Screen,
+    AccountsRootState,
+    DeviceRootState,
+    selectDeviceAccountByDescriptorAndNetworkSymbol,
+} from '@suite-common/wallet-core';
+import { ErrorMessage } from '@suite-native/atoms';
+import { selectPortfolioTrackerNetworkSymbols } from '@suite-native/discovery';
+import { FeatureFlag, useFeatureFlag } from '@suite-native/feature-flags';
+import { Translation } from '@suite-native/intl';
+import {
+    AccountsImportStackParamList,
     AccountsImportStackRoutes,
     RootStackParamList,
-    AccountsImportStackParamList,
+    StackToTabCompositeScreenProps,
 } from '@suite-native/navigation';
 
-import { AccountImportSubHeader } from '../components/AccountImportSubHeader';
-import { AccountImportSummary } from '../components/AccountImportSummary';
+import { AccountAlreadyImportedScreen } from '../components/AccountAlreadyImportedScreen';
+import { AccountImportConfirmFormScreen } from '../components/AccountImportConfirmFormScreen';
 
 export const AccountImportSummaryScreen = ({
     route,
@@ -18,9 +30,42 @@ export const AccountImportSummaryScreen = ({
 >) => {
     const { accountInfo, networkSymbol } = route.params;
 
+    const [isRegtestEnabled] = useFeatureFlag(FeatureFlag.IsRegtestEnabled);
+    const account = useSelector((state: AccountsRootState & DeviceRootState) =>
+        selectDeviceAccountByDescriptorAndNetworkSymbol(
+            state,
+            accountInfo.descriptor,
+            networkSymbol,
+        ),
+    );
+    const portfolioTrackerSupportedNetworks = useSelector(selectPortfolioTrackerNetworkSymbols);
+
+    useEffect(() => {
+        // prevent dismissing screen via HW
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            return true;
+        });
+
+        return () => subscription.remove();
+    }, []);
+
+    const isAccountImportSupported =
+        portfolioTrackerSupportedNetworks.some(symbol => symbol === networkSymbol) ||
+        (networkSymbol === 'regtest' && isRegtestEnabled);
+
+    if (!isAccountImportSupported) {
+        return (
+            <ErrorMessage
+                errorMessage={<Translation id="moduleAccountImport.error.unsupportedNetworkType" />}
+            />
+        );
+    }
+
+    if (account) {
+        return <AccountAlreadyImportedScreen account={account} />;
+    }
+
     return (
-        <Screen screenHeader={<AccountImportSubHeader />}>
-            <AccountImportSummary accountInfo={accountInfo} networkSymbol={networkSymbol} />
-        </Screen>
+        <AccountImportConfirmFormScreen networkSymbol={networkSymbol} accountInfo={accountInfo} />
     );
 };

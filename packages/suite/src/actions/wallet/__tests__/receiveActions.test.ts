@@ -1,6 +1,8 @@
 import { connectInitThunk } from '@suite-common/connect-init';
 import { testMocks } from '@suite-common/test-utils';
 import { prepareDeviceReducer } from '@suite-common/wallet-core';
+import { AccountKey } from '@suite-common/wallet-types';
+import { NetworkSymbol, NetworkType } from '@suite-common/wallet-config';
 
 import { configureStore } from 'src/support/tests/configureStore';
 import receiveReducer from 'src/reducers/wallet/receiveReducer';
@@ -10,8 +12,6 @@ import * as receiveActions from 'src/actions/wallet/receiveActions';
 import { extraDependencies } from 'src/support/extraDependencies';
 
 import fixtures from '../__fixtures__/receiveActions';
-import { AccountKey } from '@suite-common/wallet-types';
-import { NetworkSymbol, NetworkType } from '@suite-common/wallet-config';
 
 const { getSuiteDevice } = testMocks;
 
@@ -86,7 +86,7 @@ interface InitialState {
     modal: ModalState;
 }
 
-export const getInitialState = (state: Partial<InitialState> | undefined) => ({
+const getInitialState = (state: Partial<InitialState> | undefined) => ({
     suite: {
         ...suiteReducer(undefined, { type: 'foo' } as any),
         ...state?.suite,

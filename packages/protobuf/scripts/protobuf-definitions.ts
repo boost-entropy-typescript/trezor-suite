@@ -37,7 +37,9 @@ const modifyDefinitionsJSON = (root: protobuf.Root, def: Definition) => {
                 try {
                     root.lookupType(def.type);
                     ignoreOptions.push('packed');
-                } catch {}
+                } catch {
+                    /* empty */
+                }
             }
         }
         const opts = options
@@ -181,8 +183,8 @@ if (require.main === module) {
     const [protoDir, ...args] = process.argv.slice(2);
 
     // get --arg=X
-    const getArgValue = (args: string[], arg: string) => {
-        return args.find(a => a.startsWith(arg))?.substring(arg.length + 1);
+    const getArgValue = (args2: string[], arg: string) => {
+        return args2.find(a => a.startsWith(arg))?.substring(arg.length + 1);
     };
 
     const json = buildDefinitions(protoDir, {

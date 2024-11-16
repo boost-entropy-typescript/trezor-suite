@@ -1,12 +1,13 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/TezosGetPublicKey.js
 
+import { Assert } from '@trezor/schema-utils';
+
 import { AbstractMethod, MethodReturnType } from '../../../core/AbstractMethod';
 import { getFirmwareRange } from '../../common/paramsValidator';
 import { getMiscNetwork } from '../../../data/coinInfo';
 import { validatePath, fromHardened, getSerializedPath } from '../../../utils/pathUtils';
 import { UI, createUiMessage } from '../../../events';
 import type { PROTO } from '../../../constants';
-import { Assert } from '@trezor/schema-utils';
 import { Bundle, GetPublicKey as GetPublicKeySchema } from '../../../types';
 
 export default class TezosGetPublicKey extends AbstractMethod<
@@ -17,6 +18,7 @@ export default class TezosGetPublicKey extends AbstractMethod<
 
     init() {
         this.requiredPermissions = ['read'];
+        this.requiredDeviceCapabilities = ['Capability_Tezos'];
         this.firmwareRange = getFirmwareRange(
             this.name,
             getMiscNetwork('Tezos'),

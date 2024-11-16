@@ -1,4 +1,5 @@
 import type { IpcRendererEvent } from 'electron';
+
 import { DesktopApi, RendererChannels } from './api';
 import { StrictIpcRenderer } from './ipc';
 import * as validation from './validation';
@@ -166,5 +167,15 @@ export const factory = <R extends StrictIpcRenderer<any, IpcRendererEvent>>(
         },
 
         getBridgeSettings: () => ipcRenderer.invoke('bridge/get-settings'),
+
+        // Tray
+        changeTraySettings: payload => {
+            if (validation.isObject({ showOnTray: 'boolean' }, payload)) {
+                return ipcRenderer.invoke('tray/change-settings', payload);
+            }
+
+            return Promise.resolve({ success: false, error: 'invalid params' });
+        },
+        getTraySettings: () => ipcRenderer.invoke('tray/get-settings'),
     };
 };

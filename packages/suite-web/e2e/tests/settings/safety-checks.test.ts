@@ -8,7 +8,7 @@ describe('Safety Checks Settings', () => {
         cy.task('startEmu', { wipe: true });
         cy.task('setupEmu');
         cy.task('startBridge');
-        cy.viewport(1440, 2560).resetDb();
+        cy.viewport('macbook-13').resetDb();
         cy.prefixedVisit('/');
         cy.passThroughInitialRun();
         onNavBar.openSettings();
@@ -56,23 +56,20 @@ describe('Safety Checks Settings', () => {
         });
         // Don't assume the device is set to any particular value.
         // Just switch to the one that is not currently checked.
-        cy.get('[data-testid*="@radio-button"][data-checked="false"]')
-            .click()
-            .then(b => {
-                const targetValue = b.attr('data-testid');
-                console.log(`Changing safety_checks to ${targetValue})`);
-                cy.getTestElement('@safety-checks-apply').click();
-                cy.getTestElement('@prompts/confirm-on-device');
-                cy.task('pressYes');
+        cy.get('[data-testid*="@radio-button"][data-checked="false"]').click();
+        cy.get('[data-testid*="@radio-button"][data-checked="true"]').then(b => {
+            const targetValue = b.attr('data-testid');
+            console.log(`Changing safety_checks to ${targetValue})`);
+            cy.getTestElement('@safety-checks-apply').click();
+            cy.getTestElement('@prompts/confirm-on-device');
+            cy.task('pressYes');
 
-                cy.getTestElement('@settings/device/safety-checks-button').click({
-                    scrollBehavior: 'bottom',
-                });
-                cy.get(`[data-testid="${targetValue}"]`)
-                    .invoke('attr', 'data-checked')
-                    .should('eq', 'true');
+            cy.getTestElement('@settings/device/safety-checks-button').click({
+                scrollBehavior: 'bottom',
             });
+            cy.get(`[data-testid="${targetValue}"]`)
+                .invoke('attr', 'data-checked')
+                .should('eq', 'true');
+        });
     });
 });
-
-export {};

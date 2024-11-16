@@ -1,14 +1,17 @@
 import { useState } from 'react';
+
 import styled, { css } from 'styled-components';
+
 import { SUITE_MOBILE_APP_STORE, SUITE_MOBILE_PLAY_STORE, SUITE_URL } from '@trezor/urls';
 import { EventType, analytics } from '@trezor/suite-analytics';
 import { Button, Icon, Image, Tooltip, variables } from '@trezor/components';
-import { Translation, QrCode, TrezorLink } from 'src/components/suite';
 import { isWeb } from '@trezor/env-utils';
+import { spacingsPx } from '@trezor/theme';
+
+import { Translation, QrCode, TrezorLink } from 'src/components/suite';
 import { useLayoutSize } from 'src/hooks/suite/useLayoutSize';
 import { HORIZONTAL_LAYOUT_PADDINGS } from 'src/constants/suite/layout';
 import { useSelector } from 'src/hooks/suite';
-import { spacingsPx } from '@trezor/theme';
 
 const Container = styled.div`
     position: absolute;
@@ -212,7 +215,7 @@ export const PromoBanner = () => {
                     <Image image="HOLLOW_APP_LOGO" width={44} height={44} />
 
                     <div>
-                        <Translation id="TR_DESKTOP_APP_PROMO_TEXT_FOOTER" />
+                        <Translation id="TR_MOBILE_APP_PROMO_TEXT" />
 
                         <OSIcons>
                             <Icon name="osMac" size={14} />

@@ -21,11 +21,12 @@ module.exports = {
     },
     npmRebuild: false,
     files: [
-        // defaults are https://www.electron.build/configuration/contents.html#files
+        // defaults are https://www.electron.build/configuration#files
         'build/**/*',
         'dist/**/*.{js,wasm}',
         '!**/{tsconfig}*',
         '!**/*.{md,js.map}',
+        'build/release-notes.md',
         '!**/node_modules/**/*.{js.flow,ts}',
         '!build/static/**/{favicon,icons,bin,browsers}',
         '!node_modules/@sentry/**/esm',
@@ -37,6 +38,10 @@ module.exports = {
         {
             from: 'build/static/images/desktop/512x512.png',
             to: 'images/desktop/512x512.png',
+        },
+        {
+            from: 'build/static/images/favicons',
+            to: 'images/favicons',
         },
         {
             from: 'build/static/bin/firmware',

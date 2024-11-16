@@ -1,4 +1,6 @@
-import { Account } from 'src/types/wallet';
+import { BuyTrade, SellFiatTrade, CryptoId } from 'invity-api';
+import { v4 as uuidv4 } from 'uuid';
+
 import {
     Network,
     NetworkSymbol,
@@ -9,11 +11,17 @@ import {
     networks,
 } from '@suite-common/wallet-config';
 import TrezorConnect from '@trezor/connect';
+import { DefinitionType, isTokenDefinitionKnown } from '@suite-common/token-definitions';
+import {
+    getContractAddressForNetwork,
+    substituteBip43Path,
+    sortByCoin,
+} from '@suite-common/wallet-utils';
+import { BigNumber } from '@trezor/utils';
+
+import { Account } from 'src/types/wallet';
 import regional from 'src/constants/wallet/coinmarket/regional';
 import { ExtendedMessageDescriptor, TrezorDevice } from 'src/types/suite';
-import { BuyTrade, SellFiatTrade, CryptoId } from 'invity-api';
-import { DefinitionType, isTokenDefinitionKnown } from '@suite-common/token-definitions';
-import { getContractAddressForNetwork, substituteBip43Path } from '@suite-common/wallet-utils';
 import {
     CoinmarketAccountOptionsGroupOptionProps,
     CoinmarketAccountsOptionsGroupProps,
@@ -27,9 +35,6 @@ import {
     CoinmarketTradeDetailType,
     CoinmarketTradeType,
 } from 'src/types/coinmarket/coinmarket';
-import { v4 as uuidv4 } from 'uuid';
-import { BigNumber } from '@trezor/utils';
-import { sortByCoin } from '@suite-common/wallet-utils';
 
 export const cryptoPlatformSeparator = '--';
 
@@ -72,8 +77,20 @@ export const getNetworkName = (networkSymbol: NetworkSymbol) => {
     return networks[networkSymbol].name;
 };
 
-export const getNetworkDecimals = (networkDecimals: number | undefined) => {
-    return networkDecimals ?? 8;
+interface CoinmarketGetDecimalsProps {
+    sendCryptoSelect?: CoinmarketAccountOptionsGroupOptionProps;
+    network?: Network | null;
+}
+
+export const getCoinmarketNetworkDecimals = ({
+    sendCryptoSelect,
+    network,
+}: CoinmarketGetDecimalsProps) => {
+    if (sendCryptoSelect) {
+        return sendCryptoSelect.decimals;
+    }
+
+    return network?.decimals ?? 8;
 };
 
 /** @deprecated */
@@ -133,7 +150,7 @@ export const getCountryLabelParts = (label: string) => {
         const text = parts.join(' ');
 
         return { flag, text };
-    } catch (err) {
+    } catch {
         return null;
     }
 };
@@ -187,9 +204,10 @@ export const getComposeAddressPlaceholder = async (
             // which need more fees than Shelley addresses used in the Suite, using dummy Byron address for the placeholder
             // return '37btjrVyb4KDXBNC4haBVPCrro8AQPHwvCMp3RFhhSVWwfFmZ6wwzSK6JK1hY6wHNmtrpTf1kdbva8TCneM2YsiXT7mrzT21EacHnPpz5YyUdj64na';
             return '';
+        case 'solana':
+            return '';
         case 'ethereum':
         case 'ripple':
-        case 'solana':
             return account.descriptor;
         // no default
     }

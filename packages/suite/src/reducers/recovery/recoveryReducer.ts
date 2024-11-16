@@ -1,4 +1,5 @@
 import produce from 'immer';
+
 import { RECOVERY } from 'src/actions/recovery/constants';
 import { Action } from 'src/types/suite';
 import { WordCount } from 'src/types/recovery';
@@ -14,7 +15,7 @@ export interface RecoveryState {
 const initialState: RecoveryState = {
     advancedRecovery: false,
     wordsCount: 12,
-    error: '',
+    error: undefined,
     status: 'initial',
 };
 

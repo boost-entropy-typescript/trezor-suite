@@ -1,0 +1,60 @@
+# CRYPTOGRAPHY
+golomb
+@types/bs58
+bs58
+@types/bs58check
+bs58check
+@types/create-hmac
+create-hmac
+bech32
+bip66
+bitcoin-ops
+blake-hash
+blakejs
+varuint-bitcoin
+int64-buffer
+minimaldata
+n64
+@types/wif
+wif
+tiny-secp256k1
+uuid
+
+# DESKTOP
+@electron/notarize
+electron
+electron-builder
+electron-localshortcut
+electron-store
+electron-updater
+@types/electron-localshortcut
+electron-localshortcut
+openpgp
+systeminformation
+
+# FORMS
+@hookform/resolvers
+react-hook-form
+
+# LABELING
+@types/cors
+cors
+dropbox
+express
+
+# STORAGE
+idb
+broadcast-channel
+
+# ESLINT
+@eslint/js
+eslint
+typescript-eslint
+eslint-plugin-chai-friendly
+eslint-plugin-import
+eslint-plugin-jest
+eslint-plugin-jsx-a11y
+eslint-plugin-local-rules
+eslint-plugin-mdx
+eslint-plugin-react-hooks
+eslint-plugin-react

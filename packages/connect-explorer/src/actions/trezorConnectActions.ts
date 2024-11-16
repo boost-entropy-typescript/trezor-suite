@@ -4,7 +4,6 @@ import TrezorConnect, {
     TRANSPORT_EVENT,
     WEBEXTENSION,
 } from '@trezor/connect-web';
-
 import TrezorConnectMobile from '@trezor/connect-mobile';
 
 import { TrezorConnectDevice, Dispatch, Field, GetState } from '../types';
@@ -124,7 +123,7 @@ export const init =
             try {
                 // Verify if valid by loading core.js, if this file exists we can assume the connectSrc is valid
                 await testLoadingScript(options.connectSrc + 'js/core.js');
-            } catch (err) {
+            } catch {
                 dispatch({
                     type: ACTIONS.ON_INIT_ERROR,
                     payload: `Invalid connectSrc: ${options.connectSrc}`,
@@ -146,6 +145,17 @@ export const init =
         const urlParams = new URLSearchParams(window.location.search);
         const coreMode = (urlParams.get('core-mode') as ConnectOptions['coreMode']) || 'auto';
 
+        // localhost + dev server
+        let _sessionsBackgroundUrl = process.env.CONNECT_EXPLORER_FULL_URL
+            ? `${process.env.CONNECT_EXPLORER_FULL_URL}/workers/sessions-background-sharedworker.js`
+            : window.origin + '/workers/sessions-background-sharedworker.js';
+
+        // connect.trezor.io/9 || connect.trezor.io/9.x.y
+        if (window.location.origin.endsWith('connect.trezor.io')) {
+            _sessionsBackgroundUrl =
+                'https://connect.trezor.io/9/workers/sessions-background-sharedworker.js';
+        }
+
         const connectOptions = {
             coreMode,
             transportReconnect: true,
@@ -158,6 +168,7 @@ export const init =
             },
             trustedHost: false,
             connectSrc: window.__TREZOR_CONNECT_SRC,
+            _sessionsBackgroundUrl,
             ...options,
         };
 

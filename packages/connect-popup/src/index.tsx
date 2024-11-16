@@ -22,11 +22,12 @@ import type { Core } from '@trezor/connect/src/core';
 import { config } from '@trezor/connect/src/data/config';
 import { parseConnectSettings } from '@trezor/connect-iframe/src/connectSettings';
 import { initLogWriterWithSrcPath } from '@trezor/connect-iframe/src/sharedLoggerUtils';
-
 import { reactEventBus } from '@trezor/connect-ui/src/utils/eventBus';
 import { ErrorViewProps } from '@trezor/connect-ui/src/views/Error';
 import { analytics, EventType } from '@trezor/connect-analytics';
 import { getSystemInfo } from '@trezor/connect-common';
+import { initLog, setLogWriter, LogWriter } from '@trezor/connect/src/utils/debug';
+import { DEFAULT_DOMAIN } from '@trezor/connect/src/data/version';
 
 import * as view from './view';
 import {
@@ -38,8 +39,6 @@ import {
     showView,
 } from './view/common';
 import { isPhishingDomain } from './utils/isPhishingDomain';
-import { initLog, setLogWriter, LogWriter } from '@trezor/connect/src/utils/debug';
-import { DEFAULT_DOMAIN } from '@trezor/connect/src/data/version';
 
 const INTERVAL_CHECK_PARENT_ALIVE_MS = 1000;
 const INTERVAL_HANDSHAKE_TIMEOUT_MS = 90 * 1000;
@@ -58,7 +57,7 @@ const escapeHtml = (payload: any) => {
         div.appendChild(document.createTextNode(JSON.stringify(payload)));
 
         return JSON.parse(div.innerHTML);
-    } catch (error) {
+    } catch {
         // do nothing
     }
 };
@@ -193,6 +192,7 @@ const handleResponseEvent = (data: MethodResponseMessage) => {
             default:
                 fail({
                     type: 'error',
+                    code,
                     detail: 'response-event-error',
                     message: ('error' in data.payload && data.payload.error) || 'Unknown error',
                 });
@@ -520,8 +520,8 @@ const initCoreInIframe = async (payload: PopupInit['payload']) => {
 };
 
 // handle POPUP.HANDSHAKE message from iframe or npm-client
-const handshake = (handshake: PopupHandshake, origin: string) => {
-    const { payload, ...handshakeRest } = handshake;
+const handshake = (handshake2: PopupHandshake, origin: string) => {
+    const { payload, ...handshakeRest } = handshake2;
     log.debug('handshake with origin: ', origin, 'payload: ', payload);
 
     if (!payload) return;
@@ -551,7 +551,7 @@ const handshake = (handshake: PopupHandshake, origin: string) => {
         const core = ensureCore();
         core.handleMessage(handshakeRest);
     }
-    reactEventBus.dispatch({ type: 'state-update', payload: handshake.payload });
+    reactEventBus.dispatch({ type: 'state-update', payload: handshake2.payload });
 
     log.debug('handshake done');
 };

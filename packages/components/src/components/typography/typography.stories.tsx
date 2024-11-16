@@ -1,6 +1,7 @@
+import { Meta, StoryFn } from '@storybook/react';
+
 import { StoryColumn } from '../../support/Story';
 import { H1, H2, Paragraph, Link } from '../../index';
-import { Meta, StoryFn } from '@storybook/react';
 
 const meta: Meta = {
     title: 'Typography',
@@ -23,49 +24,56 @@ export const AllTypography: StoryFn = () => (
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="titleLarge" data-testid="paragraph-titleLarge">
-                type="titleLarge" <br />
+                type=&quot;titleLarge&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="titleMedium" data-testid="paragraph-titleMedium">
-                type="titleMedium" <br />
+                type=&quot;titleMedium&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="titleSmall" data-testid="paragraph-titleSmall">
-                type ="titleSmall" <br />
+                type=&quot;titleSmall&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="highlight" data-testid="paragraph-highlight">
-                type="highlight" <br />
+                type=&quot;highlight&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="callout" data-testid="paragraph-callout">
-                type="callout" <br />
+                type=&quot;callout&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="hint" data-testid="paragraph-hint">
-                type="hint" <br />
+                type=&quot;hint&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
                 feugiat vel mi.
             </Paragraph>
             <Paragraph typographyStyle="label" data-testid="paragraph-label">
-                type="label" <br />
+                type=&quot;label&quot;
+                <br />
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a ante quis lectus
                 eleifend rutrum. Aenean tincidunt odio vel fermentum ultricies. Sed suscipit
                 interdum eros, eget placerat lorem pulvinar in. Ut elit orci, rhoncus eu porta vel,
