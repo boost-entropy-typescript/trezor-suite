@@ -149,7 +149,7 @@ export const TransactionListItemContainer = ({
 
     const { DateTimeFormatter } = useFormatters();
     const transactionBlockTime = useSelector((state: TransactionsRootState) =>
-        selectTransactionBlockTimeById(state, txid, accountKey),
+        selectTransactionBlockTimeById(state, accountKey, txid),
     );
 
     const isTransactionPending = useSelector((state: TransactionsRootState) =>
@@ -197,7 +197,11 @@ export const TransactionListItemContainer = ({
                         {hasIncludedCoins && <Badge label={includedCoinsLabel} size="small" />}
                     </HStack>
 
-                    <DateTextComponent isForcedDiscreetMode={isPhishingTransaction}>
+                    <DateTextComponent
+                        isForcedDiscreetMode={isPhishingTransaction}
+                        variant="hint"
+                        color="textSubdued"
+                    >
                         {DateTimeFormatter.format(transactionBlockTime)}
                     </DateTextComponent>
                 </Box>
