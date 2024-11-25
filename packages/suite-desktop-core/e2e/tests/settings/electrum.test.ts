@@ -1,17 +1,9 @@
-import { test as testPlaywright, ElectronApplication, Page } from '@playwright/test';
-
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
-import { launchSuite } from '../../support/common';
-import { onTopBar } from '../../support/pageActions/topBarActions';
-import { onSettingsPage } from '../../support/pageActions/settingsActions';
-import { onDashboardPage } from '../../support/pageActions/dashboardActions';
+import { test } from '../../support/fixtures';
 
-let electronApp: ElectronApplication;
-let window: Page;
-
-testPlaywright.describe.serial('Suite works with Electrum server', () => {
-    testPlaywright.beforeAll(async () => {
+test.describe.serial('Suite works with Electrum server', () => {
+    test.beforeAll(async () => {
         await TrezorUserEnvLink.stopBridge();
         await TrezorUserEnvLink.connect();
         await TrezorUserEnvLink.startEmu({ wipe: true });
@@ -19,30 +11,27 @@ testPlaywright.describe.serial('Suite works with Electrum server', () => {
             needs_backup: true,
             mnemonic: 'mnemonic_all',
         });
-        ({ electronApp, window } = await launchSuite());
     });
 
-    testPlaywright.afterAll(() => {
-        electronApp.close();
-    });
-
-    testPlaywright('Electrum completes discovery successfully', async () => {
+    test('Electrum completes discovery successfully', async ({
+        dashboardPage,
+        topBar,
+        settingsPage,
+    }) => {
         const electrumUrl = '127.0.0.1:50001:t';
 
-        await onDashboardPage.passThroughInitialRun(window);
-        await onDashboardPage.discoveryShouldFinish(window);
+        await dashboardPage.passThroughInitialRun();
+        await dashboardPage.discoveryShouldFinish();
 
-        await onTopBar.openSettings(window);
-        await onSettingsPage.toggleDebugModeInSettings(window);
-        await onSettingsPage.goToDesiredSettingsPlace(window, 'wallet');
-        await onSettingsPage.openNetworkSettings(window, 'regtest');
-        await onSettingsPage.changeNetworkBackend(window, 'electrum', electrumUrl);
+        await topBar.openSettings();
+        await settingsPage.toggleDebugModeInSettings();
+        await settingsPage.goToDesiredSettingsPlace('wallet');
+        await settingsPage.openNetworkSettings('regtest');
+        await settingsPage.changeNetworkBackend('electrum', electrumUrl);
 
-        await onTopBar.openDashboard(window);
-        await onDashboardPage.discoveryShouldFinish(window);
+        await topBar.openDashboard();
+        await dashboardPage.discoveryShouldFinish();
 
-        await onDashboardPage.assertHasVisibleBalanceOnFirstAccount(window, 'regtest');
-
-        electronApp.close();
+        await dashboardPage.assertHasVisibleBalanceOnFirstAccount('regtest');
     });
 });
