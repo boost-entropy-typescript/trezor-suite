@@ -3,11 +3,11 @@ import { ipcMain } from 'electron';
 import TrezorConnect, { DEVICE_EVENT } from '@trezor/connect';
 import { createIpcProxyHandler, IpcProxyHandlerOptions } from '@trezor/ipc-proxy';
 
-import { Dependencies, mainThreadEmitter, ModuleInitBackground, ModuleInit } from './index';
+import { ModuleInit, ModuleInitBackground } from './index';
 
 export const SERVICE_NAME = '@trezor/connect';
 
-export const initBackground: ModuleInitBackground = ({ store }: Pick<Dependencies, 'store'>) => {
+export const initBackground: ModuleInitBackground = ({ mainThreadEmitter, store }) => {
     const { logger } = global;
     logger.info(SERVICE_NAME, `Starting service`);
 

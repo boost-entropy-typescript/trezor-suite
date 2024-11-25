@@ -2,15 +2,17 @@
  * Local web server for handling requests to app
  */
 import { validateIpcMessage } from '@trezor/ipc-proxy';
+import { isDevEnv } from '@suite-common/suite-utils';
 
 import { app, ipcMain } from '../typed-electron';
 import { createHttpReceiver } from '../libs/http-receiver';
+import { exposeConnectWs } from '../libs/connect-ws';
 
-import type { ModuleInit } from './index';
+import type { ModuleInitBackground } from './index';
 
 export const SERVICE_NAME = 'http-receiver';
 
-export const init: ModuleInit = ({ mainWindowProxy }) => {
+export const initBackground: ModuleInitBackground = ({ mainWindowProxy, mainThreadEmitter }) => {
     const { logger } = global;
     let httpReceiver: ReturnType<typeof createHttpReceiver> | null = null;
 
@@ -52,10 +54,28 @@ export const init: ModuleInit = ({ mainWindowProxy }) => {
             return receiver.getRouteAddress(pathname);
         });
 
-        logger.info(SERVICE_NAME, 'Starting server');
-        await receiver.start();
+        const connectPopupEnabled = app.commandLine.hasSwitch('expose-connect-ws') || isDevEnv;
+        ipcMain.handle('connect-popup/enabled', ipcEvent => {
+            validateIpcMessage(ipcEvent);
 
-        return receiver.getInfo();
+            return connectPopupEnabled;
+        });
+        if (connectPopupEnabled) {
+            exposeConnectWs({ mainThreadEmitter, httpReceiver: receiver, mainWindowProxy });
+        }
+
+        logger.info(SERVICE_NAME, 'Starting server');
+
+        try {
+            await receiver.start();
+
+            return receiver.getInfo();
+        } catch (error) {
+            // Don't fail hard if the server can't start
+            logger.error(SERVICE_NAME, 'Failed to start server: ' + error);
+
+            return { url: null };
+        }
     };
 
     const onQuit = async () => {

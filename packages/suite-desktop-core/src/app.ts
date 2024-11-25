@@ -144,7 +144,7 @@ const init = async () => {
             interceptor,
             mainThreadEmitter,
         });
-    await loadBackgroundModules(undefined);
+    const backgroundModulesResponse = await loadBackgroundModules(undefined);
 
     // Daemon mode with no UI
     const { wasOpenedAtLogin } = app.getLoginItemSettings();
@@ -208,8 +208,12 @@ const init = async () => {
 
         app.dock?.show();
         if (isMacOs()) app.show();
-        if (!mainWindow.isVisible()) mainWindow.show();
-        if (mainWindow.isMinimized()) mainWindow.restore();
+        //if (!mainWindow.isVisible())
+        mainWindow.show();
+        //if (mainWindow.isMinimized())
+        mainWindow.restore();
+        app.focus();
+        mainWindow.moveTop();
         mainWindow.focus();
     };
     app.on('second-instance', reactivateWindow);
@@ -222,9 +226,9 @@ const init = async () => {
     // create handler for handshake/load-modules
     const loadModulesResponse = (clientData: HandshakeClient) =>
         loadModules(clientData)
-            .then(payload => ({
+            .then(modulesResponse => ({
                 success: true as const,
-                payload,
+                payload: { ...modulesResponse, ...backgroundModulesResponse },
             }))
             .catch(err => ({
                 success: false as const,
@@ -264,7 +268,8 @@ const init = async () => {
         const mainWindow = mainWindowProxy.getInstance();
         const windowExists =
             mainWindow && !mainWindow.isDestroyed() && mainWindow.isClosable() && !app.isHidden();
-        const autoStartCurrentlyEnabled = isAutoStartEnabled();
+        const autoStartCurrentlyEnabled =
+            isAutoStartEnabled() || app.commandLine.hasSwitch('bridge-test');
         logger.info('main', `Before quit, window exists: ${windowExists}`);
         if (
             !stoppingDaemon &&

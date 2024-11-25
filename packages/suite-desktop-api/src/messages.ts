@@ -126,3 +126,17 @@ export type InvokeResult<Payload = undefined> =
     ExtractUndefined<Payload> extends undefined
         ? { success: true; payload?: Payload } | { success: false; error: string; code?: string }
         : { success: true; payload: Payload } | { success: false; error: string; code?: string };
+
+export type ConnectPopupCall = {
+    id: number;
+    method: string;
+    payload: any;
+    processName?: string;
+    origin?: string;
+};
+
+export type ConnectPopupResponse = {
+    id: number;
+    success: boolean;
+    payload: any;
+};

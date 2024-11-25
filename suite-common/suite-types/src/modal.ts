@@ -183,4 +183,12 @@ export type UserContextPayload =
       }
     | {
           type: 'passphrase-mismatch-warning';
+      }
+    | {
+          type: 'connect-popup';
+          onConfirm: () => void;
+          onCancel: () => void;
+          method: string;
+          processName?: string;
+          origin?: string;
       };
