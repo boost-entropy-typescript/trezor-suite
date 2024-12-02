@@ -15,6 +15,7 @@ type WebUsbTransportParams = AbstractTransportParams & { sessionsBackgroundUrl?:
  */
 export class WebUsbTransport extends AbstractApiTransport {
     public name = 'WebUsbTransport' as const;
+    public apiType = 'usb' as const;
 
     private readonly sessionsBackgroundUrl: string | null = defaultSessionsBackgroundUrl;
 
@@ -60,11 +61,5 @@ export class WebUsbTransport extends AbstractApiTransport {
         await this.trySetSessionsBackground();
 
         return super.init({ signal });
-    }
-
-    public listen() {
-        this.api.listen();
-
-        return super.listen();
     }
 }

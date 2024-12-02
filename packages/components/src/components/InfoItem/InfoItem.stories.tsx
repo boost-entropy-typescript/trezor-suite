@@ -6,8 +6,8 @@ import {
     InfoItem as InfoItemComponent,
     allowedInfoItemFrameProps,
     allowedInfoItemTextProps,
-    verticalAlignments,
 } from './InfoItem';
+import { infoItemVerticalAlignments, infoItemVariants } from './types';
 import { flexDirection } from '../Flex/Flex';
 import { getFramePropsStory } from '../../utils/frameProps';
 import { getTextPropsStory } from '../typography/utils';
@@ -25,10 +25,12 @@ export const InfoItem: StoryObj = {
         </InfoItemComponent>
     ),
     args: {
+        ...getTextPropsStory(allowedInfoItemTextProps).args,
+        ...getFramePropsStory(allowedInfoItemFrameProps).args,
         direction: 'column',
         label: 'Label',
-        ...getFramePropsStory(allowedInfoItemFrameProps).args,
-        ...getTextPropsStory(allowedInfoItemTextProps).args,
+        variant: 'tertiary',
+        typographyStyle: 'hint',
     },
     argTypes: {
         direction: {
@@ -57,13 +59,19 @@ export const InfoItem: StoryObj = {
                 type: 'number',
             },
         },
+        variant: {
+            options: infoItemVariants,
+            control: {
+                type: 'select',
+            },
+        },
         verticalAlignment: {
-            options: verticalAlignments,
+            options: infoItemVerticalAlignments,
             control: {
                 type: 'radio',
             },
         },
-        ...getFramePropsStory(allowedInfoItemFrameProps).argTypes,
         ...getTextPropsStory(allowedInfoItemTextProps).argTypes,
+        ...getFramePropsStory(allowedInfoItemFrameProps).argTypes,
     },
 };

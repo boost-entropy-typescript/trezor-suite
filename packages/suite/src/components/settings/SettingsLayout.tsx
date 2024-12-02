@@ -1,5 +1,8 @@
 import { ReactNode, useMemo } from 'react';
 
+import { Column } from '@trezor/components';
+import { spacings } from '@trezor/theme';
+
 import { useDiscovery, useDispatch, useLayout, useSelector } from 'src/hooks/suite';
 import { SettingsLoading } from 'src/views/settings/SettingsLoader';
 import {
@@ -70,14 +73,14 @@ export const SettingsLayout = ({
     children,
     'data-testid': dataTest,
 }: SettingsLayoutProps) => {
-    useLayout(title || 'Settings', SettingsHeader);
+    useLayout(title || 'Settings', <SettingsHeader />);
 
     const { isDiscoveryRunning } = useDiscovery();
 
     return (
         <div data-testid={dataTest}>
             <SettingsLoading isPresent={isDiscoveryRunning} />
-            <>{children}</>
+            <Column gap={spacings.xxxxl}>{children}</Column>
         </div>
     );
 };

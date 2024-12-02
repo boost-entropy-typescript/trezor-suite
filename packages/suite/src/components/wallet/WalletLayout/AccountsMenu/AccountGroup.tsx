@@ -2,15 +2,13 @@ import { useState, ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import { Icon, Column } from '@trezor/components';
-import { spacingsPx, spacings, typography } from '@trezor/theme';
+import { Icon, Column, Text, Row, Box } from '@trezor/components';
+import { spacingsPx, spacings } from '@trezor/theme';
 
 import { Translation } from 'src/components/suite';
 import { Account } from 'src/types/wallet';
 
 import { AnimationWrapper } from '../../AnimationWrapper';
-
-const ICON_SIZE = 18;
 
 const IconWrapper = styled.div<{ $isActive: boolean }>`
     padding: ${spacingsPx.xs};
@@ -21,30 +19,13 @@ const IconWrapper = styled.div<{ $isActive: boolean }>`
     transform: ${({ $isActive }) => ($isActive ? 'rotate(0)' : 'rotate(-90deg)')};
 `;
 
-const Header = styled.header<{ $isOpen: boolean; onClick?: () => void }>`
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    display: flex;
-    gap: ${spacings.sm - 1}px;
-    padding: 0 ${spacingsPx.sm};
-    cursor: ${props => (props.onClick ? 'pointer' : 'default')};
+const Header = styled.header`
     background-color: ${({ theme }) => theme.backgroundSurfaceElevationNegative};
-    align-items: center;
-    color: ${({ theme }) => theme.textSubdued};
-    min-height: 40px;
-    ${typography.label}
 
     &:hover {
         ${IconWrapper} {
             background: ${({ theme }) => theme.backgroundSurfaceElevation1};
         }
-    }
-`;
-
-const HeadingWrapper = styled.div`
-    &:only-child {
-        padding-left: ${spacings.sm + spacings.md + ICON_SIZE - 1}px;
     }
 `;
 
@@ -108,27 +89,45 @@ export const AccountGroup = ({
     const heading = getGroupLabel(type, hideLabel);
 
     return (
-        <div>
+        <Column gap={spacings.xxxs}>
             {heading !== null && (
-                <Header
-                    $isOpen={isOpen}
-                    onClick={!keepOpen ? onClick : undefined}
-                    data-testid={`@account-menu/${type}`}
+                <Box
+                    position={{ type: 'sticky', top: 0 }}
+                    zIndex={30}
+                    cursor={!keepOpen ? 'pointer' : 'default'}
                 >
-                    {!keepOpen && (
-                        <IconWrapper $isActive={isOpen}>
-                            <Icon
-                                data-testid="@account-menu/arrow"
-                                size={ICON_SIZE}
+                    <Header
+                        onClick={!keepOpen ? onClick : undefined}
+                        data-testid={`@account-menu/${type}`}
+                    >
+                        <Row
+                            gap={spacings.sm}
+                            margin={{ horizontal: spacings.sm }}
+                            padding={{ left: keepOpen ? spacings.xxl : undefined }}
+                            minHeight={spacings.xxxl}
+                        >
+                            {!keepOpen && (
+                                <IconWrapper $isActive={isOpen}>
+                                    <Icon
+                                        data-testid="@account-menu/arrow"
+                                        size={16}
+                                        variant="tertiary"
+                                        name="chevronDown"
+                                    />
+                                </IconWrapper>
+                            )}
+                            <Text
                                 variant="tertiary"
-                                name="chevronDown"
-                            />
-                        </IconWrapper>
-                    )}
-                    <HeadingWrapper>
-                        <Translation id={heading} />
-                    </HeadingWrapper>
-                </Header>
+                                typographyStyle="label"
+                                margin={{ left: keepOpen ? spacings.sm : undefined }}
+                                // Optical fix
+                                position={{ type: 'relative', left: 1 }}
+                            >
+                                <Translation id={heading} />
+                            </Text>
+                        </Row>
+                    </Header>
+                </Box>
             )}
 
             <AnimationWrapper opened={isOpen} onUpdate={onUpdate}>
@@ -140,6 +139,6 @@ export const AccountGroup = ({
                     {children}
                 </Column>
             </AnimationWrapper>
-        </div>
+        </Column>
     );
 };

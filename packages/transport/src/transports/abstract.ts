@@ -85,12 +85,18 @@ class TransportEmitter extends TypedEmitter<{
         | typeof ERRORS.UNEXPECTED_ERROR;
 }> {}
 
+export type TransportApiType = 'usb' | 'udp' | 'bluetooth';
+
 export abstract class AbstractTransport extends TransportEmitter {
-    public abstract name:
+    public abstract readonly name:
         | 'BridgeTransport'
         | 'NodeUsbTransport'
         | 'WebUsbTransport'
-        | 'UdpTransport';
+        | 'UdpTransport'
+        | 'NativeUsbTransport' // implementation in @trezor/transport-native
+        | 'BluetoothTransport'; // implementation in @trezor/transport-bluetooth
+
+    public abstract readonly apiType: TransportApiType;
     /**
      * transports with "external element" such as bridge can be outdated.
      */

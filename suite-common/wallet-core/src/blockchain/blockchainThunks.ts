@@ -1,6 +1,7 @@
 import { createThunk } from '@suite-common/redux-utils';
 import {
     getNetworkOptional,
+    isBlockbookBasedNetwork,
     isNetworkSymbol,
     networksCollection,
     NetworkSymbol,
@@ -17,6 +18,7 @@ import {
     isTrezorConnectBackendType,
     shouldUseIdentities,
     getAccountIdentity,
+    shouldSubscribeBlocks,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, {
     BlockchainBlock,
@@ -244,9 +246,11 @@ export const subscribeBlockchainThunk = createThunk(
         { getState },
     ) => {
         const useIdentities = shouldUseIdentities(symbol);
+        // Don't subscribe to blocks for Solana, this is too intensive
+        const blocks = shouldSubscribeBlocks(symbol);
 
         if (onConnect && useIdentities) {
-            await TrezorConnect.blockchainSubscribe({ coin: symbol, blocks: true });
+            await TrezorConnect.blockchainSubscribe({ coin: symbol, blocks });
         }
 
         // do NOT subscribe if there are no accounts
@@ -266,7 +270,7 @@ export const subscribeBlockchainThunk = createThunk(
                       blocks: false,
                   }),
               )
-            : [{ accounts: accountsToSubscribe, coin: symbol, blocks: true }];
+            : [{ accounts: accountsToSubscribe, coin: symbol, blocks }];
 
         return Promise.all(paramsArray.map(params => TrezorConnect.blockchainSubscribe(params)));
     },
@@ -335,9 +339,14 @@ export const syncAccountsWithBlockchainThunk = createThunk(
         // First clear, to cancel last planned sync
         tryClearTimeout(blockchain[symbol].syncTimeout);
 
+        // non-blockbook networks will not update periodically if not visible in UI (sidebar)
+        const visibleAccounts = findAccountsByNetwork(symbol, accounts).filter(
+            account => isBlockbookBasedNetwork(symbol) || account.visible,
+        );
+
         await Promise.all(
-            findAccountsByNetwork(symbol, accounts).map(a =>
-                dispatch(fetchAndUpdateAccountThunk({ accountKey: a.key })),
+            visibleAccounts.map(account =>
+                dispatch(fetchAndUpdateAccountThunk({ accountKey: account.key })),
             ),
         );
 
