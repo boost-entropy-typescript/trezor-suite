@@ -3,8 +3,10 @@ import { useEffect, useMemo } from 'react';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 
-import { useDevice } from 'src/hooks/suite';
+import { useDevice, useSelector } from 'src/hooks/suite';
 import { captureSentryMessage, withSentryScope } from 'src/utils/suite/sentry';
+import { selectFirmwareRevisionCheckError } from 'src/reducers/suite/suiteReducer';
+import { hashCheckErrorScenarios } from 'src/constants/suite/firmware';
 
 const reportCheckFail = (checkType: 'revision' | 'hash', contextData: any) =>
     withSentryScope(scope => {
@@ -26,34 +28,31 @@ const useCommonData = () => {
 };
 
 const useReportRevisionCheck = () => {
-    const { device } = useDevice();
     const commonData = useCommonData();
-
-    const revisionCheck = isDeviceAcquired(device)
-        ? device.authenticityChecks?.firmwareRevision
-        : null;
-    const isRevisionCheckError = revisionCheck && !revisionCheck.success;
-    const revisionCheckError = isRevisionCheckError ? revisionCheck.error : null;
+    const revisionCheckError = useSelector(selectFirmwareRevisionCheckError);
 
     useEffect(() => {
-        if (!isRevisionCheckError) return;
-        reportCheckFail('revision', { ...commonData, revisionCheckError });
-    }, [commonData, isRevisionCheckError, revisionCheckError]);
+        if (revisionCheckError !== null) {
+            reportCheckFail('revision', { ...commonData, revisionCheckError });
+        }
+    }, [commonData, revisionCheckError]);
 };
 
 const useReportHashCheck = () => {
     const { device } = useDevice();
     const commonData = useCommonData();
 
+    // `errorPayload` must also be extracted, which is why `selectFirmwareHashCheckError` would be impractical
     const hashCheck = isDeviceAcquired(device) ? device.authenticityChecks?.firmwareHash : null;
     const isHashCheckError = hashCheck && !hashCheck.success;
     const hashCheckError = isHashCheckError ? hashCheck.error : null;
     const hashCheckErrorPayload = isHashCheckError ? hashCheck.errorPayload : null;
 
     useEffect(() => {
-        if (!isHashCheckError) return;
-        reportCheckFail('hash', { ...commonData, hashCheckError, hashCheckErrorPayload });
-    }, [commonData, hashCheckError, isHashCheckError, hashCheckErrorPayload]);
+        if (hashCheckError && hashCheckErrorScenarios[hashCheckError].shouldReport) {
+            reportCheckFail('hash', { ...commonData, hashCheckError, hashCheckErrorPayload });
+        }
+    }, [commonData, hashCheckError, hashCheckErrorPayload]);
 };
 
 export const useReportDeviceCompromised = () => {

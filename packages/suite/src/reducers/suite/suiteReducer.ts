@@ -4,7 +4,7 @@ import type { InvityServerEnvironment } from '@suite-common/invity';
 import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { discoveryActions, DeviceRootState, selectDevice } from '@suite-common/wallet-core';
-import { isArrayMember, versionUtils } from '@trezor/utils';
+import { versionUtils } from '@trezor/utils';
 import { isWeb } from '@trezor/env-utils';
 import { TRANSPORT, TransportInfo, ConnectSettings } from '@trezor/connect';
 import { NetworkSymbol } from '@suite-common/wallet-config';
@@ -20,7 +20,11 @@ import { ExperimentalFeature } from 'src/constants/suite/experimental';
 import { Action, AppState, TorBootstrap, TorStatus } from 'src/types/suite';
 import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/prerequisites';
 import { SIDEBAR_WIDTH_NUMERIC } from 'src/constants/suite/layout';
-import { skippedHashCheckErrors, skippedRevisionCheckErrors } from 'src/constants/suite/firmware';
+import {
+    hashCheckErrorScenarios,
+    isSkippedHashCheckError,
+    revisionCheckErrorScenarios,
+} from 'src/constants/suite/firmware';
 
 import { RouterRootState, selectRouter } from './routerReducer';
 
@@ -446,23 +450,21 @@ export const selectHasExperimentalFeature =
 export const selectFirmwareRevisionCheckError = (state: AppState) => {
     const device = selectDevice(state);
     if (!isDeviceAcquired(device) || !device.authenticityChecks) return null;
+    const checkResult = device.authenticityChecks.firmwareRevision;
 
+    // null means not performed, then don't consider it failed
+    if (!checkResult || checkResult.success) return null;
+
+    return checkResult.error;
+};
+
+export const selectFirmwareRevisionCheckErrorIfEnabled = (state: AppState) => {
+    const revisionCheckError = selectFirmwareRevisionCheckError(state);
     const { isFirmwareRevisionCheckDisabled } = state.suite.settings;
     const isDisabledByMessage = selectIsFeatureDisabled(state, Feature.firmwareRevisionCheck);
     const isCheckEnabled = !isFirmwareRevisionCheckDisabled && !isDisabledByMessage;
-    const checkResult = device.authenticityChecks.firmwareRevision; // null means not performed, then don't consider it failed
 
-    return isCheckEnabled && checkResult?.success === false ? checkResult.error : null;
-};
-
-/**
- * Determine hard failure of firmware revision check - specific error types which are severe.
- * If Suite is offline and cannot perform check or there is some unexpected error, a banner is shown but device is accessible.
- */
-const selectIsFirmwareRevisionCheckEnabledAndFailed = (state: AppState): boolean => {
-    const error = selectFirmwareRevisionCheckError(state);
-
-    return error !== null ? !isArrayMember(error, skippedRevisionCheckErrors) : false;
+    return isCheckEnabled ? revisionCheckError : null;
 };
 
 /**
@@ -471,31 +473,38 @@ const selectIsFirmwareRevisionCheckEnabledAndFailed = (state: AppState): boolean
 export const selectFirmwareHashCheckError = (state: AppState) => {
     const device = selectDevice(state);
     if (!isDeviceAcquired(device) || !device.authenticityChecks) return null;
+    const checkResult = device.authenticityChecks.firmwareHash;
 
+    // null means not performed, then don't consider it failed
+    if (!checkResult || checkResult.success) return null;
+
+    if (isSkippedHashCheckError(checkResult.error)) return null;
+
+    return checkResult.error;
+};
+
+export const selectFirmwareHashCheckErrorIfEnabled = (state: AppState) => {
+    const hashCheckError = selectFirmwareHashCheckError(state);
     const { isFirmwareHashCheckDisabled } = state.suite.settings;
     const isDisabledByMessage = selectIsFeatureDisabled(state, Feature.firmwareHashCheck);
     const isCheckEnabled = !isFirmwareHashCheckDisabled && !isDisabledByMessage;
-    const checkResult = device.authenticityChecks.firmwareHash; // null means not performed, then don't consider it failed
 
-    return isCheckEnabled && checkResult?.success === false ? checkResult.error : null;
-};
-
-/**
- * Determine hard failure of firmware hash check - specific error types which are severe.
- * If check was skipped, don't consider it failed.
- * If check is unsupported by device, a banner is shown but device is accessible.
- */
-const selectIsFirmwareHashCheckEnabledAndFailed = (state: AppState): boolean => {
-    const error = selectFirmwareHashCheckError(state);
-
-    return error !== null ? !isArrayMember(error, skippedHashCheckErrors) : false;
+    return isCheckEnabled ? hashCheckError : null;
 };
 
 /**
  * Determine hard failure of either of firmware authenticity checks to block access to device.
  */
-export const selectIsFirmwareAuthenticityCheckEnabledAndFailed = (state: AppState) =>
-    selectIsFirmwareRevisionCheckEnabledAndFailed(state) ||
-    selectIsFirmwareHashCheckEnabledAndFailed(state);
+export const selectIsFirmwareAuthenticityCheckEnabledAndHardFailed = (state: AppState) => {
+    const revisionError = selectFirmwareRevisionCheckErrorIfEnabled(state);
+    const isRevisionHardError =
+        revisionError !== null && revisionCheckErrorScenarios[revisionError].type === 'hardModal';
+
+    const hashError = selectFirmwareHashCheckErrorIfEnabled(state);
+    const isHashHardError =
+        hashError !== null && hashCheckErrorScenarios[hashError].type === 'hardModal';
+
+    return isRevisionHardError || isHashHardError;
+};
 
 export default suiteReducer;
