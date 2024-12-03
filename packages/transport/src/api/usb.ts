@@ -27,11 +27,6 @@ interface TransportInterfaceDevice {
     device: USBDevice;
 }
 
-/**
- * Local error. We cast it to "device disconnected during action" from bridge as it means the same
- */
-const INTERFACE_DEVICE_DISCONNECTED = 'The device was disconnected.' as const;
-
 export class UsbApi extends AbstractApi {
     chunkSize = 64;
 
@@ -208,7 +203,7 @@ export class UsbApi extends AbstractApi {
                 { signal, onAbort: () => device?.reset() },
             );
             this.logger?.debug(
-                `usb: device.transferIn done. status: ${res.status}, byteLength: ${res.data?.byteLength}. device: ${this.formatDeviceForLog(device)}`,
+                `usb: device.transferIn done. status: ${res.status}, byteLength: ${res.data?.byteLength}.`,
             );
 
             if (!res.data?.byteLength) {
@@ -218,11 +213,8 @@ export class UsbApi extends AbstractApi {
             return this.success(Buffer.from(res.data.buffer));
         } catch (err) {
             this.logger?.error(`usb: device.transferIn error ${err}`);
-            if (err.message === INTERFACE_DEVICE_DISCONNECTED) {
-                return this.error({ error: ERRORS.DEVICE_DISCONNECTED_DURING_ACTION });
-            }
 
-            return this.error({ error: ERRORS.INTERFACE_DATA_TRANSFER, message: err.message });
+            return this.handleReadWriteError(err);
         }
     }
 
@@ -245,9 +237,7 @@ export class UsbApi extends AbstractApi {
                     ),
                 { signal, onAbort: () => device?.reset() },
             );
-            this.logger?.debug(
-                `usb: device.transferOut done. device: ${this.formatDeviceForLog(device)}`,
-            );
+            this.logger?.debug(`usb: device.transferOut done.`);
             if (result.status !== 'ok') {
                 this.logger?.error(`usb: device.transferOut status not ok: ${result.status}`);
                 throw new Error('transfer out status not ok');
@@ -255,12 +245,7 @@ export class UsbApi extends AbstractApi {
 
             return this.success(undefined);
         } catch (err) {
-            this.logger?.error(`usb: device.transferOut error ${err}`);
-            if (err.message === INTERFACE_DEVICE_DISCONNECTED) {
-                return this.error({ error: ERRORS.DEVICE_DISCONNECTED_DURING_ACTION });
-            }
-
-            return this.error({ error: ERRORS.INTERFACE_DATA_TRANSFER, message: err.message });
+            return this.handleReadWriteError(err);
         }
     }
 
@@ -296,6 +281,9 @@ export class UsbApi extends AbstractApi {
             this.logger?.debug(`usb: device.open done. device: ${this.formatDeviceForLog(device)}`);
         } catch (err) {
             this.logger?.error(`usb: device.open error ${err}`);
+            if (err.message.includes('LIBUSB_ERROR_ACCESS')) {
+                return this.error({ error: ERRORS.LIBUSB_ERROR_ACCESS });
+            }
 
             return this.error({
                 error: ERRORS.INTERFACE_UNABLE_TO_OPEN_DEVICE,
@@ -309,9 +297,7 @@ export class UsbApi extends AbstractApi {
                 await this.abortableMethod(() => device.selectConfiguration(CONFIGURATION_ID), {
                     signal,
                 });
-                this.logger?.debug(
-                    `usb: device.selectConfiguration done: ${CONFIGURATION_ID}. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.debug(`usb: device.selectConfiguration done: ${CONFIGURATION_ID}.`);
             } catch (err) {
                 this.logger?.error(
                     `usb: device.selectConfiguration error ${err}. device: ${this.formatDeviceForLog(device)}`,
@@ -321,9 +307,7 @@ export class UsbApi extends AbstractApi {
                 // reset fails on ChromeOS and windows
                 this.logger?.debug('usb: device.reset');
                 await this.abortableMethod(() => device?.reset(), { signal });
-                this.logger?.debug(
-                    `usb: device.reset done. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.debug(`usb: device.reset done.`);
             } catch (err) {
                 this.logger?.error(
                     `usb: device.reset error ${err}. device: ${this.formatDeviceForLog(device)}`,
@@ -336,13 +320,9 @@ export class UsbApi extends AbstractApi {
             this.logger?.debug(`usb: device.claimInterface: ${interfaceId}`);
             // claim device for exclusive access by this app
             await this.abortableMethod(() => device.claimInterface(interfaceId), { signal });
-            this.logger?.debug(
-                `usb: device.claimInterface done: ${interfaceId}. device: ${this.formatDeviceForLog(device)}`,
-            );
+            this.logger?.debug(`usb: device.claimInterface done: ${interfaceId}.`);
         } catch (err) {
-            this.logger?.error(
-                `usb: device.claimInterface error ${err}. device: ${this.formatDeviceForLog(device)}`,
-            );
+            this.logger?.error(`usb: device.claimInterface error ${err}.`);
 
             return this.error({
                 error: ERRORS.INTERFACE_UNABLE_TO_OPEN_DEVICE,
@@ -381,13 +361,9 @@ export class UsbApi extends AbstractApi {
                 this.logger?.debug(`usb: device.releaseInterface: ${interfaceId}`);
 
                 await device.releaseInterface(interfaceId);
-                this.logger?.debug(
-                    `usb: device.releaseInterface done: ${interfaceId}. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.debug(`usb: device.releaseInterface done: ${interfaceId}.`);
             } catch (err) {
-                this.logger?.error(
-                    `usb: releaseInterface error ${err}. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.error(`usb: releaseInterface error ${err}.`);
                 // ignore
             }
         }
@@ -396,13 +372,9 @@ export class UsbApi extends AbstractApi {
             try {
                 this.logger?.debug(`usb: device.close`);
                 await device.close();
-                this.logger?.debug(
-                    `usb: device.close done. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.debug(`usb: device.close done.`);
             } catch (err) {
-                this.logger?.debug(
-                    `usb: device.close error ${err}. device: ${this.formatDeviceForLog(device)}`,
-                );
+                this.logger?.debug(`usb: device.close error ${err}.`);
 
                 return this.error({
                     error: ERRORS.INTERFACE_UNABLE_TO_CLOSE_DEVICE,
@@ -515,6 +487,29 @@ export class UsbApi extends AbstractApi {
         const nonHidDevices = trezorDevices.filter(dev => !this.deviceIsHid(dev));
 
         return [hidDevices, nonHidDevices];
+    }
+
+    // https://github.com/trezor/trezord-go/blob/db03d99230f5b609a354e3586f1dfc0ad6da16f7/usb/libusb.go#L545
+    private handleReadWriteError(err: Error) {
+        if (
+            [
+                // node usb
+                'LIBUSB_TRANSFER_ERROR',
+                'LIBUSB_ERROR_PIPE',
+                'LIBUSB_ERROR_IO',
+                'LIBUSB_ERROR_NO_DEVICE',
+                'LIBUSB_ERROR_OTHER',
+                // web usb
+                ERRORS.INTERFACE_DATA_TRANSFER,
+                'The device was disconnected.',
+            ].some(disconnectedErr => {
+                return err.message.includes(disconnectedErr);
+            })
+        ) {
+            return this.error({ error: ERRORS.DEVICE_DISCONNECTED_DURING_ACTION });
+        }
+
+        return this.unknownError(err);
     }
 
     public dispose() {
