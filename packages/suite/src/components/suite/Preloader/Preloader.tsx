@@ -16,9 +16,11 @@ import {
     selectIsLoggedOut,
     selectSuiteFlags,
     selectIsFirmwareAuthenticityCheckEnabledAndHardFailed,
+    selectTransport,
 } from 'src/reducers/suite/suiteReducer';
 import { SuiteStart } from 'src/views/start/SuiteStart';
 import { ViewOnlyPromo } from 'src/views/view-only/ViewOnlyPromo';
+import { useWindowVisibility } from 'src/hooks/suite/useWindowVisibility';
 
 import { SuiteLayout } from '../layouts/SuiteLayout/SuiteLayout';
 import { InitialLoading } from './InitialLoading';
@@ -52,7 +54,7 @@ const getFullscreenApp = (route: AppState['router']['route']): FC | undefined =>
 // Decides which content should be displayed basing on route and prerequisites.
 export const Preloader = ({ children }: PropsWithChildren) => {
     const lifecycle = useSelector(state => state.suite.lifecycle);
-    const transport = useSelector(state => state.suite.transport);
+    const transport = useSelector(selectTransport);
     const router = useSelector(state => state.router);
     const prerequisite = useSelector(selectPrerequisite);
     const isLoggedOut = useSelector(selectIsLoggedOut);
@@ -64,6 +66,7 @@ export const Preloader = ({ children }: PropsWithChildren) => {
     const isFirmwareAuthenticityCheckDismissed = useSelector(
         selectIsFirmwareAuthenticityCheckDismissed,
     );
+
     // report firmware authenticity failures even when the UI is disabled
     useReportDeviceCompromised();
 
@@ -75,6 +78,7 @@ export const Preloader = ({ children }: PropsWithChildren) => {
 
     // Register keyboard handlers for opening/closing Guide using keyboard
     useGuideKeyboard();
+    useWindowVisibility();
 
     if (lifecycle.status === 'error') {
         throw new Error(lifecycle.error);

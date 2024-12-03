@@ -384,8 +384,37 @@ export const en = {
             type: 'Type',
             typeUniversal: 'Universal',
             typeBitcoinOnly: 'Bitcoin-only',
-            upToDate: 'You’re all up to date',
-            newVersionAvailable: 'New version available ({version})',
+            updateCard: {
+                upToDate: 'You’re all up to date',
+                newVersionAvailable: 'New version available ({version})',
+                updateButton: 'Update',
+            },
+            firmwareUpdateScreen: {
+                updateButton: 'Update firmware',
+                title: 'Firmware update',
+                subtitle: 'New firmware is now available. Update your device now.',
+            },
+            firmwareUpdateProgress: {
+                initializing: { title: 'Initializing firmware update.' },
+                confirming: { title: 'Confirm firmware update on your Trezor.' },
+                installing: {
+                    title: 'Updating your firmware',
+                    subtitle: 'Don’t close the app.',
+                },
+                restarting: { title: 'Restarting Trezor.' },
+                validating: { title: 'Validating firmware.' },
+                completed: {
+                    title: 'Firmware update completed.',
+                    subtitle: 'Unlock your device to continue.',
+                },
+                error: {
+                    title: 'Update failed',
+                },
+                confirmOnDeviceMessage: 'Go to your device and confirm the firmware update.',
+                retryButton: 'Retry',
+                contactSupportButton: 'Contact support',
+                stuckButton: 'What if it gets stuck?',
+            },
         },
         pinProtection: {
             title: 'PIN protection',
@@ -821,6 +850,22 @@ export const en = {
         tokens: {
             toggleTokens: 'Include tokens',
             title: 'Note, your {networkName} balance doesn’t include tokens.',
+        },
+        name: {
+            received: 'Received',
+            receiving: 'Receiving',
+            sent: 'Sent',
+            sending: 'Sending',
+            pending: 'Pending',
+            contract: 'Contract',
+            self: 'Self',
+            joint: 'Joined',
+            failed: 'Failed',
+            unknown: 'Unknown',
+            withdrawal: 'Rewards withdrawal',
+            stakeDelegation: 'Stake delegation',
+            stakeRegistration: 'Registration of a stake address',
+            stakeDeregistration: 'Deregistration of a stake address',
         },
     },
     device: {

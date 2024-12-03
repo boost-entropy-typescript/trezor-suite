@@ -28,7 +28,7 @@ import TrezorConnect, {
 } from '@trezor/connect';
 import { arrayDistinct, arrayToDictionary } from '@trezor/utils';
 import type { Account, CustomBackend, NetworksFees } from '@suite-common/wallet-types';
-import type { Timeout } from '@trezor/type-utils';
+import type { TimerId } from '@trezor/type-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 
 import { selectAccounts } from '../accounts/accountsReducer';
@@ -37,13 +37,15 @@ import { BLOCKCHAIN_MODULE_PREFIX, blockchainActions } from './blockchainActions
 import { selectBlockchainState, selectNetworkBlockchainInfo } from './blockchainReducer';
 import { selectNetworkFeeInfo } from '../fees/feesReducer';
 
-const DEFAULT_ACCOUNT_SYNC_INTERVAL = 60 * 1000;
+export const DEFAULT_ACCOUNT_SYNC_INTERVAL = 60 * 1000; // 1 minute
 
 // using fast and cheap blockchains, it looks suspicious when tx is not almost instantly confirmed
 const CUSTOM_ACCOUNT_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
     pol: 20 * 1000,
     bnb: 20 * 1000,
     op: 20 * 1000,
+    sol: DEFAULT_ACCOUNT_SYNC_INTERVAL * 5,
+    ada: DEFAULT_ACCOUNT_SYNC_INTERVAL * 5,
 };
 
 const getAccountSyncInterval = (symbol: NetworkSymbol) =>
@@ -327,32 +329,43 @@ export const unsubscribeBlockchainThunk = createThunk(
     },
 );
 
-const tryClearTimeout = (timeout?: Timeout) => {
+const tryClearTimeout = (timeout?: TimerId) => {
     if (timeout) clearTimeout(timeout);
 };
 
 export const syncAccountsWithBlockchainThunk = createThunk(
     `${BLOCKCHAIN_MODULE_PREFIX}/syncAccountsThunk`,
-    async (symbol: NetworkSymbol, { getState, dispatch }) => {
+    async (symbol: NetworkSymbol, { getState, dispatch, extra }) => {
         const accounts = selectAccounts(getState());
         const blockchain = selectBlockchainState(getState());
+        const {
+            selectors: { selectIsWindowVisible },
+        } = extra;
+        const isWindowVisible = selectIsWindowVisible(getState());
+
         // First clear, to cancel last planned sync
         tryClearTimeout(blockchain[symbol].syncTimeout);
 
-        // non-blockbook networks will not update periodically if not visible in UI (sidebar)
-        const visibleAccounts = findAccountsByNetwork(symbol, accounts).filter(
-            account => isBlockbookBasedNetwork(symbol) || account.visible,
-        );
+        // non-blockbook networks will not be updated when app window is not active
+        const shouldSync = isWindowVisible || isBlockbookBasedNetwork(symbol);
 
-        await Promise.all(
-            visibleAccounts.map(account =>
-                dispatch(fetchAndUpdateAccountThunk({ accountKey: account.key })),
-            ),
-        );
+        if (shouldSync) {
+            // non-blockbook networks will not update periodically if not visible in UI (sidebar)
+            const visibleAccounts = findAccountsByNetwork(symbol, accounts).filter(
+                account => isBlockbookBasedNetwork(symbol) || account.visible,
+            );
+
+            await Promise.all(
+                visibleAccounts.map(account =>
+                    dispatch(fetchAndUpdateAccountThunk({ accountKey: account.key })),
+                ),
+            );
+        }
 
         const blockchainInfo = selectNetworkBlockchainInfo(getState(), symbol);
         // Second clear, just to be sure that no other sync was planned while executing this one
         tryClearTimeout(blockchainInfo.syncTimeout);
+
         const timeout = setTimeout(
             () => dispatch(syncAccountsWithBlockchainThunk(symbol)),
             getAccountSyncInterval(symbol),

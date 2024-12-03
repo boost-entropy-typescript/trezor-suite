@@ -3,7 +3,7 @@ import produce from 'immer';
 import * as variables from '@trezor/components/src/config/variables'; // can't import from index cause it would import all UI components
 import { getNumberFromPixelString } from '@trezor/utils';
 
-import { RESIZE } from 'src/actions/suite/constants';
+import { WINDOW } from 'src/actions/suite/constants';
 import { Action } from 'src/types/suite';
 
 const sizes = {
@@ -50,24 +50,37 @@ export interface State {
     size: 'UNAVAILABLE' | 'TINY' | 'SMALL' | 'NORMAL' | 'LARGE' | 'XLARGE';
     screenWidth: number | null;
     screenHeight: number | null;
+    isVisible: boolean;
+}
+
+interface WindowRootState {
+    window: State;
 }
 
 export const initialState: State = {
     size: 'NORMAL',
     screenWidth: null,
     screenHeight: null,
+    isVisible: true,
 };
 
-const resizeReducer = (state: State = initialState, action: Action): State =>
+const windowReducer = (state: State = initialState, action: Action): State =>
     produce(state, draft => {
         switch (action.type) {
-            case RESIZE.UPDATE_WINDOW_SIZE:
-                draft.size = getSize(action.screenWidth);
-                draft.screenWidth = action.screenWidth;
-                draft.screenHeight = action.screenHeight;
+            case WINDOW.UPDATE_WINDOW_SIZE:
+                draft.size = getSize(action.payload.screenWidth);
+                draft.screenWidth = action.payload.screenWidth;
+                draft.screenHeight = action.payload.screenHeight;
+                break;
+            case WINDOW.UPDATE_WINDOW_VISIBILITY:
+                draft.isVisible = action.payload.isVisible;
                 break;
             // no default
         }
     });
 
-export default resizeReducer;
+export default windowReducer;
+
+export const selectWindowSize = (state: WindowRootState) => state.window.size;
+
+export const selectIsWindowVisible = (state: WindowRootState) => state.window.isVisible;
