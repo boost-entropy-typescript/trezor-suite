@@ -97,7 +97,7 @@
         "react-dom": "18.2.0",
         "react-focus-lock": "^2.9.7",
         "react-helmet-async": "^2.0.4",
-        "react-hook-form": "^7.53.1",
+        "react-hook-form": "^7.53.2",
         "react-intl": "^6.6.8",
         "react-qr-reader": "^2.2.1",
         "react-redux": "8.0.7",
@@ -113,7 +113,7 @@
         "redux-thunk": "^2.4.2",
         "semver": "^7.6.3",
         "styled-components": "^6.1.8",
-        "uuid": "^11.0.2",
+        "uuid": "^11.0.3",
         "web3-utils": "^4.3.1",
         "zxcvbn": "^4.4.2"
     },
