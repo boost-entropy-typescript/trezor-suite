@@ -1,16 +1,16 @@
-|             Package              | Stable |    Canary    |
-| :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.4.5  | 9.4.6-beta.1 |
-|     npm @trezor/connect-web      | 9.4.5  | 9.4.6-beta.1 |
-| npm @trezor/connect-webextension | 9.4.5  | 9.4.6-beta.1 |
+|             Package              | Stable | Canary |
+| :------------------------------: | :----: | :----: |
+|       npm @trezor/connect        | 9.4.6  |   -    |
+|     npm @trezor/connect-web      | 9.4.6  |   -    |
+| npm @trezor/connect-webextension | 9.4.6  |   -    |
 
-|     Deployment     | Stable |    Canary    |
-| :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.4.5  | 9.4.6-beta.1 |
+|     Deployment     | Stable | Canary |
+| :----------------: | :----: | :----: |
+| connect.trezor.io/ | 9.4.6  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-# 9.4.6-beta.1
+# 9.4.6
 
 This release brings improvements and optimizations in Solana `getAccountInfo`. It moves security checks outside `getFeatures` that fixes some of the issues with device loading and communication in general.
 
