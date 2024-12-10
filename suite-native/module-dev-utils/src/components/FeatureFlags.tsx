@@ -3,12 +3,11 @@ import { FeatureFlag as FeatureFlagEnum, useFeatureFlag } from '@suite-native/fe
 
 const featureFlagsTitleMap = {
     [FeatureFlagEnum.IsDeviceConnectEnabled]: 'Connect device',
-    [FeatureFlagEnum.IsRippleSendEnabled]: 'Ripple send',
     [FeatureFlagEnum.IsCardanoSendEnabled]: 'Cardano send',
-    [FeatureFlagEnum.IsSolanaSendEnabled]: 'Solana send',
     [FeatureFlagEnum.IsRegtestEnabled]: 'Regtest',
     [FeatureFlagEnum.IsSolanaEnabled]: 'Solana',
     [FeatureFlagEnum.IsConnectPopupEnabled]: 'Connect Popup',
+    [FeatureFlagEnum.IsFirmwareUpdateEnabled]: 'Firmware update',
 } as const satisfies Record<FeatureFlagEnum, string>;
 
 const FeatureFlag = ({ featureFlag }: { featureFlag: FeatureFlagEnum }) => {

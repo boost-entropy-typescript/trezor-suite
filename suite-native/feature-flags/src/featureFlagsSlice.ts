@@ -5,12 +5,11 @@ import { isDebugEnv, isDetoxTestBuild, isDevelopOrDebugEnv } from '@suite-native
 
 export const FeatureFlag = {
     IsDeviceConnectEnabled: 'isDeviceConnectEnabled',
-    IsRippleSendEnabled: 'isRippleSendEnabled',
     IsCardanoSendEnabled: 'isCardanoSendEnabled',
-    IsSolanaSendEnabled: 'isSolanaSendEnabled',
     IsRegtestEnabled: 'isRegtestEnabled',
     IsSolanaEnabled: 'IsSolanaEnabled',
     IsConnectPopupEnabled: 'IsConnectPopupEnabled',
+    IsFirmwareUpdateEnabled: 'IsFirmwareUpdateEnabled',
 } as const;
 export type FeatureFlag = (typeof FeatureFlag)[keyof typeof FeatureFlag];
 
@@ -22,22 +21,20 @@ export type FeatureFlagsRootState = {
 
 export const featureFlagsInitialState: FeatureFlagsState = {
     [FeatureFlag.IsDeviceConnectEnabled]: isAndroid() || isDebugEnv(),
-    [FeatureFlag.IsRippleSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
     [FeatureFlag.IsCardanoSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
-    [FeatureFlag.IsSolanaSendEnabled]: isAndroid() && isDevelopOrDebugEnv(),
     [FeatureFlag.IsRegtestEnabled]: isDebugEnv() || isDetoxTestBuild(),
     [FeatureFlag.IsSolanaEnabled]: false,
     [FeatureFlag.IsConnectPopupEnabled]: isDevelopOrDebugEnv(),
+    [FeatureFlag.IsFirmwareUpdateEnabled]: isDevelopOrDebugEnv(),
 };
 
 export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
     FeatureFlag.IsDeviceConnectEnabled,
-    FeatureFlag.IsRippleSendEnabled,
     FeatureFlag.IsCardanoSendEnabled,
-    FeatureFlag.IsSolanaSendEnabled,
     FeatureFlag.IsRegtestEnabled,
     FeatureFlag.IsSolanaEnabled,
     FeatureFlag.IsConnectPopupEnabled,
+    FeatureFlag.IsFirmwareUpdateEnabled,
 ];
 
 export const featureFlagsSlice = createSlice({

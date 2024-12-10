@@ -84,6 +84,10 @@ const getPlugins = (): ExpoPlugins => {
             {
                 backgroundColor: '#25292E',
                 image: './assets/splash_icon.png',
+                dark: {
+                    backgroundColor: '#25292E',
+                    image: './assets/splash_icon.png',
+                },
                 imageWidth: '200',
             },
         ],
@@ -169,7 +173,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         slug: appSlugs[buildType],
         owner: appOwners[buildType],
         version: suiteNativeVersion,
-        runtimeVersion: '17',
+        runtimeVersion: '20',
         ...(buildType === 'production'
             ? {}
             : {
