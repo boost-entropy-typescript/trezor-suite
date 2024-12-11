@@ -108,8 +108,8 @@ export const SendOutputsScreen = ({
         context: {
             networkFeeInfo,
             accountDescriptor: account?.descriptor,
-            networkSymbol: account?.symbol,
-            availableBalance: tokenInfo?.balance ?? account?.formattedBalance,
+            symbol: account?.symbol,
+            availableBalance: tokenInfo?.balance ?? account?.availableBalance,
             isTokenFlow: !!tokenContract,
             isValueInSats: isAmountInSats,
             feeLevelsMaxAmount,
@@ -157,8 +157,7 @@ export const SendOutputsScreen = ({
 
                 if (isReserveError) {
                     setError('outputs.0.amount', {
-                        message:
-                            'Recipient account requires minimum reserve of 10 XRP to activate.',
+                        message: 'Recipient account requires minimum reserve of 1 XRP to activate.',
                     });
                 }
 
