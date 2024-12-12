@@ -69,7 +69,7 @@ export const XpubScanScreen = ({
 
     const form = useForm<XpubFormValues, XpubFormContext>({
         validation: xpubFormValidationSchema,
-        context: { networkSymbol },
+        context: { symbol: networkSymbol },
     });
     const { handleSubmit, setValue, watch } = form;
     const watchXpubAddress = watch('xpubAddress');
@@ -177,8 +177,6 @@ export const XpubScanScreen = ({
             screenHeader={<AccountImportSubHeader closeActionType="back" />}
             footer={<XpubHint networkType={networkType} handleOpen={handleOpenHint} />}
             extraKeyboardAvoidingViewHeight={EXTRA_KEYBOARD_AVOIDING_VIEW_HEIGHT}
-            customHorizontalPadding="sp16"
-            customVerticalPadding="sp16"
         >
             <Card>
                 <SelectableNetworkItem symbol={networkSymbol} />

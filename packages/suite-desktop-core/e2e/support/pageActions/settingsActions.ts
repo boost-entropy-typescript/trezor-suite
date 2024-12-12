@@ -2,6 +2,7 @@ import { Locator, Page, test } from '@playwright/test';
 
 import { BackendType, NetworkSymbol } from '@suite-common/wallet-config';
 import { capitalizeFirstLetter } from '@trezor/utils';
+import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 import { expect } from '../customMatchers';
 
@@ -19,8 +20,24 @@ const languageMap = {
     es: 'Español',
 };
 
+const backgroundImages = {
+    original_t2t1: {
+        path: 'static/images/homescreens/COLOR_240x240/original_t2t1.jpg',
+        locator: '@modal/gallery/color_240x240/original_t2t1',
+    },
+    circleweb: {
+        path: 'static/images/homescreens/BW_64x128/circleweb.png',
+        locator: '@modal/gallery/bw_64x128/circleweb',
+    },
+    nyancat: {
+        path: 'static/images/homescreens/BW_64x128/nyancat.png',
+        locator: '@modal/gallery/bw_64x128/nyancat',
+    },
+};
+
 export class SettingsActions {
     private readonly window: Page;
+    private readonly apiURL: string;
     private readonly TIMES_CLICK_TO_SET_DEBUG_MODE = 5;
     readonly settingsMenuButton: Locator;
     readonly settingsHeader: Locator;
@@ -34,11 +51,17 @@ export class SettingsActions {
     readonly earlyAccessSkipButton: Locator;
     readonly settingsCloseButton: Locator;
     readonly modal: Locator;
+    readonly deviceLabelInput: Locator;
+    readonly deviceLabelSubmit: Locator;
+    readonly confirmOnDevicePrompt: Locator;
+    readonly homescreenGalleryButton: Locator;
+    readonly notificationSuccessToast: Locator;
+    readonly pinSubmitButton: Locator;
     //coin Advance settings
-    readonly coinNetworkButton = (coin: NetworkSymbol) =>
-        this.window.getByTestId(`@settings/wallet/network/${coin}`);
-    readonly coinAdvanceSettingsButton = (coin: NetworkSymbol) =>
-        this.window.getByTestId(`@settings/wallet/network/${coin}/advance`);
+    readonly networkButton = (symbol: NetworkSymbol) =>
+        this.window.getByTestId(`@settings/wallet/network/${symbol}`);
+    readonly networkSymbolAdvanceSettingsButton = (symbol: NetworkSymbol) =>
+        this.window.getByTestId(`@settings/wallet/network/${symbol}/advance`);
     readonly coinBackendSelector: Locator;
     readonly coinBackendSelectorOption = (backend: BackendType) =>
         this.window.getByTestId(`@settings/advance/${backend}`);
@@ -50,9 +73,11 @@ export class SettingsActions {
     readonly languageInput: Locator;
     readonly languageInputOption = (language: Language) =>
         this.window.getByTestId(`@settings/language-select/option/${language}`);
+    readonly pinInput = (index: number) => this.window.getByTestId(`@pin/input/${index}`);
 
-    constructor(window: Page) {
+    constructor(window: Page, apiURL: string) {
         this.window = window;
+        this.apiURL = apiURL;
         this.settingsMenuButton = this.window.getByTestId('@suite/menu/settings');
         this.settingsHeader = this.window.getByTestId('@settings/menu/title');
         this.debugTabButton = this.window.getByTestId('@settings/menu/debug');
@@ -69,7 +94,13 @@ export class SettingsActions {
         this.earlyAccessSkipButton = this.window.getByTestId('@settings/early-access-skip-button');
         this.settingsCloseButton = this.window.getByTestId('@settings/menu/close');
         this.modal = this.window.getByTestId('@modal');
-        //coin Advance settings
+        this.deviceLabelInput = this.window.getByTestId('@settings/device/label-input');
+        this.deviceLabelSubmit = this.window.getByTestId('@settings/device/label-submit');
+        this.confirmOnDevicePrompt = this.window.getByTestId('@prompts/confirm-on-device');
+        this.homescreenGalleryButton = this.window.getByTestId(
+            '@settings/device/homescreen-gallery',
+        );
+        this.notificationSuccessToast = this.window.getByTestId('@toast/settings-applied').first();
         this.coinBackendSelector = this.window.getByTestId('@settings/advance/select-type/input');
         this.coinAddressInput = this.window.getByTestId('@settings/advance/url');
         this.coinAdvanceSettingSaveButton = this.window.getByTestId(
@@ -77,6 +108,7 @@ export class SettingsActions {
         );
         this.themeInput = this.window.getByTestId('@theme/color-scheme-select/input');
         this.languageInput = this.window.getByTestId('@settings/language-select/input');
+        this.pinSubmitButton = this.window.getByTestId('@pin/submit-button');
     }
 
     async navigateTo() {
@@ -92,24 +124,24 @@ export class SettingsActions {
         await expect(this.debugTabButton).toBeVisible();
     }
 
-    async openCoinAdvanceSettings(coin: NetworkSymbol) {
-        const isCoinActive = await this.coinNetworkButton(coin).getAttribute('data-active');
-        if (isCoinActive === 'false') {
-            await this.enableCoin(coin);
+    async openNetworkAdvanceSettings(symbol: NetworkSymbol) {
+        const isNetworkActive = await this.networkButton(symbol).getAttribute('data-active');
+        if (isNetworkActive === 'false') {
+            await this.enableNetwork(symbol);
         }
-        await this.coinNetworkButton(coin).hover();
-        await this.coinAdvanceSettingsButton(coin).click();
+        await this.networkButton(symbol).hover();
+        await this.networkSymbolAdvanceSettingsButton(symbol).click();
         await expect(this.modal).toBeVisible();
     }
 
-    async enableCoin(coin: NetworkSymbol) {
-        await this.coinNetworkButton(coin).click();
-        await expect(this.coinNetworkButton(coin)).toBeEnabledCoin();
+    async enableNetwork(symbol: NetworkSymbol) {
+        await this.networkButton(symbol).click();
+        await expect(this.networkButton(symbol)).toBeEnabledCoin();
     }
 
-    async disableCoin(coin: NetworkSymbol) {
-        await this.coinNetworkButton(coin).click();
-        await expect(this.coinNetworkButton(coin)).toBeDisabledCoin();
+    async disableNetwork(symbol: NetworkSymbol) {
+        await this.networkButton(symbol).click();
+        await expect(this.networkButton(symbol)).toBeDisabledCoin();
     }
 
     async changeCoinBackend(backend: BackendType, backendUrl: string) {
@@ -157,6 +189,41 @@ export class SettingsActions {
                 await expect(option).toBeVisible({ timeout: 2000 });
                 await option.click({ timeout: 2000 });
             }).toPass({ timeout: 10_000 });
+        });
+    }
+
+    async changeDeviceName(newDeviceName: string) {
+        await this.deviceLabelInput.clear();
+        await this.deviceLabelInput.fill(newDeviceName);
+        await this.deviceLabelSubmit.click();
+        await expect(this.confirmOnDevicePrompt).toBeVisible();
+        await TrezorUserEnvLink.pressYes();
+        await this.confirmOnDevicePrompt.waitFor({ state: 'detached' });
+        await expect(this.notificationSuccessToast).toBeVisible();
+    }
+
+    async changeDeviceBackground(image: keyof typeof backgroundImages) {
+        await test.step('Change display background image', async () => {
+            // To solve the flakiness of the test, we need to wait for the image to load
+            const buttonImageLoad = this.window.waitForResponse(
+                `${this.apiURL}${backgroundImages[image].path}`,
+            );
+            await this.homescreenGalleryButton.click();
+            await buttonImageLoad;
+            await this.window.getByTestId(backgroundImages[image].locator).click();
+            await expect(this.confirmOnDevicePrompt).toBeVisible();
+            await TrezorUserEnvLink.pressYes();
+            await this.confirmOnDevicePrompt.waitFor({ state: 'detached' });
+            await expect(this.notificationSuccessToast).toBeVisible();
+        });
+    }
+
+    async enterPinOnBlindMatrix(pinEntryNumber: string) {
+        await test.step('Find number on blind matrix and click it', async () => {
+            const state = await TrezorUserEnvLink.getDebugState();
+            const index = state.matrix.indexOf(pinEntryNumber) + 1;
+            await this.pinInput(index).click();
+            await this.pinSubmitButton.click();
         });
     }
 }
