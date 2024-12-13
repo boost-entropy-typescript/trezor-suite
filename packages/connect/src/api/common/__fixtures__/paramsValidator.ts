@@ -170,7 +170,8 @@ export const validateParams = [
     },
 ];
 
-const DEFAULT_RANGE = {
+const DEFAULT_RANGE: FirmwareRange = {
+    UNKNOWN: { min: '1.0.0', max: '0' },
     T1B1: { min: '1.0.0', max: '0' },
     T2T1: { min: '2.0.0', max: '0' },
     T2B1: { min: '2.0.0', max: '0' },
@@ -179,8 +180,13 @@ const DEFAULT_RANGE = {
     T3W1: { min: '2.0.0', max: '0' },
 };
 
-const DEFAULT_COIN_INFO = {
+const DEFAULT_COIN_INFO: {
+    support: Record<DeviceModelInternal, string>;
+    shortcut: string;
+    type: string;
+} = {
     support: {
+        UNKNOWN: '1.0.0',
         T1B1: '1.6.2',
         T2T1: '2.1.0',
         T2B1: '2.0.0',
@@ -268,6 +274,7 @@ export const getFirmwareRange = [
                     T3B1: false,
                     T3T1: false,
                     T3W1: false,
+                    UNKNOWN: false,
                 },
                 shortcut: 'btc',
                 type: 'bitcoin',
