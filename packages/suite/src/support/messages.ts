@@ -1508,7 +1508,7 @@ export default defineMessages({
         id: 'TR_ONBOARDING_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS: {
-        defaultMessage: 'Data usage',
+        defaultMessage: 'Data collection',
         id: 'TR_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS_DESCRIPTION: {
@@ -2035,6 +2035,14 @@ export default defineMessages({
     TR_ETH_ADDRESS_CANT_VERIFY_HISTORY: {
         defaultMessage: 'Unable to verify address history. Check that the address is correct.',
         id: 'TR_ETH_ADDRESS_CANT_VERIFY_HISTORY',
+    },
+    TR_EVM_ADDRESS_IS_CONTRACT: {
+        defaultMessage: 'You are sending funds to a contract address.',
+        id: 'TR_EVM_ADDRESS_IS_CONTRACT',
+    },
+    TR_I_UNDERSTAND_THE_RISK: {
+        defaultMessage: 'I understand',
+        id: 'TR_I_UNDERSTAND_THE_RISK',
     },
     TR_NEEDS_ATTENTION_BOOTLOADER: {
         defaultMessage: 'Trezor is in Bootloader mode.',
@@ -3211,7 +3219,7 @@ export default defineMessages({
     },
     TR_SKIP_UPDATE_DESCRIPTION: {
         defaultMessage:
-            'It only takes a moment to stay protected. Keep your Trezor secure and future-ready by installing the latest firmware.',
+            'Why take the risk? Update your Trezor with the latest firmware to stay secure and protected.',
         id: 'TR_SKIP_UPDATE_DESCRIPTION',
     },
     TR_SOLVE_ISSUE: {
@@ -3308,7 +3316,7 @@ export default defineMessages({
         id: 'TR_TRANSACTION_DETAILS',
     },
     TR_TOKEN_ID: {
-        defaultMessage: 'Token ID:',
+        defaultMessage: 'Token ID',
         id: 'TR_TOKEN_ID',
     },
     TR_NO_TRANSPORT: {
@@ -3500,7 +3508,7 @@ export default defineMessages({
         id: 'TR_YOUR_TREZOR_IS_NOT_BACKED_UP',
     },
     TR_YOUR_WALLET_IS_READY_WHAT: {
-        defaultMessage: 'Your wallet is ready to use!',
+        defaultMessage: 'Your wallet is ready.',
         id: 'TR_YOUR_WALLET_IS_READY_WHAT',
     },
     TR_GAS_PRICE: {
@@ -4051,27 +4059,6 @@ export default defineMessages({
     TR_ONION_LINKS_TITLE: {
         id: 'TR_ONION_LINKS_TITLE',
         defaultMessage: 'Open trezor.io links as .onion links',
-    },
-    TR_TOR_CONFIG_SNOWFLAKE_TITLE: {
-        id: 'TR_TOR_CONFIG_SNOWFLAKE_TITLE',
-        defaultMessage: 'Tor Snowflake Binary Path',
-    },
-    TR_TOR_CONFIG_SNOWFLAKE_DESCRIPTION: {
-        id: 'TR_TOR_CONFIG_SNOWFLAKE_DESCRIPTION',
-        defaultMessage:
-            'Enter the path to the Tor Snowflake binary on your system. Make sure Tor is disabled before making this change.',
-    },
-    TR_TOR_CONFIG_SNOWFLAKE_ERROR_PATH: {
-        id: 'TR_TOR_CONFIG_SNOWFLAKE_ERROR_PATH',
-        defaultMessage: 'Must be a valid full path.',
-    },
-    TR_TOR_CONFIG_SNOWFLAKE_UPDATE_LABEL: {
-        id: 'TR_TOR_CONFIG_SNOWFLAKE_UPDATE_LABEL',
-        defaultMessage: 'Update path',
-    },
-    TR_TOR_CONFIG_SNOWFLAKE_DISABLE_LABEL: {
-        id: 'TR_TOR_CONFIG_SNOWFLAKE_DISABLE_LABEL',
-        defaultMessage: 'Disable Tor Snowflake',
     },
     TR_TOR_ENABLE_TITLE: {
         id: 'TR_TOR_ENABLE_TITLE',
@@ -5001,14 +4988,14 @@ export default defineMessages({
         defaultMessage:
             'Use this utility to retrieve passwords stored on Dropbox and secured by Trezor. Designed for former users of the Trezor Password Manager Chrome extension.',
     },
-    TR_EXPERIMENTAL_TOR_SNOWFLAKE: {
-        id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE',
-        defaultMessage: 'Tor Snowflake',
+    TR_EXPERIMENTAL_TOR_EXTERNAL: {
+        id: 'TR_EXPERIMENTAL_TOR_EXTERNAL',
+        defaultMessage: 'Tor external',
     },
-    TR_EXPERIMENTAL_TOR_SNOWFLAKE_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_TOR_SNOWFLAKE_DESCRIPTION',
+    TR_EXPERIMENTAL_TOR_EXTERNAL_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_TOR_EXTERNAL_DESCRIPTION',
         defaultMessage:
-            'Access censored websites and apps using Tor Snowflake, a system designed to bypass restrictions.',
+            'Allows you to use Tor daemon running in a external process on port 9050 instead of the one bundled with Trezor Suite.',
     },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',
@@ -6783,12 +6770,12 @@ export default defineMessages({
     },
     TR_DEVICE_CONNECTED_UNACQUIRED: {
         id: 'TR_DEVICE_CONNECTED_UNACQUIRED',
-        defaultMessage: 'This device is being used elsewhere.',
+        defaultMessage: 'This device is being used by another app.',
     },
     TR_DEVICE_CONNECTED_UNACQUIRED_DESCRIPTION: {
         id: 'TR_DEVICE_CONNECTED_UNACQUIRED_DESCRIPTION',
         defaultMessage:
-            'The app {transportSessionOwner} may currently be using this device. You can take control of the device if needed.',
+            'The app {transportSessionOwner} is currently using your Trezor. You can take control of your device if needed.',
     },
     TR_WIPE_OR_UPDATE: {
         id: 'TR_WIPE_OR_UPDATE',
@@ -9041,7 +9028,7 @@ export default defineMessages({
     },
     TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON: {
         id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON',
-        defaultMessage: 'Disable & eject',
+        defaultMessage: 'Disable',
     },
     TR_DO_NOT_SHOW_AGAIN: {
         id: 'TR_DO_NOT_SHOW_AGAIN',
@@ -9153,15 +9140,15 @@ export default defineMessages({
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM1: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM1',
-        defaultMessage: "It's important to first learn how a passphrase works",
+        defaultMessage: "It's important to first learn how a passphrase works.",
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM2: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM2',
-        defaultMessage: 'A passphrase opens a wallet secured by that phrase',
+        defaultMessage: 'A passphrase opens a wallet secured by that phrase.',
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM3: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM3',
-        defaultMessage: 'No one can recover it, not even Trezor Support',
+        defaultMessage: 'No one can recover it, not even Trezor Support.',
     },
     TR_UNRECOGNIZED: {
         id: 'TR_UNRECOGNIZED',

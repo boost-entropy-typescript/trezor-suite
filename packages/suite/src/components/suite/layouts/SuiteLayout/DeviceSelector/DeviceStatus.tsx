@@ -24,7 +24,6 @@ type DeviceStatusProps = {
 
 const DeviceWrapper = styled.div<{ $isLowerOpacity: boolean }>`
     display: flex;
-    width: 24px;
     opacity: ${({ $isLowerOpacity }) => $isLowerOpacity && 0.4};
 `;
 
@@ -44,7 +43,6 @@ export const DeviceStatus = ({
                 deviceModel={deviceModel}
                 deviceColor={device?.features?.unit_color}
                 animationHeight="34px"
-                animationWidth="24px"
             />
         </DeviceWrapper>
     );
@@ -67,7 +65,7 @@ export const DeviceStatus = ({
                     {content}
                 </>
             ) : (
-                <Tooltip hasArrow cursor="pointer" placement="right" content={content}>
+                <Tooltip hasArrow cursor="inherit" placement="right" content={content}>
                     {image}
                 </Tooltip>
             )}

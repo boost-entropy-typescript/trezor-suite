@@ -13,6 +13,7 @@ export class OnboardingActions {
     readonly analyticsContinueButton: Locator;
     readonly onboardingContinueButton: Locator;
     readonly onboardingViewOnlySkipButton: Locator;
+    readonly onboardingViewOnlyEnableButton: Locator;
     readonly viewOnlyTooltipGotItButton: Locator;
     readonly connectDevicePrompt: Locator;
     readonly authenticityStartButton: Locator;
@@ -20,21 +21,22 @@ export class OnboardingActions {
     isModelWithSecureElement = () => ['T2B1', 'T3T1'].includes(this.model);
 
     constructor(
-        public window: Page,
+        public page: Page,
         model: Model,
         testInfo: TestInfo,
     ) {
         this.model = model;
         this.testInfo = testInfo;
-        this.welcomeTitle = this.window.getByTestId('@welcome/title');
-        this.analyticsHeading = this.window.getByTestId('@analytics/consent/heading');
-        this.analyticsContinueButton = this.window.getByTestId('@analytics/continue-button');
-        this.onboardingContinueButton = this.window.getByTestId('@onboarding/exit-app-button');
-        this.onboardingViewOnlySkipButton = this.window.getByTestId('@onboarding/viewOnly/skip');
-        this.viewOnlyTooltipGotItButton = this.window.getByTestId('@viewOnlyTooltip/gotIt');
-        this.connectDevicePrompt = this.window.getByTestId('@connect-device-prompt');
-        this.authenticityStartButton = this.window.getByTestId('@authenticity-check/start-button');
-        this.authenticityContinueButton = this.window.getByTestId(
+        this.welcomeTitle = this.page.getByTestId('@welcome/title');
+        this.analyticsHeading = this.page.getByTestId('@analytics/consent/heading');
+        this.analyticsContinueButton = this.page.getByTestId('@analytics/continue-button');
+        this.onboardingContinueButton = this.page.getByTestId('@onboarding/exit-app-button');
+        this.onboardingViewOnlySkipButton = this.page.getByTestId('@onboarding/viewOnly/skip');
+        this.onboardingViewOnlyEnableButton = this.page.getByTestId('@onboarding/viewOnly/enable');
+        this.viewOnlyTooltipGotItButton = this.page.getByTestId('@viewOnlyTooltip/gotIt');
+        this.connectDevicePrompt = this.page.getByTestId('@connect-device-prompt');
+        this.authenticityStartButton = this.page.getByTestId('@authenticity-check/start-button');
+        this.authenticityContinueButton = this.page.getByTestId(
             '@authenticity-check/continue-button',
         );
     }
@@ -42,12 +44,12 @@ export class OnboardingActions {
     async optionallyDismissFwHashCheckError() {
         await expect(this.welcomeTitle).toBeVisible({ timeout: 10000 });
         // dismisses the error modal only if it appears (handle it async in parallel, not necessary to block the rest of the flow)
-        this.window
+        this.page
             .$('[data-testid="@device-compromised/back-button"]')
             .then(dismissFwHashCheckButton => dismissFwHashCheckButton?.click());
     }
 
-    async completeOnboarding() {
+    async completeOnboarding({ enableViewOnly = false } = {}) {
         if (this.testInfo.project.name === PlaywrightProjects.Web) {
             await this.disableFirmwareHashCheck();
         }
@@ -59,7 +61,11 @@ export class OnboardingActions {
             await TrezorUserEnvLink.pressYes();
             await this.authenticityContinueButton.click();
         }
-        await this.onboardingViewOnlySkipButton.click();
+        if (enableViewOnly) {
+            await this.onboardingViewOnlyEnableButton.click();
+        } else {
+            await this.onboardingViewOnlySkipButton.click();
+        }
         await this.viewOnlyTooltipGotItButton.click();
     }
 
@@ -67,7 +73,7 @@ export class OnboardingActions {
         // Desktop starts with already disabled firmware hash check. Web needs to disable it.
         await expect(this.welcomeTitle).toBeVisible({ timeout: 10000 });
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        await this.window.evaluate(SuiteActions => {
+        await this.page.evaluate(SuiteActions => {
             window.store.dispatch({
                 type: SuiteActions.DEVICE_FIRMWARE_HASH_CHECK,
                 payload: { isDisabled: true },

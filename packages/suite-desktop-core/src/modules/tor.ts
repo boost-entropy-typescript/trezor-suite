@@ -12,27 +12,46 @@ import { getFreePort } from '@trezor/node-utils';
 import { validateIpcMessage } from '@trezor/ipc-proxy';
 
 import { TorProcess, TorProcessStatus } from '../libs/processes/TorProcess';
+import { TorExternalProcess } from '../libs/processes/TorExternalProcess';
 import { app, ipcMain } from '../typed-electron';
 
 import type { Dependencies } from './index';
 
 const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies) => {
     const { logger } = global;
-    const host = '127.0.0.1';
-    const port = await getFreePort();
-    const controlPort = await getFreePort();
-    const torDataDir = path.join(app.getPath('userData'), 'tor');
     const initialSettings = store.getTorSettings();
 
-    store.setTorSettings({ ...initialSettings, host, port });
-
-    const tor = new TorProcess({
-        host,
-        port,
-        controlPort,
-        torDataDir,
-        snowflakeBinaryPath: initialSettings.snowflakeBinaryPath,
+    store.setTorSettings({
+        ...initialSettings,
+        port: await getFreePort(),
+        controlPort: await getFreePort(),
+        torDataDir: path.join(app.getPath('userData'), 'tor'),
     });
+
+    const settings = store.getTorSettings();
+
+    const bundledTorProcess = new TorProcess({
+        host: settings.host,
+        port: settings.port,
+        controlPort: settings.controlPort,
+        torDataDir: settings.torDataDir,
+    });
+
+    const externalTorProcess = new TorExternalProcess();
+
+    const getTarget = () => {
+        const { useExternalTor } = store.getTorSettings();
+
+        if (useExternalTor) {
+            return externalTorProcess;
+        }
+
+        return bundledTorProcess;
+    };
+
+    const updateTorPort = (port: number) => {
+        store.setTorSettings({ ...store.getTorSettings(), port });
+    };
 
     const setProxy = (rule: string) => {
         logger.info('tor', `Setting proxy rules to "${rule}"`);
@@ -44,17 +63,26 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
         });
     };
 
-    const getProxySettings = (shouldEnableTor: boolean) =>
-        shouldEnableTor ? { proxy: `socks://${host}:${port}` } : { proxy: '' };
+    const getProxySettings = (shouldEnableTor: boolean) => {
+        const { useExternalTor, port, host } = store.getTorSettings();
 
+        return shouldEnableTor
+            ? {
+                  proxy: `socks://${host}:${useExternalTor ? 9050 : port}`,
+              }
+            : { proxy: '' };
+    };
     const handleTorProcessStatus = (status: TorProcessStatus) => {
+        const { useExternalTor, running } = store.getTorSettings();
         let type: TorStatus;
 
         if (!status.process) {
             type = TorStatus.Disabled;
         } else if (status.isBootstrapping) {
             type = TorStatus.Enabling;
-        } else if (status.service) {
+        } else if (status.service && !useExternalTor) {
+            type = TorStatus.Enabled;
+        } else if (useExternalTor && running) {
             type = TorStatus.Enabled;
         } else {
             type = TorStatus.Disabled;
@@ -90,20 +118,51 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
         }
     };
 
-    const setupTor = async (shouldEnableTor: boolean) => {
-        const isTorRunning = (await tor.status()).process;
-        const { snowflakeBinaryPath } = store.getTorSettings();
+    const createFakeBootstrapProcess = () => {
+        let progress = 0;
+        const duration = 3_000;
+        // update progress every 300ms.
+        const interval = 300;
 
-        if (shouldEnableTor === isTorRunning) {
+        const increment = (100 / duration) * interval;
+        const intervalId = setInterval(() => {
+            progress += increment;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(intervalId);
+            }
+            handleBootstrapEvent({
+                type: 'progress',
+                progress: `${progress}`,
+                summary: 'Using External Tor fake progress',
+            });
+        }, interval);
+    };
+
+    const setupTor = async (shouldEnableTor: boolean) => {
+        const { useExternalTor } = store.getTorSettings();
+
+        const isTorRunning = (await getTarget().status()).process;
+
+        if (shouldEnableTor === isTorRunning && !useExternalTor) {
             return;
         }
 
         if (shouldEnableTor === true) {
-            setProxy(`socks5://${host}:${port}`);
-            tor.torController.on('bootstrap/event', handleBootstrapEvent);
+            const { host } = store.getTorSettings();
+            const port = getTarget().getPort();
+            const proxyRule = `socks5://${host}:${port}`;
+            setProxy(proxyRule);
+            getTarget().torController.on('bootstrap/event', handleBootstrapEvent);
+
             try {
-                tor.setTorConfig({ snowflakeBinaryPath });
-                await tor.start();
+                updateTorPort(port);
+                if (useExternalTor) {
+                    await getTarget().start();
+                    createFakeBootstrapProcess();
+                } else {
+                    await getTarget().start();
+                }
             } catch (error) {
                 mainWindowProxy.getInstance()?.webContents.send('tor/bootstrap', {
                     type: 'error',
@@ -111,18 +170,19 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
                 });
                 // When there is error does not mean that the process is stop,
                 // so we make sure to stop it so we are able to restart it.
-                tor.stop();
+                getTarget().stop();
+
                 throw error;
             } finally {
-                tor.torController.removeAllListeners();
+                getTarget().torController.removeAllListeners();
             }
         } else {
             mainWindowProxy.getInstance()?.webContents.send('tor/status', {
                 type: TorStatus.Disabling,
             });
             setProxy('');
-            tor.torController.stop();
-            await tor.stop();
+            getTarget().torController.stop();
+            await getTarget().stop();
         }
 
         store.setTorSettings({ ...store.getTorSettings(), running: shouldEnableTor });
@@ -130,15 +190,13 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
 
     ipcMain.handle(
         'tor/change-settings',
-        (ipcEvent, { snowflakeBinaryPath }: { snowflakeBinaryPath: string }) => {
+        (ipcEvent, { useExternalTor }: { useExternalTor: boolean }) => {
             validateIpcMessage(ipcEvent);
 
             try {
                 store.setTorSettings({
-                    running: store.getTorSettings().running,
-                    host,
-                    port,
-                    snowflakeBinaryPath,
+                    ...store.getTorSettings(),
+                    useExternalTor,
                 });
 
                 return { success: true };
@@ -175,6 +233,7 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
             // correctly set in module trezor-connect-ipc.
             const proxySettings = getProxySettings(shouldEnableTor);
 
+            // Proxy is also set in packages/suite-desktop-core/src/modules/trezor-connect.ts
             await TrezorConnect.setProxy(proxySettings);
 
             logger.info(
@@ -201,7 +260,8 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
         }
 
         // Once Tor is toggled it renderer should know the new status.
-        const status = await tor.status();
+        const status = await getTarget().status();
+
         handleTorProcessStatus(status);
 
         return { success: true };
@@ -211,11 +271,16 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
     let lastCircuitResetTime = 0;
     const socksTimeout = 30000; // this value reflects --SocksTimeout flag set by TorController config
     mainThreadEmitter.on('module/reset-tor-circuits', event => {
+        if (store.getTorSettings().useExternalTor) {
+            logger.debug('tor', `Ignore circuit reset. Running External Tor without Control Port.`);
+
+            return;
+        }
         const lastResetDiff = Date.now() - lastCircuitResetTime;
         if (lastResetDiff > socksTimeout) {
             logger.debug('tor', `Close active circuits. Triggered by identity ${event.identity}`);
             lastCircuitResetTime = Date.now();
-            tor.torController.closeActiveCircuits();
+            getTarget().torController.closeActiveCircuits();
         } else {
             logger.debug(
                 'tor',
@@ -225,8 +290,9 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
     });
 
     ipcMain.on('tor/get-status', async () => {
-        logger.debug('tor', `Getting status (${store.getTorSettings().running ? 'ON' : 'OFF'})`);
-        const status = await tor.status();
+        const { running } = store.getTorSettings();
+        logger.debug('tor', `Getting status (${running ? 'ON' : 'OFF'})`);
+        const status = await getTarget().status();
         handleTorProcessStatus(status);
     });
 
@@ -235,7 +301,7 @@ const load = async ({ mainWindowProxy, store, mainThreadEmitter }: Dependencies)
         store.setTorSettings({ ...store.getTorSettings(), running: true });
     }
 
-    return tor;
+    return getTarget;
 };
 
 type TorModule = (dependencies: Dependencies) => {
@@ -245,24 +311,24 @@ type TorModule = (dependencies: Dependencies) => {
 
 export const init: TorModule = dependencies => {
     let loaded = false;
-    let tor: TorProcess | undefined;
+    let getTarget: any;
 
     const onLoad = async () => {
         if (loaded) return { shouldRunTor: false };
 
         loaded = true;
-        tor = await load(dependencies);
-        const torSettings = dependencies.store.getTorSettings();
+        getTarget = await load(dependencies);
+        const { running } = dependencies.store.getTorSettings();
 
         return {
-            shouldRunTor: torSettings.running,
+            shouldRunTor: running,
         };
     };
 
     const onQuit = async () => {
         const { logger } = global;
         logger.info('tor', 'Stopping (app quit)');
-        await tor?.stop();
+        await getTarget()?.stop();
     };
 
     return { onLoad, onQuit };

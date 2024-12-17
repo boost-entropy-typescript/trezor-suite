@@ -1,7 +1,8 @@
+import { connectPopupCallThunk } from '@trezor/suite-desktop-connect-popup';
 import {
     authorizeDeviceThunk,
     deviceActions,
-    selectDevice,
+    selectSelectedDevice,
     selectDeviceDiscovery,
     accountsActions,
     disableAccountsThunk,
@@ -15,7 +16,6 @@ import { UI } from '@trezor/connect';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { DiscoveryStatus } from '@suite-common/wallet-constants';
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
-import { connectPopupCallThunk } from '@suite-common/connect-init';
 
 import { SUITE, ROUTER, MODAL } from 'src/actions/suite/constants';
 import * as walletSettingsActions from 'src/actions/settings/walletSettingsActions';
@@ -84,7 +84,7 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
             return action;
 
         let authorizationIntent = false;
-        const device = selectDevice(nextState);
+        const device = selectSelectedDevice(nextState);
         const isDeviceLocked = selectIsDeviceLocked(nextState);
         // 1. selected device is acquired but doesn't have a state
         if (

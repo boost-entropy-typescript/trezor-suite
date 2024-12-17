@@ -11,7 +11,6 @@ export class TorProcess extends BaseProcess {
     controlPort: number;
     torHost: string;
     torDataDir: string;
-    snowflakeBinaryPath: string;
 
     constructor(options: TorConnectionOptions) {
         super('tor', 'tor');
@@ -20,22 +19,20 @@ export class TorProcess extends BaseProcess {
         this.controlPort = options.controlPort;
         this.torHost = options.host;
         this.torDataDir = options.torDataDir;
-        this.snowflakeBinaryPath = '';
 
         this.torController = new TorController({
             host: this.torHost,
             port: this.port,
             controlPort: this.controlPort,
             torDataDir: this.torDataDir,
-            snowflakeBinaryPath: this.snowflakeBinaryPath,
         });
     }
 
-    setTorConfig(torConfig: Pick<TorConnectionOptions, 'snowflakeBinaryPath'>) {
-        this.snowflakeBinaryPath = torConfig.snowflakeBinaryPath;
+    public getPort() {
+        return this.port;
     }
 
-    async status(): Promise<TorProcessStatus> {
+    public async status(): Promise<TorProcessStatus> {
         const torControllerStatus = await this.torController.getStatus();
 
         return {
@@ -45,12 +42,9 @@ export class TorProcess extends BaseProcess {
         };
     }
 
-    async start(): Promise<void> {
+    public async start(): Promise<void> {
         const electronProcessId = process.pid;
-        const torConfiguration = await this.torController.getTorConfiguration(
-            electronProcessId,
-            this.snowflakeBinaryPath,
-        );
+        const torConfiguration = this.torController.getTorConfiguration(electronProcessId);
 
         await super.start(torConfiguration);
 
