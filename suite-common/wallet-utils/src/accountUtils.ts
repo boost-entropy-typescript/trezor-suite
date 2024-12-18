@@ -44,8 +44,8 @@ import { formatTokenSymbol } from '@trezor/blockchain-link-utils';
 
 import { toFiatCurrency } from './fiatConverterUtils';
 import { getFiatRateKey } from './fiatRatesUtils';
-import { getAccountTotalStakingBalance } from './ethereumStakingUtils';
 import { isRbfTransaction } from './transactionUtils';
+import { getAccountTotalStakingBalance } from './stakingUtils';
 
 export const isUtxoBased = (account: Account) =>
     account.networkType === 'bitcoin' || account.networkType === 'cardano';
@@ -692,9 +692,9 @@ export const getAssetTokensFiatBalance = (
 };
 
 export const getStakingFiatBalance = (account: Account, rate: number | undefined) => {
-    const balanceInEther = getAccountTotalStakingBalance(account);
+    const balance = getAccountTotalStakingBalance(account) ?? '0';
 
-    return toFiatCurrency(balanceInEther, rate, 2);
+    return toFiatCurrency(balance, rate, 2);
 };
 
 export const getAccountFiatBalance = ({
@@ -865,7 +865,7 @@ export const getAccountSpecific = (accountInfo: Partial<AccountInfo>, networkTyp
     if (networkType === 'solana') {
         return {
             networkType,
-            misc: { rent: misc?.rent },
+            misc: { rent: misc?.rent, solStakingAccounts: misc?.solStakingAccounts },
             marker: undefined,
             page: accountInfo.page,
         };
@@ -955,6 +955,13 @@ export const accountSearchFn = (
     const metadataMatch = !!metadataAccountLabel?.toLowerCase().includes(searchString);
     const accountLabelMatch = !!account.accountLabel?.toLowerCase().includes(searchString);
 
+    const filterTokens = (token: TokenInfo) =>
+        token.name?.toLowerCase().includes(searchString) ||
+        token.symbol?.toLowerCase().includes(searchString) ||
+        token.contract.toLowerCase().includes(searchString);
+
+    const tokenMatch = !!account.tokens && !!account.tokens.filter(filterTokens).length;
+
     return (
         symbolMatch ||
         networkNameMatch ||
@@ -963,7 +970,8 @@ export const accountSearchFn = (
         addressMatch ||
         matchXRPAlternativeName ||
         metadataMatch ||
-        accountLabelMatch
+        accountLabelMatch ||
+        tokenMatch
     );
 };
 

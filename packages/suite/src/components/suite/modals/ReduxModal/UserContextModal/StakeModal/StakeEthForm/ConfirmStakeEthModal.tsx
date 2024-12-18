@@ -3,13 +3,20 @@ import { useState } from 'react';
 import { Checkbox, NewModal, Column, Banner, Card } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { selectValidatorsQueueData } from '@suite-common/wallet-core';
+import { NetworkType } from '@suite-common/wallet-config';
 import { HELP_CENTER_ETH_STAKING } from '@trezor/urls';
 
 import { Translation, TrezorLink } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { openModal } from 'src/actions/suite/modalActions';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
-import { getDaysToAddToPoolInitial } from 'src/utils/suite/stake';
+import { getDaysToAddToPoolInitial } from 'src/utils/suite/ethereumStaking';
+
+const getStakeEnteringMessage = (networkType?: NetworkType) => {
+    if (networkType === 'ethereum') return 'TR_STAKE_ENTERING_POOL_MAY_TAKE';
+
+    return 'TR_STAKE_ACTIVATION_COULD_TAKE';
+};
 
 interface ConfirmStakeEthModalProps {
     isLoading: boolean;
@@ -60,7 +67,7 @@ export const ConfirmStakeEthModal = ({
             <Column gap={spacings.sm} margin={{ top: spacings.xxs, bottom: spacings.lg }}>
                 <Banner icon="clock">
                     <Translation
-                        id="TR_STAKE_ENTERING_POOL_MAY_TAKE"
+                        id={getStakeEnteringMessage(account?.networkType)}
                         values={{
                             count:
                                 daysToAddToPoolInitial === undefined ? 30 : daysToAddToPoolInitial,

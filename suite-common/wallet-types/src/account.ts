@@ -6,6 +6,7 @@ import {
     ContractInfo,
     StakingPool,
 } from '@trezor/blockchain-link-types/src/blockbook-api';
+import { SolanaStakingAccount } from '@trezor/blockchain-link-types/src/solana';
 
 export type MetadataItem = string;
 export type XpubAddress = string;
@@ -61,6 +62,7 @@ type AccountNetworkSpecific =
           networkType: 'solana';
           misc: {
               rent?: number;
+              solStakingAccounts?: SolanaStakingAccount[];
           };
           marker: undefined;
           page: AccountInfo['page'];

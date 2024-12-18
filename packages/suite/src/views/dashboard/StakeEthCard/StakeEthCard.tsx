@@ -70,9 +70,10 @@ export const StakeEthCard = () => {
                 title: <Translation id="TR_STAKE_ETH_SEE_MONEY_DANCE" />,
                 description: (
                     <Translation
-                        id="TR_STAKE_ETH_SEE_MONEY_DANCE_DESC"
+                        id="TR_STAKE_NETWORK_SEE_MONEY_DANCE_DESC"
                         values={{
                             apyPercent: ethApy,
+                            symbol: bannerSymbol.toUpperCase(),
                             t: text => (
                                 <Tooltip
                                     dashed
@@ -106,7 +107,14 @@ export const StakeEthCard = () => {
 
     return (
         <>
-            <DashboardSection heading={<Translation id="TR_STAKE_ETH" />}>
+            <DashboardSection
+                heading={
+                    <Translation
+                        id="TR_STAKE_NETWORK"
+                        values={{ symbol: bannerSymbol.toUpperCase() }}
+                    />
+                }
+            >
                 <Card>
                     <Column>
                         <Column alignItems="flex-start">

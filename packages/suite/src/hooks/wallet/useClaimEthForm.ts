@@ -1,8 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { selectNetwork } from '@everstake/wallet-sdk/ethereum';
-
 import { getFeeLevels } from '@suite-common/wallet-utils';
 import { PrecomposedTransactionFinal } from '@suite-common/wallet-types';
 
@@ -10,7 +8,10 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { CRYPTO_INPUT, OUTPUT_AMOUNT, UseStakeFormsProps } from 'src/types/wallet/stakeForms';
 import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 import { signTransaction } from 'src/actions/wallet/stakeActions';
-import { getEthNetworkForWalletSdk, getStakeFormsDefaultValues } from 'src/utils/suite/stake';
+import {
+    getEthNetworkAddresses,
+    getStakeFormsDefaultValues,
+} from 'src/utils/suite/ethereumStaking';
 import { ClaimContextValues, ClaimFormState } from 'src/types/wallet/claimForm';
 
 import { useFees } from './form/useFees';
@@ -28,14 +29,12 @@ export const useClaimEthForm = ({ selectedAccount }: UseStakeFormsProps): ClaimC
     const symbolFees = useSelector(state => state.wallet.fees[account.symbol]);
 
     const defaultValues = useMemo(() => {
-        const { address_accounting: accountingAddress } = selectNetwork(
-            getEthNetworkForWalletSdk(account.symbol),
-        );
+        const { addressContractAccounting } = getEthNetworkAddresses(account.symbol);
 
         return {
             ...getStakeFormsDefaultValues({
-                address: accountingAddress,
-                ethereumStakeType: 'claim',
+                address: addressContractAccounting,
+                stakeType: 'claim',
             }),
         } as ClaimFormState;
     }, [account.symbol]);

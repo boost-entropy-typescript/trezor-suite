@@ -11,6 +11,8 @@ import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     formatNetworkAmount,
     isRbfTransaction,
+    isSupportedEthStakingNetworkSymbol,
+    isSupportedSolStakingNetworkSymbol,
     tryGetAccountIdentity,
 } from '@suite-common/wallet-utils';
 import { StakeFormState, PrecomposedTransactionFinal, StakeType } from '@suite-common/wallet-types';
@@ -19,13 +21,19 @@ import { Dispatch, GetState } from 'src/types/suite';
 
 import * as modalActions from '../suite/modalActions';
 import * as stakeFormEthereumActions from './stake/stakeFormEthereumActions';
+import * as stakeFormSolanaActions from './stake/stakeFormSolanaActions';
 import { openModal } from '../suite/modalActions';
 
 export const composeTransaction =
     (formValues: StakeFormState, formState: ComposeActionContext) => (dispatch: Dispatch) => {
         const { account } = formState;
-        if (account.networkType === 'ethereum') {
+
+        if (isSupportedEthStakingNetworkSymbol(account.symbol)) {
             return dispatch(stakeFormEthereumActions.composeTransaction(formValues, formState));
+        }
+
+        if (isSupportedSolStakingNetworkSymbol(account.symbol)) {
+            return dispatch(stakeFormSolanaActions.composeTransaction(formValues, formState));
         }
 
         return Promise.resolve(undefined);
@@ -45,9 +53,9 @@ export const cancelSignTx = (isSuccessTx?: boolean) => (dispatch: Dispatch, getS
     // otherwise just close modal and open stake modal
     dispatch(modalActions.onCancel());
 
-    const { ethereumStakeType } = precomposedForm ?? {};
-    if (ethereumStakeType && !isSuccessTx) {
-        dispatch(openModal({ type: ethereumStakeType }));
+    const { stakeType } = precomposedForm ?? {};
+    if (stakeType && !isSuccessTx) {
+        dispatch(openModal({ type: stakeType }));
     }
 };
 
@@ -171,9 +179,15 @@ export const signTransaction =
 
         // signTransaction by Trezor
         let serializedTx: string | undefined;
-        if (account.networkType === 'ethereum') {
+        if (isSupportedEthStakingNetworkSymbol(account.symbol)) {
             serializedTx = await dispatch(
                 stakeFormEthereumActions.signTransaction(formValues, enhancedTxInfo),
+            );
+        }
+
+        if (isSupportedSolStakingNetworkSymbol(account.symbol)) {
+            serializedTx = await dispatch(
+                stakeFormSolanaActions.signTransaction(formValues, enhancedTxInfo),
             );
         }
 
@@ -181,9 +195,9 @@ export const signTransaction =
             // close modal manually since UI.CLOSE_UI.WINDOW was blocked
             dispatch(modalActions.onCancel());
 
-            const { ethereumStakeType } = formValues;
-            if (ethereumStakeType) {
-                dispatch(openModal({ type: ethereumStakeType }));
+            const { stakeType } = formValues;
+            if (stakeType) {
+                dispatch(openModal({ type: stakeType }));
             }
 
             return;
@@ -203,6 +217,6 @@ export const signTransaction =
         );
         if (decision) {
             // push tx to the network
-            return dispatch(pushTransaction(formValues.ethereumStakeType));
+            return dispatch(pushTransaction(formValues.stakeType));
         }
     };
