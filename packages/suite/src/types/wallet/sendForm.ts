@@ -14,6 +14,7 @@ import {
     PrecomposedLevels,
     PrecomposedLevelsCardano,
     Rate,
+    UtxoSorting,
     WalletAccountTransaction,
 } from '@suite-common/wallet-types';
 import { FiatCurrencyCode } from '@suite-common/suite-config';
@@ -50,6 +51,8 @@ export interface UtxoSelectionContext {
     coinjoinRegisteredUtxos: AccountUtxo[];
     isLowAnonymityUtxoSelected: boolean;
     anonymityWarningChecked: boolean;
+    utxoSorting?: UtxoSorting;
+    selectUtxoSorting: (ordering: UtxoSorting) => void;
     toggleAnonymityWarning: () => void;
     toggleCheckAllUtxos: () => void;
     toggleCoinControl: () => void;
@@ -73,6 +76,7 @@ export type SendContextValues<TFormValues extends FormState = FormState> =
             outputs: Partial<Output & { id: string }>[]; // useFieldArray fields
             updateContext: (value: Partial<UseSendFormState>) => void;
             resetContext: () => void;
+            resetDraft: () => void;
             composeTransaction: (field?: FieldPath<TFormValues>) => void;
             loadTransaction: () => Promise<void>;
             signTransaction: () => void;
