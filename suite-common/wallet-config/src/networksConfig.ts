@@ -1,6 +1,50 @@
 import { DeviceModelInternal } from '@trezor/connect';
 
-import { Networks } from './types';
+import { Networks, NetworkType, Explorer } from './types';
+
+export const getExplorerUrls = (
+    baseUrl: string,
+    networkType: NetworkType,
+    solanaDevnet?: boolean,
+): Explorer => {
+    switch (networkType) {
+        case 'bitcoin':
+            return {
+                tx: `${baseUrl}/tx/`,
+                account: `${baseUrl}/xpub/`,
+                address: `${baseUrl}/address/`,
+            };
+        case 'ethereum':
+            return {
+                tx: `${baseUrl}/tx/`,
+                account: `${baseUrl}/address/`,
+                address: `${baseUrl}/address/`,
+                nft: `${baseUrl}/nft/`,
+            };
+        case 'ripple':
+            return {
+                tx: `${baseUrl}/tx/`,
+                account: `${baseUrl}/account/`,
+                address: `${baseUrl}/account/`,
+            };
+        case 'solana':
+            return {
+                tx: `${baseUrl}/tx/`,
+                account: `${baseUrl}/account/`,
+                address: `${baseUrl}/account/`,
+                queryString: solanaDevnet ? `?cluster=devnet` : '',
+            };
+        case 'cardano':
+            return {
+                tx: `${baseUrl}/tx/`,
+                account: `${baseUrl}/address/`,
+                address: `${baseUrl}/address/`,
+                token: `${baseUrl}/asset/`,
+            };
+        default:
+            throw new Error(`Unsupported network type: ${networkType}`);
+    }
+};
 
 export const networks = {
     btc: {
@@ -10,13 +54,9 @@ export const networks = {
         bip43Path: "m/84'/0'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://btc1.trezor.io/tx/',
-            account: 'https://btc1.trezor.io/xpub/',
-            address: 'https://btc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://btc1.trezor.io', 'bitcoin'),
         features: ['rbf', 'sign-verify', 'amount-unit'],
-        customBackends: ['blockbook', 'electrum'],
+        backendTypes: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
                 accountType: 'coinjoin',
@@ -49,12 +89,7 @@ export const networks = {
         bip43Path: "m/44'/60'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://eth1.trezor.io/tx/',
-            account: 'https://eth1.trezor.io/address/',
-            nft: 'https://eth1.trezor.io/nft/',
-            address: 'https://eth1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://eth1.trezor.io', 'ethereum'),
         features: [
             'rbf',
             'sign-verify',
@@ -63,7 +98,7 @@ export const networks = {
             'nft-definitions',
             'staking',
         ],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
@@ -89,14 +124,9 @@ export const networks = {
         bip43Path: "m/44'/60'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://pol1.trezor.io/tx/',
-            account: 'https://pol1.trezor.io/address/',
-            nft: 'https://pol1.trezor.io/nft/',
-            address: 'https://pol1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://pol1.trezor.io', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens', 'coin-definitions', 'nft-definitions'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
@@ -116,14 +146,9 @@ export const networks = {
         bip43Path: "m/44'/60'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://bsc1.trezor.io/tx/',
-            account: 'https://bsc1.trezor.io/address/',
-            nft: 'https://bsc1.trezor.io/nft/',
-            address: 'https://bsc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://bsc1.trezor.io', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens', 'coin-definitions', 'nft-definitions'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
@@ -143,14 +168,9 @@ export const networks = {
         bip43Path: "m/44'/60'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://basescan.org/tx/',
-            account: 'https://basescan.org/address/',
-            nft: 'https://basescan.org/nft/',
-            address: 'https://basescan.org/address/',
-        },
+        explorer: getExplorerUrls('https://basescan.org', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens', 'coin-definitions', 'nft-definitions'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
@@ -171,14 +191,9 @@ export const networks = {
         bip43Path: "m/44'/60'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://op1.trezor.io/tx/',
-            account: 'https://op1.trezor.io/address/',
-            nft: 'https://op1.trezor.io/nft/',
-            address: 'https://op1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://op1.trezor.io', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens', 'coin-definitions', 'nft-definitions'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             ledger: {
                 // ledger (live), #1 acc is same as Trezor, so it is skipped
@@ -199,11 +214,7 @@ export const networks = {
         decimals: 9,
         testnet: false,
         features: ['tokens', 'coin-definitions', 'staking'],
-        explorer: {
-            tx: 'https://solscan.io/tx/',
-            account: 'https://solscan.io/account/',
-            address: 'https://solscan.io/account/',
-        },
+        explorer: getExplorerUrls('https://solscan.io', 'solana'),
         support: {
             [DeviceModelInternal.T2T1]: '2.6.4',
             [DeviceModelInternal.T2B1]: '2.6.4',
@@ -211,7 +222,7 @@ export const networks = {
             [DeviceModelInternal.T3T1]: '2.0.0',
             [DeviceModelInternal.T3W1]: '2.0.0',
         },
-        customBackends: ['solana'],
+        backendTypes: ['solana'],
         accountTypes: {
             ledger: {
                 // bip44Change - Ledger Live
@@ -232,12 +243,7 @@ export const networks = {
         decimals: 6,
         testnet: false,
         features: ['tokens', 'staking', 'coin-definitions'],
-        explorer: {
-            tx: 'https://cexplorer.io/tx/',
-            address: 'https://cexplorer.io/address/',
-            account: 'https://cexplorer.io/address/',
-            token: 'https://cexplorer.io/asset/',
-        },
+        explorer: getExplorerUrls('https://cexplorer.io', 'cardano'),
         support: {
             [DeviceModelInternal.T2T1]: '2.4.3',
             [DeviceModelInternal.T2B1]: '2.0.0',
@@ -245,7 +251,7 @@ export const networks = {
             [DeviceModelInternal.T3T1]: '2.0.0',
             [DeviceModelInternal.T3W1]: '2.0.0',
         },
-        customBackends: ['blockfrost'],
+        backendTypes: ['blockfrost'],
         accountTypes: {
             legacy: {
                 // icarus-trezor derivation, differs from default just for 24 words seed
@@ -271,14 +277,9 @@ export const networks = {
         bip43Path: "m/44'/61'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: {
-            tx: 'https://etc1.trezor.io/tx/',
-            account: 'https://etc1.trezor.io/address/',
-            nft: 'https://etc1.trezor.io/nft/',
-            address: 'https://etc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://etc1.trezor.io', 'ethereum'),
         features: ['sign-verify', 'tokens', 'coin-definitions'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'ethereum-classic',
         coingeckoNativeId: 'ethereum-classic',
@@ -290,13 +291,9 @@ export const networks = {
         bip43Path: "m/44'/144'/i'/0/0",
         decimals: 6,
         testnet: false,
-        explorer: {
-            tx: 'https://xrpscan.com/tx/',
-            account: 'https://xrpscan.com/account/',
-            address: 'https://xrpscan.com/account/',
-        },
+        explorer: getExplorerUrls('https://xrpscan.com', 'ripple'),
         features: [],
-        customBackends: ['ripple'],
+        backendTypes: ['ripple'],
         accountTypes: {},
         coingeckoId: 'ripple',
         coingeckoNativeId: 'ripple',
@@ -308,13 +305,9 @@ export const networks = {
         bip43Path: "m/84'/2'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://ltc1.trezor.io/tx/',
-            account: 'https://ltc1.trezor.io/xpub/',
-            address: 'https://ltc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://ltc1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             segwit: {
                 accountType: 'segwit',
@@ -335,13 +328,9 @@ export const networks = {
         bip43Path: "m/44'/145'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://bch1.trezor.io/tx/',
-            account: 'https://bch1.trezor.io/xpub/',
-            address: 'https://bch1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://bch1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'bitcoin-cash',
         coingeckoNativeId: 'bitcoin-cash',
@@ -353,13 +342,9 @@ export const networks = {
         bip43Path: "m/44'/3'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://doge1.trezor.io/tx/',
-            account: 'https://doge1.trezor.io/xpub/',
-            address: 'https://doge1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://doge1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'dogecoin',
         coingeckoNativeId: 'dogecoin',
@@ -371,13 +356,9 @@ export const networks = {
         bip43Path: "m/44'/133'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://zec1.trezor.io/tx/',
-            account: 'https://zec1.trezor.io/xpub/',
-            address: 'https://zec1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://zec1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'zcash',
         coingeckoNativeId: 'zcash',
@@ -389,13 +370,9 @@ export const networks = {
         bip43Path: "m/44'/5'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://dash1.trezor.io/tx/',
-            account: 'https://dash1.trezor.io/xpub/',
-            address: 'https://dash1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://dash1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'dash',
         coingeckoNativeId: 'dash',
@@ -407,13 +384,9 @@ export const networks = {
         bip43Path: "m/49'/156'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://btg1.trezor.io/tx/',
-            account: 'https://btg1.trezor.io/xpub/',
-            address: 'https://btg1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://btg1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             legacy: {
                 accountType: 'legacy',
@@ -430,13 +403,9 @@ export const networks = {
         bip43Path: "m/49'/20'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://dgb1.trezor.io/tx/',
-            account: 'https://dgb1.trezor.io/xpub/',
-            address: 'https://dgb1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://dgb1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             legacy: {
                 accountType: 'legacy',
@@ -453,13 +422,9 @@ export const networks = {
         bip43Path: "m/44'/7'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://nmc1.trezor.io/tx/',
-            account: 'https://nmc1.trezor.io/xpub/',
-            address: 'https://nmc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://nmc1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: 'namecoin',
         coingeckoNativeId: 'namecoin',
@@ -471,13 +436,9 @@ export const networks = {
         bip43Path: "m/84'/28'/i'",
         decimals: 8,
         testnet: false,
-        explorer: {
-            tx: 'https://vtc1.trezor.io/tx/',
-            account: 'https://vtc1.trezor.io/xpub/',
-            address: 'https://vtc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://vtc1.trezor.io', 'bitcoin'),
         features: ['sign-verify'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {
             segwit: {
                 accountType: 'segwit',
@@ -499,13 +460,9 @@ export const networks = {
         bip43Path: "m/84'/1'/i'",
         decimals: 8,
         testnet: true,
-        explorer: {
-            tx: 'https://tbtc1.trezor.io/tx/',
-            account: 'https://tbtc1.trezor.io/xpub/',
-            address: 'https://tbtc1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://tbtc1.trezor.io', 'bitcoin'),
         features: ['rbf', 'sign-verify', 'amount-unit'],
-        customBackends: ['blockbook', 'electrum'],
+        backendTypes: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
                 accountType: 'coinjoin',
@@ -537,13 +494,9 @@ export const networks = {
         bip43Path: "m/84'/1'/i'",
         decimals: 8,
         testnet: true,
-        explorer: {
-            tx: 'http://localhost:19121/tx/',
-            account: 'http://localhost:19121/xpub/',
-            address: 'http://localhost:19121/address/',
-        },
+        explorer: getExplorerUrls('http://localhost:19121', 'bitcoin'),
         features: ['rbf', 'sign-verify', 'amount-unit'],
-        customBackends: ['blockbook', 'electrum'],
+        backendTypes: ['blockbook', 'electrum'],
         accountTypes: {
             coinjoin: {
                 accountType: 'coinjoin',
@@ -577,14 +530,9 @@ export const networks = {
         chainId: 11155111,
         decimals: 18,
         testnet: true,
-        explorer: {
-            tx: 'https://sepolia1.trezor.io/tx/',
-            account: 'https://sepolia1.trezor.io/address/',
-            nft: 'https://sepolia1.trezor.io/nft/',
-            address: 'https://sepolia1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://sepolia1.trezor.io', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: undefined,
         coingeckoNativeId: undefined,
@@ -597,14 +545,9 @@ export const networks = {
         chainId: 17000,
         decimals: 18,
         testnet: true,
-        explorer: {
-            tx: 'https://holesky1.trezor.io/tx/',
-            account: 'https://holesky1.trezor.io/address/',
-            nft: 'https://holesky1.trezor.io/nft/',
-            address: 'https://holesky1.trezor.io/address/',
-        },
+        explorer: getExplorerUrls('https://holesky1.trezor.io', 'ethereum'),
         features: ['rbf', 'sign-verify', 'tokens', 'staking'],
-        customBackends: ['blockbook'],
+        backendTypes: ['blockbook'],
         accountTypes: {},
         coingeckoId: undefined,
         coingeckoNativeId: undefined,
@@ -617,12 +560,7 @@ export const networks = {
         decimals: 9,
         testnet: true,
         features: ['tokens', 'staking'],
-        explorer: {
-            tx: 'https://solscan.io/tx/',
-            account: 'https://solscan.io/account/',
-            address: 'https://solscan.io/account/',
-            queryString: '?cluster=devnet',
-        },
+        explorer: getExplorerUrls('https://solscan.io', 'solana', true),
         support: {
             [DeviceModelInternal.T2T1]: '2.6.4',
             [DeviceModelInternal.T2B1]: '2.6.4',
@@ -630,7 +568,7 @@ export const networks = {
             [DeviceModelInternal.T3T1]: '2.0.0',
             [DeviceModelInternal.T3W1]: '2.0.0',
         },
-        customBackends: ['solana'],
+        backendTypes: ['solana'],
         accountTypes: {},
         coingeckoId: undefined,
         coingeckoNativeId: undefined,
@@ -644,12 +582,7 @@ export const networks = {
         decimals: 6,
         testnet: true,
         features: ['tokens', 'staking'],
-        explorer: {
-            tx: 'https://preview.cexplorer.io/tx/',
-            address: 'https://preview.cexplorer.io/address/',
-            account: 'https://preview.cexplorer.io/address/',
-            token: 'https://preview.cexplorer.io/asset/',
-        },
+        explorer: getExplorerUrls('https://preview.cexplorer.io', 'cardano'),
         support: {
             [DeviceModelInternal.T2T1]: '2.4.3',
             [DeviceModelInternal.T2B1]: '2.6.1',
@@ -657,7 +590,7 @@ export const networks = {
             [DeviceModelInternal.T3T1]: '2.0.0',
             [DeviceModelInternal.T3W1]: '2.0.0',
         },
-        customBackends: ['blockfrost'],
+        backendTypes: ['blockfrost'],
         accountTypes: {
             legacy: {
                 // icarus-trezor derivation
@@ -680,13 +613,9 @@ export const networks = {
         bip43Path: "m/44'/144'/i'/0/0",
         decimals: 6,
         testnet: true,
-        explorer: {
-            tx: 'https://test.bithomp.com/explorer/',
-            account: 'https://test.bithomp.com/explorer/',
-            address: 'https://test.bithomp.com/explorer/',
-        },
+        explorer: getExplorerUrls('https://test.bithomp.com', 'ripple'),
         features: ['tokens'],
-        customBackends: [],
+        backendTypes: [],
         accountTypes: {},
         coingeckoId: undefined,
         coingeckoNativeId: 'test-ripple', // fake, coingecko does not have testnets
