@@ -3,9 +3,10 @@ import { MouseEventHandler } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 
 import { formatNetworkAmount, isSameUtxo } from '@suite-common/wallet-utils';
-import { Checkbox, Spinner, TextButton, Tooltip } from '@trezor/components';
+import { Checkbox, Row, Spinner, TextButton, Tooltip } from '@trezor/components';
 import type { AccountUtxo } from '@trezor/connect';
-import { borders, spacingsPx, typography } from '@trezor/theme';
+import { borders, spacings, spacingsPx, typography } from '@trezor/theme';
+import { CheckContainer } from '@trezor/components/src/components/form/Checkbox/Checkbox';
 
 import { openModal } from 'src/actions/suite/modalActions';
 import {
@@ -50,13 +51,7 @@ const DetailPartVisibleOnHover = styled.div<{ $alwaysVisible?: boolean }>`
         `};
 `;
 
-// eslint-disable-next-line local-rules/no-override-ds-component
-const StyledCheckbox = styled(Checkbox)`
-    margin-top: ${spacingsPx.xxxs};
-    margin-right: ${spacingsPx.xs};
-`;
-
-const Wrapper = styled.div<{ $isDisabled: boolean }>`
+const Wrapper = styled.div<{ $isChecked: boolean; $isDisabled: boolean }>`
     align-items: flex-start;
     border-radius: ${borders.radii.xs};
     display: flex;
@@ -74,19 +69,18 @@ const Wrapper = styled.div<{ $isDisabled: boolean }>`
 
     &:hover,
     &:focus-within {
-        ${({ $isDisabled }) =>
+        background: ${({ $isDisabled, theme }) =>
+            !$isDisabled && theme.backgroundSurfaceElevation2};
+
+        ${({ $isChecked, $isDisabled }) =>
+            !$isChecked &&
             !$isDisabled &&
             css`
-                background: ${({ theme }) => theme.backgroundSurfaceElevation2};
-
-                ${StyledCheckbox} > :first-child {
+                ${CheckContainer} {
+                    background: ${({ theme }) => theme.backgroundSurfaceElevation0};
                     border-color: ${({ theme }) => theme.borderFocus};
                 }
             `};
-
-        ${DetailPartVisibleOnHover} {
-            opacity: 1;
-        }
     }
 `;
 
@@ -95,17 +89,6 @@ const Body = styled.div`
 
     /* prevent overflow if contents (e.g. label) are too long */
     min-width: 0;
-`;
-
-const Row = styled.div`
-    align-items: center;
-    display: flex;
-    gap: ${spacingsPx.xs};
-`;
-
-const BottomRow = styled(Row)`
-    margin-top: 6px;
-    min-height: 24px;
 `;
 
 const Address = styled.div`
@@ -130,22 +113,17 @@ const TransactionDetailButton = styled(TextButton)`
     }
 `;
 
-// eslint-disable-next-line local-rules/no-override-ds-component
-const StyledFluidSpinner = styled(Spinner)`
-    margin-right: ${spacingsPx.xs};
-`;
-
 const StyledFiatValue = styled(FiatValue)`
     margin-left: auto;
-    padding-left: 4px;
+    padding-left: ${spacingsPx.xxs};
     color: ${({ theme }) => theme.textSubdued};
     ${typography.hint}
 `;
 
-interface UtxoSelectionProps {
+type UtxoSelectionProps = {
     transaction?: WalletAccountTransaction;
     utxo: AccountUtxo;
-}
+};
 
 export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
     const {
@@ -191,17 +169,22 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
     };
 
     return (
-        <Wrapper $isDisabled={isDisabled} onClick={isDisabled ? undefined : handleCheckbox}>
+        <Wrapper
+            $isChecked={isChecked}
+            $isDisabled={isDisabled}
+            onClick={isDisabled ? undefined : handleCheckbox}
+        >
             <Tooltip content={isDisabled && <Translation id="TR_UTXO_REGISTERED_IN_COINJOIN" />}>
-                <StyledCheckbox
+                <Checkbox
                     isChecked={isChecked}
                     isDisabled={isDisabled}
                     onClick={handleCheckbox}
+                    margin={{ top: spacings.xxxs, right: spacings.xs }}
                 />
             </Tooltip>
 
             <Body>
-                <Row>
+                <Row gap={spacings.xs}>
                     {isPendingTransaction && (
                         <UtxoTag
                             tooltipMessage={<Translation id="TR_IN_PENDING_TRANSACTION" />}
@@ -234,7 +217,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                     />
                 </Row>
 
-                <BottomRow>
+                <Row margin={{ top: spacings.xxs }} minHeight={spacings.xl}>
                     {transaction ? (
                         <TransactionTimestamp showDate transaction={transaction} />
                     ) : (
@@ -242,7 +225,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                             cursor="pointer"
                             content={<Translation id="TR_LOADING_TRANSACTION_DETAILS" />}
                         >
-                            <StyledFluidSpinner size={14} />
+                            <Spinner size={14} margin={{ right: spacings.xs }} />
                         </Tooltip>
                     )}
 
@@ -283,7 +266,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                         amount={formatNetworkAmount(utxo.amount, account.symbol, false)}
                         symbol={network.symbol}
                     />
-                </BottomRow>
+                </Row>
             </Body>
         </Wrapper>
     );
