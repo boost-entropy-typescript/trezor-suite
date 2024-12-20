@@ -32,7 +32,7 @@ export const FormattedNftAmount = ({
 }: FormattedNftAmountProps) => {
     const theme = useTheme();
     const { translationString } = useTranslation();
-    const { selectedAccount } = useSelector(state => state.wallet);
+    const selectedAccount = useSelector(state => state.wallet.selectedAccount);
     const { network } = selectedAccount;
 
     const symbolComponent = transfer.symbol ? (
@@ -63,7 +63,7 @@ export const FormattedNftAmount = ({
                                 ) : (
                                     <Row gap={spacings.xxs}>
                                         <Row>{token.value}x</Row>
-                                        <Translation id="TR_TOKEN_ID" />
+                                        <Translation id="TR_TOKEN_ID_COLON" />
                                     </Row>
                                 )}
                             </Row>
@@ -95,7 +95,7 @@ export const FormattedNftAmount = ({
             <Row className={className}>
                 {signValue ? <Sign value={signValue} /> : null}
                 <Box margin={{ right: spacings.xxs }}>
-                    <Translation id="TR_TOKEN_ID" />
+                    <Translation id="TR_TOKEN_ID_COLON" />
                 </Box>
                 {isWithLink ? (
                     <TrezorLink

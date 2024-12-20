@@ -8,12 +8,17 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { goto } from 'src/actions/suite/routerActions';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 import { NavigationItem, SubpageNavigation } from 'src/components/suite/layouts/SuiteLayout';
-import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
+import {
+    selectIsDebugModeActive,
+    selectHasExperimentalFeature,
+} from 'src/reducers/suite/suiteReducer';
 
 export const ACCOUNT_TABS = [
     'wallet-index',
     'wallet-details',
     'wallet-tokens',
+    'wallet-nfts',
+    'wallet-nfts-hidden',
     'wallet-tokens-hidden',
     'wallet-staking',
 ];
@@ -24,7 +29,7 @@ export const AccountNavigation = () => {
     const account = useSelector(selectSelectedAccount);
     const routerParams = useSelector(state => state.router.params) as WalletParams;
     const dispatch = useDispatch();
-
+    const enabledNftSection = useSelector(selectHasExperimentalFeature('nft-section'));
     const network = getNetworkOptional(routerParams?.symbol);
     const networkType = account?.networkType || network?.networkType || '';
 
@@ -56,6 +61,16 @@ export const AccountNavigation = () => {
             isHidden: !['cardano', 'ethereum', 'solana'].includes(networkType),
             activeRoutes: ['wallet-tokens', 'wallet-tokens-hidden'],
             'data-testid': '@wallet/menu/wallet-tokens',
+        },
+        {
+            id: 'wallet-nfts',
+            callback: () => {
+                goToWithAnalytics('wallet-nfts', { preserveParams: true });
+            },
+            title: <Translation id="TR_NAV_NFTS" />,
+            isHidden: !hasNetworkFeatures(account, 'nfts') || !enabledNftSection,
+            activeRoutes: ['wallet-nfts', 'wallet-nfts-hidden'],
+            'data-testid': '@wallet/menu/wallet-nfts',
         },
         {
             id: 'wallet-staking',

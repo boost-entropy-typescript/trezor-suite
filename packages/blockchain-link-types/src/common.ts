@@ -6,6 +6,7 @@ import type {
     TokenTransfer as BlockbookTokenTransfer,
     ContractInfo,
     StakingPool,
+    Token,
 } from './blockbook-api';
 import type { SolanaStakingAccount } from './solana';
 
@@ -179,7 +180,7 @@ export interface TokenAccount {
     balance: string;
 }
 
-export interface TokenInfo {
+export interface TokenInfo extends Partial<Pick<Token, 'multiTokenValues' | 'ids'>> {
     type: string; // token type: ERC20...
     contract: string; // token address, token unit for ADA
     balance?: string; // token balance

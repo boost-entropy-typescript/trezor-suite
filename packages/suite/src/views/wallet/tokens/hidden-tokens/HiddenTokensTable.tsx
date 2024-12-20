@@ -9,7 +9,7 @@ import { useSelector } from 'src/hooks/suite';
 import { Translation } from 'src/components/suite';
 
 import { NoTokens } from '../common/NoTokens';
-import { TokensTable } from '../common/TokensTable/TokensTable';
+import { NoSearchResultsWrapped, TokensTable } from '../common/TokensTable/TokensTable';
 
 interface HiddenTokensTableProps {
     selectedAccount: SelectedAccountLoaded;
@@ -27,8 +27,17 @@ export const HiddenTokensTable = ({ selectedAccount, searchQuery }: HiddenTokens
           )
         : [];
 
-    const filteredTokens = getTokens(sortedTokens, account.symbol, coinDefinitions, searchQuery);
-    const tokens = getTokens(sortedTokens, account.symbol, coinDefinitions);
+    const filteredTokens = getTokens({
+        tokens: sortedTokens,
+        symbol: account.symbol,
+        tokenDefinitions: coinDefinitions,
+        searchQuery,
+    });
+    const tokens = getTokens({
+        tokens: sortedTokens,
+        symbol: account.symbol,
+        tokenDefinitions: coinDefinitions,
+    });
 
     const hiddenTokensCount = tokens.hiddenWithBalance.length + tokens.hiddenWithoutBalance.length;
     const unverifiedTokensCount =
@@ -37,7 +46,13 @@ export const HiddenTokensTable = ({ selectedAccount, searchQuery }: HiddenTokens
     return (
         <Column gap={spacings.xxl}>
             {hiddenTokensCount === 0 && unverifiedTokensCount === 0 && (
-                <NoTokens title={<Translation id="TR_HIDDEN_TOKENS_EMPTY" />} />
+                <>
+                    {searchQuery ? (
+                        <NoSearchResultsWrapped />
+                    ) : (
+                        <NoTokens title={<Translation id="TR_HIDDEN_TOKENS_EMPTY" />} />
+                    )}
+                </>
             )}
             {hiddenTokensCount > 0 && (
                 <TokensTable

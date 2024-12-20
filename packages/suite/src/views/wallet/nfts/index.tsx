@@ -8,46 +8,52 @@ import { WalletLayout } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { goto } from 'src/actions/suite/routerActions';
 
-import { CoinsTable } from './coins/CoinsTable';
-import { TokensNavigation } from './TokensNavigation';
-import { HiddenTokensTable } from './hidden-tokens/HiddenTokensTable';
+import { TokensNavigation } from '../tokens/TokensNavigation';
+import { NftsTablesSection } from './NftsTablesSection';
 
-export const Tokens = () => {
+export const Nfts = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const selectedAccount = useSelector(state => state.wallet.selectedAccount);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (
             selectedAccount.status === 'loaded' &&
-            !selectedAccount.network?.features.includes('tokens')
+            !selectedAccount.network?.features.includes('nfts')
         ) {
             dispatch(goto('wallet-index', { preserveParams: true }));
         }
     }, [selectedAccount, dispatch]);
 
     if (selectedAccount.status !== 'loaded') {
-        return <WalletLayout title="TR_TOKENS" account={selectedAccount} />;
+        return <WalletLayout title="TR_NAV_NFTS" account={selectedAccount} />;
     }
 
     return (
-        <WalletLayout title="TR_TOKENS" account={selectedAccount}>
+        <WalletLayout title="TR_NAV_NFTS" account={selectedAccount} isSubpage={false}>
             <Column gap={spacings.lg}>
                 <TokensNavigation
                     selectedAccount={selectedAccount}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
+                    isNft
                 />
                 <Switch>
-                    <Route path={`${process.env.ASSET_PREFIX}/accounts/tokens/hidden`}>
-                        <HiddenTokensTable
+                    <Route path={`${process.env.ASSET_PREFIX}/accounts/nfts/hidden`}>
+                        <NftsTablesSection
                             selectedAccount={selectedAccount}
                             searchQuery={searchQuery}
+                            isShown={false}
                         />
                     </Route>
                     <Route path="*">
-                        <CoinsTable selectedAccount={selectedAccount} searchQuery={searchQuery} />
+                        <NftsTablesSection
+                            selectedAccount={selectedAccount}
+                            searchQuery={searchQuery}
+                            isShown
+                        />
                     </Route>
                 </Switch>
             </Column>
@@ -55,4 +61,4 @@ export const Tokens = () => {
     );
 };
 
-export default Tokens;
+export default Nfts;

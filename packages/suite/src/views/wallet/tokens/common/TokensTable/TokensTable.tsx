@@ -1,26 +1,28 @@
 import { useState } from 'react';
 
-import styled from 'styled-components';
-
 import { Account } from '@suite-common/wallet-types';
 import { Network } from '@suite-common/wallet-config';
 import { EnhancedTokenInfo, TokenManagementAction } from '@suite-common/token-definitions';
 import { spacings } from '@trezor/theme';
-import { Icon, Table, Paragraph, Card, Row, Text } from '@trezor/components';
+import { Table, Paragraph, Card } from '@trezor/components';
 
 import { Translation } from 'src/components/suite';
 import { useCoinmarketLoadData } from 'src/hooks/wallet/coinmarket/useCoinmarketLoadData';
 
 import { TokenRow } from './TokenRow';
+import { DropdownRow } from '../../DropdownRow';
 
-const IconWrapper = styled.div<{ $isActive: boolean }>`
-    transition: transform 0.2s ease-in-out;
-    transform: ${({ $isActive }) => ($isActive ? 'rotate(0)' : 'rotate(-90deg)')};
-`;
+const NoSearchResults = () => (
+    <Paragraph margin={{ top: spacings.xxl, bottom: spacings.xxl }} align="center">
+        <Translation id="TR_NO_SEARCH_RESULTS" />
+    </Paragraph>
+);
 
-const ZeroBalanceToggle = styled.div`
-    user-select: none;
-`;
+export const NoSearchResultsWrapped = () => (
+    <Card paddingType="none" overflow="hidden">
+        <NoSearchResults />
+    </Card>
+);
 
 interface TokensTableProps {
     account: Account;
@@ -49,9 +51,7 @@ export const TokensTable = ({
     return (
         <Card paddingType="none" overflow="hidden">
             {tokensWithBalance.length === 0 && tokensWithoutBalance.length === 0 && searchQuery ? (
-                <Paragraph margin={{ top: spacings.xxl, bottom: spacings.xxl }} align="center">
-                    <Translation id="TR_NO_SEARCH_RESULTS" />
-                </Paragraph>
+                <NoSearchResults />
             ) : (
                 <Table
                     margin={{ top: spacings.xs }}
@@ -97,20 +97,12 @@ export const TokensTable = ({
                             <>
                                 <Table.Row onClick={() => setIsZeroBalanceOpen(!isZeroBalanceOpen)}>
                                     <Table.Cell colSpan={1}>
-                                        <ZeroBalanceToggle>
-                                            <Row gap={spacings.xs}>
-                                                <IconWrapper $isActive={isZeroBalanceOpen}>
-                                                    <Icon
-                                                        size={18}
-                                                        variant="tertiary"
-                                                        name="chevronDown"
-                                                    />
-                                                </IconWrapper>
-                                                <Text typographyStyle="hint" variant="tertiary">
-                                                    <Translation id="ZERO_BALANCE_TOKENS" />
-                                                </Text>
-                                            </Row>
-                                        </ZeroBalanceToggle>
+                                        <DropdownRow
+                                            isActive={isZeroBalanceOpen}
+                                            text="ZERO_BALANCE_TOKENS"
+                                            typographyStyle="hint"
+                                            variant="tertiary"
+                                        />
                                     </Table.Cell>
                                     <Table.Cell colSpan={hideRates ? 2 : 4} />
                                 </Table.Row>
