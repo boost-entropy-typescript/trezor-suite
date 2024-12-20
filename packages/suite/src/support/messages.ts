@@ -2822,6 +2822,10 @@ export default defineMessages({
         defaultMessage: 'BNB Smart Chain',
         id: 'TR_NETWORK_BNB',
     },
+    TR_NETWORK_ARBITRUM_ONE: {
+        defaultMessage: 'Arbitrum One',
+        id: 'TR_NETWORK_ARBITRUM_ONE',
+    },
     TR_NETWORK_BASE: {
         defaultMessage: 'Base',
         id: 'TR_NETWORK_BASE',
@@ -5804,6 +5808,11 @@ export default defineMessages({
         id: 'TR_UTXO_LONG_BANNED_IN_COINJOIN',
         defaultMessage: 'Rejected by coordinator',
         description: 'Tooltip over an icon in Coin control section',
+    },
+    TR_UTXO_NOT_MATURED_COINBASE: {
+        id: 'TR_UTXO_NOT_MATURED_COINBASE',
+        defaultMessage:
+            'Coinbase transaction has to have at least {confirmations} confirmations to be spendable',
     },
     TR_CHANGE_ADDRESS_TOOLTIP: {
         id: 'TR_CHANGE_ADDRESS_TOOLTIP',
