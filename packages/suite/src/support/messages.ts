@@ -1397,7 +1397,7 @@ export default defineMessages({
         id: 'TR_COINMARKET_DCA_DOWNLOAD',
     },
     TR_COINMARKET_BUY_AND_SELL: {
-        defaultMessage: 'Buy & Sell',
+        defaultMessage: 'Buy & sell',
         id: 'TR_COINMARKET_BUY_AND_SELL',
     },
     TR_COINMARKET_SWAP: {
@@ -5038,6 +5038,15 @@ export default defineMessages({
         id: 'TR_EXPERIMENTAL_TOR_EXTERNAL_DESCRIPTION',
         defaultMessage:
             'Connect to an external Tor daemon running on port 9050, rather than using the one bundled with Trezor Suite.',
+    },
+    TR_EXPERIMENTAL_TOR_EXTERNAL_PORT: {
+        id: 'TR_EXPERIMENTAL_TOR_EXTERNAL_PORT',
+        defaultMessage: 'Tor external port',
+    },
+    TR_EXPERIMENTAL_TOR_EXTERNAL_PORT_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_TOR_EXTERNAL_PORT_DESCRIPTION',
+        defaultMessage:
+            'Allows you to use Tor daemon running in a external process instead of the one bundled with Trezor Suite.',
     },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',
@@ -8837,7 +8846,7 @@ export default defineMessages({
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
         defaultMessage:
-            'Your {networkDisplaySymbol} will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
+            'Your {networkDisplaySymbol} will be blocked during this period and cannot be canceled. <a>Learn more</a>',
     },
     TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
         id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
@@ -9280,7 +9289,7 @@ export default defineMessages({
     },
     TR_CONNECT_DEVICE_GENERIC_PROMO_DESCRIPTION: {
         id: 'TR_CONNECT_DEVICE_GENERIC_PROMO_DESCRIPTION',
-        defaultMessage: 'To perform trade, connect your Trezor.',
+        defaultMessage: 'Connect your Trezor to continue.',
     },
     TR_CONNECT_DEVICE_SEND_PROMO_TITLE: {
         id: 'TR_CONNECT_DEVICE_SEND_PROMO_TITLE',
