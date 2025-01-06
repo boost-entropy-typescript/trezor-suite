@@ -85,7 +85,7 @@ export default defineMessages({
         id: 'TR_ACCOUNT_IMPORTED_ANNOUNCEMENT',
     },
     TR_ACCOUNT_IS_EMPTY_TITLE: {
-        defaultMessage: 'No transactions... yet.',
+        defaultMessage: 'No transactions',
         id: 'TR_ACCOUNT_IS_EMPTY_TITLE',
     },
     TR_ACCOUNT_PASSPHRASE_DISABLED: {
@@ -1425,11 +1425,11 @@ export default defineMessages({
         id: 'TR_COPY_TO_CLIPBOARD',
     },
     TR_ADDRESS_MODAL_TITLE: {
-        defaultMessage: '{networkSymbol} receive address',
+        defaultMessage: '{networkName} receive address',
         id: 'TR_ADDRESS_MODAL_TITLE',
     },
     TR_ADDRESS_MODAL_TITLE_EXCHANGE: {
-        defaultMessage: '{networkCurrencyName} receive address on {networkSymbol} network',
+        defaultMessage: '{networkCurrencyName} receive address on {networkName} network',
         id: 'TR_ADDRESS_MODAL_TITLE_EXCHANGE',
     },
     TR_XPUB_MODAL_CLIPBOARD: {
@@ -1437,7 +1437,7 @@ export default defineMessages({
         id: 'TR_XPUB_MODAL_CLIPBOARD',
     },
     TR_XPUB_MODAL_TITLE: {
-        defaultMessage: '{networkSymbol} Account {accountIndex} public key (XPUB)',
+        defaultMessage: '{networkName} Account {accountIndex} public key (XPUB)',
         id: 'TR_XPUB_MODAL_TITLE',
     },
     TR_XPUB_MODAL_TITLE_METADATA: {
@@ -2037,7 +2037,7 @@ export default defineMessages({
         id: 'TR_ETH_ADDRESS_CANT_VERIFY_HISTORY',
     },
     TR_EVM_ADDRESS_IS_CONTRACT: {
-        defaultMessage: 'You are sending funds to a contract address.',
+        defaultMessage: "You're sending funds to a contract address.",
         id: 'TR_EVM_ADDRESS_IS_CONTRACT',
     },
     TR_I_UNDERSTAND_THE_RISK: {
@@ -2418,7 +2418,7 @@ export default defineMessages({
         id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN',
     },
     TR_FIRMWARE_SUBHEADING_BITCOIN: {
-        defaultMessage: 'Lightweight firmware supporting only Bitcoin operations.',
+        defaultMessage: 'A lightweight firmware supporting Bitcoin-only operations.',
         description: 'Explanation of Bitcoin-only firmware in onboarding',
         id: 'TR_FIRMWARE_SUBHEADING_BITCOIN',
     },
@@ -2608,7 +2608,7 @@ export default defineMessages({
         id: 'TR_COLLECTIONS_UNRECOGNIZED_BY_TREZOR',
     },
     TR_NFT_UNRECOGNIZED_BY_TREZOR_TOOLTIP: {
-        defaultMessage: 'Unrecognized NFTs pose potential risks. Use caution.',
+        defaultMessage: 'Unrecognized NFTs may pose risks. Proceed with caution.',
         id: 'TR_NFT_UNRECOGNIZED_BY_TREZOR_TOOLTIP',
     },
     TR_LEARN: {
@@ -3031,11 +3031,11 @@ export default defineMessages({
         id: 'TR_RECEIVE',
     },
     TR_RECEIVE_NETWORK: {
-        defaultMessage: 'Receive {networkSymbol}',
+        defaultMessage: 'Receive {networkDisplaySymbol}',
         id: 'TR_RECEIVE_NETWORK',
     },
     TR_BUY_NETWORK: {
-        defaultMessage: 'Buy {networkSymbol}',
+        defaultMessage: 'Buy {networkDisplaySymbol}',
         id: 'TR_BUY_NETWORK',
     },
     TR_TAPROOT_BANNER_TITLE: {
@@ -3339,7 +3339,6 @@ export default defineMessages({
         defaultMessage: 'Token ID:',
         id: 'TR_TOKEN_ID_COLON',
     },
-
     TR_TOKEN_ID: {
         defaultMessage: 'Token ID',
         id: 'TR_TOKEN_ID',
@@ -4385,7 +4384,7 @@ export default defineMessages({
     },
     RECEIVE_TITLE: {
         id: 'RECEIVE_TITLE',
-        defaultMessage: 'Receive {networkSymbol}',
+        defaultMessage: 'Receive {networkDisplaySymbol}',
     },
     RECEIVE_DESC_BITCOIN: {
         id: 'RECEIVE_DESC_BITCOIN',
@@ -4627,7 +4626,7 @@ export default defineMessages({
     TR_BEFORE_ANY_FURTHER_ACTIONS: {
         id: 'TR_BEFORE_ANY_FURTHER_ACTIONS',
         defaultMessage:
-            "Although unlikely, you may need to access your wallet backup in the event of a firmware update issue. If you're uncertain about the accuracy of your backup, you can verify it before proceeding with the installation.",
+            "In the unlikely event of a firmware update issue, you may need to access your wallet backup. If you're unsure about its accuracy, check your wallet backup before proceeding with the installation.",
     },
     TR_CONTINUE_ONLY_WITH_SEED: {
         id: 'TR_CONTINUE_ONLY_WITH_SEED',
@@ -4641,7 +4640,7 @@ export default defineMessages({
     TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION_2: {
         id: 'TR_CONTINUE_ONLY_WITH_SEED_DESCRIPTION_2',
         defaultMessage:
-            'Before you continue, check your wallet backup. This is an easy way to check and verify your wallet backup.',
+            'Before proceeding, verify your wallet backup. This quick and easy check ensures your wallet backup is accurate.',
     },
     TR_SWITCH_FIRMWARE_NO_BACKUP: {
         id: 'TR_SWITCH_FIRMWARE_NO_BACKUP',
@@ -4913,7 +4912,7 @@ export default defineMessages({
     TR_THESE_WONT_ALLOW_YOU_UPGRADE: {
         id: 'TR_THESE_WONT_ALLOW_YOU_UPGRADE',
         defaultMessage:
-            "Generates a single set of 12 or 24 words that can be used to recover your wallet. Legacy wallet backups can't be easily upgraded to a Multi-share Backup. <a>Read more</a>",
+            "Generates a single set of 12 or 24 words that can be used to recover your wallet. Legacy wallet backups can't easily be upgraded to a Multi-share Backup. <a>Read more</a>",
     },
     TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP: {
         id: 'TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP',
@@ -4998,7 +4997,7 @@ export default defineMessages({
     TR_EXPERIMENTAL_NFT_SECTION_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_NFT_SECTION_DESCRIPTION',
         defaultMessage:
-            'Adds an NFT section to EVM-based chain accounts. Currently, viewing is supported, but sending is not available.',
+            "Adds an NFT section to EVM-based chain accounts, allowing you to view NFTs. Note: Sending NFTs isn't currently supported.",
     },
     TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT: {
         id: 'TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT',
@@ -5007,7 +5006,7 @@ export default defineMessages({
     TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT_DESCRIPTION',
         defaultMessage:
-            'Allows to enable Arbitrum One, Base, and Optimism networks in the coin settings.',
+            'Enable support for Arbitrum One, Base, and Optimism networks in coin settings.',
     },
     TR_EXPERIMENTAL_FEATURES_ALLOW: {
         id: 'TR_EXPERIMENTAL_FEATURES_ALLOW',
@@ -5038,7 +5037,7 @@ export default defineMessages({
     TR_EXPERIMENTAL_TOR_EXTERNAL_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_TOR_EXTERNAL_DESCRIPTION',
         defaultMessage:
-            'Allows you to use Tor daemon running in a external process on port 9050 instead of the one bundled with Trezor Suite.',
+            'Connect to an external Tor daemon running on port 9050, rather than using the one bundled with Trezor Suite.',
     },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',
@@ -5334,7 +5333,7 @@ export default defineMessages({
     },
     TR_NFT_EMPTY: {
         id: 'TR_NFT_EMPTY',
-        defaultMessage: 'No NFT collections... yet.',
+        defaultMessage: 'No NFT collections',
     },
     TR_TOKENS_EMPTY_CHECK_HIDDEN: {
         id: 'TR_TOKENS_EMPTY_CHECK_HIDDEN',
@@ -5342,7 +5341,7 @@ export default defineMessages({
     },
     TR_NFT_EMPTY_CHECK_HIDDEN: {
         id: 'TR_NFT_EMPTY_CHECK_HIDDEN',
-        defaultMessage: 'No NFT collections. They may be hidden.',
+        defaultMessage: 'No NFT collections found. They may be hidden.',
     },
     TR_HIDDEN_TOKENS_EMPTY: {
         id: 'TR_HIDDEN_TOKENS_EMPTY',
@@ -5350,7 +5349,7 @@ export default defineMessages({
     },
     TR_HIDDEN_NFT_EMPTY: {
         id: 'TR_HIDDEN_NFT_EMPTY',
-        defaultMessage: 'You have no hidden NFT collections.',
+        defaultMessage: "You don't have any hidden NFT collections.",
     },
     TR_ADD_TOKEN_TITLE: {
         id: 'TR_ADD_TOKEN_TITLE',
@@ -5486,12 +5485,12 @@ export default defineMessages({
         id: 'AMOUNT_IS_LESS_THAN_RESERVE',
     },
     AMOUNT_NOT_ENOUGH_CURRENCY_FEE: {
-        defaultMessage: 'Not enough {networkSymbol} to cover transaction fee',
+        defaultMessage: 'Not enough {networkDisplaySymbol} to cover transaction fee',
         id: 'AMOUNT_NOT_ENOUGH_CURRENCY_FEE',
     },
-
     AMOUNT_NOT_ENOUGH_CURRENCY_FEE_WITH_ETH_AMOUNT: {
-        defaultMessage: 'Not enough {symbol} to cover transaction fee ({feeAmount} {symbol})',
+        defaultMessage:
+            'Insufficient {networkDisplaySymbol} to cover the transaction fee ({feeAmount} {networkDisplaySymbol}).',
         id: 'AMOUNT_NOT_ENOUGH_CURRENCY_FEE_WITH_ETH_AMOUNT',
     },
     REMAINING_BALANCE_LESS_THAN_RENT: {
@@ -5821,7 +5820,7 @@ export default defineMessages({
     TR_UTXO_NOT_MATURED_COINBASE: {
         id: 'TR_UTXO_NOT_MATURED_COINBASE',
         defaultMessage:
-            'Coinbase transaction has to have at least {confirmations} confirmations to be spendable',
+            'A Coinbase transaction requires at least {confirmations} confirmations before it can be spent.',
     },
     TR_CHANGE_ADDRESS_TOOLTIP: {
         id: 'TR_CHANGE_ADDRESS_TOOLTIP',
@@ -7536,11 +7535,11 @@ export default defineMessages({
     },
     TR_STAKING_CONSOLIDATING_FUNDS: {
         id: 'TR_STAKING_CONSOLIDATING_FUNDS',
-        defaultMessage: 'Consolidating your {networkSymbol} for you',
+        defaultMessage: 'Consolidating your {networkDisplaySymbol} for you',
     },
     TR_STAKING_YOUR_UNSTAKED_FUNDS: {
         id: 'TR_STAKING_YOUR_UNSTAKED_FUNDS',
-        defaultMessage: 'Your unstaked {networkSymbol} is ready',
+        defaultMessage: 'Your unstaked {networkDisplaySymbol} is ready',
     },
     TR_RECEIVING_SYMBOL: {
         id: 'TR_RECEIVING_SYMBOL',
@@ -8769,16 +8768,16 @@ export default defineMessages({
     },
     TR_STAKE_CLAIM_UNSTAKED: {
         id: 'TR_STAKE_CLAIM_UNSTAKED',
-        defaultMessage: 'Claim unstaked {networkSymbol}',
+        defaultMessage: 'Claim unstaked {networkDisplaySymbol}',
     },
     TR_STAKE_IN_ACCOUNT: {
         id: 'TR_STAKE_IN_ACCOUNT',
-        defaultMessage: '{networkSymbol} in account',
+        defaultMessage: '{networkDisplaySymbol} in account',
     },
     TR_STAKE_STAKED_ETH_AMOUNT_LOCKED: {
         id: 'TR_STAKE_STAKED_ETH_AMOUNT_LOCKED',
         defaultMessage:
-            'The staked amount of {networkSymbol} is locked and can’t be traded or sent.',
+            'The staked amount of {networkDisplaySymbol} is locked and can’t be traded or sent.',
     },
     TR_STAKE_UNSTAKING_TAKES: {
         id: 'TR_STAKE_UNSTAKING_TAKES',
@@ -8788,7 +8787,7 @@ export default defineMessages({
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
         defaultMessage:
-            'Your rewards also earn. Keep them staked and watch your {networkSymbol} rewards soar.',
+            'Your rewards also earn. Keep them staked and watch your {networkDisplaySymbol} rewards soar.',
     },
     TR_STAKE_AVAILABLE: {
         id: 'TR_STAKE_AVAILABLE',
@@ -8806,17 +8805,17 @@ export default defineMessages({
     TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL: {
         id: 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL',
         defaultMessage:
-            'We’ve left {amount} {networkSymbol} out so you can pay for withdrawal fees.',
+            'We’ve left {amount} {networkDisplaySymbol} out so you can pay for withdrawal fees.',
     },
     TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL: {
         id: 'TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL',
         defaultMessage:
-            'We’ve left a small amount of {networkSymbol} out so you can pay for withdrawal fees.',
+            'We’ve left a small amount of {networkDisplaySymbol} out so you can pay for withdrawal fees.',
     },
     TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS: {
         id: 'TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS',
         defaultMessage:
-            "It's recommended to leave {amount} {networkSymbol} so you can pay for withdrawal fees.",
+            "It's recommended to leave {amount} {networkDisplaySymbol} so you can pay for withdrawal fees.",
     },
     TR_STAKE_CONFIRM_ENTRY_PERIOD: {
         id: 'TR_STAKE_CONFIRM_ENTRY_PERIOD',
@@ -8833,12 +8832,12 @@ export default defineMessages({
     },
     TR_STAKE_ACTIVATION_COULD_TAKE: {
         id: 'TR_STAKE_ACTIVATION_COULD_TAKE',
-        defaultMessage: 'Stake activation usually takes 1 epoch (~3 days)',
+        defaultMessage: 'Stake activation usually takes 1 epoch (~3 days).',
     },
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
         defaultMessage:
-            'Your {networkSymbol} will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
+            'Your {networkDisplaySymbol} will be blocked during this period, and you can’t cancel this. <a>Learn more</a>',
     },
     TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
         id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
@@ -8903,7 +8902,7 @@ export default defineMessages({
     TR_STAKE_ETH_REWARDS_EARN_APY: {
         id: 'TR_STAKE_ETH_REWARDS_EARN_APY',
         defaultMessage:
-            'Your {networkSymbol} rewards also earn the APY rate. Keep your funds staked or add more to increase your rewards.',
+            'Your {networkDisplaySymbol} rewards also earn the APY rate. Keep your funds staked or add more to increase your rewards.',
     },
     TR_STAKE_REWARDS: {
         id: 'TR_STAKE_REWARDS',
@@ -8996,7 +8995,7 @@ export default defineMessages({
     },
     TR_STAKE_MIN_AMOUNT_TOOLTIP: {
         id: 'TR_STAKE_MIN_AMOUNT_TOOLTIP',
-        defaultMessage: 'Minimum amount to stake is {amount} {networkSymbol}',
+        defaultMessage: 'Minimum amount to stake is {amount} {networkDisplaySymbol}',
     },
     TOAST_TX_STAKED: {
         id: 'TOAST_TX_STAKED',
@@ -9012,7 +9011,7 @@ export default defineMessages({
     },
     TOAST_SUCCESSFUL_CLAIM: {
         id: 'TOAST_SUCCESSFUL_CLAIM',
-        defaultMessage: '{networkSymbol} claimed successfully',
+        defaultMessage: '{networkDisplaySymbol} claimed successfully',
     },
     TOAST_ESTIMATED_FEE_ERROR: {
         id: 'TOAST_ESTIMATED_FEE_ERROR',
@@ -9050,7 +9049,7 @@ export default defineMessages({
     TR_STAKE_EVERSTAKE_MANAGES: {
         id: 'TR_STAKE_EVERSTAKE_MANAGES',
         defaultMessage:
-            'Everstake maintains and protects your staked {networkSymbol} <t>with their smart contracts, infrastructure, and technology.</t>',
+            'Everstake maintains and protects your staked {networkDisplaySymbol} <t>with their smart contracts, infrastructure, and technology.</t>',
     },
     TR_STAKE_TREZOR_NO_LIABILITY: {
         id: 'TR_STAKE_TREZOR_NO_LIABILITY',
@@ -9060,12 +9059,12 @@ export default defineMessages({
     TR_STAKE_BY_STAKING_YOU_CAN_EARN_REWARDS: {
         id: 'TR_STAKE_BY_STAKING_YOU_CAN_EARN_REWARDS',
         defaultMessage:
-            'By staking your {networkSymbol}, you can earn rewards while contributing to the security and stability of the network.',
+            "Stake your {networkDisplaySymbol} to earn rewards and help enhance the network's security and stability.",
     },
     TR_STAKE_SECURELY_DELEGATE_TO_EVERSTAKE: {
         id: 'TR_STAKE_SECURELY_DELEGATE_TO_EVERSTAKE',
         defaultMessage:
-            'With Trezor Suite, you can effortlessly and securely delegate your {symbol} to Everstake validator node for staking. Enjoy competitive rewards, rely on a trusted validator, and maintain full ownership of your coins.',
+            'With Trezor Suite, you can easily and securely delegate your {symbol} to the Everstake validator node for staking. Enjoy competitive rewards, rely on a trusted a validator, and retain full ownership of your coins.',
     },
     TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE: {
         id: 'TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE',
@@ -9119,7 +9118,7 @@ export default defineMessages({
     },
     TR_VIEW_ONLY_SEND_COINS_INFO: {
         id: 'TR_VIEW_ONLY_SEND_COINS_INFO',
-        defaultMessage: 'You always need to connect your Trezor to move coins.',
+        defaultMessage: 'You must always connect your Trezor to move coins.',
     },
     TR_SWITCH_DEVICE_EJECT_CONFIRMATION_TITLE: {
         id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_TITLE',
@@ -9358,7 +9357,8 @@ export default defineMessages({
     },
     TR_AUTO_START_DESCRIPTION: {
         id: 'TR_AUTO_START_DESCRIPTION',
-        defaultMessage: 'Start Trezor Suite in the background when you log into your computer.',
+        defaultMessage:
+            'Start Trezor Suite automatically in the background when you log into your computer.',
     },
     TR_SHOW_ON_TRAY: {
         id: 'TR_SHOW_ON_TRAY',
