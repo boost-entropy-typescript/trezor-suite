@@ -1,7 +1,7 @@
 {
     "name": "@suite-native/app",
     "version": "1.0.0",
-    "suiteNativeVersion": "25.1.1",
+    "suiteNativeVersion": "25.1.2",
     "main": "index.js",
     "scripts": {
         "android": "expo run:android",
@@ -65,7 +65,6 @@
         "@suite-native/module-device-settings": "workspace:*",
         "@suite-native/module-home": "workspace:*",
         "@suite-native/module-onboarding": "workspace:*",
-        "@suite-native/module-receive": "workspace:*",
         "@suite-native/module-send": "workspace:*",
         "@suite-native/module-settings": "workspace:*",
         "@suite-native/module-staking-management": "workspace:*",
