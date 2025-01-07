@@ -127,10 +127,12 @@ export const setup = async (
     );
 };
 
+type InitParams = Partial<Parameters<typeof TrezorConnect.init>[0]> & { autoConfirm?: boolean };
+
 export const initTrezorConnect = async (
     // eslint-disable-next-line @typescript-eslint/no-shadow
     TrezorUserEnvLink: TrezorUserEnvLinkClass,
-    options?: Partial<Parameters<typeof TrezorConnect.init>[0]>,
+    { autoConfirm = true, ...options }: InitParams = {},
 ) => {
     TrezorConnect.removeAllListeners();
 
@@ -162,9 +164,12 @@ export const initTrezorConnect = async (
         });
     });
 
-    TrezorConnect.on(UI.REQUEST_BUTTON, () => {
-        setTimeout(() => TrezorUserEnvLink.send({ type: 'emulator-press-yes' }), 1);
-    });
+    if (autoConfirm) {
+        TrezorConnect.on(UI.REQUEST_BUTTON, e => {
+            if (e.code === 'ButtonRequest_PinEntry') return;
+            setTimeout(() => TrezorUserEnvLink.send({ type: 'emulator-press-yes' }), 1);
+        });
+    }
 
     await TrezorConnect.init({
         manifest: {
@@ -237,6 +242,14 @@ export const skipTest = (rules: string[]) => {
 export const conditionalTest = (rules: string[], ...args: any) => {
     const skipMethod = typeof jest !== 'undefined' ? it.skip : xit;
     const testMethod = skipTest(rules) ? skipMethod : it;
+
+    // @ts-expect-error
+    return testMethod(...args);
+};
+
+export const conditionalDescribe = (rules: string[], ...args: any) => {
+    const skipMethod = typeof jest !== 'undefined' ? describe.skip : xdescribe;
+    const testMethod = skipTest(rules) ? skipMethod : describe;
 
     // @ts-expect-error
     return testMethod(...args);

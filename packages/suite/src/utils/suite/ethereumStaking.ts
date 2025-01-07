@@ -11,20 +11,22 @@ import {
     DEFAULT_PAYMENT,
     STAKE_GAS_LIMIT_RESERVE,
     MIN_ETH_AMOUNT_FOR_STAKING,
-    MAX_ETH_AMOUNT_FOR_STAKING,
     UNSTAKE_INTERCHANGES,
     WALLET_SDK_SOURCE,
     UNSTAKING_ETH_PERIOD,
 } from '@suite-common/wallet-constants';
 import type { NetworkSymbol } from '@suite-common/wallet-config';
-import { getEthereumEstimateFeeParams, isPending, sanitizeHex } from '@suite-common/wallet-utils';
+import {
+    getEthereumEstimateFeeParams,
+    isPending,
+    isSupportedEthStakingNetworkSymbol,
+    sanitizeHex,
+} from '@suite-common/wallet-utils';
 import TrezorConnect, { EthereumTransaction, Success, InternalTransfer } from '@trezor/connect';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { ValidatorsQueue } from '@suite-common/wallet-core';
 import { BlockchainEstimatedFee } from '@trezor/connect/src/types/api/blockchainEstimateFee';
 import { PartialRecord } from '@trezor/type-utils';
-
-import { TranslationFunction } from 'src/hooks/suite/useTranslation';
 
 const secondsToDays = (seconds: number) => Math.round(seconds / 60 / 60 / 24);
 
@@ -626,29 +628,13 @@ export const getChangedInternalTx = (
     return internalTransfer ?? null;
 };
 
-export const calculateGains = (input: string, apy: number, divisor: number) => {
-    const amount = new BigNumber(input).multipliedBy(apy).dividedBy(100).dividedBy(divisor);
-
-    return amount.toFixed(5, 1);
-};
-
-interface ValidateMaxOptions {
-    except?: boolean;
-}
-
-export const validateStakingMax =
-    (translationString: TranslationFunction, options?: ValidateMaxOptions) => (value: string) => {
-        if (!options?.except && value && BigNumber(value).gt(MAX_ETH_AMOUNT_FOR_STAKING)) {
-            return translationString('AMOUNT_EXCEEDS_MAX', {
-                maxAmount: MAX_ETH_AMOUNT_FOR_STAKING.toString(),
-            });
-        }
-    };
 export const simulateUnstake = async ({
     amount,
     from,
     symbol,
 }: StakeTxBaseArgs & { amount: string }) => {
+    if (!isSupportedEthStakingNetworkSymbol(symbol)) return null;
+
     const ethNetwork = getEthNetworkForWalletSdk(symbol);
     const ethereumClient = new Ethereum(ethNetwork);
     const { addressContractPool } = getEthNetworkAddresses(symbol);

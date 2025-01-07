@@ -68,7 +68,7 @@ export const HELP_CENTER_ADDRESSES_URL: Url =
 export const HELP_CENTER_COINJOIN_URL: Url = 'https://trezor.io/learn/a/what-is-coinjoin';
 export const HELP_CENTER_TAPROOT_URL: Url = 'https://trezor.io/learn/a/what-is-taproot';
 export const HELP_CENTER_UDEV_URL: Url = 'https://trezor.io/learn/a/udev-rules';
-export const HELP_CENTER_TOR_URL: Url = 'https://trezor.io/learn/a/tor-in-trezor-suite-app';
+export const HELP_CENTER_TOR_URL: Url = 'https://trezor.io/learn/a/tor-in-trezor-suite';
 export const HELP_CENTER_FW_DOWNGRADE_T1B1_URL: Url =
     'https://trezor.io/learn/a/downgrade-firmware-trezor-model-one';
 export const HELP_CENTER_FW_DOWNGRADE_T2T1_URL: Url =
@@ -96,6 +96,8 @@ export const HELP_CENTER_DEVICE_AUTHENTICATION: Url =
     'https://trezor.io/learn/a/trezor-safe-device-authentication-check';
 export const HELP_CENTER_ETH_STAKING: Url =
     'https://trezor.io/learn/a/stake-ethereum-eth-in-trezor-suite';
+export const HELP_CENTER_SOL_STAKING: Url =
+    'https://trezor.io/learn/a/stake-solana-sol-in-trezor-suite';
 export const HELP_CENTER_SEED_CARD_URL: Url = 'https://trezor.io/learn/a/recovery-seed-card';
 export const HELP_CENTER_MULTI_SHARE_BACKUP_URL: Url =
     'https://trezor.io/learn/a/multi-share-backup-on-trezor';
@@ -124,12 +126,15 @@ export const CARDANO_STAKE_POOL_MAINNET_URL: Url =
     'https://trezor-cardano-mainnet.blockfrost.io/api/v0/pools/';
 export const CARDANO_STAKE_POOL_PREVIEW_URL: Url =
     'https://trezor-cardano-preview.blockfrost.io/api/v0/pools/';
+export const CARDANO_MAINNET_DREP: Url =
+    'https://trezor-cardano-mainnet.blockfrost.io/api/v0/dreps/';
+export const CARDANO_PREVIEW_DREP: Url =
+    'https://trezor-cardano-preview.blockfrost.io/api/v0/dreps/';
 
 export const CHROME_URL: Url = 'https://www.google.com/chrome/';
 export const CHROME_UPDATE_URL: Url = 'https://support.google.com/chrome/answer/95414';
 export const CHROME_ANDROID_URL: Url =
     'https://play.google.com/store/apps/details?id=com.android.chrome';
-export const TOR_PROJECT_URL: Url = 'https://www.torproject.org/';
 export const EXPERIMENTAL_FEATURES_KB_URL: Url =
     'https://trezor.io/learn/a/experimental-features-in-trezor-suite';
 export const EXPERIMENTAL_PASSWORD_MANAGER_KB_URL: Url =

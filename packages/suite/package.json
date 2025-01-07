@@ -1,6 +1,6 @@
 {
     "name": "@trezor/suite",
-    "suiteVersion": "25.1.0",
+    "suiteVersion": "25.2.0",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -18,13 +18,13 @@
         "test-unit:watch": "yarn g:jest -o --watch"
     },
     "dependencies": {
-        "@everstake/wallet-sdk": "^1.0.5",
+        "@everstake/wallet-sdk": "^1.0.7",
         "@floating-ui/react": "^0.26.9",
         "@formatjs/intl": "2.10.0",
         "@hookform/resolvers": "3.9.1",
         "@mobily/ts-belt": "^3.13.1",
         "@reduxjs/toolkit": "1.9.5",
-        "@sentry/core": "^7.100.1",
+        "@sentry/core": "^8.47.0",
         "@solana/buffer-layout": "^4.0.1",
         "@solana/web3.js": "^2.0.0",
         "@solana/web3.js-version1": "npm:@solana/web3.js@1.95.8",

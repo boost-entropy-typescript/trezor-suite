@@ -119,81 +119,13 @@ export const getFiatValue = (amount: string, rate: string, fixedTo = 2) => {
 
 export const getTitleForCoinjoinAccount = (symbol: NetworkSymbolExtended) => {
     switch (symbol) {
-        case 'btc':
-            return 'TR_NETWORK_COINJOIN_BITCOIN';
         case 'test':
             return 'TR_NETWORK_COINJOIN_BITCOIN_TESTNET';
         case 'regtest':
             return 'TR_NETWORK_COINJOIN_BITCOIN_REGTEST';
-        default:
-            return 'TR_NETWORK_UNKNOWN';
-    }
-};
-
-export const getTitleForNetwork = (symbol: NetworkSymbolExtended) => {
-    switch (symbol) {
         case 'btc':
-            return 'TR_NETWORK_BITCOIN';
-        case 'test':
-            return 'TR_NETWORK_BITCOIN_TESTNET';
-        case 'regtest':
-            return 'TR_NETWORK_BITCOIN_REGTEST';
-        case 'bch':
-            return 'TR_NETWORK_BITCOIN_CASH';
-        case 'btg':
-            return 'TR_NETWORK_BITCOIN_GOLD';
-        case 'dash':
-            return 'TR_NETWORK_DASH';
-        case 'dgb':
-            return 'TR_NETWORK_DIGIBYTE';
-        case 'doge':
-            return 'TR_NETWORK_DOGECOIN';
-        case 'ltc':
-            return 'TR_NETWORK_LITECOIN';
-        case 'nmc':
-            return 'TR_NETWORK_NAMECOIN';
-        case 'vtc':
-            return 'TR_NETWORK_VERTCOIN';
-        case 'zec':
-            return 'TR_NETWORK_ZCASH';
-        case 'eth':
-            return 'TR_NETWORK_ETHEREUM';
-        case 'bsc':
-            return 'TR_NETWORK_BNB';
-        case 'arb':
-            return 'TR_NETWORK_ARBITRUM_ONE';
-        case 'base':
-            return 'TR_NETWORK_BASE';
-        case 'op':
-            return 'TR_NETWORK_OP';
-        case 'tsep':
-            return 'TR_NETWORK_ETHEREUM_SEPOLIA';
-        case 'thol':
-            return 'TR_NETWORK_ETHEREUM_HOLESKY';
-        case 'etc':
-            return 'TR_NETWORK_ETHEREUM_CLASSIC';
-        case 'xem':
-            return 'TR_NETWORK_NEM';
-        case 'xlm':
-            return 'TR_NETWORK_STELLAR';
-        case 'ada':
-            return 'TR_NETWORK_CARDANO';
-        case 'xtz':
-            return 'TR_NETWORK_TEZOS';
-        case 'xrp':
-            return 'TR_NETWORK_XRP';
-        case 'txrp':
-            return 'TR_NETWORK_XRP_TESTNET';
-        case 'tada':
-            return 'TR_NETWORK_CARDANO_TESTNET';
-        case 'sol':
-            return 'TR_NETWORK_SOLANA_MAINNET';
-        case 'dsol':
-            return 'TR_NETWORK_SOLANA_DEVNET';
-        case 'pol':
-            return 'TR_NETWORK_POLYGON';
         default:
-            return 'TR_NETWORK_UNKNOWN';
+            return 'TR_NETWORK_COINJOIN_BITCOIN';
     }
 };
 
@@ -858,6 +790,7 @@ export const getAccountSpecific = (accountInfo: Partial<AccountInfo>, networkTyp
                     isActive: misc && misc.staking ? misc.staking.isActive : false,
                     address: misc && misc.staking ? misc.staking.address : '',
                     poolId: misc && misc.staking ? misc.staking.poolId : null,
+                    drep: misc && misc.staking ? misc.staking.drep : null,
                 },
             },
             marker: undefined,
@@ -868,7 +801,11 @@ export const getAccountSpecific = (accountInfo: Partial<AccountInfo>, networkTyp
     if (networkType === 'solana') {
         return {
             networkType,
-            misc: { rent: misc?.rent, solStakingAccounts: misc?.solStakingAccounts },
+            misc: {
+                rent: misc?.rent,
+                solStakingAccounts: misc?.solStakingAccounts,
+                solEpoch: misc?.solEpoch,
+            },
             marker: undefined,
             page: accountInfo.page,
         };

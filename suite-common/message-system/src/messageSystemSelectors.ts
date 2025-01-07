@@ -2,6 +2,8 @@ import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/r
 import { Message, Category } from '@suite-common/suite-types';
 
 import { ContextDomain, FeatureDomain, MessageSystemRootState } from './messageSystemTypes';
+import { ExperimentIdType } from './experiment/experiments';
+import { ExperimentsItemUuidType } from './experiment';
 
 // Create app-specific selectors with correct types
 export const createMemoizedSelector = createWeakMapSelector.withTypes<MessageSystemRootState>();
@@ -73,7 +75,7 @@ export const selectContextMessageContent = createMemoizedSelector(
 
         return {
             ...message,
-            content: message?.content[language] ?? message?.content.en,
+            content: message.content[language] ?? message.content.en,
             cta: message?.cta
                 ? {
                       ...message.cta,
@@ -130,6 +132,8 @@ export const selectIsFeatureDisabled = (
 };
 
 const selectValidMessages = (state: MessageSystemRootState) => state.messageSystem.validMessages;
+const selectValidExperiments = (state: MessageSystemRootState) =>
+    state.messageSystem.validExperiments;
 const selectConfig = (state: MessageSystemRootState) => state.messageSystem.config;
 
 export const selectAllValidMessages = createMemoizedSelector(
@@ -147,3 +151,25 @@ export const selectAllValidMessages = createMemoizedSelector(
         );
     },
 );
+
+export const selectAllValidExperiments = createMemoizedSelector(
+    [selectConfig, selectValidExperiments],
+    (config, validExperiments) => {
+        if (!config?.experiments) return [];
+
+        const experiments = config.experiments
+            .filter(experiment => validExperiments.includes(experiment.experiment.id))
+            .map(experiment => experiment.experiment);
+
+        if (!experiments?.length) return [];
+
+        return experiments;
+    },
+);
+
+export const selectExperimentById = (id: ExperimentIdType) =>
+    createMemoizedSelector([selectAllValidExperiments], allValidExperiments =>
+        allValidExperiments.find(
+            (experiment): experiment is ExperimentsItemUuidType => experiment.id === id,
+        ),
+    );

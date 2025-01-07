@@ -67,7 +67,15 @@ export interface ServerInfo {
     network: string;
 }
 
-export type TokenStandard = 'ERC20' | 'ERC1155' | 'ERC721' | 'SPL' | 'SPL-2022' | 'BEP20';
+export type TokenStandard =
+    | 'ERC20'
+    | 'BEP20'
+    | 'BEP721'
+    | 'ERC721'
+    | 'ERC1155'
+    | 'BEP1155'
+    | 'SPL'
+    | 'SPL-2022';
 
 export type TransferType = 'sent' | 'recv' | 'self' | 'unknown';
 
@@ -226,7 +234,6 @@ export interface AccountInfo {
         nonce?: string;
         contractInfo?: ContractInfo;
         stakingPools?: StakingPool[];
-        solStakingAccounts?: SolanaStakingAccount[]; // solana staking accounts
         addressAliases?: { [key: string]: AddressAlias };
         // XRP
         sequence?: number;
@@ -239,10 +246,20 @@ export interface AccountInfo {
             isActive: boolean;
             rewards: string;
             poolId: string | null;
+            drep: {
+                drep_id: string;
+                hex: string;
+                amount: string;
+                active: boolean;
+                active_epoch: number | null;
+                has_script: boolean;
+            } | null;
         };
         // SOL
         owner?: string; // The Solana program owning the account
         rent?: number; // The rent required for the account to opened
+        solStakingAccounts?: SolanaStakingAccount[]; // Solana staking accounts
+        solEpoch?: number; // Solana current epoch
     };
     page?: {
         // blockbook and blockfrost

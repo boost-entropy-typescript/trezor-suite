@@ -189,9 +189,25 @@ export default defineMessages({
         defaultMessage: 'Redirecting ...',
         id: 'TR_TRADE_REDIRECTING',
     },
-    TR_FRACTION_BUTTONS_ALL: {
-        defaultMessage: 'All',
-        id: 'TR_FRACTION_BUTTONS_ALL',
+    TR_FRACTION_BUTTONS_10_PERCENT: {
+        defaultMessage: '10%',
+        id: 'TR_FRACTION_BUTTONS_10_PERCENT',
+    },
+    TR_FRACTION_BUTTONS_25_PERCENT: {
+        defaultMessage: '25%',
+        id: 'TR_FRACTION_BUTTONS_25_PERCENT',
+    },
+    TR_FRACTION_BUTTONS_50_PERCENT: {
+        defaultMessage: '50%',
+        id: 'TR_FRACTION_BUTTONS_50_PERCENT',
+    },
+    TR_FRACTION_BUTTONS_MAX: {
+        defaultMessage: 'Max',
+        id: 'TR_FRACTION_BUTTONS_MAX',
+    },
+    TR_FRACTION_BUTTONS_REWARDS: {
+        defaultMessage: 'Rewards',
+        id: 'TR_FRACTION_BUTTONS_REWARDS',
     },
     TR_EXCHANGE_FIXED_OFFERS_INFO: {
         id: 'TR_EXCHANGE_FIXED_OFFERS_INFO',
@@ -1432,12 +1448,20 @@ export default defineMessages({
         defaultMessage: '{networkCurrencyName} receive address on {networkName} network',
         id: 'TR_ADDRESS_MODAL_TITLE_EXCHANGE',
     },
+    TR_ADDRESS_MODAL_DESCRIPTION: {
+        defaultMessage: 'Receive {displaySymbol}',
+        id: 'TR_ADDRESS_MODAL_DESCRIPTION',
+    },
+    TR_ADDRESS_MODAL_DESCRIPTION_TOKENS: {
+        defaultMessage: 'Receive {displaySymbol} and tokens',
+        id: 'TR_ADDRESS_MODAL_DESCRIPTION_TOKENS',
+    },
     TR_XPUB_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy public key',
         id: 'TR_XPUB_MODAL_CLIPBOARD',
     },
     TR_XPUB_MODAL_TITLE: {
-        defaultMessage: '{networkName} Account {accountIndex} public key (XPUB)',
+        defaultMessage: '{networkName} {accountIndex} public key (XPUB)',
         id: 'TR_XPUB_MODAL_TITLE',
     },
     TR_XPUB_MODAL_TITLE_METADATA: {
@@ -2085,9 +2109,13 @@ export default defineMessages({
         defaultMessage: 'Security',
         id: 'TR_DEVICE_SECURITY',
     },
-    TR_DEVICE_SETTINGS_BUTTON_WIPE_DEVICE: {
+    TR_DEVICE_SETTINGS_FACTORY_RESET: {
         defaultMessage: 'Factory reset',
-        id: 'TR_DEVICE_SETTINGS_BUTTON_WIPE_DEVICE',
+        id: 'TR_DEVICE_SETTINGS_FACTORY_RESET',
+    },
+    TR_DEVICE_SETTINGS_WIPE_DEVICE: {
+        defaultMessage: 'Wipe device',
+        id: 'TR_DEVICE_SETTINGS_WIPE_DEVICE',
     },
     TR_DEVICE_SETTINGS_CUSTOM_FIRMWARE_BUTTON: {
         defaultMessage: 'Install firmware',
@@ -2742,46 +2770,6 @@ export default defineMessages({
         description: 'Title of the coinjoin setup page.',
         id: 'TR_NAV_ANONYMIZE',
     },
-    TR_NETWORK_BITCOIN: {
-        defaultMessage: 'Bitcoin',
-        id: 'TR_NETWORK_BITCOIN',
-    },
-    TR_NETWORK_BITCOIN_CASH: {
-        defaultMessage: 'Bitcoin Cash',
-        id: 'TR_NETWORK_BITCOIN_CASH',
-    },
-    TR_NETWORK_BITCOIN_GOLD: {
-        defaultMessage: 'Bitcoin Gold',
-        id: 'TR_NETWORK_BITCOIN_GOLD',
-    },
-    TR_NETWORK_BITCOIN_TESTNET: {
-        defaultMessage: 'Bitcoin Testnet',
-        id: 'TR_NETWORK_BITCOIN_TESTNET',
-    },
-    TR_NETWORK_BITCOIN_REGTEST: {
-        defaultMessage: 'Bitcoin Regtest',
-        id: 'TR_NETWORK_BITCOIN_REGTEST',
-    },
-    TR_NETWORK_CARDANO: {
-        defaultMessage: 'Cardano',
-        id: 'TR_NETWORK_CARDANO',
-    },
-    TR_NETWORK_DASH: {
-        defaultMessage: 'Dash',
-        id: 'TR_NETWORK_DASH',
-    },
-    TR_NETWORK_DIGIBYTE: {
-        defaultMessage: 'DigiByte',
-        id: 'TR_NETWORK_DIGIBYTE',
-    },
-    TR_NETWORK_DOGECOIN: {
-        defaultMessage: 'Dogecoin',
-        id: 'TR_NETWORK_DOGECOIN',
-    },
-    TR_NETWORK_ETHEREUM: {
-        defaultMessage: 'Ethereum',
-        id: 'TR_NETWORK_ETHEREUM',
-    },
     TR_INCLUDING_TOKENS: {
         defaultMessage: 'Including tokens',
         id: 'TR_INCLUDING_TOKENS',
@@ -2789,78 +2777,6 @@ export default defineMessages({
     TR_INCLUDING_TOKENS_AND_STAKING: {
         defaultMessage: 'Incl. tokens & staking',
         id: 'TR_INCLUDING_TOKENS_AND_STAKING',
-    },
-    TR_NETWORK_ETHEREUM_CLASSIC: {
-        defaultMessage: 'Ethereum Classic',
-        id: 'TR_NETWORK_ETHEREUM_CLASSIC',
-    },
-    TR_NETWORK_ETHEREUM_SEPOLIA: {
-        defaultMessage: 'Ethereum Sepolia',
-        id: 'TR_NETWORK_ETHEREUM_SEPOLIA',
-    },
-    TR_NETWORK_ETHEREUM_HOLESKY: {
-        defaultMessage: 'Ethereum Holesky',
-        id: 'TR_NETWORK_ETHEREUM_HOLESKY',
-    },
-    TR_NETWORK_BNB: {
-        defaultMessage: 'BNB Smart Chain',
-        id: 'TR_NETWORK_BNB',
-    },
-    TR_NETWORK_ARBITRUM_ONE: {
-        defaultMessage: 'Arbitrum One',
-        id: 'TR_NETWORK_ARBITRUM_ONE',
-    },
-    TR_NETWORK_BASE: {
-        defaultMessage: 'Base',
-        id: 'TR_NETWORK_BASE',
-    },
-    TR_NETWORK_OP: {
-        defaultMessage: 'Optimism',
-        id: 'TR_NETWORK_OP',
-    },
-    TR_NETWORK_LITECOIN: {
-        defaultMessage: 'Litecoin',
-        id: 'TR_NETWORK_LITECOIN',
-    },
-    TR_NETWORK_NAMECOIN: {
-        defaultMessage: 'Namecoin',
-        id: 'TR_NETWORK_NAMECOIN',
-    },
-    TR_NETWORK_NEM: {
-        defaultMessage: 'NEM',
-        id: 'TR_NETWORK_NEM',
-    },
-    TR_NETWORK_POLYGON: {
-        defaultMessage: 'Polygon PoS',
-        id: 'TR_NETWORK_POLYGON',
-    },
-    TR_NETWORK_STELLAR: {
-        defaultMessage: 'Stellar',
-        id: 'TR_NETWORK_STELLAR',
-    },
-    TR_NETWORK_TEZOS: {
-        defaultMessage: 'Tezos',
-        id: 'TR_NETWORK_TEZOS',
-    },
-    TR_NETWORK_UNKNOWN: {
-        defaultMessage: 'unknown',
-        id: 'TR_NETWORK_UNKNOWN',
-    },
-    TR_NETWORK_VERTCOIN: {
-        defaultMessage: 'Vertcoin',
-        id: 'TR_NETWORK_VERTCOIN',
-    },
-    TR_NETWORK_XRP: {
-        defaultMessage: 'XRP',
-        id: 'TR_NETWORK_XRP',
-    },
-    TR_NETWORK_XRP_TESTNET: {
-        defaultMessage: 'XRP Testnet',
-        id: 'TR_NETWORK_XRP_TESTNET',
-    },
-    TR_NETWORK_ZCASH: {
-        defaultMessage: 'Zcash',
-        id: 'TR_NETWORK_ZCASH',
     },
     TR_NETWORK_COINJOIN_BITCOIN: {
         defaultMessage: 'Coinjoin',
@@ -2873,14 +2789,6 @@ export default defineMessages({
     TR_NETWORK_COINJOIN_BITCOIN_REGTEST: {
         defaultMessage: 'Coinjoin Regtest',
         id: 'TR_NETWORK_COINJOIN_BITCOIN_REGTEST',
-    },
-    TR_NETWORK_SOLANA_MAINNET: {
-        defaultMessage: 'Solana',
-        id: 'TR_NETWORK_SOLANA_MAINNET',
-    },
-    TR_NETWORK_SOLANA_DEVNET: {
-        defaultMessage: 'Solana Devnet',
-        id: 'TR_NETWORK_SOLANA_DEVNET',
     },
     TR_SOLANA_DEVNET_SHORTCUT_WARNING: {
         defaultMessage:
@@ -3447,10 +3355,15 @@ export default defineMessages({
         defaultMessage: 'Learn more about the difference',
         id: 'TR_WHAT_IS_PASSPHRASE',
     },
-    TR_WIPING_YOUR_DEVICE: {
+    TR_FACTORY_RESET_DESCRIPTION: {
         defaultMessage:
-            'Factory reset wipes the device memory, erasing all information including the wallet backup and PIN. Only perform a factory reset if you have your wallet backup, which is needed to restore access to your funds.',
-        id: 'TR_WIPING_YOUR_DEVICE',
+            'Performing a factory reset in bootloader mode will erase all device data, including the wallet backup, PIN, and firmware. Without your wallet backup, any funds stored on the device will be lost forever. Ensure you have your backup on hand, as it’s required to restore access to your funds after the reset. Only proceed if you’re fully prepared.',
+        id: 'TR_FACTORY_RESET_DESCRIPTION',
+    },
+    TR_WIPE_DEVICE_DESCRIPTION: {
+        defaultMessage:
+            'Wiping the device will permanently erase all stored data, including the wallet backup and PIN. If you do not have your wallet backup, any funds on the device will be lost forever. Ensure you have your backup available before wiping the device, as it is essential for restoring access to your funds. Proceed with caution.',
+        id: 'TR_WIPE_DEVICE_DESCRIPTION',
     },
     TR_WORDS: {
         defaultMessage: '{count} words',
@@ -7567,6 +7480,27 @@ export default defineMessages({
         id: 'TR_CARDANO_FINGERPRINT_HEADLINE',
         defaultMessage: 'Fingerprint',
     },
+    TR_CARDANO_WITHDRAW_MODAL_TITLE: {
+        id: 'TR_CARDANO_WITHDRAW_MODAL_TITLE',
+        defaultMessage: 'Delegate voting rights',
+    },
+    TR_CARDANO_WITHDRAW_MODAL_TITLE_DESCRIPTION: {
+        id: 'TR_CARDANO_WITHDRAW_MODAL_TITLE_DESCRIPTION',
+        defaultMessage:
+            "When withdrawing your rewards, you can choose to support the Cardano ecosystem by delegating your community voting rights. Your votes will be delegated to Five Binaries, the operators of Cardano staking in Trezor Suite. This helps strengthen the network's resilience, sustainability, and community-driven governance. If you prefer, you can easily opt out of governance.",
+    },
+    TR_CARDANO_WITHDRAW_MODAL_SUB_TITLE: {
+        id: 'TR_CARDANO_WITHDRAW_MODAL_SUB_TITLE',
+        defaultMessage: 'Delegate Representative (DRep)',
+    },
+    TR_CARDANO_WITHDRAW_MODAL_BUTTON_ABSTAIN: {
+        id: 'TR_CARDANO_WITHDRAW_MODAL_BUTTON_ABSTAIN',
+        defaultMessage: 'Opt Out',
+    },
+    TR_CARDANO_WITHDRAW_MODAL_BUTTON_DELEGATE: {
+        id: 'TR_CARDANO_WITHDRAW_MODAL_BUTTON_DELEGATE',
+        defaultMessage: 'Delegate',
+    },
     TR_EXCEEDS_MAX: {
         id: 'TR_EXCEEDS_MAX',
         defaultMessage: 'Exceeds max length',
@@ -8713,6 +8647,26 @@ export default defineMessages({
         id: 'TR_STAKE_ENTER_THE_STAKING_POOL',
         defaultMessage: 'Enter the staking pool',
     },
+    TR_STAKE_WAIT_FOR_ACTIVATION: {
+        id: 'TR_STAKE_WAIT_FOR_ACTIVATION',
+        defaultMessage: 'Wait for the next epoch until your stake activated',
+    },
+    TR_STAKE_WARM_UP_PERIOD: {
+        id: 'TR_STAKE_WARM_UP_PERIOD',
+        defaultMessage: 'Warm Up period',
+    },
+    TR_STAKE_EARN_REWARDS_EVERY: {
+        id: 'TR_STAKE_EARN_REWARDS_EVERY',
+        defaultMessage: 'Earn rewards every ~{days} days',
+    },
+    TR_STAKE_COOL_DOWN_PERIOD: {
+        id: 'TR_STAKE_COOL_DOWN_PERIOD',
+        defaultMessage: 'Cool Down Period',
+    },
+    TR_STAKE_WAIT_FOR_DEACTIVATION: {
+        id: 'TR_STAKE_WAIT_FOR_DEACTIVATION',
+        defaultMessage: 'Wait for the next epoch until your stake deactivated',
+    },
     TR_STAKE_EARN_REWARDS_WEEKLY: {
         id: 'TR_STAKE_EARN_REWARDS_WEEKLY',
         defaultMessage: 'Earn rewards weekly',
@@ -8866,6 +8820,10 @@ export default defineMessages({
     TR_STAKE_REWARDS: {
         id: 'TR_STAKE_REWARDS',
         defaultMessage: 'Rewards',
+    },
+    TR_STAKE_EXPECTED_REWARDS: {
+        id: 'TR_STAKE_EXPECTED_REWARDS',
+        defaultMessage: 'Expected rewards per 1 epoch (~{days} days)',
     },
     TR_TX_CONFIRMED: {
         id: 'TR_TX_CONFIRMED',

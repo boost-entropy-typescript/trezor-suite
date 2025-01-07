@@ -50,7 +50,7 @@ import type * as MessageTypes from '@trezor/blockchain-link-types/src/messages';
 import { CustomError } from '@trezor/blockchain-link-types/src/constants/errors';
 import { MESSAGES, RESPONSES } from '@trezor/blockchain-link-types/src/constants';
 import { solanaUtils } from '@trezor/blockchain-link-utils';
-import { BigNumber, createLazy } from '@trezor/utils';
+import { BigNumber, createDeferred, createLazy } from '@trezor/utils';
 import {
     transformTokenInfo,
     tokenProgramsInfo,
@@ -61,7 +61,7 @@ import { IntervalId } from '@trezor/type-utils';
 
 import { getBaseFee, getPriorityFee } from './fee';
 import { BaseWorker, ContextType, CONTEXT } from '../baseWorker';
-// import { getSolanaStakingAccounts } from '../utils';
+import { getSolanaStakingData } from '../utils';
 
 export type SolanaAPI = Readonly<{
     clusterUrl: ClusterUrl;
@@ -208,8 +208,7 @@ const pushTransaction = async (request: Request<MessageTypes.PushTransaction>) =
 
 const getAccountInfo = async (
     request: Request<MessageTypes.GetAccountInfo>,
-    // TODO: uncomment when solana staking accounts are supported
-    // isTestnet: boolean,
+    isTestnet: boolean,
 ) => {
     const { payload } = request;
     const { details = 'basic' } = payload;
@@ -299,6 +298,23 @@ const getAccountInfo = async (
             )
             .send();
 
+    const getEpoch = async (): Promise<number> => {
+        const cachedEpoch = await request.state.cache.get('epoch');
+
+        if (cachedEpoch) {
+            return cachedEpoch;
+        }
+
+        // for parallel requests we store the promise in the cache immediately
+        const deferred = createDeferred<number>();
+        request.state.cache.set('epoch', deferred.promise, 3_600_000);
+
+        const { epoch } = await api.rpc.getEpochInfo().send();
+        deferred.resolve(Number(epoch));
+
+        return deferred.promise;
+    };
+
     const tokenAccounts = (
         await Promise.all(
             Object.values(tokenProgramsInfo).map(programInfo =>
@@ -351,12 +367,12 @@ const getAccountInfo = async (
             const accountDataBytes = getBase64Encoder().encode(accountDataEncoded);
             const accountDataLength = BigInt(accountDataBytes.byteLength);
             const rent = await api.rpc.getMinimumBalanceForRentExemption(accountDataLength).send();
-            // TODO: uncomment when solana staking accounts are supported
-            // const stakingAccounts = await getSolanaStakingAccounts(payload.descriptor, isTestnet);
+            const stakingData = await getSolanaStakingData(payload.descriptor, isTestnet);
             misc = {
                 owner: accountInfo?.owner,
                 rent: Number(rent),
-                solStakingAccounts: [],
+                solStakingAccounts: stakingData?.stakingAccounts,
+                solEpoch: await getEpoch(),
             };
         }
     }
@@ -708,7 +724,7 @@ const unsubscribe = (request: Request<MessageTypes.Unsubscribe>) => {
 const onRequest = (request: Request<MessageTypes.Message>, isTestnet: boolean) => {
     switch (request.type) {
         case MESSAGES.GET_ACCOUNT_INFO:
-            return getAccountInfo(request);
+            return getAccountInfo(request, isTestnet);
         case MESSAGES.GET_INFO:
             return getInfo(request, isTestnet);
         case MESSAGES.PUSH_TRANSACTION:

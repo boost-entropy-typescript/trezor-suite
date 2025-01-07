@@ -25,7 +25,7 @@ export const prioritizeEndpoints = (urls: string[]) =>
         .sort(([, a], [, b]) => b - a)
         .map(([url]) => url);
 
-export const getSolanaStakingAccounts = async (descriptor: string, isTestnet: boolean) => {
+export const getSolanaStakingData = async (descriptor: string, isTestnet: boolean) => {
     const blockchainEnvironment = isTestnet ? 'devnet' : 'mainnet';
 
     // Find the blockchain configuration for the specified chain and environment
@@ -38,7 +38,10 @@ export const getSolanaStakingAccounts = async (descriptor: string, isTestnet: bo
     const solanaClient = new Solana(network, serverUrl);
 
     const delegations = await solanaClient.getDelegations(descriptor);
+    if (!delegations || !delegations.result) {
+        throw new Error('Failed to fetch delegations');
+    }
     const { result: stakingAccounts } = delegations;
 
-    return stakingAccounts;
+    return { stakingAccounts };
 };

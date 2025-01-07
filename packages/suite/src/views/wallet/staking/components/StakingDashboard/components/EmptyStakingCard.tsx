@@ -30,13 +30,12 @@ export const EmptyStakingCard = () => {
 
     const { isStakingDisabled, stakingMessageContent } = useMessageSystemStaking();
 
-    const ethApy = useSelector(state => selectPoolStatsApyData(state, account?.symbol));
-    // TODO: calc solApy
+    const apy = useSelector(state => selectPoolStatsApyData(state, account?.symbol));
 
     const dispatch = useDispatch();
-    const openStakingEthInANutshellModal = () => {
+    const openStakeInANutshellModal = () => {
         if (!isStakingDisabled) {
-            dispatch(openModal({ type: 'stake-eth-in-a-nutshell' }));
+            dispatch(openModal({ type: 'stake-in-a-nutshell' }));
         }
     };
 
@@ -52,8 +51,8 @@ export const EmptyStakingCard = () => {
                     <Translation
                         id="TR_STAKE_NETWORK_SEE_MONEY_DANCE_DESC"
                         values={{
-                            apyPercent: ethApy,
                             symbol: displaySymbol,
+                            apyPercent: apy,
                             t: text => (
                                 <Tooltip
                                     dashed
@@ -80,7 +79,7 @@ export const EmptyStakingCard = () => {
                 description: <Translation id="TR_STAKE_ETH_EVERSTAKE_DESC" />,
             },
         ],
-        [ethApy, displaySymbol],
+        [apy, displaySymbol],
     );
 
     return (
@@ -120,7 +119,7 @@ export const EmptyStakingCard = () => {
                         </Grid>
                         <Tooltip content={stakingMessageContent}>
                             <Button
-                                onClick={openStakingEthInANutshellModal}
+                                onClick={openStakeInANutshellModal}
                                 isDisabled={isStakingDisabled}
                                 icon={isStakingDisabled ? 'info' : undefined}
                             >

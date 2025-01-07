@@ -1,5 +1,6 @@
-import { selectAccountHasStaked } from '@suite-common/wallet-core';
+import { selectEthAccountHasStaked, selectSolAccountHasStaked } from '@suite-common/wallet-core';
 import { SelectedAccountStatus } from '@suite-common/wallet-types';
+import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 
 import { WalletLayout } from 'src/components/wallet';
 import { useSelector } from 'src/hooks/suite';
@@ -13,20 +14,24 @@ interface StakingDashboardProps {
 }
 
 export const StakingDashboard = ({ selectedAccount, dashboard }: StakingDashboardProps) => {
-    const hasStaked = useSelector(state =>
-        selectAccountHasStaked(state, selectedAccount?.account?.key ?? ''),
+    const hasEthStaked = useSelector(state =>
+        selectEthAccountHasStaked(state, selectedAccount.account?.key ?? ''),
+    );
+    const hasSolStaked = useSelector(state =>
+        selectSolAccountHasStaked(state, selectedAccount.account?.key),
     );
 
-    if (!selectedAccount) return null;
+    if (selectedAccount.status !== 'loaded') return null;
+
+    const shouldShowDashboard = hasEthStaked || hasSolStaked;
 
     return (
         <WalletLayout
             title="TR_STAKE_NETWORK"
-            titleValues={{ symbol: selectedAccount?.account?.symbol.toUpperCase() }}
+            titleValues={{ symbol: getNetworkDisplaySymbol(selectedAccount.account.symbol) }}
             account={selectedAccount}
         >
-            {hasStaked ? dashboard : <EmptyStakingCard />}
-
+            {shouldShowDashboard ? dashboard : <EmptyStakingCard />}
             <EverstakeFooter />
         </WalletLayout>
     );

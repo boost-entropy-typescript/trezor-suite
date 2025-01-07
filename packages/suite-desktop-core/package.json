@@ -15,7 +15,7 @@
         "test:e2e:desktop": "yarn xvfb-maybe -- playwright test --config=./e2e/playwright.config.ts --project=desktop"
     },
     "dependencies": {
-        "@sentry/electron": "^4.24.0",
+        "@sentry/electron": "^5.9.0",
         "@suite-common/message-system": "workspace:*",
         "@suite-common/sentry": "workspace:*",
         "@suite-common/suite-constants": "workspace:^",
@@ -50,7 +50,7 @@
         "@playwright/browser-firefox": "^1.49.1",
         "@playwright/browser-webkit": "^1.49.1",
         "@playwright/test": "^1.49.1",
-        "@sentry/webpack-plugin": "^2.14.0",
+        "@sentry/webpack-plugin": "^2.22.7",
         "@trezor/trezor-user-env-link": "workspace:*",
         "@trezor/type-utils": "workspace:*",
         "@types/electron-localshortcut": "^3.1.3",

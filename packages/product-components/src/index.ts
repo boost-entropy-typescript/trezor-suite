@@ -20,3 +20,5 @@ export {
     type NetworkFilterCategory,
     type SelectAssetSearchCategory,
 } from './components/SelectAssetModal/NetworkTabs';
+export { NumberInput } from './components/NumberInput/NumberInput';
+export { InputWithOptions } from './components/InputWithOptions/InputWithOptions';

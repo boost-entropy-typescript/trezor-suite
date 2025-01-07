@@ -9,9 +9,9 @@ import {
     getNetworkByCoingeckoId,
     getNetworkByCoingeckoNativeId,
     getNetworkDisplaySymbol,
+    getNetworkDisplaySymbolName,
     getNetworkFeatures,
     getNetworkType,
-    isNetworkSymbol,
 } from '@suite-common/wallet-config';
 import TrezorConnect from '@trezor/connect';
 import { DefinitionType, isTokenDefinitionKnown } from '@suite-common/token-definitions';
@@ -75,18 +75,6 @@ export function testnetToProdCryptoId(cryptoId: CryptoId): CryptoId {
     return ((networkId.split('test-')?.[1] ?? networkId) +
         (contractAddress ? `${cryptoPlatformSeparator}${contractAddress}` : '')) as CryptoId;
 }
-
-export const getNetworkName = (symbol: NetworkSymbol) => {
-    return getNetwork(symbol).name;
-};
-
-export const getCoinmarketNetworkDisplaySymbol = (symbol: string) => {
-    const symbolLowered = symbol.toLowerCase();
-
-    return isNetworkSymbol(symbolLowered)
-        ? getNetworkDisplaySymbol(symbolLowered)
-        : symbol.toUpperCase();
-};
 
 interface CoinmarketGetDecimalsProps {
     sendCryptoSelect?: CoinmarketAccountOptionsGroupOptionProps;
@@ -387,7 +375,7 @@ export const coinmarketBuildAccountOptions = ({
         const option: CoinmarketAccountOptionsGroupOptionProps = {
             value: network.coingeckoNativeId as CryptoId,
             label: getNetworkDisplaySymbol(accountSymbol),
-            cryptoName: network.name,
+            cryptoName: getNetworkDisplaySymbolName(accountSymbol),
             descriptor,
             balance: formattedBalance ?? '',
             accountType: account.accountType,
