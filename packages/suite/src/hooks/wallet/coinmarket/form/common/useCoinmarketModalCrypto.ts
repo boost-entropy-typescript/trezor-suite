@@ -20,6 +20,7 @@ export const useCoinmarketModalCrypto = ({ receiveCurrency }: CoinmarketModalCry
     }, [receiveCurrency, dispatch]);
 
     // after unmount set off CryptoSymbol for modals
+    // eslint-disable-next-line arrow-body-style
     useEffect(() => {
         return () => {
             dispatch({

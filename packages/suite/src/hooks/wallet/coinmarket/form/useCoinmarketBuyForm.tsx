@@ -476,6 +476,7 @@ export const useCoinmarketBuyForm = ({
         ],
     );
 
+    // eslint-disable-next-line arrow-body-style
     useEffect(() => {
         return () => {
             if (abortControllerRef.current) {

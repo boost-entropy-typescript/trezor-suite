@@ -670,6 +670,7 @@ export const useCoinmarketExchangeForm = ({
         handleChange,
     ]);
 
+    // eslint-disable-next-line arrow-body-style
     useEffect(() => {
         return () => {
             if (abortControllerRef.current) {
