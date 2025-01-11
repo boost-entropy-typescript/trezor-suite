@@ -91,6 +91,11 @@ export const en = {
             },
         },
     },
+    accounts: {
+        accountLabelFieldHint: {
+            letterCount: '{current} / {max} letters',
+        },
+    },
     accountList: {
         numberOfTokens: '+{numberOfTokens, plural, one{1 Token} other{# Tokens}}',
         tokens: 'Tokens',
@@ -114,6 +119,7 @@ export const en = {
             subtitle: "Here's what you have in your account.",
             tokens: 'Tokens:',
             syncAnotherCoinButton: 'Sync another coin',
+            coinLabel: 'Coin label',
         },
         coinList: {
             mainnets: 'Select a coin to sync',
@@ -823,6 +829,10 @@ export const en = {
                     copyMessage: 'Public address copied',
                 },
                 copyButton: 'Copy',
+            },
+            renameForm: {
+                title: 'Rename coin',
+                coinLabel: 'Coin label',
             },
         },
     },

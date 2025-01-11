@@ -3,7 +3,6 @@ import { test, expect } from '../../support/fixtures';
 const regexpBtcValue = /^\d+(\.\d+)? BTC$/;
 
 test.describe('Coin market buy', { tag: ['@group=other'] }, () => {
-    test.use({ emulatorStartConf: { wipe: true } });
     test.beforeEach(async ({ onboardingPage, dashboardPage, walletPage }) => {
         await onboardingPage.completeOnboarding();
         await dashboardPage.discoveryShouldFinish();
@@ -15,7 +14,7 @@ test.describe('Coin market buy', { tag: ['@group=other'] }, () => {
         await test.step('Fill input amount and opens offer comparison', async () => {
             await marketPage.setYouPayAmount('1234');
             await expect(marketPage.section).toHaveScreenshot('buy-coins-layout.png', {
-                mask: [marketPage.bestOfferYouGet, marketPage.bestOfferProvider],
+                mask: [marketPage.bestOfferSection, marketPage.bestOfferProvider],
             });
             await marketPage.compareButton.click();
         });
