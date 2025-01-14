@@ -105,13 +105,13 @@ const handleMessage = async (event: MessageEvent<CoreRequestMessage>) => {
         // Handle immediately, before other logic
         core.handleMessage({ type: POPUP.HANDSHAKE });
 
-        const transport = core.getTransportInfo();
+        const transports = core.getActiveTransports();
         const settings = DataManager.getSettings();
 
         postMessage(
             createPopupMessage(POPUP.HANDSHAKE, {
                 settings: DataManager.getSettings(),
-                transport,
+                transports,
             }),
         );
         _log.debug('loading current method');
@@ -143,8 +143,8 @@ const handleMessage = async (event: MessageEvent<CoreRequestMessage>) => {
                 referrerEmail: settings?.manifest?.email,
                 method: method?.name,
                 payload: method?.payload ? Object.keys(method.payload) : undefined,
-                transportType: transport?.type,
-                transportVersion: transport?.version,
+                transportTypes: transports?.map(t => t.type),
+                bridgeVersion: transports?.find(t => t.type === 'BridgeTransport')?.version,
             },
         });
 

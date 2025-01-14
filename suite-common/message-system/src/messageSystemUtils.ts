@@ -21,7 +21,6 @@ import type {
     Device,
     Environment,
     Condition,
-    ExperimentsItem,
 } from '@suite-common/suite-types';
 import type { NetworkSymbol } from '@suite-common/wallet-config';
 import type { TransportInfo } from '@trezor/connect';
@@ -63,7 +62,7 @@ type CurrentSettings = {
 
 type Options = {
     settings: CurrentSettings;
-    transport?: Partial<TransportInfo>;
+    transports?: TransportInfo[];
     device?: TrezorDevice;
 };
 
@@ -132,27 +131,22 @@ export const validateSettingsCompatibility = (
 
 export const validateTransportCompatibility = (
     transportCondition: Transport,
-    transport?: Partial<TransportInfo>,
-): boolean => {
-    if (!transport || !transport.type || !transport.version) {
-        return false;
-    }
+    transports: TransportInfo[],
+): boolean =>
+    transports
+        .flatMap(t => {
+            if (!t.type || !t.version) return [];
+            // transport names were changed in https://github.com/trezor/trezor-suite/pull/7411
+            // to avoid breaking changes with v1 messaging system schema, we introduce this translation
+            if (t.type === 'BridgeTransport') return [{ type: 'bridge', version: t.version }, t];
+            if (t.type === 'WebUsbTransport')
+                return [{ type: 'webusbplugin', version: t.version }, t];
 
-    const { version } = transport;
-    const type = transport.type.toLowerCase();
-
-    // transport names were changed in https://github.com/trezor/trezor-suite/pull/7411
-    // to avoid breaking changes with v1 messaging system schema, we introduce this translation
-    let legacyTransportType: 'bridge' | 'webusbplugin' | undefined;
-
-    if (type === 'BridgeTransport') {
-        legacyTransportType = 'bridge';
-    } else if (type === 'WebUsbTransport') {
-        legacyTransportType = 'webusbplugin';
-    }
-
-    return validateVersionCompatibility(transportCondition, legacyTransportType || type, version);
-};
+            return [t];
+        })
+        .some(({ type, version }) =>
+            validateVersionCompatibility(transportCondition, type, version),
+        );
 
 export const validateDeviceCompatibility = (
     deviceConditions: Device[],
@@ -206,21 +200,13 @@ export const validateEnvironmentCompatibility = (
     const { revision, desktop, web, mobile } = environmentCondition;
 
     return (
-        validateVersionCompatibility(
-            {
-                desktop,
-                web,
-                mobile,
-            },
-            environment,
-            suiteVersion,
-        ) &&
+        validateVersionCompatibility({ desktop, web, mobile }, environment, suiteVersion) &&
         (revision === commitHash || revision === '*' || revision === undefined)
     );
 };
 
 export const validateConditions = (condition: Condition, options: Options) => {
-    const { device, transport, settings } = options;
+    const { device, transports = [], settings } = options;
 
     const currentOsName = getOsName();
     const currentOsVersion = transformVersionToSemverFormat(getOsVersion());
@@ -277,7 +263,7 @@ export const validateConditions = (condition: Condition, options: Options) => {
         return false;
     }
 
-    if (transportCondition && !validateTransportCompatibility(transportCondition, transport)) {
+    if (transportCondition && !validateTransportCompatibility(transportCondition, transports)) {
         return false;
     }
 
@@ -302,10 +288,7 @@ export const getValidMessages = (config: MessageSystem | null, options: Options)
         .map(action => action.message);
 };
 
-export const getValidExperiments = (
-    config: MessageSystem | null,
-    options: Options,
-): ExperimentsItem[] => {
+export const getValidExperimentIds = (config: MessageSystem | null, options: Options): string[] => {
     if (!config?.experiments) {
         return [];
     }
@@ -316,5 +299,5 @@ export const getValidExperiments = (
                 !experiment.conditions.length ||
                 experiment.conditions.some(condition => validateConditions(condition, options)),
         )
-        .map(experiment => experiment.experiment);
+        .map(experiment => experiment?.experiment?.id);
 };

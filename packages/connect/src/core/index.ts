@@ -73,7 +73,7 @@ const initDevice = async (context: CoreContext, methodCallDevice?: DeviceIdentit
 
     assertDeviceListConnected(deviceList);
 
-    const isWebUsb = deviceList.transportType() === 'WebUsbTransport';
+    const isWebUsb = deviceList.getActiveTransports().some(t => t.type === 'WebUsbTransport');
     let device: Device | typeof undefined;
     let showDeviceSelection = isWebUsb;
     const isUsingPopup = DataManager.getSettings('popup');
@@ -545,11 +545,11 @@ const onCallDevice = async (
     const { deviceList, callMethods, getOverridePromise, setOverridePromise, sendCoreMessage } =
         context;
     const responseID = message.id;
-    const { origin, env, useCoreInPopup } = DataManager.getSettings();
+    const { origin, env, useCoreInPopup, transports } = DataManager.getSettings();
 
     if (!deviceList.isConnected() && !deviceList.pendingConnection()) {
         // transport is missing try to initialize it once again
-        deviceList.init();
+        deviceList.init({ transports });
     }
     await deviceList.pendingConnection();
 
@@ -953,7 +953,7 @@ const handleDeviceSelectionChanges = (context: CoreContext, interruptDevice?: De
     const promiseExists = uiPromises.exists(UI.RECEIVE_DEVICE);
     if (promiseExists && deviceList.isConnected()) {
         const onlyDevice = deviceList.getOnlyDevice();
-        const isWebUsb = deviceList.transportType() === 'WebUsbTransport';
+        const isWebUsb = deviceList.getActiveTransports().some(t => t.type === 'WebUsbTransport');
 
         if (onlyDevice && !isWebUsb) {
             // there is only one device. use it
@@ -990,30 +990,30 @@ const initDeviceList = (context: CoreContext) => {
 
     deviceList.on(DEVICE.CONNECT, device => {
         handleDeviceSelectionChanges(context);
-        sendCoreMessage(createDeviceMessage(DEVICE.CONNECT, device));
+        sendCoreMessage(createDeviceMessage(DEVICE.CONNECT, device.toMessageObject()));
     });
 
     deviceList.on(DEVICE.CONNECT_UNACQUIRED, device => {
         handleDeviceSelectionChanges(context);
-        sendCoreMessage(createDeviceMessage(DEVICE.CONNECT_UNACQUIRED, device));
+        sendCoreMessage(createDeviceMessage(DEVICE.CONNECT_UNACQUIRED, device.toMessageObject()));
     });
 
     deviceList.on(DEVICE.DISCONNECT, device => {
         handleDeviceSelectionChanges(context);
-        sendCoreMessage(createDeviceMessage(DEVICE.DISCONNECT, device));
+        sendCoreMessage(createDeviceMessage(DEVICE.DISCONNECT, device.toMessageObject()));
     });
 
     deviceList.on(DEVICE.CHANGED, device => {
-        sendCoreMessage(createDeviceMessage(DEVICE.CHANGED, device));
+        sendCoreMessage(createDeviceMessage(DEVICE.CHANGED, device.toMessageObject()));
     });
 
-    deviceList.on(TRANSPORT.START, transportType =>
-        sendCoreMessage(createTransportMessage(TRANSPORT.START, transportType)),
+    deviceList.on(TRANSPORT.START, transport =>
+        sendCoreMessage(createTransportMessage(TRANSPORT.START, transport)),
     );
 
     deviceList.on(TRANSPORT.ERROR, error => {
-        _log.warn('TRANSPORT.ERROR', error);
-        sendCoreMessage(createTransportMessage(TRANSPORT.ERROR, { error }));
+        _log.warn('TRANSPORT.ERROR', error.error);
+        sendCoreMessage(createTransportMessage(TRANSPORT.ERROR, error));
     });
 };
 
@@ -1096,8 +1096,20 @@ export class Core extends EventEmitter {
                 );
                 break;
 
-            case TRANSPORT.DISABLE_WEBUSB:
-                disableWebUSBTransport(this.getCoreContext());
+            case TRANSPORT.DISABLE_WEBUSB: {
+                const settings = DataManager.getSettings();
+                const transports = settings.transports?.filter(t => t !== 'WebUsbTransport');
+                if (transports && !transports.includes('BridgeTransport')) {
+                    transports.unshift('BridgeTransport');
+                }
+                settings.transports = transports;
+
+                resetTransports(this.getCoreContext());
+                break;
+            }
+            case TRANSPORT.SET_TRANSPORTS:
+                DataManager.getSettings().transports = message.payload.transports;
+                resetTransports(this.getCoreContext());
                 break;
 
             case TRANSPORT.REQUEST_DEVICE:
@@ -1113,7 +1125,7 @@ export class Core extends EventEmitter {
 
             case TRANSPORT.GET_INFO:
                 this.sendCoreMessage(
-                    createResponseMessage(message.id, true, this.getTransportInfo()),
+                    createResponseMessage(message.id, true, this.getActiveTransports()),
                 );
                 break;
 
@@ -1179,9 +1191,9 @@ export class Core extends EventEmitter {
         return await this.methodSynchronize(() => this.callMethods[0]);
     }
 
-    getTransportInfo(): TransportInfo | undefined {
+    getActiveTransports(): TransportInfo[] | undefined {
         if (this.deviceList.isConnected()) {
-            return this.deviceList.getTransportInfo();
+            return this.deviceList.getActiveTransports();
         }
     }
 
@@ -1240,15 +1252,12 @@ export class Core extends EventEmitter {
             DataManager.getSettings();
 
         try {
-            this.deviceList.setTransports(transports);
+            this.deviceList.init({ transports, pendingTransportEvent, transportReconnect });
         } catch (error) {
-            _log.error('setTransports', error);
             this.sendCoreMessage(createTransportMessage(TRANSPORT.ERROR, { error }));
             throttlePromise.reject(error);
             throw error;
         }
-
-        this.deviceList.init({ pendingTransportEvent, transportReconnect });
 
         // in auto core mode, we have to wait to check if transport is available
         if (!transportReconnect || coreMode === 'auto') {
@@ -1262,29 +1271,11 @@ export class Core extends EventEmitter {
     }
 }
 
-const disableWebUSBTransport = async ({ deviceList, sendCoreMessage }: CoreContext) => {
-    if (!deviceList.isConnected()) return;
-    if (deviceList.transportType() !== 'WebUsbTransport') return;
-    // override settings
+const resetTransports = async ({ deviceList, sendCoreMessage }: CoreContext) => {
     const { transports, pendingTransportEvent, transportReconnect } = DataManager.getSettings();
 
-    if (transports) {
-        const transportStr = transports?.filter(transport => typeof transport !== 'object');
-        if (transportStr.includes('WebUsbTransport')) {
-            transports.splice(transports.indexOf('WebUsbTransport'), 1);
-        }
-        if (!transportStr.includes('BridgeTransport')) {
-            transports!.unshift('BridgeTransport');
-        }
-    }
-
     try {
-        // clean previous device list
-        deviceList.cleanup();
-        // and init with new settings, without webusb
-        deviceList.setTransports(transports);
-        // TODO possible issue with new init not replacing the old one???
-        await deviceList.init({ pendingTransportEvent, transportReconnect });
+        await deviceList.init({ transports, pendingTransportEvent, transportReconnect });
     } catch (error) {
         // do nothing
         sendCoreMessage(createTransportMessage(TRANSPORT.ERROR, { error }));
