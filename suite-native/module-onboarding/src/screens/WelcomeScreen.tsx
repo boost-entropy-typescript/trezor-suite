@@ -1,91 +1,87 @@
-import { useNavigation } from '@react-navigation/native';
+import { ImageBackground, StyleSheet } from 'react-native';
 
-import { FeatureFlag, useFeatureFlag } from '@suite-native/feature-flags';
-import { Link } from '@suite-native/link';
-import { Box, Text, TrezorSuiteLiteHeader } from '@suite-native/atoms';
-import {
-    OnboardingStackParamList,
-    OnboardingStackRoutes,
-    StackNavigationProps,
-} from '@suite-native/navigation';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { Screen } from '@suite-native/navigation';
+import { Box, Button, Text, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { Icon } from '@suite-native/icons';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
+import { hexToRgba } from '@suite-common/suite-utils';
+import { getWindowHeight } from '@trezor/env-utils';
+import { useToast } from '@suite-native/toasts';
+import { colorVariants } from '@trezor/theme';
 
-import { OnboardingFooter } from '../components/OnboardingFooter';
-import { OnboardingScreen } from '../components/OnboardingScreen';
+const GRADIENT_HEIGHT = getWindowHeight() / 3;
 
-const titleStyle = prepareNativeStyle(utils => ({
-    textAlign: 'center',
-    marginBottom: utils.spacings.sp12,
-    alignItems: 'center',
+const gradientBackgroundBottomStyle = prepareNativeStyle(() => ({
+    width: '100%',
+    height: GRADIENT_HEIGHT,
 }));
 
-const trezorLinkStyle = prepareNativeStyle(utils => ({
-    paddingBottom: utils.spacings.sp24,
-    justifyContent: 'flex-end',
+const buttonWrapperStyle = prepareNativeStyle(() => ({
+    width: '100%',
+    paddingBottom: 50,
+}));
+
+const textColorStyle = prepareNativeStyle(() => ({
+    // the text needs to be white to be visible on image background, ignoring the theme
+    color: colorVariants.dark.textDefault,
 }));
 
 export const WelcomeScreen = () => {
-    const isUsbDeviceConnectFeatureEnabled = useFeatureFlag(FeatureFlag.IsDeviceConnectEnabled);
-
-    const navigation =
-        useNavigation<
-            StackNavigationProps<OnboardingStackParamList, OnboardingStackRoutes.Welcome>
-        >();
+    const { showToast } = useToast();
 
     const { applyStyle } = useNativeStyles();
 
-    const handleRedirect = () => {
-        navigation.navigate(
-            isUsbDeviceConnectFeatureEnabled
-                ? OnboardingStackRoutes.ConnectTrezor
-                : OnboardingStackRoutes.TrackBalances,
-        );
-    };
+    // 'transparent' color is not working in context of LinearGradient on iOS. RGBA has to be used instead.
+    const transparentColor = hexToRgba('#000000', 0.01);
 
     return (
-        <OnboardingScreen
-            footer={
-                <OnboardingFooter
-                    redirectTarget={handleRedirect}
-                    nextButtonTitle={<Translation id="moduleOnboarding.welcomeScreen.nextButton" />}
-                />
-            }
-        >
-            <Box flex={1} />
-            <Box alignItems="center" justifyContent="center">
-                <Box alignItems="center">
-                    <Box marginBottom="sp24">
-                        <Icon size="extraLarge" name="trezorLogo" color="iconDefault" />
-                    </Box>
-                    <Box style={applyStyle(titleStyle)}>
-                        <Text variant="titleMedium" textAlign="center">
-                            <Translation id="moduleOnboarding.welcomeScreen.welcome" />
-                        </Text>
-                        <TrezorSuiteLiteHeader textVariant="titleMedium" />
-                    </Box>
-                </Box>
-                <Text color="textSubdued" textAlign="center">
-                    <Translation id="moduleOnboarding.welcomeScreen.subtitle" />
-                </Text>
-            </Box>
-            <Box flex={1} style={applyStyle(trezorLinkStyle)}>
-                <Text variant="hint" color="textSubdued" textAlign="center">
-                    <Translation
-                        id="moduleOnboarding.welcomeScreen.trezorLink"
-                        values={{
-                            trezorLink: chunks => (
-                                <Link
-                                    href="https://trezor.io"
-                                    label={chunks}
-                                    textColor="textSecondaryHighlight"
-                                />
-                            ),
-                        }}
+        <>
+            <ImageBackground
+                source={require('../assets/welcomeScreenBackground.jpeg')}
+                style={StyleSheet.absoluteFillObject}
+                resizeMode="cover"
+            >
+                <Box flex={1} justifyContent="space-between">
+                    <LinearGradient
+                        colors={['#000000', transparentColor]}
+                        style={applyStyle(gradientBackgroundBottomStyle)}
                     />
-                </Text>
-            </Box>
-        </OnboardingScreen>
+                    <LinearGradient
+                        colors={[transparentColor, '#000000']}
+                        style={applyStyle(gradientBackgroundBottomStyle)}
+                    />
+                </Box>
+            </ImageBackground>
+            <Screen isScrollable={false} backgroundColor="transparent">
+                <VStack flex={1} justifyContent="flex-end" alignItems="center" spacing={48}>
+                    <VStack alignItems="center" spacing="sp16">
+                        <Icon name="trezorLogo" color={colorVariants.dark.textDefault} size={50} />
+                        <Box alignItems="center">
+                            <Text variant="titleLarge" style={applyStyle(textColorStyle)}>
+                                <Translation id="generic.trezorSuite" />
+                            </Text>
+                            <Text variant="titleSmall" style={applyStyle(textColorStyle)}>
+                                <Translation id="moduleOnboarding.welcomeScreen.subtitle" />
+                            </Text>
+                        </Box>
+                    </VStack>
+                    <Box style={applyStyle(buttonWrapperStyle)}>
+                        <Button
+                            onPress={() =>
+                                showToast({
+                                    variant: 'warning',
+                                    message: 'TODO: implement next screen',
+                                })
+                            }
+                        >
+                            <Translation id="moduleOnboarding.welcomeScreen.button" />
+                        </Button>
+                    </Box>
+                </VStack>
+            </Screen>
+        </>
     );
 };
