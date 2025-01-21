@@ -1,24 +1,18 @@
 import { Controller } from 'react-hook-form';
 import { useMemo, useState } from 'react';
 
+import { CryptoId } from 'invity-api';
+
 import { Badge, Row, Select, Text } from '@trezor/components';
 import {
     SearchAsset,
     SelectAssetModal,
-    NetworkFilterCategory,
     NetworkTabs,
-    SelectAssetSearchCategory,
     AssetProps,
     ITEM_HEIGHT,
     AssetOptionBaseProps,
 } from '@trezor/product-components';
-import {
-    type NetworkSymbol,
-    getNetworkByCoingeckoNativeId,
-    getNetworkByCoingeckoId,
-    getNetwork,
-    networkSymbolCollection,
-} from '@suite-common/wallet-config';
+import { getNetworkByCoingeckoId, Network, NetworkSymbol } from '@suite-common/wallet-config';
 import { spacings } from '@trezor/theme';
 
 import {
@@ -35,7 +29,9 @@ import {
 } from 'src/types/coinmarket/coinmarketForm';
 import { useCoinmarketInfo } from 'src/hooks/wallet/coinmarket/useCoinmarketInfo';
 import {
+    cryptoIdToNetwork,
     cryptoPlatformSeparator,
+    isCryptoIdForNativeToken,
     parseCryptoId,
 } from 'src/utils/wallet/coinmarket/coinmarketUtils';
 import { useCoinmarketFormContext } from 'src/hooks/wallet/coinmarket/form/useCoinmarketCommonForm';
@@ -53,8 +49,8 @@ const getNetworkCount = (options: SelectAssetOptionProps[]) => {
         .filter(item => item.type === 'group' && item.networkName)
         .map(networkGroup => ({
             ...networkGroup,
-            coingeckoNativeId: networkGroup.coingeckoId
-                ? getNetworkByCoingeckoId(networkGroup.coingeckoId)?.coingeckoNativeId
+            tradeCryptoId: networkGroup.coingeckoId
+                ? getNetworkByCoingeckoId(networkGroup.coingeckoId)?.tradeCryptoId
                 : undefined,
         }));
 
@@ -65,7 +61,7 @@ const getNetworkCount = (options: SelectAssetOptionProps[]) => {
             !networkNetworkGroups.find(
                 group =>
                     group.coingeckoId === item.coingeckoId ||
-                    group.coingeckoNativeId === item.coingeckoId,
+                    group.tradeCryptoId === item.coingeckoId,
             ),
     );
 
@@ -98,7 +94,7 @@ export const CoinmarketFormInputCryptoSelect = <
     const { buildCryptoOptions, cryptoIdToPlatformName } = useCoinmarketInfo();
     const { control } = methods;
     const [isModalActive, setIsModalActive] = useState(false);
-    const [activeTab, setActiveTab] = useState<SelectAssetSearchCategory>(null); // coingeckoNativeId as fallback for ex. polygon
+    const [activeTab, setActiveTab] = useState<Network | null>(null);
     const [search, setSearch] = useState('');
     const { translationString } = useTranslation();
 
@@ -117,28 +113,40 @@ export const CoinmarketFormInputCryptoSelect = <
 
     const modalOptions: SelectAssetOptionProps[] = useMemo(
         () =>
-            formOptions.map(
-                (option): SelectAssetOptionProps =>
-                    option.type === 'currency'
-                        ? {
-                              ...option,
-                              ticker: option.ticker || option.label,
-                              symbol:
-                                  getNetworkByCoingeckoNativeId(
-                                      parseCryptoId(option.value).networkId,
-                                  )?.symbol || parseCryptoId(option.value).networkId,
-                              contractAddress: option.contractAddress ?? null,
-                          }
-                        : option,
-            ),
+            formOptions
+                .map(option => {
+                    if (option.type !== 'currency') return option; // label
+
+                    const network = cryptoIdToNetwork(option.value);
+
+                    if (!network) return null;
+
+                    const { symbol } = network;
+                    const isNativeToken = isCryptoIdForNativeToken(option.value);
+                    // for native tokens (eg. base) to use tradeCryptoId
+                    const coingeckoId = isNativeToken ? network.tradeCryptoId : option.coingeckoId;
+
+                    return {
+                        ...option,
+                        ticker: option.ticker || option.label,
+                        symbol,
+                        contractAddress: option.contractAddress ?? null,
+                        coingeckoId,
+                    };
+                })
+                .filter(option => option !== null),
         [formOptions],
     );
 
     const handleSelectChange = (selectedAsset: AssetOptionBaseProps) => {
         const findOption = formOptions.find(option => {
-            const cryptoId = selectedAsset.contractAddress
-                ? `${selectedAsset.coingeckoId}${cryptoPlatformSeparator}${selectedAsset.contractAddress}`
-                : selectedAsset.coingeckoId;
+            const { coingeckoId, contractAddress } = selectedAsset;
+            const isNativeTokenSymbol = isCryptoIdForNativeToken(coingeckoId as CryptoId);
+            const tokenCryptoId = isNativeTokenSymbol
+                ? coingeckoId
+                : `${coingeckoId}${cryptoPlatformSeparator}${contractAddress}`;
+
+            const cryptoId = contractAddress ? tokenCryptoId : coingeckoId;
 
             return option.type === 'currency' && option.value === cryptoId;
         }) as CoinmarketCryptoSelectItemProps | undefined;
@@ -153,23 +161,6 @@ export const CoinmarketFormInputCryptoSelect = <
 
         context.setAmountLimits(undefined);
         setIsModalActive(false);
-    };
-
-    const getNetworks = () => {
-        const networksToSelect: NetworkSymbol[] = ['eth', 'sol', 'pol', 'bsc', 'base', 'op', 'arb'];
-        const networkKeys = networkSymbolCollection.filter(item => networksToSelect.includes(item));
-        const networksSelected: NetworkFilterCategory[] = networkKeys.map(networkKey => {
-            const network = getNetwork(networkKey);
-
-            return {
-                name: network.name,
-                symbol: network.symbol,
-                coingeckoId: network.coingeckoId,
-                coingeckoNativeId: network.coingeckoNativeId,
-            };
-        });
-
-        return networksSelected;
     };
 
     const data = useMemo(() => getData(modalOptions), [modalOptions]);
@@ -196,7 +187,7 @@ export const CoinmarketFormInputCryptoSelect = <
         );
     });
 
-    const tabs = getNetworks();
+    const quickTabs: NetworkSymbol[] = ['eth', 'sol', 'pol', 'bsc', 'base', 'op', 'arb'];
 
     return (
         <>
@@ -219,10 +210,7 @@ export const CoinmarketFormInputCryptoSelect = <
                             <Translation
                                 id="TR_TOKEN_NOT_FOUND_ON_NETWORK"
                                 values={{
-                                    networkName: tabs.find(
-                                        (category: NetworkFilterCategory) =>
-                                            category.coingeckoId === activeTab?.coingeckoId,
-                                    )?.name,
+                                    networkName: activeTab?.name ?? '',
                                 }}
                             />
                         ),
@@ -231,7 +219,7 @@ export const CoinmarketFormInputCryptoSelect = <
                     filterTabs={
                         <NetworkTabs
                             data-testid="@coinmarket/form/select-crypto/network-tab"
-                            tabs={tabs}
+                            tabs={quickTabs}
                             networkCount={getNetworkCount(modalOptions)}
                             activeTab={activeTab}
                             setActiveTab={setActiveTab}
