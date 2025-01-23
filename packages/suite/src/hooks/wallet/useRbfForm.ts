@@ -3,13 +3,14 @@ import { useForm } from 'react-hook-form';
 
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 import { DEFAULT_PAYMENT, DEFAULT_OPRETURN, DEFAULT_VALUES } from '@suite-common/wallet-constants';
-import { getFeeInfo } from '@suite-common/wallet-utils';
+import { calculateChainedTransactionsFeeForRbf, getFeeInfo } from '@suite-common/wallet-utils';
 import {
     SelectedAccountLoaded,
     RbfTransactionParams,
     ChainedTransactions,
     FormState,
     FeeInfo,
+    FormOptions,
 } from '@suite-common/wallet-types';
 import type { NetworkType } from '@suite-common/wallet-config';
 
@@ -147,6 +148,7 @@ const useRbfState = ({ selectedAccount, rbfParams, chainedTxs }: UseRbfProps) =>
                 token: o.token,
             };
         });
+
         // if there is no change output in the transaction **and** there is no other utxos to add try to decrease amount immediately
         // otherwise use decrease amount only as a fallback (see useEffect below)
         const setMaxOutputId =
@@ -155,13 +157,9 @@ const useRbfState = ({ selectedAccount, rbfParams, chainedTxs }: UseRbfProps) =>
             availableUtxo.length < 1
                 ? outputs.findIndex(o => o.type === 'payment')
                 : undefined;
-        // set baseFee only if chainedTxs are present.
-        // try to overprice them. offer fee higher than sum of both:
-        // - current tx with higher feeRate
-        // - sum of all fees of all chainedTxs
-        const baseFee =
-            chainedTxs &&
-            chainedTxs.own.concat(chainedTxs.others).reduce((f, ctx) => f + parseFloat(ctx.fee), 0);
+
+        // Set baseFee only if chainedTxs are present.
+        const baseFee = chainedTxs && calculateChainedTransactionsFeeForRbf({ chainedTxs });
 
         return {
             account: rbfAccount,
@@ -175,11 +173,11 @@ const useRbfState = ({ selectedAccount, rbfParams, chainedTxs }: UseRbfProps) =>
                 outputs,
                 selectedFee: undefined,
                 setMaxOutputId,
-                options: ['broadcast'],
+                options: ['broadcast'] satisfies FormOptions[],
                 ethereumDataHex: rbfParams.ethereumData,
                 rbfParams,
                 baseFee,
-            } as FormState, // TODO: remove type casting (options string[])
+            },
         };
     }, [
         account,
@@ -259,7 +257,7 @@ export const useRbf = (props: UseRbfProps) => {
                 composeRequest();
             }
             // set-max was already used and still no effect?
-            // do not try compose again and show error
+            // do not try to compose again and show error
         }
     }, [
         account.networkType,
@@ -286,7 +284,7 @@ export const useRbf = (props: UseRbfProps) => {
     };
 };
 
-// context accepts only valid state (non nullable account)
+// context accepts only valid state (non-nullable account)
 type RbfContextValues = ReturnType<typeof useRbf> & NonNullable<ReturnType<typeof useRbfState>>;
 
 export const RbfContext = createContext<RbfContextValues | null>(null);

@@ -17,7 +17,7 @@
         "prebuild:clean": "expo prebuild --clean",
         "build:e2e": "../../node_modules/.bin/detox build --configuration",
         "test:e2e": "../../node_modules/.bin/detox test --configuration",
-        "start:e2e": "NODE_ENV=test expo start --dev-client",
+        "start:e2e": "NODE_ENV=test RN_SRC_EXT=e2e.tsx expo start --dev-client",
         "reverse-ports": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:21325 tcp:21325 && adb reverse tcp:19121 tcp:19121"
     },
     "dependencies": {
@@ -127,6 +127,7 @@
         "@babel/plugin-transform-export-namespace-from": "^7.23.4",
         "@config-plugins/detox": "^8.0.0",
         "@currents/cmd": "^1.6.0",
+        "@jest/globals": "^29.7.0",
         "@react-native-community/cli": "^15.1.2",
         "@react-native/babel-preset": "^0.75.2",
         "@suite-common/test-utils": "workspace:^",
