@@ -253,7 +253,6 @@ describe('bridge', () => {
         const promise2 = bridge2.enumerate();
 
         const results = await Promise.all([promise1, promise2]);
-
         expect(results).toEqual([
             {
                 success: true,
