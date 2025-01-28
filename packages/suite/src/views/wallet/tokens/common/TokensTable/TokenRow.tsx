@@ -156,7 +156,7 @@ export const TokenRow = ({
                         size={24}
                         shouldTryToFetch={isTokenKnown}
                     />
-                    <BlurUrls text={token.name} />
+                    {isTokenKnown ? token.name : <BlurUrls text={token.name} />}
                 </Row>
             </Table.Cell>
             <Table.Cell>
@@ -199,7 +199,7 @@ export const TokenRow = ({
             <Table.Cell align="right">
                 <Row gap={spacings.xs}>
                     <Dropdown
-                        alignMenu="bottom-right"
+                        placement={{ position: 'bottom', alignment: 'start' }}
                         items={
                             [
                                 {
