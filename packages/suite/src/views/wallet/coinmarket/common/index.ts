@@ -1,9 +1,0 @@
-export { CoinmarketAddressOptions } from 'src/views/wallet/coinmarket/common/CoinmarketAddressOptions';
-export { CoinmarketCryptoAmount } from 'src/views/wallet/coinmarket/common/CoinmarketCryptoAmount';
-export { CoinmarketFiatAmount } from 'src/views/wallet/coinmarket/common/CoinmarketFiatAmount';
-export { CoinmarketFooter } from 'src/views/wallet/coinmarket/common/CoinmarketFooter/CoinmarketFooter';
-export { CoinmarketPaymentType } from 'src/views/wallet/coinmarket/common/CoinmarketPaymentType';
-export { CoinmarketProviderInfo } from 'src/views/wallet/coinmarket/common/CoinmarketProviderInfo';
-export { CoinmarketRefreshTime } from 'src/views/wallet/coinmarket/common/CoinmarketRefreshTime';
-export { CoinmarketTag } from 'src/views/wallet/coinmarket/common/CoinmarketTag';
-export { CoinmarketTransactionId } from 'src/views/wallet/coinmarket/common/CoinmarketTransactionId';

@@ -1,0 +1,122 @@
+import { SellFiatTrade, SellFiatTradeQuoteRequest, SellTradeStatus } from 'invity-api';
+
+import { desktopApi } from '@trezor/suite-desktop-api';
+import { isDesktop, getLocationOrigin } from '@trezor/env-utils';
+
+import { Account } from 'src/types/wallet';
+import { ComposedTransactionInfo } from 'src/reducers/wallet/tradingReducer';
+import type { AmountLimitProps } from 'src/utils/suite/validation';
+
+type GetAmountLimitsProps = {
+    request: SellFiatTradeQuoteRequest;
+    quotes: SellFiatTrade[];
+    currency: string;
+};
+
+// loop through quotes and if all quotes are either with error below minimum or over maximum, return the limits
+export function getAmountLimits({
+    request,
+    quotes,
+    currency,
+}: GetAmountLimitsProps): AmountLimitProps | undefined {
+    let minAmount: number | undefined;
+    let maxAmount: number | undefined;
+
+    for (const quote of quotes) {
+        // if at least one quote succeeded do not return any message
+        if (!quote.error) {
+            return;
+        }
+        if (request.amountInCrypto) {
+            const amount = Number(quote.cryptoStringAmount);
+
+            if (amount && quote.minCrypto && amount < quote.minCrypto) {
+                minAmount = Math.min(minAmount || 1e28, quote.minCrypto);
+            }
+            if (amount && quote.maxCrypto && amount > quote.maxCrypto) {
+                maxAmount = Math.max(maxAmount || 0, quote.maxCrypto);
+            }
+        } else {
+            const amount = Number(quote.fiatStringAmount);
+            if (amount && quote.minFiat && amount < quote.minFiat) {
+                minAmount = Math.min(minAmount || 1e28, quote.minFiat);
+            }
+            if (amount && quote.maxFiat && amount > quote.maxFiat) {
+                maxAmount = Math.max(maxAmount || 0, quote.maxFiat);
+            }
+        }
+    }
+    if (minAmount) {
+        if (!maxAmount) {
+            return request.amountInCrypto
+                ? { currency, minCrypto: minAmount.toString() }
+                : { currency: request.fiatCurrency, minFiat: minAmount.toString() };
+        }
+    } else if (maxAmount) {
+        return request.amountInCrypto
+            ? { currency, maxCrypto: maxAmount.toString() }
+            : { currency: request.fiatCurrency, maxFiat: maxAmount.toString() };
+    }
+}
+
+export const createQuoteLink = async (
+    request: SellFiatTradeQuoteRequest,
+    account: Account,
+    composedInfo: ComposedTransactionInfo,
+    orderId?: string,
+) => {
+    const assetPrefix = process.env.ASSET_PREFIX || '';
+    const locationOrigin = getLocationOrigin();
+    let hash: string;
+
+    if (request.amountInCrypto) {
+        hash = `qc/${request.country}/${request.fiatCurrency}/${request.cryptoStringAmount}/${request.cryptoCurrency}`;
+    } else {
+        hash = `qf/${request.country}/${request.fiatCurrency}/${request.fiatStringAmount}/${request.cryptoCurrency}`;
+    }
+    if (orderId) {
+        hash = `p-${hash}/${orderId}`;
+    }
+    if (composedInfo.selectedFee && composedInfo.selectedFee !== 'normal') {
+        hash += `/${composedInfo.selectedFee}`;
+        if (composedInfo.selectedFee === 'custom') {
+            hash += `/${composedInfo.composed?.feePerByte}`;
+            if (composedInfo.composed?.feeLimit) {
+                hash += `/${composedInfo.composed?.feeLimit}`;
+            }
+        }
+    }
+
+    const params = `sell-offers/${account.symbol}/${account.accountType}/${account.index}/${hash}`;
+
+    if (isDesktop()) {
+        const url = await desktopApi.getHttpReceiverAddress('/sell-redirect');
+
+        return `${url}?p=${encodeURIComponent(`/coinmarket-redirect/${params}`)}`;
+    }
+
+    return `${locationOrigin}${assetPrefix}/coinmarket-redirect#${params}`;
+};
+
+export const formatIban = (iban: string) =>
+    iban
+        .replace(/ /g, '')
+        .replace(/(.{4})/g, '$1 ')
+        .trimEnd();
+
+export const getStatusMessage = (status: SellTradeStatus) => {
+    switch (status) {
+        case 'BLOCKED':
+        case 'CANCELLED':
+        case 'REFUNDED':
+        case 'ERROR':
+            return 'TR_SELL_STATUS_ERROR';
+        case 'SUCCESS':
+            return 'TR_SELL_STATUS_SUCCESS';
+        case 'LOGIN_REQUEST':
+        case 'SITE_ACTION_REQUEST':
+        case 'SUBMITTED':
+        default:
+            return 'TR_SELL_STATUS_PENDING';
+    }
+};
