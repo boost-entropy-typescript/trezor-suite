@@ -4,22 +4,25 @@ import { useNavigation } from '@react-navigation/core';
 import { useAtomValue } from 'jotai';
 
 import {
-    RootStackParamList,
-    RootStackRoutes,
     SettingsStackRoutes,
+    RootStackRoutes,
     StackNavigationProps,
+    RootStackParamList,
 } from '@suite-native/navigation';
 import { FeatureFlag, useFeatureFlag } from '@suite-native/feature-flags';
 import { Translation } from '@suite-native/intl';
 import { selectHasDeviceDiscovery } from '@suite-common/wallet-core';
-import { SettingsSection, SettingsSectionItem } from '@suite-native/settings';
 
 import { useSettingsNavigateTo } from '../navigation/useSettingsNavigateTo';
+import { SettingsSection } from './SettingsSection';
+import { SettingsSectionItem } from './SettingsSectionItem';
 import { isDevButtonVisibleAtom } from './ProductionDebug';
 
 export const FeaturesSettings = () => {
     const isDevButtonVisible = useAtomValue(isDevButtonVisibleAtom);
     const isUsbDeviceConnectFeatureEnabled = useFeatureFlag(FeatureFlag.IsDeviceConnectEnabled);
+    const isFwRevisionCheckEnabled = useFeatureFlag(FeatureFlag.IsFwRevisionCheckEnabled);
+
     const navigation = useNavigation<StackNavigationProps<RootStackParamList, RootStackRoutes>>();
     const navigateTo = useSettingsNavigateTo();
 
@@ -68,6 +71,18 @@ export const FeaturesSettings = () => {
                         isLoading={hasDiscovery}
                         testID="@settings/coin-enabling"
                     />
+                    {isFwRevisionCheckEnabled && (
+                        <SettingsSectionItem
+                            iconName="trezorDevices"
+                            title={
+                                <Translation id="moduleSettings.items.features.deviceChecks.title" />
+                            }
+                            subtitle={
+                                <Translation id="moduleSettings.items.features.deviceChecks.subtitle" />
+                            }
+                            onPress={() => navigateTo(SettingsStackRoutes.SettingsDeviceChecks)}
+                        />
+                    )}
                 </>
             )}
         </SettingsSection>
