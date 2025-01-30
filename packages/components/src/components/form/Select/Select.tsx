@@ -1,26 +1,26 @@
-import { useCallback, useRef, ReactNode, useMemo } from 'react';
-import ReactSelect, { Props as ReactSelectProps, StylesConfig, SelectInstance } from 'react-select';
+import { ReactNode, useCallback, useMemo, useRef } from 'react';
+import ReactSelect, { Props as ReactSelectProps, SelectInstance, StylesConfig } from 'react-select';
 
-import styled, { css, DefaultTheme, useTheme } from 'styled-components';
+import styled, { DefaultTheme, css, useTheme } from 'styled-components';
 
 import {
+    Elevation,
     borders,
     spacings,
     spacingsPx,
     typography,
     typographyStylesBase,
     zIndices,
-    Elevation,
 } from '@trezor/theme';
 
-import { INPUT_HEIGHTS, LABEL_TRANSFORM, Label, baseInputStyle } from '../styles';
-import { InputSize } from '../types';
 import {
     FormCell,
     FormCellProps,
     allowedFormCellFrameProps,
     pickFormCellProps,
 } from '../FormCell/FormCell';
+import { INPUT_HEIGHTS, LABEL_TRANSFORM, Label, baseInputStyle } from '../styles';
+import { InputSize } from '../types';
 import {
     Control,
     ControlComponentProps,
@@ -28,13 +28,13 @@ import {
     Option,
     OptionComponentProps,
 } from './customComponents';
-import { useOnKeyDown } from './useOnKeyDown';
 import { useDetectPortalTarget } from './useDetectPortalTarget';
-import { DROPDOWN_MENU, menuStyle } from '../../Menu/menuStyle';
-import { useElevation } from '../../ElevationContext/ElevationContext';
-import { Spinner } from '../../loaders/Spinner/Spinner';
-import { TransientProps } from '../../../utils/transientProps';
+import { useOnKeyDown } from './useOnKeyDown';
 import { FrameProps } from '../../../utils/frameProps';
+import { TransientProps } from '../../../utils/transientProps';
+import { useElevation } from '../../ElevationContext/ElevationContext';
+import { DROPDOWN_MENU, menuStyle } from '../../Menu/menuStyle';
+import { Spinner } from '../../loaders/Spinner/Spinner';
 
 const reactSelectClassNamePrefix = 'react-select';
 

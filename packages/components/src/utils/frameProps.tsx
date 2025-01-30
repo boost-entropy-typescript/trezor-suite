@@ -2,7 +2,7 @@ import { css } from 'styled-components';
 
 import { SpacingValues } from '@trezor/theme';
 
-import { makePropsTransient, TransientProps } from './transientProps';
+import { TransientProps, makePropsTransient } from './transientProps';
 import type { Flex } from '../components/Flex/Flex';
 
 export type Margin =
@@ -71,6 +71,7 @@ export type FrameProps = {
     overflow?: Overflow;
     pointerEvents?: PointerEvent;
     flex?: Flex;
+    gap?: SpacingValues;
     position?: Position;
     cursor?: Cursor;
     zIndex?: number;

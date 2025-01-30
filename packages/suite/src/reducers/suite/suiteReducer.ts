@@ -3,28 +3,30 @@ import produce from 'immer';
 import type { InvityServerEnvironment } from '@suite-common/invity';
 import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
-import { discoveryActions, DeviceRootState, selectSelectedDevice } from '@suite-common/wallet-core';
-import { versionUtils } from '@trezor/utils';
-import { isWeb } from '@trezor/env-utils';
-import { TRANSPORT, TransportInfo, ConnectSettings, InstallerInfo } from '@trezor/connect';
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
+import { DeviceRootState, discoveryActions, selectSelectedDevice } from '@suite-common/wallet-core';
 import { AddressDisplayOptions, WalletType } from '@suite-common/wallet-types';
+import { ConnectSettings, InstallerInfo, TRANSPORT, TransportInfo } from '@trezor/connect';
+import { isWeb } from '@trezor/env-utils';
+import { SuiteThemeVariant } from '@trezor/suite-desktop-api';
+import { versionUtils } from '@trezor/utils';
 
-import { getIsTorEnabled, getIsTorLoading } from 'src/utils/suite/tor';
-import type { OAuthServerEnvironment } from 'src/types/suite/metadata';
-import { ensureLocale } from 'src/utils/suite/l10n';
+import { STORAGE, SUITE } from 'src/actions/suite/constants';
 import type { Locale } from 'src/config/suite/languages';
-import { SUITE, STORAGE } from 'src/actions/suite/constants';
 import { ExperimentalFeature } from 'src/constants/suite/experimental';
-import { Action, AppState, TorBootstrap, TorStatus } from 'src/types/suite';
-import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/prerequisites';
-import { SIDEBAR_WIDTH_NUMERIC } from 'src/constants/suite/layout';
 import {
     hashCheckErrorScenarios,
+    isDebugOnlyHashCheckError,
+    isDebugOnlyRevisionCheckError,
     isSkippedHashCheckError,
     revisionCheckErrorScenarios,
 } from 'src/constants/suite/firmware';
+import { SIDEBAR_WIDTH_NUMERIC } from 'src/constants/suite/layout';
+import { Action, AppState, TorBootstrap, TorStatus } from 'src/types/suite';
+import type { OAuthServerEnvironment } from 'src/types/suite/metadata';
+import { ensureLocale } from 'src/utils/suite/l10n';
+import { getExcludedPrerequisites, getPrerequisiteName } from 'src/utils/suite/prerequisites';
+import { getIsTorEnabled, getIsTorLoading } from 'src/utils/suite/tor';
 
 import { RouterRootState, selectRouter } from './routerReducer';
 
@@ -493,11 +495,19 @@ export const selectFirmwareRevisionCheckError = (state: AppState) => {
 
 export const selectFirmwareRevisionCheckErrorIfEnabled = (state: AppState) => {
     const revisionCheckError = selectFirmwareRevisionCheckError(state);
-    const { isFirmwareRevisionCheckDisabled } = state.suite.settings;
-    const isDisabledByMessage = selectIsFeatureDisabled(state, Feature.firmwareRevisionCheck);
-    const isCheckEnabled = !isFirmwareRevisionCheckDisabled && !isDisabledByMessage;
+    if (revisionCheckError === null) return null;
 
-    return isCheckEnabled ? revisionCheckError : null;
+    const { isFirmwareRevisionCheckDisabled } = state.suite.settings;
+    if (isFirmwareRevisionCheckDisabled) return null;
+
+    const isDisabledByMessageSystem = selectIsFeatureDisabled(state, Feature.firmwareRevisionCheck);
+    if (isDisabledByMessageSystem) return null;
+
+    const isHiddenBehindDebug =
+        isDebugOnlyRevisionCheckError(revisionCheckError) && !selectIsDebugModeActive(state);
+    if (isHiddenBehindDebug) return null;
+
+    return revisionCheckError;
 };
 
 /**
@@ -518,11 +528,19 @@ export const selectFirmwareHashCheckError = (state: AppState) => {
 
 export const selectFirmwareHashCheckErrorIfEnabled = (state: AppState) => {
     const hashCheckError = selectFirmwareHashCheckError(state);
-    const { isFirmwareHashCheckDisabled } = state.suite.settings;
-    const isDisabledByMessage = selectIsFeatureDisabled(state, Feature.firmwareHashCheck);
-    const isCheckEnabled = !isFirmwareHashCheckDisabled && !isDisabledByMessage;
+    if (hashCheckError === null) return null;
 
-    return isCheckEnabled ? hashCheckError : null;
+    const { isFirmwareHashCheckDisabled } = state.suite.settings;
+    if (isFirmwareHashCheckDisabled) return null;
+
+    const isDisabledByMessageSystem = selectIsFeatureDisabled(state, Feature.firmwareHashCheck);
+    if (isDisabledByMessageSystem) return null;
+
+    const isHiddenBehindDebug =
+        isDebugOnlyHashCheckError(hashCheckError) && !selectIsDebugModeActive(state);
+    if (isHiddenBehindDebug) return null;
+
+    return hashCheckError;
 };
 
 /**

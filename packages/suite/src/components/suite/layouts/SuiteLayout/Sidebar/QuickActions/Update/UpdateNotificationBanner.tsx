@@ -3,17 +3,17 @@ import { MouseEvent } from 'react';
 import styled from 'styled-components';
 
 import { Column, ElevationContext, Icon, Row, Text } from '@trezor/components';
-import { borders, Elevation, mapElevationToBackground, spacingsPx } from '@trezor/theme';
+import { Elevation, borders, mapElevationToBackground, spacingsPx } from '@trezor/theme';
 
 import {
     UpdateStatus,
-    UpdateStatusSuite,
     UpdateStatusDevice,
-    mapSuiteUpdateToClick,
+    UpdateStatusSuite,
     mapDeviceUpdateToClick,
+    mapSuiteUpdateToClick,
 } from './updateQuickActionTypes';
+import { useDiscovery, useDispatch } from '../../../../../../../hooks/suite';
 import { Translation, TranslationKey } from '../../../../../Translation';
-import { useDispatch } from '../../../../../../../hooks/suite';
 
 type ContainerProps = { $elevation: Elevation };
 
@@ -77,6 +77,9 @@ export const UpdateNotificationBanner = ({
     onClose,
 }: UpdateNotificationBannerProps) => {
     const dispatch = useDispatch();
+    const { getDiscoveryStatus } = useDiscovery();
+    const discoveryStatus = getDiscoveryStatus();
+    const discoveryInProgress = discoveryStatus && discoveryStatus.status === 'loading';
 
     const translationHeader =
         updateStatusSuite !== 'up-to-date' // Update suite first, because it will contain the newest firmware
@@ -88,7 +91,7 @@ export const UpdateNotificationBanner = ({
             updateStatusSuite !== 'up-to-date' ? updateStatusSuite : updateStatusDevice
         ];
 
-    if (translationHeader === null || translationCallToAction === null) {
+    if (translationHeader === null || translationCallToAction === null || discoveryInProgress) {
         return null;
     }
 

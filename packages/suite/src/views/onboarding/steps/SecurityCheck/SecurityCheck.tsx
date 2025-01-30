@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 
 import styled, { useTheme } from 'styled-components';
 
-import { getConnectedDeviceStatus } from '@suite-common/suite-utils';
+import { SUPPORTS_DEVICE_AUTHENTICITY_CHECK } from '@suite-common/suite-constants';
 import { AcquiredDevice } from '@suite-common/suite-types';
-import { deviceActions, selectSelectedDevice, selectDevices } from '@suite-common/wallet-core';
-import { Button, Column, Icon, H2, Text, Tooltip, Divider } from '@trezor/components';
+import { getConnectedDeviceStatus } from '@suite-common/suite-utils';
+import { deviceActions, selectDevices, selectSelectedDevice } from '@suite-common/wallet-core';
+import { Button, Column, Divider, H2, Icon, Text, Tooltip } from '@trezor/components';
 import { spacings, spacingsPx, typography } from '@trezor/theme';
 import {
     TREZOR_RESELLERS_URL,
@@ -13,20 +14,20 @@ import {
     TREZOR_SUPPORT_IS_MY_DEVICE_SAFE,
     TREZOR_URL,
 } from '@trezor/urls';
-import { SUPPORTS_DEVICE_AUTHENTICITY_CHECK } from '@suite-common/suite-constants';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { useDispatch, useLayoutSize, useOnboarding, useSelector } from 'src/hooks/suite';
-import { Translation, TrezorLink } from 'src/components/suite';
 import { Hologram, OnboardingButtonSkip } from 'src/components/onboarding';
 import { CollapsibleOnboardingCard } from 'src/components/onboarding/CollapsibleOnboardingCard';
-import { SecurityCheckLayout } from 'src/components/suite/SecurityCheck/SecurityCheckLayout';
+import { Translation, TrezorLink } from 'src/components/suite';
 import { SecurityCheckFail } from 'src/components/suite/SecurityCheck/SecurityCheckFail';
+import { SecurityCheckLayout } from 'src/components/suite/SecurityCheck/SecurityCheckLayout';
+import { useDispatch, useLayoutSize, useOnboarding, useSelector } from 'src/hooks/suite';
 import { selectIsOnboardingActive } from 'src/reducers/onboarding/onboardingReducer';
 import { selectSuiteFlags } from 'src/reducers/suite/suiteReducer';
 
-import { SecurityChecklist } from './SecurityChecklist';
 import { DeviceAuthenticity } from './DeviceAuthenticity';
+import { SecurityChecklist } from './SecurityChecklist';
+import { SecurityChecklistItem } from './types';
 
 const StyledCard = styled(CollapsibleOnboardingCard)`
     max-width: 840px;
@@ -90,15 +91,15 @@ const TooltipWrapper = styled.span`
 
 const firmwareInstalledChecklist = [
     {
-        icon: 'info',
+        icon: <Icon size={24} name="info" />,
         content: <Translation id="TR_ONBOARDING_DEVICE_CHECK_4" />,
     },
-] as const;
+] as const satisfies SecurityChecklistItem[];
 
 const getNoFirmwareChecklist = (isMobileLayout: boolean) =>
     [
         {
-            icon: 'verified',
+            icon: <Icon size={24} name="verified" />,
             content: (
                 <Translation
                     id="TR_ONBOARDING_DEVICE_CHECK_2"
@@ -118,7 +119,7 @@ const getNoFirmwareChecklist = (isMobileLayout: boolean) =>
             ),
         },
         {
-            icon: 'hologram',
+            icon: <Icon size={24} name="hologram" />,
             content: (
                 <Translation
                     id="TR_ONBOARDING_DEVICE_CHECK_1"
@@ -139,10 +140,10 @@ const getNoFirmwareChecklist = (isMobileLayout: boolean) =>
             ),
         },
         {
-            icon: 'package',
+            icon: <Icon size={24} name="package" />,
             content: <Translation id="TR_ONBOARDING_DEVICE_CHECK_3" />,
         },
-    ] as const;
+    ] as const satisfies SecurityChecklistItem[];
 
 type SecurityCheckContentProps = {
     goToDeviceAuthentication: () => void;
