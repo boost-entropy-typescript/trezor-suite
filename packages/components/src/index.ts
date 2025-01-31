@@ -49,6 +49,7 @@ export { Grid, type GridProps } from './components/Grid/Grid';
 export * from './components/HotkeyBadge/HotkeyBadge';
 export * from './components/Image/Image';
 export * from './components/Image/images';
+export { DotIndicator, type DotIndicatorProps } from './components/DotIndicator/DotIndicator';
 export * from './components/Icon/Icon';
 export {
     IconCircle,

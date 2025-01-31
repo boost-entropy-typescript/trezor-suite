@@ -7,7 +7,6 @@ import { Translation } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
 import { selectLabelingDataForSelectedAccount } from 'src/reducers/suite/metadataReducer';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
-import { DisplayMode } from 'src/types/suite';
 
 import { ConfirmValueModal, ConfirmValueModalProps } from './ConfirmValueModal/ConfirmValueModal';
 import { ConfirmActionModal } from './DeviceContextModal/ConfirmActionModal';
@@ -52,11 +51,9 @@ export const ConfirmXpubModal = (
                 )
             }
             stepLabel={<Translation id="TR_XPUB" />}
-            confirmStepLabel={<Translation id="TR_XPUB_MATCH" />}
             validateOnDevice={showXpub}
             copyButtonText={<Translation id="TR_XPUB_MODAL_CLIPBOARD" />}
             value={xpubWithReplacedApostropheWithH ?? xpub}
-            displayMode={DisplayMode.PAGINATED_TEXT}
             {...props}
         />
     );
