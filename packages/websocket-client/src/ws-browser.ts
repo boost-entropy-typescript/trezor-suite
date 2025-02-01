@@ -40,12 +40,15 @@ class WSWrapper extends EventEmitter {
     }
 
     close() {
-        if (this.readyState === 1) {
+        if (this.readyState === WSWrapper.OPEN) {
             this._ws.close();
         }
     }
 
     send(message: any) {
+        if (this.readyState !== WSWrapper.OPEN) {
+            throw new Error(`Connection is not open. state: ${this.readyState}`);
+        }
         this._ws.send(message);
     }
 
@@ -54,4 +57,5 @@ class WSWrapper extends EventEmitter {
     }
 }
 
+// eslint-disable-next-line import/no-default-export
 export default WSWrapper;
