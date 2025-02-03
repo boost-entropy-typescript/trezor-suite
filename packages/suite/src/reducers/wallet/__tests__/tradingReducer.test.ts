@@ -6,6 +6,8 @@ import {
     SellFiatTradeQuoteRequest,
 } from 'invity-api';
 
+import type { TradingTransactionBuy, TradingTransactionExchange } from '@suite-common/trading';
+
 import { STORAGE } from 'src/actions/suite/constants';
 import {
     TRADING_BUY,
@@ -23,7 +25,6 @@ import {
 } from 'src/reducers/wallet/__fixtures__/tradingReducerFixtures';
 import { accounts } from 'src/reducers/wallet/__fixtures__/transactionConstants';
 import { initialState, tradingReducer } from 'src/reducers/wallet/tradingReducer';
-import { TradeBuy, TradeExchange } from 'src/types/wallet/tradingCommonTypes';
 
 describe('settings reducer', () => {
     it('test initial state', () => {
@@ -49,22 +50,22 @@ describe('settings reducer', () => {
     it('TRADING_COMMON.SET_MODAL_ACCOUNT', () => {
         expect(
             tradingReducer(undefined, {
-                type: TRADING_COMMON.SET_MODAL_ACCOUNT,
-                modalAccount: accounts[0],
+                type: TRADING_COMMON.SET_MODAL_ACCOUNT_KEY,
+                modalAccountKey: accounts[0].key,
             }),
         ).toEqual({
             ...initialState,
-            modalAccount: accounts[0],
+            modalAccountKey: accounts[0].key,
         });
 
         expect(
             tradingReducer(undefined, {
-                type: TRADING_COMMON.SET_MODAL_ACCOUNT,
-                modalAccount: undefined,
+                type: TRADING_COMMON.SET_MODAL_ACCOUNT_KEY,
+                modalAccountKey: undefined,
             }),
         ).toEqual({
             ...initialState,
-            modalAccount: undefined,
+            modalAccountKey: undefined,
         });
     });
 
@@ -244,22 +245,6 @@ describe('settings reducer', () => {
         ).toEqual(initialState);
     });
 
-    it('TRADING_BUY.SAVE_CACHED_ACCOUNT_INFO', () => {
-        const cachedAccountInfo = {
-            symbol: 'btc',
-            index: 1,
-            accountType: 'segwit',
-            shouldSubmit: true,
-        };
-
-        expect(
-            tradingReducer(undefined, {
-                type: TRADING_BUY.SAVE_CACHED_ACCOUNT_INFO,
-                ...cachedAccountInfo,
-            } as any),
-        ).toEqual({ ...initialState, buy: { ...initialState.buy, cachedAccountInfo } });
-    });
-
     it('TRADING_EXCHANGE.SAVE_EXCHANGE_INFO', () => {
         const exchangeInfo: ExchangeInfo = {
             providerInfos: {},
@@ -304,7 +289,7 @@ describe('settings reducer', () => {
     });
 
     it('SAVE_TRADE', () => {
-        const tradeBuy: TradeBuy = {
+        const tradeBuy: TradingTransactionBuy = {
             date: 'ddd',
             key: 'buy-key',
             tradeType: 'buy',
@@ -329,7 +314,7 @@ describe('settings reducer', () => {
                 accountType: 'normal',
             },
         };
-        const tradeExchange: TradeExchange = {
+        const tradeExchange: TradingTransactionExchange = {
             date: 'ddd',
             key: 'exchange-key',
             tradeType: 'exchange',
@@ -480,14 +465,14 @@ describe('settings reducer', () => {
     it('TRADING_SELL.SET_TRADING_ACCOUNT', () => {
         expect(
             tradingReducer(undefined, {
-                type: TRADING_SELL.SET_TRADING_ACCOUNT,
-                account: accounts[0],
+                type: TRADING_SELL.SET_TRADING_ACCOUNT_KEY,
+                accountKey: accounts[0].key,
             }),
         ).toEqual({
             ...initialState,
             sell: {
                 ...initialState.sell,
-                tradingAccount: accounts[0],
+                tradingAccountKey: accounts[0].key,
             },
         });
     });
@@ -495,14 +480,14 @@ describe('settings reducer', () => {
     it('TRADING_EXCHANGE.SET_TRADING_ACCOUNT', () => {
         expect(
             tradingReducer(undefined, {
-                type: TRADING_EXCHANGE.SET_TRADING_ACCOUNT,
-                account: accounts[0],
+                type: TRADING_EXCHANGE.SET_TRADING_ACCOUNT_KEY,
+                accountKey: accounts[0].key,
             }),
         ).toEqual({
             ...initialState,
             exchange: {
                 ...initialState.exchange,
-                tradingAccount: accounts[0],
+                tradingAccountKey: accounts[0].key,
             },
         });
     });

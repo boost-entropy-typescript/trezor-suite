@@ -8,6 +8,7 @@ import { isChanged } from '@suite-common/suite-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     type TradingSellType,
+    TradingTransactionSell,
     addIdsToQuotes,
     filterQuotesAccordingTags,
     getUnusedAddressFromAccount,
@@ -15,6 +16,7 @@ import {
     tradingGetSuccessQuotes,
 } from '@suite-common/trading';
 import { networks } from '@suite-common/wallet-config';
+import { selectAccountByKey } from '@suite-common/wallet-core';
 import { amountToSmallestUnit, formatAmount } from '@suite-common/wallet-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
 
@@ -30,7 +32,7 @@ import {
 } from 'src/constants/wallet/trading/form';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useSolanaSubscribeBlocks } from 'src/hooks/wallet/form/useSolanaSubscribeBlocks';
-import { useTradingAccount } from 'src/hooks/wallet/trading/form/common/useTradingAccount';
+import { useTradingAccountKey } from 'src/hooks/wallet/trading/form/common/useTradingAccountKey';
 import { useTradingComposeTransaction } from 'src/hooks/wallet/trading/form/common/useTradingComposeTransaction';
 import { useTradingCurrencySwitcher } from 'src/hooks/wallet/trading/form/common/useTradingCurrencySwitcher';
 import { useTradingFormActions } from 'src/hooks/wallet/trading/form/common/useTradingFormActions';
@@ -53,7 +55,6 @@ import {
     TradingSellFormProps,
     TradingSellStepType,
 } from 'src/types/trading/tradingForm';
-import { TradeSell } from 'src/types/wallet/tradingCommonTypes';
 import type { AmountLimitProps } from 'src/utils/suite/validation';
 import { createQuoteLink, getAmountLimits } from 'src/utils/wallet/trading/sellUtils';
 import { getTradingNetworkDecimals } from 'src/utils/wallet/trading/tradingUtils';
@@ -73,16 +74,19 @@ export const useTradingSellForm = ({
         isFromRedirect,
         quotes,
         transactionId,
-        tradingAccount,
+        tradingAccountKey,
         selectedQuote,
     } = useSelector(state => state.wallet.trading.sell);
     const { cryptoIdToCoinSymbol } = useTradingInfo();
     const isPreviousRouteFromTradeSection = useTradingPreviousRoute(type);
-    const [account, setAccount] = useTradingAccount({
-        tradingAccount,
+    const [accountKey, setAccountKey] = useTradingAccountKey({
+        tradingAccountKey,
         selectedAccount,
-        shouldUseTradingAccount: isPreviousRouteFromTradeSection,
+        shouldUseTradingAccountKey: isPreviousRouteFromTradeSection,
     });
+    const accountByKey = useSelector(state => selectAccountByKey(state, accountKey));
+    const account = accountByKey ?? selectedAccount.account;
+
     const { callInProgress, timer, device, setCallInProgress, checkQuotesTimer } =
         useTradingInitializer({ selectedAccount, pageType });
     const { paymentMethods, getPaymentMethods, getQuotesByPaymentMethod } =
@@ -102,8 +106,9 @@ export const useTradingSellForm = ({
     const localCurrencyOption = { value: localCurrency, label: localCurrency.toUpperCase() };
     const trades = useSelector(state => state.wallet.trading.trades);
     const trade = trades.find(
-        trade => trade.tradeType === 'sell' && trade.key === transactionId,
-    ) as TradeSell | undefined;
+        (trade): trade is TradingTransactionSell =>
+            trade.tradeType === 'sell' && trade.key === transactionId,
+    );
 
     const [amountLimits, setAmountLimits] = useState<AmountLimitProps | undefined>(undefined);
     const [sellStep, setSellStep] = useState<TradingSellStepType>('BANK_ACCOUNT');
@@ -332,8 +337,8 @@ export const useTradingSellForm = ({
         composeRequest,
         setComposedLevels,
         setAccountOnChange: newAccount => {
-            dispatch(tradingSellActions.setTradingSellAccount(newAccount));
-            setAccount(newAccount);
+            dispatch(tradingSellActions.setTradingSellAccountKey(newAccount.key));
+            setAccountKey(newAccount.key);
         },
     });
 
@@ -426,7 +431,7 @@ export const useTradingSellForm = ({
     const goToOffers = async () => {
         await handleChange(true);
 
-        dispatch(tradingSellActions.setTradingSellAccount(account)); // save account for offers page
+        dispatch(tradingSellActions.setTradingSellAccountKey(account.key)); // save account for offers page
         navigateToSellOffers();
     };
 
@@ -477,7 +482,7 @@ export const useTradingSellForm = ({
     };
 
     const sendTransaction = async () => {
-        dispatch(tradingCommonActions.setTradingModalAccount(account));
+        dispatch(tradingCommonActions.setTradingModalAccountKey(account.key));
 
         const selectedTrade = trade?.data || selectedQuote;
         // destinationAddress may be set by useTradingWatchTrade hook to the trade object

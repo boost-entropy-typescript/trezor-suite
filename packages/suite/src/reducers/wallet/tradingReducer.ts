@@ -11,8 +11,12 @@ import type {
     SellFiatTradeQuoteRequest,
 } from 'invity-api';
 
-import type { TradingType } from '@suite-common/trading';
-import type { PrecomposedTransactionFinal } from '@suite-common/wallet-types';
+import type {
+    TradingPaymentMethodListProps,
+    TradingTransaction,
+    TradingType,
+} from '@suite-common/trading';
+import type { AccountKey, PrecomposedTransactionFinal } from '@suite-common/wallet-types';
 import type { FeeLevel } from '@trezor/connect';
 
 import { STORAGE } from 'src/actions/suite/constants';
@@ -26,10 +30,8 @@ import {
 import type { BuyInfo } from 'src/actions/wallet/tradingBuyActions';
 import type { ExchangeInfo } from 'src/actions/wallet/tradingExchangeActions';
 import type { SellInfo } from 'src/actions/wallet/tradingSellActions';
-import type { AppState, Action as SuiteAction } from 'src/types/suite';
-import { TradingPaymentMethodListProps } from 'src/types/trading/trading';
-import type { Account, WalletAction } from 'src/types/wallet';
-import type { Trade } from 'src/types/wallet/tradingCommonTypes';
+import { AppState } from 'src/reducers/store';
+import { Action } from 'src/types/suite';
 
 export interface ComposedTransactionInfo {
     composed?: Pick<
@@ -55,12 +57,6 @@ interface Buy extends TradingTradeCommonProps {
     quotesRequest?: BuyTradeQuoteRequest;
     quotes: BuyTrade[] | undefined;
     selectedQuote: BuyTrade | undefined;
-    cachedAccountInfo: {
-        accountType?: Account['accountType'];
-        index?: Account['index'];
-        symbol?: Account['symbol'];
-        shouldSubmit?: boolean;
-    };
     addressVerified: string | undefined;
 }
 
@@ -69,7 +65,8 @@ interface Exchange extends TradingTradeCommonProps {
     quotesRequest?: ExchangeTradeQuoteRequest;
     quotes: ExchangeTrade[] | undefined;
     addressVerified: string | undefined;
-    tradingAccount?: Account;
+    // internal selected account key in trading section
+    tradingAccountKey?: AccountKey;
     selectedQuote: ExchangeTrade | undefined;
     isFromRedirect: boolean;
 }
@@ -81,7 +78,8 @@ interface Sell extends TradingTradeCommonProps {
     selectedQuote: SellFiatTrade | undefined;
     transactionId?: string;
     isFromRedirect: boolean;
-    tradingAccount?: Account;
+    // internal selected account key in trading section
+    tradingAccountKey?: AccountKey;
 }
 
 export interface State {
@@ -90,9 +88,9 @@ export interface State {
     exchange: Exchange;
     sell: Sell;
     composedTransactionInfo: ComposedTransactionInfo;
-    trades: Trade[];
+    trades: TradingTransaction[];
     modalCryptoId: CryptoId | undefined;
-    modalAccount: Account | undefined;
+    modalAccountKey: AccountKey | undefined;
     isLoading: boolean;
     lastLoadedTimestamp: number;
     activeSection?: TradingType;
@@ -111,12 +109,6 @@ export const initialState: State = {
         buyInfo: undefined,
         quotesRequest: undefined,
         selectedQuote: undefined,
-        cachedAccountInfo: {
-            accountType: undefined,
-            index: undefined,
-            symbol: undefined,
-            shouldSubmit: false,
-        },
         quotes: [],
         addressVerified: undefined,
     },
@@ -126,7 +118,7 @@ export const initialState: State = {
         quotesRequest: undefined,
         quotes: [],
         addressVerified: undefined,
-        tradingAccount: undefined,
+        tradingAccountKey: undefined,
         selectedQuote: undefined,
         isFromRedirect: false,
     },
@@ -137,22 +129,19 @@ export const initialState: State = {
         selectedQuote: undefined,
         transactionId: undefined,
         isFromRedirect: false,
-        tradingAccount: undefined,
+        tradingAccountKey: undefined,
     },
     composedTransactionInfo: {},
     trades: [],
     isLoading: false,
-    modalAccount: undefined,
+    modalAccountKey: undefined,
     modalCryptoId: undefined,
     lastLoadedTimestamp: 0,
     activeSection: 'buy',
     prefilledFromCryptoId: undefined,
 };
 
-export const tradingReducer = (
-    state: State = initialState,
-    action: WalletAction | SuiteAction,
-): State =>
+export const tradingReducer = (state: State = initialState, action: Action): State =>
     produce(state, draft => {
         switch (action.type) {
             case STORAGE.LOAD:
@@ -189,14 +178,6 @@ export const tradingReducer = (
             case TRADING_BUY.VERIFY_ADDRESS:
                 draft.buy.addressVerified = action.addressVerified;
                 break;
-            case TRADING_BUY.SAVE_CACHED_ACCOUNT_INFO:
-                draft.buy.cachedAccountInfo = {
-                    symbol: action.symbol,
-                    index: action.index,
-                    accountType: action.accountType,
-                    shouldSubmit: action.shouldSubmit,
-                };
-                break;
             case TRADING_BUY.DISPOSE:
                 draft.buy.addressVerified = undefined;
                 break;
@@ -232,8 +213,8 @@ export const tradingReducer = (
             case TRADING_EXCHANGE.SAVE_TRANSACTION_ID:
                 draft.exchange.transactionId = action.transactionId;
                 break;
-            case TRADING_EXCHANGE.SET_TRADING_ACCOUNT:
-                draft.exchange.tradingAccount = action.account;
+            case TRADING_EXCHANGE.SET_TRADING_ACCOUNT_KEY:
+                draft.exchange.tradingAccountKey = action.accountKey;
                 break;
             case TRADING_COMMON.SAVE_COMPOSED_TRANSACTION_INFO:
                 draft.composedTransactionInfo = action.info;
@@ -256,15 +237,15 @@ export const tradingReducer = (
             case TRADING_SELL.SAVE_TRANSACTION_ID:
                 draft.sell.transactionId = action.transactionId;
                 break;
-            case TRADING_SELL.SET_TRADING_ACCOUNT:
-                draft.sell.tradingAccount = action.account;
+            case TRADING_SELL.SET_TRADING_ACCOUNT_KEY:
+                draft.sell.tradingAccountKey = action.accountKey;
                 break;
             case TRADING_COMMON.SET_LOADING:
                 draft.isLoading = action.isLoading;
                 draft.lastLoadedTimestamp = action.lastLoadedTimestamp;
                 break;
-            case TRADING_COMMON.SET_MODAL_ACCOUNT:
-                draft.modalAccount = action.modalAccount;
+            case TRADING_COMMON.SET_MODAL_ACCOUNT_KEY:
+                draft.modalAccountKey = action.modalAccountKey;
                 break;
             case TRADING_COMMON.SET_MODAL_CRYPTO_CURRENCY:
                 draft.modalCryptoId = action.modalCryptoId;

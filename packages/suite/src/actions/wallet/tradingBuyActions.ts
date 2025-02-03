@@ -7,13 +7,12 @@ import {
     FiatCurrencyCode,
 } from 'invity-api';
 
-import { invityAPI, regional } from '@suite-common/trading';
+import { type TradingFiatCurrenciesProps, invityAPI, regional } from '@suite-common/trading';
+import { Account } from '@suite-common/wallet-types';
 
 import * as modalActions from 'src/actions/suite/modalActions';
 import { verifyAddress as verifyBuyAddress } from 'src/actions/wallet/trading/tradingCommonActions';
 import { Dispatch } from 'src/types/suite';
-import { TradingFiatCurrenciesProps } from 'src/types/trading/trading';
-import { Account } from 'src/types/wallet';
 
 import { TRADING_BUY, TRADING_COMMON } from './constants';
 
@@ -33,13 +32,6 @@ export type TradingBuyAction =
     | { type: typeof TRADING_BUY.SAVE_TRANSACTION_DETAIL_ID; transactionId: string }
     | { type: typeof TRADING_BUY.SAVE_QUOTE_REQUEST; request: BuyTradeQuoteRequest }
     | { type: typeof TRADING_BUY.VERIFY_ADDRESS; addressVerified: string | undefined }
-    | {
-          type: typeof TRADING_BUY.SAVE_CACHED_ACCOUNT_INFO;
-          symbol: Account['symbol'];
-          index: Account['index'];
-          accountType: Account['accountType'];
-          shouldSubmit?: boolean;
-      }
     | {
           type: typeof TRADING_BUY.SAVE_QUOTES;
           quotes: BuyTrade[];
@@ -159,19 +151,6 @@ export const saveQuoteRequest = (request: BuyTradeQuoteRequest): TradingBuyActio
 export const saveTransactionDetailId = (transactionId: string): TradingBuyAction => ({
     type: TRADING_BUY.SAVE_TRANSACTION_DETAIL_ID,
     transactionId,
-});
-
-export const saveCachedAccountInfo = (
-    symbol: Account['symbol'],
-    index: number,
-    accountType: Account['accountType'],
-    shouldSubmit = false,
-): TradingBuyAction => ({
-    type: TRADING_BUY.SAVE_CACHED_ACCOUNT_INFO,
-    symbol,
-    index,
-    accountType,
-    shouldSubmit,
 });
 
 export const saveQuotes = (quotes: BuyTrade[]): TradingBuyAction => ({
