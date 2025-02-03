@@ -16,9 +16,10 @@ import type {
     TradingExchangeType,
     TradingPaymentMethodType,
     TradingSellType,
+    TradingTradeMapProps,
     TradingTradeType,
     TradingType,
-} from '@suite-common/invity';
+} from '@suite-common/trading';
 import { Network } from '@suite-common/wallet-config';
 import { AccountsState } from '@suite-common/wallet-core';
 import {
@@ -59,7 +60,6 @@ import {
     TradingGetProvidersInfoProps,
     TradingPaymentMethodListProps,
     TradingPaymentMethodProps,
-    TradingTradeDetailMapProps,
     TradingTradeSellExchangeType,
 } from 'src/types/trading/trading';
 import type { Account } from 'src/types/wallet';
@@ -279,11 +279,11 @@ export type TradingFormContextValues<T extends TradingType> = TradingFormMapProp
 
 export type TradingPaymentMethodHookProps<T extends TradingType> = {
     paymentMethods: TradingPaymentMethodListProps[];
-    getPaymentMethods: (quotes: TradingTradeDetailMapProps[T][]) => TradingPaymentMethodListProps[];
+    getPaymentMethods: (quotes: TradingTradeMapProps[T][]) => TradingPaymentMethodListProps[];
     getQuotesByPaymentMethod: (
-        quotes: TradingTradeDetailMapProps[T][] | undefined,
+        quotes: TradingTradeMapProps[T][] | undefined,
         currentPaymentMethod: TradingPaymentMethodProps,
-    ) => TradingTradeDetailMapProps[T][] | undefined;
+    ) => TradingTradeMapProps[T][] | undefined;
 };
 
 export interface TradingFormInputDefaultProps {

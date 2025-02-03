@@ -4,9 +4,10 @@ import type {
     TradingBuyType,
     TradingExchangeType,
     TradingSellType,
+    TradingTradeMapProps,
     TradingTradeType,
     TradingType,
-} from '@suite-common/invity';
+} from '@suite-common/trading';
 import { CurrencyOption } from '@suite-common/wallet-types';
 
 import { FORM_FIAT_CURRENCY_SELECT, FORM_OUTPUT_CURRENCY } from 'src/constants/wallet/trading/form';
@@ -16,7 +17,6 @@ import {
     TradingGetFiatCurrenciesProps,
     TradingGetPaymentMethodProps,
     TradingGetProvidersInfoProps,
-    TradingTradeDetailMapProps,
 } from 'src/types/trading/trading';
 import { TradingFormContextValues, TradingFormMapProps } from 'src/types/trading/tradingForm';
 
@@ -114,9 +114,9 @@ export const getFiatCurrenciesProps = (
 
 export const getSelectQuoteTyped = (
     context: TradingFormContextValues<TradingType>,
-): ((quote: TradingTradeDetailMapProps[typeof context.type]) => void) => {
+): ((quote: TradingTradeMapProps[typeof context.type]) => void) => {
     const selectQuote = context.selectQuote as (
-        quote: TradingTradeDetailMapProps[typeof context.type],
+        quote: TradingTradeMapProps[typeof context.type],
     ) => void;
 
     return selectQuote;

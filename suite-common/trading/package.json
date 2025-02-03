@@ -1,5 +1,5 @@
 {
-    "name": "@suite-common/invity",
+    "name": "@suite-common/trading",
     "version": "1.0.0",
     "private": true,
     "license": "See LICENSE.md in repo root",
@@ -10,8 +10,11 @@
         "type-check": "yarn g:tsc --build"
     },
     "dependencies": {
+        "@suite-common/wallet-config": "workspace:*",
+        "@suite-common/wallet-types": "workspace:*",
         "@trezor/env-utils": "workspace:*",
-        "@trezor/utils": "workspace:*"
+        "@trezor/utils": "workspace:*",
+        "uuid": "^11.0.4"
     },
     "devDependencies": {
         "@types/invity-api": "^1.1.2"

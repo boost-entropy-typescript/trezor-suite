@@ -2,26 +2,22 @@ import {
     BuyCryptoPaymentMethod,
     BuyProviderInfo,
     BuyTrade,
-    BuyTradeStatus,
     CryptoId,
     ExchangeProviderInfo,
-    ExchangeTrade,
-    ExchangeTradeStatus,
     FiatCurrencyCode,
     SellFiatTrade,
     SellProviderInfo,
-    SellTradeStatus,
 } from 'invity-api';
 import { AnyAction, Dispatch } from 'redux';
 
+import { TokenDefinitionsState } from '@suite-common/token-definitions';
 import type {
     TradingBuyType,
     TradingExchangeType,
     TradingPaymentMethodType,
     TradingSellType,
     TradingType,
-} from '@suite-common/invity';
-import { TokenDefinitionsState } from '@suite-common/token-definitions';
+} from '@suite-common/trading';
 import { AccountType, NetworkSymbolExtended } from '@suite-common/wallet-config';
 import { AccountsState } from '@suite-common/wallet-core';
 import { Account, SelectedAccountLoaded } from '@suite-common/wallet-types';
@@ -81,13 +77,6 @@ export type TradingTradeMapProps = {
 
 export type TradingTradeDetailBuySellType = BuyTrade | SellFiatTrade;
 
-export type TradingTradeDetailMapProps = {
-    buy: BuyTrade;
-    sell: SellFiatTrade;
-    exchange: ExchangeTrade;
-};
-export type TradingTradeBuySellDetailMapProps = Omit<TradingTradeDetailMapProps, 'exchange'>;
-
 export type TradingTradeInfoMapProps = {
     buy: BuyInfo;
     sell: SellInfo;
@@ -99,8 +88,6 @@ export interface TradingGetTypedTradeProps {
     tradeType: TradingType;
     transactionId: string | undefined;
 }
-
-export type TradingTradeStatusType = BuyTradeStatus | SellTradeStatus | ExchangeTradeStatus;
 
 export interface TradingGetDetailDataProps {
     trading: State;
@@ -137,14 +124,6 @@ export interface TradingCryptoListProps {
     label: string; // token shortcut
     cryptoName?: string | undefined; // full name
 }
-
-export type TradingUtilsProvidersProps = {
-    [name: string]: {
-        logo: string;
-        companyName: string;
-        brandName?: string;
-    };
-};
 
 export interface TradingInfoProps {
     cryptoIdToPlatformName: (cryptoId: CryptoId) => string | undefined;
