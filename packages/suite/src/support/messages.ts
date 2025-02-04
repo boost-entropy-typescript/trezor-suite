@@ -241,7 +241,7 @@ export default defineMessages({
     },
     TR_TRADING_SWAP_MODAL_TERMS_1: {
         defaultMessage:
-            "I’m here to swap cryptocurrencies. If I were directed to this site for any other reason, I'll contact Trezor Support before proceeding. ",
+            "I’m here to swap cryptocurrencies. If I were directed to this site for any other reason, I'll contact Trezor Support before proceeding.",
         id: 'TR_TRADING_SWAP_MODAL_TERMS_1',
         dynamic: true,
     },
@@ -1129,7 +1129,7 @@ export default defineMessages({
         id: 'TR_BUY_DETAIL_WAITING_FOR_USER_GATE',
     },
     TR_TRADING_OFFERS_EMPTY: {
-        defaultMessage: 'No offers available for your request. Change country or buy amount.',
+        defaultMessage: 'No offers available for your request. Change country or amount.',
         id: 'TR_TRADING_OFFERS_EMPTY',
     },
     TR_TRADING_UNKNOWN_PROVIDER: {
@@ -1203,7 +1203,7 @@ export default defineMessages({
         id: 'TR_TRADING_COMPARE_OFFERS',
     },
     TR_TRADING_OFFER_LOOKING: {
-        defaultMessage: 'Searching for your best offer',
+        defaultMessage: 'Searching for your best offer.',
         id: 'TR_TRADING_OFFER_LOOKING',
     },
     TR_TRADING_OFFER_NO_FOUND: {
@@ -1228,7 +1228,7 @@ export default defineMessages({
     },
     TR_TRADING_FEES_ON_WEBSITE: {
         defaultMessage:
-            "Some fees aren't included in the displayed price; the final cost is shown on the provider's website.",
+            "Some fees may not be included in the displayed price. The final cost will be shown on the provider's website.",
         id: 'TR_TRADING_FEES_ON_WEBSITE',
     },
     TR_TRADING_NETWORK_FEE: {
@@ -1344,11 +1344,11 @@ export default defineMessages({
         id: 'TR_TRADING_KYC_POLICY_NEVER_REQUIRED',
     },
     TR_TRADING_KYC_REQUIRED: {
-        defaultMessage: 'KYC required.',
+        defaultMessage: 'KYC required',
         id: 'TR_TRADING_KYC_REQUIRED',
     },
     TR_TRADING_KYC_NO_REFUND: {
-        defaultMessage: 'KYC requested in exceptional cases. KYC required for refunds. 👈',
+        defaultMessage: 'KYC is only requested in exceptional cases. KYC required for refunds. 👈',
         id: 'TR_TRADING_KYC_NO_REFUND',
     },
     TR_TRADING_KYC_YES_REFUND: {
@@ -1897,7 +1897,7 @@ export default defineMessages({
         id: 'TR_CONFIRM_ACTION_ON_YOUR',
     },
     TR_CONFIRM_EMPTY_HIDDEN_WALLET_ON: {
-        defaultMessage: 'Confirm empty Passprase wallet on "{deviceLabel}" device.',
+        defaultMessage: 'Confirm empty Passphrase wallet on "{deviceLabel}" device.',
         id: 'TR_CONFIRM_EMPTY_HIDDEN_WALLET_ON',
     },
     TR_CONFIRM_PASSPHRASE_WITHOUT_ADVICE_DESCRIPTION: {
@@ -3174,7 +3174,7 @@ export default defineMessages({
         id: 'TR_TAKE_ME_BACK_TO_WALLET',
     },
     TR_TESTNET_COINS: {
-        defaultMessage: 'Testnet coins',
+        defaultMessage: 'Testnet',
         id: 'TR_TESTNET_COINS',
     },
     TR_TESTNET_COINS_DESCRIPTION: {
@@ -4178,7 +4178,7 @@ export default defineMessages({
     },
     TR_ACTIVATED_COINS: {
         id: 'TR_ACTIVATED_COINS',
-        defaultMessage: 'Activated coins',
+        defaultMessage: 'Activated',
     },
     TR_INACTIVE_COINS: {
         id: 'TR_INACTIVE_COINS',
@@ -4899,15 +4899,6 @@ export default defineMessages({
         defaultMessage:
             "Adds an NFT section to EVM-based chain accounts, allowing you to view NFTs. Note: Sending NFTs isn't currently supported.",
     },
-    TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT: {
-        id: 'TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT',
-        defaultMessage: 'Support Ethereum L2 networks',
-    },
-    TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_ETHEREUM_L2_SUPPORT_DESCRIPTION',
-        defaultMessage:
-            'Enable support for Arbitrum One, Base, and Optimism networks in coin settings.',
-    },
     TR_EXPERIMENTAL_FEATURES_ALLOW: {
         id: 'TR_EXPERIMENTAL_FEATURES_ALLOW',
         defaultMessage: 'Experimental features',
@@ -5463,7 +5454,7 @@ export default defineMessages({
         id: 'DESTINATION_TAG',
     },
     DESTINATION_TAG_SHORT: {
-        defaultMessage: 'Memo/Tag',
+        defaultMessage: 'Memo/Destination tag',
         id: 'DESTINATION_TAG_SHORT',
     },
     DESTINATION_TAG_SWITCH: {
@@ -5472,17 +5463,17 @@ export default defineMessages({
     },
     DESTINATION_TAG_NOTE: {
         defaultMessage:
-            'Online exchanges require this to identify your account. Get your destination tag from your exchange.',
+            'Online exchanges require this to identify your account. Get your destination tag from your online exchange.',
         id: 'DESTINATION_TAG_NOTE',
     },
     DESTINATION_TAG_BANNER_SEND: {
         defaultMessage:
-            'Most exchanges require you to include a memo/destination tag to identify your Ripple account. Make sure you really don’t need it.',
+            'Online exchanges require this to identify your account. Get your destination tag from your Ripple account on your online exchange.',
         id: 'DESTINATION_TAG_BANNER_SEND',
     },
     DESTINATION_TAG_BANNER_RECEIVE: {
         defaultMessage:
-            'Most exchanges require you to include memo/destination tag to send a transaction to your Trezor. You can fill in any sequence of numbers (e.g., 12345)',
+            'Trezor doesn’t require a memo or destination tag to receive XRP. Enter any value in the memo/destination tag field to complete your transfer. <a>Learn more</a>',
         id: 'DESTINATION_TAG_BANNER_RECEIVE',
     },
     DESTINATION_TAG_TOOLTIP: {
@@ -6890,6 +6881,10 @@ export default defineMessages({
         id: 'TR_FAILED_VERIFY_DEVICE_TEXT',
         defaultMessage: 'Avoid using this device or sending any funds to it.',
     },
+    TR_DEVICE_COMPROMISED_ENTROPY_CHECK_TEXT: {
+        id: 'TR_DEVICE_COMPROMISED_ENTROPY_CHECK_TEXT',
+        defaultMessage: 'Security check verifying entropy failed during wallet creation.',
+    },
     TR_DEVICE_COMPROMISED_FW_HASH_CHECK_TEXT: {
         id: 'TR_DEVICE_COMPROMISED_FW_HASH_CHECK_TEXT',
         defaultMessage: 'Your device firmware hash check failed.',
@@ -6897,6 +6892,10 @@ export default defineMessages({
     TR_DEVICE_COMPROMISED_FW_REVISION_CHECK_TEXT: {
         id: 'TR_DEVICE_COMPROMISED_FW_REVISION_CHECK_TEXT',
         defaultMessage: 'Your device firmware revision check failed.',
+    },
+    TR_DEVICE_COMPROMISED_DEVICE_AUTHENTICITY_TEXT: {
+        id: 'TR_DEVICE_COMPROMISED_DEVICE_AUTHENTICITY_TEXT',
+        defaultMessage: 'Your device authentication check failed.',
     },
     TR_PLAY_IT_SAFE: {
         id: 'TR_PLAY_IT_SAFE',
@@ -6917,7 +6916,7 @@ export default defineMessages({
     },
     TR_DISCONNECT_YOUR_TREZOR: {
         id: 'TR_DISCONNECT_YOUR_TREZOR',
-        defaultMessage: 'Reconnect the device',
+        defaultMessage: 'Reconnect your device',
     },
     TR_DISCONNECT_YOUR_TREZOR_SUBTITLE: {
         id: 'TR_DISCONNECT_YOUR_TREZOR_SUBTITLE',
@@ -6925,7 +6924,7 @@ export default defineMessages({
     },
     TR_PROBLEM_PERSISTS: {
         id: 'TR_PROBLEM_PERSISTS',
-        defaultMessage: 'If the problem persists, contact Trezor Support',
+        defaultMessage: 'If the issue persists, contact Trezor Support',
     },
     TR_PROBLEM_PERSISTS_SUBTITLE: {
         id: 'TR_PROBLEM_PERSISTS_SUBTITLE',
@@ -7101,7 +7100,7 @@ export default defineMessages({
     TR_DEVICE_FIRMWARE_HASH_CHECK_OTHER_ERROR: {
         id: 'TR_DEVICE_FIRMWARE_HASH_CHECK_OTHER_ERROR',
         defaultMessage:
-            "Failed to verify device. Don't send any funds to it and reconnect your device. If the problem persists after reconnecting, contact Trezor Support.",
+            "Failed to verify device. Reconnect your Trezor and try again. Don't send any funds until the issue is resolved. If the issue persists, contact Trezor Support.",
     },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
@@ -8603,7 +8602,7 @@ export default defineMessages({
     TR_EVM_EXPLANATION_RECEIVE_DESCRIPTION: {
         id: 'TR_EVM_EXPLANATION_RECEIVE_DESCRIPTION',
         defaultMessage:
-            'This receive address is only for {network} coins and tokens. If someone sends you crypto from outside the {network} network, you may not receive them.',
+            "The network uses the same address format as Ethereum. You'll need {network} ETH to pay transaction fees on this network.",
     },
     TR_EVM_EXPLANATION_SEND_DESCRIPTION: {
         id: 'TR_EVM_EXPLANATION_SEND_DESCRIPTION',

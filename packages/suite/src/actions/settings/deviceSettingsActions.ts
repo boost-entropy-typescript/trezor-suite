@@ -1,4 +1,5 @@
 import { FIRMWARE_MODULE_PREFIX } from '@suite-common/firmware';
+import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 import { createThunk } from '@suite-common/redux-utils';
 import * as deviceUtils from '@suite-common/suite-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -13,7 +14,10 @@ import { reportCheckFail } from 'src/components/suite/SecurityCheck/useReportDev
 import * as DEVICE from 'src/constants/suite/device';
 import { Dispatch, GetState } from 'src/types/suite';
 
-import { selectSuiteSettings } from '../../reducers/suite/suiteReducer';
+import {
+    selectIsEntropyCheckEnabled,
+    selectSuiteSettings,
+} from '../../reducers/suite/suiteReducer';
 
 export const applySettings =
     (params: Parameters<typeof TrezorConnect.applySettings>[0]) =>
@@ -150,7 +154,11 @@ export const resetDevice =
     (params: Parameters<typeof TrezorConnect.resetDevice>[0] = {}) =>
     async (dispatch: Dispatch, getState: GetState) => {
         const device = selectSelectedDevice(getState());
-
+        const isEntropyCheckEnabled = selectIsEntropyCheckEnabled(getState());
+        const isEntropyCheckDisabledByMessageSystem = selectIsFeatureDisabled(
+            getState(),
+            Feature.entropyCheck,
+        );
         if (!device || !device.features) return;
 
         const defaults = {
@@ -165,16 +173,12 @@ export const resetDevice =
             },
             ...defaults,
             ...params,
+            entropy_check: isEntropyCheckEnabled && !isEntropyCheckDisabledByMessageSystem,
         });
 
         if (!result.success) {
+            dispatch(notificationsActions.addToast({ type: 'error', error: result.payload.error }));
             if (result.payload.code === 'Failure_EntropyCheck') {
-                dispatch(
-                    notificationsActions.addToast({
-                        type: 'error',
-                        error: 'Something went wrong, try again.',
-                    }),
-                );
                 const model = device?.features?.internal_model;
                 const revision = device?.features?.revision;
                 const version = getFirmwareVersion(device);
@@ -186,6 +190,14 @@ export const resetDevice =
                     vendor,
                     error: result.payload.error,
                 });
+                const hardErrors: string[] = [
+                    'Invalid session', // returned from firmware when entropy check is not supported
+                    'Missing verifyEntropy data', // entropy check fail
+                    'verifyEntropy xpub mismatch', // entropy check fail
+                ]; // TODO: This is a temporary blacklist to prevent false positives.
+                if (hardErrors.includes(result.payload.error) && device.id) {
+                    dispatch(deviceActions.setEntropyCheckFail(device.id));
+                }
             }
         }
 

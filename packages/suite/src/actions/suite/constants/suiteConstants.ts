@@ -1,5 +1,3 @@
-import type { NetworkSymbol } from '@suite-common/wallet-config';
-
 export const INIT = '@suite/init';
 export const READY = '@suite/ready';
 export const ERROR = '@suite/error';
@@ -21,9 +19,10 @@ export const SET_DEFAULT_WALLET_LOADING = '@suite/set-default-wallet-loading';
 export const SET_AUTODETECT = '@suite/set-autodetect';
 export const COINJOIN_RECEIVE_WARNING = '@suite/coinjoin-receive-warning';
 export const DESKTOP_SUITE_PROMO = '@suite/desktop-suite-promo';
-export const DEVICE_AUTHENTICITY_OPT_OUT = '@suite/device-authenticity-opt-out';
-export const DEVICE_FIRMWARE_REVISION_CHECK = '@suite/firmware-revision-opt-out-check';
-export const DEVICE_FIRMWARE_HASH_CHECK = '@suite/firmware-hash-opt-out-check';
+export const TOGGLE_DEVICE_AUTHENTICITY_CHECK = '@suite/toggle-device-authenticity-check';
+export const TOGGLE_FIRMWARE_REVISION_CHECK = '@suite/toggle-firmware-revision-check';
+export const TOGGLE_FIRMWARE_HASH_CHECK = '@suite/toggle-firmware-hash-check';
+export const TOGGLE_ENTROPY_CHECK = '@suite/toggle-entropy-check';
 export const EVM_CONFIRM_EXPLANATION_MODAL = '@suite/evm-confirm-explanation-modal';
 export const EVM_CLOSE_EXPLANATION_BANNER = '@suite/evm-close-explanation-banner';
 export const LOCK_UI = '@suite/lock-ui';
@@ -37,4 +36,3 @@ export const LOCK_TYPE = {
 export const REQUEST_DEVICE_RECONNECT = '@suite/request-device-reconnect';
 export const SET_EXPERIMENTAL_FEATURES = '@suite/set-experimental-features';
 export const SET_SIDEBAR_WIDTH = '@suite/set-sidebar-width';
-export const EXPERIMENTAL_L2_NETWORKS: readonly NetworkSymbol[] = ['op', 'arb', 'base'];

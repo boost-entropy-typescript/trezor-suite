@@ -10,6 +10,7 @@ import { useGuideKeyboard } from 'src/hooks/guide';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useWindowVisibility } from 'src/hooks/suite/useWindowVisibility';
 import {
+    selectIsEntropyCheckEnabledAndFailed,
     selectIsFirmwareAuthenticityCheckEnabledAndHardFailed,
     selectIsLoggedOut,
     selectIsTransportInitialized,
@@ -60,12 +61,14 @@ export const Preloader = ({ children }: PropsWithChildren) => {
     const isLoggedOut = useSelector(selectIsLoggedOut);
     const selectedDevice = useSelector(selectSelectedDevice);
     const { initialRun, viewOnlyPromoClosed } = useSelector(selectSuiteFlags);
-    const isFirmwareCheckFailed = useSelector(
+    const isFirmwareCheckEnabledAndFailed = useSelector(
         selectIsFirmwareAuthenticityCheckEnabledAndHardFailed,
     );
     const isFirmwareAuthenticityCheckDismissed = useSelector(
         selectIsFirmwareAuthenticityCheckDismissed,
     );
+    // Entropy check won't be performed if disabled but we must also check it here to avoid showing the UI when the failed state is stored in database.
+    const isEntropyCheckEnabledAndFailed = useSelector(selectIsEntropyCheckEnabledAndFailed);
 
     // report firmware authenticity failures even when the UI is disabled
     useReportDeviceCompromised();
@@ -96,8 +99,8 @@ export const Preloader = ({ children }: PropsWithChildren) => {
     if (
         (router.route?.app === undefined ||
             !ROUTES_TO_SKIP_FIRMWARE_CHECK.includes(router.route?.app)) &&
-        !isFirmwareAuthenticityCheckDismissed &&
-        isFirmwareCheckFailed
+        ((!isFirmwareAuthenticityCheckDismissed && isFirmwareCheckEnabledAndFailed) ||
+            isEntropyCheckEnabledAndFailed)
     ) {
         return <DeviceCompromised />;
     }
