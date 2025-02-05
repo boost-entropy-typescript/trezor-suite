@@ -39,13 +39,9 @@ import { useFees } from './form/useFees';
 import { useStakeCompose } from './form/useStakeCompose';
 import { useFormDraft } from './useFormDraft';
 
-type UnstakeOptions = 'all' | 'rewards' | 'other';
-
 type UnstakeContextValues = UnstakeContextValuesBase & {
     amountLimits: AmountLimitProps;
     approximatedInstantEthAmount?: string | null;
-    unstakeOption: UnstakeOptions;
-    setUnstakeOption: (option: UnstakeOptions) => void;
     setRatioAmount: (divisor: number) => void;
 };
 
@@ -59,7 +55,6 @@ export const useUnstakeEthForm = ({
     const [approximatedInstantEthAmount, setApproximatedInstantEthAmount] = useState<string | null>(
         null,
     );
-    const [unstakeOption, setUnstakeOption] = useState<UnstakeOptions>('all');
 
     const { account, network } = selectedAccount;
     const { symbol } = account;
@@ -211,10 +206,17 @@ export const useUnstakeEthForm = ({
         async (amount: string) => {
             if (currentRate) {
                 const fiatValue = toFiatCurrency(amount, currentRate?.rate);
-                setValue(FIAT_INPUT, fiatValue || '', { shouldValidate: true });
+                setValue(FIAT_INPUT, fiatValue || '', {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
             }
 
-            setValue(OUTPUT_AMOUNT, amount || '', { shouldDirty: true });
+            setValue(CRYPTO_INPUT, amount, {
+                shouldDirty: true,
+                shouldValidate: true,
+            });
+            setValue(OUTPUT_AMOUNT, amount || '', { shouldDirty: true, shouldValidate: true });
             await composeRequest(CRYPTO_INPUT);
         },
         [composeRequest, currentRate, setValue],
@@ -232,18 +234,6 @@ export const useUnstakeEthForm = ({
             await composeRequest(FIAT_INPUT);
         },
         [composeRequest, currentRate, network.decimals, setValue],
-    );
-
-    const onOptionChange = useCallback(
-        async (amount: string) => {
-            clearErrors([CRYPTO_INPUT, FIAT_INPUT]);
-            setValue(CRYPTO_INPUT, amount, {
-                shouldDirty: true,
-                shouldValidate: true,
-            });
-            await onCryptoAmountChange(amount);
-        },
-        [clearErrors, onCryptoAmountChange, setValue],
     );
 
     const setRatioAmount = useCallback(
@@ -299,14 +289,11 @@ export const useUnstakeEthForm = ({
         clearForm,
         signTx,
         clearErrors,
-        onOptionChange,
         setRatioAmount,
         currentRate,
         feeInfo,
         changeFeeLevel,
         approximatedInstantEthAmount,
-        unstakeOption,
-        setUnstakeOption,
     };
 };
 
