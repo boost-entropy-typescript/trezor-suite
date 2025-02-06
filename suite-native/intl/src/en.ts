@@ -567,6 +567,9 @@ export const en = {
                 reportIssueButton: 'Report security issue',
             },
         },
+        deviceCompromisedScreen: {
+            title: 'Receiving is disabled',
+        },
     },
     moduleSettings: {
         items: {
@@ -1223,6 +1226,19 @@ export const en = {
                     },
                 },
             },
+        },
+    },
+    moduleAuthenticityChecks: {
+        deviceCompromised: {
+            title: 'Your device may have been compromised',
+            subtitle:
+                'Contact our support to learn what’s going on with your device and what to do next.',
+            steps: {
+                disconnectDevice: 'Disconnect your device from your phone.',
+                avoidUsingDevice: 'Avoid using this device or sending any funds to it.',
+                contactSupport: 'Continue to Trezor support and use the Chat option.',
+            },
+            buttonContactSupport: 'Contact Trezor Support',
         },
     },
     staking: {
