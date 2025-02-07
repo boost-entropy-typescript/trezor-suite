@@ -88,7 +88,7 @@
         "file-saver": "^2.0.5",
         "framer-motion": "^11.0.3",
         "history": "^4.10.1",
-        "idb": "^8.0.1",
+        "idb": "^8.0.2",
         "immer": "9.0.21",
         "jws": "^4.0.0",
         "pako": "^2.1.0",
@@ -115,7 +115,7 @@
         "redux-thunk": "^2.4.2",
         "semver": "^7.6.3",
         "styled-components": "^6.1.8",
-        "uuid": "^11.0.4",
+        "uuid": "^11.0.5",
         "web3-utils": "^4.3.1",
         "zxcvbn": "^4.4.2"
     },

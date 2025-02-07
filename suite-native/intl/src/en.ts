@@ -1272,12 +1272,38 @@ export const en = {
     },
     moduleTrading: {
         tradingScreen: {
+            buyTitle: 'Buy',
             receiveAccount: 'Receive account',
             paymentMethod: 'Payment method',
             countryOfResidence: 'Country of residence',
             provider: 'Provider',
             continueButton: 'Continue',
+            footer: {
+                poweredBy: 'Powered by',
+                learnMore: 'Learn more',
+            },
         },
+        selectCoin: {
+            buttonTitle: 'Select coin',
+        },
+        tradeableAssetsSheet: {
+            title: 'Coins',
+            favouritesTitle: 'Favourites',
+            allTitle: 'All coins',
+            favouritesAdd: 'Add to favourites',
+            favouritesRemove: 'Remove from favourites',
+            emptyTitle: 'No coin found',
+            emptyDescription:
+                'We couldn’t find a coin matching your search. Try checking the spelling or exploring the list for the right option.',
+        },
+        countrySheet: {
+            title: 'Country of residence',
+            emptyTitle: 'No country found',
+            emptyDescription:
+                'We couldn’t find a country matching your search. Try checking the spelling or exploring the list for the right option.',
+        },
+        defaultSearchLabel: 'Search',
+        notSelected: 'Not selected',
     },
 };
 
