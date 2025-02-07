@@ -16,6 +16,7 @@ import { ApyCard } from '../StakingDashboard/components/ApyCard';
 import { ClaimCard } from '../StakingDashboard/components/ClaimCard';
 import { PayoutCard } from '../StakingDashboard/components/PayoutCard';
 import { StakingCard } from '../StakingDashboard/components/StakingCard';
+import { RewardsList } from './components/Rewards/RewardsList';
 
 interface SolStakingDashboardProps {
     selectedAccount: SelectedAccountLoaded;
@@ -65,6 +66,7 @@ export const SolStakingDashboard = ({ selectedAccount }: SolStakingDashboardProp
                             />
                         </Column>
                     </DashboardSection>
+                    <RewardsList account={account} />
                 </Column>
             }
         />
