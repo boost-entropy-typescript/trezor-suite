@@ -28,6 +28,10 @@ export const en = {
         offline: "You're offline.",
         tokens: '+ Tokens',
     },
+    icons: {
+        networkIconHint: 'Network Icon',
+        cryptoIconHint: 'Crypto Icon',
+    },
     messageSystem: {
         killswitch: {
             title: 'Update required',
@@ -38,7 +42,7 @@ export const en = {
     },
     moduleHome: {
         graphIgnoredNetworks: {
-            sol: 'Solana is not included in the graph trend.',
+            sol: 'Solana is not included in the graph.',
         },
         emptyState: {
             device: {
@@ -512,12 +516,9 @@ export const en = {
     moduleReceive: {
         receiveTitle: 'Receive',
         screenTitle: '{coinSymbol} Receive address',
-        accountNotFound: 'Account {accountKey} not found.',
         deviceCancelError: 'Address confirmation canceled.',
-        tokens: {
-            runOn: 'Run on {accountLabel}',
-            errorMessage: 'Token not found.',
-        },
+        xrpDestinationTag:
+            'When sending XRP to Trezor, your online exchange may require a destination tag, but Trezor doesn’t. Enter any random number to proceed. <link>Learn more.</link>',
         receiveAddressCard: {
             alert: {
                 success: 'Receive address has been confirmed on your Trezor.',
@@ -881,6 +882,11 @@ export const en = {
         },
     },
     moduleAccounts: {
+        accountNotFound: 'Account {accountKey} not found.',
+        tokens: {
+            runOn: 'Run on {accountLabel}',
+            errorMessage: 'Token not found.',
+        },
         accountDetail: {
             accountLabelBadge: 'Run on {accountLabel}',
         },
@@ -1095,6 +1101,7 @@ export const en = {
             title: 'Send from',
         },
         outputs: {
+            title: '{assetName} Send',
             correctNetworkMessage:
                 'Make sure that you’re sending to an address\non {networkName} network. <link>Learn more</link>',
             tokenOfNetworkSheet: {
@@ -1125,7 +1132,13 @@ export const en = {
                 addressQrLabel: 'Scan recipient address',
                 amountLabel: 'Amount to be sent',
                 maxButton: 'Send max',
-                destinationTagLabel: 'Destination tag',
+                destinationTag: {
+                    label: 'Destination tag',
+                    warning:
+                        'Online exchanges require this to identify your account. Get your destination tag from your Ripple account. Make sure you really don’t need it.',
+                    info: 'Online exchanges require this to identify your account. Get your destination tag from your exchange.',
+                    linkText: '<link>What’s this?</link>',
+                },
             },
         },
         fees: {

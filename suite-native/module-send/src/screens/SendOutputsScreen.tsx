@@ -22,6 +22,7 @@ import {
     updateFeeInfoThunk,
 } from '@suite-common/wallet-core';
 import { TokenAddress } from '@suite-common/wallet-types';
+import { AccountDetailsCard } from '@suite-native/accounts';
 import { Box, Button } from '@suite-native/atoms';
 import { Form, useForm } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
@@ -48,10 +49,13 @@ import { constructFormDraft } from '../utils';
 
 const getDefaultValues = ({
     tokenContract,
+    isRippleDestinationTagEnabled,
 }: {
     tokenContract?: TokenAddress;
+    isRippleDestinationTagEnabled: boolean;
 }): Readonly<SendOutputsFormValues> =>
     ({
+        isRippleDestinationTagEnabled,
         outputs: [
             {
                 amount: '',
@@ -112,7 +116,10 @@ export const SendOutputsScreen = ({
             decimals: tokenInfo?.decimals ?? network?.decimals,
             isTaprootAvailable: !deviceUnavailableCapabilities?.taproot,
         },
-        defaultValues: getDefaultValues({ tokenContract }),
+        defaultValues: getDefaultValues({
+            tokenContract,
+            isRippleDestinationTagEnabled: network?.networkType === 'ripple',
+        }),
     });
 
     const {
@@ -286,11 +293,14 @@ export const SendOutputsScreen = ({
                 )
             }
         >
-            <Box marginVertical="sp32">
-                <Form form={form}>
-                    <SendOutputFields accountKey={accountKey} />
-                </Form>
-            </Box>
+            <>
+                <AccountDetailsCard accountKey={accountKey} tokenContract={tokenContract} />
+                <Box marginVertical="sp32">
+                    <Form form={form}>
+                        <SendOutputFields accountKey={accountKey} />
+                    </Form>
+                </Box>
+            </>
         </SendScreen>
     );
 };
