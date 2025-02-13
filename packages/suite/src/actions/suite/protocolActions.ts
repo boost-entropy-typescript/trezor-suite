@@ -1,11 +1,14 @@
 import { Protocol } from '@suite-common/suite-constants';
 import { getNetworkSymbolForProtocol } from '@suite-common/suite-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { SUITE_BRIDGE_DEEPLINK } from '@trezor/urls';
+import * as walletConnectActions from '@suite-common/walletconnect';
+import { SUITE_BRIDGE_DEEPLINK, SUITE_WALLETCONNECT_DEEPLINK } from '@trezor/urls';
 
 import * as routerActions from 'src/actions/suite/routerActions';
 import type { SendFormState } from 'src/reducers/suite/protocolReducer';
-import type { Dispatch } from 'src/types/suite';
+import { selectIsDebugModeActive } from 'src/reducers/suite/suiteReducer';
+import type { Dispatch, GetState } from 'src/types/suite';
+import { parseUri } from 'src/utils/suite/parseUri';
 import { CoinProtocolInfo, getProtocolInfo } from 'src/utils/suite/protocol';
 
 import { PROTOCOL } from './constants';
@@ -31,7 +34,7 @@ const saveCoinProtocol = (scheme: Protocol, address: string, amount?: number): P
     payload: { scheme, address, amount },
 });
 
-export const handleProtocolRequest = (uri: string) => (dispatch: Dispatch) => {
+export const handleProtocolRequest = (uri: string) => (dispatch: Dispatch, getState: GetState) => {
     const protocol = getProtocolInfo(uri);
 
     if (protocol && !('error' in protocol) && getNetworkSymbolForProtocol(protocol.scheme)) {
@@ -49,6 +52,16 @@ export const handleProtocolRequest = (uri: string) => (dispatch: Dispatch) => {
         );
     } else if (uri?.startsWith(SUITE_BRIDGE_DEEPLINK)) {
         dispatch(routerActions.goto('suite-bridge-requested', { params: { cancelable: true } }));
+    } else if (uri?.startsWith(SUITE_WALLETCONNECT_DEEPLINK)) {
+        // This feature is currently only available in debug mode
+        const isDebug = selectIsDebugModeActive(getState());
+        if (!isDebug) return;
+
+        const parsedUri = parseUri(uri);
+        const wcUri = parsedUri?.searchParams?.get('uri');
+        if (wcUri) {
+            dispatch(walletConnectActions.walletConnectPairThunk({ uri: wcUri }));
+        }
     }
 };
 
