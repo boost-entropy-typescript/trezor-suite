@@ -47,8 +47,15 @@ export class UsbApi extends AbstractApi {
     }
 
     public listen() {
-        this.usbInterface.onconnect = event => {
+        this.usbInterface.onconnect = async event => {
             this.logger?.debug(`usb: onconnect: ${this.formatDeviceForLog(event.device)}`);
+
+            // this should fix a bug when device rebooted back to normal mode
+            // during fw update on windows throws LIBUSB_ERROR_IO on every transferOut
+            if (event.device.opened) {
+                this.logger?.debug('usb: onconnect: device already opened, closing');
+                await event.device.close();
+            }
 
             return this.createDevices([event.device], this.abortController.signal)
                 .then(newDevices => {
@@ -69,7 +76,7 @@ export class UsbApi extends AbstractApi {
                 );
 
                 // trezor devices have serial number 468E58AE386B5D2EA8C572A2 or 000000000000000000000000 (for bootloader devices)
-                return;
+                return this.enumerate();
             }
 
             const index = this.devices.findIndex(d => d.path === device.serialNumber);
@@ -77,8 +84,6 @@ export class UsbApi extends AbstractApi {
                 this.devices.splice(index, 1);
                 this.emit('transport-interface-change', this.devicesToDescriptors());
             } else {
-                // todo: this doesn't make sense. this error is fired for disconnected dongles, keyboards etc. we are not consuming transport-interface-error anywhere so it doesn't matter, it is just useless
-                this.emit('transport-interface-error', ERRORS.DEVICE_NOT_FOUND);
                 this.logger?.error('usb: device that should be removed does not exist in state');
             }
         };
@@ -176,9 +181,7 @@ export class UsbApi extends AbstractApi {
             this.logger?.debug('usb: enumerate');
             const devices = await this.abortableMethod(
                 () => this.synchronizeGetDevices(() => this.usbInterface.getDevices()),
-                {
-                    signal,
-                },
+                { signal },
             );
 
             this.devices = await this.createDevices(devices, signal);
