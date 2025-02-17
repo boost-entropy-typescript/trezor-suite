@@ -27,7 +27,19 @@ export const en = {
         unknownError: 'Something went wrong',
         default: 'Default',
         orSeparator: 'OR',
-        offline: "You're offline.",
+        banners: {
+            offline: {
+                title: "You're offline.",
+                fwRevisionCheckOfflineError:
+                    "Firmware authenticity check couldn't be performed.\nGo online to verify your firmware version.",
+            },
+            deviceCompromised: {
+                title: 'Unofficial firmware detected',
+                subtitle:
+                    'Your Trezor may be counterfeit. To ensure your safety, receiving funds has been disabled. Contact Trezor Support immediately.',
+                contactSupportButton: 'Contact Trezor Support',
+            },
+        },
         tokens: '+ Tokens',
     },
     icons: {

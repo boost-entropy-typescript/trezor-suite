@@ -15,11 +15,9 @@ import {
     ScreenHeader,
     StackToStackCompositeNavigationProps,
 } from '@suite-native/navigation';
+import { TREZOR_SUPPORT_FW_REVISION_CHECK_FAILED_MOBILE_URL } from '@trezor/urls';
 
-// TODO this page is for desktop; await creation of new page tailored to the suite-native UX
-const TREZOR_SUPPORT_FW_REVISION_CHECK_FAILED_URL =
-    'https://trezor.io/support/a/trezor-fw-revision-check-failed';
-const chatUrl = `${TREZOR_SUPPORT_FW_REVISION_CHECK_FAILED_URL}#open-chat`;
+const chatUrl = `${TREZOR_SUPPORT_FW_REVISION_CHECK_FAILED_MOBILE_URL}#open-chat`;
 
 const InformativeList = () => (
     <VStack spacing="sp24">
@@ -58,10 +56,17 @@ export const DeviceCompromisedModalScreen = () => {
     // After dismissCheck, an effect could fire in useHandleDeviceConnection to navigate away, but it's not guaranteed!
     // To be sure we don't lock user on on this screen, we navigate home.
     const handleClose = () => {
-        navigation.navigate(RootStackRoutes.AppTabs, {
-            screen: AppTabsRoutes.HomeStack,
-            params: { screen: HomeStackRoutes.Home },
-        });
+        // the modal is most likely entered from OnboardingStack, ConnectingDevice or Home, so let's send user back
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        }
+        // Home screen set only as fallback if can't go back
+        else {
+            navigation.navigate(RootStackRoutes.AppTabs, {
+                screen: AppTabsRoutes.HomeStack,
+                params: { screen: HomeStackRoutes.Home },
+            });
+        }
         dismissCheck();
     };
 

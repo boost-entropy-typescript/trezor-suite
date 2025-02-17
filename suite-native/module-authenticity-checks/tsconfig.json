@@ -6,8 +6,12 @@
             "path": "../../suite-common/wallet-core"
         },
         { "path": "../atoms" },
+        { "path": "../device" },
+        { "path": "../icons" },
         { "path": "../intl" },
         { "path": "../link" },
-        { "path": "../navigation" }
+        { "path": "../navigation" },
+        { "path": "../../packages/styles" },
+        { "path": "../../packages/urls" }
     ]
 }
