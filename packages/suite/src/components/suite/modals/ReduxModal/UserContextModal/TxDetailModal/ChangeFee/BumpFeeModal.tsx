@@ -58,7 +58,10 @@ export const BumpFeeModal = ({
                 onBackClick={onBackClick}
             >
                 {isTxConfirmed ? (
-                    <ReplaceByFeeFailedOriginalTxConfirmed type="bump-fee" />
+                    <ReplaceByFeeFailedOriginalTxConfirmed
+                        type="bump-fee"
+                        networkType={account.networkType}
+                    />
                 ) : (
                     <ChangeFee tx={tx} chainedTxs={chainedTxs} showChained={onShowChained} />
                 )}
