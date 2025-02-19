@@ -1,14 +1,15 @@
 import { Pressable } from 'react-native';
 
-import { useFormatters } from '@suite-common/formatters';
+import { BASE_CRYPTO_MAX_DISPLAYED_DECIMALS, useFormatters } from '@suite-common/formatters';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { Box, HStack, RoundedIcon, Text, VStack } from '@suite-native/atoms';
-import { useFiatFromCryptoValue } from '@suite-native/formatters';
+import { CryptoAmountFormatter, CryptoToFiatAmountFormatter } from '@suite-native/formatters';
 import { Icon } from '@suite-native/icons';
 import { useTranslate } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
 import { ReceiveAccount } from '../../../types';
+import { AccountAddress } from '../AccountAddress';
 
 export type AccountListItemProps = {
     symbol: NetworkSymbol;
@@ -40,16 +41,24 @@ export const AccountListItem = ({
 }: AccountListItemProps) => {
     const { applyStyle } = useNativeStyles();
     const { translate } = useTranslate();
-    const { DisplaySymbolFormatter, FiatAmountFormatter, CryptoAmountFormatter } = useFormatters();
+    const { DisplaySymbolFormatter } = useFormatters();
 
     const isAddressDetail = !!address;
 
     const cryptoValue = isAddressDetail ? address.balance : account.availableBalance;
-    const fiatValue = useFiatFromCryptoValue({ symbol, cryptoValue });
 
     const shouldDisplayCaret = !isAddressDetail && !!account.addresses;
     const shouldDisplayBalance = !isAddressDetail || address?.balance != null;
-    const label = isAddressDetail ? address.address : account.accountLabel;
+    const label = isAddressDetail ? (
+        <AccountAddress address={address.address} form="full" />
+    ) : (
+        account.accountLabel
+    );
+    const info = isAddressDetail ? (
+        address.path
+    ) : (
+        <DisplaySymbolFormatter value={symbol} areAmountUnitsEnabled={false} />
+    );
 
     return (
         <Pressable
@@ -72,18 +81,19 @@ export const AccountListItem = ({
                             {label}
                         </Text>
                         {shouldDisplayBalance && (
-                            <Text
+                            <CryptoAmountFormatter
+                                value={cryptoValue}
+                                symbol={account.symbol}
                                 variant="body"
-                                style={applyStyle(amountTextStyle, { textColor: 'textDefault' })}
+                                style={applyStyle(amountTextStyle, {
+                                    textColor: 'textDefault',
+                                })}
                                 accessibilityLabel={translate(
                                     'moduleTrading.accountSheet.balanceCrypto',
                                 )}
-                            >
-                                <CryptoAmountFormatter
-                                    value={cryptoValue}
-                                    symbol={account.symbol}
-                                />
-                            </Text>
+                                isBalance={false}
+                                decimals={BASE_CRYPTO_MAX_DISPLAYED_DECIMALS}
+                            />
                         )}
                     </HStack>
                     <HStack alignItems="center" justifyContent="space-between">
@@ -91,18 +101,18 @@ export const AccountListItem = ({
                             variant="hint"
                             style={applyStyle(labelTextStyle, { textColor: 'textSubdued' })}
                         >
-                            <DisplaySymbolFormatter value={symbol} areAmountUnitsEnabled={false} />
+                            {info}
                         </Text>
-                        {shouldDisplayBalance && fiatValue && (
-                            <Text
+                        {shouldDisplayBalance && cryptoValue && (
+                            <CryptoToFiatAmountFormatter
+                                value={cryptoValue}
+                                symbol={account.symbol}
                                 variant="hint"
-                                style={applyStyle(amountTextStyle, { textColor: 'textSubdued' })}
+                                style={applyStyle(labelTextStyle, { textColor: 'textSubdued' })}
                                 accessibilityLabel={translate(
                                     'moduleTrading.accountSheet.balanceFiat',
                                 )}
-                            >
-                                <FiatAmountFormatter value={fiatValue} />
-                            </Text>
+                            />
                         )}
                     </HStack>
                 </VStack>
