@@ -16,8 +16,11 @@ import { HELP_CENTER_FIRMWARE_REVISION_CHECK_MOBILE } from '@trezor/urls';
 import { useSettingsNavigateTo } from '../navigation/useSettingsNavigateTo';
 
 const fullWidthButtonStyle = prepareNativeStyle(() => ({ flex: 1 }));
+const shrinkedButtonStyle = prepareNativeStyle(utils => ({
+    paddingHorizontal: utils.spacings.sp16,
+}));
 
-const LearnMoreButton = () => {
+const LearnMoreButton = ({ fullWidth }: { fullWidth?: boolean }) => {
     const { applyStyle } = useNativeStyles();
     const openLink = useOpenLink();
     const handleButtonPress = () => openLink(HELP_CENTER_FIRMWARE_REVISION_CHECK_MOBILE);
@@ -25,9 +28,10 @@ const LearnMoreButton = () => {
     return (
         <Button
             size="small"
+            viewLeft="arrowSquareOut"
             onPress={handleButtonPress}
             colorScheme="tertiaryElevation0"
-            style={applyStyle(fullWidthButtonStyle)}
+            style={applyStyle(fullWidth ? fullWidthButtonStyle : shrinkedButtonStyle)}
         >
             <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.buttonLearnMore" />
         </Button>
@@ -60,6 +64,7 @@ const TurnOnButton = () => {
 };
 
 const TurnOffButton = () => {
+    const { applyStyle } = useNativeStyles();
     const navigateTo = useSettingsNavigateTo();
 
     const handleButtonPress = () => {
@@ -67,7 +72,12 @@ const TurnOffButton = () => {
     };
 
     return (
-        <Button size="small" onPress={handleButtonPress} colorScheme="redElevation0">
+        <Button
+            size="small"
+            onPress={handleButtonPress}
+            colorScheme="redElevation0"
+            style={applyStyle(shrinkedButtonStyle)}
+        >
             <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.buttonTurnOff" />
         </Button>
     );
@@ -89,7 +99,7 @@ export const TurnOffFirmwareAuthenticityCheckCard = () => {
                     {isFwAuthenticityCheckEnabled ? (
                         <>
                             <TurnOffButton />
-                            <LearnMoreButton />
+                            <LearnMoreButton fullWidth />
                         </>
                     ) : (
                         <>
