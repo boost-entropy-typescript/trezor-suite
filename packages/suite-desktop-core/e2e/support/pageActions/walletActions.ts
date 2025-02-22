@@ -19,7 +19,7 @@ export class WalletActions {
     readonly stakeAddress: Locator;
     readonly walletExtraDropDown: Locator;
     readonly tradingBuyButton: Locator;
-    readonly coinExchangeButton: Locator;
+    readonly swapButton: Locator;
     readonly tradingDropdownBuyButton: Locator;
     readonly balanceOfAccount = (symbol: NetworkSymbol) =>
         this.page.getByTestId(`@wallet/coin-balance/value-${symbol}`);
@@ -33,6 +33,7 @@ export class WalletActions {
     readonly revealAddressButton: Locator;
     readonly copyAddressButton: Locator;
     readonly stakingButton: Locator;
+    readonly signAndVerifyButton: Locator;
     readonly stakingCardano: Locator;
     readonly transactionSummaryTitle: Locator;
     readonly transactionItem: Locator;
@@ -46,7 +47,7 @@ export class WalletActions {
         this.stakeAddress = this.page.getByTestId('@cardano/staking/address');
         this.walletExtraDropDown = this.page.getByTestId('@wallet/menu/extra-dropdown');
         this.tradingBuyButton = this.page.getByTestId('@wallet/menu/wallet-trading-buy');
-        this.coinExchangeButton = this.page.getByTestId('@wallet/menu/wallet-trading-exchange');
+        this.swapButton = this.page.getByTestId('@wallet/menu/wallet-trading-exchange');
         this.tradingDropdownBuyButton = this.page
             .getByRole('list')
             .getByTestId('@wallet/menu/wallet-trading-buy');
@@ -60,6 +61,7 @@ export class WalletActions {
         this.revealAddressButton = this.page.getByTestId('@wallet/receive/reveal-address-button');
         this.copyAddressButton = this.page.getByTestId('@metadata/copy-address-button');
         this.stakingButton = this.page.getByTestId('@wallet/menu/staking');
+        this.signAndVerifyButton = this.page.getByTestId('@wallet/menu/wallet-sign-verify');
         this.stakingCardano = this.page.getByTestId('@wallet/cardano/staking');
         this.transactionSummaryTitle = this.page.getByTestId(
             '@wallet/transactions/summary-card/title',
@@ -129,8 +131,8 @@ export class WalletActions {
     }
 
     @step()
-    async openExchangeMarket(params: WalletParams = {}) {
+    async openSwapTrading(params: WalletParams = {}) {
         await this.accountButton(params).click();
-        await this.coinExchangeButton.click();
+        await this.swapButton.click();
     }
 }
