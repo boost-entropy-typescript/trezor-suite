@@ -199,7 +199,6 @@ export class TrezorUserEnvLinkClass extends TypedEmitter<WebsocketClientEvents> 
             ...arg,
         };
 
-        console.log('sending emulator-start', params);
         await this.client.send(params);
 
         if (params.wipe) {
@@ -297,6 +296,11 @@ export class TrezorUserEnvLinkClass extends TypedEmitter<WebsocketClientEvents> 
             ...options,
         });
         this.currentEmulatorSettings = options;
+
+        return null;
+    }
+    async allowUnsafePaths() {
+        await this.client.send({ type: 'emulator-allow-unsafe-paths' });
 
         return null;
     }
