@@ -4,9 +4,11 @@ import {
     RpcMainnet,
     RpcSubscriptionsMainnet,
     SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED,
+    SOLANA_ERROR__JSON_RPC__SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE,
     SOLANA_ERROR__RPC_SUBSCRIPTIONS__CHANNEL_CONNECTION_CLOSED,
     SOLANA_ERROR__RPC_SUBSCRIPTIONS__CHANNEL_FAILED_TO_CONNECT,
     SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR,
+    SOLANA_ERROR__TRANSACTION_ERROR__BLOCKHASH_NOT_FOUND,
     Signature,
     Slot,
     SolanaRpcApiMainnet,
@@ -194,6 +196,17 @@ const pushTransaction = async (request: Request<MessageTypes.PushTransaction>) =
         ) {
             throw new Error(
                 'Solana backend connection failure. The backend might be inaccessible or the connection is unstable.',
+            );
+        }
+        if (
+            isSolanaError(
+                error,
+                SOLANA_ERROR__JSON_RPC__SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE,
+            ) &&
+            isSolanaError(error.cause, SOLANA_ERROR__TRANSACTION_ERROR__BLOCKHASH_NOT_FOUND)
+        ) {
+            throw new Error(
+                'The transaction has expired because too much time passed between signing and sending. Please try again.',
             );
         }
         if (isSolanaError(error)) {
@@ -422,9 +435,10 @@ const getAccountInfo = async (
 
 const getInfo = async (request: Request<MessageTypes.GetInfo>, isTestnet: boolean) => {
     const api = await request.connect();
+
     const {
         value: { blockhash: blockHash, lastValidBlockHeight: blockHeight },
-    } = await api.rpc.getLatestBlockhash({ commitment: 'finalized' }).send();
+    } = await api.rpc.getLatestBlockhash({ commitment: 'confirmed' }).send();
 
     const serverInfo = {
         testnet: isTestnet,
@@ -434,7 +448,7 @@ const getInfo = async (request: Request<MessageTypes.GetInfo>, isTestnet: boolea
         network: isTestnet ? 'dsol' : 'sol',
         url: api.clusterUrl,
         name: 'Solana',
-        version: (await api.rpc.getVersion().send())['solana-core'],
+        version: '1', // saving request api.rpc.getVersion().send(), version is not used anyways
         decimals: 9,
     };
 
