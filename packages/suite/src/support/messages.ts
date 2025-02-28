@@ -1416,6 +1416,24 @@ export default defineMessages({
         defaultMessage: 'View details',
         id: 'TR_TRADING_VIEW_DETAILS',
     },
+    TR_TRADING_OTC_INFO_BUY: {
+        defaultMessage:
+            'For purchases over {minimumFiat} {fiatSymbol}, consider using our OTC partner:',
+        id: 'TR_TRADING_OTC_INFO_BUY',
+    },
+    TR_TRADING_OTC_INFO_SELL: {
+        defaultMessage:
+            'For sales over {minimumFiat} {fiatSymbol}, consider using our OTC partner:',
+        id: 'TR_TRADING_OTC_INFO_SELL',
+    },
+    TR_TRADING_OTC_LINK_BUY: {
+        defaultMessage: 'Buy with Mercuryo',
+        id: 'TR_TRADING_OTC_LINK_BUY',
+    },
+    TR_TRADING_OTC_LINK_SELL: {
+        defaultMessage: 'Sell with Mercuryo',
+        id: 'TR_TRADING_OTC_LINK_SELL',
+    },
     TR_ADDRESS_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy address',
         id: 'TR_ADDRESS_MODAL_CLIPBOARD',
@@ -3417,6 +3435,10 @@ export default defineMessages({
     TR_CURRENT_FEE_CUSTOM_FEES: {
         id: 'TR_CURRENT_FEE_CUSTOM_FEES',
         defaultMessage: 'Current network fee:',
+    },
+    GAS_LIMIT_IS_NOT_SET: {
+        id: 'GAS_LIMIT_IS_NOT_SET',
+        defaultMessage: 'Set gas limit for this transaction',
     },
     TR_GAS_LIMIT: {
         id: 'TR_GAS_LIMIT',
