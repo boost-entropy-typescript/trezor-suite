@@ -1,19 +1,18 @@
 import { Network, Solana, isStake, stakeAccountState } from '@everstake/wallet-sdk-solana';
 
-import config from '../../ui/config';
+import { SolanaStakingAccount } from '@trezor/blockchain-link-types/src/solana';
+
+const EVERSTAKE_VOTER_PUBKEYS = [
+    '9QU2QSxhb24FUX3Tu2FpczXjpK3VYrvRudywSZaM29mF', // mainnet
+    'GkqYQysEGmuL6V2AJoNnWZUz2ZBGWhzQXsJiXm2CLKAN', // devnet
+];
 
 export const getSolanaStakingData = async (
     descriptor: string,
     isTestnet: boolean,
     epoch: number,
-) => {
-    const blockchainEnvironment = isTestnet ? 'devnet' : 'mainnet';
-
-    // Find the blockchain configuration for the specified chain and environment
-    const blockchainConfig = config.find(c =>
-        c.blockchain.name.toLowerCase().includes(`solana ${blockchainEnvironment}`),
-    );
-    const serverUrl = blockchainConfig?.blockchain.server[0];
+    serverUrl: string,
+): Promise<SolanaStakingAccount[]> => {
     const network = isTestnet ? Network.Devnet : Network.Mainnet;
 
     const solanaClient = new Solana(network, serverUrl);
@@ -36,6 +35,9 @@ export const getSolanaStakingData = async (
 
             if (state && 'fields' in state) {
                 const { fields } = state;
+
+                const voterPubkey = fields[1]?.delegation?.voterPubkey;
+                if (!EVERSTAKE_VOTER_PUBKEYS.includes(voterPubkey)) return; // filter out non-everstake accounts
 
                 return {
                     rentExemptReserve: fields[0]?.rentExemptReserve,

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { CryptoId } from 'invity-api';
 
@@ -105,6 +105,23 @@ export const TradingVerify = ({ tradingVerifyAccount, cryptoId }: TradingVerifyP
         dispatch(modalActions.onCancel());
     }, [device?.connected, dispatch]);
 
+    const isButtonDisabled = useMemo(() => {
+        const isFormInvalid = !form.formState.isValid;
+        const isAddressInvalid = address === '';
+        const isExtraFieldInvalid =
+            exchangeQuote?.extraFieldDescription?.required && extraField === '';
+
+        switch (selectedAccountOption?.type) {
+            case 'NON_SUITE':
+            case 'ADD_SUITE':
+                return callInProgress || isFormInvalid || isAddressInvalid || isExtraFieldInvalid;
+            case 'SUITE':
+                return callInProgress || isFormInvalid || isExtraFieldInvalid;
+        }
+
+        return callInProgress || isFormInvalid || isAddressInvalid || isExtraFieldInvalid;
+    }, [selectedAccountOption, form, address, callInProgress, exchangeQuote, extraField]);
+
     return (
         <Column gap={spacings.xl}>
             <Paragraph typographyStyle="hint" variant="tertiary">
@@ -182,6 +199,7 @@ export const TradingVerify = ({ tradingVerifyAccount, cryptoId }: TradingVerifyP
                         }
                         onToggle={() => form.setValue('extraField', '', { shouldValidate: true })}
                         required={exchangeQuote.extraFieldDescription.required}
+                        extraFieldDescription={exchangeQuote.extraFieldDescription}
                     />
                 )}
 
@@ -233,13 +251,7 @@ export const TradingVerify = ({ tradingVerifyAccount, cryptoId }: TradingVerifyP
                                     confirmTrade(address, extraField);
                                 }
                             }}
-                            isDisabled={
-                                !form.formState.isValid ||
-                                address === '' ||
-                                callInProgress ||
-                                (exchangeQuote?.extraFieldDescription?.required &&
-                                    extraField === '')
-                            }
+                            isDisabled={isButtonDisabled}
                         >
                             <Translation id="TR_BUY_GO_TO_PAYMENT" />
                         </Button>
