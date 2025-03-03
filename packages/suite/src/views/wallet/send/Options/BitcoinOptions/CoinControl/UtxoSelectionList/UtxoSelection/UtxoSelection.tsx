@@ -3,7 +3,7 @@ import { MouseEventHandler, ReactNode } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 
 import { formatNetworkAmount, isSameUtxo } from '@suite-common/wallet-utils';
-import { Checkbox, Row, Spinner, TextButton, Tooltip } from '@trezor/components';
+import { Checkbox, Row, Spinner, Text, TextButton, Tooltip } from '@trezor/components';
 import { CheckContainer } from '@trezor/components/src/components/form/Checkbox/Checkbox';
 import { AccountUtxo } from '@trezor/connect';
 import { borders, spacings, spacingsPx, typography } from '@trezor/theme';
@@ -34,7 +34,7 @@ const ROW_GAP = spacings.xxs;
 const LabelPart = styled.div`
     display: flex;
     align-items: center;
-    gap: ${ROW_GAP};
+    gap: ${ROW_GAP}px;
     color: ${({ theme }) => theme.textSubdued};
     overflow: hidden;
 `;
@@ -42,7 +42,7 @@ const LabelPart = styled.div`
 const DetailPartVisibleOnHover = styled.div<{ $alwaysVisible?: boolean }>`
     display: flex;
     align-items: center;
-    gap: ${ROW_GAP};
+    gap: ${ROW_GAP}px;
     color: ${({ theme }) => theme.textSubdued};
 
     ${({ $alwaysVisible }) =>
@@ -174,7 +174,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
         },
     } = useSendFormContext();
     // selecting metadata from store rather than send form context which does not update on metadata change
-    const { outputLabels } = useSelector(selectLabelingDataForSelectedAccount);
+    const { addressLabels, outputLabels } = useSelector(selectLabelingDataForSelectedAccount);
 
     const dispatch = useDispatch();
 
@@ -247,8 +247,18 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                             iconColor={utxoTagIconColor}
                         />
                     )}
-
-                    <Address>{utxo.address}</Address>
+                    <Text typographyStyle="hint">
+                        <MetadataLabeling
+                            payload={{
+                                type: 'addressLabel',
+                                entityKey: account.key,
+                                defaultValue: utxo.address,
+                                value: addressLabels[utxo.address],
+                            }}
+                            isDisabled
+                            defaultVisibleValue={<Address>{utxo.address}</Address>}
+                        />
+                    </Text>
 
                     <StyledCryptoAmount
                         value={formatNetworkAmount(utxo.amount, account.symbol)}

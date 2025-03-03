@@ -1,15 +1,29 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.5.0  |      -       |
-|     npm @trezor/connect-web      | 9.5.0  |      -       |
-| npm @trezor/connect-webextension | 9.5.0  |      -       |
+|       npm @trezor/connect        | 9.5.0  | 9.5.1-beta.1 |
+|     npm @trezor/connect-web      | 9.5.0  | 9.5.1-beta.1 |
+| npm @trezor/connect-webextension | 9.5.0  | 9.5.1-beta.1 |
 |    npm @trezor/connect-mobile    |   -    | 0.0.1-beta.1 |
 
-|     Deployment     | Stable | Canary |
-| :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.5.0  |   -    |
+|     Deployment     | Stable |    Canary    |
+| :----------------: | :----: | :----------: |
+| connect.trezor.io/ | 9.5.0  | 9.5.1-beta.1 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.5.1-beta.1
+
+## Feature
+
+-   added backends so that each EVM has 4 endpoints (f5c057c)
+-   logic for rent fee calculation (2650f6b)
+
+## Fixes
+
+-   solana creating account parameter in e2e (356edd4)
+-   reacquire when cancel timeouts (141a29c)
+-   don't cancel preventively on T1 in certain cases (bf6d9ff)
+-   FW revision check for unknown models (522880d)
 
 # 9.5.0
 
