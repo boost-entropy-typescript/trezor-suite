@@ -1538,12 +1538,12 @@ export default defineMessages({
         id: 'TR_ONBOARDING_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS: {
-        defaultMessage: 'Data collection',
+        defaultMessage: 'Anonymous data collection',
         id: 'TR_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS_DESCRIPTION: {
         defaultMessage:
-            "All data is kept strictly anonymous. It's only used to improve the Trezor ecosystem.",
+            'Help us shape a better experience for you. We don’t gather any sensitive data—like balances or transactions. All data remains strictly anonymous and is used only to improve the Trezor ecosystem.',
         id: 'TR_ALLOW_ANALYTICS_DESCRIPTION',
     },
     TR_ALLOW_AUTOMATIC_SUITE_UPDATES: {
@@ -2820,6 +2820,11 @@ export default defineMessages({
     TR_ACCOUNT_IS_EMPTY_DESCRIPTION: {
         defaultMessage: 'Get started by receiving or buying {network}.',
         id: 'TR_ACCOUNT_IS_EMPTY_DESCRIPTION',
+    },
+    TR_ACCOUNT_WITH_TOKENS_IS_EMPTY_DESCRIPTION: {
+        defaultMessage:
+            'Get started by receiving or buying {networkDisplaySymbol} or any token on the {networkName} network.',
+        id: 'TR_ACCOUNT_WITH_TOKENS_IS_EMPTY_DESCRIPTION',
     },
     TR_GENERIC_ERROR_TITLE: {
         defaultMessage: 'Oops! Something went wrong!',
@@ -5353,7 +5358,7 @@ export default defineMessages({
         defaultMessage: 'Send max',
     },
     AMOUNT_IS_NOT_ENOUGH: {
-        defaultMessage: 'Not enough funds!',
+        defaultMessage: 'Not enough funds',
         id: 'AMOUNT_IS_NOT_ENOUGH',
     },
     AMOUNT_EXCEEDS_MAX: {
@@ -6470,7 +6475,7 @@ export default defineMessages({
     },
     TR_NEW_FEE: {
         id: 'TR_NEW_FEE',
-        defaultMessage: 'New',
+        defaultMessage: 'New fee',
     },
     TR_INCREASE_FEE_BY: {
         id: 'TR_INCREASE_FEE_BY',
@@ -7515,7 +7520,7 @@ export default defineMessages({
     },
     TR_STAKING_GETTING_READY: {
         id: 'TR_STAKING_GETTING_READY',
-        defaultMessage: 'Your {networkDisplaySymbol} is getting ready to work',
+        defaultMessage: 'Your {networkDisplaySymbol} is preparing to enter',
     },
     TR_STAKING_REWARDS_ARE_RESTAKED: {
         id: 'TR_STAKING_REWARDS_ARE_RESTAKED',
@@ -8850,7 +8855,7 @@ export default defineMessages({
     },
     TR_STAKE_EARN_REWARDS_EVERY: {
         id: 'TR_STAKE_EARN_REWARDS_EVERY',
-        defaultMessage: 'Earn rewards every ~{days} days',
+        defaultMessage: 'Receive rewards every ~{days} days',
     },
     TR_STAKE_COOL_DOWN_PERIOD: {
         id: 'TR_STAKE_COOL_DOWN_PERIOD',
@@ -8893,7 +8898,7 @@ export default defineMessages({
     TR_STAKE_ETH_REWARDS_EARN: {
         id: 'TR_STAKE_ETH_REWARDS_EARN',
         defaultMessage:
-            'Your rewards also earn. Keep them staked and watch your {networkDisplaySymbol} rewards soar.',
+            'Your rewards also count. Keep them staked and watch your {networkDisplaySymbol} rewards grow.',
     },
     TR_STAKE_AVAILABLE: {
         id: 'TR_STAKE_AVAILABLE',
@@ -8949,11 +8954,11 @@ export default defineMessages({
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
         defaultMessage:
-            "Your {networkDisplaySymbol} will be blocked during this period and can't be canceled.",
+            'Your {networkDisplaySymbol} will be blocked during this period, and you can’t cancel the process.',
     },
     TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
         id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
-        defaultMessage: 'I acknowledge the above entry period',
+        defaultMessage: 'I acknowledge the entry period.',
     },
     TR_STAKE_STAKE: {
         id: 'TR_STAKE_STAKE',
@@ -9074,10 +9079,6 @@ export default defineMessages({
         id: 'TR_UP_TO_DAYS',
         defaultMessage: 'up to {count, plural, one {# day} other {# days}}',
     },
-    TR_STAKE_PAID_FROM_BALANCE: {
-        id: 'TR_STAKE_PAID_FROM_BALANCE',
-        defaultMessage: 'Paid from your balance',
-    },
     TR_STAKE_NO_REWARDS: {
         id: 'TR_STAKE_NO_REWARDS',
         defaultMessage: 'No rewards available',
@@ -9172,7 +9173,7 @@ export default defineMessages({
     TR_STAKE_BY_STAKING_YOU_CAN_EARN_REWARDS: {
         id: 'TR_STAKE_BY_STAKING_YOU_CAN_EARN_REWARDS',
         defaultMessage:
-            "Stake your {networkDisplaySymbol} to earn rewards and help enhance the network's security and stability.",
+            "Stake your {networkDisplaySymbol} to receive rewards and help enhance the network's security and stability.",
     },
     TR_STAKE_SECURELY_DELEGATE_TO_EVERSTAKE: {
         id: 'TR_STAKE_SECURELY_DELEGATE_TO_EVERSTAKE',
@@ -9182,10 +9183,6 @@ export default defineMessages({
     TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE: {
         id: 'TR_STAKE_CONSENT_TO_STAKING_WITH_EVERSTAKE',
         defaultMessage: 'I acknowledge and consent to stake with Everstake.',
-    },
-    TR_SOLANA_TX_CONFIRMATION_MAY_TAKE_UP_TO_1_MIN: {
-        id: 'TR_SOLANA_TX_CONFIRMATION_MAY_TAKE_UP_TO_1_MIN',
-        defaultMessage: 'Transaction confirmation may take up to <nowrap>one (1) minute</nowrap>',
     },
     TR_TX_SEND_FAILED_TITLE: {
         id: 'TR_TX_SEND_FAILED_TITLE',
