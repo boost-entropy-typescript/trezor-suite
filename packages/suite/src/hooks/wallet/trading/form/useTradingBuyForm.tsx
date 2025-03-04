@@ -9,8 +9,11 @@ import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     type TradingBuyType,
     addIdsToQuotes,
+    buyUtils,
     cryptoIdToNetwork,
     filterQuotesAccordingTags,
+    getTradingPaymentMethods,
+    getTradingQuotesByPaymentMethod,
     invityAPI,
     tradingGetSuccessQuotes,
 } from '@suite-common/trading';
@@ -34,7 +37,6 @@ import { useTradingCurrencySwitcher } from 'src/hooks/wallet/trading/form/common
 import { useTradingModalCrypto } from 'src/hooks/wallet/trading/form/common/useTradingModalCrypto';
 import { useTradingPreviousRoute } from 'src/hooks/wallet/trading/form/common/useTradingPreviousRoute';
 import { useTradingBuyFormDefaultValues } from 'src/hooks/wallet/trading/form/useTradingBuyFormDefaultValues';
-import useTradingPaymentMethod from 'src/hooks/wallet/trading/form/useTradingPaymentMethod';
 import { useTradingInfo } from 'src/hooks/wallet/trading/useTradingInfo';
 import { useTradingLoadData } from 'src/hooks/wallet/trading/useTradingLoadData';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
@@ -43,7 +45,7 @@ import { useTradingNavigation } from 'src/hooks/wallet/useTradingNavigation';
 import { UseTradingFormProps } from 'src/types/trading/trading';
 import { TradingBuyFormContextProps, TradingBuyFormProps } from 'src/types/trading/tradingForm';
 import type { AmountLimitProps } from 'src/utils/suite/validation';
-import { createQuoteLink, createTxLink, getAmountLimits } from 'src/utils/wallet/trading/buyUtils';
+import { createQuoteLink, createTxLink } from 'src/utils/wallet/trading/buyUtils';
 import { getTradingNetworkDecimals } from 'src/utils/wallet/trading/tradingUtils';
 
 import { useTradingInitializer } from './common/useTradingInitializer';
@@ -57,11 +59,10 @@ export const useTradingBuyForm = ({
     const dispatch = useDispatch();
     const { addressVerified, buyInfo, isFromRedirect, quotes, quotesRequest, selectedQuote } =
         useSelector(state => state.wallet.trading.buy);
+    const paymentMethods = useSelector(state => state.wallet.trading.info.paymentMethods);
     const { cryptoIdToCoinSymbol } = useTradingInfo();
     const { callInProgress, account, timer, device, setCallInProgress, checkQuotesTimer } =
         useTradingInitializer({ selectedAccount, pageType });
-    const { paymentMethods, getPaymentMethods, getQuotesByPaymentMethod } =
-        useTradingPaymentMethod<TradingBuyType>();
     const { navigateToBuyForm, navigateToBuyOffers, navigateToBuyConfirm } =
         useTradingNavigation(account);
 
@@ -118,7 +119,7 @@ export const useTradingBuyForm = ({
     const isFormInvalid = !(formIsValid && hasValues);
     const isLoadingOrInvalid = noProviders || isFormLoading || isFormInvalid;
 
-    const quotesByPaymentMethod = getQuotesByPaymentMethod(
+    const quotesByPaymentMethod = getTradingQuotesByPaymentMethod<TradingBuyType>(
         innerQuotes,
         values?.paymentMethod?.value ?? '',
     );
@@ -225,13 +226,14 @@ export const useTradingBuyForm = ({
             const bestQuotePaymentMethodName =
                 bestQuote?.paymentMethodName ?? bestQuotePaymentMethod;
             const paymentMethodSelected = values.paymentMethod?.value;
-            const paymentMethodsFromQuotes = getPaymentMethods(quotesSuccess);
+            const paymentMethodsFromQuotes =
+                getTradingPaymentMethods<TradingBuyType>(quotesSuccess);
             const isSelectedPaymentMethodAvailable =
                 paymentMethodsFromQuotes.find(item => item.value === paymentMethodSelected) !==
                 undefined;
             const symbol =
                 cryptoIdToCoinSymbol(quoteRequest.receiveCurrency) ?? quoteRequest.receiveCurrency;
-            const limits = getAmountLimits({
+            const limits = buyUtils.getAmountLimits({
                 request: quoteRequest,
                 quotes: quotesDefault,
                 currency: symbol,
@@ -259,7 +261,6 @@ export const useTradingBuyForm = ({
             cryptoIdToCoinSymbol,
             getQuoteRequestData,
             getQuotesRequest,
-            getPaymentMethods,
             dispatch,
             setValue,
         ],

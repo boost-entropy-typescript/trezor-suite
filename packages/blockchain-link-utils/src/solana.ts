@@ -737,13 +737,16 @@ export const transformTransaction = (
 
     const targets = getTargets(nativeEffects, txType, accountAddress);
 
-    const amount =
-        stakeType === 'unstake'
-            ? getUnstakeAmount(tx)
-            : getAmount(
-                  nativeEffects.find(({ address }) => address === accountAddress),
-                  type,
-              );
+    const isUnstakeTx = stakeType === 'unstake';
+
+    const amount = isUnstakeTx
+        ? '0' // amount for unstake transactions should be hidden
+        : getAmount(
+              nativeEffects.find(({ address }) => address === accountAddress),
+              type,
+          );
+
+    const stakeAmount = isUnstakeTx ? getUnstakeAmount(tx) : amount;
 
     const details = getDetails(tx, nativeEffects, accountAddress, type);
 
@@ -762,7 +765,12 @@ export const transformTransaction = (
         blockHash: tx.transaction.message.recentBlockhash,
         solanaSpecific: {
             status: 'confirmed',
-            stakeType,
+            stakeOperation: stakeType
+                ? {
+                      type: stakeType,
+                      amount: stakeAmount,
+                  }
+                : undefined,
         },
     };
 };

@@ -153,7 +153,7 @@ export interface Transaction {
     };
     solanaSpecific?: {
         status: 'confirmed';
-        stakeType?: StakeType;
+        stakeOperation?: { type: StakeType; amount: string };
     };
     details: TransactionDetail;
     vsize?: number;

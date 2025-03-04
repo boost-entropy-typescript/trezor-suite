@@ -3,16 +3,16 @@ import { FiatCurrenciesProps } from 'invity-api';
 
 import { configureMockStore, extraDependenciesMock } from '@suite-common/test-utils';
 
-import { invityAPI } from '../../invityAPI';
-import { buyInitialState } from '../../reducers/__fixtures__/buyTradingReducer';
-import { prepareBuyReducer } from '../../reducers/buyReducer';
-import { regional } from '../../regional';
-import { buyThunks } from '../buyThunks';
+import { buyThunks } from '../';
+import { invityAPI } from '../../../invityAPI';
+import { buyInitialState } from '../../../reducers/__fixtures__/buyTradingReducer';
+import { prepareBuyReducer } from '../../../reducers/buyReducer';
+import { regional } from '../../../regional';
 
 const buyTradingReducer = prepareBuyReducer(extraDependenciesMock);
 
-describe('Testing buy thunks', () => {
-    jest.mock('../../invityAPI');
+describe('Testing loadInfoThunk', () => {
+    jest.mock('../../../invityAPI');
 
     invityAPI.setInvityServersEnvironment = () => {};
     invityAPI.createInvityAPIKey = () => {};
@@ -35,7 +35,7 @@ describe('Testing buy thunks', () => {
         },
     });
 
-    it('testing loadInfoThunk - successful response', async () => {
+    it('successful response', async () => {
         const buyInfoAPI = {
             country: 'CZ',
             suggestedFiatCurrency: 'CZK',
@@ -62,7 +62,7 @@ describe('Testing buy thunks', () => {
         });
     });
 
-    it('testing loadInfoThunk - unsuccessful response', async () => {
+    it('unsuccessful response', async () => {
         invityAPI.getBuyList = () => Promise.resolve(undefined);
 
         const buyInfoData = await store.dispatch(buyThunks.loadInfoThunk()).unwrap();

@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import type {
     BuyCryptoPaymentMethod,
     BuyTrade,
@@ -14,6 +16,7 @@ import type {
     WatchSellTradeResponse,
 } from 'invity-api';
 
+import { AccountType, NetworkSymbolExtended } from '@suite-common/wallet-config';
 import type { Account } from '@suite-common/wallet-types';
 
 export type InvityServerEnvironment = 'production' | 'staging' | 'dev' | 'localhost';
@@ -86,6 +89,41 @@ export type TradingTransaction =
     | TradingTransactionBuy
     | TradingTransactionSell
     | TradingTransactionExchange;
+
+export type TradingCryptoSelectItemProps = {
+    badge?: ReactNode;
+    symbol: NetworkSymbolExtended;
+    cryptoName?: string;
+    coingeckoId?: string;
+    contractAddress: string | null;
+    shouldTryToFetch?: boolean;
+    value: CryptoId;
+    label: string;
+    ticker?: string;
+};
+
+export type TradingOption = { value: string; label: string };
+
+export type TradingBuyFormProps = {
+    fiatInput?: string;
+    cryptoInput?: string;
+    currencySelect: TradingOption;
+    cryptoSelect: TradingCryptoSelectItemProps;
+    countrySelect: TradingOption;
+    paymentMethod?: TradingPaymentMethodListProps;
+    amountInCrypto: boolean;
+};
+
+export interface TradingAccountOptionsGroupOptionProps {
+    value: CryptoId;
+    label: string; // token shortcut
+    cryptoName: string | undefined; // full name
+    balance: string;
+    descriptor: string;
+    decimals: number;
+    contractAddress?: string;
+    accountType?: AccountType;
+}
 
 export type TradingOTC = {
     idWidget: string;

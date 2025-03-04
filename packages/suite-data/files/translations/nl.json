@@ -44,6 +44,7 @@
   "FAILED_TO_DISABLE_TOR": "Mislukt om Tor uit te schakelen",
   "FAILED_TO_ENABLE_TOR": "Mislukt om Tor in te schakelen",
   "FEE": "Transactiekosten",
+  "FEE_LEVEL_ADVANCED": "test",
   "FEE_LEVEL_HIGH": "Hoog",
   "FEE_LEVEL_LOW": "Laag",
   "FEE_LEVEL_NORMAL": "Normaal",

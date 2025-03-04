@@ -14,14 +14,19 @@ interface UnstakingTxAmountProps {
 }
 
 export const UnstakingTxAmount = ({ transaction }: UnstakingTxAmountProps) => {
-    const { ethereumSpecific, solanaSpecific, symbol, amount } = transaction;
+    const { ethereumSpecific, solanaSpecific, symbol } = transaction;
 
-    const solanaStakeType = solanaSpecific?.stakeType;
+    const solanaStakeType = solanaSpecific?.stakeOperation?.type;
 
     // Handle Solana unstake transaction
     if (solanaStakeType === 'unstake') {
+        const unstakeAmount = solanaSpecific?.stakeOperation?.amount ?? '0';
+
         return (
-            <FormattedCryptoAmount value={formatNetworkAmount(amount, symbol)} symbol={symbol} />
+            <FormattedCryptoAmount
+                value={formatNetworkAmount(unstakeAmount, symbol)}
+                symbol={symbol}
+            />
         );
     }
 
