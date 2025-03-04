@@ -718,6 +718,22 @@ export default defineMessages({
         defaultMessage: 'DEX',
         id: 'TR_TRADING_EXCHANGE_COMPARATOR_FILTER_RATE_DEX',
     },
+    TR_TRADING_EXCHANGE_SIGN_BANNER_TITLE: {
+        defaultMessage: 'You’re swapping with {provider}',
+        id: 'TR_TRADING_EXCHANGE_SIGN_BANNER_TITLE',
+    },
+    TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_1: {
+        defaultMessage: 'Simply sign the order — no need to send transactions manually',
+        id: 'TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_1',
+    },
+    TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_2: {
+        defaultMessage: 'No gas fees — the smart contract handles everything for you',
+        id: 'TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_2',
+    },
+    TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_3: {
+        defaultMessage: 'Your swap might be partially filled based on market conditions',
+        id: 'TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_3',
+    },
     TR_SELL_STATUS_ERROR: {
         defaultMessage: 'Rejected',
         id: 'TR_SELL_STATUS_ERROR',
@@ -7416,9 +7432,17 @@ export default defineMessages({
         id: 'TR_CLAIM_FROM_EVERSTAKE',
         defaultMessage: 'Claim {symbol} from Everstake?',
     },
+    TR_CLAIM_FROM_STAKE_ACCOUNT: {
+        id: 'TR_CLAIM_FROM_STAKE_ACCOUNT',
+        defaultMessage: 'Claim {symbol} from stake account?',
+    },
     TR_UNSTAKE_FROM_EVERSTAKE: {
         id: 'TR_UNSTAKE_FROM_EVERSTAKE',
         defaultMessage: 'Unstake {symbol} from Everstake?',
+    },
+    TR_UNSTAKE_FROM_STAKE_ACCOUNT: {
+        id: 'TR_UNSTAKE_FROM_STAKE_ACCOUNT',
+        defaultMessage: 'Unstake {symbol} from stake account?',
     },
     TR_TX_WITHDRAWAL: {
         id: 'TR_TX_WITHDRAWAL',
@@ -8912,7 +8936,7 @@ export default defineMessages({
     TR_SOL_FEE_DESC: {
         id: 'TR_SOL_FEE_DESC',
         defaultMessage:
-            "The fee you're willing to pay network miners to process transaction. A higher fee may speed up confirmation times.",
+            "Network Fees are paid to network validators for processing transactions. A higher fee may result in faster confirmation times. Rent is a fee that accounts pay for storing data on the blockchain. Rent is calculated based on the size of the account's storage.",
     },
     TR_TRANSACTION_FEE_DESC: {
         id: 'TR_TRANSACTION_FEE_DESC',
