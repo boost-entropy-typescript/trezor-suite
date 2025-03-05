@@ -85,23 +85,23 @@ const parseRunOptions = (options?: RunOptions): RunOptions => {
 };
 
 export interface DeviceEvents {
-    [DEVICE.PIN]: (
-        device: Device,
-        type: PROTO.PinMatrixRequestType | undefined,
-        callback: PromptCallback<UiResponsePin['payload']>,
-    ) => void;
-    [DEVICE.WORD]: (
-        device: Device,
-        type: PROTO.WordRequestType,
-        callback: PromptCallback<UiResponseWord['payload']>,
-    ) => void;
-    [DEVICE.PASSPHRASE]: (
-        device: Device,
-        callback: PromptCallback<UiResponsePassphrase['payload']>,
-    ) => void;
-    [DEVICE.PASSPHRASE_ON_DEVICE]: () => void;
-    [DEVICE.BUTTON]: (device: Device, payload: DeviceButtonRequestPayload) => void;
-    [DEVICE.FIRMWARE_VERSION_CHANGED]: (payload: DeviceVersionChanged['payload']) => void;
+    [DEVICE.PIN]: {
+        device: Device;
+        type: PROTO.PinMatrixRequestType | undefined;
+        callback: PromptCallback<UiResponsePin['payload']>;
+    };
+    [DEVICE.WORD]: {
+        device: Device;
+        type: PROTO.WordRequestType;
+        callback: PromptCallback<UiResponseWord['payload']>;
+    };
+    [DEVICE.PASSPHRASE]: {
+        device: Device;
+        callback: PromptCallback<UiResponsePassphrase['payload']>;
+    };
+    [DEVICE.PASSPHRASE_ON_DEVICE]: void;
+    [DEVICE.BUTTON]: { device: Device; payload: DeviceButtonRequestPayload };
+    [DEVICE.FIRMWARE_VERSION_CHANGED]: DeviceVersionChanged['payload'];
 }
 
 type DeviceLifecycle =
@@ -167,7 +167,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     private keepTransportSession = false;
     public commands?: DeviceCommands;
-    private cancelableAction?: (err?: Error) => Promise<unknown>;
+    private cancelableAction?: (err?: string) => Promise<unknown>;
 
     private loaded = false;
 
@@ -465,7 +465,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     setCancelableAction(callback: NonNullable<typeof this.cancelableAction>) {
-        this.cancelableAction = (e?: Error) =>
+        this.cancelableAction = (e?: string) =>
             callback(e)
                 .catch(e2 => {
                     _log.debug('cancelableAction error', e2);
@@ -482,7 +482,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     async interruptionFromUser(error: Error) {
         _log.debug('interruptionFromUser');
 
-        await this.cancelableAction?.(error);
+        await this.cancelableAction?.(error.toString());
         await this.commands?.cancel();
 
         if (this.runPromise) {
