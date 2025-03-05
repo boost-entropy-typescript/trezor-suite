@@ -8871,7 +8871,7 @@ export default defineMessages({
     },
     TR_STAKE_WAIT_FOR_ACTIVATION: {
         id: 'TR_STAKE_WAIT_FOR_ACTIVATION',
-        defaultMessage: 'Time it takes to stake your SOL.',
+        defaultMessage: 'Time it takes to stake your SOL',
     },
     TR_STAKE_WARM_UP_PERIOD: {
         id: 'TR_STAKE_WARM_UP_PERIOD',
@@ -8887,7 +8887,7 @@ export default defineMessages({
     },
     TR_STAKE_WAIT_FOR_DEACTIVATION: {
         id: 'TR_STAKE_WAIT_FOR_DEACTIVATION',
-        defaultMessage: 'Time it takes to unstake your SOL.',
+        defaultMessage: 'Time it takes to unstake your SOL',
     },
     TR_STAKE_EARN_REWARDS_WEEKLY: {
         id: 'TR_STAKE_EARN_REWARDS_WEEKLY',
@@ -9596,5 +9596,15 @@ export default defineMessages({
     TR_CONNECT_BLUETOOTH_BUTTON: {
         id: 'TR_CONNECT_BLUETOOTH_BUTTON',
         defaultMessage: 'Connect Trezor Safe 7 via Bluetooth',
+    },
+
+    TR_YOUR_BRIDGE_VERSION_WILL_SOON_BE_DEPRECATED: {
+        id: 'TR_YOUR_BRIDGE_VERSION_WILL_SOON_BE_DEPRECATED',
+        defaultMessage: 'Your Trezor Bridge version will soon be deprecated.',
+    },
+    TR_BRIDGE_UNINSTALL_INSTRUCTIONS: {
+        id: 'TR_BRIDGE_UNINSTALL_INSTRUCTIONS',
+        defaultMessage:
+            'You are running a very old and soon to be deprecated Trezor Bridge version. Please uninstall it from your system. <a>Learn more</a>',
     },
 });
