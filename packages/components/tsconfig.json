@@ -21,13 +21,10 @@
             "path": "../../suite-common/suite-constants"
         },
         {
-            "path": "../../suite-common/suite-utils"
-        },
-        {
             "path": "../../suite-common/validators"
         },
         { "path": "../asset-utils" },
-        { "path": "../connect" },
+        { "path": "../device-utils" },
         { "path": "../dom-utils" },
         { "path": "../env-utils" },
         { "path": "../react-utils" },

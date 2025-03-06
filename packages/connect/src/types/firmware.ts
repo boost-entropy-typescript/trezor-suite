@@ -1,4 +1,4 @@
-import { DeviceModelInternal } from '@trezor/protobuf';
+import { DeviceModelInternal, VersionArray } from '@trezor/device-utils';
 import { Type } from '@trezor/schema-utils';
 
 export type FirmwareRange = Record<
@@ -8,8 +8,6 @@ export type FirmwareRange = Record<
         max: string;
     }
 >;
-
-export type VersionArray = [number, number, number];
 
 export type FirmwareRelease = {
     required: boolean;

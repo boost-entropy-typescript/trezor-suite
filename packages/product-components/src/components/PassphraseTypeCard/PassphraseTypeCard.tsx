@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components';
 
 import { formInputsMaxLength } from '@suite-common/validators';
 import { TooltipProps } from '@trezor/components';
-import { DeviceModelInternal, Features } from '@trezor/connect';
+import { DeviceModelInternal } from '@trezor/device-utils';
 import { setCaretPosition } from '@trezor/dom-utils';
 import { useKeyPress } from '@trezor/react-utils';
 import { borders, spacingsPx } from '@trezor/theme';
@@ -64,7 +64,7 @@ export type PassphraseTypeCardProps = {
     offerPassphraseOnDevice?: boolean;
     singleColModal?: boolean;
     deviceModel?: DeviceModelInternal;
-    deviceBackup?: Features['backup_type'] | null;
+    deviceBackup?: string | null;
     onSubmit: (value: string, passphraseOnDevice?: boolean) => void;
     learnMoreTooltipOnClick?: TooltipProps['addon'];
     learnMoreTooltipAppendTo?: TooltipProps['appendTo'];
