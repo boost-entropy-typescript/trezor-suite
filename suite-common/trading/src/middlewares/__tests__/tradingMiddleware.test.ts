@@ -1,6 +1,5 @@
-import { combineReducers } from '@reduxjs/toolkit';
+import { combineReducers, createReducer } from '@reduxjs/toolkit';
 
-import { createReducerWithExtraDeps } from '@suite-common/redux-utils';
 import { configureMockStore, extraDependenciesMock } from '@suite-common/test-utils';
 import { Account } from '@suite-common/wallet-types';
 
@@ -15,7 +14,7 @@ import {
 } from '../../reducers/tradingReducer';
 import { regional } from '../../regional';
 import { buyThunks } from '../../thunks/buy';
-import { tradingMiddleware } from '../tradingMiddleware';
+import { prepareTradingMiddleware } from '../tradingMiddleware';
 
 jest.mock('../../invityAPI');
 invityAPI.setInvityServersEnvironment = () => {};
@@ -27,7 +26,7 @@ type SelectedAccountStatus = {
     account: Account;
 };
 type SelectedAccountState = SelectedAccountStatus;
-const mockedSelectedAccountReducer = createReducerWithExtraDeps<SelectedAccountState>(
+const mockedSelectedAccountReducer = createReducer<SelectedAccountState>(
     {
         status: 'none',
         account: accountBtc as Account,
@@ -35,7 +34,7 @@ const mockedSelectedAccountReducer = createReducerWithExtraDeps<SelectedAccountS
     () => {},
 );
 
-const mockedSuiteReducer = createReducerWithExtraDeps(
+const mockedSuiteReducer = createReducer(
     {
         settings: {
             debug: {
@@ -46,6 +45,14 @@ const mockedSuiteReducer = createReducerWithExtraDeps(
     () => {},
 );
 
+const tradingMiddleware = prepareTradingMiddleware({
+    ...extraDependenciesMock,
+    selectors: {
+        ...extraDependenciesMock.selectors,
+        selectSelectedAccount: () => ({ status: 'loaded', account: accountBtc }) as any,
+    },
+});
+
 const initStore = (localInitialState?: Partial<TradingState>) =>
     configureMockStore({
         middleware: [tradingMiddleware],
@@ -53,9 +60,9 @@ const initStore = (localInitialState?: Partial<TradingState>) =>
         reducer: combineReducers({
             wallet: combineReducers({
                 trading: tradingReducer,
-                selectedAccount: mockedSelectedAccountReducer(extraDependenciesMock),
+                selectedAccount: mockedSelectedAccountReducer,
             }),
-            suite: mockedSuiteReducer(extraDependenciesMock),
+            suite: mockedSuiteReducer,
         }),
         preloadedState: {
             wallet: {
@@ -139,20 +146,20 @@ const testUpdatedInfoData = async (type: 'outdated' | 'account-changed') => {
     expect(setInvityServersEnvironmentMock).toHaveBeenCalledTimes(1);
 };
 
-describe('testing trading middleware', () => {
+describe('tradingMiddleware', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    it('loadData - account changed and loading all necessary data', async () => {
+    it('should update when account is changed', async () => {
         await testUpdatedInfoData('account-changed');
     });
 
-    it('loadData - outdated data and loading all necessary data', async () => {
+    it('should update when data are outdated data ', async () => {
         await testUpdatedInfoData('outdated');
     });
 
-    it('loadData - keep current data without updating', async () => {
+    it('should keep same version of data without update', async () => {
         invityAPI.getCurrentAccountDescriptor = () => accountBtc.descriptor;
 
         const getCurrentAccountDescriptorMock = jest.spyOn(

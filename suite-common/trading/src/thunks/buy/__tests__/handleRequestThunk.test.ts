@@ -14,7 +14,7 @@ import { HandleRequestThunkProps } from '../handleRequestThunk';
 
 const tradingReducer = prepareTradingReducer(extraDependenciesMock);
 
-describe('Testing handleRequestThunk', () => {
+describe('handleRequestThunk', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -68,7 +68,16 @@ describe('Testing handleRequestThunk', () => {
         const mockAbort = jest.fn();
         const mockAbortController: AbortController = {
             abort: mockAbort,
-            signal: {} as AbortSignal,
+            signal: {
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn(),
+                aborted: false,
+                onabort: jest.fn(),
+                reason: null,
+                throwIfAborted: jest.fn(),
+                any: jest.fn(),
+                dispatchEvent: jest.fn(),
+            } as AbortSignal,
         };
         jest.spyOn(global, 'AbortController').mockImplementation(() => mockAbortController);
         const mockAbortControllerRef = {
@@ -119,7 +128,7 @@ describe('Testing handleRequestThunk', () => {
         };
     };
 
-    it('successful response', async () => {
+    it('should successfully request quotes and save them', async () => {
         const { input, store, mockTimerLoading, mockTimerReset, mockAbort } = getMocks();
 
         invityAPI.getBuyQuotes = () =>
@@ -146,7 +155,7 @@ describe('Testing handleRequestThunk', () => {
         expect(mockTimerReset).toHaveBeenCalledTimes(1);
     });
 
-    it('unsuccessful response - incorrect fiatInput and cryptoInput', async () => {
+    it('should not save quotes when incorrect fiatInput and cryptoInput', async () => {
         const { input, store, mockTimerLoading, mockTimerStop } = getMocks();
         const inputWithIncorrectData = {
             ...input,
@@ -164,10 +173,11 @@ describe('Testing handleRequestThunk', () => {
         expect(mockTimerLoading).toHaveBeenCalledTimes(1);
         expect(mockTimerStop).toHaveBeenCalledTimes(1);
         expect(state.buy.quotesRequest).toBeUndefined();
+        expect(state.buy.quotes?.length).toEqual(0);
         expect(state.isLoading).toBe(false);
     });
 
-    it('unsuccessful response - incorrect cryptoSelect', async () => {
+    it('should not save quotes when incorrect cryptoSelect', async () => {
         const { input, store, mockTimerLoading, mockTimerStop } = getMocks();
         const inputWithIncorrectData = {
             ...input,
@@ -184,10 +194,11 @@ describe('Testing handleRequestThunk', () => {
         expect(mockTimerLoading).toHaveBeenCalledTimes(1);
         expect(mockTimerStop).toHaveBeenCalledTimes(1);
         expect(state.buy.quotesRequest).toBeUndefined();
+        expect(state.buy.quotes?.length).toEqual(0);
         expect(state.isLoading).toBe(false);
     });
 
-    it('unsuccessful response - empty array in the response from API', async () => {
+    it('should not save quotes when empty array is returned from in the response', async () => {
         const { input, store, mockTimerLoading, mockTimerStop } = getMocks();
 
         invityAPI.getBuyQuotes = () => Promise.resolve([]);
