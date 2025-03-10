@@ -28,7 +28,7 @@ import { IconName } from '../Icon/Icon';
 import { IconCircle } from '../IconCircle/IconCircle';
 import { IconButton } from '../buttons/IconButton/IconButton';
 import { H3 } from '../typography/Heading/Heading';
-import { Paragraph } from '../typography/Paragraph/Paragraph';
+import { Text } from '../typography/Text/Text';
 
 export const allowedNewModalFrameProps = ['height'] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedNewModalFrameProps)[number]>;
@@ -104,7 +104,7 @@ const InnerNewModalBase = ({
                     {hasHeader && (
                         <Row
                             padding={{ horizontal: spacings.md, top: spacings.md }}
-                            alignItems="center"
+                            alignItems={description ? 'flex-start' : 'center'}
                             gap={spacings.md}
                             as="header"
                         >
@@ -127,14 +127,15 @@ const InnerNewModalBase = ({
                                             </H3>
                                         )}
                                         {description && (
-                                            <Paragraph
+                                            <Text
                                                 variant="tertiary"
                                                 typographyStyle="hint"
                                                 ellipsisLineCount={2}
+                                                as="div"
                                                 data-testid="@modal/header-paragraph"
                                             >
                                                 {description}
-                                            </Paragraph>
+                                            </Text>
                                         )}
                                     </Column>
                                 )}
