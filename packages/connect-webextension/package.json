@@ -1,6 +1,6 @@
 {
     "name": "@trezor/connect-webextension",
-    "version": "9.5.2-beta.1",
+    "version": "9.5.2-beta.2",
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/connect-webextension",
     "description": "High-level javascript interface for Trezor hardware wallet in webextension serviceworker environment.",
@@ -52,7 +52,7 @@
         "babel-loader": "^9.1.3",
         "copy-webpack-plugin": "^12.0.2",
         "rimraf": "^6.0.1",
-        "terser-webpack-plugin": "^5.3.11",
+        "terser-webpack-plugin": "^5.3.14",
         "webpack": "^5.97.1",
         "webpack-cli": "^5.1.4",
         "webpack-merge": "^6.0.1",
