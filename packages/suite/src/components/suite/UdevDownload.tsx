@@ -54,9 +54,10 @@ export const UdevDownload = () => {
         ? udev.packages.map(p => ({
               label: p.name,
               value: DATA_URL + p.url.substring(1),
-              preferred: p.preferred, // This is not available on the desktop
+              preferred: p.preferred,
           }))
         : [];
+
     const [selectedTarget, setSelectedTarget] = useState<Installer | null>(null);
     const preferredTarget = installers.find(i => i.preferred);
     const target = selectedTarget || preferredTarget || installers[0];
