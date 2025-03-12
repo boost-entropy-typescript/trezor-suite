@@ -29,6 +29,9 @@
         {
             "path": "../../suite-common/wallet-types"
         },
+        {
+            "path": "../../suite-common/walletconnect"
+        },
         { "path": "../accounts" },
         { "path": "../alerts" },
         { "path": "../analytics" },
@@ -54,6 +57,7 @@
         { "path": "../module-authorize-device" },
         { "path": "../module-connect-popup" },
         { "path": "../module-dev-utils" },
+        { "path": "../module-device-onboarding" },
         { "path": "../module-device-settings" },
         { "path": "../module-home" },
         { "path": "../module-onboarding" },

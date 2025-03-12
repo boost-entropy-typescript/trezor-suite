@@ -77,14 +77,11 @@ const mapElevationToButtonBackground = ({
     const capitalizedState = capitalizeFirstLetter(state);
 
     const map: Record<Elevation, Color> = {
-        '-1': `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation3`, // For example left menu is negative elevation
-
-        // Button lies always on elevation so for example Button that lies has elevation 0, lies on elevation -1.
-        // This is why the values here a shifted by 1.
-        0: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevationNegative`,
-        1: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation0`,
-        2: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation1`,
-        3: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation2`,
+        '-1': `interactionBackgroundTertiaryDefault${capitalizedState}OnElevationNegative`, // For example left menu is negative elevation
+        0: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation0`,
+        1: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation1`,
+        2: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation2`,
+        3: `interactionBackgroundTertiaryDefault${capitalizedState}OnElevation3`,
     };
 
     return theme[map[elevation]];

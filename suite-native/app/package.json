@@ -23,6 +23,7 @@
     "dependencies": {
         "@gorhom/bottom-sheet": "5.0.5",
         "@mobily/ts-belt": "^3.13.1",
+        "@react-native-async-storage/async-storage": "^2.1.1",
         "@react-native-community/netinfo": "^11.4.1",
         "@react-native/metro-config": "^0.76.1",
         "@react-navigation/bottom-tabs": "6.6.1",
@@ -42,6 +43,7 @@
         "@suite-common/token-definitions": "workspace:*",
         "@suite-common/wallet-core": "workspace:*",
         "@suite-common/wallet-types": "workspace:*",
+        "@suite-common/walletconnect": "workspace:*",
         "@suite-native/accounts": "workspace:*",
         "@suite-native/alerts": "workspace:*",
         "@suite-native/analytics": "workspace:*",
@@ -63,6 +65,7 @@
         "@suite-native/module-authorize-device": "workspace:*",
         "@suite-native/module-connect-popup": "workspace:*",
         "@suite-native/module-dev-utils": "workspace:*",
+        "@suite-native/module-device-onboarding": "workspace:*",
         "@suite-native/module-device-settings": "workspace:*",
         "@suite-native/module-home": "workspace:*",
         "@suite-native/module-onboarding": "workspace:*",
@@ -85,6 +88,7 @@
         "@trezor/styles": "workspace:*",
         "@trezor/theme": "workspace:*",
         "@trezor/trezor-user-env-link": "workspace:*",
+        "@walletconnect/react-native-compat": "^2.18.1",
         "@whatwg-node/events": "0.1.2",
         "abortcontroller-polyfill": "1.7.6",
         "buffer": "^6.0.3",
@@ -106,6 +110,7 @@
         "expo-system-ui": "^4.0.2",
         "expo-updates": "0.26.6",
         "expo-video": "^2.0.1",
+        "fast-text-encoding": "^1.0.6",
         "jotai": "1.9.1",
         "lottie-react-native": "^7.1.0",
         "node-libs-browser": "^2.2.1",
@@ -135,8 +140,9 @@
         "@react-native/babel-preset": "^0.75.2",
         "@suite-common/test-utils": "workspace:^",
         "@trezor/connect-mobile": "workspace:^",
+        "@types/fast-text-encoding": "^1",
         "@types/jest": "^29.5.12",
-        "@types/node": "22.10.1",
+        "@types/node": "22.13.10",
         "babel-plugin-transform-inline-environment-variables": "^0.4.4",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "detox": "^20.34.4",
@@ -145,7 +151,7 @@
         "jest-junit": "^16.0.0",
         "metro": "0.81.0",
         "ts-jest": "^29.1.2",
-        "typescript": "^5.3.3"
+        "typescript": "5.8.2"
     },
     "private": true
 }

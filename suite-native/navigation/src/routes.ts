@@ -2,6 +2,7 @@ export enum RootStackRoutes {
     AppTabs = 'AppTabs',
     LegacyOnboarding = 'LegacyOnboarding',
     OnboardingStack = 'OnboardingStack',
+    DeviceOnboardingStack = 'DeviceOnboardingStack',
     AccountsImport = 'AccountsImport',
     AuthorizeDeviceStack = 'AuthorizeDeviceStack',
     AccountDetail = 'AccountDetail',
@@ -15,6 +16,8 @@ export enum RootStackRoutes {
     AddCoinAccountStack = 'AddCoinAccountStack',
     CoinEnablingInit = 'CoinEnablingInit',
     ConnectPopup = 'ConnectPopup',
+    WalletConnectSessionPopup = 'WalletConnectSessionPopup',
+    WalletConnectPair = 'WalletConnectPair',
     SettingsScreenStack = 'SettingsScreenStack',
     DeviceCompromisedModalScreen = 'DeviceCompromisedModalScreen',
 }
@@ -30,6 +33,9 @@ export enum OnboardingStackRoutes {
     Welcome = 'Welcome',
     AnalyticsConsent = 'AnalyticsConsent',
     Biometrics = 'Biometrics',
+}
+
+export enum DeviceOnboardingStackRoutes {
     UninitializedDeviceLanding = 'UninitializedDeviceLanding',
     SuspiciousDevice = 'SuspiciousDevice',
     SecurityCheck = 'SecurityCheck',

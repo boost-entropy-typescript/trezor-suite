@@ -22,8 +22,8 @@ import {
     AppTabsRoutes,
     AuthorizeDeviceStackParamList,
     AuthorizeDeviceStackRoutes,
+    DeviceOnboardingStackRoutes,
     HomeStackRoutes,
-    OnboardingStackRoutes,
     RootStackParamList,
     RootStackRoutes,
     StackToStackCompositeNavigationProps,
@@ -73,7 +73,7 @@ export const useHandleDeviceConnection = () => {
     // We should not redirect him away so he can read the screen content and decide what to do.
     // If the device is connected again, he still should stay on that screen.
     const isSuspiciousDeviceScreenFocused = useNavigationRouteMatch(
-        OnboardingStackRoutes.SuspiciousDevice,
+        DeviceOnboardingStackRoutes.SuspiciousDevice,
     );
     const isConnectAndUnlockDeviceScreenFocused = useNavigationRouteMatch(
         AuthorizeDeviceStackRoutes.ConnectAndUnlockDevice,
@@ -83,6 +83,7 @@ export const useHandleDeviceConnection = () => {
     const isDeviceSettingsStackFocused = lastRoute === RootStackRoutes.DeviceSettingsStack;
     const isSendStackFocused = lastRoute === RootStackRoutes.SendStack;
     const isOnboardingStackFocused = lastRoute === RootStackRoutes.OnboardingStack;
+    const isDeviceOnboardingStackFocused = lastRoute === RootStackRoutes.DeviceOnboardingStack;
     const shouldBlockSendReviewRedirect = isDeviceRemembered && isSendStackFocused;
     const isDeviceCompromisedModalFocused =
         lastRoute === RootStackRoutes.DeviceCompromisedModalScreen;
@@ -95,25 +96,29 @@ export const useHandleDeviceConnection = () => {
         if (
             isDeviceSetupSupported &&
             isDeviceConnected &&
+            isOnboardingFinished &&
             !isDeviceInitialized &&
             !isPortfolioTrackerDevice &&
             !isBiometricsOverlayVisible &&
-            !isOnboardingStackFocused &&
-            !isOnboardingDeviceDisconnectedAlertDisplayed
+            !isDeviceOnboardingStackFocused &&
+            !isOnboardingDeviceDisconnectedAlertDisplayed &&
+            !isFirmwareInstallationRunning
         ) {
-            navigation.navigate(RootStackRoutes.OnboardingStack, {
-                screen: OnboardingStackRoutes.UninitializedDeviceLanding,
+            navigation.navigate(RootStackRoutes.DeviceOnboardingStack, {
+                screen: DeviceOnboardingStackRoutes.UninitializedDeviceLanding,
             });
         }
     }, [
         dispatch,
         isDeviceConnected,
-        isOnboardingStackFocused,
+        isOnboardingFinished,
         isBiometricsOverlayVisible,
         navigation,
         isDeviceInitialized,
         isPortfolioTrackerDevice,
         isDeviceSetupSupported,
+        isDeviceOnboardingStackFocused,
+        isFirmwareInstallationRunning,
         isOnboardingDeviceDisconnectedAlertDisplayed,
     ]);
 
@@ -168,7 +173,7 @@ export const useHandleDeviceConnection = () => {
     // set connecting screen to be displayed again on the next device connection.
     useEffect(() => {
         if (
-            (isFirmwareInstallationRunning && !isOnboardingStackFocused) ||
+            isFirmwareInstallationRunning ||
             !isOnboardingFinished ||
             isConnectAndUnlockDeviceScreenFocused
         )
@@ -186,7 +191,7 @@ export const useHandleDeviceConnection = () => {
                 return;
             }
 
-            if (isOnboardingStackFocused) {
+            if (isDeviceOnboardingStackFocused) {
                 handleOnboardingDeviceDisconnection();
 
                 return;
@@ -210,6 +215,7 @@ export const useHandleDeviceConnection = () => {
         isOnboardingStackFocused,
         handleOnboardingDeviceDisconnection,
         isConnectAndUnlockDeviceScreenFocused,
+        isDeviceOnboardingStackFocused,
     ]);
 
     // When trezor gets locked, it is necessary to display a PIN matrix for T1 so that it can be unlocked

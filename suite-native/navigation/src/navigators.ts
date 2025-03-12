@@ -1,5 +1,4 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
-import { ParsedURL } from 'expo-linking';
 import { RequireAllOrNone } from 'type-fest';
 
 import { AccountType, NetworkSymbol } from '@suite-common/wallet-config';
@@ -19,6 +18,7 @@ import {
     AuthorizeDeviceStackRoutes,
     DevUtilsStackRoutes,
     DeviceAuthenticityStackRoutes,
+    DeviceOnboardingStackRoutes,
     DevicePinProtectionStackRoutes,
     DeviceStackRoutes,
     HomeStackRoutes,
@@ -118,13 +118,16 @@ export type OnboardingStackParamList = {
     [OnboardingStackRoutes.Welcome]: undefined;
     [OnboardingStackRoutes.AnalyticsConsent]: undefined;
     [OnboardingStackRoutes.Biometrics]: undefined;
-    [OnboardingStackRoutes.UninitializedDeviceLanding]: undefined;
-    [OnboardingStackRoutes.SuspiciousDevice]: {
+};
+
+export type DeviceOnboardingStackParamList = {
+    [DeviceOnboardingStackRoutes.UninitializedDeviceLanding]: undefined;
+    [DeviceOnboardingStackRoutes.SuspiciousDevice]: {
         suspicionCause: DeviceSuspicionCause;
     };
-    [OnboardingStackRoutes.SecurityCheck]: undefined;
-    [OnboardingStackRoutes.FirmwareInstallation]: undefined;
-    [OnboardingStackRoutes.ConfirmFirmwareUpdate]: undefined;
+    [DeviceOnboardingStackRoutes.SecurityCheck]: undefined;
+    [DeviceOnboardingStackRoutes.FirmwareInstallation]: undefined;
+    [DeviceOnboardingStackRoutes.ConfirmFirmwareUpdate]: undefined;
 };
 
 export type AccountsImportStackParamList = {
@@ -207,6 +210,7 @@ export type AuthorizeDeviceStackParamList = {
 export type RootStackParamList = {
     [RootStackRoutes.AppTabs]: NavigatorScreenParams<AppTabsParamList>;
     [RootStackRoutes.OnboardingStack]: NavigatorScreenParams<OnboardingStackParamList>;
+    [RootStackRoutes.DeviceOnboardingStack]: NavigatorScreenParams<DeviceOnboardingStackParamList>;
     [RootStackRoutes.AuthorizeDeviceStack]: NavigatorScreenParams<AuthorizeDeviceStackParamList>;
     [RootStackRoutes.AccountsImport]: NavigatorScreenParams<AccountsImportStackParamList>;
     [RootStackRoutes.AccountSettings]: { accountKey: AccountKey };
@@ -224,9 +228,9 @@ export type RootStackParamList = {
     [RootStackRoutes.ReceiveStack]: NavigatorScreenParams<ReceiveStackParamList>;
     [RootStackRoutes.SendStack]: NavigatorScreenParams<SendStackParamList>;
     [RootStackRoutes.CoinEnablingInit]: undefined;
-    [RootStackRoutes.ConnectPopup]: {
-        parsedUrl: ParsedURL;
-    };
+    [RootStackRoutes.ConnectPopup]: undefined;
+    [RootStackRoutes.WalletConnectSessionPopup]: undefined;
+    [RootStackRoutes.WalletConnectPair]: undefined;
     [RootStackRoutes.SettingsScreenStack]: NavigatorScreenParams<SettingsStackParamList>;
     [RootStackRoutes.DeviceCompromisedModalScreen]: undefined;
 };

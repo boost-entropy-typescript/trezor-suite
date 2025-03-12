@@ -7,35 +7,45 @@ import { useSetAtom } from 'jotai';
 import { deviceActions, selectSelectedDevice } from '@suite-common/wallet-core';
 import { useAlert } from '@suite-native/alerts';
 import { wasDeviceDisconnectedByUserActionAtom } from '@suite-native/device';
+import { useFirmware } from '@suite-native/firmware';
 import { useTranslate } from '@suite-native/intl';
 import { Screen, ScreenHeader, ScreenProps } from '@suite-native/navigation';
 
-const OnboardingExitButtonScreenHeader = () => {
+const DeviceOnboardingExitButtonScreenHeader = () => {
     const navigation = useNavigation();
     const { showAlert } = useAlert();
     const { translate } = useTranslate();
     const dispatch = useDispatch();
     const selectedDevice = useSelector(selectSelectedDevice);
     const setWasDeviceDisconnectedByUserAction = useSetAtom(wasDeviceDisconnectedByUserActionAtom);
+    const { setIsFirmwareInstallationRunning } = useFirmware();
 
     const handleExitButtonPress = useCallback(() => {
         showAlert({
-            title: translate('moduleOnboarding.cancelOnboardingAlert.title'),
-            description: translate('moduleOnboarding.cancelOnboardingAlert.description'),
+            title: translate('moduleDeviceOnboarding.cancelOnboardingAlert.title'),
+            description: translate('moduleDeviceOnboarding.cancelOnboardingAlert.description'),
             primaryButtonTitle: translate('generic.buttons.cancel'),
             primaryButtonVariant: 'redBold',
             secondaryButtonTitle: translate(
-                'moduleOnboarding.cancelOnboardingAlert.continueButton',
+                'moduleDeviceOnboarding.cancelOnboardingAlert.continueButton',
             ),
             secondaryButtonVariant: 'redElevation0',
             onPressPrimaryButton: () => {
                 if (selectedDevice) {
+                    setIsFirmwareInstallationRunning(false);
                     setWasDeviceDisconnectedByUserAction(true);
                     dispatch(deviceActions.deviceDisconnect(selectedDevice));
                 }
             },
         });
-    }, [dispatch, selectedDevice, setWasDeviceDisconnectedByUserAction, translate, showAlert]);
+    }, [
+        dispatch,
+        selectedDevice,
+        setWasDeviceDisconnectedByUserAction,
+        setIsFirmwareInstallationRunning,
+        translate,
+        showAlert,
+    ]);
 
     useEffect(() => {
         // Override default navigation GO_BACK action to align it with the exit button behavior.
@@ -52,8 +62,8 @@ const OnboardingExitButtonScreenHeader = () => {
     return <ScreenHeader closeActionType="close" closeAction={handleExitButtonPress} />;
 };
 
-export const OnboardingScreenWithExitButton = ({ children, ...screenProps }: ScreenProps) => (
-    <Screen header={<OnboardingExitButtonScreenHeader />} {...screenProps}>
+export const DeviceOnboardingScreenWithExitButton = ({ children, ...screenProps }: ScreenProps) => (
+    <Screen header={<DeviceOnboardingExitButtonScreenHeader />} {...screenProps}>
         {children}
     </Screen>
 );
