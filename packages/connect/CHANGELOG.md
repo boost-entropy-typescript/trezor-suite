@@ -1,30 +1,26 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.5.1  | 9.5.2-beta.2 |
-|     npm @trezor/connect-web      | 9.5.1  | 9.5.2-beta.2 |
-| npm @trezor/connect-webextension | 9.5.1  | 9.5.2-beta.2 |
+|       npm @trezor/connect        | 9.5.2  |      -       |
+|     npm @trezor/connect-web      | 9.5.2  |      -       |
+| npm @trezor/connect-webextension | 9.5.2  |      -       |
 |    npm @trezor/connect-mobile    |   -    | 0.0.1-beta.1 |
 
-|     Deployment     | Stable |    Canary    |
-| :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.5.1  | 9.5.2-beta.2 |
+|     Deployment     | Stable | Canary |
+| :----------------: | :----: | :----: |
+| connect.trezor.io/ | 9.5.2  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-# 9.5.2-beta.2
-
-Replace @solana/web3.js with @solana/kit
-
-# 9.5.2-beta.1
+# 9.5.2
 
 ## Feature
 
 -   feat(connect-web): forward device events in popup mode (8589d27). From now on you may listen for device events even if you are using core logic loaded into connect.trezor.io/9/popup.html. This feature was previously available only in @trezor/connect or in @trezor/connect-web using iframe.
--   feat(connect-web): enable coreMode auto by default (061b28a). From now on (applies for @trezor/connect-web) if you don't pass `coreMode` in TrezorConnect.init, TrezorConnect would automatically fallback to loading connect-core into popup.html instead loading it into the injected iframe. This fallback happens
-    in cases when iframe can't be injected or trezor-bridge is not running.
+-   feat(connect-web): enable coreMode auto by default (061b28a). From now on (applies for @trezor/connect-web) if you don't pass `coreMode` in TrezorConnect.init, TrezorConnect would automatically fallback to loading connect-core into popup.html instead loading it into the injected iframe. This fallback happens in cases when iframe can't be injected or trezor-bridge is not running.
 
 ## Chores
 
+-   chore(connect): Replace @solana/web3.js with @solana/kit
 -   chore(connect): update device authenticity config (ecc04a4)
 -   chore(connect-common): add fw binaries for 2.8.9 (63a69af)
 -   stop exporting DeviceModelInternal enum (0ad5a37, 0bcf666, 465f40a). We believe that this was only used internally.

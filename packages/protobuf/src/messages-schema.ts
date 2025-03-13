@@ -3820,18 +3820,28 @@ export const MessageType = Type.Object(
     { $id: 'MessageType' },
 );
 
-// custom type uint32/64 may be represented as string
-export type UintType = string | number;
+// @COPY from this marker to the EOF, types are copied into messages-schema
 
 export type MessageKey = keyof MessageType;
 
-export type MessageResponse<T extends MessageKey> = {
-    type: T;
-    message: MessageType[T];
-};
+export type MessagePayload<T extends MessageKey = MessageKey> = MessageType[T];
 
-export type TypedCall = <T extends MessageKey, R extends MessageKey>(
-    type: T,
-    resType: R,
-    message?: MessageType[T],
-) => Promise<MessageResponse<R>>;
+export type MessageResponse<T extends MessageKey = MessageKey> = T extends any
+    ? {
+          type: T;
+          message: MessagePayload<T>;
+      }
+    : never;
+
+export type TypedCall = {
+    <T extends MessageKey, R extends MessageKey[]>(
+        type: T,
+        resType: R,
+        message?: MessagePayload<T>,
+    ): Promise<MessageResponse<R[number]>>;
+    <T extends MessageKey, R extends MessageKey>(
+        type: T,
+        resType: R,
+        message?: MessagePayload<T>,
+    ): Promise<MessageResponse<R>>;
+};
