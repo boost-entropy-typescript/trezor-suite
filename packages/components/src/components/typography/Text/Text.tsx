@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { CSSColor, Color, Colors } from '@trezor/theme';
 
@@ -34,6 +34,7 @@ export const allowedTextFrameProps = [
     'flex',
     'position',
     'zIndex',
+    'cursor',
 ] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedTextFrameProps)[number]>;
 
@@ -72,11 +73,18 @@ const getColorForTextVariant = ({ $variant, theme, $color }: ColorProps): CSSCol
     return $variant !== undefined ? theme[variantColorMap[$variant]] : 'inherit';
 };
 
-type StyledTextProps = ExclusiveColorOrVariant &
-    TransientProps<AllowedFrameProps & AllowedTextTextProps>;
+type StyledTextProps = ExclusiveColorOrVariant & {
+    $isMonospaced?: boolean;
+} & TransientProps<AllowedFrameProps & AllowedTextTextProps>;
 
 const StyledText = styled.span<StyledTextProps>`
     color: ${getColorForTextVariant};
+
+    ${({ $isMonospaced }) =>
+        $isMonospaced &&
+        css`
+            font-family: monospace;
+        `}
 
     ${withTextProps}
     ${withFrameProps}
@@ -85,6 +93,7 @@ const StyledText = styled.span<StyledTextProps>`
 export type TextProps = {
     children: ReactNode;
     className?: string;
+    isMonospaced?: boolean;
     as?: string;
     onClick?: () => void;
     'data-testid'?: string;
@@ -100,6 +109,7 @@ export const Text = ({
     as = 'span',
     'data-testid': dataTest,
     onClick,
+    isMonospaced,
     ...rest
 }: TextProps) => {
     const frameProps = pickAndPrepareFrameProps(rest, allowedTextFrameProps);
@@ -112,6 +122,7 @@ export const Text = ({
             as={as}
             onClick={onClick}
             data-testid={dataTest}
+            $isMonospaced={isMonospaced}
             {...textProps}
             {...frameProps}
         >

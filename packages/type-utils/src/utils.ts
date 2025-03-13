@@ -108,3 +108,27 @@ export type DefinedUnionMember<T> = T extends string ? T : never;
 export type FilterPropertiesByType<T, ValueFilter> = {
     [Key in keyof T as T[Key] extends ValueFilter ? Key : never]: T[Key];
 };
+
+/**
+ * Removed the type from the union where `{ KeyName: ValueToExclude }`.
+ *
+ * Example:
+ *  ```
+ *  type T1 =
+ *     | { type: 'A'; a: string }
+ *     | { type: 'B'; b: number }
+ *     | { type: 'C' | 'D' | 'E'; cde: boolean };
+ *
+ *  // { type: 'A', a: string } | { type: 'B', b: number } | { type: 'D' | 'E', cde: boolean };
+ *  type NotC = FilterOutFromUnionByTypeProperty<T1, 'type', 'C'>;
+ *  ```
+ */
+export type FilterOutFromUnionByTypeProperty<
+    Union,
+    KeyName extends keyof Union,
+    ValueToExclude extends Union[KeyName],
+> = Union extends { [K in KeyName]: infer ActualValue }
+    ? ActualValue extends ValueToExclude
+        ? never
+        : { [K in KeyName]: Exclude<ActualValue, ValueToExclude> } & Omit<Union, KeyName>
+    : Union;

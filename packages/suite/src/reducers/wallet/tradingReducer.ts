@@ -9,6 +9,7 @@ import type {
     SellFiatTradeQuoteRequest,
 } from 'invity-api';
 
+import { createWeakMapSelector } from '@suite-common/redux-utils';
 import {
     type TradingPaymentMethodListProps,
     type TradingTransaction,
@@ -25,8 +26,11 @@ import {
     TRADING_INFO,
     TRADING_SELL,
 } from 'src/actions/wallet/constants';
-import type { ExchangeInfo } from 'src/actions/wallet/tradingExchangeActions';
-import type { SellInfo } from 'src/actions/wallet/tradingSellActions';
+import type {
+    ExchangeInfo,
+    TradingExchangeInfoSelector,
+} from 'src/actions/wallet/tradingExchangeActions';
+import type { SellInfo, TradingSellInfoSelector } from 'src/actions/wallet/tradingSellActions';
 import { AppState } from 'src/reducers/store';
 import { Action } from 'src/types/suite';
 
@@ -208,20 +212,47 @@ export const tradingReducer = (state: State = initialState, action: Action): Sta
         }
     });
 
+const createMemoizedSelector = createWeakMapSelector.withTypes<AppState>();
+
+export const selectTradingSellInfo = createMemoizedSelector(
+    [state => state.wallet.trading.sell],
+    (sell): TradingSellInfoSelector | undefined => {
+        const { sellInfo } = sell;
+
+        if (!sellInfo) return;
+
+        return {
+            ...sellInfo,
+            supportedCryptoCurrencies: new Set(sellInfo.supportedCryptoCurrencies),
+            supportedFiatCurrencies: new Set(sellInfo.supportedFiatCurrencies),
+        };
+    },
+);
+
+export const selectTradingExchangeInfo = createMemoizedSelector(
+    [state => state.wallet.trading.exchange],
+    (exchange): TradingExchangeInfoSelector | undefined => {
+        const { exchangeInfo } = exchange;
+
+        if (!exchangeInfo) return;
+
+        return {
+            ...exchangeInfo,
+            buySymbols: new Set(exchangeInfo.buySymbols),
+            sellSymbols: new Set(exchangeInfo.sellSymbols),
+        };
+    },
+);
+
 export const selectSupportedSymbols =
     (type: TradingType) =>
     (state: AppState): Set<CryptoId> | undefined => {
-        const { trading } = state.wallet;
-
         switch (type) {
-            case 'buy': {
-                const buyInfo = selectTradingBuyInfo(state);
-
-                return buyInfo?.supportedCryptoCurrencies;
-            }
+            case 'buy':
+                return selectTradingBuyInfo(state)?.supportedCryptoCurrencies;
             case 'exchange':
-                return trading.exchange.exchangeInfo?.sellSymbols;
+                return selectTradingExchangeInfo(state)?.sellSymbols;
             case 'sell':
-                return trading.sell.sellInfo?.supportedCryptoCurrencies;
+                return selectTradingSellInfo(state)?.supportedCryptoCurrencies;
         }
     };

@@ -9,6 +9,10 @@ import { spacingsPx, typography } from '@trezor/theme';
 import { Translation } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
 import { useTradingLoadData } from 'src/hooks/wallet/trading/useTradingLoadData';
+import {
+    selectTradingExchangeInfo,
+    selectTradingSellInfo,
+} from 'src/reducers/wallet/tradingReducer';
 import { TradingTransactionExchange } from 'src/views/wallet/trading/common/TradingTransactions/TradingTransactionExchange';
 import { TradingTransactionBuy } from 'src/views/wallet/trading/common/TradingTransactions/TradingTransactionsBuy';
 import { TradingTransactionSell } from 'src/views/wallet/trading/common/TradingTransactions/TradingTransactionsSell';
@@ -37,10 +41,8 @@ export const TradingTransactionsList = () => {
     const activeSection = useSelector(state => state.wallet.trading.activeSection);
     const buyProviders = useSelector(selectTradingBuyProviders);
     const newTradingAllTransactions = useSelector(selectTradingTrades);
-    const exchangeProviders = useSelector(
-        state => state.wallet.trading.exchange.exchangeInfo?.providerInfos,
-    );
-    const sellProviders = useSelector(state => state.wallet.trading.sell.sellInfo?.providerInfos);
+    const exchangeProviders = useSelector(selectTradingExchangeInfo)?.providerInfos;
+    const sellProviders = useSelector(selectTradingSellInfo)?.providerInfos;
     const isBuyAndSell = activeSection !== 'exchange';
     const newTradingBuyTransactions = newTradingAllTransactions.filter(
         transaction => transaction.tradeType === 'buy',

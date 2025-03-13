@@ -2,6 +2,7 @@ import type { Store as ReduxStore } from 'redux';
 import type { ThunkAction as TAction, ThunkDispatch } from 'redux-thunk';
 
 import { analyticsActions } from '@suite-common/analytics';
+import { bluetoothActions } from '@suite-common/bluetooth';
 import { deviceAuthenticityActions } from '@suite-common/device-authenticity';
 import { firmwareActions } from '@suite-common/firmware';
 import { addLog } from '@suite-common/logger';
@@ -9,7 +10,8 @@ import { messageSystemActions } from '@suite-common/message-system';
 import type { Route } from '@suite-common/suite-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { deviceActions, discoveryActions, transactionsActions } from '@suite-common/wallet-core';
-import type { BlockchainEvent, TransportEvent, UiEvent } from '@trezor/connect';
+import { BlockchainEvent, DEVICE, DeviceEvent, TransportEvent, UiEvent } from '@trezor/connect';
+import { FilterOutFromUnionByTypeProperty } from '@trezor/type-utils';
 
 import type { BackupAction } from 'src/actions/backup/backupActions';
 import type { OnboardingAction } from 'src/actions/onboarding/onboardingActions';
@@ -41,7 +43,15 @@ export type {
     TrezorDevice,
 } from '@suite-common/suite-types';
 
-type TrezorConnectEvents = TransportEvent | UiEvent | BlockchainEvent;
+type FilteredDeviceEvents = FilterOutFromUnionByTypeProperty<
+    DeviceEvent,
+    'type',
+    // Those types are remapped onto different actions in the connectInitThunks.ts and not used directly
+    // as the rest of the DeviceEvents.
+    typeof DEVICE.CONNECT | typeof DEVICE.CONNECT_UNACQUIRED
+>;
+
+type TrezorConnectEvents = TransportEvent | UiEvent | FilteredDeviceEvents | BlockchainEvent;
 
 export type TransactionAction = ReturnType<
     (typeof transactionsActions)[keyof typeof transactionsActions]
@@ -59,10 +69,11 @@ type DiscoveryAction = ReturnType<(typeof discoveryActions)[keyof typeof discove
 type DeviceAuthenticityAction = ReturnType<
     (typeof deviceAuthenticityActions)[keyof typeof deviceAuthenticityActions]
 >;
+type BluetoothAction = ReturnType<(typeof bluetoothActions)[keyof typeof bluetoothActions]>;
 
 // all actions from all apps used to properly type Dispatch.
 export type Action =
-    | TrezorConnectEvents // Todo: This should not be here, actions shall be defined independently from Connect Events (and they shall be mapped onto them)
+    | TrezorConnectEvents
     | RouterAction
     | WindowAction
     | StorageAction
@@ -85,7 +96,8 @@ export type Action =
     | DiscoveryAction
     | DeviceAction
     | DeviceAuthenticityAction
-    | ReturnType<typeof addLog>;
+    | ReturnType<typeof addLog>
+    | BluetoothAction;
 
 export type ThunkAction = TAction<any, AppState, any, Action>;
 
@@ -113,6 +125,7 @@ export type ForegroundAppProps = {
 export type ToastNotificationVariant = 'success' | 'info' | 'warning' | 'error' | 'transparent';
 
 export { TorStatus } from '@trezor/suite-desktop-api/src/enums';
+
 export interface TorBootstrap {
     current: number;
     total: number;

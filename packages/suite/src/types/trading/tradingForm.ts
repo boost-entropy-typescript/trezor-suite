@@ -40,8 +40,8 @@ import {
 import { FeeLevel } from '@trezor/connect';
 import { Timer } from '@trezor/react-utils';
 
-import { ExchangeInfo } from 'src/actions/wallet/tradingExchangeActions';
-import { SellInfo } from 'src/actions/wallet/tradingSellActions';
+import { TradingExchangeInfoSelector } from 'src/actions/wallet/tradingExchangeActions';
+import { TradingSellInfoSelector } from 'src/actions/wallet/tradingSellActions';
 import type { TranslationKey } from 'src/components/suite/Translation';
 import {
     EXCHANGE_COMPARATOR_KYC_FILTER,
@@ -197,7 +197,7 @@ export interface TradingSellFormContextProps
         TradingCommonFormBuySellProps {
     type: TradingSellType;
     isComposing: boolean;
-    sellInfo?: SellInfo;
+    sellInfo?: TradingSellInfoSelector;
     localCurrencyOption: { label: string; value: string };
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
     quotesRequest: AppState['wallet']['trading']['sell']['quotesRequest'];
@@ -241,7 +241,7 @@ export interface TradingExchangeFormContextProps
     exchangeStep: TradingExchangeStepType;
     feeInfo: FeeInfo;
 
-    exchangeInfo?: ExchangeInfo;
+    exchangeInfo?: TradingExchangeInfoSelector;
     defaultCurrency: Option;
     amountLimits?: CryptoAmountLimitProps;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
