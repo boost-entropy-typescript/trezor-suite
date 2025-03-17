@@ -25,13 +25,17 @@ export type TradingBottomSheetSectionListProps<T, U> = Omit<
     renderItem: (item: T, config: ItemRenderConfig<U>) => ReactElement;
     keyExtractor: (item: T, sectionData: U) => string;
     estimatedItemSize: number;
+    estimatedHeaderHeight: number;
     noSingletonSectionHeader?: boolean;
 };
+
+const CONTENT_BOTTOM_OFFSET = 20;
 
 export const TradingBottomSheetSectionList = <T, U = undefined>({
     keyExtractor,
     renderItem,
     estimatedItemSize,
+    estimatedHeaderHeight,
     data,
     noSingletonSectionHeader,
     ...rest
@@ -49,12 +53,14 @@ export const TradingBottomSheetSectionList = <T, U = undefined>({
         noSingletonSectionHeader,
     });
 
+    const estimatedListHeight = estimatedListSize + estimatedHeaderHeight + CONTENT_BOTTOM_OFFSET;
+
     return (
         <BottomSheetFlashList<ListInternalItemShape<T, U>>
             keyExtractor={internalKeyExtractor}
             renderItem={internalRenderItem}
             estimatedItemSize={estimatedItemSize}
-            estimatedListHeight={estimatedListSize}
+            estimatedListHeight={estimatedListHeight}
             data={internalData}
             {...rest}
         />
