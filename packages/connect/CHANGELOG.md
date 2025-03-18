@@ -1,15 +1,28 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.5.2  |      -       |
-|     npm @trezor/connect-web      | 9.5.2  |      -       |
-| npm @trezor/connect-webextension | 9.5.2  |      -       |
+|       npm @trezor/connect        | 9.5.2  | 9.5.3-beta.1 |
+|     npm @trezor/connect-web      | 9.5.2  | 9.5.3-beta.1 |
+| npm @trezor/connect-webextension | 9.5.2  | 9.5.3-beta.1 |
 |    npm @trezor/connect-mobile    |   -    | 0.0.1-beta.1 |
 
-|     Deployment     | Stable | Canary |
-| :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.5.2  |   -    |
+|     Deployment     | Stable |    Canary    |
+| :----------------: | :----: | :----------: |
+| connect.trezor.io/ | 9.5.2  | 9.5.3-beta.1 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.5.3-beta.1
+
+## Fixes
+
+-   fix(connect-popup): clear timeout on failure to prevent changing of error screen after 90 seconds (08fe031)
+-   fix(connect-popup): add missing margin after components update (0e5ea26)
+
+## Chores
+
+-   chore(connect): in decode eth definitions move common proto messages related logic outside of foreach (5da7ec8)
+-   fix(connect-popup): use local path to core (1f9e248, 241115c)
+-   chore(connect-popup): refactor old templates (dfef1db)
 
 # 9.5.2
 
