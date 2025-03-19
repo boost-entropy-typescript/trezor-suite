@@ -1,27 +1,36 @@
 import { formatDurationStrict } from '@suite-common/suite-utils';
 import { FeeRate } from '@trezor/product-components';
 
+import { Translation } from 'src/components/suite';
 import { FiatValue } from 'src/components/suite/FiatValue';
 import { useLocales } from 'src/hooks/suite';
 
 import { FeeCard } from './FeeCard';
 import { StandardFeeProps } from './StandardFee';
+import { FeeOptionType, getFeeLevelTranslationId } from '../Fees';
 
 export const BitcoinFeeCards = ({
     networkType,
     feeInfo,
     transactionInfo,
     feeOptions,
-    showFee,
     selectedLevel,
     changeFeeLevel,
     symbol,
 }: StandardFeeProps) => {
     const locale = useLocales();
 
-    if (!showFee || !feeOptions.length) {
+    if (!feeOptions.length) {
         return null;
     }
+
+    const getTimeEstimate = (fee: FeeOptionType) => {
+        if (fee.blocks) {
+            return `~${formatDurationStrict(feeInfo.blockTime * fee.blocks * 60, locale)}`;
+        }
+
+        return undefined;
+    };
 
     const hasInfo = transactionInfo && transactionInfo.type !== 'error';
 
@@ -31,10 +40,12 @@ export const BitcoinFeeCards = ({
             value={fee.value}
             isSelected={selectedLevel.label === fee.value}
             changeFeeLevel={changeFeeLevel}
-            topLeftChild={<span data-testid={`@fee-card/${fee.value}`}>{fee.label}</span>}
-            topRightChild={
-                <>~{formatDurationStrict(feeInfo.blockTime * (fee?.blocks ?? 0) * 60, locale)}</>
+            topLeftChild={
+                <span data-testid={`@fee-card/${fee.value}`}>
+                    <Translation id={getFeeLevelTranslationId(fee.value)} />
+                </span>
             }
+            topRightChild={getTimeEstimate(fee)}
             bottomLeftChild={
                 <FiatValue
                     disableHiddenPlaceholder

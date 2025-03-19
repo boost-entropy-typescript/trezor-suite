@@ -172,7 +172,9 @@ const getInstallationParams = (device: Device, params: Params) => {
             device.atLeast('2.7.0') &&
             // automatic language update from 2.7.2 sometimes not working on TT, probably memory issues?
             // https://satoshilabs.slack.com/archives/CL1D61PQF/p1726148939472909
-            device.features.internal_model !== PROTO.DeviceModelInternal.T2T1;
+            device.features.internal_model !== PROTO.DeviceModelInternal.T2T1 &&
+            // ok this started to happen also when updating from 2.8.7 to 2.8.9 T3T1
+            device.features.internal_model !== PROTO.DeviceModelInternal.T3T1;
 
         return {
             /** RebootToBootloader is not supported */
@@ -492,6 +494,10 @@ export const onCallFirmwareUpdate = async ({
     const assertBinaryVersion = isEqual(installedVersion, binaryVersion);
     // check if installed version matches requested release version
     const assertReleaseVersion = releaseVersion ? isEqual(installedVersion, releaseVersion) : true; // binary
+
+    await reconnectedDevice.release();
+
+    log.info('onCallFirmwareUpdate', `firmware updated to version ${installedVersion}`);
 
     return {
         versionCheck: assertBinaryVersion && assertReleaseVersion,

@@ -1575,17 +1575,34 @@ export default defineMessages({
         id: 'TR_ALL',
     },
     TR_ONBOARDING_ALLOW_ANALYTICS: {
-        defaultMessage: 'Allow anonymous data collection',
+        defaultMessage: 'Help us anonymously',
         id: 'TR_ONBOARDING_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS: {
-        defaultMessage: 'Anonymous data collection',
+        defaultMessage: 'Better―with you',
         id: 'TR_ALLOW_ANALYTICS',
     },
     TR_ALLOW_ANALYTICS_DESCRIPTION: {
         defaultMessage:
             'Help us improve your experience! We never collect sensitive data like balances or transactions. All data is completely anonymous and used solely to enhance the Trezor ecosystem.',
         id: 'TR_ALLOW_ANALYTICS_DESCRIPTION',
+    },
+    TR_ALLOW_ANALYTICS_PRIVACY_TITLE: {
+        defaultMessage: 'You data is private',
+        id: 'TR_ALLOW_ANALYTICS_PRIVACY_TITLE',
+    },
+    TR_ALLOW_ANALYTICS_PRIVACY_DESCRIPTION: {
+        defaultMessage: `We don't gather sensitive personal data like balances, transactions, or profile details.`,
+        id: 'TR_ALLOW_ANALYTICS_PRIVACY_DESCRIPTION',
+    },
+    TR_ALLOW_ANALYTICS_WHAT_WE_COLLECT_TITLE: {
+        defaultMessage: 'What we collect',
+        id: 'TR_ALLOW_ANALYTICS_WHAT_WE_COLLECT_TITLE',
+    },
+    TR_ALLOW_ANALYTICS_WHAT_WE_COLLECT_DESCRIPTION: {
+        defaultMessage:
+            'We collect data on app performance, user interaction, and potential technical issues to enhance the user experience.',
+        id: 'TR_ALLOW_ANALYTICS_WHAT_WE_COLLECT_DESCRIPTION',
     },
     TR_ALLOW_AUTOMATIC_SUITE_UPDATES: {
         defaultMessage: 'Automatic Trezor Suite updates',
@@ -2104,13 +2121,9 @@ export default defineMessages({
         defaultMessage: 'I understand',
         id: 'TR_I_UNDERSTAND_THE_RISK',
     },
-    TR_NEEDS_ATTENTION_BOOTLOADER: {
-        defaultMessage: 'Trezor is in Bootloader mode.',
-        id: 'TR_NEEDS_ATTENTION_BOOTLOADER',
-    },
-    TR_NEEDS_ATTENTION_INITIALIZE: {
-        defaultMessage: 'Trezor has not been set up.',
-        id: 'TR_NEEDS_ATTENTION_INITIALIZE',
+    TR_NEEDS_ATTENTION_NEW_DEVICE: {
+        defaultMessage: 'New Trezor connected.',
+        id: 'TR_NEEDS_ATTENTION_NEW_DEVICE',
     },
     TR_NEEDS_ATTENTION_SEEDLESS: {
         defaultMessage: "Trezor doesn't have a wallet backup.",
@@ -3057,6 +3070,10 @@ export default defineMessages({
         defaultMessage: 'Select device',
         id: 'TR_SELECT_DEVICE',
     },
+    TR_SELECT_DEVICE_SHORT: {
+        defaultMessage: 'Select',
+        id: 'TR_SELECT_DEVICE_SHORT',
+    },
     TR_SELECT_PASSPHRASE_SOURCE: {
         defaultMessage: 'Select where to enter passphrase on {deviceLabel}',
         id: 'TR_SELECT_PASSPHRASE_SOURCE',
@@ -3495,6 +3512,10 @@ export default defineMessages({
     TR_CURRENT_FEE_CUSTOM_FEES: {
         id: 'TR_CURRENT_FEE_CUSTOM_FEES',
         defaultMessage: 'Current network fee:',
+    },
+    TR_CURRENT_BASE_FEE: {
+        id: 'TR_CURRENT_BASE_FEE',
+        defaultMessage: 'Current network base fee:',
     },
     GAS_LIMIT_IS_NOT_SET: {
         id: 'GAS_LIMIT_IS_NOT_SET',
@@ -5673,6 +5694,14 @@ export default defineMessages({
         defaultMessage: 'Low',
         id: 'FEE_LEVEL_LOW',
     },
+    TR_MAX_PRIORITY_FEE_PER_GAS: {
+        defaultMessage: 'Max priority fee',
+        id: 'TR_MAX_PRIORITY_FEE_PER_GAS',
+    },
+    TR_MAX_FEE_PER_GAS: {
+        defaultMessage: 'Max fee per gas',
+        id: 'TR_MAX_FEE_PER_GAS',
+    },
     CUSTOM_FEE_IS_NOT_SET: {
         defaultMessage:
             'Enter the fee rate you want to spend in order to complete this transaction.',
@@ -5685,6 +5714,11 @@ export default defineMessages({
     CUSTOM_FEE_NOT_IN_RANGE: {
         defaultMessage: 'Enter a fee between {minFee} and {maxFee}',
         id: 'CUSTOM_FEE_NOT_IN_RANGE',
+    },
+    TR_CUSTOM_FEE_BASE_FEE_BELOW_CURRENT: {
+        defaultMessage: 'Custom base fee can not be below current network base fee.',
+        id: 'TR_CUSTOM_FEE_BASE_FEE_BELOW_CURRENT',
+        description: 'TODO',
     },
     CUSTOM_FEE_LIMIT_BELOW_RECOMMENDED: {
         defaultMessage: 'Gas limit too low',
@@ -6892,6 +6926,18 @@ export default defineMessages({
         id: 'TR_DEVICE_CONNECTED_WRONG_STATE',
         defaultMessage: 'Device detected in incorrect state',
     },
+    TR_NEEDS_ATTENTION_INITIALIZE: {
+        id: 'TR_NEEDS_ATTENTION_INITIALIZE',
+        defaultMessage: 'Trezor has not been set up.',
+    },
+    TR_DEVICE_CONNECTED_NEW_DEVICE_STATE: {
+        id: 'TR_DEVICE_CONNECTED_NEW_DEVICE_STATE',
+        defaultMessage: 'New device connected.',
+    },
+    TR_DEVICE_CONNECTED_INITIAL_DEVICE_STATE: {
+        id: 'TR_DEVICE_CONNECTED_INITIAL_DEVICE_STATE',
+        defaultMessage: 'Not fully set up device connected.',
+    },
     TR_DEVICE_CONNECTED_BOOTLOADER: {
         id: 'TR_DEVICE_CONNECTED_BOOTLOADER',
         defaultMessage: 'Device connected in bootloader',
@@ -7224,7 +7270,7 @@ export default defineMessages({
     },
     TR_WHAT_DATA_WE_COLLECT: {
         id: 'TR_WHAT_DATA_WE_COLLECT',
-        defaultMessage: 'What data do we collect?',
+        defaultMessage: 'What data do we collect',
     },
     TR_ONBOARDING_TROUBLESHOOTING_FAILED: {
         id: 'TR_ONBOARDING_TROUBLESHOOTING_FAILED',
@@ -7239,30 +7285,6 @@ export default defineMessages({
     TR_ONBOARDING_ADVANCED: {
         id: 'TR_ONBOARDING_ADVANCED',
         defaultMessage: 'Advanced',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_1: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_1',
-        defaultMessage: 'Platform',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_1_ITEM_1: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_1_ITEM_1',
-        defaultMessage: 'OS, Trezor model, version etc.',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_2: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_2',
-        defaultMessage: 'Usage',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_2_ITEM_1: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_2_ITEM_1',
-        defaultMessage: 'How you use Suite',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_3: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_3',
-        defaultMessage: 'Audience',
-    },
-    TR_DATA_ANALYTICS_CATEGORY_3_ITEM_1: {
-        id: 'TR_DATA_ANALYTICS_CATEGORY_3_ITEM_1',
-        defaultMessage: 'Language, user count, etc.',
     },
     TR_TROUBLESHOOTING_DEVICE_NOT_DETECTED: {
         defaultMessage: 'Try these steps to solve this issue.',
