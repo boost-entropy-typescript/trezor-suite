@@ -3541,6 +3541,10 @@ export default defineMessages({
         id: 'TR_DEBUG_SETTINGS',
         defaultMessage: 'Debug',
     },
+    TR_CONNECTED_APPS: {
+        id: 'TR_CONNECTED_APPS',
+        defaultMessage: 'Connected apps',
+    },
     TR_ACCOUNT_DETAILS_HEADER: {
         id: 'TR_ACCOUNT_DETAILS_HEADER',
         defaultMessage: 'Account details',
@@ -9595,6 +9599,10 @@ export default defineMessages({
         defaultMessage:
             'A third-party app is requesting to connect to your device. Do you want to allow this?',
     },
+    TR_CONNECT_MODAL_REMEMBER: {
+        id: 'TR_CONNECT_MODAL_REMEMBER',
+        defaultMessage: 'Always allow for this app',
+    },
     TR_CONNECT_MODAL_PROCESS: {
         id: 'TR_CONNECT_MODAL_PROCESS',
         defaultMessage: 'Process:',
@@ -9632,9 +9640,18 @@ export default defineMessages({
         defaultMessage:
             "We couldn't verify the authenticity of the request. Ensure you trust the source before proceeding.",
     },
-    TR_WALLETCONNECT_NEW_CONNECTION_URL: {
-        id: 'TR_WALLETCONNECT_NEW_CONNECTION_URL',
-        defaultMessage: 'New connection URL',
+    TR_WALLETCONNECT_ADD_CONNECTION: {
+        id: 'TR_WALLETCONNECT_ADD_CONNECTION',
+        defaultMessage: 'Add connection',
+    },
+    TR_WALLETCONNECT_ADD_CONNECTION_DESC: {
+        id: 'TR_WALLETCONNECT_ADD_CONNECTION_DESC',
+        defaultMessage:
+            'You can manually add connection here with a string provided by WalletConnect.',
+    },
+    TR_WALLETCONNECT_ADD_CONNECTION_PLACEHOLDER: {
+        id: 'TR_WALLETCONNECT_ADD_CONNECTION_PLACEHOLDER',
+        defaultMessage: 'WalletConnect string',
     },
     TR_WALLETCONNECT_SESSIONS: {
         id: 'TR_WALLETCONNECT_SESSIONS',
@@ -9656,5 +9673,17 @@ export default defineMessages({
         id: 'TR_BRIDGE_UNINSTALL_INSTRUCTIONS',
         defaultMessage:
             'Trezor Bridge will soon no longer be supported. We recommend uninstalling it from your system. <a>Learn more</a>',
+    },
+    TR_NO_CONNECTED_APPS: {
+        id: 'TR_NO_CONNECTED_APPS',
+        defaultMessage: 'No connected apps',
+    },
+    TR_WALLETCONNECT: {
+        id: 'TR_WALLETCONNECT',
+        defaultMessage: 'WalletConnect',
+    },
+    TR_FORGET: {
+        id: 'TR_FORGET',
+        defaultMessage: 'Forget',
     },
 });

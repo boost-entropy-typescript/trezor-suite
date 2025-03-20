@@ -6,6 +6,7 @@ name: "[Test] PR Suite Web e2e tests"
 permissions:
   id-token: write # for fetching the OIDC token
   contents: read # for actions/checkout
+  pull-requests: write # for posting comments
 
 # run only if there are changes in suite or related libs paths
 on:
@@ -60,8 +61,6 @@ jobs:
     outputs:
       matrix: ${{ steps.load-matrix.outputs.matrix }}
     runs-on: ubuntu-latest
-    needs:
-      - build-web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,14 +71,38 @@ jobs:
         with:
           project: "web"
 
+  post-currents-link:
+    if: github.repository == 'trezor/trezor-suite' && github.event_name == 'pull_request' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    needs:
+      - build-web
+    steps:
+      - name: Post Currents link
+        uses: actions/github-script@v7
+        env:
+          CURRENTS_PROJECT_ID: "Og0NOQ"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = process.env.CURRENTS_PROJECT_ID;
+            const branch = context.payload.pull_request.head.ref;
+            const currentsUrl = `https://app.currents.dev/projects/${projectId}/runs?branch=${branch}&lookback=7`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `🔍🌐 Suite Web test results: [View in Currents](${currentsUrl})`
+            });
+
   run-e2e-suite-web-tests:
     if: github.repository == 'trezor/trezor-suite'
     runs-on: ubuntu-latest
     needs:
       - build-web
       - load-e2e-matrix
+    continue-on-error: ${{ !matrix.smoke }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix: ${{ fromJson(needs.load-e2e-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
@@ -107,7 +130,7 @@ jobs:
           project: "web"
           containers: ${{ matrix.CONTAINERS }}
           test-group: ${{ matrix.TEST_GROUP }}
-          additional-grep: "(?=.*@webOnly)"
+          additional-grep: ${{ !matrix.SMOKE && '(?=.*@webOnly)' }}
           currents-project-id: "Og0NOQ"
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           e2e-passphrase: ${{ secrets.E2E_TEST_PASSPHRASE }}
