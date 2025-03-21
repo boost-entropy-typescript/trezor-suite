@@ -47,6 +47,8 @@ export type FeeOptionType = {
     // EIP-1559
     maxWaitTimeEstimate?: number;
     maxFeePerGas?: string;
+    maxPriorityFeePerGas?: string;
+    baseFeePerGas?: string;
 };
 
 export interface FeesProps<TFieldValues extends FormState> {
@@ -57,6 +59,7 @@ export interface FeesProps<TFieldValues extends FormState> {
     setValue: UseFormSetValue<TFieldValues>;
     getValues: UseFormGetValues<TFieldValues>;
     errors: FieldErrors<TFieldValues>;
+    isDirty: boolean;
     changeFeeLevel: (level: FeeLevel['label']) => void;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
     label?: TranslationKey;
@@ -129,6 +132,7 @@ export const Fees = <TFieldValues extends FormState>({
     composedLevels,
     label,
     rbfForm,
+    isDirty,
     ...props
 }: FeesProps<TFieldValues>) => {
     // Type assertion allowing to make the component reusable, see https://stackoverflow.com/a/73624072.
@@ -171,7 +175,11 @@ export const Fees = <TFieldValues extends FormState>({
     return (
         <Column gap={spacings.md}>
             <Row flexWrap="wrap" justifyContent="space-between" gap={spacings.sm}>
-                <Tooltip hasIcon maxWidth={328} content={<Translation id={feeTooltipTextId} />}>
+                <Tooltip
+                    hasIcon
+                    maxWidth={328}
+                    content={<Translation id={feeTooltipTextId} values={{ br: <br /> }} />}
+                >
                     <Translation id={label ?? feeLabelId} />
                 </Tooltip>
                 {supportsCustomFee && (
@@ -195,6 +203,7 @@ export const Fees = <TFieldValues extends FormState>({
                 <StandardFee
                     networkType={networkType}
                     feeInfo={feeInfo}
+                    isDirty={isDirty}
                     selectedLevel={selectedLevel}
                     transactionInfo={transactionInfo}
                     feeOptions={feeOptions}
