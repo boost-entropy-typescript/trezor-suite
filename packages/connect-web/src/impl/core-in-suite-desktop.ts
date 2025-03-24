@@ -18,7 +18,7 @@ import type {
     Response,
 } from '@trezor/connect/src/types';
 import { Login } from '@trezor/connect/src/types/api/requestLogin';
-import { DeferredManager, createDeferred, createDeferredManager } from '@trezor/utils';
+import { WebsocketClient } from '@trezor/websocket-client';
 
 import { parseConnectSettings } from '../connectSettings';
 
@@ -28,12 +28,10 @@ import { parseConnectSettings } from '../connectSettings';
 export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSettingsWeb> {
     public eventEmitter = new EventEmitter();
     protected _settings: ConnectSettings;
-    private ws?: WebSocket;
-    private readonly messages: DeferredManager<CallMethodAnyResponse>;
+    private ws?: WebsocketClient<{}>;
 
     public constructor() {
         this._settings = parseConnectSettings();
-        this.messages = createDeferredManager();
     }
 
     public manifest(data: Manifest) {
@@ -46,7 +44,7 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
     public dispose() {
         this.eventEmitter.removeAllListeners();
         this._settings = parseConnectSettings();
-        this.ws?.close();
+        this.ws?.dispose();
 
         return Promise.resolve(undefined);
     }
@@ -54,18 +52,26 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
     public cancel(_error?: string) {}
 
     private async handshake() {
-        const { promise, promiseId } = this.messages.create(1000);
-        this.ws?.send(
-            JSON.stringify({
-                id: promiseId,
-                type: POPUP.HANDSHAKE,
-            }),
-        );
         try {
-            await promise;
+            const response = await this.ws!.sendMessage(
+                {
+                    type: POPUP.HANDSHAKE,
+                },
+                {
+                    timeout: 1000,
+                },
+            );
+
+            if (!response) {
+                return {
+                    success: false,
+                    payload: { error: 'No response', code: 'Desktop_ConnectionMissing' },
+                };
+            }
+
+            return response;
         } catch (err) {
-            console.error(err);
-            throw new Error('Handshake timed out');
+            throw new Error('Handshake timed out ' + err.message);
         }
     }
 
@@ -81,72 +87,43 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         }
         this._settings = newSettings;
 
-        this.ws?.close();
-        const wsOpen = createDeferred(1000);
-        this.ws = new WebSocket('ws://localhost:21335/connect-ws');
-        this.ws.addEventListener('opened', () => {
-            wsOpen.resolve();
-        });
-        this.ws.addEventListener('error', () => {
-            wsOpen.reject(new Error('WebSocket error'));
-            this.messages.rejectAll(new Error('WebSocket error'));
-        });
-        this.ws.addEventListener('message', (event: WebSocketEventMap['message']) => {
-            try {
-                const data = JSON.parse(event.data);
-                this.messages.resolve(data.id, data);
-            } catch {
-                // Some undefined message format
-            }
-        });
-        this.ws.addEventListener('close', () => {
-            wsOpen.reject(new Error('WebSocket closed'));
-            this.messages.rejectAll(new Error('WebSocket closed'));
-        });
+        this.ws = new WebsocketClient({ url: 'ws://localhost:21335/connect-ws' });
 
-        // Wait for the connection to be opened
-        if (this.ws.readyState !== WebSocket.OPEN) {
-            // There is some glitch that when reconnecting the open event doesn't fire
-            // So we do this as a workaround
-            setTimeout(() => {
-                if (this.ws?.readyState === WebSocket.OPEN) {
-                    wsOpen.resolve();
-                }
-            }, 500);
-            await wsOpen.promise;
-        }
+        await this.ws.connect();
 
         return await this.handshake();
     }
 
     public setTransports() {
-        // TODO: implement
-        throw new Error('Unsupported right now');
+        // not supported, transports are controlled by suite-desktop.
+        throw new Error('Unsupported');
     }
 
-    /**
-     * 1. opens popup
-     * 2. sends request to popup where the request is handled by core
-     * 3. returns response
-     */
     public async call(params: CallMethodPayload): Promise<CallMethodAnyResponse> {
         try {
-            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+            if (!this.ws) {
                 await this.init();
             }
             await this.handshake();
 
-            const { promise, promiseId } = this.messages.create();
-
-            this.ws?.send(
-                JSON.stringify({
-                    id: promiseId,
+            const response = await this.ws?.sendMessage(
+                {
                     type: IFRAME.CALL,
                     payload: params,
-                }),
+                },
+                {
+                    timeout: Number.MAX_SAFE_INTEGER,
+                },
             );
 
-            return promise;
+            if (!response) {
+                return {
+                    success: false,
+                    payload: { error: 'No response', code: 'Desktop_ConnectionMissing' },
+                };
+            }
+
+            return response;
         } catch (err) {
             return {
                 success: false,
@@ -156,6 +133,7 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
             };
         }
     }
+
     // this shouldn't be needed, ui response should be handled in suite-desktop
     uiResponse(_response: UiResponseEvent) {
         throw ERRORS.TypedError('Method_InvalidPackage');
@@ -166,17 +144,17 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         throw ERRORS.TypedError('Method_InvalidPackage');
     }
 
-    // todo: not needed, only because of types
+    // not needed, only because of types
     disableWebUSB() {
         throw ERRORS.TypedError('Method_InvalidPackage');
     }
 
-    // todo: not needed, only because of types
+    // not needed, only because of types
     requestWebUSBDevice() {
         throw ERRORS.TypedError('Method_InvalidPackage');
     }
 
-    // todo: not needed, only because of types
+    // not needed, only because of types
     renderWebUSBButton() {}
 }
 
