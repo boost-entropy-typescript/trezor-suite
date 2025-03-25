@@ -134,12 +134,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
         );
     }
 
-    public release({
-        path: _,
-        session,
-        onClose,
-        signal,
-    }: AbstractTransportMethodParams<'release'>) {
+    public release({ path: _, session, signal }: AbstractTransportMethodParams<'release'>) {
         return this.scheduleAction(
             async () => {
                 const releaseIntentResponse = await this.sessionsClient.releaseIntent({
@@ -150,10 +145,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                     return this.error({ error: releaseIntentResponse.error });
                 }
 
-                const releasePromise = this.releaseDevice(session);
-                if (onClose) return this.success(null);
-
-                await releasePromise;
+                await this.api.closeDevice(releaseIntentResponse.payload.path);
 
                 await this.sessionsClient.releaseDone({
                     path: releaseIntentResponse.payload.path,
@@ -163,6 +155,13 @@ export abstract class AbstractApiTransport extends AbstractTransport {
             },
             { signal },
         );
+    }
+
+    public releaseSync(session: Session) {
+        // Obviously not sync as was advertised. Also looks a bit weird but should be the same as before.
+        this.sessionsClient.releaseIntent({ session }).then(res => {
+            if (res.success) this.api.closeDevice(res.payload.path);
+        });
     }
 
     public call({

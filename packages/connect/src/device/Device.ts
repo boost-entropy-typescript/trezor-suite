@@ -128,10 +128,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
     public readonly protocol: TransportProtocol;
     public readonly transportPath;
-    private readonly transportSessionOwner;
     private readonly transportDescriptorType;
     private readonly bluetoothProps;
     private session;
+    private transportSessionOwner;
     private lastAcquiredHere;
 
     /**
@@ -422,6 +422,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
 
         this.session = descriptor.session;
+        this.transportSessionOwner = descriptor.sessionOwner;
         this.emitLifecycle(DEVICE.CHANGED);
     }
 
@@ -1187,11 +1188,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     dispose() {
         this.removeAllListeners();
         if (this.session && this.lastAcquiredHere) {
-            return this.transport.release({
-                session: this.session,
-                path: this.transportPath,
-                onClose: true,
-            });
+            this.transport.releaseSync(this.session);
         }
     }
 
