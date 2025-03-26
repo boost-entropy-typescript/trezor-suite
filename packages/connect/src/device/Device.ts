@@ -17,10 +17,9 @@ import {
 
 import { DeviceCommands } from './DeviceCommands';
 import { ERRORS, FIRMWARE, PROTO } from '../constants';
+import { DeviceCurrentSession, TypedCallProvider } from './DeviceCurrentSession';
 import { IStateStorage } from './StateStorage';
 import { checkFirmwareRevision } from './checkFirmwareRevision';
-import type { PromptCallback } from './prompts';
-import { cancelPrompt } from './prompts';
 import { calculateFirmwareHash, getBinaryOptional, stripFwHeaders } from '../api/firmware';
 import { DataManager } from '../data/DataManager';
 import { getAllNetworks } from '../data/coinInfo';
@@ -59,6 +58,8 @@ import {
     parseCapabilities,
     parseRevision,
 } from '../utils/deviceFeaturesUtils';
+import { toHardened } from '../utils/pathUtils';
+
 // custom log
 const _log = initLog('Device');
 
@@ -84,20 +85,19 @@ const parseRunOptions = (options?: RunOptions): RunOptions => {
     return options;
 };
 
+type Result<T> = { success: true; payload: T } | { success: false; error: Error };
+
 export interface DeviceEvents {
     [DEVICE.PIN]: {
-        device: Device;
         type: PROTO.PinMatrixRequestType | undefined;
-        callback: PromptCallback<UiResponsePin['payload']>;
+        callback: (response: Result<UiResponsePin['payload']>) => void;
     };
     [DEVICE.WORD]: {
-        device: Device;
         type: PROTO.WordRequestType;
-        callback: PromptCallback<UiResponseWord['payload']>;
+        callback: (response: Result<UiResponseWord['payload']>) => void;
     };
     [DEVICE.PASSPHRASE]: {
-        device: Device;
-        callback: PromptCallback<UiResponsePassphrase['payload']>;
+        callback: (response: Result<UiResponsePassphrase['payload']>) => void;
     };
     [DEVICE.PASSPHRASE_ON_DEVICE]: void;
     [DEVICE.BUTTON]: { device: Device; payload: DeviceButtonRequestPayload };
@@ -166,8 +166,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     private runPromise?: Deferred<void>;
 
     private keepTransportSession = false;
-    public commands?: DeviceCommands;
-    private cancelableAction?: (err?: string) => Promise<unknown>;
+    private currentSession?: DeviceCurrentSession;
 
     private loaded = false;
 
@@ -277,8 +276,13 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     this.session = result.payload;
                     this.lastAcquiredHere = true;
 
-                    this.commands?.dispose();
-                    this.commands = new DeviceCommands(this, this.transport, this.session);
+                    this.currentSession?.dispose();
+                    this.currentSession = new DeviceCurrentSession(
+                        this,
+                        this.transport,
+                        this.protocol,
+                        this.session,
+                    );
 
                     return result;
                 } else {
@@ -297,17 +301,12 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     async release() {
-        const localSession = this.getLocalSession();
+        const localSession = this.lastAcquiredHere ? this.session : null;
         if (!localSession || this.keepTransportSession || this.releasePromise) {
             return;
         }
 
-        if (this.commands) {
-            this.commands.dispose();
-            if (this.commands.callPromise) {
-                await this.commands.callPromise;
-            }
-        }
+        await this.currentSession?.dispose();
 
         const sessionPromise = this.getSessionChangePromise();
 
@@ -415,7 +414,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         // Session changed to null
         // -> released
         if (!descriptor.session) {
-            const methodStillRunning = !this.commands?.isDisposed();
+            const methodStillRunning = !this.currentSession?.isDisposed();
             if (methodStillRunning) {
                 this.releaseTransportSession();
             }
@@ -465,26 +464,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
-    setCancelableAction(callback: NonNullable<typeof this.cancelableAction>) {
-        this.cancelableAction = (e?: string) =>
-            callback(e)
-                .catch(e2 => {
-                    _log.debug('cancelableAction error', e2);
-                })
-                .finally(() => {
-                    this.clearCancelableAction();
-                });
-    }
-
-    clearCancelableAction() {
-        this.cancelableAction = undefined;
-    }
-
     async interruptionFromUser(error: Error) {
         _log.debug('interruptionFromUser');
 
-        await this.cancelableAction?.(error.toString());
-        await this.commands?.cancel();
+        await this.currentSession?.abort(error);
+        await this.currentSession?.dispose();
 
         if (this.runPromise) {
             // reject inner defer
@@ -503,9 +487,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         _log.debug('interruptionFromOutside');
 
-        if (this.commands) {
-            this.commands.dispose();
-        }
+        this.currentSession?.dispose();
+
         if (this.runPromise) {
             this.runPromise.reject(ERRORS.TypedError('Device_UsedElsewhere'));
             delete this.runPromise;
@@ -530,7 +513,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.releasePromise;
         }
 
-        const acquireNeeded = !this.isUsedHere() || this.commands?.disposed;
+        const acquireNeeded = !this.isUsedHere() || this.currentSession?.isDisposed();
         if (acquireNeeded) {
             // acquire session
             await this.acquire();
@@ -568,9 +551,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                         );
 
                         await Promise.race([
-                            this.getCommands()
-                                .typedCall('Cancel', 'Failure', {})
-                                .catch(() => {}),
+                            this.getCurrentSession().cancelCall(),
                             new Promise((_, reject) => setTimeout(reject, cancelTimeout)),
                         ]).catch(() => this.acquire());
                     }
@@ -588,10 +569,9 @@ export class Device extends TypedEmitter<DeviceEvents> {
                         // set the timeout for this call so whenever it happens "unacquired device" will be created instead
                         // next time device should be called together with "Initialize" (calling "acquireDevice" from the UI)
                         new Promise((_resolve, reject) => {
-                            getFeaturesTimeoutId = setTimeout(() => {
-                                cancelPrompt(this, false).finally(() => {
-                                    reject(new Error('GetFeatures timeout'));
-                                });
+                            getFeaturesTimeoutId = setTimeout(async () => {
+                                await this.getCurrentSession().cancelCall(false);
+                                reject(new Error('GetFeatures timeout'));
                             }, getFeaturesTimeout);
                         }),
                     ]);
@@ -684,12 +664,16 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
-    getCommands() {
-        if (!this.commands) {
+    getCurrentSession(): TypedCallProvider {
+        if (!this.currentSession) {
             throw ERRORS.TypedError('Runtime', `Device: commands not defined`);
         }
 
-        return this.commands;
+        return this.currentSession;
+    }
+
+    getCommands() {
+        return DeviceCommands(this.getCurrentSession());
     }
 
     setInstance(instance = 0) {
@@ -741,8 +725,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
 
         const expectedState = this.getState()?.staticSessionId;
-        const state = await this.getCommands().getDeviceState();
-        const uniqueState: StaticSessionId = `${state}@${this.features.device_id}:${this.instance}`;
+
+        const { message } = await this.getCurrentSession().typedCall('GetAddress', 'Address', {
+            address_n: [toHardened(44), toHardened(1), toHardened(0), 0, 0],
+            coin_name: 'Testnet',
+            script_type: 'SPENDADDRESS',
+        });
+
+        const uniqueState: StaticSessionId = `${message.address}@${this.features.device_id}:${this.instance}`;
         if (this.features.session_id) {
             this.setState({ sessionId: this.features.session_id });
         }
@@ -768,7 +758,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
             }
         }
 
-        const { message } = await this.getCommands().typedCall('Initialize', 'Features', payload);
+        const { message } = await this.getCurrentSession().typedCall(
+            'Initialize',
+            'Features',
+            payload,
+        );
         this._updateFeatures(message);
         this.setState({ deriveCardano: payload?.derive_cardano });
     }
@@ -780,7 +774,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     async getFeatures() {
         // Please keep the method simple - don't add any async logic
-        const { message } = await this.getCommands().typedCall('GetFeatures', 'Features', {});
+        const { message } = await this.getCurrentSession().typedCall('GetFeatures', 'Features', {});
         this._updateFeatures(message);
     }
 
@@ -862,7 +856,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         // handle rejection of call by a counterfeit device. If unhandled, it crashes device initialization,
         // so device can't be used, but it's preferable to display proper message about counterfeit device
         try {
-            const deviceResponse = await this.getCommands().typedCall(
+            const deviceResponse = await this.getCurrentSession().typedCall(
                 'GetFirmwareHash',
                 'FirmwareHash',
                 { challenge },
@@ -950,12 +944,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     private async _uploadTranslationData(payload: ArrayBuffer | null) {
-        if (!this.commands) {
-            throw ERRORS.TypedError('Runtime', 'uploadTranslationData: device.commands is not set');
-        }
-
         if (payload === null) {
-            const response = await this.commands.typedCall(
+            const response = await this.getCurrentSession().typedCall(
                 'ChangeLanguage',
                 ['Success'],
                 { data_length: 0 }, // For en-US where we just send `ChangeLanguage(size=0)`
@@ -966,7 +956,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         const length = payload.byteLength;
 
-        let response = await this.commands.typedCall(
+        let response = await this.getCurrentSession().typedCall(
             'ChangeLanguage',
             ['TranslationDataRequest', 'Success'],
             { data_length: length },
@@ -977,7 +967,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             const end = response.message.data_offset! + response.message.data_length!;
             const chunk = payload.slice(start, end);
 
-            response = await this.commands.typedCall(
+            response = await this.getCurrentSession().typedCall(
                 'TranslationDataAck',
                 ['TranslationDataRequest', 'Success'],
                 {
@@ -1070,6 +1060,25 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
+    prompt<T extends typeof DEVICE.PIN | typeof DEVICE.PASSPHRASE | typeof DEVICE.WORD>(
+        type: T,
+        args: Omit<DeviceEvents[T], 'callback'>,
+    ) {
+        // TODO I believe this emit/on can be changed into simple async functions
+        return new Promise<Parameters<DeviceEvents[T]['callback']>[0]>(callback => {
+            if (!this.listenerCount(type)) {
+                const payload = {
+                    success: false,
+                    error: new Error(`${type} callback not configured`),
+                } as const;
+                callback(payload);
+            } else {
+                // @ts-expect-error
+                this.emit(type, { callback, ...args });
+            }
+        });
+    }
+
     isUnacquired() {
         return this.features === undefined;
     }
@@ -1148,10 +1157,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     waitForFirstRun() {
         return this.firstRunPromise.promise;
-    }
-
-    getLocalSession() {
-        return this.lastAcquiredHere ? this.session : null;
     }
 
     getUniquePath() {
