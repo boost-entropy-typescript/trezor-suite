@@ -2433,10 +2433,25 @@ export default defineMessages({
         description: 'Text for Header and Button when submitting PIN',
         id: 'TR_ENTER_PIN',
     },
+    TR_ENTER_NEW_PIN: {
+        defaultMessage: 'Enter new PIN',
+        description: 'Text for Header and Button when entering new PIN',
+        id: 'TR_ENTER_NEW_PIN',
+    },
+    TR_RE_ENTER_NEW_PIN: {
+        defaultMessage: 'Re-enter new PIN',
+        description: 'Text for Header and Button when re-entering PIN',
+        id: 'TR_RE_ENTER_NEW_PIN',
+    },
     TR_ENTER_WIPECODE: {
         defaultMessage: 'Enter Wipe Code',
         description: 'Text for Header and Button when submitting wipe code',
         id: 'TR_ENTER_WIPECODE',
+    },
+    TR_RE_ENTER_WIPECODE: {
+        defaultMessage: 'Re-enter wipe code',
+        description: 'Text for Header and Button when re-entering wipe code',
+        id: 'TR_RE_ENTER_WIPECODE',
     },
     TR_ENTER_SEED_WORDS_INSTRUCTION: {
         defaultMessage:
@@ -3166,7 +3181,7 @@ export default defineMessages({
         id: 'TR_SETTINGS_DEVICE_BANNER_TITLE_REMEMBERED',
     },
     TR_SETTINGS_DEVICE_VIEW_ONLY_DISABLED_TOOLTIP: {
-        defaultMessage: 'Not available while the device is setting up.',
+        defaultMessage: 'Unavailable until device setup is complete.',
         id: 'TR_SETTINGS_DEVICE_VIEW_ONLY_DISABLED_TOOLTIP',
     },
     TR_SETTINGS_COINS_REGULAR_FIRMWARE_SUGGESTION: {
@@ -5988,7 +6003,7 @@ export default defineMessages({
     },
     TR_DISABLED_SWITCH_NEW_DEVICE_TOOLTIP: {
         id: 'TR_DISABLED_SWITCH_NEW_DEVICE_TOOLTIP',
-        defaultMessage: 'Not available while the device is setting up.',
+        defaultMessage: 'Unavailable until device setup is complete.',
     },
     TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP: {
         id: 'TR_UPDATE_FIRMWARE_HOMESCREEN_TOOLTIP',
@@ -7030,7 +7045,7 @@ export default defineMessages({
     },
     TR_WIPE_OR_UPDATE_DESCRIPTION: {
         id: 'TR_WIPE_OR_UPDATE_DESCRIPTION',
-        defaultMessage: 'Go to <a>device settings</a>.',
+        defaultMessage: 'Go to device settings.',
     },
     TR_YOU_HAVE_CONNECTED: {
         id: 'TR_YOU_HAVE_CONNECTED',

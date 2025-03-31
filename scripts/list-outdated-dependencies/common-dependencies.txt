@@ -24,7 +24,6 @@
 @types/react-router
 @types/react-router-dom
 @types/react-test-renderer
-@types/react-window
 @types/redux-logger
 @types/redux-mock-store
 @types/tar
@@ -51,7 +50,6 @@ html-webpack-plugin
 immer
 jest
 jest-canvas-mock
-jest-environment-jsdom
 jest-watch-typeahead
 jsdom
 minimatch
@@ -73,7 +71,6 @@ react-router-dom
 react-test-renderer
 react-toastify
 react-use
-react-window
 redux
 redux-devtools-extension
 redux-logger
@@ -85,12 +82,10 @@ sort-package-json
 tar
 ts-mixer
 ts-node
-tsconfig-paths
 tslib
 tsx
 typeforce
 typescript
-version-bump-prompt
 webpack
 webpack-bundle-analyzer
 webpack-cli

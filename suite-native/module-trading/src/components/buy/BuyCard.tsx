@@ -1,5 +1,14 @@
-import { useFormatters } from '@suite-common/formatters';
-import { Card, HStack, Text, VStack } from '@suite-native/atoms';
+import {
+    FadeIn,
+    FadeOut,
+    LinearTransition,
+    interpolateColor,
+    useAnimatedStyle,
+    useDerivedValue,
+    withTiming,
+} from 'react-native-reanimated';
+
+import { AnimatedBox, AnimatedCard, HStack, Text, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
@@ -12,6 +21,7 @@ import { getSelectedSymbolFromBuyForm } from '../../utils/tradeableAssetUtils';
 
 type BuyCardProps = {
     form: TradingBuyForm;
+    isAmountInputActive: boolean;
 };
 
 const buySectionStyle = prepareNativeStyle(({ borders, colors, spacings }) => ({
@@ -23,44 +33,50 @@ const buySectionStyle = prepareNativeStyle(({ borders, colors, spacings }) => ({
     gap: spacings.sp8,
 }));
 
-export const BuyCard = ({ form }: BuyCardProps) => {
-    const { FiatAmountFormatter } = useFormatters();
-    const { applyStyle } = useNativeStyles();
+const useAnimatedBorderStyle = (isAmountInputActive: boolean) => {
+    const { utils } = useNativeStyles();
+    const progress = useDerivedValue(() => withTiming(isAmountInputActive ? 1 : 0));
 
-    const [fiatAmount, selectedReceiveAccount] = form.watch(['fiatValue', 'receiveAccount']);
+    return useAnimatedStyle(() => ({
+        borderColor: interpolateColor(
+            progress.value,
+            [0, 1],
+            [utils.colors.backgroundSurfaceElevation1, utils.colors.borderInputDefault],
+        ) as `rgba(${number}, ${number}, ${number}, ${number})`,
+        borderWidth: utils.borders.widths.large,
+    }));
+};
+
+export const BuyCard = ({ form, isAmountInputActive }: BuyCardProps) => {
+    const { applyStyle } = useNativeStyles();
+    const animatedStyle = useAnimatedBorderStyle(isAmountInputActive);
+
+    const [selectedReceiveAccount] = form.watch(['receiveAccount']);
     const selectedNetworkSymbol = getSelectedSymbolFromBuyForm(form);
 
     return (
-        <Card noPadding>
-            <VStack style={applyStyle(buySectionStyle)}>
-                <Text variant="body" color="textDefault">
-                    <Translation id="moduleTrading.selectFiat.title" />
-                </Text>
-                <HStack justifyContent="space-between" alignItems="center">
-                    <FiatCurrencyPicker form={form} />
-                    <Text variant="titleMedium" color="textDisabled">
-                        {fiatAmount ? <FiatAmountFormatter value={fiatAmount} /> : '0.0'}
+        <AnimatedBox entering={FadeIn} exiting={FadeOut} layout={LinearTransition}>
+            <AnimatedCard style={animatedStyle} noPadding>
+                <VStack style={applyStyle(buySectionStyle)}>
+                    <Text variant="body" color="textDefault">
+                        <Translation id="moduleTrading.selectFiat.title" />
                     </Text>
-                </HStack>
-            </VStack>
-            <VStack style={applyStyle(buySectionStyle)}>
-                <Text variant="body" color="textDefault">
-                    <Translation id="moduleTrading.selectCoin.title" />
-                </Text>
-                <HStack justifyContent="space-between" alignItems="center">
-                    <TradeableAssetPicker form={form} />
-                    <Text variant="titleMedium" color="textDisabled">
-                        0.0
+                    <FiatCurrencyPicker />
+                </VStack>
+                <VStack style={applyStyle(buySectionStyle)}>
+                    <Text variant="body" color="textDefault">
+                        <Translation id="moduleTrading.selectCoin.title" />
                     </Text>
-                </HStack>
-                <HStack justifyContent="space-between" alignItems="center">
-                    <ReceiveAccountCryptoBalance
-                        symbol={selectedReceiveAccount?.account?.symbol}
-                        balance={selectedReceiveAccount?.account?.balance}
-                    />
-                </HStack>
-            </VStack>
-            <ReceiveAccountPicker selectedSymbol={selectedNetworkSymbol} />
-        </Card>
+                    <TradeableAssetPicker />
+                    <HStack justifyContent="space-between" alignItems="center">
+                        <ReceiveAccountCryptoBalance
+                            symbol={selectedReceiveAccount?.account?.symbol}
+                            balance={selectedReceiveAccount?.account?.balance}
+                        />
+                    </HStack>
+                </VStack>
+                <ReceiveAccountPicker selectedSymbol={selectedNetworkSymbol} />
+            </AnimatedCard>
+        </AnimatedBox>
     );
 };
