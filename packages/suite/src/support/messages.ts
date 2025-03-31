@@ -1390,47 +1390,85 @@ export default defineMessages({
         id: 'TR_TRADING_KYC_DEX',
     },
     TR_TRADING_DCA_HEADING: {
-        defaultMessage: 'Save in Bitcoin with the Invity app',
+        defaultMessage: 'Invest with Invity, secure with Trezor',
         id: 'TR_TRADING_DCA_HEADING',
     },
     TR_TRADING_DCA_FEATURE_1_SUBHEADING: {
-        defaultMessage: 'Developed by SatoshiLabs',
+        defaultMessage: 'Build your bitcoin portfolio',
         id: 'TR_TRADING_DCA_FEATURE_1_SUBHEADING',
         dynamic: true,
     },
     TR_TRADING_DCA_FEATURE_1_DESCRIPTION: {
-        defaultMessage: 'A safe & simple custodial DCA savings plan.',
+        defaultMessage:
+            'Invest automatically with the Invity app and grow your bitcoin savings over time.',
         id: 'TR_TRADING_DCA_FEATURE_1_DESCRIPTION',
         dynamic: true,
     },
     TR_TRADING_DCA_FEATURE_2_SUBHEADING: {
-        defaultMessage: 'Free withdrawals',
+        defaultMessage: 'Secure & trusted – developed with Trezor',
         id: 'TR_TRADING_DCA_FEATURE_2_SUBHEADING',
         dynamic: true,
     },
     TR_TRADING_DCA_FEATURE_2_DESCRIPTION: {
-        defaultMessage: 'Withdraw to self-custody without extra fees.',
+        defaultMessage:
+            'Built for long-term bitcoin investors who value security and self-custody.',
         id: 'TR_TRADING_DCA_FEATURE_2_DESCRIPTION',
         dynamic: true,
     },
     TR_TRADING_DCA_FEATURE_3_SUBHEADING: {
-        defaultMessage: 'Easy to use',
+        defaultMessage: 'Your bitcoin, always in your hands',
         id: 'TR_TRADING_DCA_FEATURE_3_SUBHEADING',
         dynamic: true,
     },
     TR_TRADING_DCA_FEATURE_3_DESCRIPTION: {
-        defaultMessage: 'A quick, streamlined, user-friendly interface.',
+        defaultMessage:
+            'Smart Send withdraws your bitcoin to Trezor automatically with no extra fees, so your investments are always under your control.',
         id: 'TR_TRADING_DCA_FEATURE_3_DESCRIPTION',
         dynamic: true,
     },
-    TR_TRADING_DCA_FEATURE_4_SUBHEADING: {
-        defaultMessage: 'DCA Overview',
-        id: 'TR_TRADING_DCA_FEATURE_4_SUBHEADING',
+    TR_TRADING_DCA_STEP_CARD_1_SUBHEADING: {
+        defaultMessage: 'Download the Invity app',
+        id: 'TR_TRADING_DCA_STEP_CARD_1_SUBHEADING',
         dynamic: true,
     },
-    TR_TRADING_DCA_FEATURE_4_DESCRIPTION: {
-        defaultMessage: 'Monitor your investment history, amount & frequency.',
-        id: 'TR_TRADING_DCA_FEATURE_4_DESCRIPTION',
+    TR_TRADING_DCA_STEP_CARD_1_DESCRIPTION: {
+        defaultMessage: 'Start investing in minutes.',
+        id: 'TR_TRADING_DCA_STEP_CARD_1_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_STEP_CARD_2_SUBHEADING: {
+        defaultMessage: 'Set up an automated plan',
+        id: 'TR_TRADING_DCA_STEP_CARD_2_SUBHEADING',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_STEP_CARD_2_DESCRIPTION: {
+        defaultMessage: 'Weekly, biweekly, or monthly—whatever works best for you.',
+        id: 'TR_TRADING_DCA_STEP_CARD_2_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_STEP_CARD_3_SUBHEADING: {
+        defaultMessage: 'Secure your bitcoin',
+        id: 'TR_TRADING_DCA_STEP_CARD_3_SUBHEADING',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_STEP_CARD_3_DESCRIPTION: {
+        defaultMessage: 'Set up Smart Send to move bitcoin directly to your Trezor.',
+        id: 'TR_TRADING_DCA_STEP_CARD_3_DESCRIPTION',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_STEP_CARD_SELECT_ADDRESS: {
+        defaultMessage: 'Select address',
+        id: 'TR_TRADING_DCA_STEP_CARD_SELECT_ADDRESS',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_VERIFY_ADDRESS: {
+        defaultMessage: 'Verify address',
+        id: 'TR_TRADING_DCA_VERIFY_ADDRESS',
+        dynamic: true,
+    },
+    TR_TRADING_DCA_AVAILABLE_ONLY_FOR_BITCOIN: {
+        defaultMessage: 'DCA is available only for Bitcoin',
+        id: 'TR_TRADING_DCA_AVAILABLE_ONLY_FOR_BITCOIN',
         dynamic: true,
     },
     TR_TRADING_DCA_DOWNLOAD: {
@@ -8949,7 +8987,7 @@ export default defineMessages({
     },
     TR_STAKE_WAIT_FOR_ACTIVATION: {
         id: 'TR_STAKE_WAIT_FOR_ACTIVATION',
-        defaultMessage: 'Time it takes to stake your SOL',
+        defaultMessage: 'Time it takes to stake your {networkDisplaySymbol}',
     },
     TR_STAKE_WARM_UP_PERIOD: {
         id: 'TR_STAKE_WARM_UP_PERIOD',
@@ -8965,7 +9003,7 @@ export default defineMessages({
     },
     TR_STAKE_WAIT_FOR_DEACTIVATION: {
         id: 'TR_STAKE_WAIT_FOR_DEACTIVATION',
-        defaultMessage: 'Time it takes to unstake your SOL',
+        defaultMessage: 'Time it takes to unstake your {networkDisplaySymbol}',
     },
     TR_STAKE_EARN_REWARDS_WEEKLY: {
         id: 'TR_STAKE_EARN_REWARDS_WEEKLY',
@@ -9057,7 +9095,8 @@ export default defineMessages({
     },
     TR_STAKE_ACTIVATION_COULD_TAKE: {
         id: 'TR_STAKE_ACTIVATION_COULD_TAKE',
-        defaultMessage: 'It takes up to 3 days to stake your SOL.',
+        defaultMessage:
+            'It takes up to {count, plural, one {# day} other {# days}} to stake your {networkDisplaySymbol}.',
     },
     TR_STAKE_ETH_WILL_BE_BLOCKED: {
         id: 'TR_STAKE_ETH_WILL_BE_BLOCKED',
@@ -9139,7 +9178,7 @@ export default defineMessages({
     },
     TR_STAKE_EXPECTED_REWARDS: {
         id: 'TR_STAKE_EXPECTED_REWARDS',
-        defaultMessage: 'Next estimated reward in ~3 days',
+        defaultMessage: 'Next estimated reward in ~{count, plural, one {# day} other {# days}}',
     },
     TR_TX_CONFIRMED: {
         id: 'TR_TX_CONFIRMED',
