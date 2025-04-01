@@ -16,18 +16,19 @@ import {
     ExternalOutput,
     PrecomposedTransaction,
     PrecomposedTransactionFinal,
+    PrepareStakeSolTxResponse,
     SelectedAccountStatus,
     StakeFormState,
 } from '@suite-common/wallet-types';
 import { networkAmountToSmallestUnit } from '@suite-common/wallet-utils';
 import { Fee } from '@trezor/blockchain-link-types/src/blockbook';
 import TrezorConnect, { FeeLevel } from '@trezor/connect';
+import { EventType, analytics } from '@trezor/suite-analytics';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { selectAddressDisplayType } from 'src/reducers/suite/suiteReducer';
 import { Dispatch, GetState } from 'src/types/suite';
 import {
-    PrepareStakeSolTxResponse,
     prepareClaimSolTx,
     prepareStakeSolTx,
     prepareUnstakeSolTx,
@@ -252,6 +253,14 @@ export const signTransaction =
         });
 
         if (!signedTx.success) {
+            analytics.report({
+                type: EventType.TransactionCancel,
+                payload: {
+                    txType: 'stake',
+                    networkSymbol: account.symbol,
+                },
+            });
+
             // catch manual error from TransactionReviewModal
             if (signedTx.payload.error === 'tx-cancelled') {
                 return;

@@ -258,6 +258,21 @@ export const useSendForm = (props: UseSendFormProps): SendContextValues => {
         }
     }, [getValues, composedLevels, dispatch, resetContext, props.selectedAccount.account]);
 
+    // replace default feeInfo with data loaded from the server
+    useEffect(() => {
+        const feeInfo = getFeeInfo({
+            networkType: state.account.networkType,
+            feeInfo: props.fees[state.account.symbol],
+        });
+
+        // update fee info only if the block height has increased.
+        // note: This approach may not be ideal for Bitcoin, as fees can change within the same block
+        if (feeInfo.blockHeight - state.feeInfo.blockHeight > 0) {
+            setState(prev => ({ ...prev, feeInfo }));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.fees]);
+
     // reset on account change
     useEffect(() => {
         if (state.account.key !== props.selectedAccount.account.key) {

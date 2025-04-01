@@ -12,7 +12,9 @@ export interface EnvUtils {
     getBrowserVersion: () => string;
     getCommitHash: () => string;
     getDeviceType: () => string | undefined;
-    getOsVersion: () => string;
+    getOsVersion: () => Promise<string>;
+    getDeprecatedOsVersion: () => string;
+    getCpuArch: () => Promise<string>;
     getSuiteVersion: () => string;
     isFirefox: () => boolean;
     getPlatform: () => string;

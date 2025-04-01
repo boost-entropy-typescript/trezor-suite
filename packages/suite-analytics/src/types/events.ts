@@ -24,6 +24,7 @@ export type SuiteAnalyticsEventSuiteReady = {
         browserVersion: string;
         osName: string;
         osVersion: string;
+        osCpuArch: string;
         windowWidth: number;
         windowHeight: number;
         platformLanguages: string;
@@ -205,6 +206,7 @@ export type SuiteAnalyticsEvent =
                   | 'sidebar'
                   | 'account/navigation'
                   | 'account/banner'
+                  | 'account/tradebox'
                   | 'dashboard/banner'
                   | 'dashboard/assets';
               networkSymbol?: string;

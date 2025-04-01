@@ -15,6 +15,8 @@ export const {
     getCommitHash,
     getDeviceType,
     getOsVersion,
+    getDeprecatedOsVersion,
+    getCpuArch,
     getSuiteVersion,
     isFirefox,
     getPlatform,

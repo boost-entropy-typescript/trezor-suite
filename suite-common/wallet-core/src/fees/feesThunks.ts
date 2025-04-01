@@ -8,10 +8,11 @@ import {
 import type { NetworksFees } from '@suite-common/wallet-types';
 import { isEip1559 } from '@suite-common/wallet-utils';
 import TrezorConnect, { FeeLevel } from '@trezor/connect';
+import { isNative } from '@trezor/env-utils';
 
 import { FEES_MODULE_PREFIX, feesActions } from './feesActions';
 import { selectNetworkBlockchainInfo } from '../blockchain/blockchainReducer';
-import { selectFees, selectNetworkFeeInfo } from '../fees/feesReducer';
+import { selectFees } from '../fees/feesReducer';
 
 // Conditionally subscribe to blockchain backend
 // called after TrezorConnect.init successfully emits TRANSPORT.START event
@@ -74,26 +75,12 @@ export const preloadFeeInfoThunk = createThunk(
 
 export const updateFeeInfoThunk = createThunk(
     `${FEES_MODULE_PREFIX}/updateFeeInfoThunk`,
-    async (
-        { networkSymbol, forceUpdate }: { networkSymbol: string; forceUpdate?: boolean },
-        { dispatch, getState, extra },
-    ) => {
+    async ({ networkSymbol }: { networkSymbol: NetworkSymbol }, { dispatch, getState, extra }) => {
         const network = getNetworkOptional(networkSymbol.toLowerCase());
         if (!network) return;
         const blockchainInfo = selectNetworkBlockchainInfo(getState(), network.symbol);
-        const feeInfo = selectNetworkFeeInfo(getState(), network.symbol);
-        const device = extra.selectors.selectDevice(getState());
-        // TODO: remove when EIP-1559 complete
-        const isDebugModeActive = extra.selectors.selectDebugSettings(getState()).showDebugMenu;
 
-        if (
-            feeInfo &&
-            feeInfo.blockHeight > 0 &&
-            blockchainInfo.blockHeight - feeInfo.blockHeight < 10 &&
-            !forceUpdate
-        ) {
-            return;
-        }
+        const device = extra.selectors.selectDevice(getState());
 
         let newFeeInfo;
 
@@ -114,8 +101,8 @@ export const updateFeeInfoThunk = createThunk(
                 const isEip1559ActivatedAndAvailable =
                     getNetwork(network.symbol).features.includes('eip1559') &&
                     isEip1559(feeLevelBase) &&
-                    isDebugModeActive &&
-                    !device?.unavailableCapabilities?.['eip1559'];
+                    !device?.unavailableCapabilities?.['eip1559'] &&
+                    !isNative(); // suite-native does not have eip1559 implementation yet #16372
 
                 if (isEip1559ActivatedAndAvailable) {
                     newFeeInfo = result.payload;
@@ -142,6 +129,7 @@ export const updateFeeInfoThunk = createThunk(
                     feeLevels: 'smart',
                 },
             });
+
             if (result.success) {
                 newFeeInfo = {
                     ...result.payload,

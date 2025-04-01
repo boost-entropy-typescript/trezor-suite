@@ -1961,6 +1961,10 @@ export default defineMessages({
         defaultMessage: 'Check',
         id: 'TR_CHECK_SEED',
     },
+    TR_TREZOR_NOT_DETECTED: {
+        defaultMessage: 'Trezor not detected?',
+        id: 'TR_TREZOR_NOT_DETECTED',
+    },
     TR_CHECK_YOUR_DEVICE: {
         defaultMessage: "Check your Trezor's screen",
         description: 'Placeholder in seed input asking user to pay attention to his device',
@@ -8777,7 +8781,7 @@ export default defineMessages({
     TR_RECEIVE_ADDRESS_CONFIRMATION_ITEM_2_DESCRIPTION: {
         id: 'TR_RECEIVE_ADDRESS_CONFIRMATION_ITEM_2_DESCRIPTION',
         defaultMessage:
-            'Enter it on an exchange, in another wallet, or share it with someone to receive funds.',
+            'Paste it into an exchange, wallet, or message to someone who will send you funds.',
     },
     TR_RECEIVE_ADDRESS_CONFIRMATION_ITEM_3_HEADING: {
         id: 'TR_RECEIVE_ADDRESS_CONFIRMATION_ITEM_3_HEADING',
@@ -9756,29 +9760,43 @@ export default defineMessages({
         id: 'TR_PAIR_NEW_BLUETOOTH_DEVICE',
         defaultMessage: 'Pair over Bluetooth',
     },
-    TR_BLUETOOTH_TIP1_HEADER: {
-        id: 'TR_BLUETOOTH_TIP1_HEADER',
+    TR_BLUETOOTH_TIP_PROXIMITY_HEADER: {
+        id: 'TR_BLUETOOTH_TIP_PROXIMITY_HEADER',
         defaultMessage: 'Bring Trezor Safe 7 closer to this computer',
     },
-    TR_BLUETOOTH_TIP1_TEXT: {
-        id: 'TR_BLUETOOTH_TIP1_TEXT',
+    TR_BLUETOOTH_TIP_PROXIMITY_TEXT: {
+        id: 'TR_BLUETOOTH_TIP_PROXIMITY_TEXT',
         defaultMessage: 'The maximum range for Bluetooth is 10 meters',
     },
-    TR_BLUETOOTH_TIP2_HEADER: {
-        id: 'TR_BLUETOOTH_TIP2_HEADER',
+    TR_BLUETOOTH_TIP_PARING_MODE_HEADER: {
+        id: 'TR_BLUETOOTH_TIP_PARING_MODE_HEADER',
         defaultMessage: 'Put Trezor Safe 7 into pairing mode',
     },
-    TR_BLUETOOTH_TIP2_TEXT: {
-        id: 'TR_BLUETOOTH_TIP2_TEXT',
+    TR_BLUETOOTH_TIP_PARING_MODE_TEXT: {
+        id: 'TR_BLUETOOTH_TIP_PARING_MODE_TEXT',
         defaultMessage: 'Hold your Trezor’s power button for 3 seconds',
     },
-    TR_BLUETOOTH_TIP3_HEADER: {
-        id: 'TR_BLUETOOTH_TIP3_HEADER',
+    TR_BLUETOOTH_TIP_CABLE_HEADER: {
+        id: 'TR_BLUETOOTH_TIP_CABLE_HEADER',
         defaultMessage: 'If nothing helps, connect Trezor Safe 7 with cable',
     },
-    TR_BLUETOOTH_TIP3_TEXT: {
-        id: 'TR_BLUETOOTH_TIP3_TEXT',
+    TR_BLUETOOTH_TIP_CABLE_TEXT: {
+        id: 'TR_BLUETOOTH_TIP_CABLE_TEXT',
         defaultMessage: 'Try to pair Bluetooth from device settings',
+    },
+    TR_BLUETOOTH_TIP_SETTINGS_HEADER: {
+        id: 'TR_BLUETOOTH_TIP_SETTINGS_HEADER',
+        defaultMessage: 'Check your computer’s Bluetooth settings',
+    },
+    TR_BLUETOOTH_TIP_SETTINGS_TEXT: {
+        id: 'TR_BLUETOOTH_TIP_SETTINGS_TEXT',
+        defaultMessage:
+            'If your Trezor is listed in <a>Bluetooth settings</a>, remove it and pair again.',
+    },
+    TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_REMOVE_DEVICE: {
+        id: 'TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_REMOVE_DEVICE',
+        defaultMessage:
+            'Cannot open bluetooth settings. Go to settings manually, and if your Trezor is listed in Bluetooth settings, remove it and pair again.',
     },
     TR_CONNECTION_TYPE: {
         id: 'TR_CONNECTION_TYPE',
