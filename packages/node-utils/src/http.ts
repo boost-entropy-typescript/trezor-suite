@@ -1,3 +1,4 @@
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import * as http from 'http';
 import * as net from 'net';
 import * as url from 'url';
@@ -8,6 +9,7 @@ import { Log, TypedEmitter, arrayPartition } from '@trezor/utils';
 import { getFreePort } from './getFreePort';
 
 type Request = RequiredKey<http.IncomingMessage, 'url'>;
+const isRequest = (request: http.IncomingMessage): request is Request => request.url !== undefined;
 type EventMap = { [event: string]: any };
 
 export type RequestWithParams<B = unknown, P = unknown> = Request & {
@@ -71,6 +73,7 @@ type Route = {
     pathname: string;
     params: string[];
     handler: AnyRequestHandler[];
+    isActive: boolean;
 };
 /**
  * Events that may be emitted or listened to by HttpServer
@@ -217,6 +220,7 @@ export class HttpServer<T extends EventMap> extends TypedEmitter<T & BaseEvents>
             pathname: `/${basePathname}`,
             params: paramsSegments,
             handler,
+            isActive: true,
         });
     }
 
@@ -242,7 +246,22 @@ export class HttpServer<T extends EventMap> extends TypedEmitter<T & BaseEvents>
             pathname: '*',
             handler,
             params: [],
+            isActive: true,
         });
+    }
+
+    public activateRoute(pathname: string) {
+        const route = this.routes.find(r => r.pathname === pathname);
+        if (route) {
+            route.isActive = true;
+        }
+    }
+
+    public deactivateRoute(pathname: string) {
+        const route = this.routes.find(r => r.pathname === pathname);
+        if (route) {
+            route.isActive = false;
+        }
     }
 
     /**
@@ -277,7 +296,7 @@ export class HttpServer<T extends EventMap> extends TypedEmitter<T & BaseEvents>
      */
     private onRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {
         // mostly ts stuff. request should always have url defined.
-        if (!request.url) {
+        if (!isRequest(request)) {
             this.logger.warn('Unexpected incoming message (no url)');
             this.emitter.emit('server/error', 'Unexpected incoming message');
 
@@ -288,7 +307,31 @@ export class HttpServer<T extends EventMap> extends TypedEmitter<T & BaseEvents>
             this.logger.info(`Request ${request.method} ${request.url} aborted`);
         });
 
-        const { pathname } = url.parse(request.url, true);
+        const { protocol, hostname, pathname, query } = url.parse(request.url, true);
+
+        if (query) {
+            for (const key in query) {
+                if (Object.prototype.hasOwnProperty.call(query, key) && query[key] !== undefined) {
+                    const allParamsOfSameKey = [query[key]].flat();
+                    let isParamInvalid = false;
+
+                    query[key] = allParamsOfSameKey.map(singleParam => {
+                        const sanitized = sanitizeUrl(singleParam);
+                        if (sanitized !== singleParam) isParamInvalid = true;
+
+                        return sanitized;
+                    });
+
+                    if (isParamInvalid) {
+                        response.statusCode = 403;
+
+                        return response.end();
+                    }
+                }
+            }
+        }
+        request.url = url.format({ protocol, hostname, pathname, query });
+
         if (!pathname) {
             const msg = `url ${request.url} could not be parsed`;
             this.emitter.emit('server/error', msg);
@@ -312,20 +355,41 @@ export class HttpServer<T extends EventMap> extends TypedEmitter<T & BaseEvents>
 
             return;
         }
+
+        if (!route.isActive) {
+            response.statusCode = 404;
+            response.end();
+
+            return;
+        }
+
         const paramsSegments = pathname
             .replace(route.pathname, '')
             .split('/')
             .filter(segment => segment);
 
+        let isSegmentInvalid = false;
         const requestWithParams = request as RequestWithParams;
-        requestWithParams.params = route.params.reduce(
+
+        requestWithParams.params = route.params.reduce<Record<string, string>>(
             (acc, param, index) => {
-                acc[param.replace(':', '')] = paramsSegments[index];
+                if (!paramsSegments[index]) return acc;
+                const sanitized = sanitizeUrl(paramsSegments[index]);
+                if (sanitized !== paramsSegments[index]) {
+                    isSegmentInvalid = true;
+                }
+
+                acc[param.replace(':', '')] = sanitized;
 
                 return acc;
             },
-            {} as Record<string, string>,
+            {},
         );
+        if (isSegmentInvalid) {
+            response.statusCode = 403;
+
+            return response.end();
+        }
 
         const handlers = [
             ...this.routes

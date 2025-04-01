@@ -1,3 +1,5 @@
+import url from 'url';
+
 import {
     HttpServer,
     ParamsValidatorHandler,
@@ -267,8 +269,8 @@ describe('HttpServer', () => {
         await server.start();
         const { address, port } = server.getServerAddress();
 
-        const post = (url: string, body: any) =>
-            fetch(`http://${address}:${port}/${url}`, {
+        const post = (path: string, body: any) =>
+            fetch(`http://${address}:${port}/${path}`, {
                 method: 'POST',
                 body: body ? JSON.stringify(body) : undefined,
             });
@@ -352,5 +354,80 @@ describe('HttpServer', () => {
         });
         expect(res.status).toEqual(200);
         expect(await res.text()).toEqual('foo');
+    });
+
+    test('query string as array', async () => {
+        const handler = jest.fn((request, response) => {
+            const { search } = url.parse(request.url, true);
+            response.end(search);
+        });
+        server.post('/foo', [parseBodyText, handler]);
+        await server.start();
+        const address = server.getServerAddress();
+        expect(address).toBeDefined();
+        const res = await fetch(`http://${address.address}:${address.port}/foo?a=1&a=2&b=3`, {
+            method: 'POST',
+            body: 'foo',
+        });
+        expect(res.status).toEqual(200);
+        expect(await res.text()).toEqual('?a=1&a=2&b=3');
+    });
+
+    test('query string sanitization', async () => {
+        const handler = jest.fn((request, response) => {
+            const { search } = url.parse(request.url, true);
+            response.end(search);
+        });
+        server.post('/foo', [parseBodyText, handler]);
+        await server.start();
+        const address = server.getServerAddress();
+        expect(address).toBeDefined();
+        const res = await fetch(
+            `http://${address.address}:${address.port}/foo?ok=meow&notok=javascript:alert(1)`,
+            {
+                method: 'POST',
+                body: 'foo',
+            },
+        );
+        expect(res.status).toEqual(403);
+    });
+
+    test('params segment sanitization', async () => {
+        const handler = jest.fn((request, response) => {
+            response.end(JSON.stringify(request.params));
+        });
+        server.post('/foo/:id', [parseBodyText, handler]);
+        await server.start();
+        const address = server.getServerAddress();
+        expect(address).toBeDefined();
+        const res = await fetch(
+            `http://${address.address}:${address.port}/foo/javascript:alert(1)`,
+            {
+                method: 'POST',
+                body: 'foo',
+            },
+        );
+        expect(res.status).toEqual(403);
+    });
+
+    test('any registered route is active  by default and can be deactivated', async () => {
+        const handler = jest.fn((_request, response) => {
+            response.end('ok');
+        });
+        server.get('/foo', [handler]);
+        server.get('/bar', [handler]);
+        await server.start();
+        const address = server.getServerAddress();
+        expect(address).toBeDefined();
+        let res = await fetch(`http://${address.address}:${address.port}/foo`);
+        expect(res.status).toEqual(200);
+        res = await fetch(`http://${address.address}:${address.port}/bar`);
+        expect(res.status).toEqual(200);
+
+        server.deactivateRoute('/foo');
+        res = await fetch(`http://${address.address}:${address.port}/foo`);
+        expect(res.status).toEqual(404);
+        res = await fetch(`http://${address.address}:${address.port}/bar`);
+        expect(res.status).toEqual(200);
     });
 });
