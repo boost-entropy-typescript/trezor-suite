@@ -25,15 +25,15 @@
         "blake-hash": "^2.0.0",
         "electron-localshortcut": "^3.2.1",
         "electron-store": "8.2.0",
-        "electron-updater": "6.5.0",
+        "electron-updater": "6.6.2",
         "openpgp": "^6.1.0",
         "usb": "^2.15.0"
     },
     "devDependencies": {
         "@electron/fuses": "^1.8.0",
         "@electron/notarize": "2.5.0",
-        "electron": "35.0.1",
-        "electron-builder": "26.0.3",
+        "electron": "35.1.2",
+        "electron-builder": "26.0.12",
         "glob": "^10.3.10"
     }
 }

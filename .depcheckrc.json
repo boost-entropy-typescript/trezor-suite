@@ -11,7 +11,9 @@
         "rimraf",
         "tslib",
         "protobufjs-cli",
-        "buffer"
+        "buffer",
+        "node-gyp",
+        "version-bump-prompt"
     ],
     "skip-missing": true
 }

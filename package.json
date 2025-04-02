@@ -59,7 +59,7 @@
         "check-workspace-resolutions": "yarn tsx ./scripts/check-workspace-resolutions.ts",
         "generate-package": "yarn workspace @trezor/scripts generate-package",
         "deps": "rimraf **/node_modules && yarn",
-        "depcheck": "yarn nx affected --target=depcheck",
+        "depcheck": "depcheck && yarn nx affected --target=depcheck",
         "list-outdated": "./scripts/list-outdated-dependencies/list-outdated-dependencies.sh",
         "message-system-sign-config": "yarn workspace @suite-common/message-system sign-config",
         "format": "yarn nx format:write",
@@ -96,7 +96,7 @@
         "type-fest": "4.24.0",
         "bcrypto": "5.4.0",
         "react": "18.2.0",
-        "electron": "35.0.1",
+        "electron": "35.1.2",
         "@types/node": "22.13.10",
         "@types/react": "18.2.55",
         "bn.js": "5.2.1",
@@ -106,22 +106,22 @@
         "promise": "8.3.0"
     },
     "devDependencies": {
-        "@babel/cli": "^7.23.9",
-        "@babel/core": "^7.23.9",
-        "@babel/node": "^7.23.9",
+        "@babel/cli": "^7.27.0",
+        "@babel/core": "^7.26.10",
+        "@babel/node": "^7.26.0",
         "@babel/plugin-proposal-class-properties": "^7.18.6",
-        "@babel/plugin-proposal-decorators": "^7.23.9",
-        "@babel/plugin-transform-runtime": "^7.23.9",
-        "@babel/preset-env": "^7.23.9",
-        "@babel/preset-react": "^7.24.7",
-        "@babel/preset-typescript": "^7.24.7",
-        "@babel/runtime": "^7.23.9",
+        "@babel/plugin-proposal-decorators": "^7.25.9",
+        "@babel/plugin-transform-runtime": "^7.26.10",
+        "@babel/preset-env": "^7.26.9",
+        "@babel/preset-react": "^7.26.3",
+        "@babel/preset-typescript": "^7.27.0",
+        "@babel/runtime": "^7.27.0",
         "@trezor/eslint": "workspace:*",
         "@types/jest": "29.5.12",
         "@types/node": "22.13.10",
         "babel-jest": "29.7.0",
         "depcheck": "^1.4.7",
-        "eslint": "^9.22.0",
+        "eslint": "^9.23.0",
         "husky": "^9.1.7",
         "jest": "29.7.0",
         "jest-expo": "^52.0.1",
@@ -147,8 +147,5 @@
             "built": true
         }
     },
-    "packageManager": "yarn@4.5.3",
-    "dependencies": {
-        "version-bump-prompt": "^6.1.0"
-    }
+    "packageManager": "yarn@4.5.3"
 }
