@@ -161,7 +161,8 @@ export const init =
             lazyLoad: true,
             manifest: {
                 email: 'info@trezor.io',
-                appUrl: '@trezor/suite',
+                appUrl: '@trezor/connect-explorer',
+                appName: 'Trezor Connect Explorer',
             },
             trustedHost: false,
             connectSrc: window.__TREZOR_CONNECT_SRC,
@@ -173,6 +174,7 @@ export const init =
             if (connectOptions.coreMode === 'deeplink') {
                 await TrezorConnectMobile.init({
                     ...connectOptions,
+                    coreMode: 'deeplink',
                     deeplinkOpen(url) {
                         window.open(url, '_blank');
                     },
