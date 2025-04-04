@@ -8,6 +8,7 @@ import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
 import { composeSendFormTransactionFeeLevelsThunk } from '@suite-common/wallet-core';
 import {
     ExcludedUtxos,
+    FeeInfo,
     FormState,
     PrecomposedLevels,
     PrecomposedLevelsCardano,
@@ -27,6 +28,7 @@ import { useSolanaSubscribeBlocks } from './form/useSolanaSubscribeBlocks';
 
 type Props = UseFormReturn<FormState> & {
     state: UseSendFormState;
+    feeInfo: FeeInfo;
     excludedUtxos: ExcludedUtxos;
     account: UseSendFormState['account']; // account from the component props !== state.account
     updateContext: SendContextValues['updateContext'];
@@ -44,6 +46,7 @@ export const useSendFormCompose = ({
     formState: { errors, isDirty },
     clearErrors,
     state,
+    feeInfo,
     account,
     excludedUtxos,
     updateContext,
@@ -76,7 +79,7 @@ export const useSendFormCompose = ({
                     composeContext: {
                         account,
                         network: state.network,
-                        feeInfo: state.feeInfo,
+                        feeInfo,
                         excludedUtxos,
                         prison,
                     },
@@ -90,7 +93,7 @@ export const useSendFormCompose = ({
                 setLoading(false);
             }
         },
-        [account, dispatch, prison, excludedUtxos, setLoading, state.network, state.feeInfo],
+        [account, dispatch, prison, excludedUtxos, setLoading, state.network, feeInfo],
     );
 
     // Create a compose request
@@ -127,7 +130,7 @@ export const useSendFormCompose = ({
                         composeContext: {
                             account,
                             network: state.network,
-                            feeInfo: state.feeInfo,
+                            feeInfo,
                             excludedUtxos,
                             prison,
                         },
@@ -159,7 +162,7 @@ export const useSendFormCompose = ({
             getValues,
             account,
             state.network,
-            state.feeInfo,
+            feeInfo,
             excludedUtxos,
             prison,
         ],
@@ -169,6 +172,7 @@ export const useSendFormCompose = ({
     const updateComposedValues = useCallback(
         (composed: PrecomposedTransaction | PrecomposedTransactionCardano) => {
             const values = getValues();
+            if (!composed) return;
             if (composed.type === 'error') {
                 const { error, errorMessage } = composed;
                 if (!errorMessage) {
@@ -246,6 +250,9 @@ export const useSendFormCompose = ({
         const { selectedFee, setMaxOutputId } = values;
         let composed = composedLevels[selectedFee || 'normal'];
 
+        // composed transaction does not exists (not going to happen?)
+        if (!composed) return;
+
         // selectedFee was not set yet (no interaction with Fees) and default (normal) fee tx is not valid
         // OR setMax option was used
         // try to switch to nearest possible composed transaction
@@ -271,11 +278,6 @@ export const useSendFormCompose = ({
                 setDraftSaveRequest(true);
             }
             // or do nothing, use default composed tx
-        }
-
-        // composed transaction does not exists (not going to happen?)
-        if (!composed) {
-            return;
         }
 
         updateComposedValues(composed);
@@ -338,7 +340,7 @@ export const useSendFormCompose = ({
         updateContext({ account });
     }, [
         state.account,
-        state.feeInfo.dustLimit,
+        feeInfo.dustLimit,
         isDirty,
         account,
         clearErrors,

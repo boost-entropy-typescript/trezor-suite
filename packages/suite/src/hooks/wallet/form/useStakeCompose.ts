@@ -32,6 +32,7 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
 }: Props<TFieldValues>) => {
     const [isLoading, setLoading] = useState(false);
     const composeRequestIDRef = useRef(0);
+    const prevFeeInfoRef = useRef(state?.feeInfo);
     const defaultFieldRef = useRef(defaultField || DEFAULT_FIELD);
     const [composedLevels, setComposedLevels] =
         useState<StakeContextValues['composedLevels']>(undefined);
@@ -99,6 +100,8 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
     const updateComposedValues = useCallback(
         (composed: PrecomposedTransaction) => {
             const values = getValues();
+            if (!composed) return;
+
             if (composed.type === 'error') {
                 const { error, errorMessage } = composed;
                 if (!errorMessage) {
@@ -157,16 +160,21 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
                 setComposedLevels(levels);
             } else {
                 const currentLevel = composedLevels[current || 'normal'];
-                updateComposedValues(currentLevel);
+                if (currentLevel) {
+                    updateComposedValues(currentLevel);
+                }
             }
         },
         [composedLevels, updateComposedValues],
     );
 
     const switchToNearestFee = useCallback(
-        (composedLevels: NonNullable<StakeContextValues['composedLevels']>) => {
+        (composedLevels: PrecomposedLevels) => {
             const { selectedFee, setMaxOutputId } = getValues();
             let composed = composedLevels[selectedFee || 'normal'];
+
+            // composed transaction does not exists (should never happen)
+            if (!composed) return;
 
             // selectedFee was not set yet (no interaction with Fees) and default (normal) fee tx is not valid
             // OR setMax option was used
@@ -177,9 +185,9 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
                 // find nearest possible tx
                 const nearest = Object.keys(composedLevels)
                     .reverse()
-                    .find((key): key is FeeLevel['label'] => composedLevels[key].type !== 'error');
+                    .find((key): key is FeeLevel['label'] => composedLevels[key]?.type !== 'error');
                 // switch to it
-                if (nearest) {
+                if (nearest && composedLevels[nearest]) {
                     composed = composedLevels[nearest];
                     setValue('selectedFee', nearest);
                     if (nearest === 'custom') {
@@ -195,8 +203,6 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
                 }
                 // or do nothing, use default composed tx
             }
-            // composed transaction does not exists (should never happen)
-            if (!composed) return;
 
             updateComposedValues(composed);
         },
@@ -209,6 +215,16 @@ export const useStakeCompose = <TFieldValues extends StakeFormState>({
             composeRequest();
         }
     }, [state, composeRequest]);
+
+    useEffect(() => {
+        const hasFeeInfoChanged =
+            state && state?.feeInfo.blockHeight !== prevFeeInfoRef.current?.blockHeight;
+
+        if (hasFeeInfoChanged) {
+            prevFeeInfoRef.current = state.feeInfo;
+            composeRequest();
+        }
+    }, [state, state?.feeInfo, composeRequest]);
 
     // handle composedLevels change
     useEffect(() => {
