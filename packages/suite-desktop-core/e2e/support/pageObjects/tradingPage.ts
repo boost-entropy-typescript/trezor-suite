@@ -1,39 +1,23 @@
 import { Locator, Page, Response } from '@playwright/test';
 
 import { FiatCurrencyCode } from '@suite-common/suite-config';
-import { regional } from '@suite-common/trading';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 
-import { invityEndpoint } from '../../fixtures/invity';
-import { TrezorUserEnvLinkProxy, formatAddress, step } from '../common';
+import { getCompanyNameFromList, invityEndpoint } from '../../fixtures/invity';
+import {
+    TrezorUserEnvLinkProxy,
+    calculatePercentageOfBalance,
+    formatAddress,
+    getCountryLabel,
+    paymentMethodToCamelCase,
+    step,
+} from '../common';
 import { DevicePrompt } from './devicePrompt';
 import { solanaUrlPattern } from '../mocks/tradingMock';
 import { expect } from '../testExtends/customMatchers';
+import { PaymentMethods, PercentageOfBalanceParams } from '../types';
 
 const quoteProviderLocator = '@trading/offers/quote/provider';
-const quoteAmountLocator = '@trading/offers/quote/crypto-amount';
-const getCountryLabel = (country: string) => {
-    const labelWithFlag = regional.countriesMap.get(country);
-    if (!labelWithFlag) {
-        throw new Error(`Country ${country} not found in the countries map`);
-    }
-
-    return labelWithFlag.substring(labelWithFlag.indexOf(' ') + 1);
-};
-
-const paymentMethodToCamelCase = (text: string) =>
-    text
-        .split(' ')
-        .map((word, index) => (index === 0 ? word.toLowerCase() : word))
-        .join('') as PaymentMethods;
-
-type PaymentMethods =
-    | 'googlePay'
-    | 'applePay'
-    | 'creditCard'
-    | 'paypal'
-    | 'bankTransfer'
-    | 'revolutPay';
 
 const accountTabFilters = [
     'all-networks',
@@ -68,11 +52,14 @@ export class TradingPage {
         this.page.getByTestId(`@trading/form/fiat-currency-select/option/${currency}`);
     readonly youPayFiatCryptoSwitchButton: Locator;
     readonly youPayCryptoInput: Locator;
+    readonly cryptoInputBottomText: Locator;
     readonly youPayFractionButton = (amount: '10%' | '25%' | '50%' | 'Max') =>
         this.page.getByRole('button', { name: amount });
     readonly feeButton = (fee: 'economy' | 'normal' | 'high' | 'custom') =>
         this.page.getByTestId(`select-bar/${fee}`);
     readonly customFeeInput: Locator;
+    readonly customFeeAmount: Locator;
+    readonly miscFeeAmount: Locator;
     readonly countryOfResidenceDropdown: Locator;
     readonly countryOfResidenceOption = (countryCode: string) =>
         this.page.getByTestId(`@trading/form/country-select/option/${countryCode}`);
@@ -93,7 +80,6 @@ export class TradingPage {
     readonly quotes: Locator;
     readonly quoteOfProvider = (provider: string) =>
         this.page.getByTestId(`@trading/offers/quote-${provider}`);
-    readonly quoteAmount: Locator;
     readonly refreshTime: Locator;
     readonly selectThisQuoteButton: Locator;
     readonly backToAccountButton: Locator;
@@ -156,7 +142,12 @@ export class TradingPage {
             '@trading/form/switch-crypto-fiat',
         );
         this.youPayCryptoInput = this.page.getByTestId('@trading/form/crypto-input');
+        this.cryptoInputBottomText = this.page.getByTestId(
+            '@trading/form/crypto-input/bottom-text',
+        );
         this.customFeeInput = this.page.getByTestId('feePerUnit');
+        this.customFeeAmount = this.page.getByTestId('@trading/quote/custom-fee-amount');
+        this.miscFeeAmount = this.page.getByTestId('@wallet/misc-fee-amount');
         this.countryOfResidenceDropdown = this.page.getByTestId(
             '@trading/form/country-select/input',
         );
@@ -168,7 +159,6 @@ export class TradingPage {
         this.buyOffersPage = this.page.getByTestId('@trading/buy-offers');
         this.compareButton = this.page.getByTestId('@trading/form/compare-button');
         this.quotes = this.page.getByTestId('@trading/offers/quote');
-        this.quoteAmount = this.page.getByTestId(quoteAmountLocator);
         this.refreshTime = this.page.getByTestId('@trading/refresh-time-text');
         this.selectThisQuoteButton = this.page.getByTestId('@trading/offers/get-this-deal-button');
         this.backToAccountButton = this.page.getByRole('button', { name: 'Back to Account' });
@@ -408,7 +398,11 @@ export class TradingPage {
     }
 
     @step()
-    async validateBuyQuotes(quotesResponse: any[]) {
+    private async validateQuotes(
+        quotesResponse: any[],
+        listType: 'buyList' | 'sellList',
+        formatExpectedAmount: (quote: any) => string,
+    ) {
         const paymentMethod = await this.getSelectedPaymentMethod();
         const expectedQuotes = quotesResponse.filter(
             quote => quote.paymentMethod === paymentMethod && quote.error === undefined,
@@ -417,11 +411,36 @@ export class TradingPage {
 
         const displayedQuotes = await this.quotes.all();
         for (const [index, quote] of displayedQuotes.entries()) {
+            //validate provider of the quote row
             const provider = await quote.getByTestId(quoteProviderLocator).textContent();
-            const amount = await quote.getByTestId(quoteAmountLocator).textContent();
-            expect.soft(provider?.toLowerCase()).toBe(expectedQuotes[index].exchange);
-            expect.soft(amount).toBe(expectedQuotes[index].receiveStringAmount);
+            const expectedProvider = getCompanyNameFromList(
+                expectedQuotes[index].exchange,
+                listType,
+            );
+            expect.soft(provider).toBe(expectedProvider);
+            //validate amount of the quote row
+            const amount = await quote.getByTestId('@trading/offers/quote/amount').textContent();
+            const expectedAmount = formatExpectedAmount(expectedQuotes[index]);
+            expect.soft(amount).toBe(expectedAmount);
         }
+    }
+
+    @step()
+    async validateBuyQuotes(quotesResponse: any[]) {
+        await this.validateQuotes(
+            quotesResponse,
+            'buyList',
+            quote => `${quote.receiveStringAmount} BTC`,
+        );
+    }
+
+    @step()
+    async validateSellQuotes(quotesResponse: any[]) {
+        await this.validateQuotes(
+            quotesResponse,
+            'sellList',
+            quote => `€${parseFloat(quote.fiatStringAmount).toFixed(2)}`,
+        );
     }
 
     @step()
@@ -472,5 +491,27 @@ export class TradingPage {
     async verifySwapFormOpened(cryptoName: string) {
         await expect(this.swapFromAccountInput).toContainText(cryptoName);
         await expect(this.page.getByText('Swap amount')).toBeVisible();
+    }
+
+    @step()
+    async expectInputToBe(params: PercentageOfBalanceParams) {
+        const expectedValue = calculatePercentageOfBalance(params);
+        await expect.soft(this.youPayCryptoInput).toHaveValue(expectedValue);
+    }
+
+    @step()
+    async getSolanaFee() {
+        const lamportsToSolanaRatio = 1_000_000_000;
+        const feeWithSymbol = await this.miscFeeAmount.textContent();
+        if (!feeWithSymbol) {
+            throw new Error('Fee amount is undefined or null');
+        }
+
+        const feeParts = feeWithSymbol.split(' ');
+        if (feeParts.length === 0 || isNaN(parseFloat(feeParts[0]))) {
+            throw new Error('Fee amount is invalid');
+        }
+
+        return parseFloat(feeParts[0]) / lamportsToSolanaRatio;
     }
 }

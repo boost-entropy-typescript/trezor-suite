@@ -1,8 +1,22 @@
+import { AcquiredDevice, ExperimentsItem, Message, MessageSystem } from '@suite-common/suite-types';
 import { testMocks } from '@suite-common/test-utils';
-import { FirmwareType } from '@trezor/connect';
+import { FirmwareType, TransportInfo } from '@trezor/connect';
 import { DeviceModelInternal } from '@trezor/device-utils';
+import { EnvUtils } from '@trezor/env-utils';
+
+import { Options } from '../messageSystemUtils';
 
 const { getDeviceFeatures, getConnectDevice, getMessageSystemConfig } = testMocks;
+
+const defaultOptions: Options = { settings: { tor: false, enabledNetworks: ['btc'] } };
+const defaultTransportsOption: TransportInfo = {
+    type: 'BridgeTransport',
+    apiType: 'usb',
+    version: '2.0.33',
+    outdated: false,
+};
+type GetConnectAcquiredDevice = (...args: Parameters<typeof getConnectDevice>) => AcquiredDevice;
+const getConnectAcquiredDevice = getConnectDevice as GetConnectAcquiredDevice;
 
 export const createVersionRange = [
     {
@@ -473,7 +487,7 @@ export const validateTransportCompatibility = [
             bridge: ['2.0.27', '2.0.28'],
             webusbplugin: '*',
         },
-        transports: [{ type: 'bridge', version: '2.0.27' }],
+        transports: [{ ...defaultTransportsOption, version: '2.0.27' }],
         result: true,
     },
     {
@@ -491,7 +505,7 @@ export const validateTransportCompatibility = [
             bridge: '*',
             webusbplugin: '*',
         },
-        transports: [{ type: 'bridge', version: '2.0.27' }],
+        transports: [{ ...defaultTransportsOption, version: '2.0.27' }],
         result: true,
     },
     {
@@ -509,7 +523,7 @@ export const validateTransportCompatibility = [
             bridge: '2',
             webusbplugin: '*',
         },
-        transports: [{ type: 'BridgeTransport', version: '2.0.25' }],
+        transports: [{ ...defaultTransportsOption, version: '2.0.25' }],
         result: true,
     },
     {
@@ -518,7 +532,7 @@ export const validateTransportCompatibility = [
             bridge: '2',
             webusbplugin: '*',
         },
-        transports: [{ type: 'bridge' }],
+        transports: [{ ...defaultTransportsOption, version: undefined }],
         result: false,
     },
     {
@@ -556,7 +570,7 @@ export const validateTransportCompatibility = [
         },
         transports: [
             { type: 'UdpTransport', version: '1.9.3' },
-            { type: 'BridgeTransport', version: '2.0.31' },
+            { ...defaultTransportsOption, version: '2.0.31' },
         ],
         result: true,
     },
@@ -1307,16 +1321,31 @@ export const validateDeviceCompatibility = [
     },
 ];
 
-export const getValidMessages = [
+type GetValidMessagesFixture = {
+    description: string;
+    currentDate: string;
+    userAgent: string;
+    // For some systems, userAgent may not be sufficient to determine osVersion (see envUtils.ts).
+    // To simulate those cases, instead of mocking userAgent, getOsVersion will be mocked directly
+    osVersion?: string;
+    osName: ReturnType<EnvUtils['getOsName']>;
+    environment: ReturnType<EnvUtils['getEnvironment']>;
+    suiteVersion: string;
+    config: MessageSystem | null;
+    options: Options;
+    result: Message[];
+};
+
+export const getValidMessages: GetValidMessagesFixture[] = [
     {
         description: 'getValidMessages case 1',
         currentDate: '',
         userAgent: '',
         osName: '',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: null,
-        options: {},
+        options: defaultOptions,
         result: [],
     },
     {
@@ -1325,10 +1354,10 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1337,14 +1366,14 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
                 { duration: { from: '2021-03-01T12:10:00.000Z', to: '2021-03-05T12:10:00.000Z' } },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [],
     },
     {
@@ -1353,14 +1382,14 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
                 { duration: { from: '2021-03-01T12:10:00.000Z', to: '2021-05-01T12:10:00.000Z' } },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1369,14 +1398,14 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
                 { duration: { from: '2021-03-01T12:10:00.000Z', to: '2021-05-01T12:10:00.000Z' } },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1431,7 +1460,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1447,7 +1476,7 @@ export const getValidMessages = [
                 },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1456,7 +1485,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1472,7 +1501,7 @@ export const getValidMessages = [
                 },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [],
     },
     {
@@ -1494,7 +1523,7 @@ export const getValidMessages = [
                 },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1516,7 +1545,7 @@ export const getValidMessages = [
                 },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [getMessageSystemConfig().actions[1].message],
     },
     {
@@ -1538,7 +1567,7 @@ export const getValidMessages = [
                 },
             ],
         }),
-        options: {},
+        options: defaultOptions,
         result: [],
     },
     {
@@ -1547,7 +1576,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1565,7 +1594,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1583,7 +1612,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1597,7 +1626,7 @@ export const getValidMessages = [
         }),
         options: {
             settings: { tor: false, enabledNetworks: [] },
-            transports: [{ type: 'bridge', version: '2.3.4' }],
+            transports: [{ ...defaultTransportsOption, version: '2.3.4' }],
         },
         result: [getMessageSystemConfig().actions[1].message],
     },
@@ -1607,7 +1636,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1621,7 +1650,7 @@ export const getValidMessages = [
         }),
         options: {
             settings: { tor: false, enabledNetworks: [] },
-            transports: [{ type: 'bridge', version: '2.3.4' }],
+            transports: [{ ...defaultTransportsOption, version: '2.3.4' }],
         },
         result: [],
     },
@@ -1631,7 +1660,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1659,7 +1688,7 @@ export const getValidMessages = [
         }),
         options: {
             settings: { tor: false, enabledNetworks: [] },
-            device: getConnectDevice(),
+            device: getConnectAcquiredDevice(),
         },
         result: [getMessageSystemConfig().actions[1].message],
     },
@@ -1669,7 +1698,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1689,7 +1718,7 @@ export const getValidMessages = [
         }),
         options: {
             settings: { tor: false, enabledNetworks: [] },
-            device: getConnectDevice(),
+            device: getConnectAcquiredDevice(),
         },
         result: [],
     },
@@ -1699,7 +1728,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1720,7 +1749,7 @@ export const getValidMessages = [
         options: {
             settings: { tor: false, enabledNetworks: [] },
             device: {
-                ...getConnectDevice(undefined, {
+                ...getConnectAcquiredDevice(undefined, {
                     capabilities: ['Capability_Bitcoin'],
                 }),
             },
@@ -1733,7 +1762,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1754,7 +1783,7 @@ export const getValidMessages = [
         options: {
             settings: { tor: false, enabledNetworks: [] },
             device: {
-                ...getConnectDevice(undefined, {
+                ...getConnectAcquiredDevice(undefined, {
                     capabilities: ['Capability_Bitcoin_like'],
                 }),
             },
@@ -1772,8 +1801,8 @@ export const getValidMessages = [
         config: getMessageSystemConfig(),
         options: {
             settings: { tor: true, enabledNetworks: ['btc'] },
-            transports: [{ type: 'bridge', version: '2.0.30' }],
-            device: getConnectDevice(),
+            transports: [{ ...defaultTransportsOption, version: '2.0.30' }],
+            device: getConnectAcquiredDevice(),
         },
         result: getMessageSystemConfig().actions.map(action => action.message),
     },
@@ -1783,7 +1812,7 @@ export const getValidMessages = [
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(undefined, undefined, {
             conditions: [
@@ -1804,7 +1833,7 @@ export const getValidMessages = [
         options: {
             settings: { tor: false, enabledNetworks: [] },
             device: {
-                ...getConnectDevice(undefined, {
+                ...getConnectAcquiredDevice(undefined, {
                     capabilities: ['Capability_Bitcoin'],
                     revision: 'fae8ac',
                     bootloader_mode: true,
@@ -1814,6 +1843,40 @@ export const getValidMessages = [
                     patch_version: 4,
                 }),
             },
+        },
+        result: [getMessageSystemConfig().actions[1].message],
+    },
+    {
+        description: 'getValidMessages case 23',
+        currentDate: '2021-04-01T12:10:00.000Z',
+        userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+        osVersion: '10.14',
+        osName: 'macos',
+        environment: 'web',
+        suiteVersion: '2.0.0',
+        config: getMessageSystemConfig(),
+        options: {
+            settings: { tor: true, enabledNetworks: ['btc'] },
+            transports: [{ ...defaultTransportsOption, version: '2.0.30' }],
+            device: getConnectAcquiredDevice(),
+        },
+        result: getMessageSystemConfig().actions.map(action => action.message),
+    },
+    {
+        description: 'getValidMessages case 24',
+        currentDate: '2021-04-01T12:10:00.000Z',
+        userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+        osVersion: '15.3.2',
+        osName: 'macos',
+        environment: 'web',
+        suiteVersion: '2.0.0',
+        config: getMessageSystemConfig(),
+        options: {
+            settings: { tor: true, enabledNetworks: ['btc'] },
+            transports: [{ ...defaultTransportsOption, version: '2.0.30' }],
+            device: getConnectAcquiredDevice(),
         },
         result: [getMessageSystemConfig().actions[1].message],
     },
@@ -1946,16 +2009,29 @@ export const validateExperiments = [
     },
 ];
 
-export const getValidExperimentIds = [
+type GetValidExperimentIdsFixture = {
+    description: string;
+    currentDate: string;
+    userAgent: string;
+    osName: ReturnType<EnvUtils['getOsName']>;
+    environment: ReturnType<EnvUtils['getEnvironment']>;
+    suiteVersion: string;
+    config: MessageSystem;
+    options: Options;
+    result: ExperimentsItem['id'][];
+};
+
+export const getValidExperimentIds: GetValidExperimentIdsFixture[] = [
     {
         description: 'getValidExperimentIds - case 1',
         currentDate: '2021-04-01T12:10:00.000Z',
         userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
         osName: 'macos',
-        environment: '',
+        environment: 'desktop',
         suiteVersion: '',
         config: getMessageSystemConfig(),
+        options: defaultOptions,
         result: [
             ...(getMessageSystemConfig().experiments ?? []).map(
                 experiment => experiment.experiment.id,
