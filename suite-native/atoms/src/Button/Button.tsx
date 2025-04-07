@@ -21,6 +21,7 @@ export type ButtonAccessory = IconName | ReactElement;
 export type ButtonSize = 'extraSmall' | 'small' | 'medium' | 'large';
 export type ButtonColorScheme =
     | 'primary'
+    | 'primaryElevation0'
     | 'secondary'
     | 'tertiaryElevation0'
     | 'tertiaryElevation1'
@@ -97,6 +98,13 @@ export const buttonSchemeToColorsMap = {
         backgroundColor: 'backgroundPrimaryDefault',
         onPressColor: 'backgroundPrimaryPressed',
         textColor: 'textOnPrimary',
+        iconColor: 'iconOnPrimary',
+        disabledColors: baseDisabledScheme,
+    },
+    primaryElevation0: {
+        backgroundColor: 'backgroundPrimarySubtleOnElevation0',
+        onPressColor: 'backgroundPrimarySubtleOnElevation1',
+        textColor: 'textPrimaryDefault',
         iconColor: 'iconOnPrimary',
         disabledColors: baseDisabledScheme,
     },
@@ -193,7 +201,7 @@ export const buttonSchemeToColorsMap = {
     },
 } as const satisfies Record<ButtonColorScheme, ButtonColorSchemeColors>;
 
-const sizeToDimensionsMap = {
+export const buttonSizeToDimensionsMap = {
     extraSmall: {
         minHeight: 36,
         paddingVertical: nativeSpacings.sp8,
@@ -239,7 +247,7 @@ export const buttonToIconSizeMap = {
 
 export const buttonStyle = prepareNativeStyle<ButtonStyleProps>(
     (utils, { size, backgroundColor, isDisabled, flex }) => {
-        const sizeDimensions = sizeToDimensionsMap[size];
+        const sizeDimensions = buttonSizeToDimensionsMap[size];
 
         return {
             flex,

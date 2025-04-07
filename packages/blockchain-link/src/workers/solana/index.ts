@@ -161,7 +161,7 @@ const pushTransaction = async (request: Request<MessageTypes.PushTransaction>) =
     if (message.lifetimeConstraint === undefined) {
         const {
             value: { blockhash, lastValidBlockHeight },
-        } = await api.rpc.getLatestBlockhash({ commitment: 'finalized' }).send();
+        } = await api.rpc.getLatestBlockhash({ commitment: 'confirmed' }).send();
         transactionWithBlockhashLifetime = {
             ...transactionWithBlockhashLifetime,
             lifetimeConstraint: { blockhash, lastValidBlockHeight },
@@ -377,23 +377,23 @@ const getAccountInfo = async (request: Request<MessageTypes.GetAccountInfo>) => 
         const { value: accountInfo } = await api.rpc
             .getAccountInfo(publicKey, { encoding: 'base64' })
             .send();
+
+        const solEpoch = await getEpoch();
+        const solStakingAccounts = await getSolanaStakingData(api?.rpc, publicKey, solEpoch);
+
+        misc = {
+            owner: accountInfo?.owner,
+            solStakingAccounts,
+            solEpoch,
+        };
+
         if (accountInfo) {
             const [accountDataEncoded] = accountInfo.data;
             const accountDataBytes = getBase64Encoder().encode(accountDataEncoded);
             const accountDataLength = BigInt(accountDataBytes.byteLength);
             const rent = await api.rpc.getMinimumBalanceForRentExemption(accountDataLength).send();
-            const solEpoch = await getEpoch();
-            const solStakingAccounts = await getSolanaStakingData(
-                api?.rpc,
-                payload.descriptor,
-                solEpoch,
-            );
-            misc = {
-                owner: accountInfo?.owner,
-                rent: Number(rent),
-                solStakingAccounts,
-                solEpoch,
-            };
+
+            misc.rent = Number(rent);
         }
     }
 
@@ -518,7 +518,7 @@ const subscribeBlock = async ({ state, connect, post }: Context) => {
     const fetchBlock = async () => {
         const {
             value: { blockhash: blockHash, lastValidBlockHeight: blockHeight },
-        } = await api.rpc.getLatestBlockhash({ commitment: 'finalized' }).send();
+        } = await api.rpc.getLatestBlockhash({ commitment: 'confirmed' }).send();
         if (blockHeight) {
             post({
                 id: -1,
