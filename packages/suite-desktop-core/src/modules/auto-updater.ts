@@ -63,6 +63,8 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
 
     // Prevent downloading an update unless user explicitly asks for it.
     autoUpdater.autoDownload = false;
+    // You may turn this on for dev purposes, see docs/releases/desktop_updates.md
+    autoUpdater.forceDevUpdateConfig = false;
 
     const updateSettings = store.getUpdateSettings();
     let allowPrerelease = preReleaseFlag || updateSettings.allowPrerelease;
@@ -207,8 +209,8 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         );
     });
 
-    ipcMain.on('update/check', (_, isManual) => {
-        if (isManual) {
+    ipcMain.on('update/check', (_, { isManual }) => {
+        if (isManual === true) {
             isManualCheck = true;
         }
 

@@ -23,7 +23,6 @@ import type { ReduxModalProps } from '../ReduxModal';
 /** Modals requested by Device from `trezor-connect` */
 export const DeviceContextModal = ({
     windowType,
-    renderer,
     data,
 }: ReduxModalProps<typeof MODAL.CONTEXT_DEVICE>) => {
     const device = useSelector(selectSelectedDevice);
@@ -39,7 +38,7 @@ export const DeviceContextModal = ({
             return <PinModal device={device} />;
         // T1B1 firmware
         case UI.INVALID_PIN:
-            return <PinInvalidModal device={device} renderer={renderer} />;
+            return <PinInvalidModal device={device} />;
         // Passphrase on host
         case UI.REQUEST_PASSPHRASE:
             return <PassphraseModal device={device} />;
@@ -56,7 +55,7 @@ export const DeviceContextModal = ({
             return <ConfirmActionModal device={device} />;
         }
         case 'ButtonRequest_FirmwareCheck':
-            return <ConfirmFingerprintModal device={device} renderer={renderer} />;
+            return <ConfirmFingerprintModal device={device} />;
         // Generic Button requests
         // todo: consider fallback (if windowType.contains('ButtonRequest')). but add also possibility to blacklist some buttonRequests
         case 'ButtonRequest_Warning':

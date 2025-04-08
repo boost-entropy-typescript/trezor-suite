@@ -50,9 +50,9 @@ import { DeviceAuthenticationExplainer } from './DeviceAuthenticationExplainer';
 import { Preloader } from './Preloader/Preloader';
 import { TrafficLightDraggableWindowHeader } from './TrafficLightOffset';
 import { PinMatrix } from './PinMatrix/PinMatrix';
-import { UdevDownload } from './UdevDownload';
 import { StakingFeature } from './StakingFeature';
 import { StakeAmountWrapper } from './StakeAmountWrapper';
+import { MarkdownWithComponents } from './MarkdownWithComponents';
 
 export {
     Address,
@@ -104,9 +104,9 @@ export {
     Preloader,
     TrafficLightDraggableWindowHeader,
     PinMatrix,
-    UdevDownload,
     StakingFeature,
     StakeAmountWrapper,
+    MarkdownWithComponents,
 };
 export * from './graph';
 export * from './notifications';

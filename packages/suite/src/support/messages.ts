@@ -146,11 +146,11 @@ export default defineMessages({
         id: 'TR_ADD_ACCOUNT',
     },
     TR_SHOW_COINS_FILTER: {
-        defaultMessage: 'Show filter',
+        defaultMessage: 'Show networks filter',
         id: 'TR_SHOW_COINS_FILTER',
     },
     TR_HIDE_COINS_FILTER: {
-        defaultMessage: 'Hide filter',
+        defaultMessage: 'Hide networks filter',
         id: 'TR_HIDE_COINS_FILTER',
     },
     TR_ADD_NETWORK_ACCOUNT: {
@@ -3139,6 +3139,10 @@ export default defineMessages({
         defaultMessage: 'Select',
         id: 'TR_SELECT_DEVICE_SHORT',
     },
+    TR_CONTINUE_SETUP: {
+        defaultMessage: 'Continue Setup',
+        id: 'TR_CONTINUE_SETUP',
+    },
     TR_SELECT_PASSPHRASE_SOURCE: {
         defaultMessage: 'Select where to enter passphrase on {deviceLabel}',
         id: 'TR_SELECT_PASSPHRASE_SOURCE',
@@ -5335,6 +5339,10 @@ export default defineMessages({
     TR_COULD_NOT_RETRIEVE_CHANGELOG: {
         id: 'TR_COULD_NOT_RETRIEVE_CHANGELOG',
         defaultMessage: 'Could not retrieve the changelog',
+    },
+    TR_CHANGELOG_ON_GITHUB: {
+        id: 'TR_CHANGELOG_ON_GITHUB',
+        defaultMessage: 'Show changelog on GitHub',
     },
     TR_NAV_TRADE: {
         id: 'TR_NAV_TRADE',
