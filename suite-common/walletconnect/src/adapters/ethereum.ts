@@ -9,6 +9,7 @@ import { getAccountIdentity, getEthereumEstimateFeeParams } from '@suite-common/
 import TrezorConnect from '@trezor/connect';
 
 import { WALLETCONNECT_MODULE } from '../walletConnectConstants';
+import { selectSessionByTopic } from '../walletConnectReducer';
 import { WalletConnectAdapter } from '../walletConnectTypes';
 
 const ethereumRequestThunk = createThunk<
@@ -31,11 +32,19 @@ const ethereumRequestThunk = createThunk<
 
         return account;
     };
+    const session = selectSessionByTopic(getState(), event.topic);
+    if (!session) {
+        throw new Error('Session not found');
+    }
     const popupCallCommonParams = {
-        isWalletConnect: true as const,
-        processName: 'WalletConnect' as const,
-        origin: event.verifyContext.verified.origin,
-        manifest: undefined,
+        source: {
+            type: 'walletconnect' as const,
+            origin: event.verifyContext.verified.origin,
+            manifest: {
+                appName: session.peer.metadata.name,
+                appIcon: session.peer.metadata.icons[0],
+            },
+        },
     };
 
     switch (event.params.request.method) {
