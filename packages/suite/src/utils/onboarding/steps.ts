@@ -1,16 +1,38 @@
-import { selectSelectedDevice } from '@suite-common/wallet-core';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { versionUtils } from '@trezor/utils';
 
 import { ID_AUTHENTICATE_DEVICE_STEP } from 'src/constants/onboarding/steps';
-import { AnyPath, AnyStepId, Step } from 'src/types/onboarding';
-import { GetState } from 'src/types/suite';
+import { AnyPath, AnyStepId, Step, StepCategory } from 'src/types/onboarding';
+import { TrezorDevice } from 'src/types/suite';
 
-export const isStepUsed = (step: Step, getState: GetState): boolean => {
-    const state = getState();
-    const device = selectSelectedDevice(state);
+import { stepCategories } from '../../config/onboarding/steps';
 
-    const { path } = state.onboarding;
+export const parseStepId = (stepId: AnyStepId) => {
+    const activeStepCategory =
+        stepCategories.find(({ steps }) => steps.map(({ id }) => id).includes(stepId)) ?? null;
+
+    const activeStep = activeStepCategory?.steps.find(({ id }) => id === stepId) ?? null;
+
+    return {
+        activeStep,
+        activeStepCategory,
+    };
+};
+
+export type IsStepUsedProps = {
+    device: TrezorDevice | undefined;
+    onboardingPath: AnyPath[];
+    isDeviceAuthenticityCheckEnabled: boolean;
+    isUnlockedBootloaderAllowed: boolean;
+};
+
+export const isStepUsed = (step: Step, props: IsStepUsedProps): boolean => {
+    const {
+        device,
+        onboardingPath,
+        isDeviceAuthenticityCheckEnabled,
+        isUnlockedBootloaderAllowed,
+    } = props;
     const deviceModelInternal = device?.features?.internal_model;
     const firmwareVersion = getFirmwareVersion(device);
 
@@ -32,11 +54,15 @@ export const isStepUsed = (step: Step, getState: GetState): boolean => {
         return false;
     }
 
-    if (step.id === ID_AUTHENTICATE_DEVICE_STEP) {
-        const isDeviceAuthenticityCheckEnabled =
-            state.suite.settings.enabledSecurityChecks.deviceAuthenticity;
-        const { isUnlockedBootloaderAllowed } = state.suite.settings.debug;
+    if (
+        device?.firmwareType &&
+        Array.isArray(step.supportedFirmwareTypes) &&
+        !step.supportedFirmwareTypes.includes(device.firmwareType)
+    ) {
+        return false;
+    }
 
+    if (step.id === ID_AUTHENTICATE_DEVICE_STEP) {
         const isBootloaderUnlocked = device?.features?.bootloader_locked === false;
 
         return (
@@ -49,14 +75,17 @@ export const isStepUsed = (step: Step, getState: GetState): boolean => {
         return true;
     }
 
-    if (path.length === 0) {
+    if (onboardingPath.length === 0) {
         return true;
     }
 
-    return path.every((pathMember: AnyPath) =>
+    return onboardingPath.every((pathMember: AnyPath) =>
         step.path?.some((stepPathMember: AnyPath) => stepPathMember === pathMember),
     );
 };
+
+export const isStepCategoryUsed = (stepCategory: StepCategory, props: IsStepUsedProps): boolean =>
+    stepCategory.steps.filter(step => isStepUsed(step, props)).length > 0;
 
 export const findNextStep = (currentStepId: AnyStepId, steps: Step[]) => {
     const currentIndex = steps.findIndex((step: Step) => step.id === currentStepId);

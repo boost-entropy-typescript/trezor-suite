@@ -1,4 +1,5 @@
-import { DeviceModelInternal } from '@trezor/device-utils';
+import { TranslationKey } from '@suite-common/intl-types';
+import { DeviceModelInternal, FirmwareType } from '@trezor/device-utils';
 import { FirmwareVersionString } from '@trezor/device-utils/src/types';
 
 import * as STEP from 'src/constants/onboarding/steps';
@@ -9,12 +10,20 @@ type ModelWithFirmwareVersion = {
     minFwVersion: FirmwareVersionString;
 };
 
+export type StepCategoryKey = 'device' | 'wallet' | 'pin' | 'coins' | 'final';
+
+export type StepCategory = {
+    id: StepCategoryKey;
+    steps: Step[];
+    labelTranslationId?: TranslationKey;
+};
+
 export type Step = {
     id: AnyStepId;
-    stepGroup: number | undefined;
     prerequisites?: (PrerequisiteType | 'device-different')[];
     path?: AnyPath[];
     supportedModels?: (DeviceModelInternal | ModelWithFirmwareVersion)[];
+    supportedFirmwareTypes?: FirmwareType[];
 };
 
 // todo: remove, improve typing

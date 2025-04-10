@@ -1,9 +1,42 @@
-import { Fragment, ReactNode } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import styled, { css, useTheme } from 'styled-components';
 
 import { Icon, variables } from '@trezor/components';
 import { spacingsPx, typography } from '@trezor/theme';
+
+import { useDevice, useOnboarding, useSelector } from 'src/hooks/suite';
+
+import { stepCategories } from '../../config/onboarding/steps';
+import { selectIsDeviceAuthenticityCheckEnabled } from '../../reducers/suite/suiteReducer';
+import { isStepCategoryUsed } from '../../utils/onboarding/steps';
+import { Translation } from '../suite';
+
+/**
+ * Returns stepCategories that have at least one currently relevant step
+ * (for example Coin selection `step` is alone in its category, so the category is hidden for BTC-only onboarding)
+ * */
+const useOnboardingStepCategoriesInPath = () => {
+    const { device } = useDevice();
+    const { path: onboardingPath } = useOnboarding();
+    const isDeviceAuthenticityCheckEnabled = useSelector(selectIsDeviceAuthenticityCheckEnabled);
+    const isUnlockedBootloaderAllowed = useSelector(
+        state => state.suite.settings.debug.isUnlockedBootloaderAllowed,
+    );
+
+    return useMemo(
+        () =>
+            stepCategories.filter(stepCategory =>
+                isStepCategoryUsed(stepCategory, {
+                    device,
+                    onboardingPath,
+                    isDeviceAuthenticityCheckEnabled,
+                    isUnlockedBootloaderAllowed,
+                }),
+            ),
+        [device, onboardingPath, isDeviceAuthenticityCheckEnabled, isUnlockedBootloaderAllowed],
+    );
+};
 
 const ProgressBarWrapper = styled.div`
     display: flex;
@@ -87,37 +120,32 @@ const Divider = styled.div`
     }
 `;
 
-interface OnboardingProgressBarProps {
-    steps: {
-        key: string;
-        label?: ReactNode;
-    }[];
-    activeStep?: number;
-    className?: string;
-}
-
-export const OnboardingProgressBar = ({
-    steps,
-    activeStep,
-    className,
-}: OnboardingProgressBarProps) => {
+export const OnboardingProgressBar = () => {
     const theme = useTheme();
 
+    const stepCategoriesInPath = useOnboardingStepCategoriesInPath();
+    const { activeStepCategory } = useOnboarding();
+    const lastStepIndex = stepCategoriesInPath.length - 1;
+    const indexOfActiveStep = stepCategoriesInPath.findIndex(
+        ({ id }) => id === activeStepCategory?.id,
+    );
+
     return (
-        <ProgressBarWrapper className={className}>
-            {steps.map((step, index) => {
-                const stepCompleted = (activeStep ?? 0) > index;
-                const stepActive = index === activeStep;
+        <ProgressBarWrapper>
+            {stepCategoriesInPath.map(({ id, labelTranslationId }, index) => {
+                // if active step was not found (-1) because activeStepGroup is undefined, no step will be considered completed
+                const stepCompleted = indexOfActiveStep > index;
+                const stepActive = index === indexOfActiveStep;
 
                 return (
-                    <Fragment key={step.key}>
+                    <Fragment key={id}>
                         <StepWrapper $active={stepActive}>
                             <IconWrapper $active={stepActive} $stepCompleted={stepCompleted}>
                                 {stepCompleted ? (
                                     <Icon name="check" color={theme.legacy.TYPE_GREEN} />
                                 ) : (
                                     <>
-                                        {index === steps.length - 1 ? (
+                                        {index === lastStepIndex ? (
                                             <Icon
                                                 name="confetti"
                                                 size={20}
@@ -131,9 +159,13 @@ export const OnboardingProgressBar = ({
                                     </>
                                 )}
                             </IconWrapper>
-                            <Label>{step.label}</Label>
+                            {labelTranslationId ? (
+                                <Label>
+                                    <Translation id={labelTranslationId} />
+                                </Label>
+                            ) : null}
                         </StepWrapper>
-                        {index < steps.length - 1 && <Divider />}
+                        {index < lastStepIndex && <Divider />}
                     </Fragment>
                 );
             })}
