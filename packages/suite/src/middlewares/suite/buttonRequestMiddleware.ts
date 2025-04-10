@@ -44,13 +44,23 @@ const buttonRequest =
             const {
                 wallet: {
                     selectedAccount: { account },
+                    connectPopup: { activeCall },
                 },
                 router: { route },
             } = api.getState();
-            if (
+            const isInSuite =
                 ['cardano', 'ethereum'].includes(account?.networkType || '') &&
-                ['wallet-send', 'wallet-staking', 'wallet-index'].includes(route?.name || '')
-            ) {
+                [
+                    'wallet-send',
+                    'wallet-staking',
+                    'wallet-index',
+                    'wallet-trading-exchange-confirm',
+                    'wallet-trading-sell-confirm',
+                ].includes(route?.name || '');
+            const isInConnectCall =
+                activeCall?.state === 'ongoing' &&
+                ['cardanoSignTransaction', 'ethereumSignTransaction'].includes(activeCall.method);
+            if (isInSuite || isInConnectCall) {
                 api.dispatch({
                     ...action,
                     payload: { ...action.payload, code: 'ButtonRequest_SignTx' },
