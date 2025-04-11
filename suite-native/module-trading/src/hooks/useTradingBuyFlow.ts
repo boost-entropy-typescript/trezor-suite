@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
-import { BuyTradeResponse, FormResponse } from 'invity-api';
+import { BuyTrade, BuyTradeResponse, FormResponse } from 'invity-api';
 
 import {
     buyThunks,
     selectTradingBuyIsLoading,
     selectTradingBuyQuotes,
-    selectTradingBuySelectedQuote,
     tradingBuyActions,
 } from '@suite-common/trading';
 import { EventType, analytics } from '@suite-native/analytics';
@@ -24,7 +23,7 @@ import { useTimer } from '@trezor/react-utils';
 
 import { TradingBuyForm } from '../types';
 import { clearTradingBuyFormQuoteData } from './useTradingBuyForm';
-import { buildUrl, getSourceForForm } from '../utils/tradeFormUtils';
+import { buildTradingUrl, getSourceForForm } from '../utils/tradeFormUtils';
 import { getSelectedSymbolFromBuyForm } from '../utils/tradeableAssetUtils';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
@@ -57,7 +56,6 @@ const reportTradeConfirmation = () => {
 export const useTradingBuyFlow = (form: TradingBuyForm) => {
     const dispatch = useDispatch();
     const quotes = useSelector(selectTradingBuyQuotes);
-    const selectedQuote = useSelector(selectTradingBuySelectedQuote);
     const isLoading = useSelector(selectTradingBuyIsLoading);
 
     const timer = useTimer();
@@ -86,12 +84,12 @@ export const useTradingBuyFlow = (form: TradingBuyForm) => {
 
     const handleConsent = {
         give: () => {
-            setIsConsentRequested(false);
             resolveConsent(true);
+            setIsConsentRequested(false);
         },
         cancel: () => {
-            setIsConsentRequested(false);
             resolveConsent(false);
+            setIsConsentRequested(false);
         },
         request: async (_provider: string, _cryptoCurrency: string) => {
             setIsConsentRequested(true);
@@ -118,21 +116,21 @@ export const useTradingBuyFlow = (form: TradingBuyForm) => {
         }
 
         if (response.tradeForm) {
-            const returnUrl = buildUrl('trade', candidateQuote!);
+            const returnUrl = buildTradingUrl('trade', candidateQuote!);
             handleWebview(response.tradeForm.form, returnUrl);
         }
 
         clearTradingBuyFormQuoteData(form);
     };
 
-    const confirmTrade = (address: string) => {
-        if (!selectedQuote || !receiveAccount) {
+    const confirmTrade = async (quote: BuyTrade, address: string) => {
+        if (!receiveAccount) {
             return;
         }
 
-        const returnUrl = buildUrl('trade', selectedQuote);
+        const returnUrl = buildTradingUrl('trade', quote);
 
-        dispatch(
+        await dispatch(
             buyThunks.confirmTradeThunk({
                 address,
                 returnUrl,
@@ -143,7 +141,7 @@ export const useTradingBuyFlow = (form: TradingBuyForm) => {
         );
     };
 
-    const selectQuote = () => {
+    const selectQuote = async () => {
         if (!candidateQuote || isLoading) {
             return;
         }
@@ -156,9 +154,9 @@ export const useTradingBuyFlow = (form: TradingBuyForm) => {
 
         setIsConsentRequested(false);
 
-        const returnUrl = buildUrl('quote', candidateQuote);
+        const returnUrl = buildTradingUrl('quote', candidateQuote);
 
-        dispatch(
+        await dispatch(
             buyThunks.selectQuoteThunk({
                 quote: candidateQuote,
                 timer,
@@ -167,6 +165,7 @@ export const useTradingBuyFlow = (form: TradingBuyForm) => {
                 userConsent: handleConsent.request,
                 nextStep: () => {
                     confirmTrade(
+                        candidateQuote,
                         receiveAccount.address?.address ?? receiveAccount.account.descriptor,
                     );
                 },
