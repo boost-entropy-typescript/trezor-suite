@@ -53,8 +53,11 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
     public cancel(_error?: string) {}
 
     private async handshake() {
+        if (!this.ws) {
+            throw ERRORS.TypedError('Desktop_ConnectionMissing', 'No websocket connection');
+        }
         try {
-            const response = await this.ws!.sendMessage(
+            const response = await this.ws.sendMessage(
                 {
                     type: POPUP.HANDSHAKE,
                     payload: {
@@ -82,6 +85,14 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
             ...settings,
         });
 
+        // manifest is required in all implementations. for core-in-suite-desktop, also manifest.appName is required
+        if (!newSettings.manifest || !newSettings.manifest.appName) {
+            throw ERRORS.TypedError(
+                'Init_ManifestMissing',
+                'Manifest is missing or manifest.appName is not set',
+            );
+        }
+
         // defaults
         if (!newSettings.transports?.length) {
             newSettings.transports = ['BridgeTransport', 'WebUsbTransport'];
@@ -89,11 +100,9 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         this._settings = newSettings;
 
         try {
-            this.ws = new WebsocketClient({ url: 'ws://localhost:21335/connect-ws' });
-
-            await this.ws.connect();
-
-            return await this.handshake();
+            const ws = new WebsocketClient({ url: 'ws://localhost:21335/connect-ws' });
+            await ws.connect();
+            this.ws = ws;
         } catch (err) {
             throw err instanceof WebsocketError
                 ? ERRORS.TypedError('Desktop_ConnectionMissing', err.message)
@@ -110,19 +119,13 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         try {
             if (!this.ws) {
                 await this.init();
-            } else {
-                await this.handshake();
             }
+            await this.handshake();
 
-            const response = await this.ws?.sendMessage(
-                {
-                    type: IFRAME.CALL,
-                    payload: params,
-                },
-                {
-                    timeout: Number.MAX_SAFE_INTEGER,
-                },
-            );
+            const response = await this.ws?.sendMessage({
+                type: IFRAME.CALL,
+                payload: params,
+            });
 
             if (!response) {
                 throw ERRORS.TypedError('Desktop_ConnectionMissing', 'No response');

@@ -58,12 +58,16 @@ export const initBackground: ModuleInitBackground = ({ mainWindowProxy, mainThre
         // when httpReceiver was asked to provide current address for given pathname
         ipcMain.handle('server/request-address', (ipcEvent, pathname) => {
             validateIpcMessage(ipcEvent);
-            const address = receiver.getRouteAddress(pathname);
-            if (address) {
-                receiver.activateRoute(pathname);
-            }
+            try {
+                const address = receiver.getRouteAddress(pathname);
+                if (address) {
+                    receiver.activateRoute(pathname);
+                }
 
-            return address;
+                return address;
+            } catch (e) {
+                logger.error(SERVICE_NAME, `Failed to get address: ${e.message}`);
+            }
         });
 
         const connectPopupEnabled = hasSwitch('expose-connect-ws') || isDevEnv;
@@ -78,16 +82,18 @@ export const initBackground: ModuleInitBackground = ({ mainWindowProxy, mainThre
 
         logger.info(SERVICE_NAME, 'Starting server');
 
-        try {
-            await receiver.start();
-
-            return receiver.getInfo();
-        } catch (error) {
+        const startResult = await receiver.start();
+        if (!startResult.success) {
             // Don't fail hard if the server can't start
-            logger.error(SERVICE_NAME, 'Failed to start server: ' + error);
+            logger.error(
+                SERVICE_NAME,
+                `Failed to start server:  ${startResult.error}, error details: ${startResult.message}`,
+            );
 
             return { url: null };
         }
+
+        return receiver.getInfo();
     };
 
     const onQuit = async () => {
