@@ -10,7 +10,9 @@ import {
 } from '@trezor/connect';
 
 import { addressConfirmationModalHooks } from './addressConfirmation';
+import { bitcoinSignTransaction } from './bitcoinSignTransaction';
 import { ethereumSignTransaction } from './ethereumSignTransaction';
+import { solanaSignTransaction } from './solanaSignTransaction';
 
 export type PreCallHookParams<M extends keyof TrezorConnect> = {
     method: M;
@@ -25,13 +27,18 @@ export type PostCallHookParams<M extends keyof TrezorConnect> = PreCallHookParam
 };
 
 export const preCallHooks = async <M extends keyof TrezorConnect>(params: PreCallHookParams<M>) => {
-    await addressConfirmationModalHooks.preCallHook(params);
+    await bitcoinSignTransaction.preCallHook(params);
     await ethereumSignTransaction.preCallHook(params);
+    await solanaSignTransaction.preCallHook(params);
+
+    return await addressConfirmationModalHooks.preCallHook(params);
 };
 
 export async function postCallHooks<M extends keyof TrezorConnect>(params: PostCallHookParams<M>) {
     const hooks = [
+        await bitcoinSignTransaction.postCallHook(params),
         await ethereumSignTransaction.postCallHook(params),
+        await solanaSignTransaction.postCallHook(params),
         await addressConfirmationModalHooks.postCallHook(params),
     ];
 
