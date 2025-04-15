@@ -206,4 +206,10 @@ export type UserContextPayload =
       }
     | {
           type: 'connect-address-confirmation';
+      }
+    | {
+          type: 'connect-error';
+      }
+    | {
+          type: 'connect-loading';
       };

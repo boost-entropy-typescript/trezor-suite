@@ -15,8 +15,16 @@ export const prepareConnectPopupMiddleware = createMiddlewareWithExtraDeps(
             dispatch(extra.actions.openModal({ type: 'connect-address-confirmation' }));
         }
         if (
+            connectPopupActions.initiateCall.match(action) ||
+            connectPopupActions.approvePermissions.match(action)
+        ) {
+            dispatch(extra.actions.openModal({ type: 'connect-loading' }));
+        }
+        if (connectPopupActions.setError.match(action)) {
+            dispatch(extra.actions.openModal({ type: 'connect-error' }));
+        }
+        if (
             connectPopupActions.finishCall.match(action) ||
-            connectPopupActions.approvePermissions.match(action) ||
             connectPopupActions.rejectPermissions.match(action)
         ) {
             dispatch(extra.actions.onModalCancel());
