@@ -4,7 +4,9 @@ import { TradingPaymentMethodProps } from '@suite-common/trading';
 
 import coins from '../../__fixtures__/coins.json';
 import platforms from '../../__fixtures__/platforms.json';
+import { accountBtc, accountEth } from '../../__fixtures__/utils';
 import { TradingBuyState } from '../../reducers/buyReducer';
+import { exchangeInitialState } from '../../reducers/exchangeReducer';
 import { initialState } from '../../reducers/tradingReducer';
 import { TradingPaymentMethodListProps } from '../../types';
 import {
@@ -12,7 +14,9 @@ import {
     selectBestBuyQuoteByPaymentMethod,
     selectBuyQuotesByPaymentMethod,
     selectTrading,
+    selectTradingAccountAccordingActiveSection,
     selectTradingBuy,
+    selectTradingBuyInfo,
     selectTradingBuyIsLoading,
     selectTradingBuyProviders,
     selectTradingBuyQuoteByQuoteId,
@@ -22,6 +26,13 @@ import {
     selectTradingBuySupportedCryptoIds,
     selectTradingCoinInfoByCryptoId,
     selectTradingCoinSymbolByCryptoId,
+    selectTradingComposedTransactionInfo,
+    selectTradingExchange,
+    selectTradingExchangeFormStep,
+    selectTradingExchangeInfo,
+    selectTradingExchangeProviders,
+    selectTradingExchangeQuotesRequest,
+    selectTradingExchangeSelectedQuote,
     selectTradingInfoLegacy,
     selectTradingNativeCoinSymbolByCryptoId,
     selectTradingPaymentMethods,
@@ -117,8 +128,23 @@ describe('tradingSelectors', () => {
                         coins: coins as Coins,
                         platforms: platforms as Platforms,
                     },
+                    exchange: {
+                        ...exchangeInitialState,
+                        tradingAccountKey: accountEth.key,
+                    },
                     trades: [{ tradeType: 'buy' }],
+                    composedTransactionInfo: {
+                        composed: {
+                            feePerByte: '1',
+                        },
+                        selectedFee: 'normal',
+                    },
                 },
+                selectedAccount: {
+                    account: accountBtc,
+                    status: 'loaded',
+                },
+                accounts: [accountEth],
             },
             suite: {
                 settings: {
@@ -163,12 +189,113 @@ describe('tradingSelectors', () => {
         });
     });
 
+    describe('selectTradingExchange', () => {
+        it('should return correct data', () => {
+            expect(selectTradingExchange(state)).toEqual(state.wallet.tradingNew.exchange);
+        });
+
+        it('should be stable', () => {
+            expect(selectTradingExchange(state)).toBe(selectTradingExchange(state));
+        });
+    });
+
+    describe('selectTradingBuyInfo', () => {
+        it('should return correct data', () => {
+            const stateBuy = {
+                wallet: {
+                    tradingNew: {
+                        buy: {
+                            buyInfo: {
+                                buyInfo: {},
+                                providerInfos: {},
+                                supportedFiatCurrencies: [] as string[],
+                                supportedCryptoCurrencies: [] as CryptoId[],
+                            },
+                        },
+                    },
+                },
+            } as TradingRootState;
+
+            expect(selectTradingBuyInfo(stateBuy)).toEqual({
+                buyInfo: {
+                    defaultAmountsOfFiatCurrencies: new Map(),
+                },
+                providerInfos: {},
+                supportedFiatCurrencies: new Set(),
+                supportedCryptoCurrencies: new Set(),
+            });
+        });
+
+        const stateBuyWithUndefinedInfo = {
+            wallet: {
+                tradingNew: {
+                    buy: {},
+                },
+            },
+        } as TradingRootState;
+
+        it('should return undefined', () => {
+            expect(selectTradingBuyInfo(stateBuyWithUndefinedInfo)).toEqual(undefined);
+        });
+
+        it('should be stable', () => {
+            expect(selectTradingBuyInfo(state)).toBe(selectTradingBuyInfo(state));
+        });
+    });
+
+    describe('selectTradingExchangeInfo', () => {
+        it('should return correct data', () => {
+            const stateExchange = {
+                wallet: {
+                    tradingNew: {
+                        exchange: {
+                            exchangeInfo: {
+                                providerInfos: {},
+                                buyCryptoIds: [] as CryptoId[],
+                                sellCryptoIds: [] as CryptoId[],
+                            },
+                        },
+                    },
+                },
+            } as TradingRootState;
+
+            expect(selectTradingExchangeInfo(stateExchange)).toEqual({
+                providerInfos: {},
+                buyCryptoIds: new Set(),
+                sellCryptoIds: new Set(),
+            });
+        });
+
+        it('should return undefined', () => {
+            expect(selectTradingExchangeInfo(state)).toEqual(undefined);
+        });
+
+        it('should be stable', () => {
+            expect(selectTradingExchangeInfo(state)).toBe(selectTradingExchangeInfo(state));
+        });
+    });
+
     describe('selectTrading', () => {
         it('should return correct data', () => {
-            expect(selectTrading(state)).toEqual({
-                ...state.wallet.tradingNew,
-                buy: selectTradingBuy(state),
-            });
+            const {
+                wallet: { tradingNew },
+            } = getState() as Record<string, any>;
+
+            tradingNew.buy.buyInfo.supportedCryptoCurrencies = new Set([
+                'eos',
+                'bitcoin',
+                'ethereum',
+                'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                'base--0x0000000000000000000000000000000000000000',
+                'ethereum--0xWithoutObjectInCoinsInfo',
+            ]);
+            tradingNew.buy.buyInfo.supportedFiatCurrencies = new Set(['usd', 'eur', 'czk']);
+            tradingNew.buy.buyInfo.buyInfo.defaultAmountsOfFiatCurrencies = new Map([
+                ['usd', '150'],
+                ['eur', '100'],
+            ]);
+
+            expect(selectTrading(state)).toEqual(tradingNew);
         });
 
         it('should be stable', () => {
@@ -188,15 +315,41 @@ describe('tradingSelectors', () => {
         });
     });
 
+    describe('selectTradingExchangeProviders', () => {
+        it('should return correct data', () => {
+            expect(selectTradingExchangeProviders(state)).toEqual(
+                state.wallet.tradingNew.exchange.exchangeInfo?.providerInfos,
+            );
+        });
+
+        it('should be stable', () => {
+            expect(selectTradingExchangeProviders(state)).toBe(
+                selectTradingExchangeProviders(state),
+            );
+        });
+    });
+
     it('selectTradingBuyQuotesRequest should return correct data', () => {
         expect(selectTradingBuyQuotesRequest(state)).toBe(
             state.wallet.tradingNew.buy.quotesRequest,
         );
     });
 
+    it('selectTradingExchangeQuotesRequest should return correct data', () => {
+        expect(selectTradingExchangeQuotesRequest(state)).toBe(
+            state.wallet.tradingNew.exchange.quotesRequest,
+        );
+    });
+
     it('selectTradingBuySelectedQuote should return correct data', () => {
         expect(selectTradingBuySelectedQuote(state)).toBe(
             state.wallet.tradingNew.buy.selectedQuote,
+        );
+    });
+
+    it('selectTradingExchangeSelectedQuote should return correct data', () => {
+        expect(selectTradingExchangeSelectedQuote(state)).toBe(
+            state.wallet.tradingNew.exchange.selectedQuote,
         );
     });
 
@@ -384,6 +537,55 @@ describe('tradingSelectors', () => {
         it('should return correct quote', () => {
             const result = selectTradingBuyQuoteByQuoteId(state, 'quoteId1');
             expect(result?.orderId).toBe('orderId1');
+        });
+    });
+
+    it('selectTradingExchangeFormStep should return formStep', () => {
+        expect(selectTradingExchangeFormStep(state)).toBe('RECEIVING_ADDRESS');
+    });
+
+    it('selectTradingComposedTransactionInfo should return composed and selectedFee information', () => {
+        expect(selectTradingComposedTransactionInfo(state)).toEqual({
+            composed: {
+                feePerByte: '1',
+            },
+            selectedFee: 'normal',
+        });
+    });
+
+    describe('selectTradingAccountAccordingActiveSection', () => {
+        it('should return correct account for buy', () => {
+            expect(
+                selectTradingAccountAccordingActiveSection(
+                    state,
+                    'buy',
+                    state.wallet.selectedAccount,
+                ),
+            ).toEqual(state.wallet.selectedAccount.account);
+        });
+
+        it('should return correct account for exchange according to tradingAccountKey', () => {
+            expect(
+                selectTradingAccountAccordingActiveSection(
+                    state,
+                    'exchange',
+                    state.wallet.selectedAccount,
+                ),
+            ).toEqual(
+                state.wallet.accounts.find(
+                    account => account.key === state.wallet.tradingNew.exchange.tradingAccountKey,
+                ),
+            );
+        });
+
+        it('should return correct account for sell according to tradingAccountKey', () => {
+            expect(
+                selectTradingAccountAccordingActiveSection(
+                    state,
+                    'sell',
+                    state.wallet.selectedAccount,
+                ),
+            ).toBeUndefined();
         });
     });
 });

@@ -1,4 +1,4 @@
-import { TradingBuyFormProps } from '@suite-common/trading';
+import { TradingBuyFormProps, TradingExchangeFormProps } from '@suite-common/trading';
 import { TokenAddress } from '@suite-common/wallet-types';
 import { formatAmount } from '@suite-common/wallet-utils';
 import { Column, FractionButton, FractionButtonProps, Row } from '@trezor/components';
@@ -18,7 +18,6 @@ import {
 } from 'src/constants/wallet/trading/form';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import {
-    TradingExchangeFormProps,
     TradingSellFormProps,
     TradingUseFormActionsReturnProps,
 } from 'src/types/trading/tradingForm';
@@ -161,7 +160,7 @@ export const TradingFormInputs = () => {
         const output = outputs[0];
         const currencySelect = output.currency;
         const tokenAddress = (output.token ?? undefined) as TokenAddress | undefined;
-        const supportedCryptoCurrencies = exchangeInfo?.buySymbols;
+        const supportedCryptoCurrencies = exchangeInfo?.buyCryptoIds;
         const outputAmount =
             shouldSendInSats && output.amount
                 ? formatAmount(output.amount, getTradingNetworkDecimals({ sendCryptoSelect }))

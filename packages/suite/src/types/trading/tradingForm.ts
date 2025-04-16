@@ -16,7 +16,8 @@ import type {
     TradingBuyFormProps,
     TradingBuyInfoSelector,
     TradingBuyType,
-    TradingCryptoSelectItemProps,
+    TradingExchangeFormProps,
+    TradingExchangeInfoSelector,
     TradingExchangeType,
     TradingPaymentMethodListProps,
     TradingPaymentMethodProps,
@@ -40,25 +41,8 @@ import {
 import { FeeLevel } from '@trezor/connect';
 import { Timer } from '@trezor/react-utils';
 
-import { TradingExchangeInfoSelector } from 'src/actions/wallet/tradingExchangeActions';
 import { TradingSellInfoSelector } from 'src/actions/wallet/tradingSellActions';
 import type { TranslationKey } from 'src/components/suite/Translation';
-import {
-    EXCHANGE_COMPARATOR_KYC_FILTER,
-    EXCHANGE_COMPARATOR_KYC_FILTER_ALL,
-    EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC,
-    EXCHANGE_COMPARATOR_RATE_FILTER,
-    EXCHANGE_COMPARATOR_RATE_FILTER_ALL,
-    EXCHANGE_COMPARATOR_RATE_FILTER_DEX,
-    EXCHANGE_COMPARATOR_RATE_FILTER_FIXED_CEX,
-    EXCHANGE_COMPARATOR_RATE_FILTER_FLOATING_CEX,
-    FORM_EXCHANGE_CEX,
-    FORM_EXCHANGE_DEX,
-    FORM_EXCHANGE_TYPE,
-    FORM_RATE_FIXED,
-    FORM_RATE_FLOATING,
-    FORM_RATE_TYPE,
-} from 'src/constants/wallet/trading/form';
 import { AppState } from 'src/reducers/store';
 import { Dispatch, GetState } from 'src/types/suite';
 import {
@@ -87,28 +71,6 @@ export interface TradingSellFormProps extends FormState {
     amountInCrypto: boolean;
 }
 
-export type RateType = typeof FORM_RATE_FIXED | typeof FORM_RATE_FLOATING;
-export type ExchangeType = typeof FORM_EXCHANGE_CEX | typeof FORM_EXCHANGE_DEX;
-
-export type KycFilter =
-    | typeof EXCHANGE_COMPARATOR_KYC_FILTER_ALL
-    | typeof EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC;
-export type RateTypeFilter =
-    | typeof EXCHANGE_COMPARATOR_RATE_FILTER_ALL
-    | typeof EXCHANGE_COMPARATOR_RATE_FILTER_FIXED_CEX
-    | typeof EXCHANGE_COMPARATOR_RATE_FILTER_FLOATING_CEX
-    | typeof EXCHANGE_COMPARATOR_RATE_FILTER_DEX;
-
-export interface TradingExchangeFormProps extends FormState {
-    receiveCryptoSelect: TradingCryptoSelectItemProps | null;
-    sendCryptoSelect: TradingAccountOptionsGroupOptionProps | undefined;
-    amountInCrypto: boolean;
-    [FORM_RATE_TYPE]: RateType;
-    [FORM_EXCHANGE_TYPE]: ExchangeType;
-    [EXCHANGE_COMPARATOR_KYC_FILTER]: KycFilter;
-    [EXCHANGE_COMPARATOR_RATE_FILTER]: RateTypeFilter;
-}
-
 export type TradingBuySellFormProps = TradingBuyFormProps | TradingSellFormProps;
 export type TradingSellExchangeFormProps = TradingSellFormProps | TradingExchangeFormProps;
 export type TradingAllFormProps =
@@ -129,11 +91,6 @@ export interface TradingExchangeFormDefaultValuesProps {
 }
 
 export type TradingSellStepType = 'BANK_ACCOUNT' | 'SEND_TRANSACTION';
-export type TradingExchangeStepType =
-    | 'RECEIVING_ADDRESS'
-    | 'SEND_TRANSACTION'
-    | 'SEND_APPROVAL_TRANSACTION'
-    | 'SIGN_DATA';
 
 interface TradingFormStateProps {
     isFormLoading: boolean;
@@ -167,6 +124,10 @@ type TradingVerifyAccountProps = (
     path?: string,
 ) => (dispatch: Dispatch, getState: GetState) => Promise<void>;
 
+export type TradingBuyConfirmTradeProps = {
+    receiveAddress: string;
+};
+
 export interface TradingBuyFormContextProps
     extends UseFormReturn<TradingBuyFormProps>,
         TradingCommonFormProps,
@@ -185,7 +146,7 @@ export interface TradingBuyFormContextProps
     };
 
     selectQuote: (quote: BuyTrade) => Promise<void>;
-    confirmTrade: (address: string) => void;
+    confirmTrade: ({ receiveAddress }: TradingBuyConfirmTradeProps) => void;
     verifyAddress: TradingVerifyAccountProps;
     removeDraft: (key: string) => void;
     setAmountLimits: (limits?: AmountLimitProps) => void;
@@ -225,6 +186,12 @@ export interface TradingSellFormContextProps
     selectQuote: (quote: SellFiatTrade) => void;
 }
 
+export type TradingExchangeConfirmTradeProps = {
+    receiveAddress: string;
+    extraField?: string;
+    trade?: ExchangeTrade;
+};
+
 export interface TradingExchangeFormContextProps
     extends UseFormReturn<TradingExchangeFormProps>,
         TradingCommonFormProps {
@@ -238,16 +205,15 @@ export interface TradingExchangeFormContextProps
     selectedQuote?: ExchangeTrade;
     trade?: TradingTransactionExchange;
     suiteReceiveAccounts?: AccountsState;
-    exchangeStep: TradingExchangeStepType;
     feeInfo: FeeInfo;
 
     exchangeInfo?: TradingExchangeInfoSelector;
     defaultCurrency: Option;
     amountLimits?: CryptoAmountLimitProps;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
-    quotes: ExchangeTrade[] | undefined;
-    cexQuotes: ExchangeTrade[] | undefined;
-    dexQuotes: ExchangeTrade[] | undefined;
+    quotes: ExchangeTrade[];
+    cexQuotes: ExchangeTrade[];
+    dexQuotes: ExchangeTrade[];
     quotesRequest: ExchangeTradeQuoteRequest | undefined;
     receiveAccount?: Account;
     addressVerified: string | undefined;
@@ -258,8 +224,11 @@ export interface TradingExchangeFormContextProps
     changeFeeLevel: (level: FeeLevel['label']) => void;
     removeDraft: (key: string) => void;
 
-    setExchangeStep: (step: TradingExchangeStepType) => void;
-    confirmTrade: (address: string, extraField?: string, trade?: ExchangeTrade) => Promise<boolean>;
+    confirmTrade: ({
+        receiveAddress,
+        extraField,
+        trade,
+    }: TradingExchangeConfirmTradeProps) => Promise<boolean>;
     sendTransaction: () => Promise<void>;
     signDataAndConfirm: () => Promise<void>;
     selectQuote: (quote: ExchangeTrade) => void;

@@ -4,21 +4,19 @@ import type { UseFormSetValue } from 'react-hook-form';
 import { ExchangeTrade } from 'invity-api';
 
 import {
-    FORM_EXCHANGE_CEX,
-    FORM_EXCHANGE_DEX,
-    FORM_EXCHANGE_TYPE,
-} from 'src/constants/wallet/trading/form';
-import type {
-    ExchangeType,
-    RateType,
+    TRADING_EXCHANGE_FORM,
+    TRADING_EXCHANGE_FORM_CEX,
+    TRADING_EXCHANGE_FORM_DEX,
     TradingExchangeFormProps,
-} from 'src/types/trading/tradingForm';
-import { getCexQuotesByRateType } from 'src/utils/wallet/trading/exchangeUtils';
+    TradingExchangeFormType,
+    TradingExchangeRateType,
+    exchangeUtils,
+} from '@suite-common/trading';
 
 interface TradingExchangeQuotesFilterProps {
-    quotes: ExchangeTrade[] | undefined;
-    exchangeType: ExchangeType;
-    rateType: RateType;
+    quotes: ExchangeTrade[];
+    exchangeType: TradingExchangeFormType;
+    rateType: TradingExchangeRateType;
     exchangeInfo: any;
     setValue: UseFormSetValue<TradingExchangeFormProps>;
 }
@@ -30,27 +28,27 @@ export const useTradingExchangeQuotesFilter = ({
     exchangeInfo,
     setValue,
 }: TradingExchangeQuotesFilterProps) => {
-    const dexQuotes = useMemo(() => quotes?.filter(quote => quote.isDex), [quotes]);
+    const dexQuotes = useMemo(() => quotes.filter(quote => quote.isDex), [quotes]);
     const cexQuotes = useMemo(
-        () => getCexQuotesByRateType(rateType, quotes, exchangeInfo),
+        () => exchangeUtils.getCexQuotesByRateType(rateType, quotes, exchangeInfo),
         [rateType, quotes, exchangeInfo],
     );
 
     // handle edge case when there are no longer quotes of selected exchange type
     useEffect(() => {
         const isSelectedDexButFoundOnlyCex =
-            exchangeType === FORM_EXCHANGE_DEX && !dexQuotes?.length && cexQuotes?.length;
+            exchangeType === TRADING_EXCHANGE_FORM_DEX && !dexQuotes.length && cexQuotes.length;
         const isSelectedCexButFoundOnlyDex =
-            exchangeType === FORM_EXCHANGE_CEX && dexQuotes?.length && !cexQuotes?.length;
+            exchangeType === TRADING_EXCHANGE_FORM_CEX && dexQuotes.length && !cexQuotes.length;
         const isSelectedDexButNotFoundAny =
-            exchangeType === FORM_EXCHANGE_DEX && !dexQuotes?.length && !cexQuotes?.length;
+            exchangeType === TRADING_EXCHANGE_FORM_DEX && !dexQuotes.length && !cexQuotes.length;
 
         if (isSelectedDexButFoundOnlyCex) {
-            setValue(FORM_EXCHANGE_TYPE, FORM_EXCHANGE_CEX);
+            setValue(TRADING_EXCHANGE_FORM, TRADING_EXCHANGE_FORM_CEX);
         } else if (isSelectedCexButFoundOnlyDex) {
-            setValue(FORM_EXCHANGE_TYPE, FORM_EXCHANGE_DEX);
+            setValue(TRADING_EXCHANGE_FORM, TRADING_EXCHANGE_FORM_DEX);
         } else if (isSelectedDexButNotFoundAny) {
-            setValue(FORM_EXCHANGE_TYPE, FORM_EXCHANGE_CEX);
+            setValue(TRADING_EXCHANGE_FORM, TRADING_EXCHANGE_FORM_CEX);
         }
     }, [dexQuotes, exchangeType, cexQuotes, setValue]);
 

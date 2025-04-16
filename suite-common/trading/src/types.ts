@@ -19,8 +19,16 @@ import type {
     WatchSellTradeResponse,
 } from 'invity-api';
 
+import { ExtendedMessageDescriptor } from '@suite-common/intl-types';
 import { AccountType, NetworkSymbolExtended } from '@suite-common/wallet-config';
-import type { Account } from '@suite-common/wallet-types';
+import type {
+    Account,
+    FormState,
+    GeneralPrecomposedTransactionFinal,
+} from '@suite-common/wallet-types';
+import { PrimitiveType } from '@trezor/type-utils';
+
+import * as constants from './constants';
 
 export type InvityServerEnvironment = 'production' | 'staging' | 'dev' | 'localhost';
 export type InvityServers = Record<InvityServerEnvironment, string>;
@@ -31,6 +39,7 @@ export type TradingExchangeType = 'exchange';
 export type TradingType = TradingBuyType | TradingSellType | TradingExchangeType;
 
 export type TradingTradeBuySellType = Exclude<TradingType, TradingExchangeType>;
+export type TradingTradeBuyExchangeType = Exclude<TradingType, TradingSellType>;
 
 // information about created trade
 export type TradingTradeType = BuyTrade | SellFiatTrade | ExchangeTrade;
@@ -167,3 +176,74 @@ export type TradingOTC = {
 };
 
 export type TradingProviderInfo = BuyProviderInfo | ExchangeProviderInfo | SellProviderInfo;
+
+export type TradingAmountLimitProps = {
+    currency: string;
+    minCrypto?: string;
+    maxCrypto?: string;
+
+    minFiat?: string;
+    maxFiat?: string;
+};
+
+export type TradingExchangeAmountLimitProps = Pick<
+    TradingAmountLimitProps,
+    'currency' | 'minCrypto' | 'maxCrypto'
+>;
+
+export type TradingExchangeRateType =
+    | typeof constants.TRADING_EXCHANGE_RATE_FIXED
+    | typeof constants.TRADING_EXCHANGE_RATE_FLOATING;
+
+export type TradingExchangeFormType =
+    | typeof constants.TRADING_EXCHANGE_FORM_CEX
+    | typeof constants.TRADING_EXCHANGE_FORM_DEX;
+
+export type TradingExchangeKycFilter =
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_ALL
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC;
+
+export type TradingExchangeRateFilter =
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_ALL
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_FIXED_CEX
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_FLOATING_CEX
+    | typeof constants.TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_DEX;
+
+export interface TradingExchangeFormProps extends FormState {
+    [constants.TRADING_FORM_RECEIVE_CRYPTO_CURRENCY_SELECT]: TradingCryptoSelectItemProps | null;
+    [constants.TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT]:
+        | TradingAccountOptionsGroupOptionProps
+        | undefined;
+    [constants.TRADING_FORM_AMOUNT_IN_CRYPTO]: boolean;
+    [constants.TRADING_EXCHANGE_RATE]: TradingExchangeRateType;
+    [constants.TRADING_EXCHANGE_FORM]: TradingExchangeFormType;
+    [constants.TRADING_EXCHANGE_COMPARATOR_KYC_FILTER]: TradingExchangeKycFilter;
+    [constants.TRADING_EXCHANGE_COMPARATOR_RATE_FILTER]: TradingExchangeRateFilter;
+}
+
+export type TradingExchangeStepType =
+    | 'RECEIVING_ADDRESS'
+    | 'SEND_TRANSACTION'
+    | 'SEND_APPROVAL_TRANSACTION'
+    | 'SIGN_DATA';
+
+export type TradingSendRejectedProps = {
+    type: 'error' | 'sign-tx-error';
+    error: {
+        id: ExtendedMessageDescriptor['id'];
+        values?: Record<string, PrimitiveType>;
+    };
+};
+
+export type TradingExchangeUserConsentProps = {
+    provider: string;
+    isDex: boolean;
+    send: string;
+    receive: string;
+};
+
+export type TradingSignAndPushSendFormTransactionProps = {
+    formState: FormState;
+    precomposedTransaction: GeneralPrecomposedTransactionFinal;
+    selectedAccount: Account;
+};

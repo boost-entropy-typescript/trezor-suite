@@ -2,34 +2,14 @@ import { CryptoId, InfoResponse } from 'invity-api';
 
 import { extraDependenciesMock } from '@suite-common/test-utils';
 
-import { TradingComposedTransactionInfo, TradingState, tradingActions } from '../tradingReducer';
+import { TradingComposedTransactionInfo, initialState, tradingActions } from '../tradingReducer';
 import { accounts } from './account';
-import { buyInitialState } from './buyTradingReducer';
-import { buyThunks } from '../../thunks';
+import { buyThunks, exchangeThunks } from '../../thunks';
 import {
     TradingPaymentMethodListProps,
     TradingTransactionBuy,
     TradingTransactionExchange,
 } from '../../types';
-
-const initialState: TradingState = {
-    info: {
-        platforms: undefined,
-        coins: undefined,
-        paymentMethods: [],
-    },
-    buy: buyInitialState,
-    // TODO: sell:
-    // TODO: exchange:
-    composedTransactionInfo: {},
-    trades: [],
-    isLoading: false,
-    modalAccountKey: undefined,
-    modalCryptoId: undefined,
-    lastLoadedTimestamp: 0,
-    activeSection: 'buy',
-    prefilledFromCryptoId: undefined,
-};
 
 const tradeBuy: TradingTransactionBuy = {
     date: 'ddd',
@@ -351,6 +331,39 @@ export const tradingFixtures = [
             ...initialState,
             buy: {
                 ...initialState.buy,
+                isLoading: false,
+            },
+        },
+    },
+    {
+        description: 'should set loading for exchange section, when confirmTradeThunk is triggered',
+        initialState,
+        actions: [
+            {
+                type: exchangeThunks.confirmTradeThunk.pending.type,
+            },
+        ],
+        result: {
+            ...initialState,
+            exchange: {
+                ...initialState.exchange,
+                isLoading: true,
+            },
+        },
+    },
+    {
+        description:
+            'should set off loading for exchange section, when confirmTradeThunk is completed',
+        initialState,
+        actions: [
+            {
+                type: exchangeThunks.confirmTradeThunk.fulfilled.type,
+            },
+        ],
+        result: {
+            ...initialState,
+            exchange: {
+                ...initialState.exchange,
                 isLoading: false,
             },
         },

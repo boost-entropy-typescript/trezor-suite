@@ -54,18 +54,13 @@ export const selectAnalyticsInstanceId = (state: AnalyticsRootState) => state.an
 export const selectIsAnalyticsConfirmed = (state: AnalyticsRootState) =>
     !!state.analytics.confirmed;
 
-export const selectIsAnalyticsEnabled = (state: AnalyticsRootState): boolean => {
+// Use this directly only if you need to handle unconfirmed state differently from the disabled state.
+export const selectHasUserAllowedTracking = (state: AnalyticsRootState): boolean | undefined => {
     const isAnalyticsConfirmed = selectIsAnalyticsConfirmed(state);
 
-    return isAnalyticsConfirmed ? !!state.analytics.enabled : false;
-};
-
-export const selectHasUserAllowedTracking = (state: AnalyticsRootState): boolean | undefined => {
     // If the user has not yet confirmed analytics, return undefined.
-    // Otherwise, return true or false based on the 'confirmed' and 'enabled' flags.
-    if (!state.analytics.confirmed) {
-        return undefined;
-    }
-
-    return !!state.analytics.confirmed && !!state.analytics.enabled;
+    return isAnalyticsConfirmed ? !!state.analytics.enabled : undefined;
 };
+
+export const selectIsAnalyticsEnabled = (state: AnalyticsRootState): boolean =>
+    !!selectHasUserAllowedTracking(state);

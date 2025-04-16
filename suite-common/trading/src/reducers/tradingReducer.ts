@@ -8,12 +8,23 @@ import { FeeLevel } from '@trezor/connect';
 import { TradingPaymentMethodListProps, TradingTransaction, TradingType } from '../types';
 import { TradingBuyState, buyInitialState, tradingBuyReducer } from './buyReducer';
 import { TRADING_PREFIX } from '../constants';
-import { buyThunks } from '../thunks';
+import { buyThunks, exchangeThunks } from '../thunks';
+import {
+    TradingExchangeState,
+    exchangeInitialState,
+    tradingExchangeReducer,
+} from './exchangeReducer';
 
 export interface TradingComposedTransactionInfo {
     composed?: Pick<
         PrecomposedTransactionFinal,
-        'feePerByte' | 'estimatedFeeLimit' | 'feeLimit' | 'token' | 'fee'
+        | 'feePerByte'
+        | 'estimatedFeeLimit'
+        | 'feeLimit'
+        | 'token'
+        | 'fee'
+        | 'maxFeePerGas'
+        | 'maxPriorityFeePerGas'
     >;
     selectedFee?: FeeLevel['label'];
 }
@@ -27,7 +38,7 @@ export interface TradingInfo {
 export interface TradingState {
     info: TradingInfo;
     buy: TradingBuyState;
-    // exchange: TradingExchangeState;
+    exchange: TradingExchangeState;
     // sell: TradingSellState;
     composedTransactionInfo: TradingComposedTransactionInfo;
     trades: TradingTransaction[];
@@ -46,27 +57,8 @@ export const initialState: TradingState = {
         paymentMethods: [],
     },
     buy: buyInitialState,
-    /*
-    exchange: {
-        exchangeInfo: undefined,
-        transactionId: undefined,
-        quotesRequest: undefined,
-        quotes: [],
-        addressVerified: undefined,
-        tradingAccountKey: undefined,
-        selectedQuote: undefined,
-        isFromRedirect: false,
-    },
-    sell: {
-        sellInfo: undefined,
-        quotesRequest: undefined,
-        quotes: [],
-        selectedQuote: undefined,
-        transactionId: undefined,
-        isFromRedirect: false,
-        tradingAccountKey: undefined,
-    },
-    */
+    exchange: exchangeInitialState,
+    // sell: sellInitialState,
     composedTransactionInfo: {},
     trades: [],
     isLoading: false,
@@ -138,10 +130,22 @@ export const tradingSlice = createSliceWithExtraDeps({
             .addCase(buyThunks.handleRequestThunk.fulfilled, state => {
                 state.buy.isLoading = false;
             })
+            .addCase(exchangeThunks.handleRequestThunk.pending, state => {
+                state.exchange.isLoading = true;
+            })
+            .addCase(exchangeThunks.handleRequestThunk.fulfilled, state => {
+                state.exchange.isLoading = false;
+            })
+            .addCase(exchangeThunks.confirmTradeThunk.pending, state => {
+                state.exchange.isLoading = true;
+            })
+            .addCase(exchangeThunks.confirmTradeThunk.fulfilled, state => {
+                state.exchange.isLoading = false;
+            })
             .addDefaultCase((state, action) => {
                 tradingBuyReducer(state.buy, action);
                 // TODO: prepareSellReducer(extra)(state.sell, action);
-                // TODO: prepareExchangeReducer(extra)(state.exchange, action);
+                tradingExchangeReducer(state.exchange, action);
             });
     },
 });

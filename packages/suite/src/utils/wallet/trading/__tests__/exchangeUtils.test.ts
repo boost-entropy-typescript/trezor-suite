@@ -1,93 +1,74 @@
-import { CryptoId } from 'invity-api';
+import { CryptoId, ExchangeTradeQuoteRequest } from 'invity-api';
 
-import { useTradingInfo } from '@suite-common/trading';
+import { TradingComposedTransactionInfo } from '@suite-common/trading';
+import { Account } from '@suite-common/wallet-types';
 
-import * as fixtures from 'src/utils/wallet/trading/__fixtures__/exchangeUtils';
-import {
-    getAmountLimits,
-    getStatusMessage,
-    getSuccessQuotesOrdered,
-    isQuoteError,
-    tradingGetExchangeReceiveCryptoId,
-} from 'src/utils/wallet/trading/exchangeUtils';
+import { createQuoteLink } from 'src/utils/wallet/trading/exchangeUtils';
 
-jest.mock('@suite-common/trading', () => ({
-    ...jest.requireActual('@suite-common/trading'),
-    useTradingInfo: jest.fn(),
-}));
+describe('exchangeUtils', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
-const { MIN_MAX_QUOTES_OK, MIN_MAX_QUOTES_LOW, MIN_MAX_QUOTES_CANNOT_TRADE } = fixtures;
+    const mockQuotesRequest: ExchangeTradeQuoteRequest = {
+        send: 'bitcoin' as CryptoId,
+        receive: 'litecoin' as CryptoId,
+        sendStringAmount: '1',
+    };
+    const mockAccount = {
+        symbol: 'btc',
+        accountType: 'normal',
+        index: 1,
+    } as Account;
+    const mockComposedInfo = {
+        selectedFee: 'normal',
+        composed: {
+            feePerByte: '1',
+            maxFeePerGas: '2',
+            maxPriorityFeePerGas: '3',
+            feeLimit: '4',
+        },
+    } as TradingComposedTransactionInfo;
+    const mockQuoteId = 'quoteId';
 
-describe('trading/exchange utils', () => {
-    const cryptoIdToCoinSymbol = (useTradingInfo as jest.Mock).mockImplementation(() => 'LTC');
-
-    it('getAmountLimits', () => {
-        expect(
-            getAmountLimits({
-                quotes: MIN_MAX_QUOTES_OK,
-                currency: cryptoIdToCoinSymbol().toLowerCase(),
-            }),
-        ).toBe(undefined);
-        expect(
-            getAmountLimits({
-                quotes: MIN_MAX_QUOTES_LOW,
-                currency: cryptoIdToCoinSymbol().toLowerCase(),
-            }),
-        ).toStrictEqual({
-            currency: 'ltc',
-            maxCrypto: undefined,
-            minCrypto: '0.35121471511608626',
+    describe('createQuoteLink', () => {
+        it('should create link for quote', async () => {
+            expect(
+                await createQuoteLink(
+                    mockQuotesRequest,
+                    mockAccount,
+                    mockComposedInfo,
+                    mockQuoteId,
+                ),
+            ).toStrictEqual(
+                `${window.location.origin}/coinmarket-redirect#exchange-offers/btc/normal/1/bitcoin/litecoin/1/quoteId`,
+            );
         });
-        expect(
-            getAmountLimits({
-                quotes: MIN_MAX_QUOTES_CANNOT_TRADE,
-                currency: cryptoIdToCoinSymbol().toLowerCase(),
-            }),
-        ).toBe(undefined);
-    });
 
-    it('isQuoteError', () => {
-        expect(isQuoteError(MIN_MAX_QUOTES_OK[0])).toBe(false);
-        expect(isQuoteError(MIN_MAX_QUOTES_LOW[0])).toBe(true);
-        expect(isQuoteError(MIN_MAX_QUOTES_CANNOT_TRADE[0])).toBe(true);
-    });
+        it('should create link for quote when selectedFee is high', async () => {
+            expect(
+                await createQuoteLink(
+                    mockQuotesRequest,
+                    mockAccount,
+                    { ...mockComposedInfo, selectedFee: 'high' },
+                    mockQuoteId,
+                ),
+            ).toStrictEqual(
+                `${window.location.origin}/coinmarket-redirect#exchange-offers/btc/normal/1/bitcoin/litecoin/1/quoteId/high`,
+            );
+        });
 
-    it('getSuccessQuotesOrdered', () => {
-        expect(
-            getSuccessQuotesOrdered([
-                ...MIN_MAX_QUOTES_OK,
-                ...MIN_MAX_QUOTES_LOW,
-                ...MIN_MAX_QUOTES_CANNOT_TRADE,
-            ]),
-        ).toStrictEqual(fixtures.EXCHANGE_SUCCESS_ORDERED_QUOTES);
-    });
-    it('getStatusMessage', () => {
-        expect(getStatusMessage('CONVERTING')).toBe('TR_EXCHANGE_STATUS_CONVERTING');
-        expect(getStatusMessage('CONFIRMING')).toBe('TR_EXCHANGE_STATUS_CONFIRMING');
-        expect(getStatusMessage('KYC')).toBe('TR_EXCHANGE_STATUS_KYC');
-        expect(getStatusMessage('ERROR')).toBe('TR_EXCHANGE_STATUS_ERROR');
-        expect(getStatusMessage('SUCCESS')).toBe('TR_EXCHANGE_STATUS_SUCCESS');
-    });
-
-    it('tradingGetExchangeReceiveCryptoId', () => {
-        // default cryptoId
-        expect(tradingGetExchangeReceiveCryptoId('bitcoin' as CryptoId)).toBe('ethereum');
-        expect(tradingGetExchangeReceiveCryptoId('litecoin' as CryptoId)).toBe('bitcoin');
-        expect(
-            tradingGetExchangeReceiveCryptoId(
-                'ethereum--0x0000000000085d4780b73119b644ae5ecd22b376' as CryptoId,
-            ),
-        ).toBe('bitcoin');
-
-        // already selected
-        expect(
-            tradingGetExchangeReceiveCryptoId('bitcoin' as CryptoId, 'bitcoin' as CryptoId),
-        ).toBe('ethereum');
-        expect(
-            tradingGetExchangeReceiveCryptoId(
-                'bitcoin' as CryptoId,
-                'ethereum--0x0000000000085d4780b73119b644ae5ecd22b376' as CryptoId,
-            ),
-        ).toBe('ethereum--0x0000000000085d4780b73119b644ae5ecd22b376');
+        it('should create link for quote when selectedFee is custom', async () => {
+            expect(
+                await createQuoteLink(
+                    mockQuotesRequest,
+                    mockAccount,
+                    { ...mockComposedInfo, selectedFee: 'custom' },
+                    mockQuoteId,
+                ),
+            ).toStrictEqual(
+                `${window.location.origin}/coinmarket-redirect#exchange-offers/btc/normal/1/bitcoin/litecoin/1/quoteId/custom/1/2/3/4`,
+            );
+        });
     });
 });

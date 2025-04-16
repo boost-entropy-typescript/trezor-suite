@@ -359,6 +359,22 @@ export default defineMessages({
         id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_6',
         dynamic: true,
     },
+    TR_TRADING_MISSING_COMPOSED_DATA: {
+        defaultMessage: 'Missing composed data',
+        id: 'TR_TRADING_MISSING_COMPOSED_DATA',
+    },
+    TR_TRADING_MISSING_FEE_LEVEL: {
+        defaultMessage: 'Missing fee level',
+        id: 'TR_TRADING_MISSING_FEE_LEVEL',
+    },
+    TR_TRADING_CANNOT_CREATE_TRANSACTION: {
+        defaultMessage: 'Cannot create transaction',
+        id: 'TR_TRADING_CANNOT_CREATE_TRANSACTION',
+    },
+    TR_TRADING_CANNOT_SEND_TRANSACTION: {
+        defaultMessage: 'Cannot send transaction, missing data',
+        id: 'TR_TRADING_CANNOT_SEND_TRANSACTION',
+    },
     TR_CONFIRM_ADDRESS: {
         defaultMessage: 'Confirm address',
         id: 'TR_CONFIRM_ADDRESS',
@@ -9696,11 +9712,6 @@ export default defineMessages({
         id: 'TR_TREZOR_CONNECT',
         defaultMessage: 'Trezor Connect',
     },
-    TR_CONNECT_MODAL_REQUEST_DESCRIPTION: {
-        id: 'TR_CONNECT_MODAL_REQUEST_DESCRIPTION',
-        defaultMessage:
-            'A third-party app is requesting to connect to your device. Do you want to allow this?',
-    },
     TR_CONNECT_MODAL_REMEMBER: {
         id: 'TR_CONNECT_MODAL_REMEMBER',
         defaultMessage: 'Always allow for this app',
@@ -9894,5 +9905,56 @@ export default defineMessages({
     TR_CONNECT_ERROR_GENERIC_DESCRIPTION: {
         id: 'TR_CONNECT_ERROR_GENERIC_DESCRIPTION',
         defaultMessage: 'An error occured during the Trezor Connect call.',
+    },
+    TR_NO_CONNECTED_APPS_DESCRIPTION: {
+        id: 'TR_NO_CONNECTED_APPS_DESCRIPTION',
+        defaultMessage:
+            'You can connect Trezor to third party wallets and manage access from here.',
+    },
+    TR_PERMISSION_READ: {
+        id: 'TR_PERMISSION_READ',
+        defaultMessage: 'Read public keys from Trezor device',
+    },
+    TR_PERMISSION_WRITE: {
+        id: 'TR_PERMISSION_WRITE',
+        defaultMessage: 'Prepare Trezor device for transaction and data signing',
+    },
+    TR_PERMISSION_MANAGEMENT: {
+        id: 'TR_PERMISSION_MANAGEMENT',
+        defaultMessage: 'Modify device settings',
+    },
+    TR_PERMISSION_PUSH_TX: {
+        id: 'TR_PERMISSION_PUSH_TX',
+        defaultMessage: 'Broadcast transaction to the network',
+    },
+    TR_PERMISSION_CUSTOM_MESSAGE: {
+        id: 'TR_PERMISSION_CUSTOM_MESSAGE',
+        defaultMessage: 'Run custom operations',
+    },
+    TR_GRANT_PERMISSIONS: {
+        id: 'TR_GRANT_PERMISSIONS',
+        defaultMessage: 'Grant Permissions',
+    },
+    TR_GRANT_PERMISSIONS_DESCRIPTION: {
+        id: 'TR_GRANT_PERMISSIONS_DESCRIPTION',
+        defaultMessage:
+            'A third party app is trying to connect to Trezor Suite and is requesting the following permissions.',
+    },
+    TR_PERMISSIONS: {
+        id: 'TR_PERMISSIONS',
+        defaultMessage: 'Permissions',
+    },
+    TR_OPTIONAL: {
+        id: 'TR_OPTIONAL',
+        defaultMessage: 'Optional',
+    },
+    TR_WALLETCONNECT_REQUIRED_NETWORKS_NOT_ACTIVATED: {
+        id: 'TR_WALLETCONNECT_REQUIRED_NETWORKS_NOT_ACTIVATED',
+        defaultMessage:
+            'Some required networks are not activated. Please activate them to ensure proper compatibility with the app.',
+    },
+    TR_REQUESTED_NETWORKS: {
+        id: 'TR_REQUESTED_NETWORKS',
+        defaultMessage: 'Requested networks',
     },
 });
