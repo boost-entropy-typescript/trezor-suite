@@ -189,7 +189,14 @@ export const selectTradingPaymentMethods = (state: TradingRootState) =>
 export const selectTradingTrades = (state: TradingRootState) =>
     returnStableArrayIfEmpty(state.wallet.tradingNew.trades);
 
-export const selectTradingCoinInfoByCryptoId = (state: TradingRootState, cryptoId: CryptoId) => {
+export const selectTradingCoinInfoByCryptoId = (
+    state: TradingRootState,
+    cryptoId: CryptoId | undefined,
+) => {
+    if (!cryptoId) {
+        return undefined;
+    }
+
     const { coins = {} } = state.wallet.tradingNew.info;
 
     return getTradingCoinInfoByCryptoId(coins, cryptoId);
@@ -322,5 +329,14 @@ export const selectTradingAccountAccordingActiveSection = createMemoizedSelector
         if (params.activeSection === 'sell') return; // TODO: trading - sell
 
         return params.selectedAccount.account;
+    },
+);
+
+export const selectValidTradingBuyQuotes = createMemoizedSelector(
+    [selectTradingBuyQuotes],
+    quotes => {
+        if (!quotes) return [];
+
+        return quotes.filter(item => item.rate && item.rate !== 0);
     },
 );

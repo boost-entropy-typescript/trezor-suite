@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { invariant } from '@suite-common/suite-utils';
@@ -7,12 +7,12 @@ import {
     TradingRootState,
     buyThunks,
     selectTradingCoinInfoByCryptoId,
-    tradingBuyActions,
 } from '@suite-common/trading';
 import { getNetworkByCoingeckoId } from '@suite-common/wallet-config';
 import { SettingsSliceRootState, selectIsAmountInSats } from '@suite-native/settings';
 import { useDebounce } from '@trezor/react-utils';
 
+import { clearBuyState } from '../tradingSlice';
 import { TradingBuyForm } from '../types';
 import { useReloadTimer } from './useReloadTimer';
 import { tradingBuyFormToTradingBuyFormProps } from '../utils/quotesUtils';
@@ -22,7 +22,27 @@ type PromiseType = {
     abort: (message?: string) => void;
 };
 
-const useShouldFetchQuotes = (form: TradingBuyForm) => {
+type ShouldFetchQuotesRef = {
+    cryptoId: string | undefined;
+    fiatCurrency: string | undefined;
+    amount: string | undefined;
+    amountInCrypto: boolean | undefined;
+    country: string | undefined;
+};
+
+type ShouldFetchQuotes = {
+    isFetchAllowed: boolean;
+    shouldFetchQuotes: boolean;
+};
+
+const useShouldFetchQuotes = (form: TradingBuyForm): ShouldFetchQuotes => {
+    const prevState = useRef<ShouldFetchQuotesRef>({
+        cryptoId: undefined,
+        fiatCurrency: undefined,
+        amount: undefined,
+        amountInCrypto: false,
+        country: undefined,
+    });
     const [asset, fiatCurrency, fiatValue, cryptoValue, amountInCrypto, country] = form.watch([
         'asset',
         'fiatCurrency',
@@ -31,54 +51,43 @@ const useShouldFetchQuotes = (form: TradingBuyForm) => {
         'amountInCrypto',
         'country',
     ]);
-    const [prevState, setPrevState] = useState<{
-        cryptoId: string | undefined;
-        fiatCurrency: string | undefined;
-        amount: string | undefined;
-        amountInCrypto: boolean | undefined;
-        country: string | undefined;
-    }>({
-        cryptoId: undefined,
-        fiatCurrency: undefined,
-        amount: undefined,
-        amountInCrypto: false,
-        country: undefined,
-    });
 
     const amount = amountInCrypto ? cryptoValue : fiatValue;
-
-    if (!asset || !fiatCurrency || !amount) {
-        return false;
-    }
+    const isFetchAllowed = !!(asset && fiatCurrency && amount);
 
     if (
-        asset?.cryptoId === prevState.cryptoId &&
-        fiatCurrency === prevState.fiatCurrency &&
-        amount === prevState.amount &&
-        amountInCrypto === prevState.amountInCrypto &&
-        country?.value === prevState.country
+        asset?.cryptoId === prevState.current.cryptoId &&
+        fiatCurrency === prevState.current.fiatCurrency &&
+        amount === prevState.current.amount &&
+        amountInCrypto === prevState.current.amountInCrypto &&
+        country?.value === prevState.current.country
     ) {
-        return false;
+        return {
+            isFetchAllowed,
+            shouldFetchQuotes: false,
+        };
     }
 
-    setPrevState({
+    prevState.current = {
         cryptoId: asset?.cryptoId,
         fiatCurrency,
         amount,
         amountInCrypto,
         country: country?.value,
-    });
+    };
 
-    return true;
+    return {
+        isFetchAllowed,
+        shouldFetchQuotes: true,
+    };
 };
 
 export const useQuotes = (form: TradingBuyForm) => {
     const dispatch = useDispatch();
     const debounce = useDebounce();
-    const { timer, shouldReload } = useReloadTimer();
     const promiseRef = useRef<PromiseType | undefined>(undefined);
-    const shouldFetchQuotes = useShouldFetchQuotes(form);
-
+    const { isFetchAllowed, shouldFetchQuotes } = useShouldFetchQuotes(form);
+    const { timer, shouldReload } = useReloadTimer(isFetchAllowed);
     const asset = form.watch('asset');
     const symbol = getSelectedSymbolFromBuyForm(form);
     const shouldSendInSats = useSelector((state: SettingsSliceRootState) =>
@@ -88,11 +97,13 @@ export const useQuotes = (form: TradingBuyForm) => {
         selectTradingCoinInfoByCryptoId(state, asset?.cryptoId),
     );
 
-    if (shouldFetchQuotes || shouldReload) {
+    if (isFetchAllowed && (shouldFetchQuotes || shouldReload)) {
         if (promiseRef.current?.abort) {
             promiseRef.current.abort('Request was replaced by another one.');
         }
+
         debounce(() => {
+            invariant(asset, 'Asset is not defined');
             const network = getNetworkByCoingeckoId(asset.networkId);
             invariant(network, `Network not found for ${asset.networkId}`);
 
@@ -111,7 +122,7 @@ export const useQuotes = (form: TradingBuyForm) => {
             if (promiseRef.current?.abort) {
                 promiseRef.current.abort('Component unmounted');
             }
-            dispatch(tradingBuyActions.saveQuotes([]));
+            dispatch(clearBuyState());
         },
         [dispatch],
     );

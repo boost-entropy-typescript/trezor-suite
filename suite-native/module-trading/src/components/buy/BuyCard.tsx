@@ -12,12 +12,11 @@ import { AnimatedBox, AnimatedCard, HStack, Text, VStack } from '@suite-native/a
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
+import { BuyFormFieldErrorBadge } from './BuyFormFieldErrorBadge';
 import { FiatCurrencyPicker } from './FiatCurrencyPicker';
 import { ReceiveAccountCryptoBalance } from './ReceiveAccountCryptoBalance';
 import { ReceiveAccountPicker } from './ReceiveAccountPicker';
 import { TradeableAssetPicker } from './TradeableAssetPicker';
-import { useTradingBuyFormContext } from '../../hooks/useTradingBuyFormContext';
-import { getSelectedSymbolFromBuyForm } from '../../utils/tradeableAssetUtils';
 
 type BuyCardProps = {
     isAmountInputActive: boolean;
@@ -47,12 +46,8 @@ const useAnimatedBorderStyle = (isAmountInputActive: boolean) => {
 };
 
 export const BuyCard = ({ isAmountInputActive }: BuyCardProps) => {
-    const form = useTradingBuyFormContext();
     const { applyStyle } = useNativeStyles();
     const animatedStyle = useAnimatedBorderStyle(isAmountInputActive);
-
-    const [selectedReceiveAccount] = form.watch(['receiveAccount']);
-    const selectedNetworkSymbol = getSelectedSymbolFromBuyForm(form);
 
     return (
         <AnimatedBox entering={FadeIn} exiting={FadeOut} layout={LinearTransition}>
@@ -69,13 +64,13 @@ export const BuyCard = ({ isAmountInputActive }: BuyCardProps) => {
                     </Text>
                     <TradeableAssetPicker />
                     <HStack justifyContent="space-between" alignItems="center">
-                        <ReceiveAccountCryptoBalance
-                            symbol={selectedReceiveAccount?.account?.symbol}
-                            balance={selectedReceiveAccount?.account?.balance}
-                        />
+                        <VStack alignItems="flex-end" flex={1}>
+                            <BuyFormFieldErrorBadge fieldName="cryptoValue" />
+                            <ReceiveAccountCryptoBalance />
+                        </VStack>
                     </HStack>
                 </VStack>
-                <ReceiveAccountPicker selectedSymbol={selectedNetworkSymbol} />
+                <ReceiveAccountPicker />
             </AnimatedCard>
         </AnimatedBox>
     );

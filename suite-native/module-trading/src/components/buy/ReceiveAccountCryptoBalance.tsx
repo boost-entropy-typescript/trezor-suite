@@ -1,32 +1,38 @@
 import { BASE_CRYPTO_MAX_DISPLAYED_DECIMALS } from '@suite-common/formatters';
-import { NetworkSymbol } from '@suite-common/wallet-config';
-import { Box, DiscreetTextTrigger } from '@suite-native/atoms';
+import { DiscreetTextTrigger, HStack, Text } from '@suite-native/atoms';
 import { CryptoAmountFormatter } from '@suite-native/formatters';
+import { Translation } from '@suite-native/intl';
 
-export type ReceiveAccountBalanceProps = {
-    symbol: NetworkSymbol | undefined;
-    balance: string | undefined;
-};
+import { useTradingBuyFormContext } from '../../hooks/useTradingBuyFormContext';
 
 export const RECEIVE_ACCOUNT_BALANCE_TEST_ID = '@module-trading/receive-account-balance';
 
-export const ReceiveAccountCryptoBalance = ({ symbol, balance }: ReceiveAccountBalanceProps) => {
-    const shouldDisplayBalance = symbol && balance;
+export const ReceiveAccountCryptoBalance = () => {
+    const form = useTradingBuyFormContext();
+    const receiveAccount = form.watch('receiveAccount');
+
+    const symbol = receiveAccount?.account?.symbol;
+    const balance = receiveAccount?.account?.balance;
+
+    if (!symbol || balance === undefined) {
+        return null;
+    }
 
     return (
-        <Box testID={RECEIVE_ACCOUNT_BALANCE_TEST_ID} paddingVertical="sp12">
-            {shouldDisplayBalance && (
-                <DiscreetTextTrigger>
-                    <CryptoAmountFormatter
-                        value={balance}
-                        symbol={symbol}
-                        variant="body"
-                        color="textSubdued"
-                        isBalance={false}
-                        decimals={BASE_CRYPTO_MAX_DISPLAYED_DECIMALS}
-                    />
-                </DiscreetTextTrigger>
-            )}
-        </Box>
+        <HStack testID={RECEIVE_ACCOUNT_BALANCE_TEST_ID}>
+            <Text variant="body" color="textSubdued">
+                <Translation id="moduleTrading.tradingScreen.balance" />
+            </Text>
+            <DiscreetTextTrigger>
+                <CryptoAmountFormatter
+                    value={balance}
+                    symbol={symbol}
+                    variant="body"
+                    color="textSubdued"
+                    isBalance={false}
+                    decimals={BASE_CRYPTO_MAX_DISPLAYED_DECIMALS}
+                />
+            </DiscreetTextTrigger>
+        </HStack>
     );
 };

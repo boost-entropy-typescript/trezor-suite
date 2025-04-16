@@ -110,7 +110,7 @@ describe('useQuotes', () => {
         );
     });
 
-    it('should clear quotes on unmount', async () => {
+    it('should clear buy state on unmount', async () => {
         const store = await getInitializedStore();
         store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
         const dispatchSpy = jest.spyOn(store, 'dispatch');
@@ -118,12 +118,14 @@ describe('useQuotes', () => {
 
         unmount();
 
-        expect(dispatchSpy).toHaveBeenCalledWith({ payload: [], type: '@trading-buy/saveQuotes' });
+        expect(dispatchSpy).toHaveBeenCalledWith({
+            payload: undefined,
+            type: 'trading/clearBuyState',
+        });
     });
 
     it.each([
         ['fiatValue', '1000'],
-        ['fiatCurrency', 'czk'],
         ['country', 'CZ'],
     ] as [keyof TradingBuyFormValues, TradingBuyFormValues[keyof TradingBuyFormValues]][])(
         'should re-fetch quotes on %s value change',
@@ -156,7 +158,7 @@ describe('useQuotes', () => {
         },
     );
 
-    it('should not re-fetch quotes when refetch time elapsed', async () => {
+    it('should re-fetch quotes when re-fetch time elapsed', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
         const { result, rerender } = await renderUseQuotes(store);
@@ -167,6 +169,8 @@ describe('useQuotes', () => {
         act(() => {
             result.current.setValue('fiatValue', '100');
         });
+
+        expect(dispatchSpy).toHaveBeenCalledTimes(2);
 
         mockTimeSpent = INVITY_API_RELOAD_QUOTES_AFTER_SECONDS;
         rerender({});
@@ -181,5 +185,19 @@ describe('useQuotes', () => {
                 type: 'handleRequestThunkMock',
             }),
         );
+    });
+
+    it('should not re-fetch quotes when re-fetch time elapsed but not all required data are available', async () => {
+        const store = await getInitializedStore();
+        const dispatchSpy = jest.spyOn(store, 'dispatch');
+        const { result, rerender } = await renderUseQuotes(store);
+        act(() => {
+            result.current.setValue('fiatCurrency', 'usd');
+        });
+
+        mockTimeSpent = INVITY_API_RELOAD_QUOTES_AFTER_SECONDS;
+        rerender({});
+
+        expect(dispatchSpy).toHaveBeenCalledTimes(0);
     });
 });
