@@ -9,6 +9,7 @@ import {
 import { ConfirmFirmwareUpdateScreen } from '../screens/ConfirmFirmwareUpdateScreen';
 import { ConnectAndUnlockDeviceScreen } from '../screens/ConnectAndUnlockDeviceScreen';
 import { CreateOrRecoverCrossroadsScreen } from '../screens/CreateOrRecoverCrossroadsScreen';
+import { CreatePinScreen } from '../screens/CreatePinScreen';
 import { CreateWalletLoadingScreen } from '../screens/CreateWalletLoadingScreen';
 import { DeviceTutorialScreen } from '../screens/DeviceTutorialScreen';
 import { FirmwareInstallationScreen } from '../screens/FirmwareInstallationScreen';
@@ -16,6 +17,7 @@ import { RecoveryScreen } from '../screens/RecoveryScreen';
 import { SecurityCheckScreen } from '../screens/SecurityCheckScreen';
 import { SuspiciousDeviceScreen } from '../screens/SuspiciousDeviceScreen';
 import { UninitializedDeviceLandingScreen } from '../screens/UninitializedDeviceLandingScreen';
+import { WalletBackupRecapScreen } from '../screens/WalletBackupRecapScreen';
 import { WalletBackupTutorialScreen } from '../screens/WalletBackupTutorialScreen';
 import { WalletCreationScreen } from '../screens/WalletCreationScreen';
 
@@ -75,11 +77,19 @@ export const DeviceOnboardingStackNavigator = () => (
             component={WalletBackupTutorialScreen}
         />
         <DeviceOnboardingStack.Screen
+            name={DeviceOnboardingStackRoutes.CreatePin}
+            component={CreatePinScreen}
+        />
+        <DeviceOnboardingStack.Screen
             name={DeviceOnboardingStackRoutes.WalletCreation}
             component={WalletCreationScreen}
             options={{
                 animation: 'fade',
             }}
+        />
+        <DeviceOnboardingStack.Screen
+            name={DeviceOnboardingStackRoutes.WalletBackupRecap}
+            component={WalletBackupRecapScreen}
         />
     </DeviceOnboardingStack.Navigator>
 );

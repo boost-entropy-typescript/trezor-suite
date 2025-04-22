@@ -18,7 +18,7 @@
         "test-unit:watch": "yarn g:jest -o --watch"
     },
     "dependencies": {
-        "@floating-ui/react": "^0.27.5",
+        "@floating-ui/react": "^0.27.7",
         "@storybook/addon-docs": "^8.6.12",
         "@suite-common/icons": "workspace:*",
         "@suite-common/suite-constants": "workspace:*",
@@ -40,7 +40,7 @@
         "react-date-range": "^1.4.0",
         "react-dom": "18.2.0",
         "react-focus-lock": "^2.13.6",
-        "react-intl": "^7.1.10",
+        "react-intl": "^7.1.11",
         "react-markdown": "^10.1.0",
         "react-select": "^5.10.1",
         "react-svg": "16.3.0",
@@ -64,7 +64,7 @@
         "@trezor/eslint": "workspace:*",
         "@types/react": "18.2.55",
         "@types/react-date-range": "^1.4.10",
-        "postcss-styled-syntax": "^0.6.4",
+        "postcss-styled-syntax": "^0.7.1",
         "storybook": "^8.6.12",
         "stylelint": "^16.14.1",
         "stylelint-config-standard": "^36.0.0",

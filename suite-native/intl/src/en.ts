@@ -815,6 +815,11 @@ export const en = {
             step2: 'Complete recovery in your browser.',
             step3: 'Start using your Trezor with\nTrezor Suite Lite.',
         },
+        createPinScreen: {
+            title: 'Set your Trezor’s PIN',
+            subtitle:
+                'Use your PIN to unlock your Trezor when\nconnecting it to a phone or computer.',
+        },
         walletBackupSheet: {
             title: 'Wallet backup type',
             timeLabel: 'Time',
@@ -1006,6 +1011,30 @@ export const en = {
                 },
                 instruction3: 'Make sure you’re in a safe & private space',
                 holdToConfirmButton: 'Hold to start',
+            },
+        },
+        walletBackupRecapScreen: {
+            step1: {
+                callout: 'Using your wallet backup',
+                title: 'Store your wallet backup in a secure, private place',
+                step1: 'Realize your Trezor is lost, stolen, or damaged',
+                step2: 'Get a new Trezor',
+                step3: 'Enter your wallet backup',
+                step4: 'Regain access to your assets',
+            },
+            step2: {
+                callout: 'Securing your wallet backup',
+                titleRegular: 'backup anywhere digital',
+                titleUnderlined: 'Never store your wallet',
+            },
+            step3: {
+                callout: 'Storing your wallet backup',
+                title: 'Store your wallet backup in a secure, private place',
+            },
+            step4: {
+                callout: 'Protecting your wallet backup',
+                title: 'No one can recover your wallet backup—not even Trezor Support',
+                holdToConfirmButton: 'Hold to continue',
             },
         },
 
