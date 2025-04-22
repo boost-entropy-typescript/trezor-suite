@@ -41,7 +41,9 @@ const DeviceOnboardingExitButtonScreenHeader = () => {
         showAlert({
             title: translate('moduleDeviceOnboarding.cancelOnboardingAlert.title'),
             description: translate('moduleDeviceOnboarding.cancelOnboardingAlert.description'),
-            primaryButtonTitle: translate('generic.buttons.cancel'),
+            primaryButtonTitle: translate(
+                'moduleDeviceOnboarding.cancelOnboardingAlert.cancelButton',
+            ),
             primaryButtonVariant: 'redBold',
             secondaryButtonTitle: translate(
                 'moduleDeviceOnboarding.cancelOnboardingAlert.continueButton',
@@ -87,7 +89,7 @@ const DeviceOnboardingExitButtonScreenHeader = () => {
 
 export const DeviceOnboardingScreenWithExitButton = ({ children, ...screenProps }: ScreenProps) => (
     <Screen header={<DeviceOnboardingExitButtonScreenHeader />} {...screenProps}>
-        <Box flex={1} marginVertical="sp16">
+        <Box flex={1} marginTop="sp16">
             {children}
         </Box>
     </Screen>
