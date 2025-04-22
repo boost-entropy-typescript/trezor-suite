@@ -2,13 +2,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import styled from 'styled-components';
 
-import {
-    ElevationContext,
-    ElevationDown,
-    ElevationUp,
-    NewModal,
-    variables,
-} from '@trezor/components';
+import { ElevationContext, ElevationDown, ElevationUp, Modal, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 
 import { GuideButton, GuideRouter } from 'src/components/guide';
@@ -22,7 +16,6 @@ import { useClearAnchorHighlightOnClick } from 'src/hooks/suite/useClearAnchorHi
 import { useResetScrollOnUrl } from 'src/hooks/suite/useResetScrollOnUrl';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 import { LayoutContext, LayoutContextPayload } from 'src/support/suite/LayoutContext';
-import { ModalContextProvider } from 'src/support/suite/ModalContext';
 import { useResponsiveContext } from 'src/support/suite/ResponsiveContext';
 
 import { CoinjoinBars } from './CoinjoinBars/CoinjoinBars';
@@ -157,51 +150,49 @@ export const SuiteLayout = ({ children }: SuiteLayoutProps) => {
         <ElevationContext baseElevation={-1}>
             <Wrapper ref={wrapperRef} data-testid="@suite-layout">
                 <PageWrapper>
-                    <NewModal.Provider>
-                        <ModalContextProvider>
-                            <Metadata title={title} />
+                    <Modal.Provider>
+                        <Metadata title={title} />
 
-                            <ModalSwitcher />
+                        <ModalSwitcher />
 
-                            {isMobileLayout && <CoinjoinBars />}
+                        {isMobileLayout && <CoinjoinBars />}
 
-                            {isMobileLayout && <MobileMenu />}
+                        {isMobileLayout && <MobileMenu />}
 
-                            <DiscoveryProgress />
+                        <DiscoveryProgress />
 
-                            <LayoutContext.Provider value={setLayoutPayload}>
-                                <Body data-testid="@suite-layout/body">
-                                    <Columns>
-                                        {!isMobileLayout && (
-                                            <ElevationDown>
-                                                <Sidebar />
-                                            </ElevationDown>
-                                        )}
-                                        <MainContent>
-                                            {!isMobileLayout && <CoinjoinBars />}
-                                            <SuiteBanners />
-                                            <AppWrapper
-                                                data-testid="@app"
-                                                ref={scrollRef}
-                                                id={SCROLL_WRAPPER_ID}
-                                            >
-                                                <ElevationUp>
-                                                    {isMobileLayout && isAccountPage && (
-                                                        <MobileAccountsMenu />
-                                                    )}
-                                                    {layoutHeader}
+                        <LayoutContext.Provider value={setLayoutPayload}>
+                            <Body data-testid="@suite-layout/body">
+                                <Columns>
+                                    {!isMobileLayout && (
+                                        <ElevationDown>
+                                            <Sidebar />
+                                        </ElevationDown>
+                                    )}
+                                    <MainContent>
+                                        {!isMobileLayout && <CoinjoinBars />}
+                                        <SuiteBanners />
+                                        <AppWrapper
+                                            data-testid="@app"
+                                            ref={scrollRef}
+                                            id={SCROLL_WRAPPER_ID}
+                                        >
+                                            <ElevationUp>
+                                                {isMobileLayout && isAccountPage && (
+                                                    <MobileAccountsMenu />
+                                                )}
+                                                {layoutHeader}
 
-                                                    <ContentWrapper>{children}</ContentWrapper>
-                                                </ElevationUp>
-                                            </AppWrapper>
-                                        </MainContent>
-                                    </Columns>
-                                </Body>
-                            </LayoutContext.Provider>
+                                                <ContentWrapper>{children}</ContentWrapper>
+                                            </ElevationUp>
+                                        </AppWrapper>
+                                    </MainContent>
+                                </Columns>
+                            </Body>
+                        </LayoutContext.Provider>
 
-                            {!isMobileLayout && <GuideButton />}
-                        </ModalContextProvider>
-                    </NewModal.Provider>
+                        {!isMobileLayout && <GuideButton />}
+                    </Modal.Provider>
                 </PageWrapper>
 
                 <GuideRouter />

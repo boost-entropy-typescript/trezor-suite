@@ -18,9 +18,9 @@ import {
     useElevation,
 } from './ElevationContext';
 import { Card } from '../Card/Card';
+import { Modal } from '../Modal/Modal';
 import { Button } from '../buttons/Button/Button';
 import { Textarea } from '../form/Textarea/Textarea';
-import { Modal } from '../modals/Modal/Modal';
 
 const UiBox = styled.div<{ $elevation: Elevation }>`
     background-color: ${mapElevationToBackground};

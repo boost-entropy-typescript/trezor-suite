@@ -1,13 +1,12 @@
 import { ReactNode, useRef, useState } from 'react';
 
-import { ElevationContext, ElevationDown, ElevationUp, NewModal } from '@trezor/components';
+import { ElevationContext, ElevationDown, ElevationUp, Modal } from '@trezor/components';
 
 import { GuideButton, GuideRouter } from 'src/components/guide';
 import { useLayoutSize, useSelector } from 'src/hooks/suite';
 import { useClearAnchorHighlightOnClick } from 'src/hooks/suite/useClearAnchorHighlightOnClick';
 import { useResetScrollOnUrl } from 'src/hooks/suite/useResetScrollOnUrl';
 import { LayoutContext, LayoutContextPayload } from 'src/support/suite/LayoutContext';
-import { ModalContextProvider } from 'src/support/suite/ModalContext';
 
 import { Metadata } from '../Metadata';
 import { LoggedOutSidebar } from './LoggedOutSidebar';
@@ -40,34 +39,32 @@ export const LoggedOutLayout = ({ children }: LoggedOutLayout) => {
         <ElevationContext baseElevation={-1}>
             <Wrapper ref={wrapperRef} data-testid="@logged-out-layout">
                 <PageWrapper>
-                    <NewModal.Provider>
-                        <ModalContextProvider>
-                            <Metadata title={title} />
-                            <ModalSwitcher />
+                    <Modal.Provider>
+                        <Metadata title={title} />
+                        <ModalSwitcher />
 
-                            <LayoutContext.Provider value={setLayoutPayload}>
-                                <Body data-testid="@suite-layout/body">
-                                    <Columns>
-                                        <ElevationDown>
-                                            <LoggedOutSidebar />
-                                        </ElevationDown>
-                                        <AppWrapper
-                                            data-testid="@app"
-                                            ref={scrollRef}
-                                            id="layout-scroll"
-                                        >
-                                            {layoutHeader}
-                                            <ElevationUp>
-                                                <ContentWrapper>{children}</ContentWrapper>
-                                            </ElevationUp>
-                                        </AppWrapper>
-                                    </Columns>
-                                </Body>
-                            </LayoutContext.Provider>
+                        <LayoutContext.Provider value={setLayoutPayload}>
+                            <Body data-testid="@suite-layout/body">
+                                <Columns>
+                                    <ElevationDown>
+                                        <LoggedOutSidebar />
+                                    </ElevationDown>
+                                    <AppWrapper
+                                        data-testid="@app"
+                                        ref={scrollRef}
+                                        id="layout-scroll"
+                                    >
+                                        {layoutHeader}
+                                        <ElevationUp>
+                                            <ContentWrapper>{children}</ContentWrapper>
+                                        </ElevationUp>
+                                    </AppWrapper>
+                                </Columns>
+                            </Body>
+                        </LayoutContext.Provider>
 
-                            {!isMobileLayout && <GuideButton />}
-                        </ModalContextProvider>
-                    </NewModal.Provider>
+                        {!isMobileLayout && <GuideButton />}
+                    </Modal.Provider>
                 </PageWrapper>
                 <GuideRouter />
             </Wrapper>
