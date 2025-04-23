@@ -62,8 +62,14 @@ export const isTaprootAddress = (address: string, symbol: Account['symbol']) => 
     );
 };
 
+export const hasBitcoinCashAddressPrefix = (address: string) =>
+    /^bitcoincash:/.test(address.toLowerCase());
+
+export const isBitcoinCashAddressUppercase = (address: string) =>
+    hasBitcoinCashAddressPrefix(address) && /[A-Z]/.test(address);
+
 export const isBech32AddressUppercase = (address: string) =>
-    /^(bc1|tb1|ltc1|tltc1|vtc1|tvtc1)/.test(address.toLowerCase()) && /[A-Z]/.test(address);
+    /^(bc1|tb1|ltc1|vtc1)/.test(address.toLowerCase()) && /[A-Z]/.test(address);
 
 export const isDecimalsValid = (value: string, decimals: number) => {
     const DECIMALS_RE = new RegExp(

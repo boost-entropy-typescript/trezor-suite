@@ -5448,6 +5448,10 @@ export default defineMessages({
         defaultMessage: 'Convert to lowercase',
         id: 'TR_CONVERT_TO_LOWERCASE',
     },
+    TR_ADD_BITCOINCASH_PREFIX: {
+        defaultMessage: 'Add "bitcoincash:" prefix',
+        id: 'TR_ADD_BITCOINCASH_PREFIX',
+    },
     TR_CONVERT_TO_CHECKSUM_ADDRESS: {
         defaultMessage: 'Convert to checksum',
         id: 'TR_CONVERT_TO_CHECKSUM_ADDRESS',
@@ -8894,7 +8898,7 @@ export default defineMessages({
     TR_STAKE_STAKING_IS: {
         id: 'TR_STAKE_STAKING_IS',
         defaultMessage:
-            "Staking involves temporarily locking your {symbol} to support the blockchain's operation. In return, you'll earn additional {symbol} as a reward.",
+            "Staking involves temporarily locking your Ethereum assets to support the blockchain's operation. In return, you'll receive additional Ethereum as a reward.",
     },
     TR_STAKE_ANY_AMOUNT_ETH: {
         id: 'TR_STAKE_ANY_AMOUNT_ETH',
@@ -9678,11 +9682,11 @@ export default defineMessages({
     },
     TR_BLUETOOTH_TIP_CABLE_HEADER: {
         id: 'TR_BLUETOOTH_TIP_CABLE_HEADER',
-        defaultMessage: 'Go to your device settings to connect via Bluetooth',
+        defaultMessage: 'Connect via cable',
     },
     TR_BLUETOOTH_TIP_CABLE_TEXT: {
         id: 'TR_BLUETOOTH_TIP_CABLE_TEXT',
-        defaultMessage: 'If the issue persists, connect your Trezor Safe 7 using the USB-C cable',
+        defaultMessage: 'Connect your Trezor Safe 7 using the USB-C cable.',
     },
     TR_BLUETOOTH_TIP_SETTINGS_HEADER: {
         id: 'TR_BLUETOOTH_TIP_SETTINGS_HEADER',
@@ -9826,5 +9830,9 @@ export default defineMessages({
     TR_REQUESTED_NETWORKS: {
         id: 'TR_REQUESTED_NETWORKS',
         defaultMessage: 'Requested networks',
+    },
+    TR_COULD_NOT_PARSE: {
+        id: 'TR_COULD_NOT_PARSE',
+        defaultMessage: 'Failed to parse the input',
     },
 } as const);

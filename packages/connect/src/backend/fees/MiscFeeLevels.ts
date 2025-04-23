@@ -2,18 +2,17 @@
 
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-import { Blockchain } from '../../backend/BlockchainLink';
 import type { CoinInfo, FeeLevel } from '../../types';
+import { Blockchain } from '../Blockchain';
 
 export type Blocks = Array<string | undefined>;
 
 export class MiscFeeLevels {
     coinInfo: CoinInfo;
-
     levels: FeeLevel[];
-    longTermFeeRate?: string; // long term fee rate is used by @trezor/utxo-lib composeTx module
-
     blocks: Blocks = [];
+    // indicates that this.levels are current rates from backend, otherwise they are only the default values from jsons
+    wasFetchedSuccessfully: boolean = false;
 
     constructor(coinInfo: CoinInfo) {
         this.coinInfo = coinInfo;
@@ -41,6 +40,7 @@ export class MiscFeeLevels {
                 ...response,
                 feePerUnit,
             };
+            this.wasFetchedSuccessfully = true;
         } catch {
             // silent
         }
