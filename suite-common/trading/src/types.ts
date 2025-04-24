@@ -88,14 +88,21 @@ type TradingCommonTransaction = {
         accountIndex: Account['index'];
     };
 };
-export type TradingTransactionBuy = TradingCommonTransaction & { tradeType: 'buy'; data: BuyTrade };
+export type TradingTransactionBuy = TradingCommonTransaction & {
+    tradeType: 'buy';
+    data: BuyTrade;
+    receiveAccountKey: Account['key'] | undefined;
+};
 export type TradingTransactionSell = TradingCommonTransaction & {
     tradeType: 'sell';
     data: SellFiatTrade;
+    sendAccountKey: Account['key'] | undefined;
 };
 export type TradingTransactionExchange = TradingCommonTransaction & {
     tradeType: 'exchange';
     data: ExchangeTrade;
+    receiveAccountKey?: Account['key'];
+    sendAccountKey: Account['key'] | undefined;
 };
 export type TradingTransaction =
     | TradingTransactionBuy

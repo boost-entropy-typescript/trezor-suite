@@ -69,7 +69,7 @@ export const connectPopupCallThunkInner = createThunk<
             const isRemembered = rememberedApps.some(
                 app =>
                     app.origin === source.origin &&
-                    app.processName === source.processName &&
+                    app.process?.fullPath === source.process?.fullPath &&
                     methodInfo.payload.requiredPermissions.every((permission: MethodPermission) =>
                         app.types.includes(permission),
                     ),
@@ -124,6 +124,9 @@ export const connectPopupCallThunkInner = createThunk<
                 dispatch,
                 getState,
             });
+            if (!response.success) {
+                throw response.payload;
+            }
             if (!postCallOngoing) {
                 dispatch(connectPopupActions.finishCall());
             }

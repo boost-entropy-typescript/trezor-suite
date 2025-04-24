@@ -27,6 +27,7 @@ import type { BlockbookUrl, CustomBackend } from 'src/types/wallet/backend';
 
 import { updateAll } from './utils';
 import type { DBWalletAccountTransaction, SuiteDBSchema } from '../definitions';
+import { migrateToV55 } from './versions/migrateToV55';
 
 type WalletWithBackends = {
     backends?: PartialRecord<NetworkSymbol, Omit<CustomBackend, 'coin'>>;
@@ -1275,5 +1276,9 @@ export const migrate: OnUpgradeFunc<SuiteDBSchema> = async (
 
     if (oldVersion < 54) {
         db.createObjectStore('connect');
+    }
+
+    if (oldVersion < 55) {
+        await migrateToV55(db, oldVersion, newVersion, transaction);
     }
 };
