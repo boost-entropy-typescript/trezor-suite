@@ -2,7 +2,7 @@
 import { randomBytes } from 'crypto';
 
 import { DeviceModelInternal } from '@trezor/device-utils';
-import { TransportProtocol, v1 as v1Protocol } from '@trezor/protocol';
+import { TransportProtocol, thp as protocolThp, v1 as protocolV1 } from '@trezor/protocol';
 import { Session } from '@trezor/transport';
 import { type Descriptor, TRANSPORT_ERROR, type Transport } from '@trezor/transport';
 import {
@@ -79,12 +79,6 @@ export const GET_FEATURES_TIMEOUT = 3_000;
 // Due to performance issues in suite-native during app start, original timeout is not sufficient.
 export const GET_FEATURES_TIMEOUT_REACT_NATIVE = 20_000;
 
-const parseRunOptions = (options?: RunOptions): RunOptions => {
-    if (!options) options = {};
-
-    return options;
-};
-
 type Result<T> = { success: true; payload: T } | { success: false; error: Error };
 
 export interface DeviceEvents {
@@ -128,6 +122,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
     public readonly protocol: TransportProtocol;
     public readonly transportPath;
+    private thp: protocolThp.ThpState | undefined;
     private readonly transportDescriptorType;
     private readonly bluetoothProps;
     private session;
@@ -163,7 +158,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
     // variables used in one workflow: acquire -> transportSession -> commands -> run -> keepTransportSession -> release
     private acquirePromise?: ReturnType<Transport['acquire']>;
     private releasePromise?: ReturnType<Transport['release']>;
-    private runPromise?: Deferred<void>;
+
+    private runAbort?: AbortController;
 
     private keepTransportSession = false;
     private currentSession?: DeviceCurrentSession;
@@ -213,7 +209,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         super();
 
         this.emitLifecycle = listener;
-        this.protocol = v1Protocol;
+        this.protocol = protocolV1;
 
         // === immutable properties
         this.uniquePath = id;
@@ -286,11 +282,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
                     return result;
                 } else {
-                    if (this.runPromise) {
-                        this.runPromise.reject(new Error(result.error));
-                        delete this.runPromise;
-                    }
-                    throw result.error;
+                    throw new Error(result.error);
                 }
             })
             .finally(() => {
@@ -331,17 +323,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         this.keepTransportSession = false;
     }
 
-    async cleanup(release = true) {
-        // remove all listeners
-        this.eventNames().forEach(e => this.removeAllListeners(e as keyof DeviceEvents));
-
-        // make sure that Device_CallInProgress will not be thrown
-        delete this.runPromise;
-        if (release) {
-            await this.release();
-        }
-    }
-
     // call only once, right after device creation
     async handshake(delay?: number) {
         if (delay) {
@@ -361,7 +342,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
                         error.code === 'Device_NotFound' ||
                         error.message === TRANSPORT_ERROR.DEVICE_NOT_FOUND ||
                         error.message === TRANSPORT_ERROR.DEVICE_DISCONNECTED_DURING_ACTION ||
-                        error.message === TRANSPORT_ERROR.DESCRIPTOR_NOT_FOUND ||
                         error.message === TRANSPORT_ERROR.HTTP_ERROR // bridge died during device initialization
                     ) {
                         // disconnected, do nothing
@@ -426,29 +406,36 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     // TODO empty fn variant can be split/removed
-    run(fn?: () => Promise<void>, options?: RunOptions) {
-        if (this.runPromise) {
+    run(fn?: () => Promise<void>, options: RunOptions = {}) {
+        if (this.runAbort) {
             _log.warn('Previous call is still running');
             throw ERRORS.TypedError('Device_CallInProgress');
         }
 
-        options = parseRunOptions(options);
-
         const wasUnacquired = this.isUnacquired();
-        const runPromise = createDeferred();
-        this.runPromise = runPromise;
 
-        this._runInner(fn, options)
+        this.runAbort = new AbortController();
+        const { signal } = this.runAbort;
+
+        return Promise.race([
+            this._runInner(fn, options),
+            new Promise<never>((_, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+            }),
+        ])
             .then(() => {
                 if (wasUnacquired && !this.isUnacquired()) {
                     this.emitLifecycle(DEVICE.CONNECT);
                 }
+                this.runAbort = undefined;
             })
-            .catch(err => {
-                runPromise.reject(err);
+            .catch(async err => {
+                if (!signal.aborted) {
+                    await this.release();
+                }
+                this.runAbort = undefined;
+                throw err;
             });
-
-        return runPromise.promise;
     }
 
     async override(error: Error) {
@@ -456,7 +443,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.acquirePromise;
         }
 
-        if (this.runPromise) {
+        if (this.runAbort) {
             await this.interruptionFromUser(error);
         }
         if (this.releasePromise) {
@@ -470,11 +457,9 @@ export class Device extends TypedEmitter<DeviceEvents> {
         await this.currentSession?.abort(error);
         await this.currentSession?.dispose();
 
-        if (this.runPromise) {
-            // reject inner defer
-            this.runPromise.reject(error);
-            delete this.runPromise;
-        }
+        // reject inner defer
+        this.runAbort?.abort(error);
+        this.runAbort = undefined;
     }
 
     public usedElsewhere() {
@@ -489,10 +474,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         this.currentSession?.dispose();
 
-        if (this.runPromise) {
-            this.runPromise.reject(ERRORS.TypedError('Device_UsedElsewhere'));
-            delete this.runPromise;
-        }
+        this.runAbort?.abort(ERRORS.TypedError('Device_UsedElsewhere'));
 
         // session was acquired by another instance. but another might not have power to release interface
         // so it only notified about its session acquiral and the interrupted instance should cooperate
@@ -595,7 +577,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 }
 
                 this.inconsistent = true;
-                delete this.runPromise;
 
                 return Promise.reject(
                     ERRORS.TypedError(
@@ -651,12 +632,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
             this.keepTransportSession = false;
             await this.release();
         }
-
-        if (this.runPromise) {
-            this.runPromise.resolve();
-        }
-
-        delete this.runPromise;
 
         if (!this.loaded) {
             this.loaded = true;
@@ -1148,7 +1123,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     isRunning() {
-        return !!this.runPromise;
+        return !!this.runAbort;
     }
 
     isLoaded() {
@@ -1229,6 +1204,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     ? undefined
                     : this.transportSessionOwner,
                 bluetoothProps: this.bluetoothProps,
+                thp: this.thp?.serialize(),
             };
         }
         const defaultLabel = 'My Trezor';
@@ -1255,6 +1231,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             availableTranslations: this.availableTranslations,
             authenticityChecks: this.authenticityChecks,
             bluetoothProps: this.bluetoothProps,
+            thp: this.thp?.serialize(),
         };
     }
 }

@@ -3700,9 +3700,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/cli@npm:6.6.3":
-  version: 6.6.3
-  resolution: "@formatjs/cli@npm:6.6.3"
+"@formatjs/cli@npm:6.6.4":
+  version: 6.6.4
+  resolution: "@formatjs/cli@npm:6.6.4"
   peerDependencies:
     "@glimmer/env": ^0.1.7
     "@glimmer/reference": ^0.94.0
@@ -3731,7 +3731,7 @@ __metadata:
       optional: true
   bin:
     formatjs: bin/formatjs
-  checksum: 10/2a76786b272e09faa4f246e90053962780bfdb86d845703ee063191277e54e8fcd1270f6ff220ae0c3bcce251132fe4df061244e680a1b65d00a2b3786467e3d
+  checksum: 10/0856623641d1251995cd7b87cec689eff6913bf8a3e8d290c0ae4aa3565d930c1ba0757bcd37776e903a5e856bdee982b5fc210e71499dfc23f713c531bbdaee
   languageName: node
   linkType: hard
 
@@ -3885,18 +3885,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@headlessui/react@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "@headlessui/react@npm:2.2.1"
+"@headlessui/react@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "@headlessui/react@npm:2.2.2"
   dependencies:
     "@floating-ui/react": "npm:^0.26.16"
     "@react-aria/focus": "npm:^3.17.1"
     "@react-aria/interactions": "npm:^3.21.3"
-    "@tanstack/react-virtual": "npm:^3.11.1"
+    "@tanstack/react-virtual": "npm:^3.13.6"
+    use-sync-external-store: "npm:^1.5.0"
   peerDependencies:
     react: ^18 || ^19 || ^19.0.0-rc
     react-dom: ^18 || ^19 || ^19.0.0-rc
-  checksum: 10/16ca4fc5e59f5d402f29df11e882ff540feecf000bc3659ddf5ed694fddd9c2a05925e9ac07ad95200da0ec1b1b48226a607e51600c728ff37112013180a3c9a
+  checksum: 10/59a0686816f332b366a2e314408bccf71ff528580ee7223052316326cebe0536dc0b63c9cf50772a04147b240fa35c2434fdc84a386e45dc9339ca2485e1f22d
   languageName: node
   linkType: hard
 
@@ -9089,7 +9090,7 @@ __metadata:
     "@trezor/blockchain-link-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
   languageName: unknown
   linkType: soft
 
@@ -9122,7 +9123,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     react: "npm:18.2.0"
     react-intl: "npm:^7.1.11"
   languageName: unknown
@@ -9143,7 +9144,7 @@ __metadata:
     "@trezor/blockchain-link": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     react: "npm:18.2.0"
     react-redux: "npm:9.2.0"
   languageName: unknown
@@ -9302,7 +9303,7 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
   languageName: unknown
   linkType: soft
 
@@ -9439,7 +9440,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     react-hook-form: "npm:^7.54.2"
     web3-utils: "npm:^4.3.1"
   languageName: unknown
@@ -9481,7 +9482,7 @@ __metadata:
     "@trezor/device-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     react: "npm:18.2.0"
     react-hook-form: "npm:^7.54.2"
     web3-utils: "npm:^4.3.1"
@@ -10260,7 +10261,7 @@ __metadata:
     "@suite-native/transactions": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     jotai: "npm:1.9.1"
     react: "npm:18.2.0"
     react-native: "npm:0.76.9"
@@ -11068,7 +11069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-virtual@npm:^3.0.0-beta.60, @tanstack/react-virtual@npm:^3.11.1":
+"@tanstack/react-virtual@npm:^3.0.0-beta.60, @tanstack/react-virtual@npm:^3.13.6":
   version: 3.13.6
   resolution: "@tanstack/react-virtual@npm:3.13.6"
   dependencies:
@@ -11401,13 +11402,13 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.2.55"
     "@types/react-date-range": "npm:^1.4.10"
-    date-fns: "npm:^2.30.0"
-    framer-motion: "npm:^12.6.3"
+    date-fns: "npm:^4.1.0"
+    framer-motion: "npm:^12.7.4"
     lottie-react: "npm:2.4.1"
     polished: "npm:^4.3.1"
     postcss-styled-syntax: "npm:^0.7.1"
     react: "npm:18.2.0"
-    react-date-range: "npm:^1.4.0"
+    react-date-range: "npm:^2.0.1"
     react-dom: "npm:18.2.0"
     react-focus-lock: "npm:^2.13.6"
     react-intl: "npm:^7.1.11"
@@ -11449,7 +11450,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/connect-explorer-theme@workspace:packages/connect-explorer-theme"
   dependencies:
-    "@headlessui/react": "npm:^2.2.1"
+    "@headlessui/react": "npm:^2.2.2"
     "@tailwindcss/nesting": "npm:^0.0.0-insiders.565cd3e"
     "@testing-library/react": "npm:^14.0.0"
     "@trezor/components": "workspace:*"
@@ -11668,7 +11669,7 @@ __metadata:
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.2.55"
-    framer-motion: "npm:^12.6.3"
+    framer-motion: "npm:^12.7.4"
     react-intl: "npm:^7.1.11"
   peerDependencies:
     react: 18.2.0
@@ -11908,7 +11909,7 @@ __metadata:
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.2.55"
-    framer-motion: "npm:^12.6.3"
+    framer-motion: "npm:^12.7.4"
     react: "npm:18.2.0"
     react-hook-form: "npm:^7.54.2"
     react-intl: "npm:^7.1.11"
@@ -12296,7 +12297,7 @@ __metadata:
     "@crowdin/cli": "npm:4.7.0"
     "@everstake/wallet-sdk": "npm:1.0.14"
     "@floating-ui/react": "npm:^0.27.7"
-    "@formatjs/cli": "npm:6.6.3"
+    "@formatjs/cli": "npm:6.6.4"
     "@formatjs/intl": "npm:3.1.6"
     "@hookform/resolvers": "npm:^4.1.3"
     "@mobily/ts-belt": "npm:^3.13.1"
@@ -12380,10 +12381,10 @@ __metadata:
     "@types/ua-parser-js": "npm:^0.7.39"
     "@types/zxcvbn": "npm:4.4.5"
     bs58check: "npm:^4.0.0"
-    date-fns: "npm:^2.30.0"
+    date-fns: "npm:^4.1.0"
     dropbox: "npm:^10.34.0"
     file-saver: "npm:^2.0.5"
-    framer-motion: "npm:^12.6.3"
+    framer-motion: "npm:^12.7.4"
     history: "npm:^4.10.1"
     idb: "npm:^8.0.2"
     immer: "npm:10.1.1"
@@ -12408,7 +12409,7 @@ __metadata:
     react-test-renderer: "npm:^18.2.0"
     react-toastify: "npm:^10.0.4"
     react-use: "npm:^17.5.0"
-    recharts: "npm:^2.15.2"
+    recharts: "npm:^2.15.3"
     redux: "npm:^5.0.1"
     redux-devtools-extension: "npm:^2.13.9"
     redux-logger: "npm:^3.0.6"
@@ -23792,12 +23793,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^12.6.3":
-  version: 12.6.3
-  resolution: "framer-motion@npm:12.6.3"
+"framer-motion@npm:^12.7.4":
+  version: 12.7.4
+  resolution: "framer-motion@npm:12.7.4"
   dependencies:
-    motion-dom: "npm:^12.6.3"
-    motion-utils: "npm:^12.6.3"
+    motion-dom: "npm:^12.7.4"
+    motion-utils: "npm:^12.7.2"
     tslib: "npm:^2.4.0"
   peerDependencies:
     "@emotion/is-prop-valid": "*"
@@ -23810,7 +23811,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10/d3d22a3c77564df477be16ffd321bb8ab050005622a36b32c48ae3ad158dd889dd653ce95d109584efb784e9e5136b30335c20bafbf8e558ab53767f143c10a1
+  checksum: 10/cf0a7bc6bbfa38fdca8945b031aff786b4868024670536d5afd487141861c6f5675e4359a1614a09bbf07c34ef741962777135bc17eab509ba8288c9d9a8860c
   languageName: node
   linkType: hard
 
@@ -31401,19 +31402,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motion-dom@npm:^12.6.3":
-  version: 12.6.3
-  resolution: "motion-dom@npm:12.6.3"
+"motion-dom@npm:^12.7.4":
+  version: 12.7.4
+  resolution: "motion-dom@npm:12.7.4"
   dependencies:
-    motion-utils: "npm:^12.6.3"
-  checksum: 10/3f9105fedf851e3619b6631283fca374dd90fd01558ef1806ac3cc027416fb63b6cd24a2a19ec0ddcda717e141a87c226655ac19b12ae1b2c3deefc325ac0934
+    motion-utils: "npm:^12.7.2"
+  checksum: 10/00c2e6f0f5b64b8820b0a5754ad90ec9e11ab724e16d94a6999ff353e4467696037a83484a0c5e5d22a714c05e80301e2647c63fdd398f1a3b3bbb821e7a7349
   languageName: node
   linkType: hard
 
-"motion-utils@npm:^12.6.3":
-  version: 12.6.3
-  resolution: "motion-utils@npm:12.6.3"
-  checksum: 10/295fe81dbb82d840723a92cf280013ae394a93bbdb9b6717d5c37bf2c5ac6c2bab4ebe19c52cf0b515dc88cd32d64ba767829ba9294717f38305d5375f8c1de4
+"motion-utils@npm:^12.7.2":
+  version: 12.7.2
+  resolution: "motion-utils@npm:12.7.2"
+  checksum: 10/09cd6d76853f41795f2d095b0e1b1ac647d2289ea97c2c02b299a98360a4d5ba5aff99fd5dcacb2f5d4d1cf6d30e55652420e674b7dee419c127ccc427ae7052
   languageName: node
   linkType: hard
 
@@ -34856,18 +34857,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-date-range@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "react-date-range@npm:1.4.0"
+"react-date-range@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "react-date-range@npm:2.0.1"
   dependencies:
     classnames: "npm:^2.2.6"
     prop-types: "npm:^15.7.2"
     react-list: "npm:^0.8.13"
     shallow-equal: "npm:^1.2.1"
   peerDependencies:
-    date-fns: 2.0.0-alpha.7 || >=2.0.0
+    date-fns: 3.0.6 || >=3.0.0
     react: ^0.14 || ^15.0.0-rc || >=15.0
-  checksum: 10/72b2dbb4de14448cb8011c8cdde2571e8b44d6fb7ae863715da5bced7cc4f9a834ccfb2db1f177a4eecd753321a16ae15c3e4f2370b4f0e8ec2ecbe76b73287a
+  checksum: 10/f5ca9d64eb8dfb557dd04b84ce5270229dbc8532ae14a2a7fd254c61340561c0281bc39482c5d71a59e12caa6258fc436eb27d684ca9b5a3360c19c8b98d14da
   languageName: node
   linkType: hard
 
@@ -35755,9 +35756,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.15.2":
-  version: 2.15.2
-  resolution: "recharts@npm:2.15.2"
+"recharts@npm:^2.15.3":
+  version: 2.15.3
+  resolution: "recharts@npm:2.15.3"
   dependencies:
     clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
@@ -35770,7 +35771,7 @@ __metadata:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/53bc5e7bb05968f192ae028f5d607ffec3187c8b505e85646768305080fb0da5eb8d6aa5eed6a28186293858c45ee330f029ca065f71ae3aafe3061a07dc400c
+  checksum: 10/611315edc8f25238c7eaa4842e549abff59e4df51a2c8b5bdd80ce9778717e0097e35e56ea4a3c4f6139ad3083fbf6041065c8a5c6c6a3d950cb04490bd54237
   languageName: node
   linkType: hard
 
@@ -41004,12 +41005,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "use-sync-external-store@npm:1.4.0"
+"use-sync-external-store@npm:^1.4.0, use-sync-external-store@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "use-sync-external-store@npm:1.5.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/08bf581a8a2effaefc355e9d18ed025d436230f4cc973db2f593166df357cf63e47b9097b6e5089b594758bde322e1737754ad64905e030d70f8ff7ee671fd01
+  checksum: 10/ddae7c4572511f7f641d6977bd0725340aa7dbeda8250418b54c1a57ec285083d96cf50d1a1acbd6cf729f7a87071b2302c6fbd29310432bf1b21a961a313279
   languageName: node
   linkType: hard
 
