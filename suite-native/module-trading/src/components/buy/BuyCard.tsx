@@ -8,10 +8,12 @@ import {
     withTiming,
 } from 'react-native-reanimated';
 
-import { AnimatedBox, AnimatedCard, HStack, Text, VStack } from '@suite-native/atoms';
+import { AnimatedBox, AnimatedCard, HStack, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
+import { AssetNetworkInfo } from './AssetNetworkInfo';
+import { BuyCardTitle } from './BuyCardTitle';
 import { BuyFormFieldErrorBadge } from './BuyFormFieldErrorBadge';
 import { FiatCurrencyPicker } from './FiatCurrencyPicker';
 import { ReceiveAccountCryptoBalance } from './ReceiveAccountCryptoBalance';
@@ -25,7 +27,7 @@ type BuyCardProps = {
 const buySectionStyle = prepareNativeStyle(({ borders, colors, spacings }) => ({
     borderBottomWidth: borders.widths.small,
     borderBottomColor: colors.backgroundSurfaceElevation0,
-    paddingHorizontal: spacings.sp20,
+    paddingHorizontal: spacings.sp12,
     paddingTop: spacings.sp16,
     paddingBottom: spacings.sp12,
     gap: spacings.sp8,
@@ -53,17 +55,22 @@ export const BuyCard = ({ isAmountInputActive }: BuyCardProps) => {
         <AnimatedBox entering={FadeIn} exiting={FadeOut} layout={LinearTransition}>
             <AnimatedCard style={animatedStyle} noPadding>
                 <VStack style={applyStyle(buySectionStyle)}>
-                    <Text variant="body" color="textDefault">
+                    <BuyCardTitle>
                         <Translation id="moduleTrading.selectFiat.title" />
-                    </Text>
+                    </BuyCardTitle>
                     <FiatCurrencyPicker />
                 </VStack>
                 <VStack style={applyStyle(buySectionStyle)}>
-                    <Text variant="body" color="textDefault">
+                    <BuyCardTitle>
                         <Translation id="moduleTrading.selectCoin.title" />
-                    </Text>
+                    </BuyCardTitle>
                     <TradeableAssetPicker />
-                    <HStack justifyContent="space-between" alignItems="center">
+                    <HStack
+                        justifyContent="space-between"
+                        alignItems="center"
+                        paddingVertical="sp4"
+                    >
+                        <AssetNetworkInfo />
                         <VStack alignItems="flex-end" flex={1}>
                             <BuyFormFieldErrorBadge fieldName="cryptoValue" />
                             <ReceiveAccountCryptoBalance />
