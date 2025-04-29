@@ -45,6 +45,17 @@ describe('FiatAmountInput', () => {
         await userEvent.type(getByLabelText('You pay'), 'asd1.123');
 
         expect(form.getValues('fiatValue')).toEqual('1.123');
+        expect(getByLabelText('You pay')).toHaveDisplayValue('1.123');
+    });
+
+    it('should always escape non-numeric characters', async () => {
+        const form = await renderUseTradingBuyForm();
+        const { getByLabelText } = await renderFiatAmountInput(form);
+
+        await userEvent.type(getByLabelText('You pay'), 'asd');
+
+        expect(form.getValues('fiatValue')).toBeUndefined();
+        expect(getByLabelText('You pay')).toHaveDisplayValue('');
     });
 
     it('should display loading skeleton while amountInCrypto is true and buyInfo is loading', async () => {
@@ -68,5 +79,14 @@ describe('FiatAmountInput', () => {
         const { queryByLabelText } = await renderFiatAmountInput(form, preloadedState);
 
         expect(queryByLabelText('Fetching offers...')).toBeNull();
+    });
+
+    it('should limit value to 3 decimals', async () => {
+        const form = await renderUseTradingBuyForm();
+        const { getByLabelText } = await renderFiatAmountInput(form);
+
+        await userEvent.type(getByLabelText('You pay'), '1.0123456789');
+
+        expect(form.getValues('fiatValue')).toEqual('1.012');
     });
 });

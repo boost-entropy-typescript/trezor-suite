@@ -9,11 +9,17 @@ import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
 import { useTradingBuyFormContext } from '../../hooks/useTradingBuyFormContext';
 import { getSelectedSymbolFromBuyForm } from '../../utils/tradeableAssetUtils';
-import { INPUT_HEIGHT, INPUT_MIN_WIDTH, TradingAmountInput } from '../general/TradingAmountInput';
+import {
+    MAX_INPUT_HEIGHT,
+    MIN_INPUT_WIDTH,
+    TradingAmountInput,
+} from '../general/TradingAmountInput';
 
 export type CryptoAmountInputProps = {
     showAssetsSheet: () => void;
 };
+
+const MAX_CRYPTO_DECIMALS = 9;
 
 const pressableStyle = prepareNativeStyle(() => ({
     flex: 1,
@@ -33,8 +39,8 @@ export const CryptoAmountInput = ({ showAssetsSheet }: CryptoAmountInputProps) =
     if (isLoading && !amountInCrypto) {
         return (
             <BoxSkeleton
-                height={INPUT_HEIGHT}
-                width={INPUT_MIN_WIDTH}
+                height={MAX_INPUT_HEIGHT}
+                width={MIN_INPUT_WIDTH}
                 accessibilityLabel={translate('moduleTrading.tradingScreen.quotesLoadingLabel')}
             />
         );
@@ -50,6 +56,7 @@ export const CryptoAmountInput = ({ showAssetsSheet }: CryptoAmountInputProps) =
                     accessibilityLabel={translate('moduleTrading.selectCoin.amountLabel')}
                     editable={false}
                     inputTransformer={cryptoAmountTransformer}
+                    maxDecimals={MAX_CRYPTO_DECIMALS}
                     onPress={showAssetsSheet}
                 />
             </Pressable>
@@ -62,6 +69,7 @@ export const CryptoAmountInput = ({ showAssetsSheet }: CryptoAmountInputProps) =
             accessibilityLabel={translate('moduleTrading.selectCoin.amountLabel')}
             editable={isAssetSelected}
             inputTransformer={cryptoAmountTransformer}
+            maxDecimals={MAX_CRYPTO_DECIMALS}
         />
     );
 };
