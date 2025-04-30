@@ -33,6 +33,7 @@ import {
     setPortfolioGraphTimeframe,
 } from './slice';
 import { TimeframeHoursValue } from './types';
+import { omitErrorMessageSensitiveData } from './utils';
 
 const useWatchTimeframeChangeForAnalytics = (
     timeframeHours: TimeframeHoursValue,
@@ -70,44 +71,15 @@ const useWatchTimeframeChangeForAnalytics = (
     }, [timeframeHours, symbol, isFirstRender]);
 };
 
-const redactBetweenSubstrings = (string: string, substring1: string, substring2?: string) => {
-    const start = string.indexOf(substring1);
-    const end = substring2 ? string.indexOf(substring2) : -1;
+const checkAndReportGraphError = (error: Error | null) => {
+    if (error) {
+        // new Error object has to be created, to not override the original data
+        const errorCopy = new Error(omitErrorMessageSensitiveData(error.message));
+        errorCopy.stack = omitErrorMessageSensitiveData(error.stack ?? '');
+        errorCopy.name = error.name;
 
-    if (start !== -1) {
-        const str = string.slice(0, start + substring1.length) + ' redacted';
-        if (end !== -1 && end > start + substring1.length) {
-            return str + ' ' + string.slice(end);
-        }
-
-        return str;
+        captureException(errorCopy);
     }
-
-    return string;
-};
-
-// this array defines start and end substrings for redacting using redact()
-const redactSubstringsArray: { start: string; end?: string }[] = [
-    { start: 'Account not found:' },
-    { start: 'Unable to fetch fiat rates for defined timestamps. ' },
-    { start: 'Aborted by timeout -' },
-    {
-        start: 'getTransaction ',
-        end: 'not found (transaction indexing still in progress)',
-    },
-];
-
-const redact = (string: string) => {
-    let msg = string;
-    redactSubstringsArray.map(a => {
-        msg = redactBetweenSubstrings(msg, a.start, a.end);
-    });
-
-    return msg;
-};
-
-const checkAndReportGraphError = (error: string | null) => {
-    if (error) captureException(redact(error));
 };
 
 export const useGraphForSingleAccount = ({
