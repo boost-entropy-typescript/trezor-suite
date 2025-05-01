@@ -1,17 +1,30 @@
 import { ReactNode } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { BottomSheet, Box, Button, Text } from '@suite-native/atoms/src';
+import { EventType, analytics } from '@suite-native/analytics';
+import { BottomSheetModal, Box, Button, Text, useBottomSheetModal } from '@suite-native/atoms/src';
 import { Icon, IconName } from '@suite-native/icons';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles/src';
 
 type TransactionDetailSheetProps = {
-    isVisible: boolean;
     iconName: IconName;
-    onVisibilityChange: () => void;
     title: string;
     transactionId: string;
     children: ReactNode;
+    sheetName: SheetType;
+};
+
+type SheetType = 'parameters' | 'values' | 'inputs';
+
+type TransactionSheetAnalyticsEventType =
+    | EventType.TransactionDetailParameters
+    | EventType.TransactionDetailCompareValues
+    | EventType.TransactionDetailInputOutput;
+
+const sheetToAnalyticsEventMap: Record<SheetType, TransactionSheetAnalyticsEventType> = {
+    parameters: EventType.TransactionDetailParameters,
+    values: EventType.TransactionDetailCompareValues,
+    inputs: EventType.TransactionDetailInputOutput,
 };
 
 const triggerStyle = prepareNativeStyle(() => ({
@@ -45,30 +58,37 @@ const BottomSheetTrigger = ({
 };
 
 export const TransactionDetailSheet = ({
-    isVisible,
     iconName,
-    onVisibilityChange,
     title,
     transactionId,
     children,
-}: TransactionDetailSheetProps) => (
-    <>
-        <BottomSheetTrigger iconName={iconName} title={title} onPress={onVisibilityChange} />
+    sheetName,
+}: TransactionDetailSheetProps) => {
+    const { bottomSheetRef, openModal, closeModal } = useBottomSheetModal();
 
-        <BottomSheet
-            isVisible={isVisible}
-            onClose={onVisibilityChange}
-            title={title}
-            subtitle={`Transaction #${transactionId}`}
-        >
-            <Box paddingTop="sp24">
-                {children}
-                <Box paddingHorizontal="sp8" marginTop="sp24">
-                    <Button size="large" onPress={onVisibilityChange}>
-                        Close
-                    </Button>
+    const openSheet = () => {
+        analytics.report({ type: sheetToAnalyticsEventMap[sheetName] });
+        openModal();
+    };
+
+    return (
+        <Box>
+            <BottomSheetTrigger iconName={iconName} title={title} onPress={openSheet} />
+            <BottomSheetModal
+                ref={bottomSheetRef}
+                title={title}
+                subtitle={`Transaction #${transactionId}`}
+                isCloseDisplayed
+            >
+                <Box paddingTop="sp24">
+                    {children}
+                    <Box paddingHorizontal="sp8" marginTop="sp24">
+                        <Button size="large" onPress={closeModal}>
+                            Close
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
-        </BottomSheet>
-    </>
-);
+            </BottomSheetModal>
+        </Box>
+    );
+};
