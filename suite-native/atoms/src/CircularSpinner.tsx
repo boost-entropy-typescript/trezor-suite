@@ -14,7 +14,7 @@ import { ENDLESS_ANIMATION_VALUE } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Color } from '@trezor/theme';
 
-type TransactionIconSpinnerProps = {
+type CircularSpinnerProps = {
     size: number;
     color: Color;
     width: number;
@@ -27,7 +27,7 @@ const ContainerStyle = prepareNativeStyle(_ => ({
     position: 'absolute',
 }));
 
-export const TransactionIconSpinner = ({ size, color, width }: TransactionIconSpinnerProps) => {
+export const CircularSpinner = ({ size, color, width }: CircularSpinnerProps) => {
     const { applyStyle, utils } = useNativeStyles();
 
     const rotation = useSharedValue(0);
@@ -57,7 +57,10 @@ export const TransactionIconSpinner = ({ size, color, width }: TransactionIconSp
     const radius = size / 2;
 
     return (
-        <Animated.View style={[animatedStyles, applyStyle(ContainerStyle)]}>
+        <Animated.View
+            style={[animatedStyles, applyStyle(ContainerStyle)]}
+            testID="@circular-spinner"
+        >
             <Canvas style={{ height: size, width: size }}>
                 <Circle
                     opacity={0.75}
