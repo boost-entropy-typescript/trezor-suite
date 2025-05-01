@@ -160,15 +160,13 @@ export class Device extends TypedEmitter<DeviceEvents> {
     private releasePromise?: ReturnType<Transport['release']>;
 
     private runAbort?: AbortController;
+    private runPromise?: Promise<void>;
 
     private keepTransportSession = false;
     private currentSession?: DeviceCurrentSession;
 
-    private loaded = false;
-
     private inconsistent = false;
 
-    private firstRunPromise: Deferred<boolean>;
     private instance = 0;
 
     // DeviceState list [this.instance]: DeviceState | undefined
@@ -221,9 +219,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         this.session = descriptor.session;
         this.lastAcquiredHere = false;
-
-        // this will be released after first run
-        this.firstRunPromise = createDeferred();
     }
 
     private getSessionChangePromise() {
@@ -319,10 +314,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return this.releasePromise;
     }
 
-    releaseTransportSession() {
-        this.keepTransportSession = false;
-    }
-
     // call only once, right after device creation
     async handshake(delay?: number) {
         if (delay) {
@@ -396,7 +387,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         if (!descriptor.session) {
             const methodStillRunning = !this.currentSession?.isDisposed();
             if (methodStillRunning) {
-                this.releaseTransportSession();
+                this.keepTransportSession = false;
             }
         }
 
@@ -407,7 +398,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     // TODO empty fn variant can be split/removed
     run(fn?: () => Promise<void>, options: RunOptions = {}) {
-        if (this.runAbort) {
+        if (this.runPromise) {
             _log.warn('Previous call is still running');
             throw ERRORS.TypedError('Device_CallInProgress');
         }
@@ -417,49 +408,44 @@ export class Device extends TypedEmitter<DeviceEvents> {
         this.runAbort = new AbortController();
         const { signal } = this.runAbort;
 
-        return Promise.race([
+        this.runPromise = Promise.race([
             this._runInner(fn, options),
             new Promise<never>((_, reject) => {
                 signal.addEventListener('abort', () => reject(signal.reason));
             }),
         ])
+            .catch(async err => {
+                this.keepTransportSession = false;
+                await this.acquirePromise;
+                await this.release();
+
+                throw err;
+            })
+            .finally(() => {
+                this.runAbort = undefined;
+                this.runPromise = undefined;
+            })
             .then(() => {
                 if (wasUnacquired && !this.isUnacquired()) {
                     this.emitLifecycle(DEVICE.CONNECT);
                 }
-                this.runAbort = undefined;
-            })
-            .catch(async err => {
-                if (!signal.aborted) {
-                    await this.release();
-                }
-                this.runAbort = undefined;
-                throw err;
             });
+
+        return this.runPromise;
     }
 
-    async override(error: Error) {
-        if (this.acquirePromise) {
-            await this.acquirePromise;
-        }
-
-        if (this.runAbort) {
-            await this.interruptionFromUser(error);
-        }
-        if (this.releasePromise) {
-            await this.releasePromise;
-        }
-    }
-
-    async interruptionFromUser(error: Error) {
-        _log.debug('interruptionFromUser');
-
-        await this.currentSession?.abort(error);
+    async interrupt(reason: Error) {
+        await this.currentSession?.abort(reason);
         await this.currentSession?.dispose();
 
         // reject inner defer
-        this.runAbort?.abort(error);
-        this.runAbort = undefined;
+        this.runAbort?.abort(reason);
+
+        await this.currentRun;
+    }
+
+    get currentRun() {
+        return this.runPromise?.catch(() => {});
     }
 
     public usedElsewhere() {
@@ -618,11 +604,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
         // call inner function
         if (fn) {
             await fn();
-        }
 
-        // reload features
-        if (this.loaded && this.features && !options.skipFinalReload) {
-            await this.getFeatures();
+            // reload features
+            if (!options.skipFinalReload) {
+                await this.getFeatures();
+            }
         }
 
         if (
@@ -631,11 +617,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         ) {
             this.keepTransportSession = false;
             await this.release();
-        }
-
-        if (!this.loaded) {
-            this.loaded = true;
-            this.firstRunPromise.resolve(true);
         }
     }
 
@@ -1072,7 +1053,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         this.emitLifecycle(DEVICE.DISCONNECT);
 
-        return this.interruptionFromUser(ERRORS.TypedError('Device_Disconnected'));
+        return this.interrupt(ERRORS.TypedError('Device_Disconnected'));
     }
 
     isBootloader() {
@@ -1120,18 +1101,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     isUsedElsewhere() {
         return this.isUsed() && !this.lastAcquiredHere;
-    }
-
-    isRunning() {
-        return !!this.runAbort;
-    }
-
-    isLoaded() {
-        return this.loaded;
-    }
-
-    waitForFirstRun() {
-        return this.firstRunPromise.promise;
     }
 
     getUniquePath() {
