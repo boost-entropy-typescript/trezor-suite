@@ -49,6 +49,9 @@ export const factory = <R extends StrictIpcRenderer<any, IpcRendererEvent>>(
         appHide: () => ipcRenderer.send('app/hide'),
         appAutoStart: (enabled: boolean) => ipcRenderer.send('app/auto-start', enabled),
         getAppAutoStartIsEnabled: () => ipcRenderer.invoke('app/auto-start/is-enabled'),
+        appAutoStartPopupResponse: response =>
+            ipcRenderer.invoke('app/auto-start/popup-response', response),
+        appIsVisible: () => ipcRenderer.invoke('app/is-visible'),
 
         // Auto-updater
         checkForUpdates: ({ isManual }) => {

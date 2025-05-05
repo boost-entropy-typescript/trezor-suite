@@ -90,10 +90,12 @@ export const exposeConnectWs = ({
     mainThreadEmitter,
     mainWindowProxy,
     httpReceiver,
+    store,
 }: {
     mainThreadEmitter: Dependencies['mainThreadEmitter'];
     mainWindowProxy: Dependencies['mainWindowProxy'];
     httpReceiver: ReturnType<typeof createHttpReceiver>;
+    store: Dependencies['store'];
 }) => {
     const { logger } = global;
     const messages: Record<string, Deferred<any, number>> = {};
@@ -183,15 +185,17 @@ export const exposeConnectWs = ({
                     return;
                 }
 
+                store.setConnectSettings({
+                    hasUsedConnectWs: true,
+                });
+
                 const { method, ...rest } = message.payload;
 
                 messages[message.id] = createDeferred();
 
-                // focus renderer window
-                mainThreadEmitter.emit('app/show');
-
                 // check window exists, if not wait for it to be created
                 if (!mainWindowProxy.getInstance()) {
+                    mainThreadEmitter.emit('app/show');
                     logger.info(LOG_PREFIX, 'waiting for window to start');
                     appInit = createDeferred();
                     // todo: do we actually need to clean this timeout?
