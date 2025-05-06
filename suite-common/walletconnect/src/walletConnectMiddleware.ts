@@ -35,8 +35,12 @@ export const prepareWalletConnectMiddleware = createMiddlewareWithExtraDeps(
             dispatch(extra.actions.onModalCancel());
         }
 
-        // TODO: remove after feature is out of Suite debug
-        if (action.type === '@suite/set-debug-mode' && action.payload.showDebugMenu) {
+        // TODO: remove after feature is out of experimental
+        if (
+            action.type === '@suite/set-experimental-features' &&
+            Array.isArray(action.payload.enabledFeatures) &&
+            action.payload.enabledFeatures.includes('walletconnect')
+        ) {
             dispatch(walletConnectThunks.walletConnectInitThunk());
         }
 

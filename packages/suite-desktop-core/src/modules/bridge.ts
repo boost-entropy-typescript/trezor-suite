@@ -101,8 +101,7 @@ const shouldUseLegacyBridge = (store: Dependencies['store']) => {
         store.setBridgeSettings({ ...store.getBridgeSettings(), newBridgeRollout });
     }
     const newBridgeRollout = store.getBridgeSettings().newBridgeRollout || 0;
-    // note that this variable is duplicated with UI
-    const NEW_BRIDGE_ROLLOUT_THRESHOLD = 0.01;
+    const NEW_BRIDGE_ROLLOUT_THRESHOLD = 0.1;
     const legacyBridgeReasonRollout = newBridgeRollout >= NEW_BRIDGE_ROLLOUT_THRESHOLD;
 
     return legacyBridgeReasonRollout;
@@ -138,9 +137,31 @@ const loadBridge = async (store: Dependencies['store']) => {
 export const initBackground = ({ store }: Pick<Dependencies, 'store'>) => {
     let loaded = false;
 
+    let watchInterval: NodeJS.Timeout | undefined;
+
     const onLoad = () => {
         if (loaded) return;
         loaded = true;
+
+        // if user uninstalled external bridge, start internal one if applicable
+        let isStartingLocalBridge = false;
+        watchInterval = setInterval(async () => {
+            const isBridgeRunning = await bridge.status();
+            if (isBridgeRunning.process) {
+                clearInterval(watchInterval);
+
+                return;
+            }
+            if (!isBridgeRunning.service && !isStartingLocalBridge) {
+                isStartingLocalBridge = true;
+                logger.info(SERVICE_NAME, 'Detected that no bridge is running, starting it');
+                await loadBridge(store)
+                    .catch(() => {})
+                    .finally(() => {
+                        isStartingLocalBridge = false;
+                    });
+            }
+        }, 30_000);
 
         return scheduleAction(() => loadBridge(store), { timeout: 3000 }).catch(err => {
             // Error ignored, user will see transport error afterwards
@@ -149,6 +170,7 @@ export const initBackground = ({ store }: Pick<Dependencies, 'store'>) => {
     };
 
     const onQuit = async () => {
+        clearInterval(watchInterval);
         await bridge?.stop();
     };
 

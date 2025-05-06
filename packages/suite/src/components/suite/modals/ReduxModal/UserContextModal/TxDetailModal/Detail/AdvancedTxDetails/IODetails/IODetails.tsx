@@ -3,6 +3,8 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { type NetworkSymbolExtended, isNetworkSymbol } from '@suite-common/wallet-config';
+import { getExplorerUrl } from '@suite-common/wallet-config/src/getExplorerUrls';
+import { selectExplorer } from '@suite-common/wallet-core';
 import { WalletAccountTransaction } from '@suite-common/wallet-types';
 import { formatAmount, formatNetworkAmount, isNftTokenTransfer } from '@suite-common/wallet-utils';
 import { AnonymitySet, TokenTransfer } from '@trezor/blockchain-link';
@@ -20,7 +22,7 @@ import {
 import { spacings } from '@trezor/theme';
 
 import { FormattedCryptoAmount, FormattedNftAmount, Translation } from 'src/components/suite';
-import { IOAddress } from 'src/components/suite/copy/IOAddress';
+import { TxAddress } from 'src/components/suite/copy/TxAddress';
 import { UtxoAnonymity } from 'src/components/wallet';
 import { useSelector } from 'src/hooks/suite/useSelector';
 
@@ -57,14 +59,15 @@ const IOItem = ({
     isPhishingTransaction,
 }: IOItem) => {
     const network = useSelector(state => state.wallet.selectedAccount.network);
+    const explorer = useSelector(state => selectExplorer(state, network?.symbol));
     const anonymity = address && anonymitySet?.[address];
 
     return (
         <Column>
-            <IOAddress
+            <TxAddress
                 txAddress={address ?? ''}
-                explorerUrl={network?.explorer.address}
-                explorerUrlQueryString={network?.explorer.queryString}
+                explorerUrl={getExplorerUrl(explorer, 'address')}
+                explorerUrlQueryString={explorer?.queryString}
                 shouldAllowCopy={!isPhishingTransaction}
             />
             <Text as="div" variant="tertiary" typographyStyle="label">

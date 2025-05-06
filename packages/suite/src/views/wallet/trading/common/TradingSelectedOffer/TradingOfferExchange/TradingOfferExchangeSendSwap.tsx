@@ -21,11 +21,13 @@ import {
     Tooltip,
 } from '@trezor/components';
 import { BottomText } from '@trezor/components/src/components/form/BottomText';
+import { useAsyncClickHandler } from '@trezor/react-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
 import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-import { AccountLabeling, Address, FormattedCryptoAmount, Translation } from 'src/components/suite';
+import { AccountLabeling, FormattedCryptoAmount, Translation } from 'src/components/suite';
+import { TxAddress } from 'src/components/suite/copy/TxAddress';
 import { FORM_SEND_CRYPTO_CURRENCY_SELECT } from 'src/constants/wallet/trading/form';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { getTradingNetworkDecimals } from 'src/utils/wallet/trading/tradingUtils';
@@ -74,6 +76,8 @@ const formatCryptoAmountAsAmount = (amount: number, baseAmount: number, decimals
 };
 
 export const TradingOfferExchangeSendSwap = () => {
+    const { handleClick, disabled } = useAsyncClickHandler();
+
     const {
         type,
         device,
@@ -216,7 +220,7 @@ export const TradingOfferExchangeSendSwap = () => {
             <InfoItem
                 label={<Translation id="TR_EXCHANGE_SWAP_SEND_TO" values={translationValues} />}
             >
-                <Address value={dexTx.to} />
+                <TxAddress txAddress={dexTx.to} shouldChunk />
             </InfoItem>
 
             <Card
@@ -305,9 +309,9 @@ export const TradingOfferExchangeSendSwap = () => {
             <Column>
                 <Divider margin={{ top: spacings.xs, bottom: spacings.lg }} />
                 <Button
-                    isLoading={callInProgress}
-                    isDisabled={!device?.connected}
-                    onClick={confirmAndSend}
+                    isLoading={callInProgress || disabled}
+                    isDisabled={!device?.connected || disabled}
+                    onClick={() => handleClick(() => confirmAndSend())}
                 >
                     <Translation id="TR_EXCHANGE_CONFIRM_ON_TREZOR_SEND" />
                 </Button>

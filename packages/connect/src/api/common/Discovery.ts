@@ -1,9 +1,9 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/helpers/Discovery.js
 
-import EventEmitter from 'events';
+import { TypedEmitter } from '@trezor/utils';
 
 import { Blockchain } from '../../backend/BlockchainLink';
-import { ERRORS, PROTO } from '../../constants';
+import { ERRORS } from '../../constants';
 import type { DeviceCommands } from '../../device/DeviceCommands';
 import type { CoinInfo, DiscoveryAccount, DiscoveryAccountType } from '../../types';
 import type { GetAccountInfo } from '../../types/api/getAccountInfo';
@@ -25,26 +25,29 @@ type DiscoveryOptions = {
     limit?: number;
 };
 
-export class Discovery extends EventEmitter {
-    types: DiscoveryType[] = [];
+interface Events {
+    progress: DiscoveryAccount[];
+    complete: void;
+}
 
-    typeIndex: number;
+export class Discovery extends TypedEmitter<Events> {
+    public types: DiscoveryType[] = [];
 
-    accounts: DiscoveryAccount[];
+    private typeIndex: number;
 
-    coinInfo: CoinInfo;
+    public accounts: DiscoveryAccount[];
 
-    blockchain: Blockchain;
+    private coinInfo: CoinInfo;
+
+    private blockchain: Blockchain;
 
     getDescriptor: GetDescriptor;
 
-    index: number;
+    private index: number;
 
-    interrupted: boolean;
+    private interrupted: boolean;
 
-    completed: boolean;
-
-    derivationType?: PROTO.CardanoDerivationType;
+    public completed: boolean;
 
     constructor(options: DiscoveryOptions) {
         super();

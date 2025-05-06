@@ -5,12 +5,12 @@ import styled from 'styled-components';
 
 import {
     type TradingExchangeType,
-    cryptoIdToSymbol,
+    cryptoIdToNetwork,
     parseCryptoId,
     useTradingInfo,
 } from '@suite-common/trading';
 import { tradingExchangeActions } from '@suite-common/trading';
-import { getNetwork } from '@suite-common/wallet-config';
+import { getExplorerUrl } from '@suite-common/wallet-config/src/getExplorerUrls';
 import {
     Banner,
     Button,
@@ -27,9 +27,9 @@ import {
 import { EventType, analytics } from '@trezor/suite-analytics';
 import { spacings } from '@trezor/theme';
 
-import { AccountLabeling, Address, Translation } from 'src/components/suite';
-import { IOAddress } from 'src/components/suite/copy/IOAddress';
-import { useDispatch } from 'src/hooks/suite';
+import { AccountLabeling, Translation } from 'src/components/suite';
+import { TxAddress } from 'src/components/suite/copy/TxAddress';
+import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { useTradingExchangeWatchSendApproval } from 'src/hooks/wallet/trading/form/useTradingExchangeWatchSendApproval';
 import { useTradingNavigation } from 'src/hooks/wallet/useTradingNavigation';
@@ -65,6 +65,8 @@ export const TradingOfferExchangeSendApproval = () => {
         confirmTrade,
     });
 
+    const explorers = useSelector(state => state.wallet.explorer);
+
     if (!selectedQuote) return null;
 
     const { exchange, dexTx } = selectedQuote;
@@ -77,8 +79,9 @@ export const TradingOfferExchangeSendApproval = () => {
 
     if (!selectedQuote.send) return null;
 
-    const symbol = cryptoIdToSymbol(selectedQuote.send);
-    const network = symbol && getNetwork(symbol);
+    const network = cryptoIdToNetwork(selectedQuote.send);
+    const explorer =
+        network?.symbol && (explorers[network.symbol].custom ?? explorers[network.symbol].default);
 
     const isToken = parseCryptoId(selectedQuote.send)?.contractAddress !== undefined;
 
@@ -175,14 +178,14 @@ export const TradingOfferExchangeSendApproval = () => {
                     />
                 }
             >
-                <Address value={dexTx.to} />
+                <TxAddress txAddress={dexTx.to} shouldChunk />
             </InfoItem>
             {selectedQuote.approvalSendTxHash && (
                 <InfoItem label={<Translation id="TR_EXCHANGE_APPROVAL_TXID" />}>
-                    <IOAddress
+                    <TxAddress
                         txAddress={selectedQuote.approvalSendTxHash}
-                        explorerUrl={network?.explorer.tx}
-                        explorerUrlQueryString={network?.explorer.queryString}
+                        explorerUrl={getExplorerUrl(explorer, 'tx')}
+                        explorerUrlQueryString={explorer?.queryString}
                     />
                 </InfoItem>
             )}
