@@ -1,15 +1,34 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.5.4  |      -       |
-|     npm @trezor/connect-web      | 9.5.4  |      -       |
-| npm @trezor/connect-webextension | 9.5.4  |      -       |
+|       npm @trezor/connect        | 9.5.4  | 9.5.5-beta.1 |
+|     npm @trezor/connect-web      | 9.5.4  | 9.5.5-beta.1 |
+| npm @trezor/connect-webextension | 9.5.4  | 9.5.5-beta.1 |
 |    npm @trezor/connect-mobile    |   -    | 0.0.1-beta.1 |
 
-|     Deployment     | Stable | Canary |
-| :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.5.4  |   -    |
+|     Deployment     | Stable |    Canary    |
+| :----------------: | :----: | :----------: |
+| connect.trezor.io/ | 9.5.4  | 9.5.5-beta.1 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.5.5-beta.1
+
+This release is mostly about refactoring and preparatory work for the new way of using TrezorConnect together with Trezor Suite as its UI.
+
+## Features
+
+- Improvements in fees estimation (feebc12, 0eebb7f, df8656b)
+- 'Seedless' devices now do not prompt for firmware update. (cac7eb4)
+
+## Fixes
+
+- catch requestDevice error (df1134c)
+- Failure typing fixed (54da299)
+
+## Chores
+
+- update device authenticity config (7bc4717)
+- tighten validation of manifest.appIcon and manifest.appName (23d9c55)
 
 # 9.5.4
 
