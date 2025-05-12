@@ -13,6 +13,12 @@ import { selectQuoteThunk as selectExchangeQuoteThunk } from './exchange/selectQ
 import { sendDexTransactionThunk } from './exchange/sendDexTransactionThunk';
 import { sendTransactionThunk } from './exchange/sendTransactionThunk';
 import { signDataAndConfirmThunk } from './exchange/signDataAndConfirmThunk';
+import { confirmSellTradeThunk } from './sell/confirmSellTradeThunk';
+import { handleSellRequestThunk } from './sell/handleSellRequestThunk';
+import { handleSellTradeThunk } from './sell/handleSellTradeThunk';
+import { loadSellInfoThunk } from './sell/loadSellInfoThunk';
+import { selectSellQuoteThunk } from './sell/selectSellQuoteThunk';
+import { sendSellTransactionThunk } from './sell/sendSellTransactionThunk';
 
 export { type HandleRequestThunkProps } from './buy/handleRequestThunk';
 
@@ -38,4 +44,13 @@ export const exchangeThunks = {
     signDataAndConfirmThunk,
     sendDexTransactionThunk,
     sendTransactionThunk,
+};
+
+export const sellThunks = {
+    loadInfoThunk: loadSellInfoThunk,
+    handleRequestThunk: handleSellRequestThunk,
+    handleTradeThunk: handleSellTradeThunk,
+    sendTransactionThunk: sendSellTransactionThunk,
+    selectQuoteThunk: selectSellQuoteThunk,
+    confirmTradeThunk: confirmSellTradeThunk,
 };

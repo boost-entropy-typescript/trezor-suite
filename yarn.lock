@@ -9435,6 +9435,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/device-utils": "workspace:^"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     date-fns: "npm:^4.1.0"
@@ -10151,7 +10152,6 @@ __metadata:
     react: "npm:18.2.0"
     react-native: "npm:0.76.9"
     react-native-reanimated: "npm:^3.16.7"
-    react-native-safe-area-context: "npm:4.14.0"
     react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
@@ -11497,6 +11497,7 @@ __metadata:
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/blockchain-link-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@trezor/utxo-lib": "workspace:*"
     cross-fetch: "npm:^4.0.0"
@@ -11764,6 +11765,7 @@ __metadata:
     "@trezor/node-utils": "workspace:*"
     "@trezor/transport": "workspace:*"
     "@trezor/trezor-user-env-link": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:18.2.55"
@@ -11828,6 +11830,7 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/connect-common": "workspace:*"
     "@trezor/eslint": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/chrome": "npm:^0.0.299"
     "@types/w3c-web-usb": "npm:^1.0.10"
@@ -11900,6 +11903,7 @@ __metadata:
     "@trezor/schema-utils": "workspace:*"
     "@trezor/transport": "workspace:*"
     "@trezor/trezor-user-env-link": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@trezor/utxo-lib": "workspace:*"
     "@types/karma": "npm:^6.3.9"
@@ -11938,7 +11942,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/device-utils@workspace:*, @trezor/device-utils@workspace:packages/device-utils":
+"@trezor/device-utils@workspace:*, @trezor/device-utils@workspace:^, @trezor/device-utils@workspace:packages/device-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/device-utils@workspace:packages/device-utils"
   dependencies:
@@ -11998,6 +12002,20 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^5.2.0"
     globals: "npm:^15.11.0"
     typescript-eslint: "npm:^8.31.1"
+  languageName: unknown
+  linkType: soft
+
+"@trezor/firmware-release-config@workspace:packages/firmware-release-config":
+  version: 0.0.0-use.local
+  resolution: "@trezor/firmware-release-config@workspace:packages/firmware-release-config"
+  dependencies:
+    "@trezor/device-utils": "workspace:^"
+    "@trezor/env-utils": "workspace:^"
+    "@types/fs-extra": "npm:^11.0.4"
+    "@types/jws": "npm:^3.2.10"
+    fs-extra: "npm:^11.3.0"
+    jws: "npm:^4.0.0"
+    tsx: "npm:^4.19.3"
   languageName: unknown
   linkType: soft
 
@@ -12676,6 +12694,8 @@ __metadata:
 "@trezor/type-utils@workspace:*, @trezor/type-utils@workspace:packages/type-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/type-utils@workspace:packages/type-utils"
+  dependencies:
+    tsx: "npm:^4.19.3"
   languageName: unknown
   linkType: soft
 

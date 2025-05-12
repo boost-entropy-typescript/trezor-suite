@@ -256,3 +256,17 @@ export type TradingSignAndPushSendFormTransactionProps = {
     precomposedTransaction: GeneralPrecomposedTransactionFinal;
     selectedAccount: Account;
 };
+
+export type TradingSellStepType = 'BANK_ACCOUNT' | 'SEND_TRANSACTION';
+
+export interface TradingSellFormProps extends FormState {
+    sendCryptoSelect: TradingAccountOptionsGroupOptionProps | undefined;
+    paymentMethod?: TradingPaymentMethodListProps;
+    countrySelect: TradingOption;
+    amountInCrypto: boolean;
+}
+
+export type TradingSellUserConsentProps = {
+    provider: string;
+    cryptoCurrency: CryptoId;
+};

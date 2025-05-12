@@ -6,14 +6,17 @@ import useDebounce from 'react-use/lib/useDebounce';
 
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
+    type TradingSellFormProps,
+    type TradingSellStepType,
     type TradingSellType,
-    TradingTransactionSell,
+    type TradingTransactionSell,
     addIdsToQuotes,
     filterQuotesAccordingTags,
     getTradingPaymentMethods,
     getTradingQuotesByPaymentMethod,
     getUnusedAddressFromAccount,
     invityAPI,
+    sellUtils,
     tradingGetSuccessQuotes,
     useTradingInfo,
 } from '@suite-common/trading';
@@ -53,13 +56,9 @@ import {
     TradingAccountOptionsGroupOptionProps,
     UseTradingFormProps,
 } from 'src/types/trading/trading';
-import {
-    TradingSellFormContextProps,
-    TradingSellFormProps,
-    TradingSellStepType,
-} from 'src/types/trading/tradingForm';
+import { TradingSellFormContextProps } from 'src/types/trading/tradingForm';
 import type { AmountLimitProps } from 'src/utils/suite/validation';
-import { createQuoteLink, getAmountLimits } from 'src/utils/wallet/trading/sellUtils';
+import { createQuoteLink } from 'src/utils/wallet/trading/sellUtils';
 import {
     getTradingCryptoInfo,
     getTradingNetworkDecimals,
@@ -272,7 +271,7 @@ export const useTradingSellForm = ({
                 const currency =
                     cryptoIdToCoinSymbol(quoteRequest.cryptoCurrency) ??
                     quoteRequest.cryptoCurrency;
-                const limits = getAmountLimits({
+                const limits = sellUtils.getAmountLimits({
                     request: quoteRequest,
                     quotes: allQuotes,
                     currency,

@@ -22,6 +22,8 @@ import type {
     TradingPaymentMethodListProps,
     TradingPaymentMethodProps,
     TradingPaymentMethodType,
+    TradingSellFormProps,
+    TradingSellStepType,
     TradingSellType,
     TradingTradeMapProps,
     TradingTradeType,
@@ -32,12 +34,7 @@ import type {
 } from '@suite-common/trading';
 import { Network } from '@suite-common/wallet-config';
 import { AccountsState } from '@suite-common/wallet-core';
-import {
-    FeeInfo,
-    FormState,
-    PrecomposedLevels,
-    PrecomposedLevelsCardano,
-} from '@suite-common/wallet-types';
+import { FeeInfo, PrecomposedLevels, PrecomposedLevelsCardano } from '@suite-common/wallet-types';
 import { FeeLevel } from '@trezor/connect';
 import { Timer } from '@trezor/react-utils';
 
@@ -64,13 +61,6 @@ export interface TradingBuyFormDefaultValuesProps {
     suggestedFiatCurrency: FiatCurrencyCode;
 }
 
-export interface TradingSellFormProps extends FormState {
-    sendCryptoSelect: TradingAccountOptionsGroupOptionProps | undefined;
-    paymentMethod?: TradingPaymentMethodListProps;
-    countrySelect: Option;
-    amountInCrypto: boolean;
-}
-
 export type TradingBuySellFormProps = TradingBuyFormProps | TradingSellFormProps;
 export type TradingSellExchangeFormProps = TradingSellFormProps | TradingExchangeFormProps;
 export type TradingAllFormProps =
@@ -89,8 +79,6 @@ export interface TradingExchangeFormDefaultValuesProps {
     defaultValues: TradingExchangeFormProps;
     defaultCurrency: Option;
 }
-
-export type TradingSellStepType = 'BANK_ACCOUNT' | 'SEND_TRANSACTION';
 
 interface TradingFormStateProps {
     isFormLoading: boolean;

@@ -8,12 +8,13 @@ import { FeeLevel } from '@trezor/connect';
 import { TradingPaymentMethodListProps, TradingTransaction, TradingType } from '../types';
 import { TradingBuyState, buyInitialState, tradingBuyReducer } from './buyReducer';
 import { TRADING_PREFIX } from '../constants';
-import { buyThunks, exchangeThunks } from '../thunks';
+import { buyThunks, exchangeThunks, sellThunks } from '../thunks';
 import {
     TradingExchangeState,
     exchangeInitialState,
     tradingExchangeReducer,
 } from './exchangeReducer';
+import { TradingSellState, sellInitialState, tradingSellReducer } from './sellReducer';
 
 export interface TradingComposedTransactionInfo {
     composed?: Pick<
@@ -39,7 +40,7 @@ export interface TradingState {
     info: TradingInfo;
     buy: TradingBuyState;
     exchange: TradingExchangeState;
-    // sell: TradingSellState;
+    sell: TradingSellState;
     composedTransactionInfo: TradingComposedTransactionInfo;
     trades: TradingTransaction[];
     modalCryptoId: CryptoId | undefined;
@@ -58,7 +59,7 @@ export const initialState: TradingState = {
     },
     buy: buyInitialState,
     exchange: exchangeInitialState,
-    // sell: sellInitialState,
+    sell: sellInitialState,
     composedTransactionInfo: {},
     trades: [],
     isLoading: false,
@@ -143,6 +144,25 @@ export const tradingSlice = createSliceWithExtraDeps({
             .addCase(exchangeThunks.handleRequestThunk.fulfilled, state => {
                 state.exchange.isLoading = false;
             })
+            .addCase(sellThunks.handleRequestThunk.pending, state => {
+                state.sell.isLoading = true;
+            })
+            .addCase(sellThunks.handleRequestThunk.fulfilled, state => {
+                state.sell.isLoading = false;
+            })
+            .addCase(sellThunks.handleRequestThunk.rejected, state => {
+                state.sell.amountLimits = undefined;
+                state.sell.quotes = [];
+                state.sell.quotesRequest = undefined;
+                state.sell.isLoading = false;
+                state.info.paymentMethods = [];
+            })
+            .addCase(sellThunks.handleTradeThunk.pending, state => {
+                state.exchange.isLoading = true;
+            })
+            .addCase(sellThunks.handleTradeThunk.fulfilled, state => {
+                state.exchange.isLoading = false;
+            })
             .addCase(exchangeThunks.confirmTradeThunk.pending, state => {
                 state.exchange.isLoading = true;
             })
@@ -151,7 +171,7 @@ export const tradingSlice = createSliceWithExtraDeps({
             })
             .addDefaultCase((state, action) => {
                 tradingBuyReducer(state.buy, action);
-                // TODO: prepareSellReducer(extra)(state.sell, action);
+                tradingSellReducer(state.sell, action);
                 tradingExchangeReducer(state.exchange, action);
             });
     },
