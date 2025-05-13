@@ -43,6 +43,8 @@ export enum DeviceOnboardingStackRoutes {
     SuspiciousDevice = 'SuspiciousDevice',
     SecurityCheck = 'SecurityCheck',
     FirmwareInstallation = 'FirmwareInstallation',
+    DeviceAuthenticity = 'DeviceAuthenticity ',
+    DeviceAuthenticitySuccess = 'DeviceAuthenticitySuccess',
     ConfirmFirmwareUpdate = 'ConfirmFirmwareUpdate',
     DeviceTutorial = 'DeviceTutorial',
     CreateOrRecoverCrossroads = 'CreateOrRecoverCrossroads',
@@ -80,7 +82,7 @@ export enum DevicePinProtectionStackRoutes {
 
 export enum DeviceAuthenticityStackRoutes {
     AuthenticityCheck = 'AuthenticityCheck',
-    AuthenticitySummary = 'AuthenticitySummary',
+    AuthenticitySuccess = 'AuthenticitySuccess',
 }
 
 export enum AuthorizeDeviceStackRoutes {

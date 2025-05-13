@@ -1,19 +1,29 @@
-import { useSelector } from 'react-redux';
+import { UnreachableCaseError } from '@suite-common/suite-utils';
+import { RootStackParamList, RootStackRoutes, StackProps } from '@suite-native/navigation';
 
-import { selectIsEntropyCheckEnabledAndFailed } from '@suite-native/device';
-
+import { DeviceAuthenticityCheckFailModalContent } from '../components/DeviceAuthenticityCheckFailModalContent';
 import { EntropyCheckFailModalContent } from '../components/EntropyCheckFailModalContent';
 import { FirmwareAuthenticityCheckFailModalContent } from '../components/FirmwareAuthenticityCheckFailModalContent';
 
 /**
- * The very similar modal can be displayed for entropy check failure or FW authenticity check failure
+ * Modal can be displayed for:
+ * - entropy check failure
+ * - FW authenticity check failure
+ * - device authenticity check failure
  */
-export const DeviceCompromisedModalScreen = () => {
-    const isEntropyCheckEnabledAndFailed = useSelector(selectIsEntropyCheckEnabledAndFailed);
+export const DeviceCompromisedModalScreen = ({
+    route,
+}: StackProps<RootStackParamList, RootStackRoutes.DeviceCompromisedModal>) => {
+    const { failedCheck } = route.params;
 
-    return isEntropyCheckEnabledAndFailed ? (
-        <EntropyCheckFailModalContent />
-    ) : (
-        <FirmwareAuthenticityCheckFailModalContent />
-    );
+    switch (failedCheck) {
+        case 'device-authenticity':
+            return <DeviceAuthenticityCheckFailModalContent />;
+        case 'entropy':
+            return <EntropyCheckFailModalContent />;
+        case 'firmware-authenticity':
+            return <FirmwareAuthenticityCheckFailModalContent />;
+        default:
+            throw new UnreachableCaseError(failedCheck);
+    }
 };
