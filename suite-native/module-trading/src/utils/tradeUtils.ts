@@ -10,6 +10,8 @@ import {
 
 import { UnreachableCaseError } from '@suite-common/suite-utils';
 import { TradingTradeStatusType, TradingTransaction, TradingType } from '@suite-common/trading';
+import { useTranslate } from '@suite-native/intl';
+import { getWeakRandomId } from '@trezor/utils';
 
 import { TRADING_URL_DEFAULT_BACK } from './tradeFormUtils';
 
@@ -86,14 +88,14 @@ export const getBuyTradeStatusStep = (tradeStatus: BuyTradeStatus | undefined) =
     switch (tradeStatus) {
         case 'SUBMITTED':
         case 'WAITING_FOR_USER':
-            return 'status-waiting';
+            return 'waiting';
         case 'APPROVAL_PENDING':
-            return 'status-processing';
+            return 'processing';
         case 'SUCCESS':
-            return 'status-success';
+            return 'success';
         case 'ERROR':
         case 'BLOCKED':
-            return 'status-error';
+            return 'error';
         default:
             return undefined;
     }
@@ -105,16 +107,16 @@ const getExchangeTradeStatusStep = (tradeStatus: ExchangeTradeStatus | undefined
     }
     switch (tradeStatus) {
         case 'CONVERTING':
-            return 'status-converting';
+            return 'converting';
         case 'KYC':
-            return 'status-kyc';
+            return 'kyc';
         case 'ERROR':
-            return 'status-error';
+            return 'error';
         case 'SUCCESS':
-            return 'status-success';
+            return 'success';
         default: {
             if (!tradeFinalStatuses['exchange'].includes(tradeStatus)) {
-                return 'status-sending';
+                return 'sending';
             }
 
             return undefined;
@@ -128,16 +130,18 @@ const getSellTradeStatusStep = (tradeStatus: SellTradeStatus | undefined) => {
     }
     switch (tradeStatus) {
         case 'SUCCESS':
-            return 'status-success';
+            return 'success';
         default: {
-            return tradeFinalStatuses['sell'].includes(tradeStatus)
-                ? 'status-error'
-                : 'status-pending';
+            return tradeFinalStatuses['sell'].includes(tradeStatus) ? 'error' : 'pending';
         }
     }
 };
 
-export const getTradeStatusStep = (trade: TradingTransaction) => {
+export const getTradeStatusStep = (trade: TradingTransaction | undefined) => {
+    if (!trade) {
+        return undefined;
+    }
+
     const { tradeType } = trade;
     switch (tradeType) {
         case 'buy':
@@ -154,3 +158,23 @@ export const getTradeStatusStep = (trade: TradingTransaction) => {
 
 export const doesUrlContainCloseCallbackUrl = (url: string, closeCallbackUrl: string) =>
     url.includes(closeCallbackUrl) || url.includes(TRADING_URL_DEFAULT_BACK);
+
+export const getRandomAccountDescriptor = () => getWeakRandomId(20);
+
+export const getTradeTitle = (
+    trade: TradingTransaction,
+    translate: ReturnType<typeof useTranslate>['translate'],
+) => {
+    const { tradeType } = trade;
+    switch (tradeType) {
+        case 'buy':
+            return translate('moduleTrading.tradeHistory.detail.buy');
+        case 'exchange':
+            return translate('moduleTrading.tradeHistory.detail.exchange');
+        case 'sell':
+            return translate('moduleTrading.tradeHistory.detail.sell');
+
+        default:
+            throw new UnreachableCaseError(tradeType);
+    }
+};
