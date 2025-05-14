@@ -583,9 +583,9 @@ export const en = {
                     title: 'Enabled coins',
                     subtitle: 'Manage coins that you use',
                 },
-                deviceChecks: {
-                    title: 'Device checks',
-                    subtitle: 'Authenticity and security checks',
+                advanced: {
+                    title: 'Advanced',
+                    subtitle: 'Expert features for power users ',
                 },
                 walletConnect: {
                     title: 'WalletConnect',
@@ -757,28 +757,38 @@ export const en = {
                 defaultPassphrase: 'Passphrase wallet #{index}',
             },
         },
-        deviceChecks: {
-            title: 'Device checks',
-            firmwareAuthenticityCheck: {
-                title: 'Turn off firmware authenticity check',
-                subtitle:
-                    'Firmware authenticity check is a crucial security feature. We strongly recommend keeping it turned on.',
+        advanced: {
+            title: 'Advanced',
+            goodAdvice: 'We strongly recommend leaving these checks turned on.',
+            authenticityChecks: {
                 buttonTurnOff: 'Turn off',
                 buttonTurnOn: 'Turn on',
                 buttonLearnMore: 'Learn more',
-
-                turnOffModal: {
-                    title: 'Turn off firmware authenticity check',
-                    content:
-                        'Trezor Support will never ask you to turn off the firmware revision check. This feature is designed to protect your security.',
-                    item1: 'Only if the device has passed the check before',
+                toastOn: 'Check turned on',
+                toastOff: 'Check turned off',
+                turnOff: {
+                    content: 'This feature is designed to protect your security.',
+                    item1: 'Only continue if the device has passed this check before',
                     item1Explanation:
-                        'Using an unverified device could result in the loss of funds.',
-                    item2: 'Only for testing and development',
+                        'Using an unverified device could compromise the security of your funds.',
+                    item2: 'Only use for testing and development',
                     item2Explanation:
-                        'These security checks should only be disabled for testing and development purposes.',
+                        'This security check should only be disabled for testing and development purposes.',
                     acknowledgement: 'I’ve read and understood the above',
+                    acknowledgementNote: 'Trezor Support will never ask you to turn this off.',
                     buttonTurnOff: 'Turn off',
+                },
+                firmware: {
+                    title: 'Firmware authenticity check',
+                    subtitle:
+                        'This check ensures that your firmware is legitimate. Compromised firmware won’t be able to communicate with Suite.',
+                    turnOffTitle: 'Turn off firmware authenticity check',
+                },
+                device: {
+                    title: 'Device authenticity check',
+                    subtitle:
+                        'This check verifies that your Trezor device is genuine. It helps ensure you never use a compromised or fake device. ',
+                    turnOffTitle: 'Turn off device authenticity check',
                 },
             },
         },
@@ -852,7 +862,7 @@ export const en = {
                     title: 'Multi-share Backup',
                     description: 'Designed for experienced users',
                     time: '~10 minutes <bold>per share</bold>',
-                    format: '2-16 shares (20 words per share) Select the minimum number of shares required to recover your assets.',
+                    format: '2-16 shares (20 words per share). Select the minimum number of shares required to recover your assets.',
                     storage:
                         'Store your shares separately in secure, private locations, or distribute them to trusted individuals. Never keep all shares together or store them digitally.',
                     callout: 'Requires increased attention',
@@ -862,7 +872,7 @@ export const en = {
                 '12-words': {
                     title: '12-word backup',
                     description: 'Legacy backup type',
-                    format: 'Generates a <bold>single set of 12 words</bold> to recover access to your funds. ',
+                    format: 'Generates a <bold>single set of 12 words</bold> to recover access to your funds.',
                     storage:
                         'Store your wallet backup in a secure, private place. Never share it with anyone or store it anywhere digital.',
                     callout: 'Not easily upgradeable to\nMulti-share Backup',
@@ -871,7 +881,7 @@ export const en = {
                 '24-words': {
                     title: '24-word backup',
                     description: 'Legacy backup type',
-                    format: 'Generates a <bold>single set of 24 words</bold> to recover access to your funds. ',
+                    format: 'Generates a <bold>single set of 24 words</bold> to recover access to your funds.',
                     storage:
                         'Store your wallet backup in a secure, private place. Never share it with anyone or store it anywhere digital.',
                     callout: 'Not easily upgradeable to\nMulti-share Backup',

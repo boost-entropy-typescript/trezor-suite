@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useDispatch } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -23,7 +22,6 @@ import {
     SettingsStackRoutes,
     StackNavigationProps,
 } from '@suite-native/navigation';
-import { setCheckFirmwareAuthenticityEnabled } from '@suite-native/settings';
 import { useToast } from '@suite-native/toasts';
 
 const CHECKBOX_ANIMATION_DURATION = 200; // same as in useAccordionAnimation
@@ -33,20 +31,20 @@ const InformativeList = () => (
         <IconListItem icon="warning" variant="yellow" iconSize="large" verticalAlign="flex-start">
             <VStack spacing="sp4">
                 <Text variant="highlight">
-                    <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.item1" />
+                    <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.item1" />
                 </Text>
                 <Text variant="hint" color="textSubdued">
-                    <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.item1Explanation" />
+                    <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.item1Explanation" />
                 </Text>
             </VStack>
         </IconListItem>
         <IconListItem icon="code" variant="yellow" iconSize="large" verticalAlign="flex-start">
             <VStack spacing="sp4">
                 <Text variant="highlight">
-                    <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.item2" />
+                    <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.item2" />
                 </Text>
                 <Text variant="hint" color="textSubdued">
-                    <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.item2Explanation" />
+                    <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.item2Explanation" />
                 </Text>
             </VStack>
         </IconListItem>
@@ -58,16 +56,20 @@ type NavigationProp = StackNavigationProps<
     SettingsStackRoutes.SettingsDeviceChecks
 >;
 
-export const TurnOffFirmwareAuthenticityCheckModalScreen = () => {
+type TurnOffCheckScreenContentProps = {
+    title: ReactNode;
+    onConfirm: () => void;
+};
+
+export const TurnOffCheckScreenContent = ({ title, onConfirm }: TurnOffCheckScreenContentProps) => {
     const [isChecked, setIsChecked] = useState(false);
     const navigation = useNavigation<NavigationProp>();
-    const dispatch = useDispatch();
     const { showToast } = useToast();
 
     const handleCheckboxPress = () => setIsChecked(prev => !prev);
 
     const handleButtonPress = () => {
-        dispatch(setCheckFirmwareAuthenticityEnabled(false));
+        onConfirm();
         if (navigation.canGoBack()) {
             navigation.goBack();
         } else {
@@ -75,31 +77,39 @@ export const TurnOffFirmwareAuthenticityCheckModalScreen = () => {
         }
         showToast({
             variant: 'default',
-            message: 'Authenticity check turned off',
+            message: <Translation id="moduleSettings.advanced.authenticityChecks.toastOff" />,
             icon: 'check',
         });
     };
 
     return (
         <Screen header={<ScreenHeader closeActionType="close" />}>
-            <VStack spacing="sp32" flex={1}>
+            <VStack spacing="sp32" marginTop="sp8" flex={1}>
                 <TitleHeader
                     titleVariant="titleMedium"
-                    title={
-                        <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.title" />
-                    }
+                    title={title}
                     subtitle={
-                        <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.content" />
+                        <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.content" />
                     }
                 />
                 <InformativeList />
                 <Pressable onPress={handleCheckboxPress}>
-                    <Card>
-                        <HStack spacing="sp16">
-                            <CheckBox isChecked={isChecked} onChange={handleCheckboxPress} />
-                            <Text variant="highlight">
-                                <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.acknowledgement" />
+                    <Card
+                        alertProps={{
+                            variant: 'warning',
+                            title: (
+                                <Text variant="callout">
+                                    <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.acknowledgementNote" />
+                                </Text>
+                            ),
+                        }}
+                        alertPosition="bottom"
+                    >
+                        <HStack spacing="sp16" justifyContent="space-between">
+                            <Text>
+                                <Translation id="moduleSettings.advanced.authenticityChecks.turnOff.acknowledgement" />
                             </Text>
+                            <CheckBox isChecked={isChecked} onChange={handleCheckboxPress} />
                         </HStack>
                     </Card>
                 </Pressable>
@@ -110,7 +120,7 @@ export const TurnOffFirmwareAuthenticityCheckModalScreen = () => {
                     exiting={FadeOut.duration(CHECKBOX_ANIMATION_DURATION)}
                 >
                     <Button colorScheme="yellowBold" onPress={handleButtonPress}>
-                        <Translation id="moduleSettings.deviceChecks.firmwareAuthenticityCheck.turnOffModal.buttonTurnOff" />
+                        <Translation id="moduleSettings.advanced.authenticityChecks.buttonTurnOff" />
                     </Button>
                 </Animated.View>
             )}
