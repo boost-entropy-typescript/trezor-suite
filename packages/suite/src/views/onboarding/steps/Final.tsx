@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 
 import useMeasure from 'react-use/lib/useMeasure';
 import styled, { css } from 'styled-components';
@@ -17,8 +18,9 @@ import { spacingsPx, typography } from '@trezor/theme';
 
 import { OnboardingStepBox } from 'src/components/onboarding';
 import { HomescreenGallery, Translation } from 'src/components/suite';
-import { ChangeDeviceLabel } from 'src/components/suite/ChangeDeviceLabel';
+import { ChangeDeviceLabelForm } from 'src/components/suite/ChangeDeviceLabelForm';
 import { useDevice, useOnboarding, useSelector } from 'src/hooks/suite';
+import { useChangeDeviceLabel } from 'src/hooks/suite/useChangeDeviceLabel';
 import { selectIsActionAbortable } from 'src/reducers/suite/suiteReducer';
 import { isHomescreenSupportedOnDevice } from 'src/utils/suite/homescreen';
 
@@ -97,7 +99,6 @@ const Wrapper = styled.div<{ $shouldWrap?: boolean }>`
 
 export const FinalStep = () => {
     const { goToSuite } = useOnboarding();
-
     const popoverRef = useRef<PopoverRef>();
 
     const { isLocked, device } = useDevice();
@@ -113,15 +114,48 @@ export const FinalStep = () => {
 
     const isWaitingForConfirm = modalContext === '@modal/context-device';
 
-    const onClick = () => {
-        setState(null);
-    };
+    const { form, handleSubmit } = useChangeDeviceLabel();
 
     const [wrapperRef, { width }] = useMeasure<HTMLDivElement>();
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setState(null);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     if (!device?.features) return null;
 
     const shouldOfferChangeHomescreen = isHomescreenSupportedOnDevice(device);
+
+    const reportAnalytics = () => {
+        const payload = {
+            ...onboardingAnalytics,
+            duration: Date.now() - onboardingAnalytics.startTime!,
+            device: device.features.internal_model,
+            unitPackaging: device.features.unit_packaging ?? 0,
+        };
+        delete payload.startTime;
+
+        analytics.report({
+            type: EventType.DeviceSetupCompleted,
+            payload,
+        });
+    };
+
+    const handleRename = async () => await handleSubmit(() => setState(null));
+
+    const handleGoToSuite = async () => {
+        reportAnalytics();
+        await handleSubmit();
+        goToSuite();
+    };
 
     return (
         <OnboardingStepBox
@@ -194,29 +228,19 @@ export const FinalStep = () => {
                     )}
                     {state === 'rename' && (
                         <SetupActions>
-                            <ChangeDeviceLabel onClick={onClick} isDeviceLocked={isDeviceLocked} />
+                            <FormProvider {...form}>
+                                <ChangeDeviceLabelForm
+                                    isDeviceLocked={isDeviceLocked}
+                                    onClick={handleRename}
+                                />
+                            </FormProvider>
                         </SetupActions>
                     )}
 
                     <EnterSuiteButton
                         variant="primary"
                         data-testid="@onboarding/exit-app-button"
-                        onClick={() => {
-                            const payload = {
-                                ...onboardingAnalytics,
-                                duration: Date.now() - onboardingAnalytics.startTime!,
-                                device: device.features.internal_model,
-                                unitPackaging: device.features.unit_packaging ?? 0,
-                            };
-                            delete payload.startTime;
-
-                            analytics.report({
-                                type: EventType.DeviceSetupCompleted,
-                                payload,
-                            });
-
-                            goToSuite(true);
-                        }}
+                        onClick={handleGoToSuite}
                         icon="arrowRight"
                         iconAlignment="end"
                         isDisabled={isWaitingForConfirm}
