@@ -34,11 +34,11 @@ export {
 export * from './components/DataAnalytics';
 export * from './components/Divider/Divider';
 export * from './components/Dropdown/Dropdown';
-export type { GroupedMenuItems } from './components/Menu/Menu';
 export * from './components/ElevationContext/ElevationContext';
 export * from './components/Flex/Flex';
 export { FormCell, type FormCellProps } from './components/form/FormCell/FormCell';
 export * from './components/form/Input/Input';
+export * from './components/form/InputButton/InputButton';
 export * from './components/form/styles';
 export * from './components/form/Radio/Radio';
 export * from './components/form/Range/Range';

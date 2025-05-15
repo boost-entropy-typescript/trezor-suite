@@ -10,13 +10,27 @@ import { Explorer, Network } from '@suite-common/wallet-config';
 import { selectExplorer } from '@suite-common/wallet-core';
 import { SelectedAccountStatus } from '@suite-common/wallet-types';
 import { getNftContractExplorerUrl, getNftExplorerUrl } from '@suite-common/wallet-utils';
-import { Badge, Button, Dropdown, Icon, IconCircle, Row, Table, Text } from '@trezor/components';
+import {
+    Badge,
+    Button,
+    Card,
+    Column,
+    Dropdown,
+    Icon,
+    IconButton,
+    IconCircle,
+    InfoItem,
+    Row,
+    Table,
+    Text,
+} from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { SUITE } from 'src/actions/suite/constants';
 import { copyAddressToClipboard, showCopyAddressModal } from 'src/actions/suite/copyAddressActions';
 import { goto } from 'src/actions/suite/routerActions';
 import {
+    Address,
     HiddenPlaceholder,
     RedactNumericalValue,
     Translation,
@@ -77,80 +91,88 @@ const NftsRow = ({
                     <Row gap={spacings.xs}>
                         <Dropdown
                             placement={{ position: 'bottom', alignment: 'start' }}
+                            content={
+                                <Card paddingType="small">
+                                    <Column maxWidth={200} gap={spacings.md}>
+                                        <InfoItem
+                                            typographyStyle="label"
+                                            label={<Translation id="TR_CONTRACT_ADDRESS" />}
+                                            gap={spacings.zero}
+                                        >
+                                            <Row>
+                                                <Text typographyStyle="label" as="div">
+                                                    <Address
+                                                        isChunked={false}
+                                                        value={nft.contract}
+                                                    />
+                                                </Text>
+                                                <IconButton
+                                                    icon="copy"
+                                                    size="tiny"
+                                                    variant="tertiary"
+                                                    onClick={() => {
+                                                        dispatch(
+                                                            shouldShowCopyAddressModal
+                                                                ? showCopyAddressModal(
+                                                                      nft.contract || '',
+                                                                      'contract',
+                                                                  )
+                                                                : copyAddressToClipboard(
+                                                                      nft.contract,
+                                                                  ),
+                                                        );
+                                                    }}
+                                                />
+                                            </Row>
+                                        </InfoItem>
+                                    </Column>
+                                </Card>
+                            }
                             items={[
                                 {
-                                    key: 'export',
-                                    options: [
-                                        {
-                                            label: <Translation id="TR_HIDE_COLLECTION" />,
-                                            icon: 'eyeSlash',
-                                            onClick: () =>
-                                                dispatch(
-                                                    tokenDefinitionsActions.setTokenStatus({
-                                                        symbol: network.symbol,
-                                                        contractAddress: nft.contract || '',
-                                                        status: TokenManagementAction.HIDE,
-                                                        type: DefinitionType.NFT,
-                                                    }),
-                                                ),
-                                            isHidden: !isShown,
-                                        },
-                                        {
-                                            label: <Translation id="TR_VIEW_ALL_TRANSACTION" />,
-                                            icon: 'newspaper',
-                                            onClick: () => {
-                                                dispatch({
-                                                    type: SUITE.SET_TRANSACTION_HISTORY_PREFILL,
-                                                    payload: nft.contract || '',
-                                                });
-                                                if (account) {
-                                                    dispatch(
-                                                        goto('wallet-index', {
-                                                            params: {
-                                                                symbol: account.symbol,
-                                                                accountIndex: account.index,
-                                                                accountType: account.accountType,
-                                                            },
-                                                        }),
-                                                    );
-                                                }
-                                            },
-                                        },
-                                        {
-                                            label: <Translation id="TR_VIEW_IN_EXPLORER" />,
-                                            icon: 'arrowUpRight',
-                                            onClick: () => {
-                                                window.open(
-                                                    getNftContractExplorerUrl(explorer, nft),
-                                                    '_blank',
-                                                );
-                                            },
-                                        },
-                                    ],
+                                    label: <Translation id="TR_HIDE_COLLECTION" />,
+                                    icon: 'eyeSlash',
+                                    onClick: () =>
+                                        dispatch(
+                                            tokenDefinitionsActions.setTokenStatus({
+                                                symbol: network.symbol,
+                                                contractAddress: nft.contract || '',
+                                                status: TokenManagementAction.HIDE,
+                                                type: DefinitionType.NFT,
+                                            }),
+                                        ),
+                                    isHidden: !isShown,
                                 },
                                 {
-                                    key: 'contract-address',
-                                    label: <Translation id="TR_CONTRACT_ADDRESS" />,
-                                    options: [
-                                        {
-                                            label: (
-                                                <Row gap={spacings.xxs}>
-                                                    {nft.contract}
-                                                    <Icon name="copy" size={14} />
-                                                </Row>
-                                            ),
-                                            onClick: () => {
-                                                dispatch(
-                                                    shouldShowCopyAddressModal
-                                                        ? showCopyAddressModal(
-                                                              nft.contract || '',
-                                                              'contract',
-                                                          )
-                                                        : copyAddressToClipboard(nft.contract),
-                                                );
-                                            },
-                                        },
-                                    ],
+                                    label: <Translation id="TR_VIEW_ALL_TRANSACTION" />,
+                                    icon: 'newspaper',
+                                    onClick: () => {
+                                        dispatch({
+                                            type: SUITE.SET_TRANSACTION_HISTORY_PREFILL,
+                                            payload: nft.contract || '',
+                                        });
+                                        if (account) {
+                                            dispatch(
+                                                goto('wallet-index', {
+                                                    params: {
+                                                        symbol: account.symbol,
+                                                        accountIndex: account.index,
+                                                        accountType: account.accountType,
+                                                    },
+                                                }),
+                                            );
+                                        }
+                                    },
+                                },
+                                {
+                                    label: <Translation id="TR_VIEW_IN_EXPLORER" />,
+                                    icon: 'arrowUpRight',
+                                    onClick: () => {
+                                        window.open(
+                                            getNftContractExplorerUrl(explorer, nft),
+                                            '_blank',
+                                        );
+                                    },
                                 },
                             ]}
                         />

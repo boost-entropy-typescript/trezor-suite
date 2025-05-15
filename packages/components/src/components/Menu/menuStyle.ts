@@ -17,12 +17,12 @@ export const DROPDOWN_MENU = keyframes`
 export const menuStyle = css`
     display: flex;
     flex-direction: column;
-    flex: 1;
     padding: ${spacingsPx.sm};
-    min-width: 140px;
+    min-width: 180px;
     border-radius: ${borders.radii.md};
     background: ${({ theme }) => theme.backgroundSurfaceElevation1};
     box-shadow: ${({ theme }) => theme.boxShadowElevated};
+    outline: 1px solid ${({ theme }) => theme.baseBorderSurfaceAction};
     z-index: ${zIndices.modal};
     animation: ${DROPDOWN_MENU} 0.15s ease-in-out;
     list-style-type: none;

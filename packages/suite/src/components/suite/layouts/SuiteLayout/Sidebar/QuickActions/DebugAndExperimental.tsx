@@ -23,13 +23,13 @@ const DebugAndExperimentalTooltip = ({
     isEapEnabled,
     isExperimental,
 }: DebugAndExperimentalTooltipProps) => (
-    <Column gap={spacings.md} alignItems="start" margin={{ right: spacings.xxs }}>
+    <Column gap={spacings.md} padding={spacings.xxs} alignItems="start">
         {isExperimental && (
             <TooltipRow
                 circleIconName="check"
                 variant="primary"
                 header={<Translation id="TR_EXPERIMENTAL_FEATURES_ALLOW" />}
-                leftItem={<Icon name="diamond" variant="warning" size={iconSizes.medium} />}
+                leftItem={<Icon name="atom" variant="warning" size={iconSizes.medium} />}
             >
                 <Translation id="TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED" />
             </TooltipRow>
@@ -109,7 +109,7 @@ export const DebugAndExperimental = () => {
                 )}
                 {isExperimental && (
                     <Absolute>
-                        <Icon name="diamond" variant="warning" size={iconSizes.medium} />
+                        <Icon name="atom" variant="warning" size={iconSizes.medium} />
                     </Absolute>
                 )}
                 {isEapEnabled && (

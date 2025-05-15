@@ -6500,6 +6500,14 @@ export default defineMessages({
         id: 'TR_COLOR_SCHEME_LIGHT',
         defaultMessage: 'Light',
     },
+    TR_EXPORT_SEARCH_FILTER_ACTIVE: {
+        id: 'TR_EXPORT_SEARCH_FILTER_ACTIVE',
+        defaultMessage: 'Search filter applied for export',
+    },
+    TR_EXPORT_SEARCH_FILTER_INACTIVE: {
+        id: 'TR_EXPORT_SEARCH_FILTER_INACTIVE',
+        defaultMessage: 'Tip: Filter export by searching',
+    },
     TR_EXPORT_AS: {
         id: 'TR_EXPORT_AS',
         defaultMessage: 'Export as {as}',
@@ -6702,11 +6710,11 @@ export default defineMessages({
     },
     TR_SEARCH_TOKENS: {
         id: 'TR_SEARCH_TOKENS',
-        defaultMessage: 'Search tokens',
+        defaultMessage: 'Token, symbol, or contract address',
     },
     TR_SEARCH_COLLECTIONS: {
         id: 'TR_SEARCH_COLLECTIONS',
-        defaultMessage: 'Search collections',
+        defaultMessage: 'Name, symbol, or contract address',
     },
     TR_TOKENS_SEARCH_TOOLTIP: {
         id: 'TR_TOKENS_SEARCH_TOOLTIP',
@@ -6718,7 +6726,7 @@ export default defineMessages({
     },
     TR_SEARCH_TRANSACTIONS: {
         id: 'TR_SEARCH_TRANSACTIONS',
-        defaultMessage: 'Search transactions',
+        defaultMessage: 'Amount, label, date, or ID',
     },
     TR_NO_SEARCH_RESULTS: {
         id: 'TR_NO_SEARCH_RESULTS',
@@ -6729,55 +6737,60 @@ export default defineMessages({
         defaultMessage:
             'Search by transaction ID, label or amount or use operators such as < > | & = !=.',
     },
+    TR_TRANSACTIONS_SEARCH_PRO_TIP: {
+        id: 'TR_TRANSACTIONS_SEARCH_PRO_TIP',
+        defaultMessage:
+            '<strong>Pro Tip:</strong> Enhance your search by using logical operators like <span><, >, |, &, =, !=</span>',
+    },
     TR_TRANSACTIONS_SEARCH_TIP_1: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_1',
         defaultMessage:
-            'Tip: You can search for transaction IDs, addresses, tokens, labels, amounts, and dates.',
+            '<strong>Example:</strong> You can search for transaction IDs, addresses, tokens, labels, amounts, and dates.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_2: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_2',
         defaultMessage:
-            'Tip: Use the greater than (>) and less than (<) symbols for amount searches. For example <strong> 1</strong> will show all transactions that have an amount of 1 and higher.',
+            '<strong>Example:</strong> Use the greater than (>) and less than (<) symbols for amount searches. For example <span>1</span> will show all transactions that have an amount of 1 and higher.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_3: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_3',
         defaultMessage:
-            'Tip: You can search for exact amounts using the equal (=) symbol. For example <strong>= 0.01</strong> will show only transactions that have an amount of exactly 0.01.',
+            '<strong>Example:</strong> You can search for exact amounts using the equal (=) symbol. For example <span>= 0.01</span> will show only transactions that have an amount of exactly 0.01.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_4: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_4',
         defaultMessage:
-            'Tip: You can exclude an amount by using the exclamation mark and equal symbols together (!=). For example <strong>!= -0.01</strong> will show all transactions except the ones with an amount of -0.01.',
+            '<strong>Example:</strong> You can exclude an amount by using the exclamation mark and equal symbols together (!=). For example <span>!= -0.01</span> will show all transactions except the ones with an amount of -0.01.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_5: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_5',
         defaultMessage:
-            'Tip: Dates can be searched using the <strong>YYYY-MM-DD</strong> format. For example <strong>{lastYear}-12-14</strong> will show all transactions on December 14th, {lastYear}.',
+            '<strong>Example:</strong> Dates can be searched using the <span>YYYY-MM-DD</span> format. For example <span>{lastYear}-12-14</span> will show all transactions on December 14th, {lastYear}.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_6: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_6',
         defaultMessage:
-            'Tip: Use greater than (>) and lesser than (<) symbols on date searches. For example <strong>> {lastYear}-12-01</strong> will show all transactions on and after December 1st, {lastYear}.',
+            '<strong>Example:</strong> Use greater than (>) and lesser than (<) symbols on date searches. For example <span>> {lastYear}-12-01</span> will show all transactions on and after December 1st, {lastYear}.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_7: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_7',
         defaultMessage:
-            'Tip: You can exclude a date by using the exclamation mark and equal symbols together (!=). For example <strong>!= {lastYear}-12-14</strong> will show all transactions except the ones on December 14th, {lastYear}.',
+            '<strong>Example:</strong> You can exclude a date by using the exclamation mark and equal symbols together (!=). For example <span>!= {lastYear}-12-14</span> will show all transactions except the ones on December 14th, {lastYear}.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_8: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_8',
         defaultMessage:
-            'Tip: You can display results matching at least one of multiple searches by grouping them with the OR operator (|). For example <strong>{lastYear}-11-30 | {lastYear}-12-01</strong> will show all transactions that have happened on the 30th of November or the 1st of December {lastYear}.',
+            '<strong>Example:</strong> You can display results matching at least one of multiple searches by grouping them with the OR operator (|). For example <span>{lastYear}-11-30 | {lastYear}-12-01</span> will show all transactions that have happened on the 30th of November or the 1st of December {lastYear}.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_9: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_9',
         defaultMessage:
-            'Tip: Display results matching multiple searches by grouping them with the AND operator (&). For example <strong>> {lastYear}-12-01 & < {lastYear}-12-31 & > 0</strong> will show all incoming (amount higher than 0) transactions in December {lastYear}.',
+            '<strong>Example:</strong> Display results matching multiple searches by grouping them with the AND operator (&). For example <span>> {lastYear}-12-01 & < {lastYear}-12-31 & > 0</span> will show all incoming (amount higher than 0) transactions in December {lastYear}.',
     },
     TR_TRANSACTIONS_SEARCH_TIP_10: {
         id: 'TR_TRANSACTIONS_SEARCH_TIP_10',
         defaultMessage:
-            'Tip: Combine AND (&) and OR (|) operators for more complex searches. For example <strong>> {lastYear}-01-01 & < {lastYear}-01-31 | > {lastYear}-12-01 & < {lastYear}-12-31</strong> will show all transactions in January or December {lastYear}.',
+            '<strong>Example:</strong> Combine AND (&) and OR (|) operators for more complex searches. For example <span>> {lastYear}-01-01 & < {lastYear}-01-31 | > {lastYear}-12-01 & < {lastYear}-12-31</span> will show all transactions in January or December {lastYear}.',
     },
     TR_INTERNAL_TRANSACTIONS: {
         id: 'TR_INTERNAL_TRANSACTIONS',
