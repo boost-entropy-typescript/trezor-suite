@@ -44,11 +44,11 @@
         "react-markdown": "^10.1.0",
         "react-select": "^5.10.1",
         "react-svg": "16.3.0",
-        "react-use": "^17.5.0",
+        "react-use": "^17.6.0",
         "styled-components": "^6.1.17"
     },
     "devDependencies": {
-        "@babel/preset-react": "^7.26.3",
+        "@babel/preset-react": "^7.27.1",
         "@storybook/addon-actions": "^8.6.12",
         "@storybook/addon-controls": "^8.6.12",
         "@storybook/addon-links": "^8.6.12",
@@ -59,7 +59,8 @@
         "@storybook/react-webpack5": "^8.6.12",
         "@storybook/test": "^8.6.12",
         "@storybook/theming": "^8.6.12",
-        "@testing-library/react": "14.2.1",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
         "@trezor/eslint": "workspace:*",
         "@types/react": "18.2.55",

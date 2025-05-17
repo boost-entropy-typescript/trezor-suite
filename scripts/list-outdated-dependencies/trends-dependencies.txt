@@ -1,7 +1,6 @@
 @babel/cli
 @babel/core
 @babel/node
-@babel/plugin-proposal-class-properties
 @babel/plugin-proposal-decorators
 @babel/plugin-transform-runtime
 @babel/preset-env
@@ -28,13 +27,13 @@
 @solana/rpc-api
 @solana/rpc-types
 @stellar/stellar-sdk
+@testing-library/dom
 @testing-library/jest-dom
 @testing-library/react
 @testing-library/user-event
 @types/bchaddrjs
 @types/invity-api
 @types/jws
-@types/react-test-renderer
 @types/redux-logger
 @types/redux-mock-store
 @types/webpack-bundle-analyzer
@@ -50,14 +49,12 @@ immer
 jest
 jest-canvas-mock
 jest-watch-typeahead
-jsdom
 json-schema-to-typescript
 jws
 patch-package
 raw-loader
 react-redux
 react-refresh
-react-test-renderer
 react-use
 redux
 redux-devtools-extension
