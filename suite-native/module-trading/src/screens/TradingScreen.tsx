@@ -13,15 +13,15 @@ import { Screen, TradingStackRoutes } from '@suite-native/navigation';
 import { BuyForm } from '../components/buy/BuyForm';
 import { BuyFormContextProvider } from '../components/buy/BuyFormContextProvider';
 import { BuyFormSkeleton } from '../components/buy/BuyFormSkeleton';
-import { DeviceOffline } from '../components/general/Offline/DeviceOffline';
-import { ServerOffline } from '../components/general/Offline/ServerOffline';
-import { NavigationProps } from '../components/general/TradeHistory/TradeHistoryButton';
-import { useTradingBuyData } from '../hooks/useTradingBuyData';
+import { NavigationProps } from '../components/general/HistoryButton';
+import { DeviceOffline } from '../components/general/offline/DeviceOffline';
+import { ServerOffline } from '../components/general/offline/ServerOffline';
+import { useBuyData } from '../hooks/buy/useBuyData';
 import { selectIsTradingBuyEnabled, selectTradeToBeOpened } from '../selectors/commonSelectors';
 
 const TradingScreenContent = () => {
     const [reloadOrdinal, setReloadOrdinal] = useState(0);
-    const { isLoading, lastLoadedTimestamp, isFullyLoaded } = useTradingBuyData(reloadOrdinal);
+    const { isLoading, lastLoadedTimestamp, isFullyLoaded } = useBuyData(reloadOrdinal);
     const { isInternetReachable } = useNetInfo();
     const tradeToBeOpened = useSelector(selectTradeToBeOpened);
     const navigation = useNavigation<NavigationProps>();
@@ -32,7 +32,7 @@ const TradingScreenContent = () => {
                 type: EventType.TradingSuccess,
                 payload: { type: tradeToBeOpened.tradeType },
             });
-            navigation.navigate(TradingStackRoutes.TradeHistory, {
+            navigation.navigate(TradingStackRoutes.TradingHistory, {
                 tradeType: tradeToBeOpened.tradeType,
             });
         }

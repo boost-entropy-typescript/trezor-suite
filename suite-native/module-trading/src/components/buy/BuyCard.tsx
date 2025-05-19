@@ -12,14 +12,14 @@ import { AnimatedBox, AnimatedCard, Box, HStack, VStack } from '@suite-native/at
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
-import { AssetNetworkInfo } from './AssetNetworkInfo';
+import { BuyAssetNetworkInfo } from './BuyAssetNetworkInfo';
 import { BuyCardTitle } from './BuyCardTitle';
+import { BuyFiatCurrencyPicker } from './BuyFiatCurrencyPicker';
 import { BuyFormFieldErrorBadge } from './BuyFormFieldErrorBadge';
-import { FiatCurrencyPicker } from './FiatCurrencyPicker';
-import { ReceiveAccountCryptoBalance } from './ReceiveAccountCryptoBalance';
-import { ReceiveAccountPicker } from './ReceiveAccountPicker';
-import { TradeableAssetPicker } from './TradeableAssetPicker';
-import { useTradingBuyFormContext } from '../../hooks/useTradingBuyFormContext';
+import { BuyReceiveAccountCryptoBalance } from './BuyReceiveAccountCryptoBalance';
+import { BuyReceiveAccountPicker } from './BuyReceiveAccountPicker';
+import { BuyTradeableAssetPicker } from './BuyTradeableAssetPicker';
+import { useBuyFormContext } from '../../hooks/buy/useBuyFormContext';
 
 type BuyCardProps = {
     isAmountInputActive: boolean;
@@ -56,7 +56,7 @@ const useAnimatedBorderStyle = (isAmountInputActive: boolean) => {
 export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardProps) => {
     const { applyStyle } = useNativeStyles();
     const animatedStyle = useAnimatedBorderStyle(isAmountInputActive);
-    const { watch } = useTradingBuyFormContext();
+    const { watch } = useBuyFormContext();
 
     const asset = watch('asset');
 
@@ -78,7 +78,7 @@ export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardP
                             <BuyFormFieldErrorBadge fieldName="fiatValue" />
                         </Box>
                     </HStack>
-                    <FiatCurrencyPicker />
+                    <BuyFiatCurrencyPicker />
                 </VStack>
                 <VStack
                     style={applyStyle(buySectionStyle, { bottomBorder: !!asset })}
@@ -90,18 +90,18 @@ export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardP
                         </BuyCardTitle>
                         <BuyFormFieldErrorBadge fieldName="cryptoValue" />
                     </HStack>
-                    <TradeableAssetPicker />
+                    <BuyTradeableAssetPicker />
                     <HStack
                         justifyContent="space-between"
                         alignItems="center"
                         paddingVertical="sp4"
                         spacing="sp4"
                     >
-                        <AssetNetworkInfo />
-                        <ReceiveAccountCryptoBalance />
+                        <BuyAssetNetworkInfo />
+                        <BuyReceiveAccountCryptoBalance />
                     </HStack>
                 </VStack>
-                <ReceiveAccountPicker />
+                <BuyReceiveAccountPicker />
             </AnimatedCard>
         </AnimatedBox>
     );

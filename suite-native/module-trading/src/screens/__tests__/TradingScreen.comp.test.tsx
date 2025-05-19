@@ -18,8 +18,8 @@ jest.mock('@react-navigation/native', () => ({
     useRoute: () => ({ name: 'TradingScreen' }),
 }));
 
-jest.mock('../../hooks/useTradingBuyData', () => ({
-    useTradingBuyData: (...params: unknown[]) => mockUseTradingBuyData(...params),
+jest.mock('../../hooks/buy/useBuyData', () => ({
+    useBuyData: (...params: unknown[]) => mockUseTradingBuyData(...params),
 }));
 
 jest.mock('@react-native-community/netinfo', () => ({

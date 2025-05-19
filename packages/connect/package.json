@@ -68,8 +68,8 @@
         "prepublish": "yarn tsx ../../scripts/prepublish.js"
     },
     "dependencies": {
-        "@ethereumjs/common": "^4.4.0",
-        "@ethereumjs/tx": "^5.4.0",
+        "@ethereumjs/common": "^10.0.0",
+        "@ethereumjs/tx": "^10.0.0",
         "@fivebinaries/coin-selection": "3.0.0",
         "@mobily/ts-belt": "^3.13.1",
         "@noble/hashes": "^1.6.1",
@@ -77,8 +77,8 @@
         "@solana-program/compute-budget": "^0.7.0",
         "@solana-program/system": "^0.7.0",
         "@solana-program/token": "^0.5.1",
-        "@solana-program/token-2022": "^0.4.0",
-        "@solana/kit": "^2.0.0",
+        "@solana-program/token-2022": "^0.4.1",
+        "@solana/kit": "^2.1.1",
         "@trezor/blockchain-link": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/blockchain-link-utils": "workspace:*",
@@ -117,7 +117,7 @@
         "ts-node": "^10.9.2",
         "tsx": "^4.19.3",
         "web3-utils": "^4.3.2",
-        "webpack": "^5.99.8",
+        "webpack": "5.98.0",
         "ws": "^8.18.0"
     },
     "peerDependencies": {

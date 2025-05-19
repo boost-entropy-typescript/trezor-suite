@@ -1,8 +1,8 @@
-import { useBuyTradeableAssetsFilteredData } from '../../hooks/useBuyTradeableAssetsFilteredData';
+import { useBuyTradeableAssetsFilteredData } from '../../hooks/buy/useBuyTradeableAssetsFilteredData';
 import {
-    TradeableAssetsSheet,
+    TradeableAssetSheet,
     TradeableAssetsSheetProps,
-} from '../general/TradeableAssetsSheet/TradeableAssetsSheet';
+} from '../general/TradeableAssetSheet/TradeableAssetSheet';
 
 export type BuyTradeableAssetsSheetProps = Omit<
     TradeableAssetsSheetProps,
@@ -17,7 +17,7 @@ export const BuyTradeableAssetsSheet = (props: BuyTradeableAssetsSheetProps) => 
     const flashListKey = 'buy_tradeable_assets-' + filterValue;
 
     return (
-        <TradeableAssetsSheet
+        <TradeableAssetSheet
             assets={filteredData}
             onFilterChange={setFilterValue}
             {...props}

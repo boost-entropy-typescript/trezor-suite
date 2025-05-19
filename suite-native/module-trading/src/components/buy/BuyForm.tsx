@@ -4,17 +4,17 @@ import { FadeIn, FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { VStack } from '@suite-native/atoms';
 import { useDebouncedValue } from '@trezor/react-utils';
 
-import { AmountEditingDoneButton } from './AmountEditingDoneButton';
+import { BuyAlert } from './BuyAlert';
+import { BuyAmountEditingDoneButton } from './BuyAmountEditingDoneButton';
 import { BuyCard } from './BuyCard';
+import { BuyConfirmation } from './BuyConfirmation';
 import { BuyHeader } from './BuyHeader';
-import { Confirmation } from './Confirmation';
-import { PaymentCard } from './PaymentCard';
-import { useBuyQuotes } from '../../hooks/useBuyQuotes';
-import { useMountedRecentlyFlag } from '../../hooks/useMountedRecentlyFlag';
-import { useTradingBuyFormContext } from '../../hooks/useTradingBuyFormContext';
-import { TradeHistoryButton } from '../general/TradeHistory/TradeHistoryButton';
-import { TradingAlert } from '../general/TradingAlert';
-import { TradingFooter } from '../general/TradingFooter';
+import { BuyPaymentCard } from './BuyPaymentCard';
+import { useBuyFormContext } from '../../hooks/buy/useBuyFormContext';
+import { useBuyQuotes } from '../../hooks/buy/useBuyQuotes';
+import { useMountedRecentlyFlag } from '../../hooks/general/useMountedRecentlyFlag';
+import { Footer } from '../general/Footer';
+import { HistoryButton } from '../general/HistoryButton';
 
 type BuyFormProps = {
     shouldAnimateEntering?: boolean;
@@ -54,22 +54,22 @@ const BuyFormMemoized = memo(
                 {!isAmountInputActive && (
                     <BuyHeader isFormMountedRecently={isFormMountedRecently} />
                 )}
-                <TradingAlert />
+                <BuyAlert />
                 <BuyCard
                     isAmountInputActive={isAmountInputActive}
                     shouldAnimateEntering={shouldAnimateEntering}
                 />
                 {isAmountInputActive ? (
-                    <AmountEditingDoneButton />
+                    <BuyAmountEditingDoneButton />
                 ) : (
                     <>
-                        <PaymentCard
+                        <BuyPaymentCard
                             isFormMountedRecently={isFormMountedRecently}
                             shouldAnimateEntering={shouldAnimateEntering}
                         />
-                        <Confirmation enteringAnimation={enteringAnimation} />
-                        <TradingFooter enteringAnimation={enteringAnimation} />
-                        <TradeHistoryButton
+                        <BuyConfirmation enteringAnimation={enteringAnimation} />
+                        <Footer enteringAnimation={enteringAnimation} />
+                        <HistoryButton
                             tradeType="buy"
                             enteringAnimation={enteringAnimation}
                             exitingAnimation={FadeOutDown}
@@ -82,7 +82,7 @@ const BuyFormMemoized = memo(
 );
 
 export const BuyForm = ({ shouldAnimateEntering }: BuyFormProps) => {
-    const buyForm = useTradingBuyFormContext();
+    const buyForm = useBuyFormContext();
     useBuyQuotes(buyForm);
 
     const isAmountInputActive = !!buyForm.watch('focusedValue');
