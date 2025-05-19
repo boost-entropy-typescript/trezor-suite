@@ -4,8 +4,9 @@ import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/r
 import { UnreachableCaseError } from '@suite-common/suite-utils';
 import { NetworkSymbolExtended } from '@suite-common/wallet-config';
 import {
-    AccountsRootState,
-    DeviceRootState,
+    type AccountsRootState,
+    type DeviceRootState,
+    selectAccounts,
     selectDeviceAccounts,
 } from '@suite-common/wallet-core';
 import { Account, SelectedAccountStatus } from '@suite-common/wallet-types';
@@ -15,7 +16,7 @@ import addressValidator from '@trezor/address-validator';
 import { BuyInfo, TradingBuyState } from '../reducers/buyReducer';
 import { ExchangeInfo, TradingExchangeState } from '../reducers/exchangeReducer';
 import { SellInfo, TradingSellState } from '../reducers/sellReducer';
-import type { TradingInfo, TradingState } from '../reducers/tradingReducer';
+import type { TradingState } from '../reducers/tradingReducer';
 import {
     InvityServerEnvironment,
     TradingFiatCurrenciesProps,
@@ -101,24 +102,32 @@ const createMemoizedSelectorWithDeviceAndAccounts = createWeakMapSelector.withTy
     TradingRootState & DeviceRootState & AccountsRootState
 >();
 
-export const selectTradingBuyLoadingTimestampAndStatus = createMemoizedSelector(
+export const selectTradingLoadingAndTimestamp = createMemoizedSelector(
     [
         (state: TradingRootState) => state.wallet.tradingNew.isLoading,
         (state: TradingRootState) => state.wallet.tradingNew.lastLoadedTimestamp,
+    ],
+    (isLoading, lastLoadedTimestamp) => ({
+        isLoading,
+        lastLoadedTimestamp,
+    }),
+);
+
+export const selectTradingBuyLoadingTimestampAndStatus = createMemoizedSelector(
+    [
+        selectTradingLoadingAndTimestamp,
         (state: TradingRootState) => state.wallet.tradingNew.info,
         (state: TradingRootState) => state.wallet.tradingNew.buy.buyInfo,
     ],
-    (isLoading, lastLoadedTimestamp, info, buyInfo) => ({
-        isLoading,
-        lastLoadedTimestamp,
+    (loadingAndTimestamp, info, buyInfo) => ({
+        isLoading: loadingAndTimestamp.isLoading,
+        lastLoadedTimestamp: loadingAndTimestamp.lastLoadedTimestamp,
         isFullyLoaded:
             !!(info?.coins && info?.platforms && buyInfo) && buyInfo.buyInfo?.providers.length > 0,
     }),
 );
 
 export const selectTradingInfo = (state: TradingRootState) => state.wallet?.tradingNew?.info;
-export const selectTradingInfoLegacy = (state: any) =>
-    state.wallet?.trading?.info as TradingInfo | undefined; // TODO: trading - delete after migration
 
 export const selectTradingBuyInfo = createMemoizedSelector(
     [state => state.wallet.tradingNew.buy],
@@ -273,6 +282,18 @@ export const selectTradingPaymentMethods = (state: TradingRootState) =>
 export const selectTradingTrades = (state: TradingRootState) =>
     returnStableArrayIfEmpty(state.wallet.tradingNew.trades);
 
+export const selectTradingTradesForSelectedDevice = createMemoizedSelector(
+    [selectAccounts, state => state.wallet.selectedAccount, selectTradingTrades],
+    (accounts, selectedAccount, trades): TradingTransaction[] =>
+        trades.filter(tx => {
+            const txDeviceId = accounts.find(
+                account => tx.account.descriptor === account.descriptor,
+            )?.deviceState;
+
+            return txDeviceId === selectedAccount.account?.deviceState;
+        }),
+);
+
 export const selectDeviceTradingTrades: (
     state: TradingRootState & AccountsRootState & DeviceRootState,
     tradeType: TradingType,
@@ -287,7 +308,9 @@ export const selectDeviceTradingTrades: (
 
         return returnStableArrayIfEmpty(
             trades.filter(
-                t => accountDescriptors.has(t.account?.descriptor) && t.tradeType === tradeType,
+                trade =>
+                    accountDescriptors.has(trade.account?.descriptor) &&
+                    trade.tradeType === tradeType,
             ),
         );
     },
@@ -438,6 +461,9 @@ export const selectBestBuyQuoteByPaymentMethod = createMemoizedSelector(
 export const selectTradingExchangeFormStep = (state: TradingRootState) =>
     state.wallet.tradingNew.exchange.formStep;
 
+export const selectTradingSellFormStep = (state: TradingRootState) =>
+    state.wallet.tradingNew.sell.formStep;
+
 export const selectTradingComposedTransactionInfo = (state: TradingRootState) =>
     state.wallet.tradingNew.composedTransactionInfo;
 
@@ -482,3 +508,26 @@ export const selectTradingExchangeAccountKey = (state: TradingRootState) =>
 
 export const selectTradingExchangeReceiveAccountKey = (state: TradingRootState) =>
     state.wallet.tradingNew.exchange.receiveAccountKey;
+
+export const selectTradingModalAccountKey = (state: TradingRootState) =>
+    state.wallet.tradingNew.modalAccountKey;
+
+export const selectTradingPrefilledFromAccount = (state: TradingRootState) =>
+    state.wallet.tradingNew.prefilledFromAccount;
+
+export const selectTradingActiveSection = (state: TradingRootState) =>
+    state.wallet.tradingNew.activeSection ?? 'buy';
+
+// TODO: trading - update this selector, an inspiration selectTradingBuySupportedCryptoIds
+export const selectTradingSupportedSymbols =
+    (type: TradingType) =>
+    (state: TradingRootState): Set<CryptoId> | undefined => {
+        switch (type) {
+            case 'buy':
+                return selectTradingBuyInfo(state)?.supportedCryptoCurrencies;
+            case 'exchange':
+                return selectTradingExchangeInfo(state)?.sellCryptoIds;
+            case 'sell':
+                return selectTradingSellInfo(state)?.supportedCryptoCurrencies;
+        }
+    };

@@ -11,6 +11,7 @@ import {
     prepareSendFormReducer,
     prepareStakeReducer,
     prepareTransactionsReducer,
+    prepareWalletSettingsReducer,
 } from '@suite-common/wallet-core';
 
 import { extraDependencies } from 'src/support/extraDependencies';
@@ -22,8 +23,6 @@ import formDraftReducer from './formDraftReducer';
 import graphReducer from './graphReducer';
 import receiveReducer from './receiveReducer';
 import selectedAccountReducer from './selectedAccountReducer';
-import settingsReducer from './settingsReducer';
-import { tradingReducer } from './tradingReducer';
 
 export const transactionsReducer = prepareTransactionsReducer(extraDependencies);
 export const accountsReducer = prepareAccountsReducer(extraDependencies);
@@ -34,11 +33,11 @@ export const discoveryReducer = prepareDiscoveryReducer(extraDependencies);
 export const stakeReducer = prepareStakeReducer(extraDependencies);
 export const sendFormReducer = prepareSendFormReducer(extraDependencies);
 export const tradingNewReducer = prepareTradingReducer(extraDependencies);
+export const walletSettingsReducer = prepareWalletSettingsReducer(extraDependencies);
 
 const WalletReducers = combineReducers({
     fiat: fiatRatesReducer,
     graph: graphReducer,
-    settings: settingsReducer,
     transactions: transactionsReducer,
     discovery: discoveryReducer,
     accounts: accountsReducer,
@@ -47,7 +46,6 @@ const WalletReducers = combineReducers({
     fees: feesReducer,
     blockchain: blockchainReducer,
     explorer: explorerReducer,
-    trading: tradingReducer,
     tradingNew: tradingNewReducer, // TODO: trading - tradingNew is temporary
     send: sendFormReducer,
     accountSearch: accountSearchReducer,
@@ -55,6 +53,7 @@ const WalletReducers = combineReducers({
     cardanoStaking: cardanoStakingReducer,
     coinjoin: coinjoinReducer,
     stake: stakeReducer,
+    settings: walletSettingsReducer,
 });
 
 export default WalletReducers;

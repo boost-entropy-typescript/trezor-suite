@@ -15,14 +15,15 @@ import {
     TradingExchangeRateType,
     cryptoIdToSymbol,
     exchangeUtils,
+    selectTradingPrefilledFromAccount,
     useTradingInfo,
 } from '@suite-common/trading';
 import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants';
+import { selectLocalCurrency } from '@suite-common/wallet-core';
 import { FormState, Output } from '@suite-common/wallet-types';
 
 import { useSelector } from 'src/hooks/suite';
 import { useTradingBuildAccountGroups } from 'src/hooks/wallet/trading/form/common/useTradingBuildAccountGroups';
-import { selectLocalCurrency } from 'src/reducers/wallet/settingsReducer';
 import { TradingExchangeFormDefaultValuesProps } from 'src/types/trading/tradingForm';
 import { Account } from 'src/types/wallet';
 import {
@@ -33,12 +34,9 @@ import {
 export const useTradingExchangeFormDefaultValues = (
     account: Account,
 ): TradingExchangeFormDefaultValuesProps => {
-    const { buildDefaultCryptoOption } = useTradingInfo('exchange');
+    const { buildDefaultCryptoOption } = useTradingInfo();
     const localCurrency = useSelector(selectLocalCurrency);
-    const prefilledFromCryptoId = useSelector(
-        state => state.wallet.trading.prefilledFromAccount.cryptoId,
-    );
-    const descriptor = useSelector(state => state.wallet.trading.prefilledFromAccount.descriptor);
+    const prefilledFromAccount = useSelector(selectTradingPrefilledFromAccount);
     const defaultCurrency = useMemo(() => buildFiatOption(localCurrency), [localCurrency]);
     const cryptoGroups = useTradingBuildAccountGroups('exchange');
     const cryptoOptions = useMemo(
@@ -48,17 +46,18 @@ export const useTradingExchangeFormDefaultValues = (
 
     const defaultSendCryptoSelect = useMemo(
         () =>
-            (prefilledFromCryptoId &&
+            (prefilledFromAccount.cryptoId &&
                 cryptoOptions.find(
                     option =>
-                        option.value === prefilledFromCryptoId && option.descriptor === descriptor,
+                        option.value === prefilledFromAccount.cryptoId &&
+                        option.descriptor === prefilledFromAccount.descriptor,
                 )) ||
             cryptoOptions.find(
                 option =>
                     option.descriptor === account.descriptor &&
                     cryptoIdToSymbol(option.value) === account.symbol,
             ),
-        [account.descriptor, account.symbol, prefilledFromCryptoId, descriptor, cryptoOptions],
+        [account.descriptor, account.symbol, prefilledFromAccount, cryptoOptions],
     );
 
     const { address, token } =

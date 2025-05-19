@@ -14,6 +14,7 @@ import {
     DiscoveryRootState,
     FiatRatesRootState,
     PORTFOLIO_TRACKER_DEVICE_ID,
+    WalletSettingsRootState,
     getAccountsByDeviceState,
     selectAccounts,
     selectAccountsByDeviceState,
@@ -28,6 +29,7 @@ import {
     selectIsDiscoveredDeviceAccountless,
     selectIsEntropyCheckFailed,
     selectIsUnacquiredDevice,
+    selectLocalCurrency,
     selectSelectedDevice,
     selectSelectedDeviceAuthenticity,
 } from '@suite-common/wallet-core';
@@ -38,7 +40,7 @@ import {
     FeatureFlagsRootState,
     selectIsFeatureFlagEnabled,
 } from '@suite-native/feature-flags';
-import { SettingsSliceRootState, selectFiatCurrencyCode } from '@suite-native/settings';
+import { SettingsSliceRootState } from '@suite-native/settings';
 import { doesCoinSupportStaking } from '@suite-native/staking';
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { BigNumber } from '@trezor/utils';
@@ -50,6 +52,7 @@ type NativeDeviceRootState = DeviceRootState &
     AccountsRootState &
     DiscoveryRootState &
     SettingsSliceRootState &
+    WalletSettingsRootState &
     FiatRatesRootState &
     FeatureFlagsRootState &
     MessageSystemRootState;
@@ -117,13 +120,13 @@ const getTotalFiatBalanceNative = ({
 };
 
 export const selectSelectedDeviceTotalFiatBalance = createMemoizedSelector(
-    [selectDeviceAccounts, selectCurrentFiatRates, selectFiatCurrencyCode],
+    [selectDeviceAccounts, selectCurrentFiatRates, selectLocalCurrency],
     (deviceAccounts, rates, localCurrency) =>
         getTotalFiatBalanceNative({ deviceAccounts, localCurrency, rates }),
 );
 
 export const selectDeviceTotalFiatBalanceByDeviceState = createMemoizedSelector(
-    [selectAccountsByDeviceState, selectCurrentFiatRates, selectFiatCurrencyCode],
+    [selectAccountsByDeviceState, selectCurrentFiatRates, selectLocalCurrency],
     (deviceAccounts, rates, localCurrency) =>
         getTotalFiatBalanceNative({ deviceAccounts, localCurrency, rates }),
 );
@@ -193,25 +196,32 @@ export const selectFirmwareRevisionCheckErrorIfEnabled = (state: FwAuthenticityC
 /**
  * Determine if either of firmware authenticity checks is considered as hard failure (in order to restrict interaction with device).
  */
-export const selectHasFirmwareAuthenticityCheckHardFailed = (state: FwAuthenticityCheckState) => {
-    const revisionError = selectFirmwareRevisionCheckErrorIfEnabled(state);
-    const isRevisionHardError =
-        revisionError !== null && revisionCheckErrorScenarios[revisionError].type === 'hardModal';
+export const selectHasFirmwareAuthenticityCheckHardFailed = createMemoizedSelector(
+    [selectFirmwareRevisionCheckErrorIfEnabled],
+    revisionError => {
+        const isRevisionHardError =
+            revisionError !== null &&
+            revisionCheckErrorScenarios[revisionError].type === 'hardModal';
 
-    // FW hash check to be implemented
+        // FW hash check to be implemented
 
-    return isRevisionHardError;
-};
+        return isRevisionHardError;
+    },
+);
 
-export const selectIsEntropyCheckEnabledAndFailed = (state: FwAuthenticityCheckState) =>
-    selectIsFeatureEnabled(state, Feature.firmwareRevisionCheckMobile, true) &&
-    selectIsEntropyCheckFailed(state);
+export const selectIsEntropyCheckEnabledAndFailed = createMemoizedSelector(
+    [
+        (state: FwAuthenticityCheckState) =>
+            selectIsFeatureEnabled(state, Feature.firmwareRevisionCheckMobile, true),
+        selectIsEntropyCheckFailed,
+    ],
+    (isFeatureEnabled, isEntropyCheckFailed) => isFeatureEnabled && isEntropyCheckFailed,
+);
 
-export const selectIsDeviceAuthenticityCheckFailed = (state: DeviceRootState) => {
-    const selectedDeviceAuthenticity = selectSelectedDeviceAuthenticity(state);
-
-    return selectedDeviceAuthenticity?.valid === false;
-};
+export const selectIsDeviceAuthenticityCheckFailed = createMemoizedSelector(
+    [selectSelectedDeviceAuthenticity],
+    selectedDeviceAuthenticity => selectedDeviceAuthenticity?.valid === false,
+);
 
 export const selectIsDeviceSetupSupported = createMemoizedSelector(
     [
