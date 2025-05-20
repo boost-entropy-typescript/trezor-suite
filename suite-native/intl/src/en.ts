@@ -447,6 +447,7 @@ export const en = {
     },
     moduleDeviceSettings: {
         title: 'Device settings',
+        dangerZoneDivider: 'DANGER ZONE',
         pinProtection: {
             title: 'PIN protection',
             content: 'PIN protects your device against physical attack.',
@@ -490,6 +491,12 @@ export const en = {
                 error: 'Unable to validate device: {error}',
                 failed: 'Device authenticity check failed: {error}',
             },
+        },
+        wipeDevice: {
+            title: 'Wipe device',
+            subtitle: 'This will reset all of your device’s data. Proceed with caution.',
+            content: 'This will reset all stored data on your Trezor. Proceed with caution.',
+            buttonTitle: 'Wipe device',
         },
     },
     moduleReceive: {

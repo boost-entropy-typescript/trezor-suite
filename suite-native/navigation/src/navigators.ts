@@ -29,6 +29,7 @@ import {
     SendStackRoutes,
     SettingsStackRoutes,
     TradingStackRoutes,
+    WipeDeviceStackRoutes,
 } from './routes';
 import { NavigateParameters } from './types';
 
@@ -187,13 +188,14 @@ export type AddCoinAccountStackParamList = {
 
 export type DeviceSettingsStackParamList = {
     [DeviceStackRoutes.DeviceSettings]: undefined;
-    [DeviceStackRoutes.DevicePinProtection]: {
+    [DeviceStackRoutes.DevicePinProtectionStack]: {
         type: PinActionType;
     };
-    [DeviceStackRoutes.DeviceAuthenticity]: undefined;
+    [DeviceStackRoutes.DeviceAuthenticityStack]: undefined;
     [DeviceStackRoutes.ConfirmFirmwareUpdate]: undefined;
     [DeviceStackRoutes.FirmwareInstallation]: undefined;
     [DeviceStackRoutes.ContinueOnTrezor]: undefined;
+    [DeviceStackRoutes.WipeDeviceStack]: undefined;
 };
 
 export type DevicePinProtectionStackParamList = {
@@ -201,6 +203,10 @@ export type DevicePinProtectionStackParamList = {
     [DevicePinProtectionStackRoutes.EnterCurrentPin]: undefined;
     [DevicePinProtectionStackRoutes.EnterNewPin]: undefined;
     [DevicePinProtectionStackRoutes.ConfirmNewPin]: undefined;
+};
+
+export type WipeDeviceStackParamList = {
+    [WipeDeviceStackRoutes.WipeDevice]: undefined;
 };
 
 export type DeviceAuthenticityStackParamList = {

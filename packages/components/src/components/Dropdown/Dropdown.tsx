@@ -38,6 +38,7 @@ export const Dropdown = forwardRef(
             iconName = 'dotsThree',
             'data-testid': dataTest,
             minWidth,
+            maxWidth,
             width,
         }: DropdownProps,
         ref,
@@ -58,12 +59,6 @@ export const Dropdown = forwardRef(
             <Popover
                 ref={popoverRef}
                 placement={placement}
-                onOpenChange={isOpen => {
-                    // Focus the menu when it opens and there is content
-                    if (isOpen && content && menuRef.current) {
-                        menuRef.current.focus();
-                    }
-                }}
                 content={
                     <Menu
                         ref={menuRef}
@@ -72,6 +67,7 @@ export const Dropdown = forwardRef(
                         onClose={popoverRef.current?.close}
                         minWidth={minWidth}
                         width={width}
+                        maxWidth={maxWidth}
                     />
                 }
             >
