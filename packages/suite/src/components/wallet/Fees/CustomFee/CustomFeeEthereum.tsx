@@ -35,6 +35,10 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
     const { maxFee, minFee, levels } = feeInfo;
 
     const estimatedFeeLimit = getValues('estimatedFeeLimit');
+    const customMaxFeePerGas = getValues('maxFeePerGas');
+    const customMaxPriorityFeePerGas = getValues('maxPriorityFeePerGas');
+
+    const recommendedMaxFeePerGas = levels.find(level => level.label === 'normal')?.maxFeePerGas;
 
     const gasLimitRules = {
         required: translationString('GAS_LIMIT_IS_NOT_SET'),
@@ -55,7 +59,7 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
             setValue(FEE_LIMIT, estimatedFeeLimit, {
                 shouldValidate: true,
             }),
-        text: translationString('CUSTOM_FEE_LIMIT_USE_RECOMMENDED'),
+        text: translationString('CUSTOM_FEE_USE_RECOMMENDED'),
     };
 
     const gasLimitValidationButtonProps =
@@ -65,7 +69,6 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
         ...sharedRules,
         validate: {
             ...sharedRules.validate,
-            // GWEI: 9 decimal places.
             ethereumDecimalsLimit: validateDecimals(translationString, {
                 decimals: 9,
                 except: networkType !== 'ethereum',
@@ -88,22 +91,52 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
         validate: {
             ...sharedRules.validate,
             ethereumDecimalsLimit: gasPriceRules.validate.ethereumDecimalsLimit,
-            // Base fee can't be lower than the current network base fee.
             customMaxFeePerGas: (value: string) => {
-                const baseFee = new BigNumber(value);
+                const customMaxFeePerGas = new BigNumber(value);
 
-                // TODO: change to min fee from connect
-                const minBaseFee = feeInfo.levels?.[0].baseFeePerGas || 0;
-                if (baseFee.isLessThan(minBaseFee)) {
-                    return translationString('TR_CUSTOM_FEE_BASE_FEE_BELOW_CURRENT');
+                if (
+                    customMaxFeePerGas.isGreaterThan(maxFee) ||
+                    customMaxFeePerGas.isLessThan(minFee)
+                ) {
+                    return translationString('CUSTOM_FEE_NOT_IN_RANGE', {
+                        minFee: new BigNumber(minFee).toString(),
+                        maxFee: new BigNumber(maxFee).toString(),
+                    });
+                }
+
+                if (
+                    customMaxPriorityFeePerGas &&
+                    customMaxFeePerGas.isLessThan(customMaxPriorityFeePerGas)
+                ) {
+                    return translationString('CUSTOM_MAX_LOWER_THAN_PRIORITY');
                 }
             },
         },
     };
 
+    const maxFeePerGasValidationProps = {
+        onClick: () =>
+            recommendedMaxFeePerGas &&
+            setValue(MAX_FEE_PER_GAS, recommendedMaxFeePerGas, {
+                shouldValidate: true,
+            }),
+        text: translationString('CUSTOM_FEE_USE_RECOMMENDED'),
+    };
+
+    const maxFeePerGasValidationButtonProps = errors.maxFeePerGas
+        ? maxFeePerGasValidationProps
+        : undefined;
+
     const maxPriorityFeePerGasRules = {
         validate: {
             ethereumDecimalsLimit: gasPriceRules.validate.ethereumDecimalsLimit,
+            customPriorityFeePerGas: (value: string) => {
+                const customPriorityFeePerGas = new BigNumber(value);
+
+                if (customMaxFeePerGas && customPriorityFeePerGas.gte(customMaxFeePerGas)) {
+                    return translationString('CUSTOM_PRIORITY_HIGHER_THAN_MAX');
+                }
+            },
         },
     };
 
@@ -143,7 +176,18 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
                         name={MAX_FEE_PER_GAS}
                         data-testid={MAX_FEE_PER_GAS}
                         rules={maxFeePerGasRules}
-                        bottomText={errors.maxFeePerGas?.message}
+                        bottomText={
+                            errors.maxFeePerGas?.message && (
+                                <InputError
+                                    message={errors.maxFeePerGas?.message}
+                                    buttonProps={
+                                        recommendedMaxFeePerGas
+                                            ? maxFeePerGasValidationButtonProps
+                                            : undefined
+                                    }
+                                />
+                            )
+                        }
                     />
                     <NumberInput
                         label={<Translation id="TR_MAX_PRIORITY_FEE_PER_GAS" />}

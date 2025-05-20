@@ -21,14 +21,13 @@ const getDefaultBlocksForFeeLevel = (shortcut: string, label: string) =>
         ? BLOCKS_FOR_FEE_LEVEL[shortcut][label]
         : -1; // -1 for unknown
 
-// TODO: valid only for legacy, extend for EIP-1559?
 const EVM_GAS_PRICE_PER_CHAIN_IN_GWEI: Record<
     string,
     { min: number; max: number; defaultGas: number }
 > = {
-    eth: { min: 1, max: 10000, defaultGas: 15 },
-    pol: { min: 1, max: 10000000, defaultGas: 200 },
-    bsc: { min: 1, max: 100000, defaultGas: 3 },
+    eth: { min: 0.1, max: 10000, defaultGas: 10 },
+    pol: { min: 0.1, max: 10000000, defaultGas: 200 },
+    bsc: { min: 0.1, max: 100000, defaultGas: 1 },
     base: { min: 0.0000001, max: 1000, defaultGas: 0.01 },
     arb: { min: 0.001, max: 1000, defaultGas: 0.01 },
     op: { min: 0.000000001, max: 1000, defaultGas: 0.01 },
@@ -38,18 +37,20 @@ const getEvmChainGweiGasPrice = (chain: string) =>
     EVM_GAS_PRICE_PER_CHAIN_IN_GWEI[chain] ?? {
         min: 0.000000001,
         max: 10000,
-        defaultGas: 5,
+        defaultGas: 1,
     };
 
 // partial data from coins.jon
 interface CoinsJsonData {
     shortcut: string; // uppercase shortcut
-    // data below are defined and relevant only for bitcoin-like coins
     blocktime_seconds: number;
+    // data below are defined and relevant only for bitcoin-like networks
     default_fee_b: Record<'High' | 'Normal' | 'Economy' | 'Low', number>;
     maxfee_kb: number;
     minfee_kb: number;
     dust_limit: number;
+    // only for evm networks
+    chain: string;
 }
 
 export type FeeInfoWithLevels = FeeInfo & { defaultFees: FeeLevel[] };
@@ -81,11 +82,11 @@ export const getBitcoinFeeLevels = (coin: CoinsJsonData): FeeInfoWithLevels => {
     };
 };
 
-export const getEthereumFeeLevels = (chain: string): FeeInfoWithLevels => {
-    const { min, max, defaultGas } = getEvmChainGweiGasPrice(chain);
+export const getEthereumFeeLevels = (network: CoinsJsonData): FeeInfoWithLevels => {
+    const { min, max, defaultGas } = getEvmChainGweiGasPrice(network.chain);
 
     return {
-        blockTime: -1, // unknown
+        blockTime: Math.max(0.1, Math.round(network.blocktime_seconds)),
         defaultFees: [
             {
                 label: 'normal' as const,

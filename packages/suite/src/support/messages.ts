@@ -233,6 +233,10 @@ export default defineMessages({
         defaultMessage:
             'All fees included; the transaction fee is estimated at {feeAmount} ({feeAmountFiat}).',
     },
+    TR_TRADING_TERMS_DONT_SHOW_AGAIN: {
+        defaultMessage: 'Don’t show me this again',
+        id: 'TR_TRADING_TERMS_DONT_SHOW_AGAIN',
+    },
     TR_TRADING_SWAP_MODAL_FOR_YOUR_SAFETY: {
         defaultMessage: 'Swap {fromCrypto} to {toCrypto} with {provider}',
         id: 'TR_TRADING_SWAP_MODAL_FOR_YOUR_SAFETY',
@@ -5781,6 +5785,14 @@ export default defineMessages({
         defaultMessage: 'Enter a fee between {minFee} and {maxFee}',
         id: 'CUSTOM_FEE_NOT_IN_RANGE',
     },
+    CUSTOM_PRIORITY_HIGHER_THAN_MAX: {
+        defaultMessage: 'Max priority fee per gas cannot be higher than Max fee per gas ',
+        id: 'CUSTOM_PRIORITY_HIGHER_THAN_MAX',
+    },
+    CUSTOM_MAX_LOWER_THAN_PRIORITY: {
+        defaultMessage: 'Max fee per gas cannot be lower than Max priority fee per gas ',
+        id: 'CUSTOM_MAX_LOWER_THAN_PRIORITY',
+    },
     TR_CUSTOM_FEE_BASE_FEE_BELOW_CURRENT: {
         defaultMessage: "The custom base fee can't be set lower than the current network base fee.",
         id: 'TR_CUSTOM_FEE_BASE_FEE_BELOW_CURRENT',
@@ -5790,9 +5802,9 @@ export default defineMessages({
         defaultMessage: 'Gas limit too low',
         id: 'CUSTOM_FEE_LIMIT_BELOW_RECOMMENDED',
     },
-    CUSTOM_FEE_LIMIT_USE_RECOMMENDED: {
+    CUSTOM_FEE_USE_RECOMMENDED: {
         defaultMessage: 'Use recommended',
-        id: 'CUSTOM_FEE_LIMIT_USE_RECOMMENDED',
+        id: 'CUSTOM_FEE_USE_RECOMMENDED',
     },
     TOKEN_BALANCE: {
         defaultMessage: 'Balance: {balance}',
@@ -6679,13 +6691,21 @@ export default defineMessages({
         id: 'TR_CONFIRMING_TX',
         defaultMessage: 'Confirming transaction',
     },
-    TR_CURRENT_FEE: {
-        id: 'TR_CURRENT_FEE',
-        defaultMessage: 'Current',
+    TR_CURRENT_FEE_SPEED_UP: {
+        id: 'TR_CURRENT_FEE_SPEED_UP',
+        defaultMessage: 'Current fee {feeRate}',
+    },
+    TR_CURRENT_MAXIMUM_FEE_SPEED_UP: {
+        id: 'TR_CURRENT_MAXIMUM_FEE_SPEED_UP',
+        defaultMessage: 'Current maximum fee',
     },
     TR_NEW_FEE: {
         id: 'TR_NEW_FEE',
         defaultMessage: 'New fee',
+    },
+    TR_NEW_MAXIMUM_FEE: {
+        id: 'TR_NEW_MAXIMUM_FEE',
+        defaultMessage: 'New maximum fee',
     },
     TR_INCREASE_FEE_BY: {
         id: 'TR_INCREASE_FEE_BY',
@@ -9331,10 +9351,6 @@ export default defineMessages({
     TR_STAKE_CLAIM_IN_NEXT_BLOCK: {
         id: 'TR_STAKE_CLAIM_IN_NEXT_BLOCK',
         defaultMessage: 'in the next block',
-    },
-    TR_STAKE_NOT_ENOUGH_FUNDS: {
-        id: 'TR_STAKE_NOT_ENOUGH_FUNDS',
-        defaultMessage: 'Not enough {symbol} to pay network fees',
     },
     TR_STAKE_PROVIDED_BY: {
         id: 'TR_STAKE_PROVIDED_BY',
