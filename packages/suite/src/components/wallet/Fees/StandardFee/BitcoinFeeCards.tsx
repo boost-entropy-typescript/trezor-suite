@@ -55,6 +55,7 @@ export const BitcoinFeeCards = ({
             <FeeCardsWrapper data-testid="@wallet/fee-details">
                 {feeOptions.map(fee => (
                     <FeeCard
+                        data-testid={`@fee-card/${fee.value}-card`}
                         key={fee.value}
                         value={fee.value}
                         isSelected={selectedLevel.label === fee.value}
@@ -66,19 +67,23 @@ export const BitcoinFeeCards = ({
                         }
                         topRightChild={getTimeEstimate(fee)}
                         bottomLeftChild={
-                            <FiatValue
-                                disableHiddenPlaceholder
-                                amount={fee?.networkAmount ?? ''}
-                                symbol={symbol}
-                                showApproximationIndicator
-                            />
+                            <span data-testid={`@fee-card/${fee.value}-fait-amount`}>
+                                <FiatValue
+                                    disableHiddenPlaceholder
+                                    amount={fee?.networkAmount ?? ''}
+                                    symbol={symbol}
+                                    showApproximationIndicator
+                                />
+                            </span>
                         }
                         bottomRightChild={
-                            <FeeRate
-                                feeRate={fee.feePerUnit}
-                                networkType={networkType}
-                                symbol={symbol}
-                            />
+                            <span data-testid={`@fee-card/${fee.value}-rate`}>
+                                <FeeRate
+                                    feeRate={fee.feePerUnit}
+                                    networkType={networkType}
+                                    symbol={symbol}
+                                />
+                            </span>
                         }
                     />
                 ))}

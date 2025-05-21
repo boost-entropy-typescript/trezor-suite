@@ -1,9 +1,10 @@
-import { Locator, Page, Response } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 import { FiatCurrencyCode } from '@suite-common/suite-config';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 
-import { getCompanyNameFromList, invityEndpoint } from '../../fixtures/invity';
+import { Fees } from './fees';
+import { getCompanyNameFromList, invityEndpoint } from '../../../fixtures/invity';
 import {
     TrezorUserEnvLinkProxy,
     calculatePercentageOfBalance,
@@ -11,11 +12,10 @@ import {
     getCountryLabel,
     paymentMethodToCamelCase,
     step,
-} from '../common';
-import { DevicePrompt } from './devicePrompt';
-import { solanaUrlPattern } from '../mocks/tradingMock';
-import { expect } from '../testExtends/customMatchers';
-import { PaymentMethods, PercentageOfBalanceParams } from '../types';
+} from '../../common';
+import { expect } from '../../testExtends/customMatchers';
+import { PaymentMethods, PercentageOfBalanceParams } from '../../types';
+import { DevicePrompt } from '../devicePrompt';
 
 const quoteProviderLocator = '@trading/offers/quote/provider';
 
@@ -37,6 +37,8 @@ function isAccountTabFilter(network: string): network is AccountTabFilter {
 }
 
 export class TradingPage {
+    readonly fees: Fees;
+
     // Input and general
     readonly offerSpinner: Locator;
     readonly section: Locator;
@@ -55,11 +57,7 @@ export class TradingPage {
     readonly cryptoInputBottomText: Locator;
     readonly youPayFractionButton = (amount: '10%' | '25%' | '50%' | 'Max') =>
         this.page.getByRole('button', { name: amount });
-    readonly feeButton = (fee: 'economy' | 'normal' | 'high' | 'custom') =>
-        this.page.getByTestId(`select-bar/${fee}`);
-    readonly customFeeInput: Locator;
-    readonly customFeeAmount: Locator;
-    readonly miscFeeAmount: Locator;
+
     readonly countryOfResidenceDropdown: Locator;
     readonly countryOfResidenceOption = (countryCode: string) =>
         this.page.getByTestId(`@trading/form/country-select/option/${countryCode}`);
@@ -102,7 +100,6 @@ export class TradingPage {
     readonly finishTransactionButton: Locator;
     readonly confirmOnTrezorAndSend: Locator;
     // Swap
-    readonly swapFeeDetails: Locator;
     readonly broadcastButton: Locator;
     readonly sendAddressInput: Locator;
     readonly sendAmountInput: Locator;
@@ -126,6 +123,8 @@ export class TradingPage {
         private page: Page,
         private readonly devicePrompt: DevicePrompt,
     ) {
+        this.fees = new Fees(page);
+
         this.offerSpinner = this.page.getByTestId('@trading/offers/loading-spinner');
         this.section = this.page.getByTestId('@trading');
         this.form = this.page.getByTestId('@trading/form');
@@ -145,9 +144,6 @@ export class TradingPage {
         this.cryptoInputBottomText = this.page.getByTestId(
             '@trading/form/crypto-input/bottom-text',
         );
-        this.customFeeInput = this.page.getByTestId('feePerUnit');
-        this.customFeeAmount = this.page.getByTestId('@trading/quote/custom-fee-amount');
-        this.miscFeeAmount = this.page.getByTestId('@wallet/misc-fee-amount');
         this.countryOfResidenceDropdown = this.page.getByTestId(
             '@trading/form/country-select/input',
         );
@@ -193,7 +189,6 @@ export class TradingPage {
             '@trading/offer/confirm-on-trezor-and-send',
         );
         // Swap
-        this.swapFeeDetails = this.page.getByTestId('@wallet/fee-details');
         this.broadcastButton = this.page.getByTestId('broadcast-button');
         this.sendAddressInput = this.page.getByTestId('outputs.0.address');
         this.sendAmountInput = this.page.getByTestId('outputs.0.amount');
@@ -346,7 +341,7 @@ export class TradingPage {
         // The suite does not wait for these responses and it causes flakiness in automation.
         // Toast error: 'Transaction signing error: Missing composed data' and not possible to send.
         // So we have to wait for them manually.
-        const swapFeeCallsPromise = this.promiseForResponseSwapFeeCalls();
+        const swapFeeCallsPromise = this.fees.promiseForResponseSwapFeeCalls();
         await this.swapBestOfferButton.click();
         await swapFeeCallsPromise;
     }
@@ -447,33 +442,7 @@ export class TradingPage {
     @step()
     async waitForRedirectCompletion() {
         await expect(this.page.getByText('Buy & sell')).not.toBeVisible();
-        await expect(this.page.getByText('Buy & sell')).toBeVisible({ timeout: 15000 });
-    }
-
-    @step()
-    promiseForResponseSwapFeeCalls() {
-        const isSolanaResponse = (response: Response, method: string) =>
-            new RegExp(solanaUrlPattern).test(response.url()) &&
-            response.request().postDataJSON().method === method;
-        const getFeeForMessagePromise = this.page.waitForResponse(response =>
-            isSolanaResponse(response, 'getFeeForMessage'),
-        );
-        const getRecentPrioritizationFeesPromise = this.page.waitForResponse(response =>
-            isSolanaResponse(response, 'getRecentPrioritizationFees'),
-        );
-        const simulateTransactionPromise = this.page.waitForResponse(response =>
-            isSolanaResponse(response, 'simulateTransaction'),
-        );
-
-        // Suite calls the each request twice and we have to wait for all of them
-        return Promise.all([
-            getFeeForMessagePromise,
-            getRecentPrioritizationFeesPromise,
-            simulateTransactionPromise,
-            getFeeForMessagePromise,
-            getRecentPrioritizationFeesPromise,
-            simulateTransactionPromise,
-        ]);
+        await expect(this.page.getByText('Buy & sell')).toBeVisible({ timeout: 30_000 });
     }
 
     @step()
@@ -498,21 +467,5 @@ export class TradingPage {
     async expectInputToBe(params: PercentageOfBalanceParams) {
         const expectedValue = calculatePercentageOfBalance(params);
         await expect.soft(this.youPayCryptoInput).toHaveValue(expectedValue);
-    }
-
-    @step()
-    async getSolanaFee() {
-        const lamportsToSolanaRatio = 1_000_000_000;
-        const feeWithSymbol = await this.miscFeeAmount.textContent();
-        if (!feeWithSymbol) {
-            throw new Error('Fee amount is undefined or null');
-        }
-
-        const feeParts = feeWithSymbol.split(' ');
-        if (feeParts.length === 0 || isNaN(parseFloat(feeParts[0]))) {
-            throw new Error('Fee amount is invalid');
-        }
-
-        return parseFloat(feeParts[0]) / lamportsToSolanaRatio;
     }
 }

@@ -5,6 +5,9 @@ import type { BuyTrade, BuyTradeResponse, CryptoId } from 'invity-api';
 import useDebounce from 'react-use/lib/useDebounce';
 
 import {
+    TRADING_DEFAULT_CRYPTO_CURRENCY,
+    TRADING_FORM_CRYPTO_INPUT,
+    TRADING_FORM_FIAT_INPUT,
     TradingAmountLimitProps,
     TradingBuyFormProps,
     type TradingBuyType,
@@ -25,15 +28,9 @@ import { isChanged } from '@trezor/utils';
 import { openDeferredModal } from 'src/actions/suite/modalActions';
 import * as routerActions from 'src/actions/suite/routerActions';
 import { submitRequestForm } from 'src/actions/wallet/trading/tradingCommonActions';
-import {
-    FORM_CRYPTO_INPUT,
-    FORM_DEFAULT_CRYPTO_CURRENCY,
-    FORM_FIAT_INPUT,
-} from 'src/constants/wallet/trading/form';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useTradingBuyHandleChange } from 'src/hooks/wallet/trading/form/common/useTradingBuyHandleChange';
 import { useTradingCurrencySwitcher } from 'src/hooks/wallet/trading/form/common/useTradingCurrencySwitcher';
-import { useTradingModalCrypto } from 'src/hooks/wallet/trading/form/common/useTradingModalCrypto';
 import { useTradingPreviousRoute } from 'src/hooks/wallet/trading/form/common/useTradingPreviousRoute';
 import { useTradingBuyFormDefaultValues } from 'src/hooks/wallet/trading/form/useTradingBuyFormDefaultValues';
 import { useTradingBuyFormRedirectValues } from 'src/hooks/wallet/trading/form/useTradingBuyFormRedirectValues';
@@ -135,7 +132,7 @@ export const useTradingBuyForm = ({
     // based on selected cryptoSymbol, because of using for validation cryptoInput
     const network =
         cryptoIdToNetwork(
-            (values.cryptoSelect?.value as CryptoId) ?? FORM_DEFAULT_CRYPTO_CURRENCY,
+            (values.cryptoSelect?.value as CryptoId) ?? TRADING_DEFAULT_CRYPTO_CURRENCY,
         ) ?? networks.btc;
 
     const { toggleAmountInCrypto } = useTradingCurrencySwitcher({
@@ -145,8 +142,8 @@ export const useTradingBuyForm = ({
         quoteFiatAmount: quotesByPaymentMethod?.[0]?.fiatStringAmount,
         network,
         inputNames: {
-            cryptoInput: FORM_CRYPTO_INPUT,
-            fiatInput: FORM_FIAT_INPUT,
+            cryptoInput: TRADING_FORM_CRYPTO_INPUT,
+            fiatInput: TRADING_FORM_FIAT_INPUT,
         },
     });
 
@@ -330,14 +327,9 @@ export const useTradingBuyForm = ({
             );
         };
 
-    // TODO: trading - is it possible to have buyInfo before render?
     useEffect(() => {
         dispatch(tradingThunks.loadInitialDataThunk({ activeSection: type }));
     }, [dispatch]);
-
-    useTradingModalCrypto({
-        receiveCurrency: values.cryptoSelect?.value as CryptoId | undefined,
-    });
 
     // call change handler on every change of text inputs with debounce
     useDebounce(
@@ -387,7 +379,6 @@ export const useTradingBuyForm = ({
         }
     }, [previousValues, values, isNotFormPage, pageType, handleChange, handleSubmit]);
 
-    // TODO: trading - this will not be necessary if data will load before this hook
     useEffect(() => {
         // when draft doesn't exist, we need to bind actual default values - that happens when we've got buyInfo from Invity API server
         if (!isDraft && buyInfo) {

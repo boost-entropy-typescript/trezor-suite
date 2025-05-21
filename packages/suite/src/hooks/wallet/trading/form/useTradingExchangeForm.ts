@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import type { CryptoId, ExchangeTrade, FiatCurrencyCode } from 'invity-api';
+import type { ExchangeTrade, FiatCurrencyCode } from 'invity-api';
 import useDebounce from 'react-use/lib/useDebounce';
 
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
+    TRADING_FORM_OUTPUT_AMOUNT,
+    TRADING_FORM_OUTPUT_FIAT,
     type TradingExchangeAmountLimitProps,
     type TradingExchangeFormProps,
     type TradingExchangeUserConsentProps,
@@ -32,7 +34,6 @@ import { isChanged } from '@trezor/utils';
 import { openDeferredModal } from 'src/actions/suite/modalActions';
 import { signAndPushSendFormTransactionThunk } from 'src/actions/wallet/send/sendFormThunks';
 import { submitRequestForm } from 'src/actions/wallet/trading/tradingCommonActions';
-import { FORM_OUTPUT_AMOUNT, FORM_OUTPUT_FIAT } from 'src/constants/wallet/trading/form';
 import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import { useSolanaSubscribeBlocks } from 'src/hooks/wallet/form/useSolanaSubscribeBlocks';
 import { useTradingAccountKey } from 'src/hooks/wallet/trading/form/common/useTradingAccountKey';
@@ -42,7 +43,6 @@ import { useTradingExchangeHandleChange } from 'src/hooks/wallet/trading/form/co
 import { useTradingExchangeQuotesFilter } from 'src/hooks/wallet/trading/form/common/useTradingExchangeQuotesFilter';
 import { useTradingFiatValues } from 'src/hooks/wallet/trading/form/common/useTradingFiatValues';
 import { useTradingFormActions } from 'src/hooks/wallet/trading/form/common/useTradingFormActions';
-import { useTradingModalCrypto } from 'src/hooks/wallet/trading/form/common/useTradingModalCrypto';
 import { useTradingPreviousRoute } from 'src/hooks/wallet/trading/form/common/useTradingPreviousRoute';
 import { useTradingExchangeFormDefaultValues } from 'src/hooks/wallet/trading/form/useTradingExchangeFormDefaultValues';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
@@ -207,8 +207,8 @@ export const useTradingExchangeForm = ({
         quoteCryptoAmount: quotes?.[0]?.sendStringAmount,
         quoteFiatAmount: fiatOfBestScoredQuote ?? '',
         inputNames: {
-            cryptoInput: FORM_OUTPUT_AMOUNT,
-            fiatInput: FORM_OUTPUT_FIAT,
+            cryptoInput: TRADING_FORM_OUTPUT_AMOUNT,
+            fiatInput: TRADING_FORM_OUTPUT_FIAT,
         },
     });
 
@@ -218,7 +218,7 @@ export const useTradingExchangeForm = ({
         timer,
         shouldSendInSats,
         composeRequestCallback: () => {
-            composeRequest(FORM_OUTPUT_AMOUNT);
+            composeRequest(TRADING_FORM_OUTPUT_AMOUNT);
         },
     });
 
@@ -340,40 +340,51 @@ export const useTradingExchangeForm = ({
         );
     };
 
-    const getCommonFunctions = async (trade?: ExchangeTrade) => {
-        const quoteId = trade?.quoteId ?? selectedQuote?.quoteId;
+    const getCommonFunctions = useCallback(
+        async (trade?: ExchangeTrade) => {
+            const quoteId = trade?.quoteId ?? selectedQuote?.quoteId;
 
-        if (!quotesRequest || !quoteId) return;
+            if (!quotesRequest || !quoteId) return;
 
-        const returnUrl = await createQuoteLink(
-            quotesRequest,
+            const returnUrl = await createQuoteLink(
+                quotesRequest,
+                account,
+                { selectedFee, composed },
+                quoteId,
+            );
+
+            const triggerAnalyticsTradeConfirmation = () => {
+                analytics.report({
+                    type: EventType.TradingConfirmTrade,
+                    payload: { action: type },
+                });
+            };
+
+            const processResponseData = (response: ExchangeTrade) => {
+                dispatch(submitRequestForm(response.tradeForm?.form));
+            };
+
+            const nextStep = () => {
+                navigateToExchangeDetail();
+            };
+
+            return {
+                returnUrl,
+                triggerAnalyticsTradeConfirmation,
+                processResponseData,
+                nextStep,
+            };
+        },
+        [
             account,
-            { selectedFee, composed },
-            quoteId,
-        );
-
-        const triggerAnalyticsTradeConfirmation = () => {
-            analytics.report({
-                type: EventType.TradingConfirmTrade,
-                payload: { action: type },
-            });
-        };
-
-        const processResponseData = (response: ExchangeTrade) => {
-            dispatch(submitRequestForm(response.tradeForm?.form));
-        };
-
-        const nextStep = () => {
-            navigateToExchangeDetail();
-        };
-
-        return {
-            returnUrl,
-            triggerAnalyticsTradeConfirmation,
-            processResponseData,
-            nextStep,
-        };
-    };
+            composed,
+            quotesRequest,
+            selectedFee,
+            selectedQuote?.quoteId,
+            dispatch,
+            navigateToExchangeDetail,
+        ],
+    );
 
     const confirmTrade = async ({
         receiveAddress,
@@ -524,14 +535,33 @@ export const useTradingExchangeForm = ({
             );
         };
 
-    // TODO: trading - is it possible to have info data before render?
+    const watchTradeApproval = useCallback(
+        async (refreshCount: number) => {
+            const commonFunctions = await getCommonFunctions(trade?.data);
+
+            if (!commonFunctions) return;
+
+            const { returnUrl, triggerAnalyticsTradeConfirmation, processResponseData, nextStep } =
+                commonFunctions;
+
+            await dispatch(
+                exchangeThunks.watchTradeApprovalThunk({
+                    account,
+                    returnUrl,
+                    refreshCount,
+                    triggerAnalyticsTradeConfirmation,
+                    processResponseData,
+                    nextStep,
+                }),
+            );
+        },
+        [account, trade?.data, dispatch, getCommonFunctions],
+    );
+
     useEffect(() => {
         dispatch(tradingThunks.loadInitialDataThunk({ activeSection: type }));
     }, [dispatch]);
 
-    useTradingModalCrypto({
-        receiveCurrency: values.receiveCryptoSelect?.value as CryptoId | undefined,
-    });
     // Subscribe to blocks for Solana, since they are not fetched globally
     useSolanaSubscribeBlocks(account);
 
@@ -659,5 +689,6 @@ export const useTradingExchangeForm = ({
         verifyAddress,
         selectQuote,
         confirmTrade,
+        watchTradeApproval,
     };
 };

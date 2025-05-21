@@ -10,6 +10,12 @@ import {
 } from '../../fixtures/invity';
 import { formatAddress } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
+import { FeeTypes } from '../../support/pageObjects/trading/fees';
+
+interface FeeSwitchTestCase {
+    feeType: FeeTypes | 'custom';
+    feeSwitchFunction: () => Promise<void>;
+}
 
 // Expected values based on our mocked responses
 const fiatAmount = sellQuotesBTC[0].fiatStringAmount;
@@ -22,32 +28,34 @@ const formattedFiatAmount = `€${fiatAmount}`;
 const { paymentMethodName } = sellTradeBTC.trade;
 const formattedAddress = formatAddress(sellWatchBTC.destinationAddress);
 
-test.describe('Trading - Sell BTC', { tag: ['@group=other', '@webOnly'] }, () => {
+test.describe('Trading - Sell BTC', { tag: ['@group=trading', '@webOnly'] }, () => {
     test.use({ emulatorSetupConf: { mnemonic: 'mnemonic_academic', passphrase_protection: true } });
-    test.beforeEach(
-        async ({ page, tradingPage, tradingMock, onboardingPage, dashboardPage, walletPage }) => {
-            await test.step('Mocking responses', async () => {
-                await page.route(invityEndpoint.sellQuotes, async route => {
-                    await route.fulfill({ json: sellQuotesBTC });
-                });
-                await tradingMock.routeTrade(invityEndpoint.sellTrade, sellTradeBTC);
-                await page.route(invityEndpoint.sellWatch, async route => {
-                    await route.fulfill({ json: sellWatchBTC });
-                });
+    test.beforeEach(async ({ page, tradingMock, onboardingPage, dashboardPage }) => {
+        await test.step('Mocking responses', async () => {
+            await page.route(invityEndpoint.sellQuotes, async route => {
+                await route.fulfill({ json: sellQuotesBTC });
+            });
+            await tradingMock.routeTrade(invityEndpoint.sellTrade, sellTradeBTC);
+            await page.route(invityEndpoint.sellWatch, async route => {
+                await route.fulfill({ json: sellWatchBTC });
             });
             await onboardingPage.completeOnboarding();
             await dashboardPage.deviceSwitchingOpenButton.click();
             await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
+        });
+    });
+
+    test('Sell Bitcoin for best offer', async ({ page, tradingPage, walletPage, devicePrompt }) => {
+        await test.step('Open sell form', async () => {
             await walletPage.openTrading();
             await tradingPage.sellTabButton.click();
-        },
-    );
+        });
 
-    test('Sell Bitcoin for best offer', async ({ page, tradingPage, devicePrompt }) => {
         await test.step('Fill in a sell request', async () => {
             await tradingPage.fillSellForm(cryptoAmount);
             await expect(tradingPage.bestOfferAmount).toHaveText(fiatAmount);
             await expect(tradingPage.quoteProvider).toHaveText(capitalizeFirstLetter(provider));
+            await tradingPage.fees.expectBitcoinFeeCalculated();
         });
 
         await test.step('Confirm sell', async () => {
@@ -82,5 +90,70 @@ test.describe('Trading - Sell BTC', { tag: ['@group=other', '@webOnly'] }, () =>
         });
 
         // Rest of the flow is not implemented as we don't know how to mock the send request and actually not send the crypto
+    });
+
+    test('Bitcoin sell fees', async ({ walletPage, tradingPage, devicePrompt }) => {
+        const testCases: FeeSwitchTestCase[] = [
+            // TODO: #18316 Uncomment and update when bug is fixed
+            // {
+            //     feeType: 'economy',
+            //     feeSwitchFunction: async () => {
+            //         await tradingPage.fees.bitcoinCard('economy').click();
+            //     },
+            // },
+            // {
+            //     feeType: 'normal',
+            //     feeSwitchFunction: async () => {
+            //         await tradingPage.fees.bitcoinCard('normal').click();
+            //     },
+            // },
+            // {
+            //     feeType: 'high',
+            //     feeSwitchFunction: async () => {
+            //         await tradingPage.fees.bitcoinCard('high').click();
+            //     },
+            // },
+            {
+                feeType: 'custom',
+                feeSwitchFunction: async () => {
+                    await tradingPage.fees.switchModeButton('custom').click();
+                    await tradingPage.fees.customInput.fill('10');
+                },
+            },
+        ];
+
+        for (const { feeType, feeSwitchFunction } of testCases) {
+            await test.step(`${feeType} fee`, async () => {
+                let feeRate: string | undefined;
+                await test.step('Open sell form', async () => {
+                    await walletPage.openTrading();
+                    await tradingPage.sellTabButton.click();
+                });
+
+                await test.step(`Fill in a sell form with ${feeType} fee`, async () => {
+                    await feeSwitchFunction();
+                    await tradingPage.fillSellForm(cryptoAmount);
+                    feeRate = await tradingPage.fees.getBitcoinFeeRate(feeType);
+                });
+
+                await test.step('Confirm sell', async () => {
+                    await tradingPage.sellBestOfferButton.click();
+                    await tradingPage.termsConfirmButton.click();
+                });
+
+                await tradingPage.waitForRedirectCompletion();
+
+                await test.step('Initiate send and verify Fee', async () => {
+                    await tradingPage.initiateSendConfirmation();
+                    await expect(devicePrompt.headerParagraph).toContainText('Bitcoin #1');
+                    await expect(devicePrompt.cryptoAmountOf('fee')).toHaveTextGreaterThan(0);
+                    const errorMessage = `expected ${feeType} fee on Device Prompt to be:`;
+                    expect.soft(await devicePrompt.getFeeRate(), errorMessage).toBe(feeRate);
+
+                    //TODO: Do verification on emulator display
+                });
+                await devicePrompt.closeButton.click();
+            });
+        }
     });
 });

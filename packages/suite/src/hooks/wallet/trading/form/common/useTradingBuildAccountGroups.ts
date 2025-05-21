@@ -16,7 +16,7 @@ export const useTradingBuildAccountGroups = (
     const device = useSelector(selectSelectedDevice);
     const { getDefaultAccountLabel } = useDefaultAccountLabel();
     const tokenDefinitions = useSelector(state => state.tokenDefinitions);
-    const supportedSymbols = useSelector(selectTradingSupportedSymbols(type));
+    const supportedSymbols = useSelector(state => selectTradingSupportedSymbols(state, type));
 
     const groups = useMemo(
         () =>
@@ -25,7 +25,7 @@ export const useTradingBuildAccountGroups = (
                 deviceState: device?.state?.staticSessionId,
                 accountLabels,
                 tokenDefinitions,
-                supportedCryptoIds: supportedSymbols,
+                supportedCryptoIds: new Set(supportedSymbols),
                 getDefaultAccountLabel,
             }),
 

@@ -26,6 +26,7 @@ export class DevicePrompt {
     readonly header: Locator;
     readonly headerParagraph: Locator;
     readonly acquireDeviceButton: Locator;
+    readonly closeButton: Locator;
 
     constructor(private page: Page) {
         this.confirmOnDevicePrompt = page.getByTestId('@prompts/confirm-on-device');
@@ -40,6 +41,7 @@ export class DevicePrompt {
         this.header = page.getByTestId('@modal/header');
         this.headerParagraph = page.getByTestId('@modal/header-paragraph');
         this.acquireDeviceButton = this.page.getByTestId('@device-acquire');
+        this.closeButton = this.page.getByTestId('@confirm-on-device/close-button');
     }
 
     @step()
@@ -122,5 +124,27 @@ export class DevicePrompt {
         const footer = json.footer.instruction;
 
         return { header, body, footer };
+    }
+
+    @step()
+    async getFeeRate() {
+        // Element format is: Bitcoin #1 \n+ ≈ 10 minutes \n+ 4.00 sat/vB
+        const fullText = await this.headerParagraph.textContent();
+        if (!fullText) {
+            throw new Error('No text found in header paragraph of device prompt');
+        }
+
+        const lines = fullText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        const feeRateRegex = /^\d+(\.\d+)?\s+sat\/vB$/;
+        if (!feeRateRegex.test(lines[lines.length - 1])) {
+            throw new Error(
+                `Last line does not match the expected format of a decimal number followed by 'sat/vB': ${lines[lines.length - 1]}`,
+            );
+        }
+
+        return lines[lines.length - 1];
     }
 }
