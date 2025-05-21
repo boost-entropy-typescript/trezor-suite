@@ -2,11 +2,10 @@
 
 import { TRANSPORT, Transport } from '@trezor/transport';
 import type { TransportApiType } from '@trezor/transport/src/transports/abstract';
-import { Descriptor, PathPublic } from '@trezor/transport/src/types';
+import { Descriptor } from '@trezor/transport/src/types';
 import {
     TypedEmitter,
     arrayDistinct,
-    arrayPartition,
     createDeferred,
     getSynchronize,
     isNotUndefined,
@@ -47,42 +46,6 @@ const createAuthPenaltyManager = (priority: number) => {
     const clear = () => Object.keys(penalizedDevices).forEach(key => delete penalizedDevices[key]);
 
     return { get, add, remove, clear };
-};
-
-type DeviceTransport = Pick<Device, 'transport' | 'transportPath'>;
-
-const createDeviceCollection = () => {
-    let devices: Device[] = [];
-
-    const isEqual = (a: DeviceTransport) => (b: DeviceTransport) =>
-        a.transport === b.transport && a.transportPath === b.transportPath;
-
-    const get = (transportPath: PathPublic, transport: Transport) =>
-        devices.find(isEqual({ transport, transportPath }));
-
-    const all = (): readonly Device[] => devices;
-
-    const add = (device: Device) => {
-        const index = devices.findIndex(isEqual(device));
-        if (index >= 0) devices[index] = device;
-        else devices.push(device);
-    };
-
-    const remove = (transportPath: PathPublic, transport: Transport) => {
-        const index = devices.findIndex(isEqual({ transport, transportPath }));
-        const [removed] = index >= 0 ? devices.splice(index, 1) : [undefined];
-
-        return removed;
-    };
-
-    const clear = (transport?: Transport) => {
-        let removed: Device[];
-        [removed, devices] = arrayPartition(devices, d => !transport || d.transport === transport);
-
-        return removed;
-    };
-
-    return { get, all, add, remove, clear };
 };
 
 const getTransportInfo = (transport: Transport) => ({
@@ -136,8 +99,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
 
     // array of transport that might be used in this environment
     private transports: Transport[] = [];
-
-    private readonly devices = createDeviceCollection();
+    private devices: Device[] = [];
     private deviceCounter = Date.now();
 
     private readonly handshakeLock;
@@ -194,40 +156,29 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
             id: DeviceUniquePath(id),
             transport,
             descriptor,
-            listener: lifecycle => this.emit(lifecycle, device),
+            listener: lifecycle => {
+                if (lifecycle === DEVICE.DISCONNECT) {
+                    this.authPenaltyManager.remove(device);
+                    const index = this.devices.indexOf(device);
+                    if (index >= 0) this.devices.splice(index, 1);
+                }
+                this.emit(lifecycle, device);
+            },
         });
-        this.devices.add(device);
+        this.devices.push(device);
 
         const penalty = this.authPenaltyManager.get();
         this.handshakeLock(async () => {
-            if (this.devices.get(descriptor.path, transport)) {
+            if (this.devices.includes(device)) {
                 // device wasn't removed while waiting for lock
                 await device.handshake(penalty);
             }
         });
     }
 
-    private onDeviceDisconnected(descriptor: Descriptor, transport: Transport) {
-        const device = this.devices.remove(descriptor.path, transport);
-        device?.disconnect();
-    }
-
-    private onDeviceSessionChanged(descriptor: Descriptor, transport: Transport) {
-        const device = this.devices.get(descriptor.path, transport);
-        device?.updateDescriptor(descriptor);
-    }
-
-    private onDeviceRequestRelease(descriptor: Descriptor, transport: Transport) {
-        const device = this.devices.get(descriptor.path, transport);
-        device?.usedElsewhere();
-    }
-
     private getOrCreateTransportManager(apiType: TransportApiType) {
         if (!this.transportManagers[apiType]) {
-            const manager = new TransportManager({
-                startTransport: this.startTransport.bind(this),
-                stopTransport: this.stopTransport.bind(this),
-            });
+            const manager = new TransportManager(this.initializeTransport.bind(this));
             manager.on(TRANSPORT.START, transport =>
                 this.emit(TRANSPORT.START, getTransportInfo(transport)),
             );
@@ -257,19 +208,6 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         await Promise.all(promises);
     }
 
-    private async startTransport(
-        transport: Transport,
-        pendingTransportEvent: boolean,
-        signal: AbortSignal,
-    ) {
-        try {
-            await this.initializeTransport(transport, pendingTransportEvent, signal);
-        } catch (err) {
-            this.stopTransport(transport);
-            throw err;
-        }
-    }
-
     private async initializeTransport(
         transport: Transport,
         pendingTransportEvent: boolean,
@@ -284,13 +222,6 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
          * where transport.acquire, transport.release is called
          */
         transport.on(TRANSPORT.DEVICE_CONNECTED, d => this.onDeviceConnected(d, transport));
-        transport.on(TRANSPORT.DEVICE_DISCONNECTED, d => this.onDeviceDisconnected(d, transport));
-        transport.on(TRANSPORT.DEVICE_SESSION_CHANGED, d =>
-            this.onDeviceSessionChanged(d, transport),
-        );
-        transport.on(TRANSPORT.DEVICE_REQUEST_RELEASE, d =>
-            this.onDeviceRequestRelease(d, transport),
-        );
 
         // enumerating for the first time. we intentionally postpone emitting TRANSPORT_START
         // event until we read descriptors for the first time
@@ -363,25 +294,25 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
     }
 
     getDeviceCount() {
-        return this.devices.all().length;
+        return this.devices.length;
     }
 
     getAllDevices() {
-        return this.devices.all();
+        return this.devices as readonly Device[];
     }
 
     getOnlyDevice(): Device | undefined {
-        return this.getDeviceCount() === 1 ? this.devices.all()[0] : undefined;
+        return this.devices.length === 1 ? this.devices[0] : undefined;
     }
 
     getDeviceByPath(path: DeviceUniquePath): Device | undefined {
-        return this.devices.all().find(d => d.getUniquePath() === path);
+        return this.devices.find(d => d.getUniquePath() === path);
     }
 
     getDeviceByStaticState(state: StaticSessionId): Device | undefined {
         const deviceId = state.split('@')[1].split(':')[0];
 
-        return this.devices.all().find(d => d.features?.device_id === deviceId);
+        return this.devices.find(d => d.features?.device_id === deviceId);
     }
 
     async dispose() {
@@ -392,33 +323,12 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         await Promise.all(promises);
     }
 
-    private stopTransport(transport: Transport) {
-        const devices = this.devices.clear(transport);
-
-        // disconnect devices
-        devices.forEach(device => {
-            // device.disconnect();
-            this.emit(DEVICE.DISCONNECT, device);
-            this.authPenaltyManager.remove(device);
-            device.dispose();
-        });
-
-        // now we can be relatively sure that release calls have been dispatched
-        // and we can safely kill all async subscriptions in transport layer
-        transport?.stop();
-    }
-
     async enumerate() {
         const promises = this.getConnectedTransports().map(async transport => {
             const res = await transport.enumerate();
-
-            if (!res.success) {
-                return;
+            if (res.success) {
+                transport.handleDescriptorsChange(res.payload);
             }
-
-            res.payload.forEach(d => {
-                this.devices.get(d.path, transport)?.updateDescriptor(d);
-            });
         });
 
         await Promise.all(promises);

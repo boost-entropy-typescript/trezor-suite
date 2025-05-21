@@ -3,8 +3,9 @@ import { randomBytes } from 'crypto';
 
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { TransportProtocol, thp as protocolThp, v1 as protocolV1 } from '@trezor/protocol';
-import { Session } from '@trezor/transport';
-import { type Descriptor, TRANSPORT_ERROR, type Transport } from '@trezor/transport';
+import { Session, TRANSPORT, TRANSPORT_ERROR } from '@trezor/transport';
+import { type Descriptor, type Transport } from '@trezor/transport';
+import { TransportDeviceEvent } from '@trezor/transport/src/transports/abstract';
 import {
     Deferred,
     TypedEmitter,
@@ -113,11 +114,6 @@ type DeviceParams = {
     listener: DeviceLifecycleListener;
 };
 
-/**
- * @export
- * @class Device
- * @extends {EventEmitter}
- */
 export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
     public readonly protocol: TransportProtocol;
@@ -125,9 +121,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public readonly bluetoothProps;
     private thp: protocolThp.ThpState | undefined;
     private readonly transportDescriptorType;
-    private session;
-    private transportSessionOwner;
-    private lastAcquiredHere;
+    private sessionAcquired: Session | null;
 
     /**
      * descriptor was detected on transport layer but sending any messages (such as GetFeatures) to it failed either
@@ -164,8 +158,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     private keepTransportSession = false;
     private currentSession?: DeviceCurrentSession;
-
-    private inconsistent = false;
 
     private instance = 0;
 
@@ -213,13 +205,28 @@ export class Device extends TypedEmitter<DeviceEvents> {
         this.uniquePath = id;
         this.transport = transport;
         this.transportPath = descriptor.path;
-        this.transportSessionOwner = descriptor.sessionOwner;
         this.transportDescriptorType = descriptor.type;
         this.bluetoothProps = descriptor.id ? { id: descriptor.id } : undefined;
 
-        this.session = descriptor.session;
-        this.lastAcquiredHere = false;
+        this.sessionAcquired = null;
+
+        transport.on(TRANSPORT.STOPPED, this.onTransportStopped);
+        transport.deviceEvents.on(this.transportPath, this.onTransportDeviceEvent);
     }
+
+    private readonly onTransportStopped = () => this.disconnect();
+
+    private readonly onTransportDeviceEvent = (event: TransportDeviceEvent) => {
+        switch (event.type) {
+            case TRANSPORT.DEVICE_SESSION_CHANGED:
+                return this.updateDescriptor(event.descriptor);
+            case TRANSPORT.DEVICE_REQUEST_RELEASE:
+                return this.usedElsewhere();
+            case TRANSPORT.DEVICE_DISCONNECTED: {
+                return this.disconnect();
+            }
+        }
+    };
 
     private getSessionChangePromise() {
         if (!this.sessionDfd) {
@@ -258,21 +265,19 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     acquire() {
         const sessionPromise = this.getSessionChangePromise();
+        const previous = this.transport.getDescriptor(this.transportPath)?.session ?? null;
 
         this.acquirePromise = this.transport
-            .acquire({ input: { path: this.transportPath, previous: this.session } })
+            .acquire({ input: { path: this.transportPath, previous } })
             .then(result => this.waitAndCompareSession(result, sessionPromise))
             .then(result => {
                 if (result.success) {
-                    this.session = result.payload;
-                    this.lastAcquiredHere = true;
-
-                    this.currentSession?.dispose();
+                    this.sessionAcquired = result.payload;
                     this.currentSession = new DeviceCurrentSession(
                         this,
                         this.transport,
                         this.protocol,
-                        this.session,
+                        this.sessionAcquired,
                     );
 
                     return result;
@@ -287,22 +292,19 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return this.acquirePromise;
     }
 
-    async release() {
-        const localSession = this.lastAcquiredHere ? this.session : null;
-        if (!localSession || this.keepTransportSession || this.releasePromise) {
+    release() {
+        if (!this.sessionAcquired || this.keepTransportSession || this.releasePromise) {
             return;
         }
-
-        await this.currentSession?.dispose();
 
         const sessionPromise = this.getSessionChangePromise();
 
         this.releasePromise = this.transport
-            .release({ session: localSession, path: this.transportPath })
+            .release({ session: this.sessionAcquired, path: this.transportPath })
             .then(result => this.waitAndCompareSession(result, sessionPromise))
             .then(result => {
                 if (result.success) {
-                    this.session = null;
+                    this.sessionAcquired = null;
                 }
 
                 return result;
@@ -370,7 +372,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         }
     }
 
-    async updateDescriptor(descriptor: Descriptor) {
+    private async updateDescriptor(descriptor: Descriptor) {
         this.sessionDfd?.resolve(descriptor.session);
 
         await Promise.all([this.acquirePromise, this.releasePromise]);
@@ -379,21 +381,16 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         // Session changed to different than the current one
         // -> acquired by someone else
-        if (descriptor.session && descriptor.session !== this.session) {
+        if (descriptor.session && descriptor.session !== this.sessionAcquired) {
             this.usedElsewhere();
         }
 
         // Session changed to null
         // -> released
         if (!descriptor.session) {
-            const methodStillRunning = !this.currentSession?.isDisposed();
-            if (methodStillRunning) {
-                this.keepTransportSession = false;
-            }
+            this.keepTransportSession = false;
         }
 
-        this.session = descriptor.session;
-        this.transportSessionOwner = descriptor.sessionOwner;
         this.emitLifecycle(DEVICE.CHANGED);
     }
 
@@ -410,7 +407,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         const { signal } = this.runAbort;
 
         this.runPromise = Promise.race([
-            this._runInner(fn, options),
+            this._runInner(fn, options, signal),
             new Promise<never>((_, reject) => {
                 signal.addEventListener('abort', () => reject(signal.reason));
             }),
@@ -436,7 +433,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     async interrupt(reason: Error) {
-        await this.currentSession?.abort(reason, true);
+        await this.currentSession?.abort(reason);
 
         // reject inner defer
         this.runAbort?.abort(reason);
@@ -448,31 +445,29 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return this.runPromise?.catch(() => {});
     }
 
-    public usedElsewhere() {
+    private usedElsewhere() {
         // only makes sense to continue when device held by this instance
-        if (!this.lastAcquiredHere) {
+        if (!this.sessionAcquired) {
             return;
         }
-        this.lastAcquiredHere = false;
-        this._featuresNeedsReload = true;
-
-        _log.debug('interruptionFromOutside');
-
-        this.currentSession?.dispose();
-
-        this.runAbort?.abort(ERRORS.TypedError('Device_UsedElsewhere'));
 
         // session was acquired by another instance. but another might not have power to release interface
         // so it only notified about its session acquiral and the interrupted instance should cooperate
         // and release device too.
-        if (this.session) {
-            this.transport.releaseDevice(this.session);
-        }
+        this.transport.releaseDevice(this.sessionAcquired);
+        this.sessionAcquired = null;
+
+        this._featuresNeedsReload = true;
+
+        _log.debug('interruptionFromOutside');
+
+        this.runAbort?.abort(ERRORS.TypedError('Device_UsedElsewhere'));
     }
 
     private async _runInner<X>(
         fn: (() => Promise<X>) | undefined,
         options: RunOptions,
+        abortSignal: AbortSignal,
     ): Promise<void> {
         // typically when using cancel/override, device might be releasing
         // note: I am tempted to do this check at the beginning of device.acquire but on the other hand I would like
@@ -487,6 +482,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
             await this.acquire();
         }
 
+        if (abortSignal.aborted) throw abortSignal.reason;
+
         const { staticSessionId, deriveCardano } = this.getState() || {};
         if (acquireNeeded || !staticSessionId || (!deriveCardano && options.useCardanoDerivation)) {
             // update features
@@ -495,9 +492,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     await this.initialize(!!options.useCardanoDerivation);
                 } else {
                     const isNative = DataManager.getSettings('env') === 'react-native';
-                    const getFeaturesTimeout = isNative
-                        ? GET_FEATURES_TIMEOUT_REACT_NATIVE
-                        : GET_FEATURES_TIMEOUT;
                     const cancelTimeout = isNative
                         ? GET_FEATURES_TIMEOUT_REACT_NATIVE
                         : CANCEL_TIMEOUT;
@@ -524,45 +518,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
                         ]).catch(() => this.acquire());
                     }
 
-                    let getFeaturesTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
-                    // do not initialize while firstRunPromise otherwise `features.session_id` could be affected
-                    await Promise.race([
-                        this.getFeatures().finally(() => clearTimeout(getFeaturesTimeoutId)),
-                        // note: tested on 24.7.2024 and whatever is written below this line is still valid
-                        // We do not support T1B1 <1.9.0 but we still need Features even from not supported devices to determine your version
-                        // and tell you that update is required.
-                        // Edge-case: T1B1 + bootloader < 1.4.0 doesn't know the "GetFeatures" message yet and it will send no response to its
-                        // transport response is pending endlessly, calling any other message will end up with "device call in progress"
-                        // set the timeout for this call so whenever it happens "unacquired device" will be created instead
-                        // next time device should be called together with "Initialize" (calling "acquireDevice" from the UI)
-                        new Promise((_resolve, reject) => {
-                            getFeaturesTimeoutId = setTimeout(async () => {
-                                await this.getCurrentSession().cancelCall(false);
-                                reject(new Error('GetFeatures timeout'));
-                            }, getFeaturesTimeout);
-                        }),
-                    ]);
+                    await this.getFeatures();
                 }
             } catch (error) {
                 _log.warn('Device._runInner error: ', error.message);
-                if (
-                    !this.inconsistent &&
-                    (error.message === 'GetFeatures timeout' || error.message === 'Unknown message')
-                ) {
-                    // handling corner-case T1B1 + bootloader < 1.4.0 (above)
-                    // if GetFeatures fails try again
-                    // this time add empty "fn" param to force Initialize message
-                    this.inconsistent = true;
-
-                    return this._runInner(() => Promise.resolve({}), options);
-                }
 
                 if (TRANSPORT_ERROR.ABORTED_BY_TIMEOUT === error.message) {
                     this.unreadableError = 'Connection timeout';
                 }
-
-                this.inconsistent = true;
 
                 return Promise.reject(
                     ERRORS.TypedError(
@@ -638,7 +601,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             // and device wasn't released in previous call (example: interrupted discovery which set "keepSession" to true but never released)
             // clear "keepTransportSession" and reset "transportSession" to ensure that "initialize" will be called
             if (this.keepTransportSession) {
-                this.lastAcquiredHere = false;
+                this.sessionAcquired = null;
                 this.keepTransportSession = false;
             }
         }
@@ -729,7 +692,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     async getFeatures() {
-        // Please keep the method simple - don't add any async logic
         const { message } = await this.getCurrentSession().typedCall('GetFeatures', 'Features', {});
         this._updateFeatures(message);
     }
@@ -1043,13 +1005,19 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return !!this.unreadableError;
     }
 
-    disconnect() {
-        // TODO: cleanup everything
+    private disconnect() {
         _log.debug('Disconnect cleanup');
+
+        this.transport.off(TRANSPORT.STOPPED, this.onTransportStopped);
+        this.transport.deviceEvents.off(this.transportPath, this.onTransportDeviceEvent);
+        this.removeAllListeners();
 
         this.sessionDfd?.reject(new Error());
 
-        this.lastAcquiredHere = false; // set to null to prevent transport.release and cancelableAction
+        if (this.sessionAcquired) {
+            this.transport.releaseSync(this.sessionAcquired);
+            this.sessionAcquired = null; // set to null to prevent transport.release and cancelableAction
+        }
 
         this.emitLifecycle(DEVICE.DISCONNECT);
         this.emitLifecycle = () => {};
@@ -1067,10 +1035,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     isSeedless() {
         return this.features && !!this.features.no_backup;
-    }
-
-    isInconsistent() {
-        return this.inconsistent;
     }
 
     getVersion(): VersionArray | undefined {
@@ -1093,15 +1057,15 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     isUsed() {
-        return typeof this.session === 'string';
+        return !!this.transport.getDescriptor(this.transportPath)?.session;
     }
 
     isUsedHere() {
-        return this.isUsed() && this.lastAcquiredHere;
+        return !!this.sessionAcquired;
     }
 
     isUsedElsewhere() {
-        return this.isUsed() && !this.lastAcquiredHere;
+        return this.isUsed() && !this.isUsedHere();
     }
 
     getUniquePath() {
@@ -1135,13 +1099,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return null;
     }
 
-    dispose() {
-        this.removeAllListeners();
-        if (this.session && this.lastAcquiredHere) {
-            this.transport.releaseSync(this.session);
-        }
-    }
-
     private getMode() {
         if (this.features.bootloader_mode) return 'bootloader';
         if (!this.features.initialized) return 'initialize';
@@ -1165,14 +1122,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
             };
         }
         if (this.isUnacquired()) {
+            const sessionOwner = this.transport.getDescriptor(this.transportPath)?.sessionOwner;
+
             return {
                 ...base,
                 type: 'unacquired',
                 label: 'Unacquired device',
                 name: this.name,
-                transportSessionOwner: this.lastAcquiredHere
-                    ? undefined
-                    : this.transportSessionOwner,
+                transportSessionOwner: this.sessionAcquired ? undefined : sessionOwner,
                 bluetoothProps: this.bluetoothProps,
                 thp: this.thp?.serialize(),
             };

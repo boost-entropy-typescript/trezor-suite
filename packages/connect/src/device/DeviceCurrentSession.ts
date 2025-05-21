@@ -3,11 +3,13 @@
 import { MessagesSchema as Messages } from '@trezor/protobuf';
 import { TransportProtocol } from '@trezor/protocol';
 import { Assert } from '@trezor/schema-utils';
-import { Session, Transport } from '@trezor/transport';
+import { Session, TRANSPORT, TRANSPORT_ERROR, Transport } from '@trezor/transport';
+import { isErrorWithoutDeviceInteraction } from '@trezor/transport/src/errors-groups';
 import { resolveAfter, scheduleAction, versionUtils } from '@trezor/utils';
 
 import { ERRORS } from '../constants';
 import { Device } from './Device';
+import { DataManager } from '../data/DataManager';
 import { DEVICE } from '../events';
 import { initLog } from '../utils/debug';
 
@@ -27,9 +29,31 @@ const filterForLog = (type: string, msg: any) =>
 
 const logger = initLog('DeviceCommands');
 
+const isExpectedResponse = <Key extends Messages.MessageKey | Messages.MessageKey[]>(
+    response: Pick<Messages.MessageResponse, 'type'>,
+    expected: Key,
+): response is Extract<
+    Messages.MessageResponse,
+    { type: Key extends Array<any> ? Key[number] : Key }
+> => (Array.isArray(expected) ? expected : expected.split('|')).includes(response.type);
+
 const success = <T>(payload: T) => ({ success: true as const, payload });
 const error = (error: Error) => ({ success: false as const, error });
-const fail = (msg: string, cause?: string) => error(new Error(msg, cause ? { cause } : undefined));
+const fail = (msg: string) =>
+    error(
+        new Error(
+            msg,
+            isErrorWithoutDeviceInteraction(msg) ? { cause: 'transport-error' } : undefined,
+        ),
+    );
+
+const getFeaturesTimeoutPromise = () =>
+    resolveAfter(
+        // Due to performance issues in suite-native during app start, original timeout is not sufficient.
+        DataManager.getSettings('env') === 'react-native' ? 20_000 : 3_000,
+        undefined,
+        fail(TRANSPORT_ERROR.ABORTED_BY_TIMEOUT),
+    );
 
 export interface TypedCallProvider {
     typedCall: Messages.TypedCall;
@@ -57,6 +81,17 @@ export class DeviceCurrentSession implements TypedCallProvider {
         this.transport = transport;
         this.protocol = protocol;
         this.session = session;
+
+        transport.deviceEvents.once(device.transportPath, e => {
+            if (!this.disposed) {
+                this.disposed = ERRORS.TypedError(
+                    e.type === TRANSPORT.DEVICE_DISCONNECTED
+                        ? 'Device_Disconnected'
+                        : 'Device_UsedElsewhere',
+                );
+                this.abortController?.abort(this.disposed);
+            }
+        });
     }
 
     isDisposed() {
@@ -65,7 +100,7 @@ export class DeviceCurrentSession implements TypedCallProvider {
 
     async typedCall(
         type: Messages.MessageKey,
-        resType: Messages.MessageKey | Messages.MessageKey[],
+        expectedType: Messages.MessageKey | Messages.MessageKey[],
         msg: Messages.MessagePayload = {},
     ) {
         // Assert message type
@@ -86,10 +121,13 @@ export class DeviceCurrentSession implements TypedCallProvider {
         if (!response.success) throw response.error;
 
         const { payload } = response;
+        const receivedType = payload.type;
 
-        if (!(Array.isArray(resType) ? resType : resType.split('|')).includes(payload.type)) {
-            // handle possible race condition
-            // Bridge may have some unread message in buffer, read it
+        if (isExpectedResponse(payload, expectedType)) {
+            return payload;
+        } else {
+            // handle possible race condition - Bridge may have some unread message in buffer, read it
+            // TODO could be possible to remove
             await scheduleAction(
                 abort =>
                     this.transport.receive({
@@ -102,11 +140,9 @@ export class DeviceCurrentSession implements TypedCallProvider {
 
             throw ERRORS.TypedError(
                 'Runtime',
-                `assertType: Response of unexpected type: ${payload.type}. Should be ${resType}`,
+                `assertType: Response of unexpected type: ${receivedType}. Should be ${expectedType}`,
             );
         }
-
-        return payload;
     }
 
     /**
@@ -124,19 +160,26 @@ export class DeviceCurrentSession implements TypedCallProvider {
         type: T,
         msg: Messages.MessagePayload<T>,
         abortPromise: Promise<ReturnType<typeof fail>>,
-    ): Promise<ReturnType<typeof success<Messages.MessageResponse>> | ReturnType<typeof fail>> {
+    ) {
         let [name, data] = [type, msg];
-        const { protocol, session } = this;
         let pinUnlocked = false;
 
         while (true) {
-            if (this.disposed) return error(this.disposed);
+            const callPromise = this.call(name, data);
 
-            const callPromise = this.call({ session, name, data, protocol });
+            // note: tested on 24.7.2024 and whatever is written below this line is still valid
+            // We do not support T1B1 <1.9.0 but we still need Features even from not supported devices to determine your version
+            // and tell you that update is required.
+            // Edge-case: T1B1 + bootloader < 1.4.0 doesn't know the "GetFeatures" message yet and it will send no response to its
+            // transport response is pending endlessly, calling any other message will end up with "device call in progress"
+            // set the timeout for this call so whenever it happens "unacquired device" will be created instead
+            // next time device should be called together with "Initialize" (calling "acquireDevice" from the UI)
+            const timeoutPromise = name === 'GetFeatures' ? getFeaturesTimeoutPromise() : undefined;
 
-            const abortedDuringCall = await Promise.race([
-                callPromise.then(() => false),
-                abortPromise.then(() => true),
+            const [abortedDuringCall, response] = await Promise.race([
+                callPromise.then(res => [false, res] as const),
+                abortPromise.then(res => [true, res] as const),
+                ...(timeoutPromise ? [timeoutPromise.then(res => [false, res] as const)] : []),
             ]);
 
             if (name === 'ButtonAck' && abortedDuringCall && !this.disposed) {
@@ -145,17 +188,18 @@ export class DeviceCurrentSession implements TypedCallProvider {
                         // UI_EVENT is send right before ButtonAck, make sure that ButtonAck is sent
                         await resolveAfter(1);
                         await this.device.acquire();
-                        await this.device.getCurrentSession().cancelCall(false);
+                        await this.device.getCurrentSession().cancelCall();
                         await this.device.release();
                     } catch {
                         // ignore whatever happens
                     }
                 } else {
-                    await this.cancelCall(false);
+                    const { session, protocol } = this;
+                    await this.transport.send({ name: 'Cancel', data: {}, session, protocol });
                 }
             }
 
-            const response = await callPromise;
+            await callPromise;
 
             if (this.disposed) return error(this.disposed);
 
@@ -166,6 +210,13 @@ export class DeviceCurrentSession implements TypedCallProvider {
             switch (res.type) {
                 case 'Failure': {
                     const { code, message } = res.message;
+
+                    // handling corner-case T1B1 + bootloader < 1.4.0 (above)
+                    // if GetFeatures fails try Initialize instead
+                    if (name === 'GetFeatures' && code === 'Failure_UnexpectedMessage') {
+                        [name, data] = ['Initialize', {}];
+                        break;
+                    }
 
                     const err =
                         message ||
@@ -202,7 +253,7 @@ export class DeviceCurrentSession implements TypedCallProvider {
                     ]);
 
                     if (!promptRes.success) {
-                        const cancelRes = await this.cancelCall();
+                        const cancelRes = await this.call('Cancel', {});
 
                         return cancelRes.success ? promptRes : cancelRes;
                     }
@@ -218,7 +269,7 @@ export class DeviceCurrentSession implements TypedCallProvider {
                     ]);
 
                     if (!promptRes.success) {
-                        const cancelRes = await this.cancelCall();
+                        const cancelRes = await this.call('Cancel', {});
 
                         return cancelRes.success ? promptRes : cancelRes;
                     }
@@ -237,7 +288,7 @@ export class DeviceCurrentSession implements TypedCallProvider {
                     ]);
 
                     if (!promptRes.success) {
-                        const cancelRes = await this.cancelCall();
+                        const cancelRes = await this.call('Cancel', {});
 
                         return cancelRes.success ? promptRes : cancelRes;
                     }
@@ -257,10 +308,14 @@ export class DeviceCurrentSession implements TypedCallProvider {
         }
     }
 
-    private async call(params: Parameters<Transport['call']>[0]) {
-        logger.debug('Sending', params.name, filterForLog(params.name, params.data));
+    private async call<T extends Messages.MessageKey>(name: T, data: Messages.MessagePayload<T>) {
+        if (this.disposed) return Promise.resolve(error(this.disposed));
 
-        const result = await this.transport.call(params);
+        logger.debug('Sending', name, filterForLog(name, data));
+
+        const { session, protocol } = this;
+
+        const result = await this.transport.call({ name, data, session, protocol });
 
         if (result.success) {
             const { type, message } = result.payload;
@@ -270,35 +325,16 @@ export class DeviceCurrentSession implements TypedCallProvider {
             logger.warn('Received transport error', result.error, result.message);
         }
 
-        return result.success ? success(result.payload) : fail(result.error, 'transport-error');
+        return result.success ? success(result.payload) : fail(result.error);
     }
 
-    async cancelCall(expectResponse = true) {
-        if (this.disposed) return Promise.resolve(error(this.disposed));
-
-        const { protocol, session } = this;
-        const cancelArgs = { session, name: 'Cancel', data: {}, protocol };
-
-        const response = expectResponse
-            ? await this.transport.call(cancelArgs)
-            : await this.transport.send(cancelArgs);
-
-        return response.success ? success(response.payload) : fail(response.error);
+    cancelCall() {
+        return this.call('Cancel', {});
     }
 
-    async abort(reason: Error, dispose = false) {
+    async abort(reason: Error) {
         this.abortController?.abort(reason);
         await this.callPromise;
-        if (dispose) this.disposed = reason;
-    }
-
-    async dispose() {
-        if (!this.disposed) {
-            this.disposed = ERRORS.TypedError(
-                'Runtime',
-                'typedCall: DeviceCommands already disposed',
-            );
-            await this.abort(this.disposed);
-        }
+        this.disposed = reason;
     }
 }
