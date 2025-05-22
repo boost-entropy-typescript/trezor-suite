@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FieldErrors, UseFormReturn } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 
@@ -29,14 +30,26 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
     const locale = useSelector(selectLanguage);
 
     // Type assertion allowing to make the component reusable, see https://stackoverflow.com/a/73624072.
-    const { getValues, setValue } = props as unknown as UseFormReturn<FormState>;
+    const { getValues, setValue, trigger } = props as unknown as UseFormReturn<FormState>;
     const errors = props.errors as unknown as FieldErrors<FormState>;
 
-    const { maxFee, minFee, levels } = feeInfo;
+    const { maxFee, minFee, levels, minPriorityFee } = feeInfo;
 
     const estimatedFeeLimit = getValues('estimatedFeeLimit');
     const customMaxFeePerGas = getValues('maxFeePerGas');
     const customMaxPriorityFeePerGas = getValues('maxPriorityFeePerGas');
+
+    useEffect(() => {
+        if (trigger) {
+            trigger(MAX_PRIORITY_FEE_PER_GAS);
+        }
+    }, [customMaxFeePerGas, trigger]);
+
+    useEffect(() => {
+        if (trigger) {
+            trigger(MAX_FEE_PER_GAS);
+        }
+    }, [customMaxPriorityFeePerGas, trigger]);
 
     const recommendedMaxFeePerGas = levels.find(level => level.label === 'normal')?.maxFeePerGas;
 
@@ -91,7 +104,7 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
         validate: {
             ...sharedRules.validate,
             ethereumDecimalsLimit: gasPriceRules.validate.ethereumDecimalsLimit,
-            customMaxFeePerGas: (value: string) => {
+            customMaxFeePerGasRange: (value: string) => {
                 const customMaxFeePerGas = new BigNumber(value);
 
                 if (
@@ -103,6 +116,9 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
                         maxFee: new BigNumber(maxFee).toString(),
                     });
                 }
+            },
+            customMaxFeePerGasLowerThanPriority: (value: string) => {
+                const customMaxFeePerGas = new BigNumber(value);
 
                 if (
                     customMaxPriorityFeePerGas &&
@@ -123,9 +139,10 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
         text: translationString('CUSTOM_FEE_USE_RECOMMENDED'),
     };
 
-    const maxFeePerGasValidationButtonProps = errors.maxFeePerGas
-        ? maxFeePerGasValidationProps
-        : undefined;
+    const maxFeePerGasValidationButtonProps =
+        errors.maxFeePerGas?.type === 'customMaxFeePerGasRange'
+            ? maxFeePerGasValidationProps
+            : undefined;
 
     const maxPriorityFeePerGasRules = {
         validate: {
@@ -135,6 +152,12 @@ export const CustomFeeEthereum = <TFieldValues extends FormState>({
 
                 if (customMaxFeePerGas && customPriorityFeePerGas.gte(customMaxFeePerGas)) {
                     return translationString('CUSTOM_PRIORITY_HIGHER_THAN_MAX');
+                }
+
+                if (customPriorityFeePerGas.lt(minPriorityFee)) {
+                    return translationString('CUSTOM_MAX_PRIORITY_FEE_NOT_IN_RANGE', {
+                        minPriorityFee: new BigNumber(minPriorityFee).toString(),
+                    });
                 }
             },
         },
