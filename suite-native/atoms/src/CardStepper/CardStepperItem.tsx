@@ -1,43 +1,45 @@
 import { ReactNode } from 'react';
 import { FadeInUp, FadeOutDown, LinearTransition } from 'react-native-reanimated';
 
-import { useNavigation } from '@react-navigation/core';
-
-import { EventType, analytics } from '@suite-native/analytics';
 import {
     AnimatedCard,
     AnimatedVStack,
     Button,
+    ButtonColorScheme,
     Divider,
     HStack,
     Text,
     VStack,
 } from '@suite-native/atoms';
 import { Icon, IconName } from '@suite-native/icons';
-import { Translation } from '@suite-native/intl';
-import {
-    DeviceOnboardingStackParamList,
-    DeviceOnboardingStackRoutes,
-    DeviceSuspicionCause,
-    StackNavigationProps,
-} from '@suite-native/navigation';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Color } from '@trezor/theme';
 
-type SecurityCheckStepCardProps = {
+export type CardStepperButtonsActionType = 'destructive' | 'primary';
+
+type CardStepperItemProps = {
     header: ReactNode;
     description: ReactNode;
     isChecked: boolean;
     isOpened: boolean;
     icon: IconName;
+    primaryButtonText: ReactNode;
+    secondaryButtonText: ReactNode;
     onPressConfirmButton: () => void;
-    suspicionCause: DeviceSuspicionCause;
+    onPressSecondaryButton: () => void;
+    buttonsActionType?: CardStepperButtonsActionType;
 };
 
-type NavigationProps = StackNavigationProps<
-    DeviceOnboardingStackParamList,
-    DeviceOnboardingStackRoutes.SecurityCheck
->;
+const buttonsColorSchemeMap = {
+    primary: {
+        primary: 'primary',
+        secondary: 'tertiaryElevation0',
+    },
+    destructive: {
+        primary: 'redBold',
+        secondary: 'redElevation0',
+    },
+} as const satisfies Record<CardStepperButtonsActionType, Record<string, ButtonColorScheme>>;
 
 const cardStyle = prepareNativeStyle<{ isDisabled: boolean }>((utils, { isDisabled }) => ({
     backgroundColor: utils.colors.backgroundSurfaceElevation1,
@@ -69,31 +71,21 @@ const LAYOUT_ANIMATION = LinearTransition.springify().damping(DAMPING);
 const ENTERING_ANIMATION = FadeInUp.springify().damping(DAMPING);
 const EXITING_ANIMATION = FadeOutDown.springify().damping(DAMPING);
 
-export const SecurityCheckStepCard = ({
+export const CardStepperItem = ({
     header,
     description,
     icon,
     isChecked,
     isOpened,
     onPressConfirmButton,
-    suspicionCause,
-}: SecurityCheckStepCardProps) => {
+    onPressSecondaryButton,
+    primaryButtonText,
+    secondaryButtonText,
+    buttonsActionType = 'primary',
+}: CardStepperItemProps) => {
     const { applyStyle } = useNativeStyles();
-    const navigation = useNavigation<NavigationProps>();
     const iconName = isChecked ? 'check' : icon;
     const headerColor: Color = isChecked ? 'textPrimaryDefault' : 'textSubdued';
-
-    const navigateToSuspiciousDeviceScreen = () => {
-        navigation.navigate(DeviceOnboardingStackRoutes.SuspiciousDevice, {
-            suspicionCause,
-        });
-        analytics.report({
-            type: EventType.DeviceSetupSecurityCheck,
-            payload: {
-                location: suspicionCause,
-            },
-        });
-    };
 
     return (
         <AnimatedCard
@@ -127,17 +119,18 @@ export const SecurityCheckStepCard = ({
                             <Button
                                 size="small"
                                 style={applyStyle(buttonStyle)}
-                                colorScheme="tertiaryElevation0"
-                                onPress={navigateToSuspiciousDeviceScreen}
+                                colorScheme={buttonsColorSchemeMap[buttonsActionType].secondary}
+                                onPress={onPressSecondaryButton}
                             >
-                                <Translation id="moduleDeviceOnboarding.securityCheckScreen.declineButton" />
+                                {primaryButtonText}
                             </Button>
                             <Button
                                 size="small"
                                 style={applyStyle(buttonStyle)}
+                                colorScheme={buttonsColorSchemeMap[buttonsActionType].primary}
                                 onPress={onPressConfirmButton}
                             >
-                                <Translation id="generic.buttons.yes" />
+                                {secondaryButtonText}
                             </Button>
                         </HStack>
                     </AnimatedVStack>
