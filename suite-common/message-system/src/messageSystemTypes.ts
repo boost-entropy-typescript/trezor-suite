@@ -42,11 +42,10 @@ export const Feature = {
     entropyCheckMobile: 'security.entropyCheck.mobile',
     // FW update feature flag implemented only for mobile app
     firmwareUpdate: 'device.firmware.update',
-    // trading feature flags implemented for mobile app
     trading: {
         buy: 'trading.buy',
         sell: 'trading.sell',
-        swap: 'trading.swap',
+        exchange: 'trading.exchange',
     },
 
     // device onboarding (MOBILE ONLY!!!).
@@ -67,10 +66,9 @@ export const Context = {
     coinjoin: 'accounts.coinjoin',
     ethStaking: 'accounts.eth.staking',
     solStaking: 'accounts.sol.staking',
-    // trading contexts are implemented for mobile app
     tradingBuy: 'trading.buy',
     tradingSell: 'trading.sell',
-    tradingSwap: 'trading.swap',
+    tradingExchange: 'trading.exchange',
 } as const;
 
 export type ContextDomain = (typeof Context)[keyof typeof Context];

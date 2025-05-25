@@ -233,6 +233,10 @@ export default defineMessages({
         defaultMessage:
             'All fees included; the transaction fee is estimated at {feeAmount} ({feeAmountFiat}).',
     },
+    TR_TRADING_DISABLED_DEFAULT: {
+        defaultMessage: '{type} is currently disabled.',
+        id: 'TR_TRADING_DISABLED_DEFAULT',
+    },
     TR_TRADING_TERMS_DONT_SHOW_AGAIN: {
         defaultMessage: 'Don’t show me this again',
         id: 'TR_TRADING_TERMS_DONT_SHOW_AGAIN',
@@ -3350,6 +3354,10 @@ export default defineMessages({
     TR_TRANSACTION_DETAILS: {
         defaultMessage: 'Details',
         id: 'TR_TRANSACTION_DETAILS',
+    },
+    TR_TRANSACTION_NOT_FOUND: {
+        defaultMessage: 'Transaction not found. Please try again later.',
+        id: 'TR_TRANSACTION_NOT_FOUND',
     },
     TR_TOKEN_ID_COLON: {
         defaultMessage: 'Token ID:',
