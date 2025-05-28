@@ -2,15 +2,13 @@ import { usePreferredModal } from 'src/hooks/suite/usePreferredModal';
 
 import { DiscoveryLoader } from './DiscoveryLoader';
 import { ForegroundAppModal } from './ForegroundAppModal';
+import { UnpairedBluetoothDeviceNeedsManualOsRemovalModal } from '../../bluetooth/UnpairedBluetoothDeviceNeedsManualOsRemovalModal';
 import { ReduxModal } from '../ReduxModal/ReduxModal';
 
-/** Displays whichever redux modal or foreground app should be displayed */
-export const ModalSwitcher = () => {
-    const modal = usePreferredModal();
+type ModalParams = ReturnType<typeof usePreferredModal>;
 
+const Inner = ({ modal }: { modal: ModalParams }) => {
     switch (modal.type) {
-        case 'foreground-app':
-            return <ForegroundAppModal {...modal.payload} />;
         case 'redux-modal':
             return <ReduxModal {...modal.payload} />;
         case 'discovery-loading':
@@ -18,4 +16,23 @@ export const ModalSwitcher = () => {
         default:
             return null;
     }
+};
+
+/** Displays whichever redux modal or foreground app should be displayed */
+export const ModalSwitcher = () => {
+    const modal = usePreferredModal();
+
+    // For foreground apps, we have to NOT render the other modals.
+    // There may be conflicts: for example, Firmware Install / Upgrade flow
+    // handles the THP separately.
+    if (modal.type === 'foreground-app') {
+        return <ForegroundAppModal {...modal.payload} />;
+    }
+
+    return (
+        <>
+            <UnpairedBluetoothDeviceNeedsManualOsRemovalModal />
+            <Inner modal={modal} />
+        </>
+    );
 };
