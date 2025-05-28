@@ -11,9 +11,7 @@
     },
     "dependencies": {
         "@reduxjs/toolkit": "2.8.2",
-        "@suite-native/atoms": "workspace:*",
-        "@suite-native/icons": "workspace:*",
-        "@trezor/styles": "workspace:*",
+        "@suite-native/config": "workspace:*",
         "react": "18.2.0"
     }
 }

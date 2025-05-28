@@ -1,35 +1,32 @@
 import { ReactNode } from 'react';
 
-import {
-    Box,
-    Card,
-    HStack,
-    InlineAlertBox,
-    InlineAlertBoxProps,
-    Text,
-    VStack,
-} from '@suite-native/atoms';
 import { Icon, IconName } from '@suite-native/icons';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
+
+import { Box } from '../Box';
+import { Card } from '../Card/Card';
+import { InlineAlertBox, InlineAlertBoxProps } from '../InlineAlertBox/InlineAlertBox';
+import { HStack, VStack } from '../Stack';
+import { Text } from '../Text';
 
 const contentStyle = prepareNativeStyle(() => ({
     flexGrow: 1,
     flexShrink: 1,
 }));
 
-type DeviceSettingsCardProps = {
+type CardWithIconLayoutProps = {
     icon: IconName;
     title: ReactNode;
     children: ReactNode;
     alertBoxProps?: Omit<InlineAlertBoxProps, 'borderRadius'>;
 };
 
-export const SettingsCardWithIconLayout = ({
+export const CardWithIconLayout = ({
     icon,
     title,
     children,
     alertBoxProps,
-}: DeviceSettingsCardProps) => {
+}: CardWithIconLayoutProps) => {
     const { applyStyle } = useNativeStyles();
 
     return (
