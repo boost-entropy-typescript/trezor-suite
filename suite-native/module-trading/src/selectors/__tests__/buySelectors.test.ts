@@ -10,11 +10,13 @@ import {
     selectBuyAmountLimits,
     selectBuyBestQuotesForAvailablePaymentMethods,
     selectBuyFormDefaultValues,
+    selectBuyQuotesByPaymentMethodNative,
     selectBuySelectedReceiveAccount,
     selectBuySupportedFiatCurrencies,
     selectBuySupportedFiatCurrenciesList,
     selectBuyTradeableAssetsSorted,
     selectTradingBuy,
+    selectValidTradingBuyQuotesNative,
 } from '../buySelectors';
 
 describe('buySelectors', () => {
@@ -216,6 +218,58 @@ describe('buySelectors', () => {
         });
     });
 
+    describe('selectValidMobileTradingBuyQuotes', () => {
+        beforeEach(() => {
+            prevState.buy.quotes = [
+                ...quotes,
+                { ...quotes[0], exchange: 'simplex', orderId: 'order_id_4' },
+            ] as BuyTrade[];
+        });
+
+        it('should return valid quotes', () => {
+            expect(
+                selectValidTradingBuyQuotesNative({
+                    wallet: { tradingNew: prevState },
+                }),
+            ).toEqual([
+                expect.objectContaining({ orderId: 'order_id_0' }),
+                expect.objectContaining({ orderId: 'order_id_1' }),
+                expect.objectContaining({ orderId: 'order_id_3' }),
+            ]);
+        });
+
+        it('should be stable', () => {
+            expect(selectValidTradingBuyQuotesNative({ wallet: { tradingNew: prevState } })).toBe(
+                selectValidTradingBuyQuotesNative({ wallet: { tradingNew: prevState } }),
+            );
+        });
+
+        describe('on android device', () => {
+            beforeAll(() => {
+                jest.mock('react-native/Libraries/Utilities/Platform', () => ({
+                    OS: 'android',
+                    select: (specifics: Record<'ios' | 'android' | 'default', unknown>) =>
+                        specifics.android ?? specifics.default,
+                }));
+            });
+
+            afterAll(() => {
+                jest.unmock('react-native/Libraries/Utilities/Platform');
+            });
+
+            it('should ignore applePay', () => {
+                expect(
+                    selectValidTradingBuyQuotesNative({
+                        wallet: { tradingNew: prevState },
+                    }),
+                ).toEqual([
+                    expect.objectContaining({ orderId: 'order_id_1' }),
+                    expect.objectContaining({ orderId: 'order_id_3' }),
+                ]);
+            });
+        });
+    });
+
     describe('selectBuyBestQuotesForAvailablePaymentMethods', () => {
         beforeEach(() => {
             prevState.buy.quotes = quotes as BuyTrade[];
@@ -278,6 +332,41 @@ describe('buySelectors', () => {
                     wallet: { tradingNew: prevState },
                 }),
             ).toEqual([]);
+        });
+    });
+
+    describe('selectMobileBuyQuotesByPaymentMethod', () => {
+        beforeEach(() => {
+            prevState.buy.quotes = [
+                ...quotes,
+                { ...quotes[0], exchange: 'simplex', orderId: 'order_id_4' },
+            ] as BuyTrade[];
+        });
+
+        it('should select valid quotes', () => {
+            expect(
+                selectBuyQuotesByPaymentMethodNative(
+                    { wallet: { tradingNew: prevState } },
+                    'creditCard',
+                ),
+            ).toEqual([
+                expect.objectContaining({ orderId: 'order_id_1' }),
+                expect.objectContaining({ orderId: 'order_id_3' }),
+            ]);
+        });
+
+        it('should be stable', () => {
+            expect(
+                selectBuyQuotesByPaymentMethodNative(
+                    { wallet: { tradingNew: prevState } },
+                    'creditCard',
+                ),
+            ).toBe(
+                selectBuyQuotesByPaymentMethodNative(
+                    { wallet: { tradingNew: prevState } },
+                    'creditCard',
+                ),
+            );
         });
     });
 });

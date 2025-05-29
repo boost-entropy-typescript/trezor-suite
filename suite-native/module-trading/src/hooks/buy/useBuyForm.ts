@@ -9,7 +9,6 @@ import {
     getBestRatedQuote,
     invityAPI,
     selectTradingBuyQuotesRequest,
-    selectValidTradingBuyQuotes,
 } from '@suite-common/trading';
 import { getNetwork } from '@suite-common/wallet-config';
 import { WalletSettingsRootState, selectIsAmountInSats } from '@suite-common/wallet-core';
@@ -23,13 +22,15 @@ import {
     selectBuyAmountLimits,
     selectBuyFormDefaultValues,
     selectBuySelectedReceiveAccount,
+    selectValidTradingBuyQuotesNative,
 } from '../../selectors/buySelectors';
-import { setBuySelectedReceiveAccount } from '../../tradingSlice';
+import { buyAssetChanged, buyFiatCurrencyChanged } from '../../tradingSlice';
 import { TradingBuyForm, TradingBuyFormValues } from '../../types';
 import { buyFormValidationSchema } from '../../utils/buy/buyFormValidationSchema';
 import { truncateDecimals } from '../../utils/general/amountUtils';
 import { getSelectedSymbolFromBuyForm } from '../../utils/general/tradeableAssetUtils';
 import { getRandomAccountDescriptor } from '../../utils/general/utils';
+import { useConvertFormValueToBaseUnit } from '../general/useConvertFormValueToBaseUnit';
 
 const useReceiveAccountChangeEffect = ({ getValues, setValue }: TradingBuyForm) => {
     const selectedReceiveAccount = useSelector(selectBuySelectedReceiveAccount);
@@ -91,6 +92,7 @@ const useAmountAndCurrencyFieldsChangeEffect = ({ setValue, getValues, watch }: 
                             prevFiatCurrency.current = fiatCurrency;
                             setValue('fiatValue', undefined, { shouldValidate: true });
                             setValue('cryptoValue', undefined, { shouldValidate: true });
+                            dispatch(buyFiatCurrencyChanged());
                         }
                         break;
 
@@ -105,9 +107,7 @@ const useAmountAndCurrencyFieldsChangeEffect = ({ setValue, getValues, watch }: 
                             });
                             prevCryptoId.current = asset?.cryptoId as CryptoId | undefined;
                             setValue('cryptoValue', undefined, { shouldValidate: true });
-                            dispatch(
-                                setBuySelectedReceiveAccount({ selectedReceiveAccount: undefined }),
-                            );
+                            dispatch(buyAssetChanged());
                         }
                         break;
                     }
@@ -124,7 +124,7 @@ const useAmountAndCurrencyFieldsChangeEffect = ({ setValue, getValues, watch }: 
 };
 
 const useBuyQuotesChangeEffect = ({ getValues, setValue }: TradingBuyForm) => {
-    const quotes = useSelector(selectValidTradingBuyQuotes);
+    const quotes = useSelector(selectValidTradingBuyQuotesNative);
 
     useEffect(() => {
         if (quotes.length === 0) {
@@ -204,7 +204,7 @@ const useValidations = (
     limits: TradingAmountLimitProps | undefined,
 ) => {
     const { translate } = useTranslate();
-    const quotes = useSelector(selectValidTradingBuyQuotes);
+    const quotes = useSelector(selectValidTradingBuyQuotesNative);
     const quoteRequest = useSelector(selectTradingBuyQuotesRequest);
 
     const generalAlertMsg =
@@ -226,11 +226,18 @@ export const useBuyForm = (): TradingBuyForm => {
     const { FiatAmountFormatter, CryptoAmountFormatter } = useFormatters();
     const defaultValues = useSelector(selectBuyFormDefaultValues);
     const limits = useSelector(selectBuyAmountLimits);
+    const { convertNumberToBaseUnit } = useConvertFormValueToBaseUnit();
 
     const form = useForm<TradingBuyFormValues>({
         defaultValues,
         validation: buyFormValidationSchema,
-        context: { ...limits, translate, FiatAmountFormatter, CryptoAmountFormatter },
+        context: {
+            ...limits,
+            translate,
+            FiatAmountFormatter,
+            CryptoAmountFormatter,
+            convertNumberToBaseUnit,
+        },
     });
 
     useAmountAndCurrencyFieldsChangeEffect(form);
