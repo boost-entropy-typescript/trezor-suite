@@ -21,6 +21,9 @@ export class Fees {
     readonly miscAmount: Locator;
     readonly swapDetails: Locator;
     readonly dustPreventionNotice: Locator;
+    readonly ethereumFeeLimit: Locator;
+    readonly ethereumMaxFeePerGas: Locator;
+    readonly ethereumMaxPriorityFeePerGas: Locator;
 
     constructor(private readonly page: Page) {
         this.customInput = this.page.getByTestId('feePerUnit');
@@ -29,10 +32,13 @@ export class Fees {
         this.miscAmount = this.page.getByTestId('@wallet/misc-fee-amount');
         this.swapDetails = this.page.getByTestId('@wallet/fee-details');
         this.dustPreventionNotice = this.page.getByTestId('@wallet/fees/dust-prevention-notice');
+        this.ethereumFeeLimit = this.page.getByTestId('feeLimit');
+        this.ethereumMaxFeePerGas = this.page.getByTestId('maxFeePerGas');
+        this.ethereumMaxPriorityFeePerGas = this.page.getByTestId('maxPriorityFeePerGas');
     }
 
     @step()
-    promiseForResponseSwapFeeCalls() {
+    promiseForResponseSolanaFeeCalls() {
         const isSolanaResponse = (response: Response, method: string) =>
             new RegExp(solanaUrlPattern).test(response.url()) &&
             response.request().postDataJSON().method === method;
@@ -60,6 +66,7 @@ export class Fees {
     @step()
     async getSolanaFee() {
         const lamportsToSolanaRatio = 1_000_000_000;
+        await expect(this.miscAmount).toBeVisible();
         const feeWithSymbol = await this.miscAmount.textContent();
         if (!feeWithSymbol) {
             throw new Error('Fee amount is undefined or null');
@@ -105,6 +112,25 @@ export class Fees {
         }
 
         return feeRateText;
+    }
+
+    calculateEthereumMaxFee(params: { gasLimit: string; maxFeePerGas: string }) {
+        const ratioToEthereum = 1e9;
+        const maxFeeInEthereum =
+            (parseFloat(params.gasLimit) * parseFloat(params.maxFeePerGas)) / ratioToEthereum;
+        const maxFeeRounded = maxFeeInEthereum.toFixed(14);
+
+        // This method is also providing detailed error message for troubleshooting expect if it fails
+        const errorMessageMaxCalculation = `expected to have max Fee: 
+"(parseFloat(${params.gasLimit}) * parseFloat(${params.maxFeePerGas})) / ${ratioToEthereum}"
+here are applied parseFloats:
+(${parseFloat(params.gasLimit)} * ${parseFloat(params.maxFeePerGas)}) / ${ratioToEthereum}
+before rounding: ${maxFeeInEthereum} ETH, after rounding: ${maxFeeRounded} ETH`;
+
+        return {
+            ethereumMaximumFee: maxFeeRounded,
+            errorMessageMaxCalculation,
+        };
     }
 
     @step()

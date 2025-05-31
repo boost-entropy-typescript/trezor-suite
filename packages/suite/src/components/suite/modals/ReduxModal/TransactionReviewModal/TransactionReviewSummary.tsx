@@ -84,12 +84,12 @@ export const TransactionReviewSummary = ({
 
             {isEthereumNetworkType && (
                 <>
-                    <Note iconName="gasPump">
+                    <Note data-testid="@modal/ethereum/gas-limit" iconName="gasPump">
                         <Translation id="TR_GAS_LIMIT" />
                         {': '}
                         {tx.feeLimit}
                     </Note>
-                    <Note iconName="gasPump">
+                    <Note data-testid="@modal/ethereum/fee" iconName="gasPump">
                         {isEip1559(tx) ? (
                             <Translation id="TR_MAX_FEE_PER_GAS" />
                         ) : (
@@ -99,7 +99,7 @@ export const TransactionReviewSummary = ({
                         <FeeRate feeRate={fee} networkType={network.networkType} symbol={symbol} />
                     </Note>
                     {hasEip1559MaxPriorityFee(tx) ? (
-                        <Note iconName="gasPump">
+                        <Note data-testid="@modal/ethereum/priority-fee" iconName="gasPump">
                             <Translation id="TR_MAX_PRIORITY_FEE_PER_GAS" />
 
                             {': '}
