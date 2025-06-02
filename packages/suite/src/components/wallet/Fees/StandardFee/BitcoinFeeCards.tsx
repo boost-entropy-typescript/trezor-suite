@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import { formatDurationStrict } from '@suite-common/suite-utils';
+import { selectAreFeesLoading } from '@suite-common/wallet-core';
 import { getFeeUnits } from '@suite-common/wallet-utils';
 import { Row, Text } from '@trezor/components';
 import { FeeRate } from '@trezor/product-components';
 
 import { Translation } from 'src/components/suite';
 import { FiatValue } from 'src/components/suite/FiatValue';
-import { useLocales } from 'src/hooks/suite';
+import { useLocales, useSelector } from 'src/hooks/suite';
 
 import { FeeCard } from './FeeCard';
 import { FeeCardsWrapper, StandardFeeProps } from './StandardFee';
@@ -26,6 +27,7 @@ export const BitcoinFeeCards = ({
     getValues,
 }: StandardFeeProps) => {
     const locale = useLocales();
+    const areFeesLoading = useSelector(state => selectAreFeesLoading(state));
 
     const [cachedBytes, setCachedBytes] = useState<number | undefined>(undefined);
 
@@ -60,6 +62,7 @@ export const BitcoinFeeCards = ({
                         value={fee.value}
                         isSelected={selectedLevel.label === fee.value}
                         changeFeeLevel={changeFeeLevel}
+                        isLoading={areFeesLoading}
                         topLeftChild={
                             <span data-testid={`@fee-card/${fee.value}`}>
                                 <Translation id={getFeeLevelTranslationId(fee.value)} />
