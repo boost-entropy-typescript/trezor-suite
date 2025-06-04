@@ -1,3 +1,4 @@
+export * from './selectors';
 export * from './accounts/accountsActions';
 export * from './accounts/accountsConstants';
 export * from './accounts/accountsMiddleware';
@@ -21,7 +22,7 @@ export * from './discovery/discoveryActions';
 export * from './discovery/discoveryReducer';
 export * from './discovery/discoveryThunks';
 export * from './discovery/discoverySelectors';
-export * from './discovery/discoveryRunningStateLocks';
+export * from './discovery/passphraseUtils';
 export * from './fees/feesActions';
 export * from './fees/feesReducer';
 export * from './fees/feesThunks';
@@ -51,3 +52,4 @@ export * from './transactions/transactionsSelectors';
 export * from './settings/walletSettingsActions';
 export * from './settings/walletSettingsConstants';
 export * from './settings/walletSettingsReducer';
+export * from './settings/walletSettingsThunks';

@@ -6,7 +6,6 @@ import type { CountryCode, InvityServerEnvironment, TradingType } from '@suite-c
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import {
     DeviceRootState,
-    discoveryActions,
     selectIsEntropyCheckFailed,
     selectSelectedDevice,
 } from '@suite-common/wallet-core';
@@ -406,15 +405,6 @@ const suiteReducer = (state: SuiteState = initialState, action: Action): SuiteSt
 
             case SUITE.LOCK_ROUTER:
                 changeLock(draft, SUITE.LOCK_TYPE.ROUTER, action.payload);
-                break;
-
-            case discoveryActions.startDiscovery.type:
-                changeLock(draft, SUITE.LOCK_TYPE.DEVICE, true);
-                break;
-
-            case discoveryActions.completeDiscovery.type:
-            case discoveryActions.stopDiscovery.type:
-                changeLock(draft, SUITE.LOCK_TYPE.DEVICE, false);
                 break;
 
             // no default
