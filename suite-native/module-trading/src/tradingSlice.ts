@@ -6,6 +6,7 @@ import {
     TradingBuyState as CommonTradingBuyState,
     TradingState as CommonTradingState,
     InvityServerEnvironment,
+    TradingType,
     initialState as commonInitialState,
     prepareTradingReducer,
 } from '@suite-common/trading';
@@ -22,6 +23,8 @@ export interface TradingState extends CommonTradingState {
     favouriteAssets: Record<CryptoId, true>;
     tradingEnvironment: InvityServerEnvironment;
     tradeOrderIdToBeOpened: string | undefined;
+    isAmountInputActive: boolean;
+    activeTradingType: TradingType | undefined;
 }
 
 export type TradingRootState = {
@@ -36,6 +39,8 @@ export const initialState: TradingState = {
     favouriteAssets: {},
     tradingEnvironment: 'production',
     tradeOrderIdToBeOpened: undefined,
+    isAmountInputActive: false,
+    activeTradingType: undefined,
 };
 
 export const tradingSlice = createSliceWithExtraDeps({
@@ -91,6 +96,15 @@ export const tradingSlice = createSliceWithExtraDeps({
             state.buy.amountLimits = undefined;
             state.buy.quotesRequest = undefined;
         },
+        setIsAmountInputActive: (state, { payload }: PayloadAction<boolean>) => {
+            state.isAmountInputActive = payload;
+        },
+        setActiveTradingType: (state, { payload }: PayloadAction<TradingType>) => {
+            state.activeTradingType = payload;
+        },
+        clearActiveTradingType: state => {
+            state.activeTradingType = undefined;
+        },
     },
     extraReducers: (builder, extra) => {
         const commonTradingFormReducer = prepareTradingReducer(extra);
@@ -105,17 +119,6 @@ export const tradingSlice = createSliceWithExtraDeps({
     },
 });
 
-export const {
-    setBuySelectedReceiveAccount,
-    addTradeableAssetToFavourites,
-    removeTradeableAssetFromFavourites,
-    setTradingEnvironment,
-    clearBuyState,
-    clearQuotesAndQuotesRequest,
-    setTradeOrderIdToBeOpened,
-    clearTradeOrderIdToBeOpened,
-    buyAssetChanged,
-    buyFiatCurrencyChanged,
-} = tradingSlice.actions;
+export const tradingActions = tradingSlice.actions;
 
 export const createMemoizedSelector = createWeakMapSelector.withTypes<TradingRootState>();
