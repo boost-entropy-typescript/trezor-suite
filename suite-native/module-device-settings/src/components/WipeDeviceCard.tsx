@@ -1,26 +1,30 @@
+import { useSelector } from 'react-redux';
+
 import { useNavigation } from '@react-navigation/native';
 
+import { selectHasRunningDiscovery } from '@suite-common/wallet-core';
 import { Box, Button, CardWithIconLayout, Text, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import {
     DeviceSettingsStackParamList,
-    DeviceStackRoutes,
-    StackToStackCompositeNavigationProps,
-    WipeDeviceStackParamList,
+    DeviceSettingsStackRoutes,
+    StackNavigationProps,
     WipeDeviceStackRoutes,
 } from '@suite-native/navigation';
 
-type NavigationProp = StackToStackCompositeNavigationProps<
-    WipeDeviceStackParamList,
-    WipeDeviceStackRoutes,
-    DeviceSettingsStackParamList
+type NavigationProp = StackNavigationProps<
+    DeviceSettingsStackParamList,
+    DeviceSettingsStackRoutes.DeviceSettings
 >;
 
 export const WipeDeviceCard = () => {
     const navigation = useNavigation<NavigationProp>();
+    const isDiscoveryRunning = useSelector(selectHasRunningDiscovery);
 
     const handleRedirect = () => {
-        navigation.navigate(DeviceStackRoutes.WipeDeviceStack);
+        navigation.navigate(DeviceSettingsStackRoutes.WipeDeviceStack, {
+            screen: WipeDeviceStackRoutes.WipeDevice,
+        });
     };
 
     return (
@@ -33,7 +37,13 @@ export const WipeDeviceCard = () => {
                     <Translation id="moduleDeviceSettings.wipeDevice.content" />
                 </Text>
                 <Box flex={1}>
-                    <Button size="small" colorScheme="redBold" onPress={handleRedirect}>
+                    <Button
+                        size="small"
+                        colorScheme="redBold"
+                        onPress={handleRedirect}
+                        isDisabled={isDiscoveryRunning}
+                        isLoading={isDiscoveryRunning}
+                    >
                         <Translation id="moduleDeviceSettings.wipeDevice.buttonTitle" />
                     </Button>
                 </Box>

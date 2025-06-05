@@ -6,36 +6,47 @@ import { useNavigation } from '@react-navigation/native';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
 import {
     AppTabsRoutes,
-    DeviceStackRoutes,
+    DeviceSettingsStackParamList,
+    DeviceSettingsStackRoutes,
     HomeStackRoutes,
     RootStackParamList,
     RootStackRoutes,
-    SettingsStackParamList,
     StackToStackCompositeNavigationProps,
 } from '@suite-native/navigation';
 import TrezorConnect from '@trezor/connect';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
-    SettingsStackParamList,
-    DeviceStackRoutes.DeviceSettings,
+    DeviceSettingsStackParamList,
+    DeviceSettingsStackRoutes.DeviceSettings,
     RootStackParamList
 >;
 
+// When user accesses device settings in remember mode and tries to modify the device,
+// he will be prompted to connect Trezor. This hook prevents usage of incorrect device.
 export const useDeviceChangedCheck = () => {
     const device = useSelector(selectSelectedDevice);
     const navigation = useNavigation<NavigationProps>();
     const initialDeviceIdRef = useRef<string | null>(null);
+    // Important for device wipe. Device ID changes for wiped device, but if it was connected,
+    // we know the device was wiped, thus we want to prevent the navigation call.
+    const hasDeviceBeenConnected = useRef<boolean>(false);
 
     useEffect(() => {
         // Store the initial device ID when the component mounts
         if (initialDeviceIdRef.current === null && device?.id) {
             initialDeviceIdRef.current = device.id;
+            hasDeviceBeenConnected.current = device.connected;
 
             return;
         }
 
-        // Check for device mismatch only after initial device ID is set
-        if (initialDeviceIdRef.current && device?.id && initialDeviceIdRef.current !== device.id) {
+        if (
+            initialDeviceIdRef.current &&
+            device?.id &&
+            initialDeviceIdRef.current !== device.id &&
+            !hasDeviceBeenConnected.current &&
+            device.connected
+        ) {
             TrezorConnect.cancel();
             navigation.navigate(RootStackRoutes.AppTabs, {
                 screen: AppTabsRoutes.HomeStack,
@@ -44,5 +55,5 @@ export const useDeviceChangedCheck = () => {
                 },
             });
         }
-    }, [device?.id, navigation]);
+    }, [device?.id, navigation, device?.connected]);
 };
