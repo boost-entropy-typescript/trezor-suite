@@ -21,6 +21,7 @@
         "@suite-common/wallet-utils": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/components": "workspace:*",
+        "@trezor/device-utils": "workspace:*",
         "@trezor/dom-utils": "workspace:*",
         "@trezor/env-utils": "workspace:*",
         "@trezor/react-utils": "workspace:*",
@@ -49,6 +50,7 @@
         "@storybook/theming": "^8.6.12",
         "@trezor/eslint": "workspace:*",
         "@types/react": "18.2.55",
+        "@types/zxcvbn": "4.4.5",
         "storybook": "^8.6.12",
         "stylelint": "^16.14.1",
         "typescript-styled-plugin": "^0.18.3"

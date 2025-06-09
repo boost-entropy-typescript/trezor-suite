@@ -4,7 +4,7 @@ import { renderHookWithStoreProviderAsync } from '@suite-native/test-utils';
 import { useBuyData } from '../useBuyData';
 
 describe('useBuyData', () => {
-    const renderUseTradingData = (reloadRequestOrdinalInitialValue: number = 0) =>
+    const renderUseBuyData = (reloadRequestOrdinalInitialValue: number = 0) =>
         renderHookWithStoreProviderAsync(
             ({ reloadRequestOrdinal }) => useBuyData(reloadRequestOrdinal),
             {
@@ -34,14 +34,14 @@ describe('useBuyData', () => {
                     }, 100);
                 }),
         );
-        const { result } = await renderUseTradingData();
+        const { result } = await renderUseBuyData();
 
         expect(result.current.isLoading).toBe(true);
         expect(result.current.lastLoadedTimestamp).toBe(0);
     });
 
     it('should settle after API queries are resolved', async () => {
-        const { result } = await renderUseTradingData();
+        const { result } = await renderUseBuyData();
 
         expect(result.current.isLoading).toBe(false);
         expect(result.current.lastLoadedTimestamp).toBeGreaterThan(0);
@@ -52,7 +52,7 @@ describe('useBuyData', () => {
             .spyOn(tradingThunks, 'loadInitialDataThunk')
             .mockImplementation((() => ({ type: 'TEST_ACTION' })) as () => any);
 
-        const { rerender } = await renderUseTradingData();
+        const { rerender } = await renderUseBuyData();
         rerender({ reloadRequestOrdinal: 0 });
 
         expect(initialThunkLoadActionSpy).toHaveBeenCalledTimes(1);
@@ -63,7 +63,7 @@ describe('useBuyData', () => {
             .spyOn(tradingThunks, 'loadInitialDataThunk')
             .mockImplementation((() => ({ type: 'TEST_ACTION' })) as () => any);
 
-        const { rerender } = await renderUseTradingData();
+        const { rerender } = await renderUseBuyData();
         rerender({ reloadRequestOrdinal: 1 });
 
         expect(initialThunkLoadActionSpy).toHaveBeenCalledTimes(2);

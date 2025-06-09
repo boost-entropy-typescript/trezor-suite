@@ -52,15 +52,7 @@ const AccountListLabel = ({ label, flex }: { label: ReactNode; flex: number }) =
     const { applyStyle } = useNativeStyles();
 
     return (
-        <Text
-            variant="body"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={applyStyle(labelTextStyle, {
-                textColor: 'textDefault',
-                flex,
-            })}
-        >
+        <Text variant="body" style={applyStyle(labelTextStyle, { textColor: 'textDefault', flex })}>
             {label}
         </Text>
     );
@@ -103,7 +95,8 @@ export const AccountListBaseItem = ({
                 )}
                 <VStack flex={info ? 1 : 0} spacing={0}>
                     <HStack alignItems="center" justifyContent="space-between">
-                        {info && <AccountListLabel label={label} flex={1} />}
+                        {/* If no info is provided, display empty Box to maintain layout consistency */}
+                        {info ? <AccountListLabel label={label} flex={1} /> : <Box />}
                         {shouldDisplayBalance && (
                             <CryptoAmountFormatter
                                 value={cryptoValue}
