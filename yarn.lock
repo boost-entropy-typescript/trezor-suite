@@ -9990,6 +9990,7 @@ __metadata:
     expo-haptics: "npm:14.0.1"
     expo-image: "npm:2.0.7"
     expo-image-picker: "npm:16.0.6"
+    expo-keep-awake: "npm:14.0.3"
     expo-linear-gradient: "npm:14.0.2"
     expo-linking: "npm:^7.0.5"
     expo-secure-store: "npm:14.0.1"
@@ -10167,7 +10168,6 @@ __metadata:
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/discovery": "workspace:*"
-    "@suite-native/feature-flags": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/navigation": "workspace:*"
@@ -10311,11 +10311,19 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-native/config": "workspace:*"
+    "@suite-native/device": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
+    "@suite-native/settings": "workspace:*"
+    "@suite-native/tokens": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    "@trezor/device-utils": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     react: "npm:18.2.0"
     react-redux: "npm:9.2.0"
@@ -10347,6 +10355,7 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/react-native-usb": "workspace:*"
     "@trezor/styles": "workspace:*"
+    expo-keep-awake: "npm:14.0.3"
     react: "npm:18.2.0"
     react-native: "npm:0.76.9"
     react-native-reanimated: "npm:^3.16.7"
@@ -10696,9 +10705,11 @@ __metadata:
     "@suite-native/intl": "workspace:^"
     "@suite-native/navigation": "workspace:*"
     "@trezor/connect-mobile": "workspace:*"
+    "@trezor/urls": "workspace:*"
     expo-linking: "npm:^7.0.5"
     react: "npm:18.2.0"
     react-native: "npm:0.76.9"
+    react-native-reanimated: "npm:^3.16.7"
     react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
@@ -10931,6 +10942,7 @@ __metadata:
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
+    "@suite-native/module-connect-popup": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/settings": "workspace:*"
     "@suite-native/storage": "workspace:*"
@@ -22870,7 +22882,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-keep-awake@npm:~14.0.3":
+"expo-keep-awake@npm:14.0.3, expo-keep-awake@npm:~14.0.3":
   version: 14.0.3
   resolution: "expo-keep-awake@npm:14.0.3"
   peerDependencies:

@@ -1,34 +1,100 @@
 import { useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useNavigation } from '@react-navigation/native';
+
+import { selectSessions, walletConnectDisconnectThunk } from '@suite-common/walletconnect';
+import { WalletConnectSession } from '@suite-common/walletconnect/src/walletConnectTypes';
 import {
-    selectSessions,
-    walletConnectDisconnectThunk,
-    walletConnectPairThunk,
-} from '@suite-common/walletconnect';
-import { Button, Divider, HStack, IconButton, Input, Text, VStack } from '@suite-native/atoms';
+    AnimatedBox,
+    Button,
+    Card,
+    CardDivider,
+    HStack,
+    IconButton,
+    Text,
+    VStack,
+} from '@suite-native/atoms';
+import { AccordionContent } from '@suite-native/atoms/src/Accordion/AccordionContent';
+import { Icon } from '@suite-native/icons';
 import { Translation } from '@suite-native/intl';
-import { Screen, ScreenHeader } from '@suite-native/navigation';
-import { ScanQRBottomSheet } from '@suite-native/qr-code';
+import {
+    RootStackParamList,
+    RootStackRoutes,
+    Screen,
+    ScreenHeader,
+    StackNavigationProps,
+} from '@suite-native/navigation';
 
-export const WalletConnectPairScreen = () => {
+import { ConnectAppIcon } from '../components/ConnectAppIcon';
+import { WalletConnectPairBottomSheet } from '../components/WalletConnectPairBottomSheet';
+
+type NavigationProps = StackNavigationProps<RootStackParamList, RootStackRoutes.WalletConnectPair>;
+
+export const SessionDetailCard = ({ session }: { session: WalletConnectSession }) => {
     const dispatch = useDispatch();
-    const sessions = useSelector(selectSessions);
-
-    const [uri, setUri] = useState('');
-    const [qrVisible, setQrVisible] = useState(false);
-    const [isPairing, setIsPairing] = useState(false);
-
-    const handlePair = () => {
-        setIsPairing(true);
-        dispatch(walletConnectPairThunk({ uri })).finally(() => {
-            setIsPairing(false);
-            setUri('');
+    const navigation = useNavigation<NavigationProps>();
+    const handleDisconnect = () => {
+        dispatch(walletConnectDisconnectThunk({ topic: session.topic }));
+    };
+    const handleSwitchAccount = () => {
+        navigation.navigate(RootStackRoutes.WalletConnectSwitchAccount, {
+            sessionTopic: session.topic,
         });
     };
-    const handleQr = () => {
-        setQrVisible(true);
-    };
+    const isExpanded = useSharedValue(false);
+    const animatedChevronStyle = useAnimatedStyle(() => ({
+        transform: [
+            {
+                rotate: withTiming(`${isExpanded.value ? -180 : 0}deg`, {
+                    duration: 200,
+                }),
+            },
+        ],
+    }));
+
+    return (
+        <Card key={session.topic}>
+            <VStack spacing={0}>
+                <TouchableOpacity onPress={() => (isExpanded.value = !isExpanded.value)}>
+                    <HStack spacing="sp12" alignItems="center">
+                        <ConnectAppIcon
+                            src={session.peer.metadata.icons[0]}
+                            type="walletConnect"
+                            size="medium"
+                        />
+                        <VStack flex={1} spacing="sp1">
+                            <Text>{session.peer.metadata.name}</Text>
+                            <Text color="textSubdued" numberOfLines={1}>
+                                {session.peer.metadata.url}
+                            </Text>
+                        </VStack>
+                        <AnimatedBox style={animatedChevronStyle}>
+                            <Icon name="caretDown" size="mediumLarge" />
+                        </AnimatedBox>
+                    </HStack>
+                </TouchableOpacity>
+                <AccordionContent isOpened={isExpanded}>
+                    <VStack spacing="sp16" paddingTop="sp16">
+                        <CardDivider />
+                        <Button onPress={handleDisconnect} colorScheme="tertiaryElevation0">
+                            <Translation id="moduleConnectPopup.walletConnect.disconnect" />
+                        </Button>
+                        <Button onPress={handleSwitchAccount} colorScheme="tertiaryElevation0">
+                            <Translation id="moduleConnectPopup.walletConnect.switchAccount" />
+                        </Button>
+                    </VStack>
+                </AccordionContent>
+            </VStack>
+        </Card>
+    );
+};
+
+export const WalletConnectPairScreen = () => {
+    const sessions = useSelector(selectSessions);
+    const [pairingOpened, setPairingOpened] = useState<'qr' | 'manual' | null>(null);
 
     return (
         <Screen
@@ -40,74 +106,40 @@ export const WalletConnectPairScreen = () => {
                             <Translation id="moduleConnectPopup.walletConnect.title" />
                         </Text>
                     }
+                    rightIcon={
+                        <IconButton
+                            colorScheme="tertiaryElevation0"
+                            size="medium"
+                            iconName="qrCode"
+                            onPress={() => setPairingOpened('qr')}
+                        />
+                    }
                 />
             }
         >
-            <VStack spacing="sp24">
-                <VStack>
-                    <Input
-                        value={uri}
-                        onChangeText={setUri}
-                        placeholder="Connection URL..."
-                        rightIcon={
-                            <IconButton
-                                iconName="qrCode"
-                                onPress={handleQr}
-                                colorScheme="tertiaryElevation0"
-                                isDisabled={isPairing}
-                            />
-                        }
-                        editable={!isPairing}
-                    />
-                    <Button colorScheme="primary" onPress={handlePair} isDisabled={!uri}>
-                        <Translation id="moduleConnectPopup.walletConnect.connect" />
-                    </Button>
-                </VStack>
-
-                <Divider />
-
-                <VStack>
-                    <Text variant="highlight">
-                        <Translation id="moduleConnectPopup.walletConnect.activeConnections" />:
-                    </Text>
-                    {sessions.map(session => (
-                        <HStack key={session.topic} spacing="sp12">
-                            <VStack flex={1} spacing="sp1">
-                                <Text>{session.peer.metadata.name}</Text>
-                                <Text color="textSubdued">{session.peer.metadata.url}</Text>
-                                <Text color="textSubdued" numberOfLines={1}>
-                                    {session.topic}
-                                </Text>
-                            </VStack>
-                            <VStack>
-                                <Button
-                                    onPress={() => {
-                                        dispatch(
-                                            walletConnectDisconnectThunk({ topic: session.topic }),
-                                        );
-                                    }}
-                                    size="small"
-                                    colorScheme="redElevation0"
-                                >
-                                    <Translation id="moduleConnectPopup.walletConnect.disconnect" />
-                                </Button>
-                            </VStack>
-                        </HStack>
-                    ))}
-                    {sessions.length === 0 && (
-                        <Text>
-                            <Translation id="moduleConnectPopup.walletConnect.noActiveConnections" />
+            <VStack
+                spacing="sp24"
+                justifyContent={sessions.length === 0 ? 'center' : 'flex-start'}
+                flex={1}
+            >
+                <WalletConnectPairBottomSheet
+                    pairingOpened={pairingOpened}
+                    setPairingOpened={setPairingOpened}
+                />
+                {sessions.map(session => (
+                    <SessionDetailCard key={session.topic} session={session} />
+                ))}
+                {sessions.length === 0 && (
+                    <>
+                        <Text textAlign="center" variant="titleSmall">
+                            <Translation id="moduleConnectPopup.walletConnect.noConnectedApps" />
                         </Text>
-                    )}
-                </VStack>
+                        <Text textAlign="center" color="textSubdued">
+                            <Translation id="moduleConnectPopup.walletConnect.noConnectedAppsDescription" />
+                        </Text>
+                    </>
+                )}
             </VStack>
-
-            <ScanQRBottomSheet
-                title={<Translation id="moduleConnectPopup.walletConnect.title" />}
-                isVisible={qrVisible}
-                onCodeScanned={setUri}
-                onClose={() => setQrVisible(false)}
-            />
         </Screen>
     );
 };

@@ -413,10 +413,21 @@ export const en = {
                 'An external app is trying to connect to your Trezor Suite. Make sure you trust the source!',
             connect: 'Connect',
             pairingUrl: 'Enter pairing URL',
-            scanQR: 'Scan QR code',
+            provideConnectionString: 'Provide connection string',
+            provideConnectionStringDescription:
+                'You can manually add a connection here by pasting the WalletConnect string.',
+            connectionStringPlaceholder: 'Connection string...',
+            scanQR: 'Scan WalletConnect QR',
+            addConnection: 'Add connection',
             activeConnections: 'Active connections',
-            noActiveConnections: 'No active connections',
+            noConnectedApps: 'No connected apps',
+            noConnectedAppsDescription:
+                'Use your Trezor with third-party apps and wallets to manage your assets.',
             disconnect: 'Disconnect',
+            switchAccount: 'Switch account',
+            app: 'App',
+            requestedNetworks: 'Requested networks',
+            selectedAccount: 'Selected account',
             serviceStatus: {
                 verified: 'Verified',
                 unknown: 'Unknown',
@@ -428,6 +439,10 @@ export const en = {
                 isScam: 'The request was detected as a scam and was blocked automatically.',
                 unableToVerify:
                     'We were unable to verify the request authenticity. Please make sure you trust the source.',
+                requiredNetworksNotActivated:
+                    'Some required networks are inactive. Activate them for full app compatibility.',
+                noNetworksActivated:
+                    'To connect to the app, activate at least one supported network in settings.',
             },
         },
     },
@@ -680,10 +695,6 @@ export const en = {
                     title: 'Advanced',
                     subtitle: 'Expert features for power users ',
                 },
-                walletConnect: {
-                    title: 'WalletConnect',
-                    subtitle: 'Use external apps using the WalletConnect protocol',
-                },
             },
             support: {
                 title: 'Support',
@@ -693,6 +704,14 @@ export const en = {
                 },
                 about: {
                     title: 'About ',
+                },
+            },
+            connections: {
+                title: 'Connections',
+                walletConnect: {
+                    title: 'WalletConnect',
+                    subtitle: 'Use external apps using the WalletConnect protocol',
+                    add: 'Add WalletConnect connection',
                 },
             },
         },
