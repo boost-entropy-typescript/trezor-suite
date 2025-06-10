@@ -242,6 +242,10 @@ export const connectPopupDeeplinkThunk = createThunk<void, { url: string }>(
                 source: {
                     type: 'deeplink',
                     origin: `${callbackUrl.protocol}//${callbackUrl.host}`,
+                    manifest: {
+                        appName: queryParams.appName,
+                        appIcon: queryParams.appIcon,
+                    },
                 },
                 method: method as keyof typeof TrezorConnect,
                 payload,
@@ -290,6 +294,7 @@ export const connectPopupVerifyAddressThunk = createThunk<void, { index: number 
                 chunked: false,
             });
             const validatedStatus = res.success ? 'valid' : 'failed';
+            dispatch(deviceActions.removeButtonRequests({ device }));
             dispatch(
                 connectPopupActions.confirmAddresses({
                     addresses: call.addresses.map((address, i) => ({

@@ -107,9 +107,7 @@ const getShouldUseEmptyPassphrase = (
         return true;
     }
 
-    const isPassphraseDisabledInSettings = !device.features.passphrase_protection;
-
-    return isPassphraseDisabledInSettings || settings.defaultWalletLoading === 'standard';
+    return !device.features.passphrase_protection || settings.defaultWalletLoading === 'standard';
 };
 /**
  * Action handler: DEVICE.CONNECT + DEVICE.CONNECT_UNACQUIRED
@@ -122,6 +120,20 @@ const connectDevice = (
     device: Device,
     settings: ConnectDeviceSettings,
 ) => {
+    const currentTime = new Date().getTime();
+
+    const deviceCommonFields = {
+        connected: true,
+
+        buttonRequests: [],
+        metadata: {},
+        passwords: {},
+        firstConnectedTimestamp:
+            'firstConnectedTimestamp' in device
+                ? Number(device.firstConnectedTimestamp ?? currentTime)
+                : currentTime,
+        ts: currentTime,
+    };
     // connected device is unacquired/unreadable
     if (!device.features) {
         // check if device already exists in reducer
@@ -130,20 +142,11 @@ const connectDevice = (
             // and ignore this action if so
             return;
         }
-        const currentTime = new Date().getTime();
         draft.devices.push({
             ...device,
-            connected: true,
+            ...deviceCommonFields,
             available: false,
             useEmptyPassphrase: true,
-            buttonRequests: [],
-            metadata: {},
-            passwords: {},
-            firstConnectedTimestamp:
-                'firstConnectedTimestamp' in device
-                    ? Number(device.firstConnectedTimestamp ?? currentTime)
-                    : currentTime,
-            ts: currentTime,
         });
 
         return;
@@ -175,25 +178,15 @@ const connectDevice = (
 
     const useEmptyPassphrase = getShouldUseEmptyPassphrase(device, deviceInstance, settings);
 
-    const currentTime = new Date().getTime();
     const newDevice: TrezorDevice = {
         ...device,
+        ...deviceCommonFields,
         state: device._state,
         useEmptyPassphrase,
         remember: false,
         temporaryRemember: false,
-        connected: true,
         available: true,
-        authConfirm: false,
         instance: deviceInstance,
-        buttonRequests: [],
-        metadata: {},
-        passwords: {},
-        firstConnectedTimestamp:
-            'firstConnectedTimestamp' in device
-                ? Number(device.firstConnectedTimestamp ?? currentTime)
-                : currentTime,
-        ts: currentTime,
     };
 
     // update affected devices
@@ -313,14 +306,19 @@ const setDeviceState = (
     if (!device.features) return;
 
     // find devices with the same "device_id"
-    const affectedDevice = draft.devices.filter(
-        d =>
-            d.features &&
-            ((d.connected &&
-                (d.id === device.id || (d.path.length > 0 && d.path === device.path))) ||
-                // update "disconnected" remembered devices if in bootloader mode
-                (d.mode === 'bootloader' && d.remember && d.id === device.id)),
-    ) as AcquiredDevice[];
+    const affectedDevice = draft.devices.filter(d => {
+        if (!d.features) return false;
+
+        const isConnectedDeviceMatch =
+            d.connected &&
+            d.instance === device.instance &&
+            (d.id === device.id || (d.path.length > 0 && d.path === device.path));
+
+        // update "disconnected" remembered devices if in bootloader mode
+        const isRememberedDeviceMatch = d.mode === 'bootloader' && d.remember && d.id === device.id;
+
+        return isConnectedDeviceMatch || isRememberedDeviceMatch;
+    });
 
     if (affectedDevice.length > 1) {
         console.error('there must be only one device with the same id and without state');
@@ -330,7 +328,6 @@ const setDeviceState = (
 
     affectedDevice[0].state = state;
     affectedDevice[0].useEmptyPassphrase = useEmptyPassphrase;
-    // affectedDevice[0].instance = Number.parseInt(state.staticSessionId?.split(':')[1]!);
     affectedDevice[0].walletNumber = deviceUtils.getNewWalletNumber(draft.devices, device);
 };
 
@@ -386,7 +383,7 @@ const updateTimestamp = (draft: DeviceReducerState, device?: TrezorDevice) => {
  * @param {boolean} [alwaysOnDevice=false]
  * @returns
  */
-const changePassphraseMode = (
+const updatePassphraseMode = (
     draft: DeviceReducerState,
     device: TrezorDevice,
     hidden: boolean,
@@ -448,7 +445,6 @@ const createInstance = (draft: DeviceReducerState, device: TrezorDevice) => {
         // to be able to filter device accounts for portfolio tracker
         state: isPortfolioTrackerDevice ? device.state : undefined,
         walletNumber: undefined,
-        authConfirm: false,
         ts: currentTime,
         firstConnectedTimestamp: device.firstConnectedTimestamp ?? currentTime,
         buttonRequests: [],
@@ -526,7 +522,6 @@ const forget = (
     const others = deviceUtils.getDeviceInstances(device, draft.devices, true);
     if (device.connected && others.length < 1) {
         // do not forget the last instance, just reset state
-        draft.devices[index].authConfirm = false;
         delete draft.devices[index].authFailed;
         draft.devices[index].state = undefined;
         draft.devices[index].walletNumber = undefined;
@@ -610,7 +605,7 @@ export const prepareDeviceReducer = createReducerWithExtraDeps(initialState, (bu
             disconnectDevice(state, payload);
         })
         .addCase(deviceActions.updatePassphraseMode, (state, { payload }) => {
-            changePassphraseMode(state, payload.device, payload.hidden, payload.alwaysOnDevice);
+            updatePassphraseMode(state, payload.device, payload.hidden, payload.alwaysOnDevice);
         })
         .addCase(UI.REQUEST_PIN, state => {
             resetAuthFailed(state);

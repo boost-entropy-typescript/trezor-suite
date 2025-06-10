@@ -46,6 +46,25 @@ export const AppTabNavigator = () => {
     const isTradingExchangeEnabled = useSelector(selectIsTradingExchangeEnabled);
     const isTradingSellEnabled = useSelector(selectIsTradingSellEnabled);
 
+    const handleTradeTabPress = () => {
+        const tradingType = getTradingAnalyticsType(
+            isTradingBuyEnabled,
+            isTradingExchangeEnabled,
+            isTradingSellEnabled,
+        );
+
+        if (!tradingType) return;
+
+        analytics.report({
+            type: EventType.TradingNavigate,
+            payload: {
+                action: 'navigate',
+                type: tradingType,
+                from: 'trade',
+            },
+        });
+    };
+
     return (
         <Tab.Navigator
             initialRouteName={AppTabsRoutes.HomeStack}
@@ -64,23 +83,7 @@ export const AppTabNavigator = () => {
                     name={AppTabsRoutes.TradeStack}
                     component={TradingStackNavigator}
                     listeners={{
-                        tabPress: () => {
-                            const tradingType = getTradingAnalyticsType(
-                                isTradingBuyEnabled,
-                                isTradingExchangeEnabled,
-                                isTradingSellEnabled,
-                            );
-                            if (!tradingType) return;
-
-                            analytics.report({
-                                type: EventType.TradingNavigate,
-                                payload: {
-                                    action: 'navigate',
-                                    type: tradingType,
-                                    from: 'trade',
-                                },
-                            });
-                        },
+                        tabPress: handleTradeTabPress,
                     }}
                 />
             )}

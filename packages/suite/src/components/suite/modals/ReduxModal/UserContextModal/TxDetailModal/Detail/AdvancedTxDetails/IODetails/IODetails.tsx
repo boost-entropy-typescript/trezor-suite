@@ -125,9 +125,11 @@ const IOGroup = ({
 
     return (
         <GridWrapper>
-            <IconWrapper>
-                <Icon name="arrowRight" size="medium" variant="tertiary" />
-            </IconWrapper>
+            {hasInputs && hasOutputs && (
+                <IconWrapper>
+                    <Icon name="arrowRight" size="medium" variant="tertiary" />
+                </IconWrapper>
+            )}
             <Grid columns={2} gap={spacings.xxxxl} forceEqualColumns>
                 {hasInputs && (
                     <Column gap={spacings.xs} margin={{ right: spacings.xl }}>
@@ -185,15 +187,15 @@ type TokensByStandard = {
     [key: string]: TokenTransfer[];
 };
 
-type EthereumSpecificBalanceDetailsRowProps = {
+type TokenSpecificBalanceDetailsRowProps = {
     tx: WalletAccountTransaction;
     isPhishingTransaction?: boolean;
 };
 
-const EthereumSpecificBalanceDetailsRow = ({
+const TokenSpecificBalanceDetailsRow = ({
     tx,
     isPhishingTransaction,
-}: EthereumSpecificBalanceDetailsRowProps) => {
+}: TokenSpecificBalanceDetailsRowProps) => {
     const tokensByStandard: TokensByStandard = tx.tokens.reduce(
         (acc: TokensByStandard, value: TokenTransfer) => {
             const { standard } = value;
@@ -251,12 +253,10 @@ const EthereumSpecificBalanceDetailsRow = ({
                             formatAmount(transfer.amount, transfer.decimals)
                         );
 
-                        if (!transfer.symbol) return null;
-
                         return (
                             <IOGroup
                                 key={index}
-                                tx={{ ...tx, symbol: transfer.symbol }}
+                                tx={{ ...tx, symbol: transfer.symbol || '' }}
                                 contractAddress={transfer.contract}
                                 inputs={[{ addresses: [transfer.from], value }] as IODetails[]}
                                 outputs={[{ addresses: [transfer.to] }] as IODetails[]}
@@ -269,30 +269,6 @@ const EthereumSpecificBalanceDetailsRow = ({
             ))}
         </>
     );
-};
-
-type SolanaSpecificBalanceDetailsRowProps = {
-    tx: WalletAccountTransaction;
-    isPhishingTransaction?: boolean;
-};
-
-const SolanaSpecificBalanceDetailsRow = ({
-    tx,
-    isPhishingTransaction,
-}: SolanaSpecificBalanceDetailsRowProps) => {
-    const { tokens } = tx;
-
-    return tokens.map(({ from, to, amount, decimals, contract }, index) => (
-        <IOGroup
-            key={index}
-            tx={tx}
-            contractAddress={contract}
-            inputs={[{ addresses: [from], value: formatAmount(amount, decimals) }] as IODetails[]}
-            outputs={[{ addresses: [to] }] as IODetails[]}
-            isPhishingTransaction={isPhishingTransaction}
-            hasHeadings={false}
-        />
-    ));
 };
 
 type CollapsibleIOSectionProps = IOGroupProps & {
@@ -345,7 +321,7 @@ export const IODetails = ({ tx, isPhishingTransaction }: IODetailsProps) => {
                         tx={tx}
                         isPhishingTransaction={isPhishingTransaction}
                     />
-                    <EthereumSpecificBalanceDetailsRow
+                    <TokenSpecificBalanceDetailsRow
                         tx={tx}
                         isPhishingTransaction={isPhishingTransaction}
                     />
@@ -357,10 +333,10 @@ export const IODetails = ({ tx, isPhishingTransaction }: IODetailsProps) => {
                     <IOGroup
                         tx={tx}
                         inputs={tx.details.vin}
-                        outputs={tx.details.vout}
+                        outputs={tx.details.vout.length ? tx.details.vout : tx.targets}
                         isPhishingTransaction={isPhishingTransaction}
                     />
-                    <SolanaSpecificBalanceDetailsRow
+                    <TokenSpecificBalanceDetailsRow
                         tx={tx}
                         isPhishingTransaction={isPhishingTransaction}
                     />

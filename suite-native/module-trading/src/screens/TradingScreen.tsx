@@ -16,6 +16,7 @@ import { Header } from '../components/general/Header/Header';
 import { HistoryButton, NavigationProps } from '../components/general/HistoryButton';
 import { TradingTypeAwareContextMessage } from '../components/general/TradingTypeAwareContextMessage';
 import { useActiveTradingTypeReaction } from '../hooks/general/useActiveTradingTypeReaction';
+import { useGeolocationCountryCode } from '../hooks/general/useGeolocationCountryCode';
 import { useMountedRecentlyFlag } from '../hooks/general/useMountedRecentlyFlag';
 import {
     selectActiveTradingType,
@@ -30,6 +31,7 @@ const TradingScreenContent = () => {
     const navigation = useNavigation<NavigationProps>();
     const isScreenMountedRecently = useMountedRecentlyFlag(activeTradingType);
     useActiveTradingTypeReaction();
+    useGeolocationCountryCode();
 
     useEffect(() => {
         if (tradeToBeOpened) {
@@ -46,15 +48,12 @@ const TradingScreenContent = () => {
     }
 
     return (
-        <>
-            <TradingTypeAwareContextMessage />
-            <VStack spacing="sp16">
-                <Header isFormMountedRecently={isScreenMountedRecently} />
-                {isInternetReachable === false ? <DeviceOffline /> : <ActiveTab />}
-                <Footer isFormMountedRecently={isScreenMountedRecently} />
-                <HistoryButton isFormMountedRecently={isScreenMountedRecently} />
-            </VStack>
-        </>
+        <VStack spacing="sp16">
+            <Header isFormMountedRecently={isScreenMountedRecently} />
+            {isInternetReachable === false ? <DeviceOffline /> : <ActiveTab />}
+            <Footer isFormMountedRecently={isScreenMountedRecently} />
+            <HistoryButton isFormMountedRecently={isScreenMountedRecently} />
+        </VStack>
     );
 };
 
@@ -66,7 +65,14 @@ export const TradingScreen = () => {
     }
 
     return (
-        <Screen header={<DeviceManagerScreenHeader />}>
+        <Screen
+            header={
+                <>
+                    <DeviceManagerScreenHeader />
+                    <TradingTypeAwareContextMessage marginHorizontal="sp16" marginBottom="sp16" />
+                </>
+            }
+        >
             <TradingScreenContent />
         </Screen>
     );

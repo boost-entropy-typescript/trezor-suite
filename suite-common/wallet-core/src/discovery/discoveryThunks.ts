@@ -2,7 +2,7 @@ import { createThunk } from '@suite-common/redux-utils';
 import { AcquiredDevice, AuthorizedDevice, TrezorDevice } from '@suite-common/suite-types';
 import { getNewInstanceNumber } from '@suite-common/suite-utils';
 import { Bip43Path, TrezorConnectBackendType } from '@suite-common/wallet-config';
-import { DiscoveryStatus, FailedAccount } from '@suite-common/wallet-types';
+import { FailedAccount } from '@suite-common/wallet-types';
 import TrezorConnect, {
     BundleProgress,
     DeviceState,
@@ -63,10 +63,6 @@ function assertStaticSessionId(
     }
 }
 
-// discovery could have been deleted, or cancelled ín the meantime
-const canDiscoveryContinue = (discovery?: DiscoveryStatus) =>
-    discovery && isDiscoveryInProgress(discovery);
-
 /**
  * If metadata are enabled in settings but metadata master key does not exist for this device state,
  * try to generate device metadata master key
@@ -101,6 +97,18 @@ const applyDeviceStatesThunk = createThunk(
             const devices = selectDevices(getState());
             const devicesByPath = devices.filter(d => d.path === devicePath);
 
+            const currentDeviceByStaticSessionId = newDeviceState.staticSessionId
+                ? selectDeviceByStaticSessionId(getState(), newDeviceState.staticSessionId)
+                : null;
+
+            if (currentDeviceByStaticSessionId && isAddingHiddenWallet) {
+                console.warn(
+                    'applyDeviceStatesThunk: applying state to a device with static session id',
+                );
+
+                return;
+            }
+
             // sanity check that there is no 2 devices sharing the same path. this shouldn't happen, the only way that comes to my mind
             // is when you would create a copy of device and store it in redux before authorizing it (this is actually the old way of doing things)
             // todo: this sanity check could be moved somewhere higher.
@@ -111,6 +119,7 @@ const applyDeviceStatesThunk = createThunk(
 
             assertDeviceIsAcquired(device);
             assertStaticSessionId(newDeviceState);
+            const { staticSessionId } = newDeviceState;
 
             const physicalDevices = selectPhysicalDevices(getState());
             const devicesWithoutState = physicalDevices.filter(d => !d.state?.staticSessionId);
@@ -137,16 +146,12 @@ const applyDeviceStatesThunk = createThunk(
                     }),
                 );
 
-                // todo: there is probably more efficient way to select device after it was created
-                const newlyAddedDevice = selectDeviceByStaticSessionId(
-                    getState(),
-                    newDeviceState.staticSessionId,
-                );
-                if (!newlyAddedDevice) return;
+                // select the device after deviceReducer updates it (it's a new object reference)
+                const newlyAddedDevice = selectDeviceByStaticSessionId(getState(), staticSessionId);
+                if (newlyAddedDevice === undefined) return;
                 dispatch(selectDeviceThunk({ device: newlyAddedDevice }));
             }
 
-            const { staticSessionId } = newDeviceState;
             await dispatch(initNewDeviceStateMetadataThunk(staticSessionId));
         } catch (error) {
             console.error('applyDeviceStatesThunk error', error);
@@ -159,6 +164,9 @@ const createOnBundleProgressHandler = (
     deviceStaticSessionId: StaticSessionId,
     dispatch: any,
     getState: any,
+    progressHooks: {
+        onNonFirstNonEmptyAccountDiscovered?: () => void;
+    } = {},
 ) => {
     let encounteredNonEmptyAccount = false;
     // we do not create empty accounts right away, but store the progress events for later
@@ -193,16 +201,30 @@ const createOnBundleProgressHandler = (
             return;
         }
 
+        const hasLoadedAnyNonEmptyAccount =
+            'balance' in event.response &&
+            !isNaN(Number(event.response.balance)) &&
+            Number(event.response.balance) > 0;
+
         dispatch(
             discoveryActions.updateDiscovery(
                 {
                     status: 'progress',
                     total: event.total,
                     progress: event.progress,
+                    hasLoadedAnyNonEmptyAccount,
                 },
                 devicePath,
             ),
         );
+
+        if (
+            discovery.status === 'progress' &&
+            !discovery.hasLoadedAnyNonEmptyAccount &&
+            hasLoadedAnyNonEmptyAccount
+        ) {
+            progressHooks.onNonFirstNonEmptyAccountDiscovered?.();
+        }
 
         if (isProgressEventOk(event)) {
             // all encountered accounts were empty, so create all of the delayed empty accounts (and also the latest event)
@@ -336,7 +358,7 @@ export const runDiscoveryThunk = createThunk(
 
             const discovery = selectDiscoveryByDevicePath(getState(), device.path);
 
-            if (!canDiscoveryContinue(discovery) || !discovery) return;
+            if (!isDiscoveryInProgress(discovery)) return;
 
             const { isAddingHiddenWallet } = discovery;
 
@@ -393,7 +415,9 @@ export const runDiscoveryThunk = createThunk(
                 useEmptyPassphrase: !isAddingHiddenWallet,
             });
 
-            if (!canDiscoveryContinue(selectDiscoveryByDevicePath(getState(), device.path))) return;
+            if (!isDiscoveryInProgress(selectDiscoveryByDevicePath(getState(), device.path))) {
+                return;
+            }
 
             if (!deviceStateResponse.success) {
                 const { error, code } = deviceStateResponse.payload;
@@ -416,11 +440,48 @@ export const runDiscoveryThunk = createThunk(
             assertDeviceIsAcquired(device);
 
             assertStaticSessionId(deviceStateResponse.payload._state);
+
+            const duplicate = selectDevices(getState())
+                .filter(d => d.state?.staticSessionId)
+                .find(
+                    d =>
+                        d.state!.staticSessionId!.split(':')[0] ===
+                        deviceStateResponse.payload._state.staticSessionId!.split(':')[0],
+                );
+
+            if (isAddingHiddenWallet && duplicate) {
+                dispatch(
+                    discoveryActions.updateDiscovery(
+                        {
+                            status: 'passphrase-duplicate',
+                            duplicateDeviceStaticSessionId:
+                                deviceStateResponse.payload._state.staticSessionId,
+                        },
+                        device.path,
+                    ),
+                );
+
+                return;
+            }
+
             const onBundleProgress = createOnBundleProgressHandler(
                 device.path,
                 deviceStateResponse.payload._state.staticSessionId,
                 dispatch,
                 getState,
+                {
+                    onNonFirstNonEmptyAccountDiscovered: () => {
+                        if (isAddingHiddenWallet) {
+                            dispatch(
+                                applyDeviceStatesThunk({
+                                    newDeviceState: deviceStateResponse.payload._state,
+                                    isAddingHiddenWallet,
+                                    devicePath: passedDevice.path,
+                                }),
+                            );
+                        }
+                    },
+                },
             );
 
             TrezorConnect.on<DiscoverAccountsProgress>(UI.BUNDLE_PROGRESS, onBundleProgress);
@@ -447,7 +508,9 @@ export const runDiscoveryThunk = createThunk(
 
             TrezorConnect.off(UI.BUNDLE_PROGRESS, onBundleProgress);
 
-            if (!canDiscoveryContinue(selectDiscoveryByDevicePath(getState(), device.path))) return;
+            if (!isDiscoveryInProgress(selectDiscoveryByDevicePath(getState(), device.path))) {
+                return;
+            }
 
             if (!result.success) {
                 dispatch(
@@ -479,29 +542,6 @@ export const runDiscoveryThunk = createThunk(
 
             if (!deviceStateResponse.payload._state.staticSessionId) {
                 console.error('Discovery: staticSessionId missing in device state response');
-
-                return;
-            }
-
-            const duplicate = selectDevices(getState())
-                .filter(d => d.state?.staticSessionId)
-                .find(
-                    d =>
-                        d.state!.staticSessionId!.split(':')[0] ===
-                        deviceStateResponse.payload._state.staticSessionId!.split(':')[0],
-                );
-
-            if (duplicate) {
-                dispatch(
-                    discoveryActions.updateDiscovery(
-                        {
-                            status: 'passphrase-duplicate',
-                            duplicateDeviceStaticSessionId:
-                                deviceStateResponse.payload._state.staticSessionId,
-                        },
-                        device.path,
-                    ),
-                );
 
                 return;
             }
@@ -555,7 +595,9 @@ export const runDiscoveryThunk = createThunk(
                 useEmptyPassphrase: false,
             });
 
-            if (!canDiscoveryContinue(selectDiscoveryByDevicePath(getState(), device.path))) return;
+            if (!isDiscoveryInProgress(selectDiscoveryByDevicePath(getState(), device.path))) {
+                return;
+            }
 
             if (!getDeviceState2Res.success) {
                 const { error, code } = getDeviceState2Res.payload;
