@@ -79,6 +79,7 @@ const getColorForTextVariant = ({ $variant, theme, $color }: ColorProps): CSSCol
 type StyledTextProps = ExclusiveColorOrVariant & {
     $isMonospaced?: boolean;
     $isHighlighted?: boolean;
+    $breakAll?: boolean;
 } & TransientProps<AllowedFrameProps & AllowedTextTextProps>;
 
 const StyledText = styled.span<StyledTextProps>`
@@ -100,6 +101,13 @@ const StyledText = styled.span<StyledTextProps>`
             box-decoration-break: clone;
         `}
 
+    ${({ $breakAll }) =>
+        $breakAll &&
+        css`
+            word-break: break-all;
+            overflow-wrap: anywhere;
+        `}
+
     ${withTextProps}
     ${withFrameProps}
 `;
@@ -109,6 +117,7 @@ export type TextProps = {
     className?: string;
     isMonospaced?: boolean;
     isHighlighted?: boolean;
+    breakAll?: boolean;
     as?: string;
     onClick?: () => void;
     'data-testid'?: string;
@@ -127,6 +136,7 @@ export const Text = ({
     onClick,
     isMonospaced,
     isHighlighted,
+    breakAll,
     role,
     ...rest
 }: TextProps) => {
@@ -142,6 +152,7 @@ export const Text = ({
             data-testid={dataTest}
             $isMonospaced={isMonospaced}
             $isHighlighted={isHighlighted}
+            $breakAll={breakAll}
             role={role}
             {...textProps}
             {...frameProps}

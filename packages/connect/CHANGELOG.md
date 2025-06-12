@@ -1,15 +1,44 @@
 |             Package              | Stable |    Canary    |
 | :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.6.0  |      -       |
-|     npm @trezor/connect-web      | 9.6.0  |      -       |
-| npm @trezor/connect-webextension | 9.6.0  |      -       |
-|    npm @trezor/connect-mobile    |   -    | 0.0.1-beta.1 |
+|       npm @trezor/connect        | 9.6.0  | 9.6.1-beta.1 |
+|     npm @trezor/connect-web      | 9.6.0  | 9.6.1-beta.1 |
+| npm @trezor/connect-webextension | 9.6.0  | 9.6.1-beta.1 |
+|    npm @trezor/connect-mobile    | 9.6.0  | 9.6.1-beta.1 |
 
-|     Deployment     | Stable | Canary |
-| :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.6.0  |   -    |
+|     Deployment     | Stable |    Canary    |
+| :----------------: | :----: | :----------: |
+| connect.trezor.io/ | 9.6.0  | 9.6.1-beta.1 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.6.1-beta.1
+
+This is a special beta release where we allow temporarily remove firmware version check. We do so to let users stuck with old devices that can't update their firmwares to send their funds out.
+
+## Fixes
+
+- Webusb sync between tabs in browser fixed in connect-popup (dd50a1a, f558513, cdd73c5)
+- fix(connect-web): empty settings in init in suite-desktop mode (3f61be1)
+
+## Features
+
+- Works on the new communication protocol continue:
+    - feat(connect): add ThpState and ThpMessageResponse to DeviceCurrentSession (5919fe9)
+    - feat(connect): add UI response for THP pairing tag (6084994)
+- feat(connect): add getNonce (72a1417)
+- feat(connect): decode hex in message signing (2f41cc6)
+- feat(connect-mobile): add appName and appIcon to deeplink (7f96299)
+- feat(connect-explorer): add appIcon (04dd6d6)
+- feat(connect): add backendType to discovery progress events (a3b804e)
+- feat(connect): track npmVersion in analytics (6cc1058)
+
+## Chores
+
+- chore: update jest to v30 (6d27a2c)
+- chore: update trends deps (a9f0997)
+- chore: add/remove used/unused packages (60fb96b)
+- chore: add missing workspace libs (bc6a681)
+- refactor(connect): split Device related code to workflow modules (dd9ffde)
 
 # 9.6.0
 

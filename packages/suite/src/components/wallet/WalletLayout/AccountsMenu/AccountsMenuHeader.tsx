@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 import { selectSelectedDevice } from '@suite-common/wallet-core';
 import { getFailedAccounts, sortByCoin } from '@suite-common/wallet-utils';
 import {
@@ -16,12 +18,30 @@ import { AddAccountButton } from './AddAccountButton';
 import { CoinsFilter } from './CoinsFilter';
 import { useAvailableNetworkSymbols } from './useAvailableNetworkSymbols';
 import { setIsCoinsFilterVisible } from '../../../../actions/suite/suiteActions';
-import { useDiscovery, useDispatch, useSelector } from '../../../../hooks/suite';
+import { useAccountSearch, useDiscovery, useDispatch, useSelector } from '../../../../hooks/suite';
 import { Translation } from '../../../suite';
 import { CollapsedSidebarOnly } from '../../../suite/layouts/SuiteLayout/Sidebar/CollapsedSidebarOnly';
 import { ExpandedSidebarOnly } from '../../../suite/layouts/SuiteLayout/Sidebar/ExpandedSidebarOnly';
 
+const Indicator = styled.div`
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 3px solid ${({ theme }) => theme.borderElevation2};
+    background-color: ${({ theme }) => theme.iconPrimaryDefault};
+    position: absolute;
+    top: 0;
+    right: 0;
+    pointer-events: none;
+`;
+
+const RelativeWrapper = styled.div`
+    position: relative;
+`;
+
 export const AccountsMenuHeader = () => {
+    const { coinFilter } = useAccountSearch();
+
     const device = useSelector(selectSelectedDevice);
     const accounts = useSelector(state => state.wallet.accounts);
     const { discovery } = useDiscovery();
@@ -67,13 +87,18 @@ export const AccountsMenuHeader = () => {
                                             />
                                         }
                                     >
-                                        <TextButton
-                                            size="small"
-                                            variant={isCoinsFilterVisible ? 'primary' : 'tertiary'}
-                                            icon="funnelSimple"
-                                            onClick={toggleCoinsFilter}
-                                            data-testid="@account-menu/filter-accounts"
-                                        />
+                                        <RelativeWrapper>
+                                            {coinFilter && <Indicator />}
+                                            <TextButton
+                                                size="small"
+                                                variant={
+                                                    isCoinsFilterVisible ? 'primary' : 'tertiary'
+                                                }
+                                                icon="funnelSimple"
+                                                onClick={toggleCoinsFilter}
+                                                data-testid="@account-menu/filter-accounts"
+                                            />
+                                        </RelativeWrapper>
                                     </Tooltip>
                                 )}
 

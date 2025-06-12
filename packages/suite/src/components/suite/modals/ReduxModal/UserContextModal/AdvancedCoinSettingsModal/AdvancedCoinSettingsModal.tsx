@@ -145,6 +145,7 @@ export const AdvancedCoinSettingsModal = ({ symbol, onCancel }: AdvancedCoinSett
                                     >
                                         <Row gap={spacings.sm}>
                                             <Text
+                                                breakAll={true}
                                                 variant={
                                                     url === blockchain[symbol]?.url
                                                         ? 'default'
@@ -176,6 +177,7 @@ export const AdvancedCoinSettingsModal = ({ symbol, onCancel }: AdvancedCoinSett
                                     inputState={backendsForm.input.error ? 'error' : undefined}
                                     bottomText={backendsForm.input.error?.message || null}
                                     innerRef={inputRef}
+                                    maxLength={backendsForm.maxUrlLength}
                                     innerAddon={
                                         <Button
                                             variant="primary"
