@@ -3,7 +3,6 @@ import { PropsWithChildren, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 
-import { bluetoothActions, selectIsBluetoothListOpen } from '@suite-common/bluetooth';
 import {
     deviceNeedsAttention,
     getStatus,
@@ -33,12 +32,15 @@ import { DeviceInitialize } from './DeviceInitialize';
 import { DeviceNoFirmware } from './DeviceNoFirmware';
 import { DeviceRecoveryMode } from './DeviceRecoveryMode';
 import { DeviceSeedless } from './DeviceSeedless';
+import { DeviceTrezorHostProtocolPair } from './DeviceTrezorHostProtocolPair';
 import { DeviceUnknown } from './DeviceUnknown';
 import { DeviceUnreadable } from './DeviceUnreadable';
 import { DeviceUpdateRequired } from './DeviceUpdateRequired';
 import { DeviceUsedElsewhere } from './DeviceUsedElsewhere';
 import { MultiShareBackupInProgress } from './MultiShareBackupInProgress';
 import { Transport } from './Transport';
+import { setBluetoothListOpen } from '../../../actions/bluetooth/desktopBluetoothReducer';
+import { selectIsBluetoothListOpen } from '../../../actions/bluetooth/desktopBluetoothSelectors';
 import { BluetoothConnect } from '../bluetooth/BluetoothConnect';
 
 const Wrapper = styled.div`
@@ -84,6 +86,8 @@ const NonBluetooth = ({ allowSwitchDevice, setIsBluetoothConnectOpen }: NonBluet
                     return <DeviceConnect setIsBluetoothConnectOpen={setIsBluetoothConnectOpen} />;
                 case 'device-unacquired':
                     return <DeviceAcquire />;
+                case 'device-unacquired-requires-thp':
+                    return <DeviceTrezorHostProtocolPair />;
                 case 'device-used-elsewhere':
                     return <DeviceUsedElsewhere />;
                 case 'device-unreadable':
@@ -158,7 +162,7 @@ export const PrerequisitesGuide = ({ allowSwitchDevice }: PrerequisitesGuideProp
     const dispatch = useDispatch();
 
     const setIsBluetoothConnectOpen = () => {
-        dispatch(bluetoothActions.setBluetoothListOpen({ isOpen: true }));
+        dispatch(setBluetoothListOpen({ isOpen: true }));
     };
 
     return (
