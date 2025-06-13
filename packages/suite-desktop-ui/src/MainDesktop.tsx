@@ -38,6 +38,7 @@ import { DesktopUpdater } from './support/DesktopUpdater';
 import { AppRouter } from './support/Router';
 import { TorLoadingScreen } from './support/screens/TorLoadingScreen';
 import { ResponsiveContextProvider } from 'src/support/suite/ResponsiveContext';
+import { BioAuthGuard } from '../../suite/src/components/suite/BioAuthGuard/BioAuthGuard';
 
 const MainDesktop = () => {
     useTor();
@@ -64,9 +65,11 @@ const MainDesktop = () => {
                                     <DesktopUpdater>
                                         <Metadata />
                                         <ToastContainer />
-                                        <Preloader>
-                                            <AppRouter />
-                                        </Preloader>
+                                        <BioAuthGuard>
+                                            <Preloader>
+                                                <AppRouter />
+                                            </Preloader>
+                                        </BioAuthGuard>
                                     </DesktopUpdater>
                                 </FormatterProvider>
                             </ConnectedIntlProvider>

@@ -13,7 +13,11 @@ export const desktopReducer = (
 ): DesktopState => {
     switch (action.type) {
         case SUITE.DESKTOP_HANDSHAKE:
-            return action.payload;
+            return {
+                ...state,
+                ...action.payload,
+            };
+
         default:
             return state;
     }

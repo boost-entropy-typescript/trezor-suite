@@ -109,6 +109,8 @@ export const desktopHandshake = (payload: HandshakeElectron): SuiteAction => ({
     payload,
 });
 
+// Bio auth related actions have been moved to bioAuthActions.ts
+
 export const requestAuthConfirm = createAction(SUITE.REQUEST_AUTH_CONFIRM);
 
 export const setTheme = (
