@@ -15,6 +15,11 @@ test.describe('Suite initial run', { tag: ['@group=suite'] }, () => {
         // analytics screen is there until user confirms his choice
         await expect(analyticsSection.toggleSwitch).toBeVisible();
         await analyticsSection.continueButton.click();
+
+        await page.waitForSelector("button[data-testid='@onboarding/exit-app-button']", {
+            state: 'visible',
+        });
+
         await page.reload();
         await expect(analyticsSection.toggleSwitch).not.toBeVisible();
         await expect(onboardingPage.onboardingContinueButton).toBeVisible();

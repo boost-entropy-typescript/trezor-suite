@@ -1,8 +1,8 @@
+import { usePin } from '@suite-common/wallet-core';
 import { Modal } from '@trezor/components';
 import { ConfirmOnDevice } from '@trezor/product-components';
 
 import { PinMatrix, Translation } from 'src/components/suite';
-import { usePin } from 'src/hooks/suite/usePinModal';
 import { TrezorDevice } from 'src/types/suite';
 
 type PinModalProps = {
@@ -18,8 +18,8 @@ export const PinModal = ({ device }: PinModalProps) => {
         handlePinSubmit,
         setPin,
         pin,
-    } = usePin();
-
+        submitted,
+    } = usePin(device.buttonRequests);
     if (!device.features) return null;
 
     const getHeading = () => {
@@ -54,7 +54,11 @@ export const PinModal = ({ device }: PinModalProps) => {
                 size="tiny"
                 bottomContent={
                     <>
-                        <Modal.Button onClick={handlePinSubmit} data-testid="@pin/submit-button">
+                        <Modal.Button
+                            onClick={handlePinSubmit}
+                            data-testid="@pin/submit-button"
+                            isDisabled={submitted}
+                        >
                             <Translation id="TR_CONFIRM" />
                         </Modal.Button>
                         <Modal.Button onClick={onCancel} variant="tertiary">
@@ -69,6 +73,7 @@ export const PinModal = ({ device }: PinModalProps) => {
                     onSubmit={handlePinSubmit}
                     // show explanation when either setting a new pin or wipe code or entering existing pin but has at least one invalid attempt
                     showExplanation={isSettingNewPin || isSettingNewWipeCode || hasInvalidAttempts}
+                    isDisabled={submitted}
                 />
             </Modal.ModalBase>
         </Modal.Backdrop>
