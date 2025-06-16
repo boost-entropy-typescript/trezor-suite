@@ -1,6 +1,6 @@
-import { createWeakMapSelector } from '@suite-common/redux-utils';
+import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
 import { networksCollection } from '@suite-common/wallet-config';
-import { getFailedAccounts } from '@suite-common/wallet-utils';
+import { getFailedAccounts, sortByCoin } from '@suite-common/wallet-utils';
 import { StaticSessionId } from '@trezor/connect';
 
 import { AccountsRootState } from './accounts/accountsReducer';
@@ -8,12 +8,18 @@ import {
     selectAccounts,
     selectAccountsByDeviceState,
     selectIsDeviceAccountless,
+    selectVisibleDeviceAccounts,
 } from './accounts/accountsSelectors';
 import { DeviceRootState } from './device/deviceReducer';
-import { selectHasOnlyPortfolioDevice, selectSelectedDevice } from './device/deviceSelectors';
+import {
+    selectHasOnlyPortfolioDevice,
+    selectSelectedDevice,
+    selectSupportedNetworkByDevice,
+} from './device/deviceSelectors';
 import { DiscoveryRootState } from './discovery/discoveryReducer';
 import {
     selectDiscoveryByDevicePath,
+    selectDiscoveryForSelectedDevice,
     selectHasRunningDiscovery,
 } from './discovery/discoverySelectors';
 import { WalletSettingsRootState, selectEnabledNetworks } from './settings/walletSettingsReducer';
@@ -24,8 +30,35 @@ to prevent circular dependencies between reducers
 */
 
 const createMemoizedSelector = createWeakMapSelector.withTypes<
-    AccountsRootState & DeviceRootState & DiscoveryRootState
+    AccountsRootState & DeviceRootState & DiscoveryRootState & WalletSettingsRootState
 >();
+
+export const selectDeviceAccountsVisibleEnabledAndSupported = createMemoizedSelector(
+    [selectVisibleDeviceAccounts, selectSelectedDevice, selectEnabledNetworks],
+    (accounts, device, enabledNetworks) => {
+        const deviceNetworks = selectSupportedNetworkByDevice(device);
+
+        return accounts.filter(
+            ({ symbol }) => enabledNetworks.includes(symbol) && deviceNetworks.includes(symbol),
+        );
+    },
+);
+
+export const selectAllAccountsToList = createMemoizedSelector(
+    [
+        selectDeviceAccountsVisibleEnabledAndSupported,
+        selectSelectedDevice,
+        selectDiscoveryForSelectedDevice,
+    ],
+    (okAccounts, device, discovery) => {
+        const staticSessionId = device?.state?.staticSessionId;
+        const failedAccounts = getFailedAccounts(staticSessionId, discovery);
+        const allAccounts = [...okAccounts, ...failedAccounts];
+        const sortedAccounts = sortByCoin(allAccounts);
+
+        return returnStableArrayIfEmpty(sortedAccounts);
+    },
+);
 
 export const selectNetworksToDiscover = (
     state: DiscoveryRootState & DeviceRootState & AccountsRootState & WalletSettingsRootState,

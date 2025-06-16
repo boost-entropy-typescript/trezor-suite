@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
-import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { getFailedAccounts, sortByCoin } from '@suite-common/wallet-utils';
+import { selectAllAccountsToList, selectSelectedDevice } from '@suite-common/wallet-core';
 import {
     Box,
     Column,
@@ -43,13 +42,10 @@ export const AccountsMenuHeader = () => {
     const { coinFilter } = useAccountSearch();
 
     const device = useSelector(selectSelectedDevice);
-    const accounts = useSelector(state => state.wallet.accounts);
+    const accounts = useSelector(selectAllAccountsToList);
     const { discovery } = useDiscovery();
 
-    const staticSessionId = device?.state?.staticSessionId;
-    const failed = getFailedAccounts(staticSessionId, discovery);
-    const list = sortByCoin(accounts.filter(a => a.deviceState === staticSessionId).concat(failed));
-    const isEmpty = list.length === 0;
+    const isEmpty = accounts.length === 0;
 
     const isDiscoveryRunning = discovery?.status === 'progress';
     const isCoinsFilterVisible = useSelector(state => state.suite.settings.isCoinsFilterVisible);

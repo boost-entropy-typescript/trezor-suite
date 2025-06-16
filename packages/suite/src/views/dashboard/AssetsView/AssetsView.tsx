@@ -10,6 +10,7 @@ import {
     isNetworkSymbol,
 } from '@suite-common/wallet-config';
 import {
+    selectAllAccountsToList,
     selectCurrentFiatRates,
     selectEnabledNetworks,
     selectLocalCurrency,
@@ -33,7 +34,6 @@ import { DashboardSection } from 'src/components/dashboard';
 import { Translation } from 'src/components/suite';
 import { useNetworkSupport } from 'src/hooks/settings/useNetworkSupport';
 import { useDiscovery, useDispatch, useLayoutSize, useSelector } from 'src/hooks/suite';
-import { useAccounts } from 'src/hooks/wallet';
 import { Account } from 'src/types/wallet';
 import { selectDiscoveryOverallStatus } from 'src/utils/wallet/selectDiscoveryOverallStatus';
 
@@ -91,9 +91,9 @@ export const AssetsView = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
-    const { discovery, isDiscoveryRunning } = useDiscovery();
+    const { isDiscoveryRunning } = useDiscovery();
     const discoveryStatus = useSelector(selectDiscoveryOverallStatus);
-    const { accounts } = useAccounts(discovery);
+    const accounts = useSelector(selectAllAccountsToList);
     const { supportedMainnets } = useNetworkSupport();
     const { isBelowTablet } = useLayoutSize();
 

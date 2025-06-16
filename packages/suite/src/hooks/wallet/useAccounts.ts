@@ -1,47 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { DiscoveryStatus } from '@suite-common/wallet-types';
-import * as accountUtils from '@suite-common/wallet-utils';
 import type { AccountAddress } from '@trezor/connect';
 
-import { useSelector } from 'src/hooks/suite';
 import type { Account } from 'src/types/wallet';
-
-export const useAccounts = (discovery?: DiscoveryStatus) => {
-    const [accounts, setAccounts] = useState<Account[]>([]);
-
-    const device = useSelector(selectSelectedDevice);
-    const accountsState = useSelector(state => state.wallet.accounts);
-
-    useEffect(() => {
-        if (device) {
-            const deviceAccounts = accountUtils.getAllAccounts(device.state, accountsState);
-            const failedAccounts = accountUtils.getFailedAccounts(
-                device?.state?.staticSessionId,
-                discovery,
-            );
-            const sortedAccounts = accountUtils.sortByCoin(deviceAccounts.concat(failedAccounts));
-            setAccounts(sortedAccounts);
-        }
-    }, [device, discovery, accountsState]);
-
-    return {
-        accounts,
-    };
-};
-
-export const useFastAccounts = () => {
-    const device = useSelector(selectSelectedDevice);
-    const accounts = useSelector(state => state.wallet.accounts);
-
-    const deviceAccounts = useMemo(
-        () => (device ? accountUtils.getAllAccounts(device.state, accounts) : []),
-        [accounts, device],
-    );
-
-    return deviceAccounts;
-};
 
 export const useAccountAddressDictionary = (account: Account | undefined) =>
     useMemo(() => {
