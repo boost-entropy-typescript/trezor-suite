@@ -1,25 +1,19 @@
 import { Platform } from 'react-native';
-import {
-    FadeIn,
-    LinearTransition,
-    interpolateColor,
-    useAnimatedStyle,
-    useDerivedValue,
-    withTiming,
-} from 'react-native-reanimated';
+import { FadeIn, LinearTransition } from 'react-native-reanimated';
 
 import { AnimatedBox, AnimatedCard, Box, HStack, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
-import { BuyAssetNetworkInfo } from './BuyAssetNetworkInfo';
-import { BuyCardTitle } from './BuyCardTitle';
 import { BuyFiatCurrencyPicker } from './BuyFiatCurrencyPicker';
 import { BuyFormFieldErrorBadge } from './BuyFormFieldErrorBadge';
 import { BuyReceiveAccountCryptoBalance } from './BuyReceiveAccountCryptoBalance';
 import { BuyReceiveAccountPicker } from './BuyReceiveAccountPicker';
 import { BuyTradeableAssetPicker } from './BuyTradeableAssetPicker';
 import { useBuyFormContext } from '../../hooks/buy/useBuyFormContext';
+import { useAnimatedBorderStyle } from '../../hooks/general/useAnimatedBorderStyle';
+import { CardTitle } from '../general/CardTitle';
+import { TradeableAssetNetworkInfo } from '../general/TradeableAssetNetworkInfo';
 
 type BuyCardProps = {
     isAmountInputActive: boolean;
@@ -39,20 +33,6 @@ const buySectionStyle = prepareNativeStyle<{ bottomBorder: boolean }>(
     }),
 );
 
-const useAnimatedBorderStyle = (isAmountInputActive: boolean) => {
-    const { utils } = useNativeStyles();
-    const progress = useDerivedValue(() => withTiming(isAmountInputActive ? 1 : 0));
-
-    return useAnimatedStyle(() => ({
-        borderColor: interpolateColor(
-            progress.value,
-            [0, 1],
-            [utils.colors.backgroundSurfaceElevation1, utils.colors.borderInputDefault],
-        ) as `rgba(${number}, ${number}, ${number}, ${number})`,
-        borderWidth: utils.borders.widths.large,
-    }));
-};
-
 export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardProps) => {
     const { applyStyle } = useNativeStyles();
     const animatedStyle = useAnimatedBorderStyle(isAmountInputActive);
@@ -71,9 +51,9 @@ export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardP
                     testID={BUY_CARD_TEST_ID + '/fiatSection'}
                 >
                     <HStack justifyContent="space-between" alignItems="center">
-                        <BuyCardTitle>
+                        <CardTitle>
                             <Translation id="moduleTrading.selectFiat.title" />
-                        </BuyCardTitle>
+                        </CardTitle>
                         <Box alignItems="flex-end">
                             <BuyFormFieldErrorBadge fieldName="fiatValue" />
                         </Box>
@@ -85,9 +65,9 @@ export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardP
                     testID={BUY_CARD_TEST_ID + '/cryptoSection'}
                 >
                     <HStack justifyContent="space-between" alignItems="center">
-                        <BuyCardTitle>
+                        <CardTitle>
                             <Translation id="moduleTrading.selectCoin.title" />
-                        </BuyCardTitle>
+                        </CardTitle>
                         <BuyFormFieldErrorBadge fieldName="cryptoValue" />
                     </HStack>
                     <BuyTradeableAssetPicker />
@@ -97,7 +77,7 @@ export const BuyCard = ({ isAmountInputActive, shouldAnimateEntering }: BuyCardP
                         paddingVertical="sp4"
                         spacing="sp4"
                     >
-                        <BuyAssetNetworkInfo />
+                        <TradeableAssetNetworkInfo asset={asset} />
                         <BuyReceiveAccountCryptoBalance />
                     </HStack>
                 </VStack>

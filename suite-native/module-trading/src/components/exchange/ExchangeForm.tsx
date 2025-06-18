@@ -1,9 +1,12 @@
 import { memo } from 'react';
 import { LinearTransition } from 'react-native-reanimated';
 
-import { AnimatedBox, Card, Text, VStack } from '@suite-native/atoms';
+import { AnimatedBox, Card, VStack } from '@suite-native/atoms';
 
 import { ExchangeAlert } from './ExchangeAlert';
+import { ExchangeReceiveAccountPicker } from './receive/ExchangeReceiveAccountPicker';
+import { ExchangeReceiveCard } from './receive/ExchangeReceiveCard';
+import { ExchangeSendCard } from './send/ExchangeSendCard';
 import { useExchangeFormContext } from '../../hooks/exchange/useExchangeFormContext';
 import { useFocusedValueWatch } from '../../hooks/general/useFocusedValueWatch';
 import { AmountEditingDoneButton } from '../general/AmountEditingDoneButton';
@@ -21,12 +24,15 @@ const ExchangeFormMemoized = memo(({ isAmountInputActive }: ExchangeFormMemoized
     <AnimatedBox layout={LinearTransition}>
         <VStack spacing="sp16">
             <ExchangeAlert />
-            <Card>
-                <Text variant="titleSmall" color="textDefault">
-                    Exchange Tab placeholder
-                </Text>
-            </Card>
-            {isAmountInputActive && <AmountEditingDoneButton />}
+            <ExchangeSendCard isAmountInputActive={isAmountInputActive} />
+            <ExchangeReceiveCard />
+            {isAmountInputActive ? (
+                <AmountEditingDoneButton />
+            ) : (
+                <Card noPadding>
+                    <ExchangeReceiveAccountPicker />
+                </Card>
+            )}
         </VStack>
     </AnimatedBox>
 ));

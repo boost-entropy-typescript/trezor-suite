@@ -2,6 +2,7 @@ import { Form } from '@suite-native/forms';
 import {
     PreloadedState,
     act,
+    fireEvent,
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
@@ -13,8 +14,16 @@ import { BuyFormType } from '../../../types/buy';
 import { ReceiveAccount, TradeableAsset } from '../../../types/general';
 import { BuyReceiveAccountPicker } from '../BuyReceiveAccountPicker';
 
+const mockNavigate = jest.fn();
 const btcAccountName1 = 'BTC Account #1';
 const btcAddressAddress = '1BTC';
+
+jest.mock('@react-navigation/native', () => ({
+    ...jest.requireActual('@react-navigation/native'),
+    useNavigation: () => ({
+        navigate: mockNavigate,
+    }),
+}));
 
 const getBuyState = (selectedReceiveAccount: ReceiveAccount | undefined) => ({
     wallet: {
@@ -48,6 +57,7 @@ describe('BuyReceiveAccountPicker', () => {
     };
 
     beforeEach(async () => {
+        jest.resetAllMocks();
         buyForm = await renderBuyForm();
     });
 
@@ -76,5 +86,24 @@ describe('BuyReceiveAccountPicker', () => {
 
         expect(getByText(btcAccountName1)).toBeTruthy();
         expect(getByText(btcAddressAddress)).toBeTruthy();
+    });
+
+    it('should call navigate with correct params on press', async () => {
+        setSelectedAsset(btcAsset);
+        const btcAccount = getBtcAccount();
+        const { getByText } = await renderPicker({
+            preloadedState: getBuyState({
+                account: btcAccount,
+                address: btcAccount.addresses?.used[0],
+            }),
+        });
+
+        fireEvent.press(getByText('Receive account'));
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith('ReceiveAccounts', {
+            symbol: 'btc',
+            tradingType: 'buy',
+        });
     });
 });
