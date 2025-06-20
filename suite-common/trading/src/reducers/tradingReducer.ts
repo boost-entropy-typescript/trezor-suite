@@ -3,9 +3,14 @@ import { Coins, CryptoId, InfoResponse, Platforms } from 'invity-api';
 
 import { createSliceWithExtraDeps } from '@suite-common/redux-utils';
 import { AccountKey, PrecomposedTransactionFinal } from '@suite-common/wallet-types';
-import { FeeLevel } from '@trezor/connect';
+import { CardanoOutput, FeeLevel, PROTO } from '@trezor/connect';
 
-import { TradingPaymentMethodListProps, TradingTransaction, TradingType } from '../types';
+import {
+    TradingPaymentMethodListProps,
+    TradingTransaction,
+    TradingType,
+    TradingVerifiedAddress,
+} from '../types';
 import { TradingBuyState, buyInitialState, tradingBuyReducer } from './buyReducer';
 import { TRADING_PREFIX } from '../constants';
 import { buyThunks, exchangeThunks, sellThunks } from '../thunks';
@@ -16,17 +21,22 @@ import {
 } from './exchangeReducer';
 import { TradingSellState, sellInitialState, tradingSellReducer } from './sellReducer';
 
+type TradingComposedTransactionInfoOutputs = {
+    outputs?: PROTO.TxOutputType[] | CardanoOutput[];
+};
+
 export interface TradingComposedTransactionInfo {
     composed?: Pick<
         PrecomposedTransactionFinal,
-        | 'feePerByte'
-        | 'estimatedFeeLimit'
-        | 'feeLimit'
-        | 'token'
         | 'fee'
+        | 'feePerByte'
+        | 'feeLimit'
+        | 'estimatedFeeLimit'
         | 'maxFeePerGas'
         | 'maxPriorityFeePerGas'
-    >;
+        | 'token'
+    > &
+        TradingComposedTransactionInfoOutputs;
     selectedFee?: FeeLevel['label'];
 }
 
@@ -54,6 +64,7 @@ export interface TradingState {
     lastLoadedTimestamp: number;
     activeSection: TradingType;
     prefilledFromAccount: TradingPreffiledFromAccount;
+    verifiedAddress: TradingVerifiedAddress;
 }
 
 export const initialState: TradingState = {
@@ -76,6 +87,7 @@ export const initialState: TradingState = {
         cryptoId: undefined,
         descriptor: undefined,
     },
+    verifiedAddress: undefined,
 };
 
 type StorageActionPayload = {
@@ -129,6 +141,9 @@ export const tradingSlice = createSliceWithExtraDeps({
         ) {
             state.prefilledFromAccount.cryptoId = action.payload.cryptoId;
             state.prefilledFromAccount.descriptor = action.payload.descriptor;
+        },
+        setVerifiedAddress(state, action: PayloadAction<TradingVerifiedAddress>) {
+            state.verifiedAddress = action.payload;
         },
     },
     extraReducers: (builder, extra) => {

@@ -257,8 +257,8 @@ export const useTradingSellForm = ({
         };
     };
 
-    const doSellTrade = async (quote: SellFiatTrade) => {
-        const commonFunctions = await getCommonFunctions(quote);
+    const doSellTrade = async (trade: SellFiatTrade) => {
+        const commonFunctions = await getCommonFunctions(trade);
 
         if (!commonFunctions) return;
 
@@ -267,7 +267,7 @@ export const useTradingSellForm = ({
         await dispatch(
             sellThunks.handleTradeThunk({
                 account,
-                quote,
+                trade,
                 returnUrl,
                 processResponseData,
             }),
