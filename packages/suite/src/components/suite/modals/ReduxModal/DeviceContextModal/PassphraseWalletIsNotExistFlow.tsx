@@ -11,8 +11,10 @@ type PassphraseWalletIsNotExistFlowProps = {
     deviceOffer: boolean;
     passphraseState: string;
     loading: boolean;
+    onCancel: () => void;
     onSubmit: (value: string, passphraseOnDevice?: boolean) => void;
     submittingPassphrase?: boolean;
+    isAddingHiddenWalletWithRespectToSettings?: boolean;
 };
 
 export const PassphraseWalletIsNotExistFlow = ({
@@ -21,19 +23,17 @@ export const PassphraseWalletIsNotExistFlow = ({
     passphraseState,
     loading,
     onSubmit,
+    onCancel,
     submittingPassphrase,
+    isAddingHiddenWalletWithRespectToSettings,
 }: PassphraseWalletIsNotExistFlowProps) => {
     const dispatch = useDispatch();
-
-    const onConfirmPassphraseDialogCancel = () => {
-        dispatch(cancelDiscoveryThunk(device));
-    };
 
     if (passphraseState === 'not-exist-confirm-passphrase') {
         return (
             <PassphraseWalletConfirmation
                 deviceLoading={loading}
-                onCancel={onConfirmPassphraseDialogCancel}
+                onCancel={onCancel}
                 onSubmit={onSubmit}
                 device={device}
                 onDeviceOffer={deviceOffer}
@@ -44,6 +44,7 @@ export const PassphraseWalletIsNotExistFlow = ({
     if (passphraseState === 'not-exist-enter-passphrase') {
         return (
             <EnterPassphrase
+                cancelDisabled={isAddingHiddenWalletWithRespectToSettings}
                 deviceLoading={loading}
                 device={device}
                 submitting={submittingPassphrase}
@@ -55,10 +56,11 @@ export const PassphraseWalletIsNotExistFlow = ({
                             device,
                             isAddingHiddenWallet: true,
                             isAddingExistingWallet: false,
+                            isAddingHiddenWalletWithRespectToSettings,
                         }),
                     );
                 }}
-                onCancel={() => dispatch(cancelDiscoveryThunk(device))}
+                onCancel={onCancel}
                 onSubmit={onSubmit}
             />
         );

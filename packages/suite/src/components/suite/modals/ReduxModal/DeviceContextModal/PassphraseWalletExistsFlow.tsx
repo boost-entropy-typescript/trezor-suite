@@ -18,8 +18,11 @@ type PassphraseWalletExistsFlowProps = {
     authConfirmation?: boolean;
     passphraseState: string;
     submittingPassphrase: boolean;
+    isAddingHiddenWalletWithRespectToSettings: boolean;
     loading: boolean;
+    onCancel: () => void;
     onSubmit: (value: string, passphraseOnDevice?: boolean) => void;
+    onBackToInitial: () => void;
 };
 
 export const PassphraseWalletExistsFlow = ({
@@ -28,21 +31,16 @@ export const PassphraseWalletExistsFlow = ({
     deviceOffer,
     passphraseState,
     submittingPassphrase,
+    isAddingHiddenWalletWithRespectToSettings,
     loading,
+    onCancel,
     onSubmit,
+    onBackToInitial,
 }: PassphraseWalletExistsFlowProps) => {
     const dispatch = useDispatch();
     const [confirmPassphraseFlowState, setConfirmPassphraseFlowState] = useState<
         'exists-empty-wallet' | 'exists-best-practices' | 'exists-confirm-passphrase'
     >('exists-empty-wallet');
-
-    const onConfirmPassphraseDialogCancel = () => {
-        dispatch(cancelDiscoveryThunk(device));
-    };
-
-    const onCancel = () => {
-        dispatch(cancelDiscoveryThunk(device));
-    };
 
     const toExistEnterPassphrase = () => {
         dispatch(cancelDiscoveryThunk(device));
@@ -59,7 +57,7 @@ export const PassphraseWalletExistsFlow = ({
             case 'exists-empty-wallet':
                 return (
                     <PassphraseWalletIsEmpty
-                        onCancel={onConfirmPassphraseDialogCancel}
+                        onCancel={onCancel}
                         onNext={() => {
                             // Navigate to best practices
                             setConfirmPassphraseFlowState('exists-best-practices');
@@ -72,7 +70,7 @@ export const PassphraseWalletExistsFlow = ({
             case 'exists-best-practices':
                 return (
                     <PassphraseWalletBestPractices
-                        onCancel={onConfirmPassphraseDialogCancel}
+                        onCancel={onCancel}
                         onNext={() => {
                             // Navigate to confirm passphrase
                             setConfirmPassphraseFlowState('exists-confirm-passphrase');
@@ -87,9 +85,10 @@ export const PassphraseWalletExistsFlow = ({
             case 'exists-confirm-passphrase':
                 return (
                     <PassphraseWalletConfirmation
+                        isExistingWallet={true}
                         deviceLoading={loading}
                         device={device}
-                        onCancel={onConfirmPassphraseDialogCancel}
+                        onCancel={onCancel}
                         onDeviceOffer={deviceOffer}
                         onSubmit={onSubmit}
                     />
@@ -99,11 +98,13 @@ export const PassphraseWalletExistsFlow = ({
 
     return (
         <EnterPassphrase
+            isExistingWallet={true}
+            cancelDisabled={isAddingHiddenWalletWithRespectToSettings}
             deviceLoading={loading}
             device={device}
             submitting={submittingPassphrase}
             onDeviceOffer={deviceOffer}
-            onBack={onCancel}
+            onBack={onBackToInitial}
             onCancel={onCancel}
             onSubmit={onSubmit}
         />

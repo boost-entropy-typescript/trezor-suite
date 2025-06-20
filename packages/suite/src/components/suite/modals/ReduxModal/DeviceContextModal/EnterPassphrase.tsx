@@ -1,22 +1,30 @@
+import { useState } from 'react';
+
+import { useTheme } from 'styled-components';
+
 import { TrezorDevice } from '@suite-common/suite-types';
 import { selectDeviceModel } from '@suite-common/wallet-core';
-import { Column, H3, Icon, List } from '@trezor/components';
-import { PassphraseTypeCard } from '@trezor/product-components';
+import { Card, Collapsible, Column, H3, H4, Icon, Paragraph, Row, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { HELP_CENTER_PASSPHRASE_URL } from '@trezor/urls';
+import { getNonAsciiChars } from '@trezor/utils';
 
+import { LearnMoreButton } from 'src/components/suite/LearnMoreButton';
+import { TrezorLink } from 'src/components/suite/TrezorLink';
+
+import { PassphraseInputCard } from './PassphraseInputCard';
 import { useSelector } from '../../../../../hooks/suite';
 import { CardWithDevice } from '../../../../../views/suite/SwitchDevice/CardWithDevice';
 import { SwitchDeviceModal } from '../../../../../views/suite/SwitchDevice/SwitchDeviceModal';
-import { OpenGuideFromTooltip } from '../../../../guide';
-import { Translation } from '../../../Translation';
-import { TrezorLink } from '../../../TrezorLink';
+import { Translation, TranslationKey } from '../../../Translation';
 
 type EnterPassphraseProps = {
     onDeviceOffer: boolean;
+    cancelDisabled?: boolean;
     device: TrezorDevice;
     deviceLoading?: boolean;
     submitting?: boolean;
+    isExistingWallet?: boolean;
     onBack: () => void;
     onCancel: () => void;
     onSubmit: (value: string, passphraseOnDevice?: boolean) => void;
@@ -24,68 +32,181 @@ type EnterPassphraseProps = {
 
 export const EnterPassphrase = ({
     device,
+    cancelDisabled,
     deviceLoading,
     onDeviceOffer,
+    isExistingWallet = false,
     submitting,
     onBack,
     onCancel,
     onSubmit,
 }: EnterPassphraseProps) => {
+    const [value, setValue] = useState('');
+    const theme = useTheme();
     const deviceModel = useSelector(selectDeviceModel);
+    const isUsingNonAsciiCharacters = getNonAsciiChars(value) !== null;
 
     return (
         <SwitchDeviceModal isAnimationEnabled onCancel={onCancel}>
             <CardWithDevice
+                cancelDisabled={cancelDisabled}
                 onCancel={onCancel}
                 device={device}
                 onBackButtonClick={onBack}
                 isFullHeaderVisible
             >
-                <Column gap={spacings.sm} margin={{ top: spacings.xxs }}>
-                    <H3>
-                        <Translation id="TR_PASSPHRASE_HIDDEN_WALLET" />
-                    </H3>
-                    <List gap={spacings.sm} bulletGap={spacings.md} typographyStyle="hint">
-                        <List.Item bulletComponent={<Icon name="info" size={16} />}>
-                            <Translation
-                                id="TR_PASSPHRASE_DESCRIPTION_ITEM1"
-                                values={{
-                                    a: chunks => (
-                                        <TrezorLink
-                                            target="_blank"
-                                            variant="underline"
+                <Column gap={spacings.xl}>
+                    <Column gap={spacings.md} padding={{ horizontal: spacings.xs }}>
+                        <H3>
+                            {isExistingWallet ? (
+                                <Translation id="TR_PASSPHRASE_OPEN_USED_HEADING" />
+                            ) : (
+                                <Translation id="TR_PASSPHRASE_CREATE_NEW_HEADING" />
+                            )}
+                        </H3>
+                        <Column gap={spacings.sm}>
+                            {isExistingWallet ? (
+                                <>
+                                    <Row gap={spacings.sm}>
+                                        <Icon variant="info" name="warningCircle" size={16} />
+                                        <Paragraph variant="info" typographyStyle="callout">
+                                            <Translation
+                                                id="TR_PASSPHRASE_DESCRIPTION_ITEM1"
+                                                values={{
+                                                    a: text => (
+                                                        <TrezorLink
+                                                            href={HELP_CENTER_PASSPHRASE_URL}
+                                                            target="_blank"
+                                                            variant="underline"
+                                                            color={theme.textAlertBlue}
+                                                        >
+                                                            {text}
+                                                        </TrezorLink>
+                                                    ),
+                                                }}
+                                            />
+                                        </Paragraph>
+                                    </Row>
+                                    <Row gap={spacings.sm}>
+                                        <Icon name="warning" size={16} />
+                                        <Paragraph variant="tertiary" typographyStyle="hint">
+                                            <Translation id="TR_PASSPHRASE_DESCRIPTION_ITEM3" />
+                                        </Paragraph>
+                                    </Row>
+                                </>
+                            ) : (
+                                <Row gap={spacings.sm}>
+                                    <Icon name="password" size={16} />
+                                    <Paragraph variant="tertiary" typographyStyle="hint">
+                                        <Translation id="TR_PASSPHRASE_DESCRIPTION_ITEM2" />
+                                    </Paragraph>
+                                </Row>
+                            )}
+                            <Collapsible
+                                gap={spacings.sm}
+                                isOpen={isUsingNonAsciiCharacters ? true : undefined}
+                            >
+                                <Collapsible.Toggle>
+                                    <Row gap={spacings.sm}>
+                                        <Icon name="hash" size={16} />
+                                        <Paragraph
+                                            variant="tertiary"
                                             typographyStyle="hint"
-                                            href={HELP_CENTER_PASSPHRASE_URL}
+                                            flex="1"
                                         >
-                                            {chunks}
-                                        </TrezorLink>
-                                    ),
-                                }}
-                            />
-                        </List.Item>
-                        <List.Item bulletComponent={<Icon name="asterisk" size={16} />}>
-                            <Translation id="TR_PASSPHRASE_DESCRIPTION_ITEM2" />
-                        </List.Item>
-                        <List.Item bulletComponent={<Icon name="warning" size={16} />}>
-                            <Translation id="TR_PASSPHRASE_DESCRIPTION_ITEM3" />
-                        </List.Item>
-                    </List>
-                    <PassphraseTypeCard
-                        deviceLoading={deviceLoading}
-                        submitLabel={<Translation id="TR_ACCESS_HIDDEN_WALLET" />}
-                        submitting={submitting}
-                        type="hidden"
-                        singleColModal
-                        offerPassphraseOnDevice={onDeviceOffer}
-                        onSubmit={onSubmit}
+                                            <Translation
+                                                id="TR_PASSPHRASE_NON_ASCII_CHARS"
+                                                values={{
+                                                    code: text => (
+                                                        <Text isHighlighted isMonospaced>
+                                                            {text}
+                                                        </Text>
+                                                    ),
+                                                }}
+                                            />
+                                        </Paragraph>
+                                        <Collapsible.ToggleIcon size={16} />
+                                    </Row>
+                                </Collapsible.Toggle>
+                                <Collapsible.Content>
+                                    <Card
+                                        fillType="flat"
+                                        paddingType="tiny"
+                                        footer={
+                                            <Row gap={spacings.sm} justifyContent="space-between">
+                                                <Paragraph
+                                                    typographyStyle="label"
+                                                    variant="tertiary"
+                                                >
+                                                    <Translation id="TR_PASSPHRASE_NON_ASCII_CHARS_WARNING" />
+                                                </Paragraph>
+                                                <LearnMoreButton
+                                                    url={HELP_CENTER_PASSPHRASE_URL}
+                                                    target="_blank"
+                                                >
+                                                    <Translation id="TR_LEARN" />
+                                                </LearnMoreButton>
+                                            </Row>
+                                        }
+                                    >
+                                        <Text isMonospaced typographyStyle="hint">
+                                            {
+                                                '! " # $ % & \\ \' ( ) * +  - . / : ; < = > ? @ [  ] ^ _ ` { | } ~'
+                                            }
+                                        </Text>
+                                    </Card>
+                                </Collapsible.Content>
+                            </Collapsible>
+                            {!isExistingWallet && (
+                                <Collapsible gap={spacings.sm}>
+                                    <Collapsible.Toggle>
+                                        <Row gap={spacings.sm}>
+                                            <Icon name="lightbulb" size={16} />
+                                            <Paragraph
+                                                variant="tertiary"
+                                                typographyStyle="hint"
+                                                flex="1"
+                                            >
+                                                <Translation id="TR_PASSPHRASE_EXAMPLES" />
+                                            </Paragraph>
+                                            <Collapsible.ToggleIcon size={16} />
+                                        </Row>
+                                    </Collapsible.Toggle>
+                                    <Collapsible.Content>
+                                        <Column gap={spacings.sm}>
+                                            {[1, 2, 3].map(item => (
+                                                <Card fillType="flat" paddingType="tiny" key={item}>
+                                                    <H4 typographyStyle="callout" variant="primary">
+                                                        <Translation
+                                                            id={
+                                                                `TR_PASSPHRASE_EXAMPLES_ITEM${item}_HEADING` as TranslationKey
+                                                            }
+                                                        />
+                                                    </H4>
+                                                    <Text isMonospaced typographyStyle="hint">
+                                                        <Translation
+                                                            id={
+                                                                `TR_PASSPHRASE_EXAMPLES_ITEM${item}_DESCRIPTION` as TranslationKey
+                                                            }
+                                                        />
+                                                    </Text>
+                                                </Card>
+                                            ))}
+                                        </Column>
+                                    </Collapsible.Content>
+                                </Collapsible>
+                            )}
+                        </Column>
+                    </Column>
+                    <PassphraseInputCard
                         deviceModel={deviceModel ?? undefined}
-                        deviceBackup={device.features?.backup_type}
-                        learnMoreTooltipOnClick={
-                            <OpenGuideFromTooltip
-                                data-testid="@tooltip/guideAnchor"
-                                id="/1_initialize-and-secure-your-trezor/6_passphrase.md"
-                            />
-                        }
+                        deviceLoading={deviceLoading}
+                        isLoading={submitting}
+                        onSubmit={onSubmit}
+                        offerPassphraseOnDevice={onDeviceOffer}
+                        allowNonAsciiCharacters={isExistingWallet}
+                        value={value}
+                        setValue={setValue}
                     />
                 </Column>
             </CardWithDevice>

@@ -1,10 +1,9 @@
-import { motion } from 'framer-motion';
 import styled from 'styled-components';
 
 import { getDeviceInternalModel } from '@suite-common/suite-utils';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { IconButton, IconName, Row, TOOLTIP_DELAY_LONG, Tooltip } from '@trezor/components';
-import { spacings, spacingsPx } from '@trezor/theme';
+import { IconButton, Row, TOOLTIP_DELAY_LONG, Tooltip } from '@trezor/components';
+import { spacings } from '@trezor/theme';
 
 import { Translation, WebUsbButton } from 'src/components/suite';
 import { WebUsbIconButton } from 'src/components/suite/WebUsbButton';
@@ -20,31 +19,24 @@ const Container = styled.div<{ $isFullHeaderVisible: boolean }>`
     ${({ $isFullHeaderVisible }) => ($isFullHeaderVisible ? `cursor: pointer;` : '')}
 `;
 
-const DeviceActions = styled.div`
-    display: flex;
-    align-items: center;
-    margin-left: ${spacingsPx.lg};
-    gap: ${spacingsPx.xxs};
-`;
-
-interface DeviceHeaderProps {
+type DeviceHeaderProps = {
     device: TrezorDevice;
+    cancelDisabled?: boolean;
     onCancel?: ForegroundAppProps['onCancel'];
     isFullHeaderVisible: boolean;
     onBackButtonClick?: () => void;
     isFindTrezorVisible?: boolean;
     forceConnectionInfo: boolean;
-    icon?: IconName;
-}
+};
 
 export const DeviceHeader = ({
     onCancel,
+    cancelDisabled,
     device,
     isFullHeaderVisible,
     onBackButtonClick,
     isFindTrezorVisible = false,
     forceConnectionInfo,
-    icon = 'caretCircleDown',
 }: DeviceHeaderProps) => {
     const selectedDevice = useSelector(selectSelectedDevice);
     const isWebUsbTransport = useSelector(selectHasTransportOfType('WebUsbTransport'));
@@ -52,7 +44,7 @@ export const DeviceHeader = ({
     const deviceModelInternal = getDeviceInternalModel(device);
 
     const onHeaderClick = () => {
-        if (isFullHeaderVisible && onCancel) {
+        if (isFullHeaderVisible && onCancel && !cancelDisabled) {
             onCancel();
         }
     };
@@ -79,7 +71,7 @@ export const DeviceHeader = ({
                 )}
             </Row>
 
-            <DeviceActions>
+            <Row gap={spacings.xxs} margin={{ left: spacings.lg }}>
                 {isFullHeaderVisible &&
                     isWebUsbTransport &&
                     isFindTrezorVisible &&
@@ -88,27 +80,18 @@ export const DeviceHeader = ({
                     ) : (
                         <WebUsbButton variant="primary" size="tiny" />
                     ))}
-                {isFullHeaderVisible && (
+                {isFullHeaderVisible && !cancelDisabled && (
                     <Tooltip delayShow={TOOLTIP_DELAY_LONG} content={<Translation id="TR_CLOSE" />}>
-                        <motion.div
-                            exit={{ rotate: 0 }}
-                            animate={{
-                                rotate: 180,
-                            }}
-                            style={{ originX: '50%', originY: '50%' }}
-                        >
-                            <IconButton
-                                icon={icon}
-                                iconSize={20}
-                                size="small"
-                                variant="tertiary"
-                                onClick={() => onCancel?.()}
-                                data-testid="@switch-device/cancel-button"
-                            />
-                        </motion.div>
+                        <IconButton
+                            icon="x"
+                            size="small"
+                            variant="tertiary"
+                            onClick={() => onCancel?.()}
+                            data-testid="@switch-device/cancel-button"
+                        />
                     </Tooltip>
                 )}
-            </DeviceActions>
+            </Row>
         </Container>
     );
 };

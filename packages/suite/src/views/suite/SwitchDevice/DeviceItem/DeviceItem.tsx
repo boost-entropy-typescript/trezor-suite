@@ -23,14 +23,18 @@ const WalletsWrapper = styled.div<{ $enabled: boolean }>`
 `;
 
 interface DeviceItemProps {
+    cancelable: boolean;
     device: TrezorDevice;
+    isAddingHiddenWalletWithRespectToSettings?: boolean;
     instances: AcquiredDevice[];
     onCancel: ForegroundAppProps['onCancel'];
     isFullHeaderVisible?: boolean;
 }
 
 export const DeviceItem = ({
+    cancelable,
     device,
+    isAddingHiddenWalletWithRespectToSettings,
     instances,
     onCancel,
     isFullHeaderVisible,
@@ -42,12 +46,13 @@ export const DeviceItem = ({
     return (
         <CardWithDevice
             isFindTrezorVisible
+            cancelDisabled={!cancelable}
             onCancel={onCancel}
             device={device}
             isFullHeaderVisible={isFullHeaderVisible}
         >
             <WalletsWrapper $enabled>
-                <Column gap={spacings.xs} margin={{ top: spacings.xxs }}>
+                <Column gap={spacings.sm}>
                     {instancesWithState.length > 0 && (
                         <Column gap={spacings.xs}>
                             {instancesWithState.map((instance, index) => (
@@ -65,7 +70,14 @@ export const DeviceItem = ({
                             ))}
                         </Column>
                     )}
-                    <AddWalletButton device={device} instances={instances} onCancel={onCancel} />
+                    <AddWalletButton
+                        device={device}
+                        instances={instances}
+                        onCancel={onCancel}
+                        isAddingHiddenWalletWithRespectToSettings={
+                            isAddingHiddenWalletWithRespectToSettings
+                        }
+                    />
                 </Column>
             </WalletsWrapper>
         </CardWithDevice>

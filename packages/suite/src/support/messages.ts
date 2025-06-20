@@ -2068,12 +2068,11 @@ export default defineMessages({
     },
     TR_PASSPHRASE_NON_ASCII_CHARS: {
         defaultMessage:
-            'Use only  <code>ABC</code>, <code>abc</code>, <code>123</code>, <code>spaces</code> and <code>these special characters</code>',
+            'You can use <code>ABC</code>, <code>abc</code>, <code>123</code>, <code>spaces</code> and <code>some special characters</code>',
         id: 'TR_PASSPHRASE_NON_ASCII_CHARS',
     },
     TR_PASSPHRASE_NON_ASCII_CHARS_WARNING: {
-        defaultMessage:
-            'The use of unlisted special characters may cause compatibility issues in the future.',
+        defaultMessage: 'Using other characters may risk future compatibility',
         id: 'TR_PASSPHRASE_NON_ASCII_CHARS_WARNING',
     },
     TR_CONFIRMED_TX: {
@@ -2484,7 +2483,7 @@ export default defineMessages({
         id: 'TR_ENTER_PASSPHRASE',
     },
     TR_ENTER_PASSPHRASE_ON_DEVICE: {
-        defaultMessage: 'Enter passphrase on Trezor',
+        defaultMessage: 'or enter on Trezor',
         id: 'TR_ENTER_PASSPHRASE_ON_DEVICE',
     },
     TR_ENTER_PASSPHRASE_ON_DEVICE_LABEL: {
@@ -4773,6 +4772,10 @@ export default defineMessages({
     TR_REMOVE: {
         id: 'TR_REMOVE',
         defaultMessage: 'Remove',
+    },
+    TR_REMOVE_NON_RECOMMENDED_CHARACTERS: {
+        id: 'TR_REMOVE_NON_RECOMMENDED_CHARACTERS',
+        defaultMessage: 'Remove non-recommended characters',
     },
     TR_FIRMWARE_STATUS_INSTALLATION_COMPLETED: {
         id: 'TR_FIRMWARE_STATUS_INSTALLATION_COMPLETED',
@@ -9782,18 +9785,54 @@ export default defineMessages({
         defaultMessage:
             'Write it down on paper, store it in a safe place, and keep it away from anything digital. No one can recover it, not even Trezor Support.',
     },
+    TR_PASSPHRASE_CREATE_NEW_HEADING: {
+        id: 'TR_PASSPHRASE_CREATE_NEW_HEADING',
+        defaultMessage: 'Create your passphrase',
+    },
+    TR_PASSPHRASE_OPEN_USED_HEADING: {
+        id: 'TR_PASSPHRASE_OPEN_USED_HEADING',
+        defaultMessage: 'Open previously used',
+    },
     TR_PASSPHRASE_DESCRIPTION_ITEM1: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM1',
-        defaultMessage: "It's important to first learn how a passphrase works.",
+        defaultMessage: "It's important to first learn <a>how a passphrase works</a>.",
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM2: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM2',
-        defaultMessage: 'A passphrase opens a wallet secured by that phrase.',
+        defaultMessage: 'Use something long, unique and unpredictable.',
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM3: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM3',
         defaultMessage:
             'No one can recover your passphrase or wallet backup, not even Trezor Support.',
+    },
+    TR_PASSPHRASE_EXAMPLES: {
+        id: 'TR_PASSPHRASE_EXAMPLES',
+        defaultMessage: 'Examples',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM1_HEADING: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM1_HEADING',
+        defaultMessage: 'A few uncommon random words',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM1_DESCRIPTION: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM1_DESCRIPTION',
+        defaultMessage: 'freeway oppose spinout managing',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM2_HEADING: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM2_HEADING',
+        defaultMessage: 'Use 10 or more random letters and numbers — mix upper and lowercase.',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM2_DESCRIPTION: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM2_DESCRIPTION',
+        defaultMessage: 'aM7xQ9zLpV',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM3_HEADING: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM3_HEADING',
+        defaultMessage: 'Create a sentence only you would think of — not from a book or movie.',
+    },
+    TR_PASSPHRASE_EXAMPLES_ITEM3_DESCRIPTION: {
+        id: 'TR_PASSPHRASE_EXAMPLES_ITEM3_DESCRIPTION',
+        defaultMessage: 'Red clouds drifted above the silent forest as shadows stretched.',
     },
     TR_UNRECOGNIZED: {
         id: 'TR_UNRECOGNIZED',
