@@ -130,11 +130,11 @@ const suiteBaseTest = base.extend<suiteBaseFixture>({
     emulatorStartConf: { model: 'T3T1', wipe: true },
     emulatorSetupConf: {},
     electronConf: {},
-    /* eslint-disable-next-line no-empty-pattern */
+
     url: async ({}, use, testInfo) => {
         await use(getUrl(testInfo));
     },
-    /* eslint-disable-next-line no-empty-pattern */
+
     trezorUserEnvLink: async ({}, use) => {
         await use(TrezorUserEnvLinkProxy);
     },

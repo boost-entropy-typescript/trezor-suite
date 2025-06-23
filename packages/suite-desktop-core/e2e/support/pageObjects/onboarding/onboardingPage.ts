@@ -92,6 +92,7 @@ export class OnboardingPage {
     async optionallyDismissFwHashCheckError() {
         await this.verifySuiteIsLoaded();
         // dismisses the error modal only if it appears (handle it async in parallel, not necessary to block the rest of the flow)
+        // eslint-disable-next-line playwright/no-element-handle
         this.page
             .$('[data-testid="@device-compromised/dismiss-button"]')
             .then(dismissFwHashCheckButton => dismissFwHashCheckButton?.click());
@@ -118,10 +119,10 @@ export class OnboardingPage {
     @step()
     async completeTransactionOnboarding() {
         // NOTE: this tooltip may cover the underlying UI so it is not clickable
-        const hideScamTransactionsTooltipGotItButton = await this.page.getByTestId(
+        const hideScamTransactionsTooltipGotItButton = this.page.getByTestId(
             '@hideScamTransactionsTooltip/gotIt',
         );
-        const scamTransactionsDropdown = await this.page.getByTestId(
+        const scamTransactionsDropdown = this.page.getByTestId(
             '@wallet/accounts/hide-scam-transactions/dropdown',
         );
 

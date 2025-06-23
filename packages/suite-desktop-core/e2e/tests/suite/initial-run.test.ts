@@ -14,12 +14,10 @@ test.describe('Suite initial run', { tag: ['@group=suite'] }, () => {
         await expect(analyticsSection.toggleSwitch).toBeVisible();
         await analyticsSection.continueButton.click();
 
-        await page.waitForSelector("button[data-testid='@onboarding/exit-app-button']", {
-            state: 'visible',
-        });
+        await expect(page.getByTestId('@onboarding/exit-app-button')).toBeVisible();
 
         await page.reload();
-        await expect(analyticsSection.toggleSwitch).not.toBeVisible();
+        await expect(analyticsSection.toggleSwitch).toBeHidden();
         await expect(onboardingPage.onboardingContinueButton).toBeVisible();
     });
 

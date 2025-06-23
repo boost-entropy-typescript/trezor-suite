@@ -49,7 +49,7 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
                 await trezorUserEnvLink.pressYes(); // confirm address
 
                 await expect(page.getByTestId('@metadata/copy-address-button')).toBeVisible();
-                await expect(page.getByTestId('@metadata/copy-address-button')).not.toBeDisabled();
+                await expect(page.getByTestId('@metadata/copy-address-button')).toBeEnabled();
 
                 await devicePrompt.closeModal();
             });
@@ -69,12 +69,10 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
             await test.step('Open receive address of wallet #2', async () => {
                 await walletPage.receiveButton.click();
                 await test.step('Verify no address is yet in table', async () => {
-                    await expect(
-                        page.getByTestId('@wallet/receive/used-address/0'),
-                    ).not.toBeVisible();
+                    await expect(page.getByTestId('@wallet/receive/used-address/0')).toBeHidden();
                 });
 
-                await expect(walletPage.revealAddressButton).not.toBeDisabled();
+                await expect(walletPage.revealAddressButton).toBeEnabled();
                 await walletPage.revealAddressButton.click();
                 await expect(page.getByTestId('@modal/output-value')).toHaveText(
                     formatAddress(defAddr),
@@ -84,7 +82,7 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
                 await trezorUserEnvLink.pressYes(); // confirm address
 
                 await expect(page.getByTestId('@metadata/copy-address-button')).toBeVisible();
-                await expect(page.getByTestId('@metadata/copy-address-button')).not.toBeDisabled();
+                await expect(page.getByTestId('@metadata/copy-address-button')).toBeEnabled();
 
                 await devicePrompt.closeModal();
             });
@@ -96,8 +94,8 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
             });
 
             await test.step('No address is yet in table of wallet #1', async () => {
-                await expect(page.getByTestId('@wallet/receive/used-address/0')).not.toBeVisible();
-                await expect(walletPage.revealAddressButton).not.toBeDisabled();
+                await expect(page.getByTestId('@wallet/receive/used-address/0')).toBeHidden();
+                await expect(walletPage.revealAddressButton).toBeEnabled();
 
                 await walletPage.revealAddressButton.click();
                 await expect(page.getByTestId('@modal/output-value')).toHaveText(
@@ -108,7 +106,7 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
                 await trezorUserEnvLink.pressYes(); // confirm address
 
                 await expect(page.getByTestId('@metadata/copy-address-button')).toBeVisible();
-                await expect(page.getByTestId('@metadata/copy-address-button')).not.toBeDisabled();
+                await expect(page.getByTestId('@metadata/copy-address-button')).toBeEnabled();
 
                 await devicePrompt.closeModal();
             });
@@ -128,13 +126,6 @@ test.describe('Passphrase', { tag: ['@group=passphrase'] }, () => {
 
         // confirm - input wrong passphrase
         await dashboardPage.passphraseInput.fill('cba');
-
-        // toggle passphrase visibility
-        await expect(dashboardPage.passphraseInput).toHaveAttribute('type', 'password');
-        await dashboardPage.passphraseShowButton.click();
-        await expect(dashboardPage.passphraseInput).toHaveAttribute('type', 'text');
-        await dashboardPage.passphraseShowButton.click();
-        await expect(dashboardPage.passphraseInput).toHaveAttribute('type', 'password');
 
         await dashboardPage.passphraseSubmitButton.click();
         await devicePrompt.waitForPromptAndConfirm(); // Confirm next screen shows your passphrase

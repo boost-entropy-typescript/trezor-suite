@@ -41,7 +41,7 @@ test.describe('Database migration', { tag: ['@group=migrations', '@webOnly'] }, 
                 await page.goto(`${suiteDevInstance}/${migrateFromVersion}`);
                 await page.locator('[data-test="@onboarding/continue-button"]').click();
                 await page.locator('[data-test="@onboarding/exit-app-button"]').click();
-                await expect(page.locator('[data-test="@suite/loading"]')).not.toBeVisible();
+                await expect(page.locator('[data-test="@suite/loading"]')).toBeHidden();
                 await page.locator('[data-test="@passphrase-type/standard"]').click();
                 await discoveryBar.waitFor({ state: 'visible', timeout: 45000 });
                 await discoveryBar.waitFor({ state: 'hidden', timeout: 45000 });
@@ -87,6 +87,9 @@ test.describe('Database migration', { tag: ['@group=migrations', '@webOnly'] }, 
 
                     return metadataOutputLabel.textContent();
                 });
+            if (!originalTxLabel) {
+                throw new Error('Original transaction label is empty');
+            }
 
             await test.step('Remember the wallet and stop Emulator', async () => {
                 await page.locator('[data-test="@menu/switch-device"]').click();
@@ -116,8 +119,8 @@ test.describe('Database migration', { tag: ['@group=migrations', '@webOnly'] }, 
                 await dashboardPage.deviceSwitchingCloseButton.click();
                 const firstTxLabel = page.getByTestId('@wallet/transaction/target-address').first();
                 await expect(firstTxLabel).toBeVisible();
-                const afterMigrationTxLabel = await firstTxLabel.textContent();
-                expect(afterMigrationTxLabel).toBe(originalTxLabel);
+                const afterMigrationTxLabel = firstTxLabel;
+                await expect(afterMigrationTxLabel).toHaveText(originalTxLabel);
             });
 
             // go to receive tab, trigger show address to make sure passphrase is properly cached
@@ -127,7 +130,7 @@ test.describe('Database migration', { tag: ['@group=migrations', '@webOnly'] }, 
                 await walletPage.revealAddressButton.click();
                 await expect(page.getByTestId('@modal')).toBeVisible();
                 await devicePrompt.closeModal();
-                await expect(page.getByTestId('@modal')).not.toBeVisible();
+                await expect(page.getByTestId('@modal')).toBeHidden();
             });
 
             await test.step('Reconnect Emulator', async () => {

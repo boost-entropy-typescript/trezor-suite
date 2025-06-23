@@ -1,4 +1,8 @@
-import { eslint, globalNoExtraneousDependenciesDevDependencies } from '@trezor/eslint';
+import {
+    eslint,
+    globalNoExtraneousDependenciesDevDependencies,
+    playwrightEslint,
+} from '@trezor/eslint';
 
 export default [
     ...eslint,
@@ -27,4 +31,5 @@ export default [
             'import/no-default-export': 'off',
         },
     },
+    playwrightEslint,
 ];

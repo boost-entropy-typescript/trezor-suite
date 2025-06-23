@@ -79,7 +79,7 @@ export const migrateToV56: OnUpgradeFunc<SuiteDBSchema> = async (
 
     // 1. Migration coinmarketTrades to tradingTrades
     // @ts-expect-error - old type
-    if (db.objectStoreNames.contains(oldStoreName)) {
+    if (db.objectStoreNames.contains(oldStoreName) && !db.objectStoreNames.contains(newStoreName)) {
         // @ts-expect-error - old type
         const trades = transaction.objectStore(oldStoreName);
         let tradesCursor = await trades.openCursor();
@@ -165,20 +165,8 @@ export const migrateToV56: OnUpgradeFunc<SuiteDBSchema> = async (
         return trade;
     });
 
-    // 3. Update draft keys to trading
-    const formDrafts = transaction.objectStore('formDrafts');
-    const formDraftsKeys = (await formDrafts.getAllKeys()).filter(key =>
-        key.includes('coinmarket'),
-    );
-
-    formDraftsKeys.forEach(async key => {
-        const draft = await formDrafts.get(key);
-
-        if (draft) {
-            formDrafts.add(draft, key.replace('coinmarket', 'trading'));
-            formDrafts.delete(key);
-        }
-    });
+    // 3. Remove form drafts
+    transaction.objectStore('formDrafts').clear();
 
     // 4. add explorer object store, if it does not exist
     if (!db.objectStoreNames.contains('explorer')) {
@@ -186,8 +174,12 @@ export const migrateToV56: OnUpgradeFunc<SuiteDBSchema> = async (
     }
 
     // 5. add thp and bluetooth object stores
-    db.createObjectStore('thp');
-    db.createObjectStore('bluetooth');
+    if (!db.objectStoreNames.contains('thp')) {
+        db.createObjectStore('thp');
+    }
+    if (!db.objectStoreNames.contains('bluetooth')) {
+        db.createObjectStore('bluetooth');
+    }
 
     // 6. refetch solana txs
     const accountsToUpdate = ['sol', 'dsol'];

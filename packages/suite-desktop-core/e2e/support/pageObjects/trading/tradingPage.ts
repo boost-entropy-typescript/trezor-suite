@@ -294,7 +294,7 @@ export class TradingPage {
         await expect(
             this.page.getByText('Not enough funds'),
             'Insufficient funds in the account to run sell flow test. Please contact the "tech_qa" Slack group immediately.',
-        ).not.toBeVisible();
+        ).toBeHidden();
         await expect(quoteRequestPromise).toHavePayload({
             amountInCrypto: true,
             cryptoCurrency,
@@ -315,7 +315,7 @@ export class TradingPage {
         await expect(
             this.page.getByText('Not enough funds'),
             'Insufficient funds in the account to run sell flow test. Please contact the "tech_qa" Slack group immediately.',
-        ).not.toBeVisible();
+        ).toBeHidden();
 
         await expect(this.offerSpinner).toBeHidden({ timeout: 30000 });
     }
@@ -423,16 +423,16 @@ export class TradingPage {
         const displayedQuotes = await this.quotes.all();
         for (const [index, quote] of displayedQuotes.entries()) {
             //validate provider of the quote row
-            const provider = await quote.getByTestId(quoteProviderLocator).textContent();
+            const provider = quote.getByTestId(quoteProviderLocator);
             const expectedProvider = getCompanyNameFromList(
                 expectedQuotes[index].exchange,
                 listType,
             );
-            expect.soft(provider).toBe(expectedProvider);
+            await expect.soft(provider).toHaveText(expectedProvider);
             //validate amount of the quote row
-            const amount = await quote.getByTestId('@trading/offers/quote/amount').textContent();
+            const amount = quote.getByTestId('@trading/offers/quote/amount');
             const expectedAmount = formatExpectedAmount(expectedQuotes[index]);
-            expect.soft(amount).toBe(expectedAmount);
+            await expect.soft(amount).toHaveText(expectedAmount);
         }
     }
 
@@ -456,7 +456,7 @@ export class TradingPage {
 
     @step()
     async waitForRedirectCompletion() {
-        await expect(this.page.getByText('Buy & sell')).not.toBeVisible();
+        await expect(this.page.getByText('Buy & sell')).toBeHidden();
         await expect(this.page.getByText('Buy & sell')).toBeVisible({ timeout: 30_000 });
     }
 

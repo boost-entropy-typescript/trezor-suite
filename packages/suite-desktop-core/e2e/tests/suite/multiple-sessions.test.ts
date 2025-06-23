@@ -54,7 +54,7 @@ test.describe('Multiple sessions', { tag: ['@group=suite'] }, () => {
                     await dashboardPage.deviceSwitchingOpenButton.click();
                     // TODO: #16601 Uncomment once fixed
                     // await expect(dashboardPage.deviceStatusOnSwitchDevice).toHaveText('Refresh');
-                    await expect(dashboardPage.walletAtIndex(0)).not.toBeVisible();
+                    await expect(dashboardPage.walletAtIndex(0)).toBeHidden();
                 });
 
                 await test.step('Take Bridge session back', async () => {
@@ -73,6 +73,7 @@ test.describe('Multiple sessions', { tag: ['@group=suite'] }, () => {
 
                 if (!enableViewOnly) {
                     await test.step('After reloading inactive suite session does not take Bridge session back', async () => {
+                        // eslint-disable-next-line playwright/no-conditional-expect
                         await expect(devicePrompt.connectDevicePrompt).toHaveText(
                             'Failed to communicate with your Trezor',
                         );
