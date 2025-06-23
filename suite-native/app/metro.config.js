@@ -28,6 +28,7 @@ const config = {
         }),
     },
     resolver: {
+        unstable_enablePackageExports: false,
         blockList: [/libDev/],
         extraNodeModules: {
             // modules needed for trezor-connect
@@ -36,6 +37,7 @@ const config = {
             https: nodejs.https,
             http: nodejs.http,
             zlib: nodejs.zlib,
+            vm: nodejs.vm,
         },
         sourceExts,
         resolveRequest: (context, moduleName, platform) => {

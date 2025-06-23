@@ -112,9 +112,9 @@ class TradingBuyActions {
     async setFiatAmount(amount: string) {
         await this.getFiatAmountElement().tap();
         await this.getFiatAmountElement().replaceText(amount);
+        await this.getFiatAmountElement().typeText('\n'); // Simulate pressing 'Enter' to submit the input
         await this.waitForQuotesToLoad();
         await this.scrollScreenToBottom();
-        await this.getAmountEditingDoneButton().tap({ x: 20, y: 1 });
     }
 
     async expectReceiveAccountBalance(expectedValue: string) {

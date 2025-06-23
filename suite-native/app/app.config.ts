@@ -125,13 +125,14 @@ const getPlugins = (): ExpoPlugins => {
                 android: {
                     minSdkVersion: 28,
                     // this fixes expo-updates build error
-                    kotlinVersion: '1.9.25',
+                    kotlinVersion: '2.0.21',
                 },
                 ios: {
                     deploymentTarget: '15.1',
                 },
             },
         ],
+        ['./plugins/minSdkProjectGradlePatch.js', {}], // Without this patch, the Android properties are not applied correctly in build.gradle when using Expo SDK 53.
         '@trezor/react-native-usb/plugins/withUSBDevice.js',
         [
             './plugins/withAndroidMainActivityAttributes.js',
@@ -155,6 +156,7 @@ const getPlugins = (): ExpoPlugins => {
                 organization: 'satoshilabs',
             },
         ],
+        ['expo-secure-store'],
     ];
 
     if (process.env.EXPO_PUBLIC_BLUETOOTH_ENABLED) {
@@ -189,7 +191,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         slug: appSlugs[buildType],
         owner: appOwners[buildType],
         version: suiteNativeVersion,
-        runtimeVersion: '30',
+        runtimeVersion: '33',
         ...(buildType === 'production'
             ? {}
             : {
@@ -284,5 +286,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
                 projectId,
             },
         },
+        newArchEnabled: false,
     };
 };
