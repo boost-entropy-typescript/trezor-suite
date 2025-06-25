@@ -1,17 +1,17 @@
-|             Package              | Stable |    Canary    |
-| :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.6.0  | 9.6.1-beta.2 |
-|     npm @trezor/connect-web      | 9.6.0  | 9.6.1-beta.2 |
-| npm @trezor/connect-webextension | 9.6.0  | 9.6.1-beta.2 |
-|    npm @trezor/connect-mobile    | 9.6.0  | 9.6.1-beta.2 |
+|             Package              | Stable | Canary |
+| :------------------------------: | :----: | :----: |
+|       npm @trezor/connect        | 9.6.1  |   -    |
+|     npm @trezor/connect-web      | 9.6.1  |   -    |
+| npm @trezor/connect-webextension | 9.6.1  |   -    |
+|    npm @trezor/connect-mobile    | 9.6.1  |   -    |
 
-|     Deployment     | Stable |    Canary    |
-| :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.6.0  | 9.6.1-beta.2 |
+|     Deployment     | Stable | Canary |
+| :----------------: | :----: | :----: |
+| connect.trezor.io/ | 9.6.1  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-# 9.6.1-beta.2
+# 9.6.1
 
 Minor improvements and fixes regarding the [New Connect flow in Trezor Suite](https://connect.trezor.io/9/guides/new-connect-flow-in-trezor-suite/).
 
