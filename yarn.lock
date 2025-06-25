@@ -10833,7 +10833,6 @@ __metadata:
     "@react-navigation/native": "npm:6.1.18"
     "@react-navigation/native-stack": "npm:6.11.0"
     "@reduxjs/toolkit": "npm:2.8.2"
-    "@suite-common/suite-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-native/alerts": "workspace:*"
     "@suite-native/atoms": "workspace:*"
@@ -11746,7 +11745,7 @@ __metadata:
     "@types/react": "npm:^19.0.0"
     "@types/react-date-range": "npm:^1.4.10"
     date-fns: "npm:^4.1.0"
-    framer-motion: "npm:^12.9.1"
+    framer-motion: "npm:^12.19.1"
     lottie-react: "npm:2.4.1"
     polished: "npm:^4.3.1"
     postcss-styled-syntax: "npm:^0.7.1"
@@ -11760,7 +11759,7 @@ __metadata:
     react-svg: "npm:16.3.0"
     react-use: "npm:^17.6.0"
     storybook: "npm:^9.0.13"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     stylelint: "npm:^16.14.1"
     stylelint-config-standard: "npm:^38.0.0"
     typescript-styled-plugin: "npm:^0.18.3"
@@ -11822,7 +11821,7 @@ __metadata:
     react: "npm:19.0.0"
     react-dom: "npm:19.0.0"
     scroll-into-view-if-needed: "npm:^3.1.0"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     tailwindcss: "npm:^3.4.10"
     zod: "npm:^3.24.2"
   peerDependencies:
@@ -11877,7 +11876,7 @@ __metadata:
     remark-gemoji: "npm:^8.0.0"
     remark-gfm: "npm:^4.0.1"
     rimraf: "npm:^6.0.1"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     swr: "npm:^2.3.3"
     tsx: "npm:^4.20.3"
     webpack: "npm:5.99.9"
@@ -11988,7 +11987,7 @@ __metadata:
     xvfb-maybe: "npm:^0.2.1"
   peerDependencies:
     react: 19.0.0
-    styled-components: ^6.1.17
+    styled-components: ^6.1.19
     stylelint: ^16.19.0
     stylelint-config-standard: ^38.0.0
   languageName: unknown
@@ -12011,12 +12010,12 @@ __metadata:
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:^19.0.0"
-    framer-motion: "npm:^12.9.1"
+    framer-motion: "npm:^12.19.1"
     react-intl: "npm:^7.1.11"
   peerDependencies:
     react: 19.0.0
     react-error-boundary: ^6.0.0
-    styled-components: ^6.1.17
+    styled-components: ^6.1.19
     stylelint: ^16.19.0
     stylelint-config-standard: ^38.0.0
   languageName: unknown
@@ -12176,7 +12175,7 @@ __metadata:
   resolution: "@trezor/env-utils@workspace:packages/env-utils"
   dependencies:
     tsx: "npm:^4.20.3"
-    ua-parser-js: "npm:^2.0.3"
+    ua-parser-js: "npm:^2.0.4"
   peerDependencies:
     expo-constants: "*"
     expo-localization: "*"
@@ -12265,13 +12264,13 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:^19.0.0"
     "@types/zxcvbn": "npm:4.4.5"
-    framer-motion: "npm:^12.9.1"
+    framer-motion: "npm:^12.19.1"
     react: "npm:19.0.0"
     react-hook-form: "npm:^7.56.3"
     react-intl: "npm:^7.1.11"
     react-svg: "npm:16.3.0"
     storybook: "npm:^9.0.13"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     stylelint: "npm:^16.14.1"
     typescript-styled-plugin: "npm:^0.18.3"
     zxcvbn: "npm:^4.4.2"
@@ -12568,7 +12567,7 @@ __metadata:
     react-helmet-async: "npm:^2.0.5"
     react-redux: "npm:9.2.0"
     react-router-dom: "npm:^5.2.0"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     stylelint: "npm:^16.14.1"
     stylelint-config-standard: "npm:^38.0.0"
     typescript-styled-plugin: "npm:^0.18.3"
@@ -12727,7 +12726,7 @@ __metadata:
     date-fns: "npm:^4.1.0"
     dropbox: "npm:^10.34.0"
     file-saver: "npm:^2.0.5"
-    framer-motion: "npm:^12.9.1"
+    framer-motion: "npm:^12.19.1"
     history: "npm:^4.10.1"
     idb: "npm:^8.0.3"
     immer: "npm:10.1.1"
@@ -12757,7 +12756,7 @@ __metadata:
     redux-mock-store: "npm:^1.5.5"
     redux-thunk: "npm:^3.1.0"
     semver: "npm:^7.7.1"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     stylelint: "npm:^16.14.1"
     stylelint-config-standard: "npm:^38.0.0"
     typescript-styled-plugin: "npm:^0.18.3"
@@ -12807,7 +12806,7 @@ __metadata:
     react: "npm:19.0.0"
     react-dom: "npm:19.0.0"
     react-intl: "npm:^7.1.11"
-    styled-components: "npm:^6.1.17"
+    styled-components: "npm:^6.1.19"
     usb: "npm:^2.15.0"
     webpack: "npm:5.99.9"
   languageName: unknown
@@ -24176,12 +24175,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^12.9.1":
-  version: 12.9.1
-  resolution: "framer-motion@npm:12.9.1"
+"framer-motion@npm:^12.19.1":
+  version: 12.19.1
+  resolution: "framer-motion@npm:12.19.1"
   dependencies:
-    motion-dom: "npm:^12.9.1"
-    motion-utils: "npm:^12.8.3"
+    motion-dom: "npm:^12.19.0"
+    motion-utils: "npm:^12.19.0"
     tslib: "npm:^2.4.0"
   peerDependencies:
     "@emotion/is-prop-valid": "*"
@@ -24194,7 +24193,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10/ef7fbc3077a6408c8d4e5fa4bd13077c366243d10ceb014edb2b8e36999335e51f0332bc7dca951cd2cd475874bde578ddd16f4ce4c918fdbb5a978ac638dcbf
+  checksum: 10/d47c304ffea064572d5c81a1b6150b896c177a6910e2ef22200a58ca48283436446228ca4710433c8f20110efced5908b1db64c7b0dc8f72249cfb20206e50da
   languageName: node
   linkType: hard
 
@@ -31639,19 +31638,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motion-dom@npm:^12.9.1":
-  version: 12.9.1
-  resolution: "motion-dom@npm:12.9.1"
+"motion-dom@npm:^12.19.0":
+  version: 12.19.0
+  resolution: "motion-dom@npm:12.19.0"
   dependencies:
-    motion-utils: "npm:^12.8.3"
-  checksum: 10/3985ff774fa0350ed82ca1b160604cd786559e707ef8b05631bc9ef05188fbdb97197463c23e142fc4f9afa023e8cb5e223994ac6a3146fc6d85aece6df235aa
+    motion-utils: "npm:^12.19.0"
+  checksum: 10/52aa28dc43fd727bebdbea64717e4dec8e7cb5ab0e001b465ee25526378fdbbd8bdd2b35004069192469872cb55c7b63f435df71ac8315a32fada9d7885576c6
   languageName: node
   linkType: hard
 
-"motion-utils@npm:^12.8.3":
-  version: 12.8.3
-  resolution: "motion-utils@npm:12.8.3"
-  checksum: 10/5e14be43fd6970c45e43f3628e1851800991dbb967174343db6ea45f5a90c7a3ab25d18bc23cff5d5c21c2e34c5fe875ba7583ebd9533a52af5e9a821fc4b8ad
+"motion-utils@npm:^12.19.0":
+  version: 12.19.0
+  resolution: "motion-utils@npm:12.19.0"
+  checksum: 10/a6fe6b329bf4e2070bb95788218f36f0d7ea6cc3098e6ea2646ed68d5be88d25fa30e55284463ace78d19a5e19714875a7b70055bd86ae6e52a5fdee08438470
   languageName: node
   linkType: hard
 
@@ -38927,9 +38926,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:^6.1.17":
-  version: 6.1.17
-  resolution: "styled-components@npm:6.1.17"
+"styled-components@npm:^6.1.19":
+  version: 6.1.19
+  resolution: "styled-components@npm:6.1.19"
   dependencies:
     "@emotion/is-prop-valid": "npm:1.2.2"
     "@emotion/unitless": "npm:0.8.1"
@@ -38943,7 +38942,7 @@ __metadata:
   peerDependencies:
     react: ">= 16.8.0"
     react-dom: ">= 16.8.0"
-  checksum: 10/31939ba34ef8440f02cbdd2b509d03c6125d9f67876562899e6359680ad600b169a4d2c87afa57b399ecca31432b61de54bf052e1846051bbcfca64d86e5181b
+  checksum: 10/1e7503b48619c37691791f063d4ebbb32caf3ddef2ae11c3c706c4d6df5c0538357d406ef7a5f6077b2fef6294e365d4426240155a93cab3e49af58c9404ef9a
   languageName: node
   linkType: hard
 
@@ -40431,9 +40430,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "ua-parser-js@npm:2.0.3"
+"ua-parser-js@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "ua-parser-js@npm:2.0.4"
   dependencies:
     "@types/node-fetch": "npm:^2.6.12"
     detect-europe-js: "npm:^0.1.2"
@@ -40442,7 +40441,7 @@ __metadata:
     ua-is-frozen: "npm:^0.1.2"
   bin:
     ua-parser-js: script/cli.js
-  checksum: 10/f181f1c976d67a2a8cdd396f8c5cecc8bfe4ada7183e7ef06a81a09aa9dc98480048380240f6374189cf2ab7e6275b711f9732e26b7ed2a14f3e4fe3576b8842
+  checksum: 10/eb3a57cd4aea6c42d2d766761ccf38cdc4576075646dec611efc336f0d1e640896ec4ca084142a1fedbf25c589e093e2cad50c49a22d089e234029ecb9b8d2e4
   languageName: node
   linkType: hard
 

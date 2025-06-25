@@ -553,6 +553,20 @@ export const en = {
             title: 'PIN protection',
             content: 'PIN protects your device against physical attack.',
             changeButton: 'Change',
+            alertBoxTitle: 'Pin not set',
+            cardSubtitle: {
+                enable: 'Set a PIN for your Trezor',
+                changeOrRemove: 'Change or remove PIN',
+            },
+            pictograms: {
+                enable: {
+                    title: 'Your PIN is not set',
+                    subtitle: 'Set your PIN to protect against unauthorized access to your Trezor.',
+                },
+                change: {
+                    title: 'Your PIN is set',
+                },
+            },
             actions: {
                 enable: {
                     success: 'Device PIN has been enabled.',
@@ -571,16 +585,21 @@ export const en = {
                 pinInvalid: 'The PIN you’ve entered as current is incorrect.',
                 pinMismatch: 'The PINs you’ve entered do not match.',
             },
+            buttons: {
+                setPin: 'Set PIN',
+                changePin: 'Change PIN',
+                removePin: 'Remove PIN',
+            },
         },
         authenticity: {
             title: 'Device authenticity',
-            content: 'Check the integrity of the device & authenticity of the chip.',
+            subtitle: 'This check is essential to ensure your device’s reliability and security.',
+            content: 'Check the integrity of the device',
             checkButton: 'Check authenticity',
             info: {
                 title: 'Check device authenticity',
-                item1: 'This check is essential to ensure your device’s reliability and security.',
-                item2: 'This confirms that the chip inside your hardware wallet is genuine and from Trezor.',
-                item3: 'Once your device has been given a clean bill of health, you’re all set to Trezor with confidence.',
+                item1: 'This confirms that the chip inside your hardware wallet is genuine.',
+                item2: 'Once your device has been given a clean bill of health, you’re all set.',
                 letsDoItButton: 'Let’s do it',
             },
             success: {
@@ -595,9 +614,7 @@ export const en = {
         },
         wipeDevice: {
             title: 'Wipe device',
-            subtitle: 'This will reset all of your device’s data. Proceed with caution.',
-            content: 'This will reset all stored data on your Trezor. Proceed with caution.',
-            buttonTitle: 'Wipe device',
+            subtitle: 'This will reset all stored data',
             confirmationCards: {
                 eraseAllData: {
                     title: 'Erase all data',
@@ -2003,8 +2020,7 @@ export const en = {
     },
     firmware: {
         title: 'Firmware',
-        version: 'Version',
-        type: 'Type',
+        version: 'Version {firmwareVersion}',
         typeUniversal: 'Universal',
         typeBitcoinOnly: 'Bitcoin-only',
         seedBottomSheet: {
@@ -2016,14 +2032,14 @@ export const en = {
         },
         updateCard: {
             upToDate: 'You’re all up to date',
-            newVersionAvailable: 'New version available ({version})',
+            newVersionAvailable: 'Update available',
             updateButton: 'Update',
         },
         firmwareUpdateScreen: {
             updateButton: 'Update firmware',
             skipButton: 'Skip for now',
-            title: 'Firmware update',
-            subtitle: 'New firmware is now available. Update your device now.',
+            title: 'Firmware',
+            subtitle: "Firware is your Trezor's operating system",
             changelog: {
                 button: 'What’s new?',
                 title: 'What’s new?',

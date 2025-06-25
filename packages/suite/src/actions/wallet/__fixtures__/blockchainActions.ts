@@ -1,5 +1,10 @@
+import { DeepPartial } from 'react-hook-form';
+
+import { AnyAction } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
+    AccountsState,
+    BlockchainState,
     accountsActions,
     blockchainActions,
     feesActions,
@@ -342,7 +347,7 @@ export const onBlock = analyzeTransactions
         },
     ] as any);
 
-const seedBackends = (coins: string[]) =>
+const seedBackends = (coins: string[]): DeepPartial<BlockchainState> =>
     coins.reduce(
         (prev, cur) => ({
             ...prev,
@@ -353,13 +358,23 @@ const seedBackends = (coins: string[]) =>
         { regtest: { backends: {} } },
     );
 
-export const init = [
+type InitFixture = {
+    description: string;
+    initialState?: {
+        accounts?: DeepPartial<AccountsState>;
+        blockchain?: DeepPartial<BlockchainState>;
+    };
+    actions: AnyAction[];
+    blockchainSetCustomBackend: number;
+};
+
+export const init: InitFixture[] = [
     {
         description: 'no accounts',
         initialState: {
             blockchain: seedBackends([]),
         },
-        actions: [{ type: feesActions.updateFee.type }],
+        actions: [{ type: feesActions.updateMultipleFees.type }],
         blockchainSetCustomBackend: 0,
     },
     {
@@ -368,7 +383,7 @@ export const init = [
             accounts: [{ symbol: 'btc' }],
             blockchain: seedBackends(['btc']),
         },
-        actions: [{ type: feesActions.updateFee.type }],
+        actions: [{ type: feesActions.updateMultipleFees.type }],
         blockchainSetCustomBackend: 1,
     },
     {
@@ -383,7 +398,7 @@ export const init = [
             ],
             blockchain: seedBackends(['btc', 'ltc', 'eth']),
         },
-        actions: [{ type: feesActions.updateFee.type }],
+        actions: [{ type: feesActions.updateMultipleFees.type }],
         blockchainSetCustomBackend: 3,
     },
 ];

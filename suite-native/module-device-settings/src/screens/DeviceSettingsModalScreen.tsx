@@ -40,8 +40,8 @@ export const DeviceSettingsModalScreen = () => {
                 <DeviceSettingsSection
                     title={<Translation id="moduleDeviceSettings.sectionTitles.general" />}
                 >
-                    <DeviceFirmwareCard />
                     <DevicePinProtectionCard />
+                    <DeviceFirmwareCard />
                 </DeviceSettingsSection>
                 <DeviceSettingsSection
                     title={<Translation id="moduleDeviceSettings.sectionTitles.checks" />}

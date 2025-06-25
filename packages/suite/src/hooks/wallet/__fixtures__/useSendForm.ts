@@ -4,10 +4,14 @@ import { testMocks } from '@suite-common/test-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { getNetwork } from '@suite-common/wallet-config';
 import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants';
-import { accountsActions, prepareSendFormReducer } from '@suite-common/wallet-core';
+import { SendState, accountsActions, prepareSendFormReducer } from '@suite-common/wallet-core';
+import { FeesState, SelectedAccountStatus } from '@suite-common/wallet-types';
 import { PROTO } from '@trezor/connect';
+import { DeepPartial } from '@trezor/type-utils';
 
 import { extraDependencies } from 'src/support/extraDependencies';
+
+import { AppState } from '../../../reducers/store';
 
 const sendFormReducer = prepareSendFormReducer(extraDependencies);
 
@@ -50,7 +54,7 @@ const UTXO = {
     }),
 };
 
-export const BTC_ACCOUNT = {
+export const BTC_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: testMocks.getWalletAccount({
         symbol: 'btc',
@@ -122,7 +126,7 @@ export const BTC_ACCOUNT = {
     network: { networkType: 'bitcoin', symbol: 'btc', decimals: 8, features: ['rbf'] },
 };
 
-export const ETH_ACCOUNT = {
+export const ETH_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: testMocks.getWalletAccount({
         symbol: 'eth',
@@ -147,7 +151,7 @@ export const ETH_ACCOUNT = {
     network: { networkType: 'ethereum', symbol: 'eth', decimals: 18, chainId: 1 },
 };
 
-export const XRP_ACCOUNT = {
+export const XRP_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: testMocks.getWalletAccount({
         symbol: 'xrp',
@@ -162,7 +166,7 @@ export const XRP_ACCOUNT = {
     network: { networkType: 'ripple', symbol: 'xrp', decimals: 6 },
 };
 
-export const SOL_ACCOUNT = {
+export const SOL_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: {
         symbol: 'sol',
@@ -175,7 +179,6 @@ export const SOL_ACCOUNT = {
         misc: {
             rent: 10,
         },
-        history: {},
         tokens: [],
     },
     network: { networkType: 'solana', symbol: 'sol', decimals: 9, chainId: 1399811149 },
@@ -187,49 +190,65 @@ const DEVICE = testMocks.getSuiteDevice({
     available: true,
 });
 
-const DEFAULT_FEES = {
+const DEFAULT_FEES: FeesState = {
     btc: {
-        minFee: 1,
-        maxFee: 100,
-        blockHeight: 1,
-        blockTime: 1,
-        levels: [{ label: 'normal', feePerUnit: '4', blocks: 1 }],
+        status: 'loaded',
+        data: {
+            minPriorityFee: 0,
+            minFee: 1,
+            maxFee: 100,
+            blockHeight: 1,
+            blockTime: 1,
+            levels: [{ label: 'normal', feePerUnit: '4', blocks: 1 }],
+        },
     },
     eth: {
-        minFee: 1,
-        maxFee: 100,
-        blockHeight: 1,
-        blockTime: 1,
-        levels: [
-            {
-                label: 'normal',
-                feePerUnit: '3300000000',
-                feeLimit: '21000',
-                blocks: -1,
-            },
-        ],
+        status: 'loaded',
+        data: {
+            minPriorityFee: 0,
+            minFee: 1,
+            maxFee: 100,
+            blockHeight: 1,
+            blockTime: 1,
+            levels: [
+                {
+                    label: 'normal',
+                    feePerUnit: '3300000000',
+                    feeLimit: '21000',
+                    blocks: -1,
+                },
+            ],
+        },
     },
     xrp: {
-        minFee: 1,
-        maxFee: 100,
-        blockHeight: 1,
-        blockTime: 1,
-        levels: [{ label: 'normal', feePerUnit: '12', blocks: -1 }],
+        status: 'loaded',
+        data: {
+            minPriorityFee: 0,
+            minFee: 1,
+            maxFee: 100,
+            blockHeight: 1,
+            blockTime: 1,
+            levels: [{ label: 'normal', feePerUnit: '12', blocks: -1 }],
+        },
     },
     sol: {
-        minFee: -1,
-        maxFee: -1,
-        blockHeight: -1,
-        blockTime: -1,
-        levels: [
-            {
-                label: 'normal',
-                feePerUnit: '100000',
-                feeLimit: '50000',
-                feePerTx: '10000',
-                blocks: -1,
-            },
-        ],
+        status: 'loaded',
+        data: {
+            minPriorityFee: 0,
+            minFee: -1,
+            maxFee: -1,
+            blockHeight: -1,
+            blockTime: -1,
+            levels: [
+                {
+                    label: 'normal',
+                    feePerUnit: '100000',
+                    feeLimit: '50000',
+                    feePerTx: '10000',
+                    blocks: -1,
+                },
+            ],
+        },
     },
 };
 
@@ -400,7 +419,7 @@ const DEFAULT_DRAFT = {
     selectedUtxos: [],
 };
 
-const getDraft = (draft?: any) => ({
+const getDraft = (draft?: any): SendState['drafts'] => ({
     'xpub-btc-1stTestnetAddress@device_id:0': {
         ...DEFAULT_DRAFT,
         outputs: [
@@ -726,7 +745,7 @@ export const setMax = [
                     ...BTC_ACCOUNT.account,
                     accountType: 'coinjoin',
                     addresses: {
-                        ...BTC_ACCOUNT.account.addresses,
+                        ...BTC_ACCOUNT.account!.addresses,
                         anonymitySet: {
                             AA: 0,
                             BB: 50,
@@ -1711,7 +1730,16 @@ export const signAndPush = [
     },
 ];
 
-export const feeChange = [
+type FeeChangeFixture = {
+    skip?: boolean;
+    description: string;
+    store: DeepPartial<AppState['wallet']>;
+    connect: any; // note: don't blame me, it was even worse before I added this type
+    actionSequence: any;
+    finalResult: any;
+};
+
+export const feeChange: FeeChangeFixture[] = [
     {
         description: 'BTC fee changes',
         store: {
@@ -1720,16 +1748,20 @@ export const feeChange = [
             },
             fees: {
                 btc: {
-                    minFee: 1,
-                    maxFee: 100,
-                    blockHeight: 1,
-                    blockTime: 1,
-                    // add more levels
-                    levels: [
-                        { label: 'high', feePerUnit: '40', blocks: 1 },
-                        { label: 'normal', feePerUnit: '4', blocks: 1 },
-                        { label: 'economy', feePerUnit: '1', blocks: 1 },
-                    ],
+                    status: 'loaded',
+                    data: {
+                        minPriorityFee: 0,
+                        minFee: 1,
+                        maxFee: 100,
+                        blockHeight: 1,
+                        blockTime: 1,
+                        // add more levels
+                        levels: [
+                            { label: 'high', feePerUnit: '40', blocks: 1 },
+                            { label: 'normal', feePerUnit: '4', blocks: 1 },
+                            { label: 'economy', feePerUnit: '1', blocks: 1 },
+                        ],
+                    },
                 },
             },
         },

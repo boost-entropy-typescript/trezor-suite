@@ -1,18 +1,41 @@
 import { scrollUntilVisible } from '../utils';
 
-const checkAuthenticityButtonElement = element(by.id('@device-authenticity/check-button'));
+const redirectToDeviceAuthenticityScreenButton = element(
+    by.id('@device-authenticity/redirectToDeviceAuthenticityScreen'),
+);
 
 class DeviceSettingsActions {
-    async waitForScreen() {
-        await waitFor(element(by.id('@screen/DeviceSettings')))
+    async waitForPinProtectionScreen() {
+        await waitFor(element(by.id('@screen/PinProtection')))
             .toBeVisible()
             .withTimeout(10000);
     }
 
-    async tapEnablePinProtectionButton() {
-        const enablePinProtectionButton = element(by.id('@device-pin-protection/enable-button'));
+    async waitForDeviceAuthenticityScreen() {
+        await waitFor(element(by.id('@screen/DeviceAuthenticity')))
+            .toBeVisible()
+            .withTimeout(10000);
+    }
 
+    async redirectToPinProtectionScreen() {
+        const redirectToPinScreenButton = element(
+            by.id('@device-pin-protection/redirectToPinScreen'),
+        );
+        await waitFor(redirectToPinScreenButton).toBeVisible().withTimeout(10000);
+        await redirectToPinScreenButton.tap();
+    }
+
+    async redirectToDeviceAuthenticityScreen() {
+        await waitFor(redirectToDeviceAuthenticityScreenButton).toBeVisible().withTimeout(10000);
+        await redirectToDeviceAuthenticityScreenButton.tap();
+    }
+
+    async tapEnablePinProtectionButton() {
+        await waitFor(element(by.id('@screen/PinProtection')));
+
+        const enablePinProtectionButton = element(by.id('@device-pin-protection/enable-button'));
         await waitFor(enablePinProtectionButton).toBeVisible().withTimeout(10000);
+
         await enablePinProtectionButton.tap();
     }
 
@@ -31,12 +54,13 @@ class DeviceSettingsActions {
     }
 
     async scrollUntilCheckAuthenticityButtonIsVisible() {
-        await scrollUntilVisible(checkAuthenticityButtonElement);
+        await scrollUntilVisible(redirectToDeviceAuthenticityScreenButton);
     }
 
     async tapCheckAuthenticityButton() {
-        await waitFor(checkAuthenticityButtonElement).toBeVisible().withTimeout(10000);
-        await checkAuthenticityButtonElement.tap();
+        const checkDeviceAuthenticityButton = element(by.id('@device-authenticity/check-button'));
+        await waitFor(checkDeviceAuthenticityButton).toBeVisible().withTimeout(5_000);
+        await checkDeviceAuthenticityButton.tap();
     }
 }
 
