@@ -8,7 +8,7 @@ import {
     WipeDeviceStackRoutes,
 } from '@suite-native/navigation';
 
-import { SettingsItemCard } from './SettingsItemCard';
+import { DeviceSettingsItemCard } from './DeviceSettingsItemCard';
 
 type NavigationProp = StackNavigationProps<
     DeviceSettingsStackParamList,
@@ -25,7 +25,7 @@ export const WipeDeviceCard = () => {
     };
 
     return (
-        <SettingsItemCard
+        <DeviceSettingsItemCard
             title={<Translation id="moduleDeviceSettings.wipeDevice.title" />}
             icon="warningOctagon"
             subtitle={<Translation id="moduleDeviceSettings.wipeDevice.subtitle" />}

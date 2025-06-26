@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@everstake/wallet-sdk-ethereum": "1.0.3",
-        "@floating-ui/react": "^0.27.8",
+        "@floating-ui/react": "^0.27.12",
         "@formatjs/intl": "3.1.6",
         "@hookform/resolvers": "^5.0.1",
         "@mobily/ts-belt": "^3.13.1",
@@ -96,7 +96,7 @@
         "idb": "^8.0.3",
         "immer": "10.1.1",
         "pako": "^2.1.0",
-        "pdfmake": "^0.2.18",
+        "pdfmake": "^0.2.20",
         "polished": "^4.3.1",
         "qrcode.react": "^4.2.0",
         "react": "19.0.0",
@@ -122,8 +122,8 @@
         "web3-utils": "^4.3.1"
     },
     "devDependencies": {
-        "@crowdin/cli": "4.7.0",
-        "@formatjs/cli": "6.6.4",
+        "@crowdin/cli": "4.8.0",
+        "@formatjs/cli": "6.7.2",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
         "@trezor/eslint": "workspace:*",

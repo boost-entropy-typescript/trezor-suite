@@ -9,7 +9,7 @@ import {
     StackToStackCompositeNavigationProps,
 } from '@suite-native/navigation';
 
-import { SettingsItemCard } from './SettingsItemCard';
+import { DeviceSettingsItemCard } from './DeviceSettingsItemCard';
 
 type NavigationProp = StackToStackCompositeNavigationProps<
     DeviceAuthenticityStackParamList,
@@ -25,7 +25,7 @@ export const DeviceAuthenticityCard = () => {
     };
 
     return (
-        <SettingsItemCard
+        <DeviceSettingsItemCard
             icon="shield"
             onPress={handleOnPress}
             title={<Translation id="moduleDeviceSettings.authenticity.title" />}

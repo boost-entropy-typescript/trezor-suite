@@ -20,7 +20,7 @@ import {
 } from '@suite-native/navigation';
 import { getFirmwareVersion } from '@trezor/device-utils';
 
-import { SettingsItemCard } from './SettingsItemCard';
+import { DeviceSettingsItemCard } from './DeviceSettingsItemCard';
 
 type NavigationProp = StackNavigationProps<
     DeviceSettingsStackParamList,
@@ -73,7 +73,7 @@ export const DeviceFirmwareCard = () => {
     })();
 
     return (
-        <SettingsItemCard
+        <DeviceSettingsItemCard
             icon="database"
             title={<Translation id="firmware.title" />}
             alertBoxProps={firmwareUpdateProps}

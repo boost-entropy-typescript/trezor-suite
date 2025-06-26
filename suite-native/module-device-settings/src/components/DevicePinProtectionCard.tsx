@@ -15,7 +15,7 @@ import {
     StackNavigationProps,
 } from '@suite-native/navigation';
 
-import { SettingsItemCard } from './SettingsItemCard';
+import { DeviceSettingsItemCard } from './DeviceSettingsItemCard';
 
 type NavigationProp = StackNavigationProps<
     DeviceSettingsStackParamList,
@@ -60,7 +60,7 @@ export const DevicePinProtectionCard = () => {
     };
 
     return (
-        <SettingsItemCard
+        <DeviceSettingsItemCard
             icon="password"
             title={<Translation id="moduleDeviceSettings.pinProtection.title" />}
             subtitle={

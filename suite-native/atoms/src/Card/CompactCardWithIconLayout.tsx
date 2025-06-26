@@ -1,33 +1,29 @@
 import { ReactNode } from 'react';
 import { Pressable, PressableProps } from 'react-native';
-import { useSelector } from 'react-redux';
 
-import { selectHasRunningDiscovery } from '@suite-common/wallet-core';
-import {
-    Box,
-    Card,
-    HStack,
-    InlineAlertBox,
-    InlineAlertBoxProps,
-    Loader,
-    Text,
-    VStack,
-} from '@suite-native/atoms';
 import { Icon, IconName } from '@suite-native/icons';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { Color } from '@trezor/theme';
 
+import { Card } from './Card';
+import { Box } from '../Box';
+import { InlineAlertBox, InlineAlertBoxProps } from '../InlineAlertBox/InlineAlertBox';
+import { Loader } from '../Loader';
+import { HStack, VStack } from '../Stack';
+import { Text } from '../Text';
+
 const ICON_WRAPPER_SIZE = 48;
 
 type CardVariant = 'normal' | 'danger';
-type SettingsItemCardProps = Omit<PressableProps, 'onPress'> & {
+export type CompactCardWithIconLayoutProps = {
     icon: IconName;
     title: ReactNode;
     subtitle: ReactNode;
+    isDisabled?: boolean;
     alertBoxProps?: Omit<InlineAlertBoxProps, 'borderRadius'>;
     onPress?: () => void;
     variant?: CardVariant;
-};
+} & PressableProps;
 
 type CardColorScheme = {
     iconWrapperBackgroundColor: Color;
@@ -65,20 +61,20 @@ const iconWrapperStyle = prepareNativeStyle<{ variant: CardVariant }>((utils, { 
     borderRadius: utils.borders.radii.round,
 }));
 
-export const SettingsItemCard = ({
+export const CompactCardWithIconLayout = ({
     icon,
     title,
     subtitle,
     alertBoxProps,
     onPress,
+    isDisabled = false,
     variant = 'normal',
     ...pressableProps
-}: SettingsItemCardProps) => {
+}: CompactCardWithIconLayoutProps) => {
     const { applyStyle } = useNativeStyles();
-    const isDiscoveryRunning = useSelector(selectHasRunningDiscovery);
 
     return (
-        <Pressable onPress={onPress} disabled={isDiscoveryRunning} {...pressableProps}>
+        <Pressable onPress={onPress} disabled={isDisabled} {...pressableProps}>
             <Card borderColor="borderElevation1" noPadding>
                 <HStack padding="sp16" spacing="sp12" alignItems="center">
                     <Box style={applyStyle(iconWrapperStyle, { variant })}>
@@ -94,7 +90,7 @@ export const SettingsItemCard = ({
                             {subtitle}
                         </Text>
                     </VStack>
-                    {isDiscoveryRunning ? (
+                    {isDisabled ? (
                         <Loader />
                     ) : (
                         <Icon name="caretRight" size="mediumLarge" color="iconSubdued" />
