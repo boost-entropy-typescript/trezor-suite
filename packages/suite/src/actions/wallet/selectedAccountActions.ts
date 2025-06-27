@@ -23,7 +23,7 @@ import { setCoinFilter } from './accountSearchActions';
 // move to selector!!!!
 const getAccountState = (state: AppState): SelectedAccountStatus => {
     const device = selectSelectedDevice(state);
-    const accounts = selectDeviceAccounts(state);
+
     // waiting for device
     if (!device) {
         return {
@@ -39,9 +39,6 @@ const getAccountState = (state: AppState): SelectedAccountStatus => {
         };
     }
 
-    // waiting for discovery
-    const discovery = selectDiscoveryForSelectedDevice(state);
-
     if (!device.state) {
         return {
             status: 'loading',
@@ -49,8 +46,11 @@ const getAccountState = (state: AppState): SelectedAccountStatus => {
         };
     }
 
+    const accounts = selectDeviceAccounts(state);
+
     // account cannot exist since there are no discovered accounts (maybe no networks enabled)
-    if (accounts.length === 0) {
+    const enabledNetworks = selectEnabledNetworks(state);
+    if (accounts.length === 0 && enabledNetworks.length === 0) {
         return {
             status: 'exception',
             loader: 'discovery-empty',
@@ -71,7 +71,6 @@ const getAccountState = (state: AppState): SelectedAccountStatus => {
     const network = networks[params.symbol];
 
     // account cannot exists since requested network is not selected in settings/wallet
-    const enabledNetworks = selectEnabledNetworks(state);
     if (!enabledNetworks.includes(network.symbol)) {
         return {
             status: 'exception',
@@ -80,6 +79,9 @@ const getAccountState = (state: AppState): SelectedAccountStatus => {
             params,
         };
     }
+
+    // waiting for discovery
+    const discovery = selectDiscoveryForSelectedDevice(state);
 
     const matchedFailed = (discovery?.failed ?? []).find(
         f =>

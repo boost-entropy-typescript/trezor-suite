@@ -1,7 +1,6 @@
-import { forwardRef } from 'react';
-
 import styled from 'styled-components';
 
+import { Context } from '@suite-common/message-system';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { selectLocalCurrency } from '@suite-common/wallet-core';
 import { SkeletonCircle, SkeletonRectangle } from '@trezor/components';
@@ -11,17 +10,16 @@ import { spacingsPx, zIndices } from '@trezor/theme';
 import { AmountUnitSwitchWrapper, FormattedCryptoAmount } from 'src/components/suite';
 import { FiatHeader } from 'src/components/wallet/FiatHeader';
 import { useSelector } from 'src/hooks/suite';
+import { useAccountHeaderContext } from 'src/support/suite/AccountHeaderProvider';
 
-export const ACCOUNT_INFO_HEIGHT = 80;
+import { ContextMessage } from '../AccountBanners/ContextMessage';
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${spacingsPx.xxs};
-    min-height: ${ACCOUNT_INFO_HEIGHT}px;
     width: 100%;
-    padding-left: ${spacingsPx.md};
-    padding-right: ${spacingsPx.md};
+    padding-inline: ${spacingsPx.md};
     margin-top: ${spacingsPx.lg};
     z-index: ${zIndices.pageSubHeader};
 `;
@@ -33,10 +31,9 @@ const AccountCryptoBalance = styled.div`
     color: ${({ theme }) => theme.textSubdued};
 `;
 
-const AmountsWrapper = styled.div`
+const BalanceSection = styled.div`
     display: flex;
-    gap: ${spacingsPx.lg};
-    flex-wrap: wrap;
+    flex-direction: column;
 `;
 
 interface AccountTopPanelSkeletonProps {
@@ -55,9 +52,10 @@ const AccountTopPanelSkeleton = ({ animate, symbol }: AccountTopPanelSkeletonPro
     </Container>
 );
 
-export const AccountTopPanel = forwardRef<HTMLDivElement>((_, ref) => {
+export const AccountTopPanel = () => {
     const { account, loader, status } = useSelector(state => state.wallet.selectedAccount);
     const localCurrency = useSelector(selectLocalCurrency);
+    const { balanceSectionRef } = useAccountHeaderContext();
 
     if (status !== 'loaded' || !account) {
         return (
@@ -68,31 +66,29 @@ export const AccountTopPanel = forwardRef<HTMLDivElement>((_, ref) => {
         );
     }
 
-    const { symbol, formattedBalance } = account;
+    const { symbol, formattedBalance, accountType } = account;
 
     return (
-        <Container ref={ref}>
-            <AmountsWrapper>
-                <div>
-                    <AmountUnitSwitchWrapper symbol={symbol}>
-                        <AccountCryptoBalance>
-                            <FormattedCryptoAmount
-                                data-testid="@wallet/account-top-panel/crypto-balance"
-                                value={formattedBalance}
-                                symbol={symbol}
-                            />
-                        </AccountCryptoBalance>
-                    </AmountUnitSwitchWrapper>
-
-                    <FiatHeader
-                        symbol={account.symbol}
-                        amount={account.formattedBalance}
-                        size="large"
-                        localCurrency={localCurrency}
-                        data-testid="@wallet/account-top-panel/fiat-amount"
-                    />
-                </div>
-            </AmountsWrapper>
+        <Container>
+            <BalanceSection ref={balanceSectionRef}>
+                <AmountUnitSwitchWrapper symbol={symbol}>
+                    <AccountCryptoBalance>
+                        <FormattedCryptoAmount
+                            data-testid="@wallet/account-top-panel/crypto-balance"
+                            value={formattedBalance}
+                            symbol={symbol}
+                        />
+                    </AccountCryptoBalance>
+                </AmountUnitSwitchWrapper>
+                <FiatHeader
+                    symbol={account.symbol}
+                    amount={account.formattedBalance}
+                    size="large"
+                    localCurrency={localCurrency}
+                    data-testid="@wallet/account-top-panel/fiat-amount"
+                />
+            </BalanceSection>
+            <ContextMessage context={Context.getAccount(symbol, accountType)} />
         </Container>
     );
-});
+};

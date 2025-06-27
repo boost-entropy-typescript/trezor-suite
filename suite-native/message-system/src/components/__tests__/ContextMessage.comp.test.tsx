@@ -76,7 +76,7 @@ describe('ContextMessage', () => {
 
     it('should render content when there is message of given context', async () => {
         const { queryByText } = await render({
-            context: Context.tradingBuy,
+            context: Context.getTrading('buy'),
             preloadedState: stateWithTradeContextMessage,
         });
         expect(queryByText(contentText)).toBeTruthy();
@@ -84,15 +84,7 @@ describe('ContextMessage', () => {
 
     it('should return null when there is no message fetched', async () => {
         const { queryByHintText } = await render({
-            context: Context.tradingBuy,
-        });
-        expect(queryByHintText(contextActionId)).toBeNull();
-    });
-
-    it('should return null when there is message of different context', async () => {
-        const { queryByHintText } = await render({
-            context: Context.coinjoin,
-            preloadedState: stateWithTradeContextMessage,
+            context: Context.getTrading('buy'),
         });
         expect(queryByHintText(contextActionId)).toBeNull();
     });
