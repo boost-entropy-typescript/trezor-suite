@@ -34,9 +34,10 @@ import {
 } from 'src/reducers/wallet/selectedAccountReducer';
 import { RbfLabelsToBeUpdated } from 'src/types/wallet/sendForm';
 
-import { findLabelsToBeMovedOrDeleted, moveLabelsForRbfAction } from '../moveLabelsForRbfActions';
 import { RBF_ERROR_ALREADY_MINED } from './replaceByFeeErrorThunk';
 import { MODULE_PREFIX } from './sendThunksConsts';
+import { findLabelsToBeMovedOrDeletedThunk } from '../moveLabelsForRbf/findLabelsToBeMovedOrDeletedThunk';
+import { moveLabelsForRbfThunk } from '../moveLabelsForRbf/moveLabelsForRbfThunk';
 
 export const saveSendFormDraftThunk = createThunk(
     `${MODULE_PREFIX}/saveSendFormDraftThunk`,
@@ -93,22 +94,17 @@ export const importSendFormRequestThunk = createThunk(
     (_, { dispatch }) => dispatch(modalActions.openDeferredModal({ type: 'import-transaction' })),
 );
 
-const updateRbfLabelsThunk = createThunk(
+type UpdateRbfLabelsThunkParams = {
+    labelsToBeEdited: RbfLabelsToBeUpdated;
+    precomposedTransaction: PrecomposedTransactionFinalBumpFeeRbf;
+    txid: string;
+};
+
+const updateRbfLabelsThunk = createThunk<void, UpdateRbfLabelsThunkParams, void>(
     `${MODULE_PREFIX}/updateReplacedTransactionThunk`,
-    (
-        {
-            labelsToBeEdited,
-            precomposedTransaction,
-            txid,
-        }: {
-            labelsToBeEdited: RbfLabelsToBeUpdated;
-            precomposedTransaction: PrecomposedTransactionFinalBumpFeeRbf;
-            txid: string;
-        },
-        { dispatch },
-    ) => {
+    ({ labelsToBeEdited, precomposedTransaction, txid }, { dispatch }) => {
         dispatch(
-            moveLabelsForRbfAction({
+            moveLabelsForRbfThunk({
                 toBeMovedOrDeletedList: labelsToBeEdited,
                 newTxid: txid,
             }),
@@ -272,11 +268,15 @@ export const signAndPushSendFormTransactionThunk = createThunk(
             return;
         }
 
-        const isBumpFeeRbf = isRbfBumpFeeTransaction(precomposedTransaction);
+        const isBumpFeeRbf = isRbfBumpFeeTransaction(enhancedPrecomposedTransaction);
 
         // This has to be executed prior to pushing the transaction!
         const rbfLabelsToBeEdited = isBumpFeeRbf
-            ? dispatch(findLabelsToBeMovedOrDeleted({ prevTxid: precomposedTransaction.prevTxid }))
+            ? dispatch(
+                  findLabelsToBeMovedOrDeletedThunk({
+                      prevTxid: enhancedPrecomposedTransaction.prevTxid,
+                  }),
+              )
             : null;
 
         // push tx to the network
@@ -293,11 +293,11 @@ export const signAndPushSendFormTransactionThunk = createThunk(
         const result = pushResponse.payload;
         const { txid } = result.payload;
 
-        if (isBumpFeeRbf && rbfLabelsToBeEdited) {
+        if (isBumpFeeRbf && rbfLabelsToBeEdited !== null) {
             dispatch(
                 updateRbfLabelsThunk({
                     labelsToBeEdited: rbfLabelsToBeEdited,
-                    precomposedTransaction,
+                    precomposedTransaction: enhancedPrecomposedTransaction,
                     txid,
                 }),
             );

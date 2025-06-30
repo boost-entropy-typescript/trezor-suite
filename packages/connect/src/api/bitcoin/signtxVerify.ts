@@ -9,37 +9,30 @@ import {
 
 import { ERRORS, PROTO } from '../../constants';
 import type { DeviceCommands } from '../../device/DeviceCommands';
-import type { BitcoinNetworkInfo } from '../../types';
+import type { Network } from '../../types';
 
-type GetHDNode = ReturnType<typeof DeviceCommands>['getHDNode'];
-
-const derivePubKeyHash = async (
-    getHDNode: GetHDNode,
+type GetHDNode = (
     address_n: number[],
-    coinInfo: BitcoinNetworkInfo,
-    unlockPath?: PROTO.UnlockPath,
-) => {
+) => ReturnType<ReturnType<typeof DeviceCommands>['getHDNode']>;
+
+const derivePubKeyHash = async (getHDNode: GetHDNode, address_n: number[], network: Network) => {
     // regular bip44 output
     if (address_n.length === 5) {
-        const response = await getHDNode(
-            { address_n: address_n.slice(0, 4) },
-            { coinInfo, unlockPath },
-        );
-        const node = bip32.fromBase58(response.xpub, coinInfo.network);
+        const response = await getHDNode(address_n.slice(0, 4));
+        const node = bip32.fromBase58(response.xpub, network);
 
         return node.derive(address_n[address_n.length - 1]);
     }
     // custom address_n
-    const response = await getHDNode({ address_n }, { coinInfo, unlockPath });
+    const response = await getHDNode(address_n);
 
-    return bip32.fromBase58(response.xpub, coinInfo.network);
+    return bip32.fromBase58(response.xpub, network);
 };
 
-const deriveOutputScript = async (
+export const deriveOutputScript = async (
     getHDNode: GetHDNode,
     output: PROTO.TxOutputType,
-    coinInfo: BitcoinNetworkInfo,
-    unlockPath?: PROTO.UnlockPath,
+    network: Network,
 ) => {
     // skip multisig output check, not implemented yet
     // TODO: implement it
@@ -51,7 +44,7 @@ const deriveOutputScript = async (
     }
 
     if (output.address) {
-        return BitcoinJsAddress.toOutputScript(output.address, coinInfo.network);
+        return BitcoinJsAddress.toOutputScript(output.address, network);
     }
 
     if (!output.address_n) {
@@ -61,8 +54,8 @@ const deriveOutputScript = async (
         );
     }
 
-    const node = await derivePubKeyHash(getHDNode, output.address_n, coinInfo, unlockPath);
-    const payment = { hash: node.identifier, network: coinInfo.network };
+    const node = await derivePubKeyHash(getHDNode, output.address_n, network);
+    const payment = { hash: node.identifier, network };
 
     if (output.script_type === 'PAYTOADDRESS') {
         return BitcoinJsPayments.p2pkh(payment).output;
@@ -85,7 +78,7 @@ const deriveOutputScript = async (
     if (output.script_type === 'PAYTOTAPROOT') {
         return BitcoinJsPayments.p2tr({
             pubkey: node.publicKey,
-            network: coinInfo.network,
+            network,
         }).output;
     }
 
@@ -103,16 +96,18 @@ const deriveOutputScript = async (
     );
 };
 
-export const verifyTx = async (
-    getHDNode: GetHDNode,
-    inputs: PROTO.TxInputType[],
-    outputs: PROTO.TxOutputType[],
+export const verifyTx = (
     serializedTx: string,
-    coinInfo: BitcoinNetworkInfo,
-    unlockPath?: PROTO.UnlockPath,
-) => {
+    params: {
+        inputs: PROTO.TxInputType[];
+        outputs: PROTO.TxOutputType[];
+        outputScripts: Awaited<ReturnType<typeof deriveOutputScript>>[];
+        network: Network;
+    },
+): BitcoinJsTransaction => {
+    const { inputs, outputs, outputScripts, network } = params;
     // deserialize signed transaction
-    const bitcoinTx = BitcoinJsTransaction.fromHex(serializedTx, { network: coinInfo.network });
+    const bitcoinTx = BitcoinJsTransaction.fromHex(serializedTx, { network });
 
     // check inputs and outputs length
     if (inputs.length !== bitcoinTx.ins.length) {
@@ -123,108 +118,26 @@ export const verifyTx = async (
         throw ERRORS.TypedError('Runtime', 'verifyTx: Signed transaction outputs invalid length');
     }
 
+    outputs.forEach((output, i) => {
+        if (output.amount) {
+            if (output.amount.toString() !== bitcoinTx.outs[i].value) {
+                throw ERRORS.TypedError(
+                    'Runtime',
+                    `verifyTx: Wrong output amount at output ${i}. Requested: ${output.amount}, signed: ${bitcoinTx.outs[i].value}`,
+                );
+            }
+        }
+    });
+
     // check outputs scripts
     for (let i = 0; i < outputs.length; i++) {
         const scriptB = bitcoinTx.outs[i].script;
 
-        if (outputs[i].amount) {
-            const { amount } = outputs[i];
-            if (amount.toString() !== bitcoinTx.outs[i].value) {
-                throw ERRORS.TypedError(
-                    'Runtime',
-                    `verifyTx: Wrong output amount at output ${i}. Requested: ${amount}, signed: ${bitcoinTx.outs[i].value}`,
-                );
-            }
-        }
-
-        const scriptA = await deriveOutputScript(getHDNode, outputs[i], coinInfo, unlockPath);
+        const scriptA = outputScripts[i];
         if (scriptA && scriptA.compare(scriptB) !== 0) {
             throw ERRORS.TypedError('Runtime', `verifyTx: Output ${i} scripts differ`);
         }
     }
 
     return bitcoinTx;
-};
-
-export const verifyTicketTx = async (
-    getHDNode: GetHDNode,
-    inputs: PROTO.TxInputType[],
-    outputs: PROTO.TxOutputType[],
-    serializedTx: string,
-    coinInfo: BitcoinNetworkInfo,
-) => {
-    // deserialize signed transaction
-    const bitcoinTx = BitcoinJsTransaction.fromHex(serializedTx, { network: coinInfo.network });
-
-    // check inputs and outputs length
-    if (inputs.length !== bitcoinTx.ins.length) {
-        throw ERRORS.TypedError(
-            'Runtime',
-            'verifyTicketTx: Signed transaction inputs invalid length',
-        );
-    }
-
-    if (outputs.length !== bitcoinTx.outs.length || outputs.length !== 3) {
-        throw ERRORS.TypedError(
-            'Runtime',
-            'verifyTicketTx: Signed transaction outputs invalid length',
-        );
-    }
-
-    // check outputs scripts
-    for (let i = 0; i < outputs.length; i++) {
-        const scriptB = bitcoinTx.outs[i].script;
-        const output = outputs[i];
-        let scriptA;
-        if (i === 0) {
-            const { amount } = output;
-            if (amount !== bitcoinTx.outs[i].value) {
-                throw ERRORS.TypedError(
-                    'Runtime',
-                    `verifyTicketTx: Wrong output amount at output ${i}. Requested: ${amount}, signed: ${bitcoinTx.outs[i].value}`,
-                );
-            }
-            scriptA = BitcoinJsPayments.sstxpkh({
-                address: output.address,
-                network: coinInfo.network,
-            }).output;
-        } else if (i === 1) {
-            // Should be no script.
-            if (output.address) {
-                throw ERRORS.TypedError(
-                    'Runtime',
-                    `verifyTicketTx: Output 1 should not have address.`,
-                );
-            }
-            if (!output.address_n) {
-                throw ERRORS.TypedError(
-                    'Runtime',
-                    `verifyTicketTx: Output 1 should have address_n.`,
-                );
-            }
-
-            const node = await derivePubKeyHash(getHDNode, output.address_n, coinInfo);
-            scriptA = BitcoinJsPayments.sstxcommitment({
-                hash: node.identifier,
-                amount: output.amount.toString(),
-                network: coinInfo.network,
-            }).output;
-        } else {
-            const { amount } = output;
-            if (amount !== bitcoinTx.outs[i].value) {
-                throw ERRORS.TypedError(
-                    'Runtime',
-                    `verifyTicketTx: Wrong output amount at output ${i}. Requested: ${amount}, signed: ${bitcoinTx.outs[i].value}`,
-                );
-            }
-            scriptA = BitcoinJsPayments.sstxchange({
-                address: output.address,
-                network: coinInfo.network,
-            }).output;
-        }
-
-        if (scriptA && scriptA.compare(scriptB) !== 0) {
-            throw ERRORS.TypedError('Runtime', `verifyTx: Output ${i} scripts differ`);
-        }
-    }
 };

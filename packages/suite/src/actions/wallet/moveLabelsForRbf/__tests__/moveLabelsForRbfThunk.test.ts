@@ -4,21 +4,22 @@ import { configureMockStore, initPreloadedState } from '@suite-common/test-utils
 
 import metadataReducer, {
     selectLabelingDataForAccount,
-} from '../../../reducers/suite/metadataReducer';
-import suiteReducer from '../../../reducers/suite/suiteReducer';
-import { accountsReducer, transactionsReducer } from '../../../reducers/wallet';
+} from '../../../../reducers/suite/metadataReducer';
+import suiteReducer from '../../../../reducers/suite/suiteReducer';
+import { accountsReducer, transactionsReducer } from '../../../../reducers/wallet';
 import {
     accountReceivingCoins,
     accountSpendingCoins,
     moveLabelsForRbfAccountsFixture,
-} from '../__fixtures__/moveLabelsForRbf/moveLabelsForRbfAccounts.fixture';
-import { moveLabelsForRbfMetadataStateFixture } from '../__fixtures__/moveLabelsForRbf/moveLabelsForRbfMetadataState.fixture';
+} from '../__fixtures__/moveLabelsForRbfAccounts.fixture';
+import { moveLabelsForRbfMetadataStateFixture } from '../__fixtures__/moveLabelsForRbfMetadataState.fixture';
 import {
     moveLabelsForRbfTransactionsFixture,
     originalTransactionSpendAccount,
     transactionSendingCoinsReplacement,
-} from '../__fixtures__/moveLabelsForRbf/moveLabelsForRbfTransactions.fixture';
-import { findLabelsToBeMovedOrDeleted, moveLabelsForRbfAction } from '../moveLabelsForRbfActions';
+} from '../__fixtures__/moveLabelsForRbfTransactions.fixture';
+import { findLabelsToBeMovedOrDeletedThunk } from '../findLabelsToBeMovedOrDeletedThunk';
+import { moveLabelsForRbfThunk } from '../moveLabelsForRbfThunk';
 
 const rootReducer = combineReducers({
     wallet: combineReducers({
@@ -53,7 +54,7 @@ const initStore = ({
     return store;
 };
 
-describe(moveLabelsForRbfAction.name, () => {
+describe(moveLabelsForRbfThunk.name, () => {
     it('moves the labels onto new RBF transaction and deletes the label of the chained transaction', async () => {
         const store = initStore({
             wallet: {
@@ -67,13 +68,13 @@ describe(moveLabelsForRbfAction.name, () => {
         });
 
         const toBeMovedOrDeletedList = store.dispatch(
-            findLabelsToBeMovedOrDeleted({
+            findLabelsToBeMovedOrDeletedThunk({
                 prevTxid: originalTransactionSpendAccount.txid,
             }),
         );
 
         await store.dispatch(
-            moveLabelsForRbfAction({
+            moveLabelsForRbfThunk({
                 toBeMovedOrDeletedList,
                 newTxid: transactionSendingCoinsReplacement.txid,
             }),

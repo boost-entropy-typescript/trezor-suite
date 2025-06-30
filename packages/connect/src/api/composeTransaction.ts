@@ -1,6 +1,7 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/core/methods/ComposeTransaction.js
 
 import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { promiseAllSequence } from '@trezor/utils/src/promiseAllSequence';
 import { resolveAfter } from '@trezor/utils/src/resolveAfter';
 import type { ComposeOutput, TransactionInputOutputSortingStrategy } from '@trezor/utxo-lib';
 
@@ -11,6 +12,7 @@ import { AbstractMethod } from '../core/AbstractMethod';
 import { UI, createUiMessage } from '../events';
 import {
     TransactionComposer,
+    deriveOutputScript,
     enhanceSignTx,
     getReferencedTransactions,
     inputToTrezor,
@@ -383,13 +385,15 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
     }
 
     async _sign(tx: ComposeResult) {
+        const { device, params } = this;
+
         if (tx.type !== 'final')
             throw ERRORS.TypedError('Runtime', 'ComposeTransaction: Trying to sign unfinished tx');
 
-        const { coinInfo } = this.params;
+        const { coinInfo } = params;
 
         const options = enhanceSignTx({}, coinInfo);
-        const inputs = tx.inputs.map(inp => inputToTrezor(inp, this.params.sequence));
+        const inputs = tx.inputs.map(inp => inputToTrezor(inp, params.sequence));
         const outputs = tx.outputs.map(outputToTrezor);
 
         let refTxs: RefTransaction[] = [];
@@ -402,11 +406,18 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
                 .then(transformReferencedTransactions);
         }
 
-        const signTxMethod = !this.device.unavailableCapabilities.replaceTransaction
+        const getHDNode = (address_n: number[]) =>
+            device.getCommands().getHDNode({ address_n }, { coinInfo: params.coinInfo });
+
+        const outputScripts = await promiseAllSequence(
+            outputs.map(output => () => deriveOutputScript(getHDNode, output, coinInfo.network)),
+        );
+
+        const signTxMethod = !device.unavailableCapabilities.replaceTransaction
             ? signTx
             : signTxLegacy;
 
-        const cmd = this.device.getCommands();
+        const cmd = device.getCommands();
         const response = await signTxMethod({
             typedCall: cmd.typedCall,
             inputs,
@@ -416,9 +427,14 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
             coinInfo,
         });
 
-        await verifyTx(cmd.getHDNode, inputs, outputs, response.serializedTx, coinInfo);
+        verifyTx(response.serializedTx, {
+            inputs,
+            outputs,
+            outputScripts,
+            network: coinInfo.network,
+        });
 
-        if (this.params.push) {
+        if (params.push) {
             const blockchain = await this.getBlockchain();
             const txid = await blockchain.pushTransaction(response.serializedTx);
 
