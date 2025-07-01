@@ -1,28 +1,37 @@
-import { createPublicKey } from 'crypto';
 import { decode, verify } from 'jws';
 
 import { FirmwareReleaseConfig } from '@trezor/device-utils';
-import { getJWSPublicKey, isCodesignBuild } from '@trezor/env-utils';
+import { getJWSPublicKey } from '@trezor/env-utils';
 
-import { JWS_SIGN_ALGORITHM, RELEASES_URL_REMOTE } from './constants';
-import { jws as releasesJwsLocal } from '../static/releases.v1';
+import { firmwareReleaseConfigAssets } from './assetUtils';
+
+type FirmwareUpdateSource = 'production' | 'test-unsigned' | 'test-signed';
+
+const JWS_SIGN_ALGORITHM = 'ES256';
+const VERSION = 1;
+const JWS_RELEASES_FILENAME_REMOTE = `releases.v${VERSION}.jws`;
+
+export const RELEASES_URL_REMOTE_BASE = 'https://data.trezor.io/suite/firmware';
+export const RELEASES_URL_REMOTE: Record<FirmwareUpdateSource, string> = {
+    production: `${RELEASES_URL_REMOTE_BASE}/production/${JWS_RELEASES_FILENAME_REMOTE}`,
+    'test-unsigned': `${RELEASES_URL_REMOTE_BASE}/unsigned/${JWS_RELEASES_FILENAME_REMOTE}`,
+    'test-signed': `${RELEASES_URL_REMOTE_BASE}/signed/${JWS_RELEASES_FILENAME_REMOTE}`,
+};
 
 // Enable this for local development purposes:
 // set to true to always fetch local JWS
 // TODO: WIP: for now we are forcing local since it was not deployed yet.
 const FORCE_LOCAL_JWS = true;
 
-export const getFirmwareReleaseConfig = async () => {
+const getReleaseJWS = async (firmwareUpdateSource: FirmwareUpdateSource = 'production') => {
     if (FORCE_LOCAL_JWS) {
         return {
-            releasesJws: releasesJwsLocal,
+            releasesJws: firmwareReleaseConfigAssets.jws,
             isRemote: false,
         };
     }
 
-    const remoteReleasesUrl = isCodesignBuild()
-        ? RELEASES_URL_REMOTE.stable
-        : RELEASES_URL_REMOTE.develop;
+    const remoteReleasesUrl = RELEASES_URL_REMOTE[firmwareUpdateSource];
 
     try {
         const controller = new AbortController();
@@ -48,14 +57,14 @@ export const getFirmwareReleaseConfig = async () => {
         console.error(`Fetching of remote JWS config failed: ${error}`);
 
         return {
-            releasesJws: releasesJwsLocal,
+            releasesJws: firmwareReleaseConfigAssets.jws,
             isRemote: false,
         };
     }
 };
 
-export const getReleasesMessage = async () => {
-    const { releasesJws } = await getFirmwareReleaseConfig();
+export const getFirmwareReleaseConfig = async () => {
+    const { releasesJws, isRemote } = await getReleaseJWS();
 
     const decodedJws = decode(releasesJws);
 
@@ -63,20 +72,28 @@ export const getReleasesMessage = async () => {
         throw new Error('Decoding of releases failed.');
     }
 
+    if (isRemote) {
+        const decodedJwsLocal = decode(firmwareReleaseConfigAssets.jws);
+
+        if (decodedJwsLocal && decodedJwsLocal.payload.sequence > decodedJws.payload.sequence) {
+            throw new Error(
+                'Local firmware release config cannot have greater sequence than remote.',
+            );
+        }
+    }
+
     const algorithmInHeader = decodedJws?.header.alg;
     if (algorithmInHeader !== JWS_SIGN_ALGORITHM) {
         throw Error(`Wrong algorithm in JWS config header: ${algorithmInHeader}`);
     }
 
-    const JWSPublicKey = getJWSPublicKey('message-system');
+    const JWSPublicKey = getJWSPublicKey('firmware-release');
     if (!JWSPublicKey) {
         throw new Error('JWS public key is not defined!');
     }
 
     try {
-        const publicKey = createPublicKey(JWSPublicKey);
-        const publicKeyString = publicKey.export({ type: 'spki', format: 'pem' });
-        const isAuthenticityValid = verify(releasesJws, JWS_SIGN_ALGORITHM, publicKeyString);
+        const isAuthenticityValid = verify(releasesJws, JWS_SIGN_ALGORITHM, JWSPublicKey);
 
         if (!isAuthenticityValid) {
             throw new Error('Config authenticity is invalid');

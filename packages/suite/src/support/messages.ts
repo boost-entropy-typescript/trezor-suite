@@ -2270,9 +2270,9 @@ export default defineMessages({
             "Address has no transaction history and isn't checksummed. Check that the address is correct.",
         id: 'TR_ETH_ADDRESS_NOT_USED_NOT_CHECKSUMMED',
     },
-    TR_ETH_ADDRESS_CANT_VERIFY_HISTORY: {
+    TR_ADDRESS_CANT_VERIFY_HISTORY: {
         defaultMessage: 'Unable to verify address history. Check that the address is correct.',
-        id: 'TR_ETH_ADDRESS_CANT_VERIFY_HISTORY',
+        id: 'TR_ADDRESS_CANT_VERIFY_HISTORY',
     },
     TR_EVM_ADDRESS_IS_CONTRACT: {
         defaultMessage: "You're sending funds to a contract address.",
@@ -5280,14 +5280,6 @@ export default defineMessages({
         defaultMessage:
             'For experienced users only. Use at your own risk. These features are in testing, may be unstable, and might not have long-term support.',
     },
-    TR_EXPERIMENTAL_STELLAR_SUPPORT: {
-        id: 'TR_EXPERIMENTAL_STELLAR_SUPPORT',
-        defaultMessage: 'Support for the Stellar network',
-    },
-    TR_EXPERIMENTAL_STELLAR_SUPPORT_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_STELLAR_SUPPORT_DESCRIPTION',
-        defaultMessage: 'Include the Stellar network in coin settings.',
-    },
     TR_GO_TO_EXP_FEATURE: {
         id: 'TR_GO_TO_EXP_FEATURE',
         defaultMessage: 'Open',
@@ -5713,6 +5705,11 @@ export default defineMessages({
     TR_CONVERT_TO_CHECKSUM_ADDRESS: {
         defaultMessage: 'Convert to checksum',
         id: 'TR_CONVERT_TO_CHECKSUM_ADDRESS',
+    },
+    TR_SOL_ADDRESS_IS_ASSOCIATED_ACCOUNT: {
+        defaultMessage:
+            'You are sending funds to an associated account (e.g. token or staking account).',
+        id: 'TR_SOL_ADDRESS_IS_ASSOCIATED_ACCOUNT',
     },
     RECIPIENT_CANNOT_SEND_TO_MYSELF: {
         defaultMessage: "Can't send to myself",
@@ -7421,6 +7418,10 @@ export default defineMessages({
         id: 'TR_DEVICE_COMPROMISED_FW_REVISION_CHECK_TEXT',
         defaultMessage: 'Your device firmware revision check failed.',
     },
+    TR_DEVICE_COMPROMISED_FIRMWARE_WONT_UPDATE_TEXT: {
+        id: 'TR_DEVICE_COMPROMISED_FIRMWARE_WONT_UPDATE_TEXT',
+        defaultMessage: 'Your device rejects firmware installation.',
+    },
     TR_DEVICE_COMPROMISED_DEVICE_AUTHENTICITY_TEXT: {
         id: 'TR_DEVICE_COMPROMISED_DEVICE_AUTHENTICITY_TEXT',
         defaultMessage: 'Your device authentication check failed.',
@@ -7623,6 +7624,26 @@ export default defineMessages({
         defaultMessage:
             'Verification failed multiple times. Your Trezor device might not be genuine.',
     },
+    TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_HEADING: {
+        id: 'TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_HEADING',
+        defaultMessage: 'Check the displayed message on your Trezor Model One',
+    },
+    TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_TEXT_BEFORE_IMAGE: {
+        id: 'TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_TEXT_BEFORE_IMAGE',
+        defaultMessage: 'Your Trezor Model One should display this screen:',
+    },
+    TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_TEXT_AFTER_IMAGE: {
+        id: 'TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_TEXT_AFTER_IMAGE',
+        defaultMessage: 'Do you see this message?',
+    },
+    TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_NO_BUTTON: {
+        id: 'TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_NO_BUTTON',
+        defaultMessage: 'I see something else',
+    },
+    TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_YES_BUTTON: {
+        id: 'TR_FIRMWARE_INSTALLATION_PROGRESS_CHECK_YES_BUTTON',
+        defaultMessage: 'Yes, I see it',
+    },
     TR_ONBOARDING_COINS_STEP: {
         id: 'TR_ONBOARDING_COINS_STEP',
         defaultMessage: 'Activate coins',
@@ -7755,7 +7776,7 @@ export default defineMessages({
     TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_DESCRIPTION: {
         id: 'TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_DESCRIPTION',
         defaultMessage:
-            'Restarting your computer may fix the communication issue between your browser and device.',
+            'Restarting your computer may fix the communication issue between Trezor Suite and your Trezor device.',
     },
     TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN: {
         id: 'TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN',
@@ -10457,5 +10478,55 @@ export default defineMessages({
     TR_DEFAULT_ACCOUNT: {
         id: 'TR_DEFAULT_ACCOUNT',
         defaultMessage: 'Default account',
+    },
+    TR_DOMAIN: {
+        id: 'TR_DOMAIN',
+        defaultMessage: 'Domain',
+    },
+    TR_REVIEW_TRANSACTION: {
+        id: 'TR_REVIEW_TRANSACTION',
+        defaultMessage: 'Review transaction',
+    },
+    TR_SIMULATION: {
+        id: 'TR_SIMULATION',
+        defaultMessage: 'Simulation',
+    },
+    TR_SIMULATION_POWERED_BY: {
+        id: 'TR_SIMULATION_POWERED_BY',
+        defaultMessage: 'Simulation powered by {provider}',
+    },
+    TR_SIMULATION_ERROR: {
+        id: 'TR_SIMULATION_ERROR',
+        defaultMessage: 'Unable to simulate transaction. Proceed at your own risk.',
+    },
+    TR_SIMULATION_WARNING: {
+        id: 'TR_SIMULATION_WARNING',
+        defaultMessage:
+            'This transaction is potentially risky! Please make sure you trust the source.',
+    },
+    TR_SIMULATION_MALICIOUS: {
+        id: 'TR_SIMULATION_MALICIOUS',
+        defaultMessage:
+            'This transaction is likely malicious! We recommend not to engage with this app.',
+    },
+    TR_SIMULATION_DISCLAIMER_OVERRIDE: {
+        id: 'TR_SIMULATION_DISCLAIMER_OVERRIDE',
+        defaultMessage: 'I want to ignore the warning and proceed anyways',
+    },
+    TR_CONTRACT_INFO: {
+        id: 'TR_CONTRACT_INFO',
+        defaultMessage: 'Contract info',
+    },
+    TR_PROTOCOL: {
+        id: 'TR_PROTOCOL',
+        defaultMessage: 'Protocol',
+    },
+    TR_CONTRACT_FUNCTION: {
+        id: 'TR_CONTRACT_FUNCTION',
+        defaultMessage: 'Contract function',
+    },
+    TR_SIMULATION_NO_ASSETS: {
+        id: 'TR_SIMULATION_NO_ASSETS',
+        defaultMessage: 'No asset changes detected',
     },
 } as const);

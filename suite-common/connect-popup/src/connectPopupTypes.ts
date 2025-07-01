@@ -49,19 +49,32 @@ export type ConnectPopupCallLoaded = {
     };
     source: ConnectCallSource;
     payload: any;
+    selectedFee?:
+        | {
+              gasPrice: undefined;
+              maxFeePerGas: string;
+              maxPriorityFeePerGas: string;
+              gasLimit: string;
+          }
+        | {
+              gasPrice: string;
+              maxFeePerGas: undefined;
+              maxPriorityFeePerGas: undefined;
+              gasLimit: string;
+          };
 } & (
     | {
           state: 'ongoing';
-          permissionDecision?: undefined;
+          decision?: undefined;
           selectedAccountKey?: string;
       }
     | {
           state: 'finished';
-          permissionDecision?: undefined;
+          decision?: undefined;
       }
     | {
           state: 'permission-request';
-          permissionDecision: Deferred<void>;
+          decision: Deferred<void>;
       }
     | {
           state: 'deeplink-callback';
@@ -79,6 +92,12 @@ export type ConnectPopupCallLoaded = {
     | {
           state: 'call-error';
           error: ConnectSerializedError;
+      }
+    | {
+          state: 'tx-simulation';
+          decision: Deferred<void>;
+          selectedAccountKey?: string;
+          fromAddress: string;
       }
 );
 

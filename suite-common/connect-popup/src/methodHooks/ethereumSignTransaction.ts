@@ -2,19 +2,49 @@ import { Bip43Path, getNetworkByEvmChainId } from '@suite-common/wallet-config';
 import {
     accountsActions,
     selectAccountForNetworkSymbolAndPath,
+    selectSelectedDevice,
     sendFormActions,
 } from '@suite-common/wallet-core';
-import { Account } from '@suite-common/wallet-types';
+import { Account, PrecomposedTransactionFinal } from '@suite-common/wallet-types';
 import TrezorConnect from '@trezor/connect';
 import type { EthereumSignTransaction } from '@trezor/connect';
 import { getSerializedPath, validatePath } from '@trezor/connect/src/utils/pathUtils';
+import { createDeferred } from '@trezor/utils';
 
 import { connectPopupActions } from '../connectPopupActions';
 import { createPlaceholderAccount } from './utils';
+import { selectConnectPopupCall } from '../connectPopupReducer';
 
 import { PostCallHookParams, PreCallHookParams } from './index';
 
 const temporaryAccounts: Account[] = [];
+
+const _storePrecomposedTransaction = ({
+    typedPayload,
+    txSigningPrecomposed,
+}: {
+    typedPayload: EthereumSignTransaction;
+    txSigningPrecomposed: PrecomposedTransactionFinal;
+}) =>
+    sendFormActions.storePrecomposedTransaction({
+        formState: {
+            // Can be left empty, not used in tx review modal
+            outputs: [],
+            feeLimit: '',
+            feePerUnit: '',
+            selectedUtxos: [],
+            isCoinControlEnabled: false,
+            hasCoinControlBeenOpened: false,
+            options: ['ethereumNonce', 'ethereumData'],
+            selectedFee: 'custom',
+            ethereumDataAscii: '',
+            ethereumDataHex: typedPayload.transaction.data?.replace(/^0x/, ''),
+            ethereumNonce: typedPayload.transaction.nonce,
+        },
+        precomposedTransaction: {
+            ...txSigningPrecomposed,
+        },
+    });
 
 const preCallHook = async <M extends keyof typeof TrezorConnect>({
     method,
@@ -22,8 +52,10 @@ const preCallHook = async <M extends keyof typeof TrezorConnect>({
     getState,
     dispatch,
     txSigningPrecomposed,
+    source,
 }: PreCallHookParams<M>) => {
     try {
+        // Prepare selected account
         if (method === 'ethereumSignTransaction' && txSigningPrecomposed) {
             const typedPayload = payload as any as EthereumSignTransaction;
             const path = getSerializedPath(validatePath(typedPayload.path)) as Bip43Path;
@@ -52,35 +84,82 @@ const preCallHook = async <M extends keyof typeof TrezorConnect>({
                     selectedAccountKey: selectedAccount.key,
                 }),
             );
+            dispatch(_storePrecomposedTransaction({ typedPayload, txSigningPrecomposed }));
+        }
+
+        if (
+            (method === 'ethereumSignTransaction' || method === 'ethereumSignTypedData') &&
+            source.type !== 'desktop-ws'
+        ) {
+            // Display simulation
+            const device = selectSelectedDevice(getState());
+            if (!device) throw new Error('No device selected');
+            const accountAddress = await TrezorConnect.ethereumGetAddress({
+                path: (payload as any).path,
+                device: {
+                    path: device.path,
+                    instance: device.instance,
+                    state: device.state,
+                },
+                useEmptyPassphrase: device.useEmptyPassphrase,
+                showOnTrezor: false,
+            });
+            if (!accountAddress.success) throw new Error(accountAddress.payload.error);
+            const decision = createDeferred();
             dispatch(
-                sendFormActions.storePrecomposedTransaction({
-                    formState: {
-                        // Can be left empty, not used in tx review modal
-                        outputs: [],
-                        feeLimit: '',
-                        feePerUnit: '',
-                        selectedUtxos: [],
-                        isCoinControlEnabled: false,
-                        hasCoinControlBeenOpened: false,
-                        options: ['ethereumNonce', 'ethereumData'],
-                        selectedFee: 'custom',
-                        ethereumDataAscii: '',
-                        ethereumDataHex: typedPayload.transaction.data,
-                        ethereumNonce: typedPayload.transaction.nonce,
-                    },
-                    precomposedTransaction: txSigningPrecomposed,
+                connectPopupActions.txSimulation({
+                    decision,
+                    fromAddress: accountAddress.payload.address,
                 }),
             );
+            await decision.promise;
+        }
+
+        // Modify payload to include selected fee, if present
+        if (method === 'ethereumSignTransaction') {
+            const currentPopupCall = selectConnectPopupCall(getState());
+            const typedPayload = payload as any as EthereumSignTransaction;
+            if (
+                (currentPopupCall?.state === 'ongoing' ||
+                    currentPopupCall?.state === 'tx-simulation') &&
+                currentPopupCall?.selectedFee
+            ) {
+                const modifiedPayload = {
+                    ...typedPayload,
+                    transaction: {
+                        ...typedPayload.transaction,
+                        ...currentPopupCall.selectedFee,
+                    },
+                } satisfies EthereumSignTransaction;
+
+                // Update precomposed transaction
+                const methodInfo = await TrezorConnect.ethereumSignTransaction({
+                    ...modifiedPayload,
+                    __info: true,
+                });
+                if (!methodInfo.success) {
+                    throw methodInfo.payload;
+                }
+                txSigningPrecomposed = (methodInfo.payload as any).precomposed;
+                if (txSigningPrecomposed)
+                    dispatch(_storePrecomposedTransaction({ typedPayload, txSigningPrecomposed }));
+
+                return modifiedPayload;
+            }
         }
     } catch (error) {
         // If an error occurs it's not a problem, we just fall back to generic UI
         console.error(`Error in Connect Popup ${method} hook:`, error);
+        if (error.code === 'Method_Cancel') {
+            // User cancelled the operation
+            throw error;
+        }
     }
 };
 
-export function postCallHook<M extends keyof typeof TrezorConnect>({
+const postCallHook = <M extends keyof typeof TrezorConnect>({
     dispatch,
-}: PostCallHookParams<M>) {
+}: PostCallHookParams<M>) => {
     if (temporaryAccounts.length) {
         // Remove temporary accounts
         dispatch(accountsActions.removeAccount(temporaryAccounts));
@@ -88,7 +167,7 @@ export function postCallHook<M extends keyof typeof TrezorConnect>({
     }
 
     return false;
-}
+};
 
 export const ethereumSignTransaction = {
     preCallHook,

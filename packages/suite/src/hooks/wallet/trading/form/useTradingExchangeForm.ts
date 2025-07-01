@@ -26,7 +26,7 @@ import {
     useTradingInfo,
 } from '@suite-common/trading';
 import { getNetwork } from '@suite-common/wallet-config';
-import { selectAccountByKey } from '@suite-common/wallet-core';
+import { fetchAndUpdateAccountThunk, selectAccountByKey } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
 import { toFiatCurrency } from '@suite-common/wallet-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
@@ -230,7 +230,7 @@ export const useTradingExchangeForm = ({
     const helpers = useTradingFormActions({
         account,
         methods,
-        isNotFormPage,
+        pageType,
         draftUpdated,
         type,
         handleChange,
@@ -543,6 +543,8 @@ export const useTradingExchangeForm = ({
 
     const watchTradeApproval = useCallback(
         async (refreshCount: number) => {
+            await dispatch(fetchAndUpdateAccountThunk({ accountKey: account.key }));
+
             const commonFunctions = await getCommonFunctions(trade?.data);
 
             if (!commonFunctions) return;

@@ -22,7 +22,7 @@ const initiateCall = createAction(
 
 const requestPermissions = createAction(
     `${ACTION_PREFIX}/requestPermissions`,
-    (payload: Pick<ConnectPopupCall & { state: 'permission-request' }, 'permissionDecision'>) => ({
+    (payload: Pick<ConnectPopupCall & { state: 'permission-request' }, 'decision'>) => ({
         payload,
     }),
 );
@@ -74,6 +74,20 @@ const forgetAppPermissions = createAction(
     }),
 );
 
+const txSimulation = createAction(
+    `${ACTION_PREFIX}/txSimulation`,
+    (payload: Pick<ConnectPopupCall & { state: 'tx-simulation' }, 'decision' | 'fromAddress'>) => ({
+        payload,
+    }),
+);
+
+const setSelectedFee = createAction(
+    `${ACTION_PREFIX}/txSimulationSetFee`,
+    (payload: Pick<ConnectPopupCall & { state: 'tx-simulation' | 'ongoing' }, 'selectedFee'>) => ({
+        payload,
+    }),
+);
+
 export const connectPopupActions = {
     initiateCall,
     requestPermissions,
@@ -86,4 +100,6 @@ export const connectPopupActions = {
     setError,
     rememberAppPermissions,
     forgetAppPermissions,
+    txSimulation,
+    setSelectedFee,
 } as const;

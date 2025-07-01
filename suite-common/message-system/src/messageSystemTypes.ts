@@ -48,6 +48,9 @@ export const Feature = {
         buy: 'trading.buy',
         sell: 'trading.sell',
         exchange: 'trading.exchange',
+        restrictions: {
+            blacklist: 'trading.restrictions.blacklist',
+        },
     },
 
     // device onboarding (MOBILE ONLY!!!).
@@ -83,6 +86,9 @@ const getTradingContext = (type: TradingType) => `trading.${type}` as const;
 export type SettingsCategory = 'general' | 'device' | 'networks' | 'debug';
 const getSettingsContext = (category: SettingsCategory) => `settings.${category}` as const;
 
+export type LegalContextKey = 'gateway';
+const getLegalContext = (key: LegalContextKey) => `legal.${key}` as const;
+
 /**
  * Factory object for generating typed context keys used by the Message System.
  *
@@ -104,6 +110,7 @@ export const Context = {
     getStaking: getStakingContext,
     getTrading: getTradingContext,
     getSettings: getSettingsContext,
+    getLegal: getLegalContext,
 } as const;
 
 type FunctionKeysOf<T> = {
