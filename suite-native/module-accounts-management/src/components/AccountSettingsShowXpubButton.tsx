@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
+import {
+    AccountsRootState,
+    selectAccountByKey,
+    selectIsDeviceBackupRequired,
+    selectSelectedDevice,
+    showXpubOnDevice,
+} from '@suite-common/wallet-core';
 import { isAddressBasedNetwork } from '@suite-common/wallet-utils';
-import { Button } from '@suite-native/atoms';
+import { Button, useBottomSheetModal } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
+import { WalletBackupNotSetWarningBottomSheet } from '@suite-native/module-device-onboarding';
 import { XpubQRCodeBottomSheet } from '@suite-native/qr-code';
 import { convertTaprootXpub } from '@trezor/utils';
 
@@ -12,8 +19,22 @@ export const AccountSettingsShowXpubButton = ({ accountKey }: { accountKey: stri
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
-
     const [isXpubVisible, setIsXpubVisible] = useState(false);
+    const { bottomSheetRef, openModal, closeModal } = useBottomSheetModal();
+
+    const isDeviceBackupRequired = useSelector(selectIsDeviceBackupRequired);
+    const device = useSelector(selectSelectedDevice);
+
+    const showXpub = useCallback(() => {
+        if (!device || !account) return;
+
+        showXpubOnDevice(device, account);
+        if (isDeviceBackupRequired) {
+            openModal();
+        } else {
+            setIsXpubVisible(true);
+        }
+    }, [isDeviceBackupRequired, device, account, openModal]);
 
     if (!account) return null;
 
@@ -39,11 +60,17 @@ export const AccountSettingsShowXpubButton = ({ accountKey }: { accountKey: stri
 
     return (
         <>
-            <Button
-                size="large"
-                onPress={() => setIsXpubVisible(true)}
-                colorScheme="tertiaryElevation0"
-            >
+            {isDeviceBackupRequired && (
+                <WalletBackupNotSetWarningBottomSheet
+                    onConfirm={() => {
+                        setIsXpubVisible(true);
+                        closeModal();
+                    }}
+                    onClose={handleClose}
+                    ref={bottomSheetRef}
+                />
+            )}
+            <Button size="large" onPress={showXpub} colorScheme="tertiaryElevation0">
                 {buttonTitle}
             </Button>
             <XpubQRCodeBottomSheet

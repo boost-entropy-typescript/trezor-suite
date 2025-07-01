@@ -603,7 +603,7 @@ export default defineMessages({
         id: 'TR_EXCHANGE_APPROVAL_FORM_REFRESH_BUTTON',
     },
     TR_EXCHANGE_APPROVAL_FORM_TX_PROCESSED: {
-        defaultMessage: 'The approval transaction has been successfully processed.',
+        defaultMessage: 'The approval transaction has been processed successfully.',
         id: 'TR_EXCHANGE_APPROVAL_FORM_TX_PROCESSED',
     },
     TR_EXCHANGE_APPROVAL_SEND_TO: {
@@ -2824,6 +2824,19 @@ export default defineMessages({
     TR_LABELING: {
         defaultMessage: 'Labeling',
         id: 'TR_LABELING',
+    },
+    TR_PRIVACY: {
+        defaultMessage: 'Privacy',
+        id: 'TR_PRIVACY',
+    },
+    TR_AUTO_EJECT: {
+        defaultMessage: 'Auto eject wallets',
+        id: 'TR_AUTO_EJECT',
+    },
+    TR_AUTO_EJECT_DESCRIPTION: {
+        defaultMessage:
+            'Automatically eject all wallets when Trezor device is disconnected. Your visible balances will be removed from Suite until you reconnect your device.',
+        id: 'TR_AUTO_EJECT_DESCRIPTION',
     },
     TR_LANGUAGE: {
         defaultMessage: 'Language',
@@ -7776,7 +7789,7 @@ export default defineMessages({
     TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_DESCRIPTION: {
         id: 'TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_DESCRIPTION',
         defaultMessage:
-            'Restarting your computer may fix the communication issue between Trezor Suite and your Trezor device.',
+            'Restarting your computer may fix the communication issue between your browser and device.',
     },
     TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN: {
         id: 'TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN',
@@ -10528,5 +10541,26 @@ export default defineMessages({
     TR_SIMULATION_NO_ASSETS: {
         id: 'TR_SIMULATION_NO_ASSETS',
         defaultMessage: 'No asset changes detected',
+    },
+    TR_EXCHANGE_DETAIL_FEEDBACK_TITLE: {
+        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_TITLE',
+        defaultMessage: 'How was your trading experience with Trezor Suite?',
+    },
+    TR_EXCHANGE_DETAIL_FEEDBACK_DESCRIPTION: {
+        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_DESCRIPTION',
+        defaultMessage:
+            'Can you tell us more about your experience? Any details help make it better.',
+    },
+    TR_EXCHANGE_DETAIL_FEEDBACK_INPUT_BUTTON: {
+        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_INPUT_BUTTON',
+        defaultMessage: 'Send feedback',
+    },
+    TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_TITLE: {
+        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_TITLE',
+        defaultMessage: 'Thanks!',
+    },
+    TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_DESCRIPTION: {
+        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_DESCRIPTION',
+        defaultMessage: 'We value your feedback.',
     },
 } as const);
