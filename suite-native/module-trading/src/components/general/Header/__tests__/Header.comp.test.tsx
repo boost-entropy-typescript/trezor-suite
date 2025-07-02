@@ -6,7 +6,7 @@ import {
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
 
-import { TradingRootState } from '../../../../tradingSlice';
+import { TradingRootState } from '../../../../reducers';
 import { Header } from '../Header';
 
 describe('Header', () => {
@@ -62,11 +62,11 @@ describe('Header', () => {
                                     },
                                     {
                                         domain: 'trading.exchange',
-                                        flag: sellEnabled,
+                                        flag: exchangeEnabled,
                                     },
                                     {
                                         domain: 'trading.sell',
-                                        flag: exchangeEnabled,
+                                        flag: sellEnabled,
                                     },
                                 ],
                             },
