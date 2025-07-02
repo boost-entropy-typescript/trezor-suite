@@ -68,12 +68,10 @@ export type DevUtilsStackParamList = {
 };
 
 export type SettingsStackParamList = {
-    [SettingsStackRoutes.SettingsLocalization]: undefined;
-    [SettingsStackRoutes.SettingsCustomization]: undefined;
-    [SettingsStackRoutes.SettingsPrivacyAndSecurity]: undefined;
+    [SettingsStackRoutes.SettingsPreferences]: undefined;
+    [SettingsStackRoutes.SettingsPrivacy]: undefined;
     [SettingsStackRoutes.SettingsViewOnly]: undefined;
-    [SettingsStackRoutes.SettingsAbout]: undefined;
-    [SettingsStackRoutes.SettingsFAQ]: undefined;
+    [SettingsStackRoutes.SettingsSupport]: undefined;
     [SettingsStackRoutes.SettingsCoinEnabling]: undefined;
     [SettingsStackRoutes.SettingsDeviceChecks]: undefined;
     [SettingsStackRoutes.TurnOffDeviceAuthenticityCheck]: undefined;

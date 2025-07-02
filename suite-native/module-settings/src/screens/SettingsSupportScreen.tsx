@@ -1,17 +1,18 @@
-import { Divider, VStack } from '@suite-native/atoms';
+import { CompactCardWithIconLayout, VStack } from '@suite-native/atoms';
 import { useTranslate } from '@suite-native/intl';
 import { useOpenLink } from '@suite-native/link';
 import { Screen, ScreenHeader } from '@suite-native/navigation';
 
 import { AboutUsBanners } from '../components/AboutUsBanners';
-import { AppVersion } from '../components/AppVersion';
+import { AppCommitHash } from '../components/AppCommitHash';
+import { FAQInfoPanel } from '../components/FAQInfoPanel';
 import { SettingsSection } from '../components/SettingsSection';
-import { SettingsSectionItem } from '../components/SettingsSectionItem';
+import { SupportCard } from '../components/SupportCard';
 
-export const SettingsAboutUsScreen = () => {
-    const openLink = useOpenLink();
-
+export const SettingsSupportScreen = () => {
     const { translate } = useTranslate();
+
+    const openLink = useOpenLink();
 
     const handleOpenTermsAndConditions = () => {
         openLink('https://data.trezor.io/legal/mobile-wallet-terms.pdf');
@@ -22,23 +23,26 @@ export const SettingsAboutUsScreen = () => {
     };
 
     return (
-        <Screen header={<ScreenHeader content={translate('moduleSettings.aboutUs.title')} />}>
-            <VStack spacing="sp24">
+        <Screen header={<ScreenHeader content={translate('moduleSettings.faq.title')} />}>
+            <VStack spacing="sp40">
+                <VStack spacing="sp32">
+                    <FAQInfoPanel />
+                    <SupportCard />
+                </VStack>
                 <AboutUsBanners />
-                <Divider />
                 <SettingsSection title="Legal">
-                    <SettingsSectionItem
+                    <CompactCardWithIconLayout
                         title="Terms & conditions"
-                        iconName="filePdf"
+                        icon="filePdf"
                         onPress={handleOpenTermsAndConditions}
                     />
-                    <SettingsSectionItem
+                    <CompactCardWithIconLayout
                         title="Privacy policy"
-                        iconName="filePdf"
+                        icon="filePdf"
                         onPress={handleOpenPrivacyPolicy}
                     />
                 </SettingsSection>
-                <AppVersion />
+                <AppCommitHash />
             </VStack>
         </Screen>
     );

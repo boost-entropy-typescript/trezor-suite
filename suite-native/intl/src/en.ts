@@ -6,7 +6,8 @@
 export const en = {
     generic: {
         trezorSuite: 'Trezor Suite',
-        header: '<green>Trezor Suite</green> <grey>Lite</grey>',
+        trezorSuiteLite: 'Trezor Suite Lite',
+        header: '<grey>About</grey> <green>Trezor Suite Lite</green>',
         buttons: {
             back: 'Back',
             cancel: 'Cancel',
@@ -713,16 +714,19 @@ export const en = {
     },
     moduleSettings: {
         items: {
-            preferences: {
-                title: 'Preferences',
-
-                localization: {
-                    title: 'Localization',
-                    subtitle: 'Fiat currency, Bitcoin units',
+            general: {
+                title: 'General',
+                preferences: {
+                    title: 'Preferences',
+                    subtitle: 'Currency, theme',
                 },
-                customization: {
-                    title: 'Customization',
-                    subtitle: 'Color scheme',
+                privacy: {
+                    title: 'Privacy',
+                    subtitle: 'Biometrics, data preferences',
+                },
+                support: {
+                    title: 'Support',
+                    subtitle: 'Troubleshooting, help',
                 },
             },
             features: {
@@ -737,36 +741,25 @@ export const en = {
                 },
                 viewOnly: {
                     title: 'View-only',
-                    subtitle: 'Check balances without your Trezor',
+                    subtitle: 'See your balances without your Trezor',
                 },
                 coinEnabling: {
-                    title: 'Enabled coins',
-                    subtitle: 'Manage coins that you use',
+                    title: 'Coins',
+                    subtitle: 'Enable coins that you want to use',
                 },
                 advanced: {
                     title: 'Advanced',
                     subtitle: 'Expert features for power users ',
                 },
             },
-            support: {
-                title: 'Support',
-                help: {
-                    title: 'Get help',
-                    subtitle: 'FAQ, Customer support',
-                },
-                about: {
-                    title: 'About ',
-                },
-            },
+
             connections: {
                 title: 'Connections',
                 trezorConnect: {
                     title: 'Trezor Connect',
-                    subtitle: 'Use supported wallets and apps with your Trezor',
                 },
                 walletConnect: {
                     title: 'WalletConnect',
-                    subtitle: 'Connect external apps using the WalletConnect protocol',
                     add: 'Add WalletConnect connection',
                 },
             },
@@ -850,21 +843,33 @@ export const en = {
                 },
             },
         },
-        localizations: {
-            title: 'Localization',
-            fiatCurrencyLabel: 'Fiat currency',
+        preferences: {
+            title: 'Preferences',
+            fiatCurrencyLabel: 'Currency',
             bitcoinUnitsLabel: 'Bitcoin units',
+            theme: 'Theme',
         },
         customization: {
             title: 'Customization',
         },
         aboutUs: {
-            title: 'About Trezor Suite Lite',
+            title: '<grey>About</grey> <green>Trezor Suite Lite</green>',
             followUs: 'Follow us',
+            lastCommitHash: 'Last commit hash: {lastCommitHash}',
             body: 'Trezor Suite Lite is a safe and secure way to stay connected to the crypto on your hardware wallet. Track coin balances on the go without exposing your private data. Easily create and send payment addresses to anyone.',
         },
         privacyAndSecurity: {
             title: 'Privacy & Security',
+            analyticsSwitch: {
+                title: 'Usage data',
+                subtitle:
+                    'All collected data is anonymous and is only used to improve the Trezor ecosystem.',
+            },
+            biometrics: {
+                title: 'Biometrics',
+                subtitle: 'Use facial or fingerprint verification to unlock the app.',
+            },
+            discreetMode: 'Discreet mode',
         },
         coinEnabling: {
             initialSetup: {
@@ -2035,6 +2040,7 @@ export const en = {
         version: 'Version {firmwareVersion}',
         typeUniversal: 'Universal',
         typeBitcoinOnly: 'Bitcoin-only',
+        updateNotAvailable: 'Firmware update disabled',
         seedBottomSheet: {
             title: 'Make sure you know where to find your wallet backup.',
             description:
@@ -2045,11 +2051,13 @@ export const en = {
         updateCard: {
             upToDate: 'You’re all up to date',
             newVersionAvailable: 'Update available',
+            updateToVersionAvailable: 'Update to version {firmwareVersion} available',
             updateButton: 'Update',
         },
         firmwareUpdateScreen: {
-            updateButton: 'Update firmware',
+            updateFirmware: 'Update firmware',
             skipButton: 'Skip for now',
+            currentFirmware: 'Current Firmware',
             title: 'Firmware',
             subtitle: "Firware is your Trezor's operating system",
             changelog: {

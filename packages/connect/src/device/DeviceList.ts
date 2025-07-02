@@ -9,6 +9,7 @@ import {
     createDeferred,
     getSynchronize,
     isNotUndefined,
+    resolveAfter,
     typedObjectKeys,
 } from '@trezor/utils';
 
@@ -140,30 +141,35 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         });
     }
 
-    private onDeviceConnected(descriptor: Descriptor, transport: Transport) {
+    private async onDeviceConnected(descriptor: Descriptor, transport: Transport) {
         const id = (this.deviceCounter++).toString(16).slice(-8);
-        const device = new Device({
-            id: DeviceUniquePath(id),
-            transport,
-            descriptor,
-            listener: lifecycle => {
-                if (lifecycle === DEVICE.DISCONNECT) {
-                    this.authPenaltyManager.remove(device);
-                    const index = this.devices.indexOf(device);
-                    if (index >= 0) this.devices.splice(index, 1);
-                }
-                this.emit(lifecycle, device);
-            },
-        });
-        this.devices.push(device);
+        const device = new Device({ id: DeviceUniquePath(id), transport, descriptor });
 
         const penalty = this.authPenaltyManager.get();
-        this.handshakeLock(async () => {
-            if (this.devices.includes(device)) {
-                // device wasn't removed while waiting for lock
-                await device.handshake(penalty);
-            }
+        const stillConnected = await this.handshakeLock(() =>
+            resolveAfter(penalty && penalty + 501).then(() => device.handshake()),
+        );
+
+        if (!stillConnected) {
+            return;
+        }
+
+        this.devices.push(device);
+
+        device.lifecycle.on(DEVICE.CONNECT, () => this.emit(DEVICE.CONNECT, device));
+        device.lifecycle.on(DEVICE.CHANGED, () => this.emit(DEVICE.CHANGED, device));
+        device.lifecycle.on(DEVICE.CONNECT_UNACQUIRED, () =>
+            this.emit(DEVICE.CONNECT_UNACQUIRED, device),
+        );
+        device.lifecycle.on(DEVICE.DISCONNECT, () => {
+            device.lifecycle.removeAllListeners();
+            this.authPenaltyManager.remove(device);
+            const index = this.devices.indexOf(device);
+            if (index >= 0) this.devices.splice(index, 1);
+            this.emit(DEVICE.DISCONNECT, device);
         });
+
+        this.emit(device.isUnacquired() ? DEVICE.CONNECT_UNACQUIRED : DEVICE.CONNECT, device);
     }
 
     private getOrCreateTransportManager(apiType: TransportApiType) {
@@ -223,20 +229,17 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
 
         const descriptors = enumerateResult.payload;
 
-        const waitForDevicesPromise =
-            pendingTransportEvent && descriptors.length
-                ? this.waitForDevices(transport, descriptors, signal)
-                : Promise.resolve();
-
         transport.handleDescriptorsChange(descriptors);
         transport.listen();
 
-        await waitForDevicesPromise;
+        if (pendingTransportEvent && descriptors.length) {
+            await this.waitForDevices(transport, signal);
+        }
     }
 
     /**
      * Returned promise:
-     * - resolves when all the devices visible from given transport were acquired (or at least tried to)
+     * - resolves when all the devices visible from given transport were handshaked
      * - resolves after 10 secs (in order not to get stuck waiting for devices)
      * - rejects when aborted (e.g. because of DeviceList reinit)
      * - rejects when given transport emits an error
@@ -247,7 +250,7 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
      * implementator could get stuck waiting from TRANSPORT.START event forever. To avoid this,
      * we emit TRANSPORT.START event after autoResolveTransportEventTimeout
      */
-    private waitForDevices(transport: Transport, descriptors: Descriptor[], signal: AbortSignal) {
+    private waitForDevices(transport: Transport, signal: AbortSignal) {
         const { promise, reject, resolve } = createDeferred();
 
         const onAbort = () => reject(signal.reason);
@@ -258,28 +261,15 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
 
         const autoResolveTransportEventTimeout = setTimeout(resolve, 10000);
 
-        const remaining = descriptors.slice();
-
-        const onDeviceEvent = (device: Device) => {
-            const index = remaining.findIndex(
-                d => d.path === device.transportPath && transport === device.transport,
-            );
-            if (index >= 0) remaining.splice(index, 1);
-            if (!remaining.length) resolve();
-        };
-
-        // listen for self emitted events and resolve pending transport event if needed
-        this.on(DEVICE.CONNECT, onDeviceEvent);
-        this.on(DEVICE.CONNECT_UNACQUIRED, onDeviceEvent);
-        this.on(DEVICE.DISCONNECT, onDeviceEvent);
+        // this works because all initial device handshakes are started synchronously from
+        // initializeTransport -> transport.handleDescriptorsChange so this `resolve`
+        // in handshakeLock cannot be called before all of them are resolved
+        this.handshakeLock(resolve);
 
         return promise.finally(() => {
             transport.off(TRANSPORT.ERROR, onError);
             signal.removeEventListener('abort', onAbort);
             clearTimeout(autoResolveTransportEventTimeout);
-            this.off(DEVICE.CONNECT, onDeviceEvent);
-            this.off(DEVICE.CONNECT_UNACQUIRED, onDeviceEvent);
-            this.off(DEVICE.DISCONNECT, onDeviceEvent);
         });
     }
 

@@ -6,6 +6,8 @@ import { EventType, analytics } from '@suite-native/analytics';
 import { Select } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 
+import { PreferencesSettingsCard } from './PreferencesSettingsCard';
+
 export const transformFiatCurrencyToSelectItem = ({ code, label }: FiatCurrency) => ({
     value: code,
     label: `${code.toUpperCase()} · ${label}`,
@@ -26,12 +28,16 @@ export const CurrencySelector = () => {
     };
 
     return (
-        <Select<FiatCurrencyCode>
-            items={fiatCurrencyItems}
-            selectLabel={<Translation id="moduleSettings.localizations.fiatCurrencyLabel" />}
-            selectValue={selectedFiatCurrencyCode}
-            onSelectItem={handleSelectCurrency}
-            testID="@settings/localization/currency-selector"
-        />
+        <PreferencesSettingsCard
+            iconName="translate"
+            title={<Translation id="moduleSettings.preferences.fiatCurrencyLabel" />}
+        >
+            <Select<FiatCurrencyCode>
+                items={fiatCurrencyItems}
+                selectValue={selectedFiatCurrencyCode}
+                onSelectItem={handleSelectCurrency}
+                testID="@settings/localization/currency-selector"
+            />
+        </PreferencesSettingsCard>
     );
 };

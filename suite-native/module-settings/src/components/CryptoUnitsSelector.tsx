@@ -7,6 +7,8 @@ import { Select } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { PROTO } from '@trezor/connect';
 
+import { PreferencesSettingsCard } from './PreferencesSettingsCard';
+
 const bitcoinUnitsItems = [
     { label: 'Bitcoin', value: PROTO.AmountUnit.BITCOIN },
     { label: 'Satoshis', value: PROTO.AmountUnit.SATOSHI },
@@ -25,12 +27,16 @@ export const CryptoUnitsSelector = () => {
     };
 
     return (
-        <Select<PROTO.AmountUnit>
-            selectLabel={<Translation id="moduleSettings.localizations.bitcoinUnitsLabel" />}
-            selectValue={bitcoinUnit}
-            items={bitcoinUnitsItems}
-            onSelectItem={handleSelectUnit}
-            testID="@settings/localization/bitcoin-units-selector"
-        />
+        <PreferencesSettingsCard
+            iconName="currencyBtc"
+            title={<Translation id="moduleSettings.preferences.bitcoinUnitsLabel" />}
+        >
+            <Select<PROTO.AmountUnit>
+                selectValue={bitcoinUnit}
+                items={bitcoinUnitsItems}
+                onSelectItem={handleSelectUnit}
+                testID="@settings/localization/bitcoin-units-selector"
+            />
+        </PreferencesSettingsCard>
     );
 };
