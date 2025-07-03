@@ -44,6 +44,7 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'onPressIn' | 'onPressO
     isDisabled?: boolean;
     isLoading?: boolean;
     flex?: number;
+    isFullWidth?: boolean;
 } & MergeExclusive<{ viewLeft?: ButtonAccessory }, { viewRight?: ButtonAccessory }> &
     TestProps;
 
@@ -74,8 +75,8 @@ export type ButtonStyleProps = {
     size: ButtonSize;
     backgroundColor: Color;
     isDisabled: boolean;
+    isFullWidth: boolean;
     flex?: number;
-    hasTitle?: boolean;
 };
 
 export type ButtonTextStyleProps = {
@@ -254,7 +255,7 @@ export const buttonToIconSizeMap = {
 } as const satisfies Record<ButtonSize, IconSize>;
 
 export const buttonStyle = prepareNativeStyle<ButtonStyleProps>(
-    (utils, { size, backgroundColor, isDisabled, flex }) => {
+    (utils, { size, backgroundColor, isDisabled, flex, isFullWidth }) => {
         const sizeDimensions = buttonSizeToDimensionsMap[size];
 
         return {
@@ -270,6 +271,12 @@ export const buttonStyle = prepareNativeStyle<ButtonStyleProps>(
                     condition: isDisabled,
                     style: {
                         backgroundColor: utils.colors.backgroundNeutralDisabled,
+                    },
+                },
+                {
+                    condition: isFullWidth,
+                    style: {
+                        width: '100%',
                     },
                 },
             ],
@@ -321,6 +328,7 @@ export const Button = ({
     size = 'medium',
     isDisabled = false,
     isLoading = false,
+    isFullWidth = false,
     ...pressableProps
 }: ButtonProps) => {
     const [isPressed, setIsPressed] = useState(false);
@@ -353,6 +361,7 @@ export const Button = ({
                     backgroundColor,
                     isDisabled,
                     flex,
+                    isFullWidth,
                 }),
                 style,
             ]}
