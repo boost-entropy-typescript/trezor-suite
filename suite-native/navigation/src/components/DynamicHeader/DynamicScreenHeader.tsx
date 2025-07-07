@@ -1,16 +1,15 @@
 import { ReactNode } from 'react';
 
 import { useDynamicHeader } from './DynamicScreenHeaderContext';
-import { ScreenHeader, ScreenSubHeaderProps } from '../ScreenHeader';
+import { ScreenHeader, ScreenHeaderProps } from '../ScreenHeader';
 
 export type DynamicScreenHeaderProps = {
-    content: ReactNode;
     subtitle?: ReactNode;
     isCompactOnly?: boolean;
-} & ScreenSubHeaderProps;
+} & ScreenHeaderProps;
 
 export const DynamicScreenHeader = ({
-    content,
+    title,
     isCompactOnly = false,
     ...screenHeaderProps
 }: DynamicScreenHeaderProps) => {
@@ -19,6 +18,9 @@ export const DynamicScreenHeader = ({
     const shouldRenderScreenHeaderContent = isScrollableHeaderScrolled || isCompactOnly;
 
     return (
-        <ScreenHeader content={shouldRenderScreenHeaderContent && content} {...screenHeaderProps} />
+        <ScreenHeader
+            {...screenHeaderProps}
+            title={shouldRenderScreenHeaderContent ? title : undefined}
+        />
     );
 };
