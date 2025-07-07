@@ -354,6 +354,16 @@ export const en = {
             title: 'Make sure to return your wallet backup to a secure, private place',
             description: 'No one can recover your backup if you lose it—not even Trezor Support.',
         },
+        checkBackupUnsupportedModelScreen: {
+            title: 'To check your backup, use the web application.',
+            subtitle:
+                'Check backup for {deviceModel} is unfortunately not supported in the mobile app.',
+            redirectButton: 'Continue to Trezor Suite Web',
+            laterButton: 'I’ll do it later',
+            step1: 'Go to Trezor Suite for Web using the button below.',
+            step2: 'Complete check backup in your browser.',
+            step3: 'Start using your Trezor with\nTrezor Suite Lite.',
+        },
     },
     moduleConnectDevice: {
         connectAndUnlockScreen: {
@@ -430,6 +440,22 @@ export const en = {
             management: 'Modify device settings',
             push_tx: 'Broadcast transactions to the blockchain',
         },
+        simulation: {
+            reviewTransaction: 'Review transaction',
+            simulation: 'Simulation',
+            simulationPoweredBy: 'Simulation powered by {provider}',
+            simulationStatusError: 'Unable to simulate transaction. Proceed at your own risk.',
+            simulationStatusWarning:
+                'This transaction is potentially risky! Please make sure you trust the source.',
+            simulationStatusMalicious:
+                'This transaction is likely malicious! We recommend not to engage with this app.',
+            disclaimerOverride: 'I want to ignore the warning and proceed anyways',
+            contractInfo: 'Contract info',
+            feeInfo: 'Fee info',
+            protocol: 'Protocol',
+            address: 'Address',
+            contractFunction: 'Contract function',
+        },
         optional: 'Optional',
         alwaysAllow: 'Always allow for this app',
         confirmAddress: {
@@ -446,6 +472,8 @@ export const en = {
             invalidParams: 'Invalid parameters from calling app',
             versionUnsupported: 'Unsupported version. Please update your Trezor Suite app.',
             methodNotAllowed: 'Method not allowed for security reasons.',
+            methodCanceled: 'Call canceled by user.',
+            unknownError: 'Unknown error occurred.',
         },
         bottomSheets: {
             confirmOnDeviceMessage: 'Go to your device and verify the details of the operation.',
@@ -1715,6 +1743,8 @@ export const en = {
                         feeRate: 'Fee rate',
                         gasLimit: 'Gas limit',
                         gasPrice: 'Gas price',
+                        maxFeePerGas: 'Max fee per gas',
+                        maxPriorityFeePerGas: 'Max priority fee per gas',
                     },
                     total: 'Total fee',
                     confirmButton: 'Confirm custom fee',
