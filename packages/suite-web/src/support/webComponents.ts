@@ -1,12 +1,8 @@
-import { ComponentType, LazyExoticComponent, Suspense, lazy, memo } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { ComponentType, LazyExoticComponent, lazy } from 'react';
 
 import { PageName } from '@suite-common/suite-types';
 
-import { BundleLoader } from 'src/components/suite';
-import routes from 'src/constants/suite/routes';
-
-const components: Record<PageName, LazyExoticComponent<ComponentType<any>>> = {
+export const webComponents: Record<PageName, LazyExoticComponent<ComponentType>> = {
     'suite-index': lazy(() =>
         import(/* webpackChunkName: "dashboard" */ 'src/views/dashboard/index').then(
             ({ Dashboard }) => ({ default: Dashboard }),
@@ -154,20 +150,3 @@ const components: Record<PageName, LazyExoticComponent<ComponentType<any>>> = {
         ).then(({ SettingsConnectedApps }) => ({ default: SettingsConnectedApps })),
     ),
 };
-
-const AppRouter = () => (
-    <Suspense fallback={<BundleLoader />}>
-        <Switch>
-            {routes.map(route => (
-                <Route
-                    key={route.name}
-                    path={process.env.ASSET_PREFIX + route.pattern}
-                    exact={route.exact}
-                    component={components[route.name as PageName]}
-                />
-            ))}
-        </Switch>
-    </Suspense>
-);
-
-export default memo(AppRouter);

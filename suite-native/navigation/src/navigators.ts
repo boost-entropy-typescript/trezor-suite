@@ -90,6 +90,10 @@ export type SendStackParamList = {
         accountKey: AccountKey;
         tokenContract?: TokenAddress;
     };
+    [SendStackRoutes.SendUtxo]: {
+        accountKey: AccountKey;
+        amount?: string;
+    };
     [SendStackRoutes.SendFees]: {
         accountKey: AccountKey;
         tokenContract?: TokenAddress;

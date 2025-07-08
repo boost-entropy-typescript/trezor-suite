@@ -13,6 +13,7 @@ export const en = {
             cancel: 'Cancel',
             close: 'Close',
             confirm: 'Confirm',
+            confirmSelection: 'Confirm selection',
             continue: 'Continue',
             disable: 'Disable',
             dismiss: 'Dismiss',
@@ -819,7 +820,7 @@ export const en = {
                 },
                 walletConnect: {
                     title: 'WalletConnect',
-                    add: 'Add WalletConnect connection',
+                    add: 'Add WalletConnect',
                 },
             },
         },
@@ -935,7 +936,6 @@ export const en = {
                 title: 'Choose coins you want to use with your Trezor.',
                 subtitle:
                     'The more coins are enabled, the longer it takes to load the app. You can always add more later.',
-                button: 'Confirm selection',
             },
             settings: {
                 title: 'Enabled coins',
@@ -960,7 +960,7 @@ export const en = {
             title: 'View-only',
             emptyTitle: 'Connect your device to enable view-only',
             subtitle:
-                'Check balances without connecting your Trezor. <about>See how it works</about>',
+                'Check balances without connecting your Trezor.\n<about>See how it works</about>',
             button: { enable: 'Enable', disable: 'Disable' },
             about: {
                 title: 'View-only',
@@ -1759,6 +1759,28 @@ export const en = {
             totalAmount: 'Total amount',
             submitButton: 'Review and sign',
             total: 'Total fee',
+        },
+        coinControl: {
+            cta: 'Select coins',
+            title: 'Coin control',
+            search: {
+                placeholder: 'Search for address or transaction ID',
+                noCoins: 'No coins',
+                message: 'Check the spelling or try again',
+            },
+            notEnoughCoins: 'Select additional coins to match amount or turn off coin control',
+            utxos: {
+                selected: 'Selected',
+                remaining: 'Remaining to select',
+                showDetails: 'Show details',
+            },
+            disable: {
+                title: 'Turn off Coin Control?',
+                description:
+                    'Trezor Suite will automatically select coins that match the amount you want to send.',
+                primaryButton: 'Turn off',
+                secondaryButton: 'Cancel',
+            },
         },
         review: {
             confirmOnDeviceMessage: 'Go to your Trezor and confirm the amounts & recipients.',
