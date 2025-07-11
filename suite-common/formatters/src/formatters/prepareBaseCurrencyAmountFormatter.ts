@@ -1,18 +1,18 @@
 import { FormatNumberOptions } from '@formatjs/intl';
 
-import { redactNumericalSubstring } from '@suite-common/wallet-utils';
+import { BaseCurrencyAmount, redactNumericalSubstring } from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { makeFormatter } from '../makeFormatter';
 import { FormatterConfig } from '../types';
 
-export type FiatAmountFormatterDataContext<T> = {
+export type BaseCurrencyAmountFormatterDataContext<T> = {
     [K in keyof T]: T[K];
 };
 
 const handleBigNumberFormatting = (
-    value: string | number,
-    dataContext: FiatAmountFormatterDataContext<FormatNumberOptions>,
+    value: BaseCurrencyAmount,
+    dataContext: BaseCurrencyAmountFormatterDataContext<FormatNumberOptions>,
     config: FormatterConfig,
 ) => {
     const { intl, baseCurrency } = config;
@@ -36,9 +36,9 @@ const handleBigNumberFormatting = (
 
 export const prepareBaseCurrencyAmountFormatter = (config: FormatterConfig) =>
     makeFormatter<
-        string | number,
+        BaseCurrencyAmount,
         string | null,
-        FiatAmountFormatterDataContext<FormatNumberOptions>
+        BaseCurrencyAmountFormatterDataContext<FormatNumberOptions>
     >((value, dataContext, shouldRedactNumbers) => {
         const baseValue = new BigNumber(value);
         if (baseValue.isNaN()) {
@@ -48,4 +48,4 @@ export const prepareBaseCurrencyAmountFormatter = (config: FormatterConfig) =>
         const formattedValue = handleBigNumberFormatting(value, dataContext, config);
 
         return shouldRedactNumbers ? redactNumericalSubstring(formattedValue) : formattedValue;
-    }, 'FiatAmountFormatter');
+    }, 'BaseCurrencyAmountFormatter');

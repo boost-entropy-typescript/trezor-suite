@@ -1,20 +1,21 @@
 import { useFormatters } from '@suite-common/formatters';
+import { BaseCurrencyAmount } from '@suite-common/wallet-utils';
 import { Text } from '@suite-native/atoms';
 
 export type FiatAmountBadgeProps = {
-    amount: string | undefined;
+    amount: BaseCurrencyAmount | undefined;
 };
 
 export const FiatAmountBadge = ({ amount }: FiatAmountBadgeProps) => {
     const { BaseCurrencyAmountFormatter } = useFormatters();
 
-    if (!amount) {
+    if (amount === undefined || amount.isNaN()) {
         return null;
     }
 
     return (
         <Text variant="body" color="textDefault">
-            <BaseCurrencyAmountFormatter value={amount} />
+            <BaseCurrencyAmountFormatter value={amount} minimumFractionDigits={2} />
         </Text>
     );
 };
