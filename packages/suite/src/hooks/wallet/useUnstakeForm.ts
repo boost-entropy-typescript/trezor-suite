@@ -8,11 +8,12 @@ import {
     UnstakeFormState,
     selectFiatRatesByFiatRateKey,
     selectLocalCurrency,
+    selectRawNetworkFeeInfo,
 } from '@suite-common/wallet-core';
 import { PrecomposedTransactionFinal } from '@suite-common/wallet-types';
 import {
     fromFiatCurrency,
-    getFeeInfo,
+    getConvertedOrDefaultFeeInfo,
     getFiatRateKey,
     getStakingDataForNetwork,
     toFiatCurrency,
@@ -56,10 +57,10 @@ export const useUnstakeForm = ({ selectedAccount }: UseStakeFormsProps): Unstake
     const { symbol } = account;
 
     const localCurrency = useSelector(selectLocalCurrency);
-    const fees = useSelector(state => state.wallet.fees);
-    const feeInfo = getFeeInfo({
+    const rawFeeInfo = useSelector(state => selectRawNetworkFeeInfo(state, account.symbol));
+    const feeInfo = getConvertedOrDefaultFeeInfo({
         networkType: account.networkType,
-        feeInfo: fees[account.symbol]?.data,
+        feeInfo: rawFeeInfo,
     });
 
     const [currency, setCurrency] = useState<'crypto' | 'fiat' | undefined>(undefined);

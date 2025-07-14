@@ -365,6 +365,23 @@ export const en = {
             step2: 'Complete check backup in your browser.',
             step3: 'Start using your Trezor with\nTrezor Suite Lite.',
         },
+        checkBackupSupportScreen: {
+            title: 'Don’t worry—we’ll figure this out',
+            description: 'Contact customer support to resolve this issue.',
+            button: 'Contact support',
+        },
+        checkBackupFailScreen: {
+            title: 'Your backup is invalid',
+            description:
+                'There’s a chance you made a typo.\nTry again or secure access to your assets.',
+            supportButton: 'Secure my assets',
+        },
+        cancelAlert: {
+            title: 'Cancel check backup?',
+            description: 'Start again at anytime.',
+            primaryButton: 'Yes, cancel',
+            secondaryButton: 'Continue checking',
+        },
     },
     moduleConnectDevice: {
         connectAndUnlockScreen: {
@@ -826,6 +843,7 @@ export const en = {
         },
         faq: {
             title: 'Get help',
+            legal: 'Legal',
             supportCard: {
                 title: 'Need more help?',
                 contact: 'Contact support',
@@ -1761,7 +1779,7 @@ export const en = {
             total: 'Total fee',
         },
         coinControl: {
-            cta: 'Select coins',
+            cta: 'Coin control',
             title: 'Coin control',
             search: {
                 placeholder: 'Search for address or transaction ID',
@@ -2172,6 +2190,13 @@ export const en = {
         typeUniversal: 'Universal',
         typeBitcoinOnly: 'Bitcoin-only',
         updateNotAvailable: 'Firmware update disabled',
+        seedBottomSheetWithCheckBackup: {
+            title: 'It’s a good practice to check your backup before installing new firmware.',
+            description:
+                'Although unlikely, a firmware update might fail. If this were to happen, you would need to access your assets with your wallet backup.',
+            continueButton: 'Install firmware',
+            checkBackupButton: 'Check backup',
+        },
         seedBottomSheet: {
             title: 'Make sure you know where to find your wallet backup.',
             description:

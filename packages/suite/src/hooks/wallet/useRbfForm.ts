@@ -7,7 +7,7 @@ import {
     DEFAULT_VALUES,
     ETH_SPEED_UP_TX_MULTIPLIER,
 } from '@suite-common/wallet-constants';
-import { DEFAULT_FEE_INFO } from '@suite-common/wallet-core';
+import { DEFAULT_FEE_INFO, selectRawNetworkFeeInfo } from '@suite-common/wallet-core';
 import {
     ChainedTransactions,
     FeeInfo,
@@ -20,7 +20,7 @@ import {
 } from '@suite-common/wallet-types';
 import {
     calculateChainedTransactionsFeeForRbf,
-    getFeeInfo,
+    getConvertedOrDefaultFeeInfo,
     isEip1559,
 } from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
@@ -42,7 +42,7 @@ export type UseRbfProps = {
 const getBitcoinFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsBitcoin) => {
     const { feeRate } = rbfParams;
     // increase FeeLevels (old rate + defined rate)
-    const feeInfo = getFeeInfo({
+    const feeInfo = getConvertedOrDefaultFeeInfo({
         networkType: 'bitcoin',
         feeInfo: info,
     });
@@ -61,7 +61,7 @@ const getBitcoinFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsBitcoin
 const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthereum) => {
     // use maxFeePerGas as fallback in case backend does not return eip1559 fees
     const currentGasPrice = new BigNumber(rbfParams.gasPrice || rbfParams.maxFeePerGas);
-    const feeInfo = getFeeInfo({
+    const feeInfo = getConvertedOrDefaultFeeInfo({
         networkType: 'ethereum',
         feeInfo: info,
     });
@@ -120,7 +120,7 @@ const getRbfFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParams) => {
 const useRbfState = ({ selectedAccount, rbfParams, chainedTxs }: UseRbfProps) => {
     const { account, network } = selectedAccount;
 
-    const networkFees = useSelector(state => state.wallet.fees[account.symbol]?.data);
+    const networkFees = useSelector(state => selectRawNetworkFeeInfo(state, account.symbol));
     const targetAnonymity = useSelector(selectCurrentTargetAnonymity);
     const coinjoinRegisteredUtxos = useCoinjoinRegisteredUtxos({ account });
 

@@ -8,11 +8,12 @@ import {
     StakeContextValues,
     selectFiatRatesByFiatRateKey,
     selectLocalCurrency,
+    selectRawNetworkFeeInfo,
 } from '@suite-common/wallet-core';
 import { PrecomposedTransactionFinal, StakeFormState } from '@suite-common/wallet-types';
 import {
     fromFiatCurrency,
-    getFeeInfo,
+    getConvertedOrDefaultFeeInfo,
     getFiatRateKey,
     getStakingLimitsByNetwork,
     toFiatCurrency,
@@ -46,7 +47,7 @@ export const useStakeForm = ({ selectedAccount }: UseStakeFormsProps): StakeCont
     const { symbol } = account;
 
     const localCurrency = useSelector(selectLocalCurrency);
-    const networkFees = useSelector(state => state.wallet.fees[symbol]?.data);
+    const networkFees = useSelector(state => selectRawNetworkFeeInfo(state, account.symbol));
 
     const [currency, setCurrency] = useState<'crypto' | 'fiat' | undefined>(undefined);
 
@@ -90,7 +91,7 @@ export const useStakeForm = ({ selectedAccount }: UseStakeFormsProps): StakeCont
     const isDraft = !!draft;
 
     const state = useMemo(() => {
-        const feeInfo = getFeeInfo({
+        const feeInfo = getConvertedOrDefaultFeeInfo({
             networkType: account.networkType,
             feeInfo: networkFees,
         });
@@ -143,7 +144,7 @@ export const useStakeForm = ({ selectedAccount }: UseStakeFormsProps): StakeCont
     });
 
     // sub-hook, FeeLevels handler
-    const feeInfo = getFeeInfo({
+    const feeInfo = getConvertedOrDefaultFeeInfo({
         networkType: account.networkType,
         feeInfo: networkFees,
     });

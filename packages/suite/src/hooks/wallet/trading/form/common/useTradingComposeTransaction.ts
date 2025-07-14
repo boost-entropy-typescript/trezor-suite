@@ -9,9 +9,13 @@ import {
     tradingActions,
 } from '@suite-common/trading';
 import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
-import { selectAccounts, selectSelectedDevice } from '@suite-common/wallet-core';
+import {
+    selectAccounts,
+    selectRawNetworkFeeInfo,
+    selectSelectedDevice,
+} from '@suite-common/wallet-core';
 import { AddressDisplayOptions } from '@suite-common/wallet-types';
-import { getFeeInfo } from '@suite-common/wallet-utils';
+import { getConvertedOrDefaultFeeInfo } from '@suite-common/wallet-utils';
 
 import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import { useCompose } from 'src/hooks/wallet/form/useCompose';
@@ -36,7 +40,6 @@ export const useTradingComposeTransaction = <T extends TradingSellExchangeFormPr
     const accounts = useSelector(selectAccounts);
     const device = useSelector(selectSelectedDevice);
     const addressDisplayType = useSelector(selectAddressDisplayType);
-    const fees = useSelector(state => state.wallet.fees);
     const { translationString } = useTranslation();
 
     const { getValues, setValue, setError, clearErrors } = methods as unknown as UseFormReturn<
@@ -44,10 +47,10 @@ export const useTradingComposeTransaction = <T extends TradingSellExchangeFormPr
     >;
     const chunkify = addressDisplayType === AddressDisplayOptions.CHUNKED;
     const { symbol, networkType } = account;
-    const rawFeeInfo = fees[symbol]?.data;
+    const rawFeeInfo = useSelector(state => selectRawNetworkFeeInfo(state, symbol));
     const feeInfo = useMemo(
         () =>
-            getFeeInfo({
+            getConvertedOrDefaultFeeInfo({
                 networkType,
                 feeInfo: rawFeeInfo,
             }),
