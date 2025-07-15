@@ -28,6 +28,7 @@ import {
     cryptoIdToNetwork,
     getBestRatedQuote,
     getTradingQuotesByPaymentMethod,
+    isExchangeProvider,
     testnetToProdCryptoId,
 } from '../utils';
 import {
@@ -273,6 +274,21 @@ export const selectTradingProviderByNameAndTradeType = (
         default:
             return exhaustive(type);
     }
+};
+
+export const selectTradingProviderKycPolicy = (
+    state: TradingRootState,
+    name: string | undefined,
+    type: TradingType,
+) => {
+    const provider = selectTradingProviderByNameAndTradeType(state, name, type);
+
+    // Only ExchangeProviderInfo has kycPolicyType property
+    if (provider && isExchangeProvider(provider)) {
+        return provider.kycPolicyType;
+    }
+
+    return undefined;
 };
 
 export const selectTradingBuyQuotesRequest = (state: TradingRootState) =>
