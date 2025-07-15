@@ -116,6 +116,7 @@ export const TradingFormInputFiat = <TFieldValues extends TradingAllFormProps>({
                 }
                 if (isTradingExchangeContext(context)) {
                     context.form.helpers.setFractionButton(undefined);
+                    context.resetSelectedOffer();
                 }
 
                 clearErrors(cryptoInputName);

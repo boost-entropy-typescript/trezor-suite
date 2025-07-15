@@ -219,11 +219,21 @@ export interface TradingExchangeFormContextProps
     signDataAndConfirm: () => Promise<void>;
     selectQuote: (quote: ExchangeTrade) => void;
     verifyAddress: TradingVerifyAccountProps;
-    watchTradeApproval: (refreshCount: number) => Promise<void>;
-    approveTransaction: (trade: ExchangeTrade) => Promise<void>;
+    approveTransaction: (trade: ExchangeTrade) => Promise<boolean>;
     revokeApproval: (trade: ExchangeTrade) => Promise<boolean>;
     fetchApprovalStatus: (trade?: ExchangeTrade) => Promise<void>;
     isFetchingApprovalStatus: boolean;
+    confirmApproval: ({
+        trade,
+        receiveAddress,
+    }: {
+        trade?: ExchangeTrade;
+        receiveAddress: string;
+    }) => Promise<ExchangeTrade | undefined>;
+    watchApproval: ({ refreshCount }: { refreshCount: number }) => Promise<void>;
+    refreshQuotes: () => Promise<void>;
+    isScheduledQuotesRefresh: boolean;
+    resetSelectedOffer: () => void;
 }
 
 export type TradingExchangeApprovalType = 'APPROVE' | 'REVOKE';

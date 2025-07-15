@@ -195,7 +195,15 @@ export const TradingFormInputs = () => {
                         <Row justifyContent="space-between" alignItems="flex-start">
                             <Row gap={spacings.xs}>
                                 {generateFractionButtons(helpers).map(button => (
-                                    <FractionButton key={button.id} {...button} />
+                                    <FractionButton
+                                        key={button.id}
+                                        {...button}
+                                        onClick={() => {
+                                            button.onClick();
+                                            context.resetSelectedOffer();
+                                            context.refreshQuotes();
+                                        }}
+                                    />
                                 ))}
                             </Row>
                             <TradingBalance

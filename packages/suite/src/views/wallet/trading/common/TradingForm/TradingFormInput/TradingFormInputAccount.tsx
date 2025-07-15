@@ -23,6 +23,7 @@ import {
     TradingTradeSellExchangeType,
 } from 'src/types/trading/trading';
 import { TradingFormInputAccountProps } from 'src/types/trading/tradingForm';
+import { isTradingExchangeContext } from 'src/utils/wallet/trading/tradingTypingUtils';
 import { TradingBalance } from 'src/views/wallet/trading/common/TradingBalance';
 import { TradingFormInputAccountOption } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputAccountOption';
 
@@ -34,12 +35,14 @@ export const TradingFormInputAccount = <
     methods,
     'data-testid': dataTestId,
 }: TradingFormInputAccountProps<TFieldValues>) => {
+    const context = useTradingFormContext<TradingTradeSellExchangeType>();
+
     const {
         type,
         form: {
             helpers: { onCryptoCurrencyChange },
         },
-    } = useTradingFormContext<TradingTradeSellExchangeType>();
+    } = context;
     const optionGroups = useTradingBuildAccountGroups(type);
 
     const { isLoading } = useSelector(selectTradingLoadingAndTimestamp);
@@ -66,6 +69,10 @@ export const TradingFormInputAccount = <
                     options={optionGroups}
                     onChange={async (selected: TradingAccountOptionsGroupOptionProps) => {
                         await onCryptoCurrencyChange(selected);
+
+                        if (isTradingExchangeContext(context)) {
+                            context.resetSelectedOffer();
+                        }
                     }}
                     filterOption={createFilter<TradingCryptoListProps>({
                         stringify: option => `${option.label} ${option.data.cryptoName}`,

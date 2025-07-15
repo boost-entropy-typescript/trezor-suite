@@ -156,6 +156,8 @@ export const TradingFormInputCryptoSelect = <
             context.setValue(TRADING_FORM_RECEIVE_CRYPTO_CURRENCY_SELECT, findOption, {
                 shouldDirty: true,
             });
+
+            context.resetSelectedOffer();
         } else {
             context.setValue(TRADING_FORM_CRYPTO_CURRENCY_SELECT, findOption, {
                 shouldDirty: true,

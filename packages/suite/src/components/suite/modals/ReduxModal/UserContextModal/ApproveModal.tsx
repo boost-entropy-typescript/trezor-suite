@@ -54,7 +54,7 @@ export const ApproveModal = ({
         account,
         selectedQuote,
         exchangeInfo,
-        confirmTrade,
+        confirmApproval,
         sendTransaction,
         preselectedQuote,
     } = useTradingFormContext<TradingExchangeType>();
@@ -102,6 +102,7 @@ export const ApproveModal = ({
             return;
         }
 
+        setIsConfirmButtonLoading(true);
         setApprovalType(type);
 
         switch (type) {
@@ -121,12 +122,11 @@ export const ApproveModal = ({
 
         dispatch(tradingExchangeActions.saveSelectedQuote(updatedSelectedQuote));
 
-        await confirmTrade({
-            receiveAddress: selectedQuote.receiveAddress,
-            extraField: undefined,
+        await confirmApproval({
             trade: updatedSelectedQuote,
-            approvalFlow: true,
+            receiveAddress: selectedQuote.receiveAddress,
         });
+        setIsConfirmButtonLoading(false);
     };
 
     const confirmAndSend = async () => {
@@ -210,7 +210,7 @@ export const ApproveModal = ({
                                         isChecked={approvalType === 'MINIMAL'}
                                         onClick={() => selectApprovalValue('MINIMAL')}
                                         verticalAlignment="center"
-                                        isDisabled={isFormLoading}
+                                        isDisabled={isFormLoading || isConfirmButtonLoading}
                                     >
                                         <Column alignItems="flex-start">
                                             <Text typographyStyle="highlight">
@@ -231,7 +231,7 @@ export const ApproveModal = ({
                                         isChecked={approvalType === 'INFINITE'}
                                         onClick={() => selectApprovalValue('INFINITE')}
                                         verticalAlignment="center"
-                                        isDisabled={isFormLoading}
+                                        isDisabled={isFormLoading || isConfirmButtonLoading}
                                     >
                                         <Column alignItems="flex-start">
                                             <Text typographyStyle="highlight">
@@ -254,7 +254,7 @@ export const ApproveModal = ({
                                             isChecked={approvalType === 'ZERO'}
                                             onClick={() => selectApprovalValue('ZERO')}
                                             verticalAlignment="center"
-                                            isDisabled={isFormLoading}
+                                            isDisabled={isFormLoading || isConfirmButtonLoading}
                                         >
                                             <Column alignItems="flex-start">
                                                 <Text typographyStyle="highlight">

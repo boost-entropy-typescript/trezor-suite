@@ -150,7 +150,15 @@ export const TradingVerify = ({ tradingVerifyAccount, cryptoId }: TradingVerifyP
             });
         }
 
-        confirmTrade({ receiveAddress: address, extraField });
+        if (isTradingExchangeContext(context) && context.selectedQuote) {
+            confirmTrade({
+                trade: { ...context.selectedQuote, status: 'CONFIRM' },
+                receiveAddress: address,
+                extraField,
+            });
+        } else {
+            confirmTrade({ receiveAddress: address, extraField });
+        }
     };
 
     return (

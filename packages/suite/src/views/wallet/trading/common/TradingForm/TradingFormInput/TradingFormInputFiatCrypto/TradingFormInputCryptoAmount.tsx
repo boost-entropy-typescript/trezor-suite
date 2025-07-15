@@ -132,6 +132,7 @@ export const TradingFormInputCryptoAmount = <TFieldValues extends TradingAllForm
                 if (isTradingExchangeContext(context)) {
                     context.setValue(TRADING_FORM_OUTPUT_MAX, undefined, { shouldDirty: true });
                     context.form.helpers.setFractionButton(undefined);
+                    context.resetSelectedOffer();
                 }
 
                 clearErrors(fiatInputName);
