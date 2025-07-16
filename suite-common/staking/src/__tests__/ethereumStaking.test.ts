@@ -35,6 +35,8 @@ import {
     GetStakeFormsDefaultValuesParams,
     GetStakeTxGasLimitParams,
     StakeTxBaseArgs,
+} from '../types';
+import {
     claimWithdrawRequest,
     getAdjustedGasLimitConsumption,
     getChangedInternalTx,
@@ -49,7 +51,7 @@ import {
     stake,
     transformTx,
     unstake,
-} from '../ethereumStaking';
+} from '../utils/ethereumStaking';
 
 describe('transformTx', () => {
     transformTxFixtures.forEach(test => {

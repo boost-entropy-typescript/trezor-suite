@@ -16,11 +16,12 @@ import {
     Account,
     AccountDescriptor,
     AccountKey,
-    DiscoveryStatus,
+    FailedAccount,
     GeneralPrecomposedTransactionFinal,
     PrecomposedTransactionFinal,
     RatesByKey,
     ReceiveInfo,
+    SuccessfulAccount,
     TokenAddress,
 } from '@suite-common/wallet-types';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
@@ -55,6 +56,11 @@ import { isRbfBumpFeeTransaction } from './transactionUtils';
 
 export const isUtxoBased = (account: Account) =>
     account.networkType === 'bitcoin' || account.networkType === 'cardano';
+
+export const isAccountSuccessful = (account: Account): account is SuccessfulAccount =>
+    !account.failed;
+
+export const isAccountFailed = (account: Account): account is FailedAccount => !!account.failed;
 
 export const getFirstFreshAddress = (
     account: Account,
@@ -898,48 +904,6 @@ export const getAccountSpecific = (accountInfo: Partial<AccountInfo>, networkTyp
     };
 };
 
-// Used in wallet/Menu and Dashboard
-export const getFailedAccounts = (
-    staticSessionId?: StaticSessionId,
-    discovery?: DiscoveryStatus,
-): Account[] => {
-    if (staticSessionId === undefined || discovery?.failed === undefined) return [];
-
-    return discovery.failed.map(f => {
-        const descriptor = `failed:${f.index}:${f.symbol}:${f.accountType}`;
-        const network = networks[f.symbol];
-
-        return {
-            failed: true,
-            deviceState: staticSessionId,
-            index: f.index,
-            path: substituteBip43Path(network.bip43Path), // placeholder - not relevant for failed, but required by TS to be an actual Bip43Path
-            descriptor,
-            key: descriptor,
-            accountType: f.accountType,
-            symbol: f.symbol,
-            empty: true,
-            // first normal account is always visible on web & desktop
-            visible: f.accountType === 'normal' && f.index === 0,
-            balance: '0',
-            availableBalance: '0',
-            formattedBalance: '0',
-            tokens: [],
-            addresses: undefined,
-            utxo: undefined,
-            history: {
-                total: 0,
-                unconfirmed: 0,
-            },
-            metadata: {
-                key: descriptor,
-            },
-            ts: 0,
-            ...getAccountSpecific({}, network.networkType),
-        };
-    });
-};
-
 export const getAccountIdentifier = (account: Account) => ({
     descriptor: account.descriptor,
     symbol: account.symbol,
@@ -1224,18 +1188,27 @@ export const isNftMatchesSearch = (token: TokenInfo, search: string) =>
     token.name?.toLowerCase().includes(search) ||
     token.contract?.toLowerCase().includes(search);
 
-export const isAccountInCollection = (account: Account, accounts: Account[]) =>
-    accounts.some(
-        ({ deviceState, descriptor, symbol, accountType, index }) =>
-            // most of the time, descriptor is unique for a given (symbol, accountType, index)
-            descriptor === account.descriptor &&
-            // but not for EVM networks (intentionally sharing same eth address), so let's compare them too
-            symbol === account.symbol &&
-            accountType === account.accountType &&
-            index === account.index &&
-            // do not mark as duplicate if two different devices discover the same wallet
-            deviceState === account.deviceState,
-    );
+export const accountEqualTo = (a: Account) => (b: Account) =>
+    a.deviceState === b.deviceState &&
+    a.symbol === b.symbol &&
+    a.accountType === b.accountType &&
+    a.index === b.index &&
+    // TODO just to be sure; delete later
+    (() => {
+        // if the accounts seem equal but the descriptors are different
+        if (a.descriptor !== b.descriptor) {
+            const { deviceState, symbol, accountType, index } = a;
+            console.warn('Potentially equal accounts with different descriptors!', {
+                deviceState,
+                symbol,
+                accountType,
+                index,
+                descriptors: [a.descriptor, b.descriptor],
+            });
+        }
+
+        return true;
+    })();
 
 export const parseAccountKey = (accountKey: AccountKey) => {
     const [accountDescriptor, networkSymbol, deviceStaticSessionId] = accountKey.split('-');

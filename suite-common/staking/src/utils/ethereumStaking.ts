@@ -14,12 +14,7 @@ import {
     WALLET_SDK_SOURCE,
 } from '@suite-common/wallet-constants';
 import { ValidatorsQueue } from '@suite-common/wallet-core';
-import {
-    PrecomposedLevels,
-    StakeFormState,
-    StakeType,
-    WalletAccountTransaction,
-} from '@suite-common/wallet-types';
+import { PrecomposedLevels, StakeType, WalletAccountTransaction } from '@suite-common/wallet-types';
 import {
     getEthereumEstimateFeeParams,
     isPending,
@@ -37,7 +32,15 @@ import { BlockchainEstimatedFee } from '@trezor/connect/src/types/api/blockchain
 import { PartialRecord } from '@trezor/type-utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-type EthNetwork = 'holesky' | 'mainnet';
+import {
+    EthNetwork,
+    GetStakeFormsDefaultValuesParams,
+    GetStakeTxGasLimitParams,
+    PrepareClaimEthTxParams,
+    PrepareStakeEthTxParams,
+    PrepareUnstakeEthTxParams,
+    StakeTxBaseArgs,
+} from '../types';
 
 export const getEthNetworkForWalletSdk = (
     symbol: NetworkSymbol | 'unknown' | undefined,
@@ -65,13 +68,6 @@ export const getAdjustedGasLimitConsumption = (estimatedFee: Success<BlockchainE
         .plus(STAKE_GAS_LIMIT_RESERVE)
         .integerValue(BigNumber.ROUND_DOWN)
         .toNumber();
-
-export type StakeTxBaseArgs = {
-    from: string;
-    symbol: NetworkSymbol;
-    identity?: string;
-    feeLimit?: string;
-};
 
 export const stake = async ({
     from,
@@ -277,12 +273,6 @@ export const claimWithdrawRequest = async ({
     }
 };
 
-export interface GetStakeFormsDefaultValuesParams {
-    address: string;
-    stakeType: StakeFormState['stakeType'];
-    amount?: string;
-}
-
 export const getStakeFormsDefaultValues = ({
     address,
     stakeType,
@@ -355,18 +345,6 @@ export const transformTx = (
     return result;
 };
 
-interface PrepareStakeEthTxParams {
-    symbol: NetworkSymbol;
-    identity?: string;
-    from: string;
-    amount: string;
-    gasPrice: string | undefined;
-    nonce: string;
-    chainId: number;
-    feeLimit?: string;
-    maxFeePerGas?: string;
-    maxPriorityFeePerGas?: string;
-}
 export type PrepareStakeEthTxResponse =
     | {
           success: true;
@@ -421,10 +399,6 @@ export const prepareStakeEthTx = async ({
     }
 };
 
-interface PrepareUnstakeEthTxParams extends PrepareStakeEthTxParams {
-    interchanges: number;
-}
-
 export const prepareUnstakeEthTx = async ({
     symbol,
     from,
@@ -471,8 +445,6 @@ export const prepareUnstakeEthTx = async ({
     }
 };
 
-type PrepareClaimEthTxParams = Omit<PrepareStakeEthTxParams, 'amount'>;
-
 export const prepareClaimEthTx = async ({
     symbol,
     identity,
@@ -508,14 +480,6 @@ export const prepareClaimEthTx = async ({
         };
     }
 };
-
-export interface GetStakeTxGasLimitParams {
-    stakeType: StakeType;
-    from: string;
-    amount: string;
-    symbol: NetworkSymbol;
-    identity?: string;
-}
 
 export type GetStakeTxGasLimitResponse =
     | {

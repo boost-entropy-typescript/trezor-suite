@@ -3,7 +3,7 @@ import { isAnyOf } from '@reduxjs/toolkit';
 import { createReducerWithExtraDeps } from '@suite-common/redux-utils';
 import { networks } from '@suite-common/wallet-config';
 import { Account } from '@suite-common/wallet-types';
-import { enhanceHistory, isAccountInCollection } from '@suite-common/wallet-utils';
+import { accountEqualTo, enhanceHistory } from '@suite-common/wallet-utils';
 
 import { accountsActions } from './accountsActions';
 import { deviceActions } from '../device/deviceActions';
@@ -22,9 +22,6 @@ const findCoinjoinAccount =
     (key: string) =>
     (account: Account): account is Extract<Account, { backendType: 'coinjoin' }> =>
         account.key === key && account.backendType === 'coinjoin';
-
-const accountEqualTo = (b: Account) => (a: Account) =>
-    a.deviceState === b.deviceState && a.descriptor === b.descriptor && a.symbol === b.symbol;
 
 const update = (state: Account[], account: Account) => {
     const accountIndex = state.findIndex(accountEqualTo(account));
@@ -68,31 +65,20 @@ export const prepareAccountsReducer = createReducerWithExtraDeps(
                 remove(state, action.payload);
             })
             .addCase(accountsActions.createAccount, (state, action) => {
-                const { deviceState, symbol, accountType } = action.payload;
-                const matchingNetworkAndTypeAccounts = state.filter(
-                    account =>
-                        account.deviceState === deviceState &&
-                        account.symbol === symbol &&
-                        account.accountType === accountType,
-                );
-
-                const indexOfPreviousAccount = matchingNetworkAndTypeAccounts.length;
+                const { symbol, index } = action.payload;
                 const networkName = networks[symbol].name;
-                const accountLabel =
-                    action.payload.accountLabel ?? `${networkName} #${indexOfPreviousAccount + 1}`;
+                const accountLabel = action.payload.accountLabel ?? `${networkName} #${index + 1}`;
+                // remove "transactions" field, they are stored in "transactionReducer"
+                const history = enhanceHistory(action.payload.history);
 
-                const account = {
-                    ...action.payload,
-                    accountLabel,
-                    // remove "transactions" field, they are stored in "transactionReducer"
-                    history: enhanceHistory(action.payload.history),
-                };
-                if (isAccountInCollection(account, state)) {
-                    console.warn('Prevented duplicate account in accountsReducer: ', account);
+                const account = { ...action.payload, accountLabel, history };
 
-                    return;
+                if (state.some(accountEqualTo(account))) {
+                    console.warn('Duplicated account found, updating instead: ', account);
+                    update(state, account);
+                } else {
+                    state.push(account);
                 }
-                state.push(account);
             })
             .addCase(accountsActions.updateAccount, (state, action) => {
                 update(state, action.payload);

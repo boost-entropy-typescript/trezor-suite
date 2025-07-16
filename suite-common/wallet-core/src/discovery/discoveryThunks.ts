@@ -2,18 +2,16 @@ import { createThunk } from '@suite-common/redux-utils';
 import { AcquiredDevice, AuthorizedDevice, TrezorDevice } from '@suite-common/suite-types';
 import { getNewInstanceNumber } from '@suite-common/suite-utils';
 import { Bip43Path, TrezorConnectBackendType } from '@suite-common/wallet-config';
-import { FailedAccount } from '@suite-common/wallet-types';
+import { DiscoveryItem, DiscoveryStatus } from '@suite-common/wallet-types';
 import TrezorConnect, {
+    AccountInfo,
     BundleProgress,
     DeviceState,
     DeviceUniquePath,
     StaticSessionId,
     UI,
 } from '@trezor/connect';
-import {
-    DiscoverAccountsProgress,
-    DiscoverAccountsProgressOk,
-} from '@trezor/connect/src/types/api/discoverAccounts';
+import { DiscoverAccountsProgress } from '@trezor/connect/src/types/api/discoverAccounts';
 import { isNative } from '@trezor/env-utils';
 
 import { DISCOVERY_MODULE_PREFIX, discoveryActions } from './discoveryActions';
@@ -25,21 +23,14 @@ import {
     selectDevices,
     selectPhysicalDevices,
     selectSelectedDevice,
-    selectSupportedNetworkByDevice,
 } from '../device/deviceSelectors';
 import { selectDeviceThunk } from '../device/deviceThunks';
-import { selectAccountsToBeForgotten, selectNetworksToDiscover } from '../selectors';
-import { selectEnabledNetworks } from '../settings/walletSettingsReducer';
+import { selectAccountsToBeForgotten, selectDiscoveryAccountsParam } from '../selectors';
 
 const USER_UI_CANCEL_CODE = 'USER_UI_CANCEL';
 const DEVICE_CANCELLATION_CODES = ['Method_Cancel', 'Failure_ActionCancelled'];
 
 type ProgressEvent = BundleProgress<DiscoverAccountsProgress>['payload'];
-type ProgressOkEvent = BundleProgress<DiscoverAccountsProgressOk>['payload'];
-const isProgressOk = (progress: DiscoverAccountsProgress): progress is DiscoverAccountsProgressOk =>
-    Object.prototype.hasOwnProperty.call(progress, 'path');
-const isProgressEventOk = (progressEvent: ProgressEvent): progressEvent is ProgressOkEvent =>
-    isProgressOk(progressEvent.response);
 
 function assertDeviceIsAuthorized(device?: TrezorDevice): asserts device is AuthorizedDevice {
     if (!device?.state?.staticSessionId) {
@@ -159,133 +150,48 @@ const applyDeviceStatesThunk = createThunk(
     },
 );
 
-const createOnBundleProgressHandler = (
-    devicePath: DeviceUniquePath,
-    deviceStaticSessionId: StaticSessionId,
-    dispatch: any,
-    getState: any,
-    progressHooks: {
-        onNonFirstNonEmptyAccountDiscovered?: () => void;
-    } = {},
+const transformProgressEventData = (
+    { response, progress, total }: ProgressEvent,
+    deviceState: StaticSessionId,
+    discovery: DiscoveryStatus,
 ) => {
-    let encounteredNonEmptyAccount = false;
-    // we do not create empty accounts right away, but store the progress events for later
-    const emptyProgressEvents: ProgressOkEvent[] = [];
+    const { index, symbol: coin, type: accountType, path, backendType } = response;
 
-    const progressEventToCreateAccountPayload = (
-        event: ProgressOkEvent,
-    ): CreateAccountActionProps => {
-        const { response } = event;
-        const backendType = response.backendType as TrezorConnectBackendType | undefined;
-
-        return {
-            deviceState: deviceStaticSessionId,
-            discoveryItem: {
-                path: response.path as Bip43Path,
-                coin: response.symbol,
-                index: response.index,
-                accountType: response.type,
-                backendType,
-            },
-            accountInfo: response,
-            // first normal account is always visible on web & desktop
-            visible: (response.type === 'normal' && response.index === 0) || !response.empty,
-        };
+    const discoveryItem: DiscoveryItem = {
+        coin,
+        index,
+        accountType,
+        path: path as Bip43Path,
+        backendType: backendType as TrezorConnectBackendType | undefined,
     };
 
-    return (event: ProgressEvent) => {
-        const discovery = selectDiscoveryByDevicePath(getState(), devicePath);
-        if (!discovery) {
-            console.error('bundle progress handler: no discovery found');
+    const accountInfo: AccountInfo = !response.failed
+        ? response
+        : {
+              descriptor: `failed:${index}:${coin}:${accountType}`,
+              balance: '0',
+              availableBalance: '0',
+              empty: true,
+              history: { total: 0, unconfirmed: 0 },
+          };
 
-            return;
-        }
-
-        const hasLoadedAnyNonEmptyAccount =
-            'balance' in event.response &&
-            !isNaN(Number(event.response.balance)) &&
-            Number(event.response.balance) > 0;
-
-        dispatch(
-            discoveryActions.updateDiscovery(
-                {
-                    status: 'progress',
-                    total: event.total,
-                    progress: event.progress,
-                    hasLoadedAnyNonEmptyAccount,
-                },
-                devicePath,
-            ),
-        );
-
-        if (
-            discovery.status === 'progress' &&
-            !discovery.hasLoadedAnyNonEmptyAccount &&
-            hasLoadedAnyNonEmptyAccount
-        ) {
-            progressHooks.onNonFirstNonEmptyAccountDiscovered?.();
-        }
-
-        if (isProgressEventOk(event)) {
-            // all encountered accounts were empty, so create all of the delayed empty accounts (and also the latest event)
-            if (event.progress === 100 && !encounteredNonEmptyAccount) {
-                [...emptyProgressEvents, event].forEach(delayedEvent => {
-                    dispatch(
-                        accountsActions.createAccount(
-                            progressEventToCreateAccountPayload(delayedEvent),
-                        ),
-                    );
-                });
-
-                return;
-            }
-
-            if (encounteredNonEmptyAccount) {
-                dispatch(accountsActions.createAccount(progressEventToCreateAccountPayload(event)));
-
-                return;
-            } else {
-                emptyProgressEvents.push(event);
-            }
-
-            // on first non-empty one, create all of the delayed empty accounts
-            if (!encounteredNonEmptyAccount && event.response.empty === false) {
-                encounteredNonEmptyAccount = true;
-
-                emptyProgressEvents.forEach(delayedEvent => {
-                    dispatch(
-                        accountsActions.createAccount(
-                            progressEventToCreateAccountPayload(delayedEvent),
-                        ),
-                    );
-                });
-            }
-
-            return;
-        }
-
-        const { response } = event;
-        if (isProgressOk(response)) {
-            console.error('Cannot happen per TS; event.response cannot be OK if event is not OK');
-
-            return;
-        }
-        const currentFailedAccounts = discovery.failed ?? [];
-        const newFailedAccount: FailedAccount = { accountType: response.type, ...response };
-
-        const { symbol, accountType, index } = newFailedAccount;
-        const isDuplicate = currentFailedAccounts.some(
-            f => f.symbol === symbol && f.accountType === accountType && f.index === index,
-        );
-        if (isDuplicate) return; // only defensive programming
-
-        dispatch(
-            discoveryActions.updateDiscovery(
-                { ...discovery, failed: [...currentFailedAccounts, newFailedAccount] },
-                devicePath,
-            ),
-        );
+    const accountPayload: CreateAccountActionProps = {
+        deviceState,
+        discoveryItem,
+        accountInfo,
+        // first normal account is always visible on web & desktop
+        visible: response.failed || !response.empty || (accountType === 'normal' && index === 0),
+        error: response.failed ? response.error : undefined,
     };
+
+    const discoveryPayload: DiscoveryStatus = {
+        status: 'progress' as const,
+        progress,
+        total,
+        hasLoadedAnyNonEmptyAccount: discovery.hasLoadedAnyNonEmptyAccount || !accountInfo.empty,
+    };
+
+    return { accountPayload, discoveryPayload };
 };
 
 const completeDiscoveryThunk = createThunk(
@@ -340,7 +246,6 @@ export const applyDeviceStateErrorThunk = createThunk(
             discoveryActions.updateDiscovery(
                 {
                     status: 'failed',
-                    failed: [], // no failed accounts yet,
                     error,
                     errorCode: code,
                 },
@@ -354,7 +259,14 @@ export const runDiscoveryThunk = createThunk(
     `${DISCOVERY_MODULE_PREFIX}/run`,
     async (passedDevice: TrezorDevice, { dispatch, getState }): Promise<void> => {
         try {
-            let device: TrezorDevice | undefined = passedDevice;
+            let device: TrezorDevice = passedDevice;
+
+            const reselectDevice = () => {
+                const selectedDevice = selectSelectedDevice(getState());
+                assertDeviceIsAcquired(selectedDevice);
+
+                return selectedDevice;
+            };
 
             const discovery = selectDiscoveryByDevicePath(getState(), device.path);
 
@@ -435,8 +347,7 @@ export const runDiscoveryThunk = createThunk(
                 );
             }
 
-            device = selectSelectedDevice(getState());
-            assertDeviceIsAcquired(device);
+            device = reselectDevice();
 
             assertStaticSessionId(deviceStateResponse.payload._state);
 
@@ -463,39 +374,60 @@ export const runDiscoveryThunk = createThunk(
                 return;
             }
 
-            const onBundleProgress = createOnBundleProgressHandler(
-                device.path,
+            const accountsParam = selectDiscoveryAccountsParam(
+                getState(),
                 deviceStateResponse.payload._state.staticSessionId,
-                dispatch,
-                getState,
-                {
-                    onNonFirstNonEmptyAccountDiscovered: () => {
-                        if (isAddingHiddenWallet) {
+            );
+
+            // no networks to discover, complete discovery
+            if (!accountsParam.length) {
+                // TODO: find out how to early return discovery; calling completeDiscoveryThunk does not work
+                console.warn('No networks to discover, todo: stop discovery');
+            }
+
+            // we do not create empty accounts right away, but store the progress events for later
+            const accountQueue: CreateAccountActionProps[] = [];
+            const deviceState = deviceStateResponse.payload._state;
+            const onBundleProgress = (event: ProgressEvent) => {
+                const currentDiscovery = selectDiscoveryByDevicePath(getState(), device.path);
+                if (!currentDiscovery) {
+                    return console.error('bundle progress handler: no discovery found');
+                }
+
+                const { accountPayload, discoveryPayload } = transformProgressEventData(
+                    event,
+                    deviceState.staticSessionId,
+                    currentDiscovery,
+                );
+
+                // no non-empty account encountered and not the last event, enqueue account for postponed creation
+                if (!discoveryPayload.hasLoadedAnyNonEmptyAccount && event.progress !== 100) {
+                    accountQueue.push(accountPayload);
+                } else {
+                    // first non-empty account encountered right now or the last event, create all enqueued accounts first
+                    if (!currentDiscovery.hasLoadedAnyNonEmptyAccount) {
+                        if (isAddingHiddenWallet && discoveryPayload.hasLoadedAnyNonEmptyAccount) {
                             dispatch(
                                 applyDeviceStatesThunk({
-                                    newDeviceState: deviceStateResponse.payload._state,
+                                    newDeviceState: deviceState,
                                     isAddingHiddenWallet,
                                     devicePath: passedDevice.path,
                                 }),
                             );
                         }
-                    },
-                },
-            );
+
+                        accountQueue.forEach(account =>
+                            dispatch(accountsActions.createAccount(account)),
+                        );
+                        accountQueue.splice(0, accountQueue.length);
+                    }
+                    dispatch(accountsActions.createAccount(accountPayload));
+                }
+
+                dispatch(discoveryActions.updateDiscovery(discoveryPayload, device.path));
+            };
 
             TrezorConnect.on<DiscoverAccountsProgress>(UI.BUNDLE_PROGRESS, onBundleProgress);
-
-            const deviceNetworks = selectSupportedNetworkByDevice(device);
-            const enabledNetworks = selectEnabledNetworks(getState()).filter(symbol =>
-                deviceNetworks.includes(symbol),
-            );
-            const discoveryAccountsPayload = enabledNetworks.map(n => ({ symbol: n }));
-
-            // no networks to discover, complete discovery
-            if (!discoveryAccountsPayload.length) {
-                // TODO: find out how to early return discovery; calling completeDiscoveryThunk does not work
-                console.warn('No networks to discover, todo: stop discovery');
-            }
 
             // NOTE: sync set discovery status to progress to make sure that there aren't some hanging states
             // before asnyc onBundleProgress is called which sets progress
@@ -509,6 +441,7 @@ export const runDiscoveryThunk = createThunk(
                     device.path,
                 ),
             );
+
             const result = await TrezorConnect.discoverAccounts({
                 device: {
                     instance,
@@ -517,7 +450,7 @@ export const runDiscoveryThunk = createThunk(
                     },
                 },
                 useEmptyPassphrase: !isAddingHiddenWallet,
-                accounts: discoveryAccountsPayload,
+                accounts: accountsParam,
             });
 
             TrezorConnect.off(UI.BUNDLE_PROGRESS, onBundleProgress);
@@ -560,8 +493,7 @@ export const runDiscoveryThunk = createThunk(
                 return;
             }
 
-            device = selectSelectedDevice(getState());
-            assertDeviceIsAcquired(device);
+            device = reselectDevice();
 
             const allAccountsEmpty = result.payload.nonempty === 0;
             // there is at least one account with balance - passphrase is not empty
@@ -706,32 +638,9 @@ export const startDiscoveryThunk = createThunk(
         // - we are adding a standard wallet,
         // - or adding an existing hidden wallet,
         // - or adding initially a hidden wallet set by settings
-        if (
-            !isAddingHiddenWallet ||
-            ((isAddingHiddenWalletWithRespectToSettings || isAddingHiddenWallet) &&
-                isAddingExistingWallet)
-        ) {
+        if (!isAddingHiddenWallet || isAddingExistingWallet) {
             dispatch(runDiscoveryThunk(actualDevice));
         }
-    },
-);
-
-export const startInitialDiscovery = createThunk(
-    `${DISCOVERY_MODULE_PREFIX}/startInitial`,
-    ({ device }: { device: TrezorDevice }, { dispatch, getState, extra }) => {
-        // note: currently this is only used in Suite. If a Suite Lite implementation is needed,
-        // refactor this to a parameter because suiteSettings is a suite-only reducer.
-        const isAddingHiddenWalletWithRespectToSettings =
-            extra.selectors.selectSuiteSettings(getState()).defaultWalletLoading === 'passphrase';
-
-        dispatch(
-            startDiscoveryThunk({
-                device,
-                isAddingHiddenWalletWithRespectToSettings,
-                isAddingExistingWallet: true,
-                isAddingHiddenWallet: isAddingHiddenWalletWithRespectToSettings,
-            }),
-        );
     },
 );
 
@@ -750,6 +659,14 @@ export const runAdditionalDiscoveryThunk = createThunk(
             dispatch(accountsActions.removeAccount(accountsToRemove));
         }
 
+        const accountsParam = selectDiscoveryAccountsParam(getState(), staticSessionId);
+
+        if (!accountsParam.length) {
+            console.warn('no rediscovery needed');
+
+            return;
+        }
+
         dispatch(
             discoveryActions.startDiscovery(device.path, {
                 isAddingHiddenWallet: false,
@@ -758,29 +675,28 @@ export const runAdditionalDiscoveryThunk = createThunk(
             }),
         );
 
-        const onBundleProgress = createOnBundleProgressHandler(
-            device.path,
-            device.state.staticSessionId,
-            dispatch,
-            getState,
-        );
+        const onBundleProgress = (event: ProgressEvent) => {
+            const discovery = selectDiscoveryByDevicePath(getState(), device.path);
+            if (!discovery) {
+                return console.error('bundle progress handler: no discovery found');
+            }
 
-        const networksToDiscover = selectNetworksToDiscover(getState(), staticSessionId);
+            const { accountPayload, discoveryPayload } = transformProgressEventData(
+                event,
+                device.state.staticSessionId,
+                discovery,
+            );
 
-        if (!networksToDiscover.length) {
-            console.warn('no networks to discover');
-
-            return;
-        }
+            dispatch(accountsActions.createAccount(accountPayload));
+            dispatch(discoveryActions.updateDiscovery(discoveryPayload, device.path));
+        };
 
         TrezorConnect.on<DiscoverAccountsProgress>(UI.BUNDLE_PROGRESS, onBundleProgress);
 
         const result = await TrezorConnect.discoverAccounts({
             device,
             useEmptyPassphrase: device.useEmptyPassphrase,
-            accounts: networksToDiscover.map(n => ({
-                symbol: n,
-            })),
+            accounts: accountsParam,
         });
 
         console.warn('runAdditionalDiscovery: TrezorConnect.getAccountInfo, result: ', result);
