@@ -4555,8 +4555,22 @@ export default defineMessages({
     },
     TR_EJECT_HEADING: {
         id: 'TR_EJECT_HEADING',
-        defaultMessage: 'Eject',
+        defaultMessage: 'Eject wallet',
         description: 'Heading above col with "eject wallet" buttons in switch wallets modal',
+    },
+    TR_EJECT_ALL_HEADING: {
+        id: 'TR_EJECT_ALL_HEADING',
+        defaultMessage: 'Eject all wallets',
+    },
+    TR_VIEW_ONLY_CALL_TO_ACTION: {
+        id: 'TR_VIEW_ONLY_CALL_TO_ACTION',
+        defaultMessage:
+            'Enable view-only to check balances <primary>after you disconnect your Trezor</primary>',
+    },
+    TR_VIEW_ONLY_EXPLANATION: {
+        id: 'TR_VIEW_ONLY_EXPLANATION',
+        defaultMessage:
+            'To send or swap coins, <secondLine>simply reconnect your device</secondLine>',
     },
     RECEIVE_TITLE: {
         id: 'RECEIVE_TITLE',
@@ -5675,7 +5689,7 @@ export default defineMessages({
     },
     OP_RETURN: {
         id: 'OP_RETURN',
-        defaultMessage: 'OP RETURN',
+        defaultMessage: 'Hexadecimal message (OP_RETURN)',
     },
     OP_RETURN_TOOLTIP: {
         id: 'OP_RETURN_TOOLTIP',
@@ -5683,8 +5697,15 @@ export default defineMessages({
     },
     OP_RETURN_ADD: {
         id: 'OP_RETURN_ADD',
-        description: 'item in dropdown menu',
-        defaultMessage: 'Add OP_RETURN',
+        defaultMessage: 'Attach message',
+    },
+    OP_RETURN_HUMAN: {
+        id: 'OP_RETURN_HUMAN',
+        defaultMessage: 'Human-readable',
+    },
+    OP_RETURN_HEX: {
+        id: 'OP_RETURN_HEX',
+        defaultMessage: 'Hexadecimal',
     },
     RBF: {
         id: 'RBF',
@@ -9632,6 +9653,28 @@ export default defineMessages({
     TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON: {
         id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON',
         defaultMessage: 'Cancel',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_TITLE: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_TITLE',
+        defaultMessage: 'Disabling view-only will eject this wallet',
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_DESCRIPTION: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_DESCRIPTION',
+        defaultMessage:
+            "Your funds and transactions won't be visible until you reconnect your device.",
+    },
+    TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON: {
+        id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_DISABLE_VIEW_ONLY_PRIMARY_BUTTON',
+        defaultMessage: 'Disable',
+    },
+    TR_SWITCH_DEVICE_EJECT_ALL_CONFIRMATION_TITLE: {
+        id: 'TR_SWITCH_DEVICE_EJECT_ALL_CONFIRMATION_TITLE',
+        defaultMessage: 'Eject all wallets?',
+    },
+    TR_SWITCH_DEVICE_EJECT_ALL_CONFIRMATION_DESCRIPTION: {
+        id: 'TR_SWITCH_DEVICE_EJECT_ALL_CONFIRMATION_DESCRIPTION',
+        defaultMessage:
+            "Your funds and transactions won't be visible until you reconnect your device.",
     },
     TR_DO_NOT_SHOW_AGAIN: {
         id: 'TR_DO_NOT_SHOW_AGAIN',
