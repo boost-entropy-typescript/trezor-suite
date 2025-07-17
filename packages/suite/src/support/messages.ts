@@ -3335,6 +3335,10 @@ export default defineMessages({
         defaultMessage: 'THP credentials have been reset. Reconnect your Trezor.',
         id: 'TR_THP_RESET_CREDENTIALS_SUCCESS',
     },
+    TR_SIGN_TRANSACTION_TIMEOUT: {
+        defaultMessage: 'Signing transaction timed out',
+        id: 'TR_SIGN_TRANSACTION_TIMEOUT',
+    },
     TR_THP_ENTER_ONE_TIME_CODE: {
         id: 'TR_THP_ENTER_ONE_TIME_CODE',
         defaultMessage: 'Enter one-time security code',
@@ -9797,6 +9801,26 @@ export default defineMessages({
     TR_UNRECOGNIZED: {
         id: 'TR_UNRECOGNIZED',
         defaultMessage: 'Unrecognized',
+    },
+    TR_DEVICE_DISCONNECTED_TOOLTIP_TITLE: {
+        id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_TITLE',
+        defaultMessage: 'Your balances are still visible even when your Trezor is disconnected.',
+    },
+    TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_1: {
+        id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_1',
+        defaultMessage: 'You can always eject your wallets at any time.',
+    },
+    TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_2: {
+        id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_2',
+        defaultMessage: "Funds can't be moved without a connected device.",
+    },
+    TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_PRIMARY: {
+        id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_PRIMARY',
+        defaultMessage: 'OK, got it',
+    },
+    TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_SECONDARY: {
+        id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_SECONDARY',
+        defaultMessage: 'Auto eject wallets',
     },
     TR_CONNECT_DEVICE_GENERIC_PROMO_TITLE: {
         id: 'TR_CONNECT_DEVICE_GENERIC_PROMO_TITLE',
