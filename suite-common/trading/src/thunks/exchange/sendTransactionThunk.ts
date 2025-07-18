@@ -11,15 +11,18 @@ import { tradingExchangeActions } from '../../reducers/exchangeReducer';
 import { tradingActions } from '../../reducers/tradingReducer';
 import {
     selectTradingExchangeAccountKey,
+    selectTradingExchangeProviders,
     selectTradingExchangeReceiveAccountKey,
     selectTradingExchangeSelectedQuote,
 } from '../../selectors/tradingSelectors';
 import { TradingSendRejectedProps } from '../../types';
+import { getTradingFormState } from '../../utils';
 
 export type SendTransactionThunkProps = {
     trade: ExchangeTrade | undefined;
     decimals: number;
     shouldSendInSats: boolean | undefined;
+    isSlip24Active?: boolean;
 } & SendDexTransactionThunkProps;
 
 export const sendTransactionThunk = createThunk<
@@ -38,6 +41,7 @@ export const sendTransactionThunk = createThunk<
             setMaxOutputId,
             decimals,
             shouldSendInSats,
+            isSlip24Active,
             nextStep,
             processResponseData,
             triggerAnalyticsTradeConfirmation,
@@ -49,6 +53,7 @@ export const sendTransactionThunk = createThunk<
         const sendAccountKey = selectTradingExchangeAccountKey(getState());
         const receiveAccountKey = selectTradingExchangeReceiveAccountKey(getState());
         const selectedTrade = trade ?? selectedQuote;
+        const providers = selectTradingExchangeProviders(getState());
         // sendAddress may be set by useTradingWatchTrade hook to the trade object
         const sendAddress = selectedTrade?.sendAddress;
 
@@ -86,6 +91,13 @@ export const sendTransactionThunk = createThunk<
             });
         }
 
+        const tradingFormState = getTradingFormState({
+            activeSection: 'exchange',
+            providers,
+            trade: selectedTrade,
+            isSlip24Active,
+        });
+
         const sendStringAmount = shouldSendInSats
             ? convertAmountUnitsToSubunits(selectedTrade.sendStringAmount, decimals)
             : selectedTrade.sendStringAmount;
@@ -100,6 +112,8 @@ export const sendTransactionThunk = createThunk<
                 destinationTag: sendPaymentExtraId,
                 signAndPushSendFormTransaction,
                 setMaxOutputId,
+                isSlip24Active,
+                tradingFormState,
             }),
         );
 

@@ -6,22 +6,26 @@ import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants'
 import {
     composeSendFormTransactionFeeLevelsThunk,
     selectConvertedNetworkFeeInfo,
-    selectDeviceFirmwareVersion,
+    selectDeviceUnavailableCapabilities,
 } from '@suite-common/wallet-core';
-import { Account, FormOptions, FormState } from '@suite-common/wallet-types';
-import { getEvmTransactionTextSignature } from '@suite-common/wallet-utils';
+import { Account, FormOptions, FormState, FormStateTrading } from '@suite-common/wallet-types';
+import {
+    asAmountSubunit,
+    getEvmTransactionTextSignature,
+    subunitsToUnits,
+} from '@suite-common/wallet-utils';
 import { Success, Unsuccessful } from '@trezor/connect';
-import { isNewerOrEqual } from '@trezor/utils/src/versionUtils';
+import { BigNumber } from '@trezor/utils';
 
+import { tradingThunks } from '../';
 import { TRADING_THUNK_PREFIX } from '../../constants';
 import {
-    selectTradingActiveSection,
     selectTradingComposedTransactionInfo,
+    selectTradingIsSlip24Allowed,
 } from '../../selectors/tradingSelectors';
 import type {
     TradingSendRejectedProps,
     TradingSignAndPushSendFormTransactionProps,
-    TradingTradeSellExchangeType,
 } from '../../types';
 
 type FulfillValue = Success<{ txid: string }> | Unsuccessful | undefined;
@@ -35,13 +39,30 @@ export type RecomposeAndSignTxThunkProps = {
     recalculateCustomLimit?: boolean;
     ethereumAdjustGasLimit?: string;
     setMaxOutputId?: number | undefined;
+    /**
+     * Indicates whether SLIP24 is active for the transaction.
+     * Important: should not be used for DEX trades.
+     */
+    isSlip24Active?: boolean;
+    tradingFormState: FormStateTrading;
 
     signAndPushSendFormTransaction: ({
         formState,
         precomposedTransaction,
         selectedAccount,
+        paymentRequests,
     }: TradingSignAndPushSendFormTransactionProps) => Promise<FulfillValue>;
 };
+
+const getTradingFormStateAccordingRestriction = (
+    tradingFormState: FormStateTrading,
+    isPaymentRequestsAllowed: boolean,
+): FormStateTrading =>
+    isPaymentRequestsAllowed
+        ? tradingFormState
+        : {
+              activeSection: tradingFormState.activeSection,
+          };
 
 /**
  * This thunk is particularly useful for scenarios where transaction details (e.g., fees, outputs) need to be recalculated
@@ -71,6 +92,8 @@ export const recomposeAndSignTxThunk = createThunk<
             recalculateCustomLimit,
             ethereumAdjustGasLimit,
             setMaxOutputId,
+            isSlip24Active = false,
+            tradingFormState,
             signAndPushSendFormTransaction,
         }: RecomposeAndSignTxThunkProps,
         { dispatch, getState, rejectWithValue, fulfillWithValue },
@@ -79,12 +102,13 @@ export const recomposeAndSignTxThunk = createThunk<
         const options: FormOptions[] = ['broadcast'];
         const network = getNetwork(account.symbol);
         const feeInfo = selectConvertedNetworkFeeInfo(getState(), account.symbol);
-        const firmwareVersion = selectDeviceFirmwareVersion(getState());
-        const isNewApproveFlowSupported =
-            firmwareVersion && isNewerOrEqual(firmwareVersion, '2.9.0');
-        const activeTradingSection = selectTradingActiveSection(
+        const unavailableCapabilities = selectDeviceUnavailableCapabilities(getState());
+
+        const isPaymentRequestsAllowed = selectTradingIsSlip24Allowed(
             getState(),
-        ) as TradingTradeSellExchangeType;
+            account,
+            isSlip24Active,
+        );
         const isTransferEvmTxType = getEvmTransactionTextSignature(ethereumDataHex) === 'transfer';
 
         if (!composed || !feeInfo) {
@@ -100,8 +124,12 @@ export const recomposeAndSignTxThunk = createThunk<
         // Otherwise if ethereumDataHex is present, token is not used as details are in the ethereumDataHex.
         const shouldIncludeToken =
             !!(ethereumDataHex && isTransferEvmTxType) ||
-            !(ethereumDataHex && !isTransferEvmTxType && !isNewApproveFlowSupported);
+            !(ethereumDataHex && !isTransferEvmTxType && unavailableCapabilities?.['evmApproval']);
 
+        const restrictedTradingFormState = getTradingFormStateAccordingRestriction(
+            tradingFormState,
+            isPaymentRequestsAllowed,
+        );
         // prepare the fee levels, set custom values from composed
         // WORKAROUND: sendFormEthereumActions and sendFormRippleActions use form outputs instead of composed transaction data
         const formState: FormState = {
@@ -126,7 +154,7 @@ export const recomposeAndSignTxThunk = createThunk<
             ethereumDataHex,
             ethereumAdjustGasLimit,
             selectedUtxos: [],
-            activeTradingSection,
+            trading: restrictedTradingFormState,
         };
 
         // prepare form state for composeAction
@@ -203,10 +231,55 @@ export const recomposeAndSignTxThunk = createThunk<
             });
         }
 
+        /*
+            SLIP-24 to achieve the consistent trade data
+            --- 
+            If the transaction is a trade of whole balance, we need to set the amount to 
+            the formState (displayed in the UI) and for the payment requests to
+            ensure that the payment requests are created with the correct amount.
+        */
+        const isTradedWholeBalance = precomposedToSign.outputs.length === 1; // sending whole balance
+        const sendAmount = isTradedWholeBalance
+            ? precomposedToSign.outputs[0].amount.toString()
+            : undefined;
+        const formattedMaxAmount = sendAmount
+            ? subunitsToUnits(
+                  asAmountSubunit(new BigNumber(sendAmount), account.symbol),
+                  account.symbol,
+              ).toString()
+            : undefined;
+
+        const formStateUpdated: FormState = {
+            ...formState,
+            trading: {
+                ...restrictedTradingFormState,
+                ...('send' in restrictedTradingFormState
+                    ? {
+                          send: {
+                              ...restrictedTradingFormState.send,
+                              amount: formattedMaxAmount ?? restrictedTradingFormState.send.amount,
+                          },
+                      }
+                    : {}),
+            },
+        };
+
+        const paymentRequests = isPaymentRequestsAllowed
+            ? await dispatch(
+                  tradingThunks.createPaymentRequestsThunk({
+                      type: restrictedTradingFormState.activeSection,
+                      account,
+                      composedLevels: precomposedToSign,
+                      formattedMaxAmount,
+                  }),
+              ).unwrap()
+            : [];
+
         const resultOfSignedTransaction = await signAndPushSendFormTransaction({
-            formState,
+            formState: formStateUpdated,
             precomposedTransaction: precomposedToSign,
             selectedAccount: account,
+            paymentRequests,
         });
 
         return fulfillWithValue(resultOfSignedTransaction);

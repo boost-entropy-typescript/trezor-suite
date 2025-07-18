@@ -170,6 +170,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 xvg: 'update-required',
                 zcr: 'update-required',
                 chunkify: 'no-support',
+                evmApproval: 'no-support',
+                slip24: 'no-support',
                 ...T1B1_UPDATE_REQUIRED,
             });
         });
@@ -192,6 +194,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 sol: 'no-capability',
                 dsol: 'no-capability',
                 chunkify: 'update-required',
+                evmApproval: 'update-required',
+                slip24: 'update-required',
                 ...T1B1_UPDATE_REQUIRED,
             });
         });
@@ -225,6 +229,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 xem: 'no-support',
                 chunkify: 'update-required',
                 entropyCheck: 'update-required',
+                evmApproval: 'update-required',
+                slip24: 'update-required',
             });
         });
 
@@ -300,6 +306,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 eth: 'no-support',
                 bsc: 'update-required',
                 chunkify: 'update-required',
+                evmApproval: 'update-required',
+                slip24: 'update-required',
                 ...T1B1_UPDATE_REQUIRED,
             });
         });
@@ -324,6 +332,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 eth: 'no-support',
                 bnb: 'no-support',
                 chunkify: 'no-support',
+                evmApproval: 'no-support',
+                slip24: 'no-support',
                 ...T1B1_UPDATE_REQUIRED,
             });
         });
@@ -349,6 +359,8 @@ describe('utils/deviceFeaturesUtils', () => {
                 bnb: 'no-support',
                 bsc: 'no-support',
                 chunkify: 'no-support',
+                evmApproval: 'no-support',
+                slip24: 'no-support',
                 ...T1B1_UPDATE_REQUIRED,
             });
         });

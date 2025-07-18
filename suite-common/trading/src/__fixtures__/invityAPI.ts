@@ -6,13 +6,16 @@ import {
     BuyTradeRequest,
     BuyTradeResponse,
     ConfirmExchangeTradeRequest,
+    CreateTradeSignatureRequest,
     CryptoId,
     ExchangeProviderInfo,
     ExchangeTrade,
     ExchangeTradeQuoteRequest,
+    ExchangeTradeSigned,
     SellFiatTrade,
     SellFiatTradeQuoteRequest,
     SellFiatTradeRequest,
+    SellFiatTradeSigned,
     SellProviderInfo,
     WatchBuyTradeResponse,
     WatchExchangeTradeResponse,
@@ -169,6 +172,32 @@ const otc: TradingOTC = {
     minFiatLimits: {} as TradingOTC['minFiatLimits'],
 };
 
+const createTradeSignatureRequest: CreateTradeSignatureRequest = {
+    type: 'exchange',
+    id: 'test-order-id',
+    nonce: 'test-nonce',
+    outputs: [
+        {
+            address: 'test-address',
+            amount: '100000000',
+        },
+    ],
+    sendSlip44: 0,
+    receiveSlip44: 2,
+};
+
+const exchangeTradeSigned: ExchangeTradeSigned = {
+    ...exchangeTrade,
+    orderId: 'test-order-id',
+    tradeSignature: 'test-trade-signature',
+};
+
+const sellFiatTradeSigned: SellFiatTradeSigned = {
+    ...sellTrade,
+    paymentId: 'test-order-id',
+    tradeSignature: 'test-trade-signature',
+};
+
 export const invityAPIFixtures = {
     exchangeList,
     exchangeQuotesBody,
@@ -191,4 +220,7 @@ export const invityAPIFixtures = {
     sellTrade,
     sellWatchTrade,
     otc,
+    createTradeSignatureRequest,
+    exchangeTradeSigned,
+    sellFiatTradeSigned,
 };

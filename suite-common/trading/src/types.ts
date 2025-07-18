@@ -26,6 +26,7 @@ import type {
     FormState,
     GeneralPrecomposedTransactionFinal,
 } from '@suite-common/wallet-types';
+import { PROTO } from '@trezor/connect';
 import { Timer } from '@trezor/react-utils';
 import { PrimitiveType } from '@trezor/type-utils';
 
@@ -258,6 +259,7 @@ export type TradingSignAndPushSendFormTransactionProps = {
     formState: FormState;
     precomposedTransaction: GeneralPrecomposedTransactionFinal;
     selectedAccount: Account;
+    paymentRequests?: PROTO.PaymentRequest[];
 };
 
 export type TradingSellStepType = 'BANK_ACCOUNT' | 'SEND_TRANSACTION';
@@ -294,6 +296,7 @@ export type HandleExchangeRequestThunkProps = {
 export type TradingVerifiedAddress =
     | {
           address: string;
+          path?: string;
           mac?: string;
       }
     | undefined;

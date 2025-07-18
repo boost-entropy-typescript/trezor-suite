@@ -1577,6 +1577,10 @@ export default defineMessages({
         defaultMessage: 'Sell with {providerName}',
         id: 'TR_TRADING_OTC_LINK_SELL',
     },
+    TR_TRADING_PROVIDER: {
+        defaultMessage: 'Provider',
+        id: 'TR_TRADING_PROVIDER',
+    },
     TR_ADDRESS_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy address',
         id: 'TR_ADDRESS_MODAL_CLIPBOARD',
@@ -2200,6 +2204,18 @@ export default defineMessages({
     TR_DEVICE_LABEL_IS_UNAVAILABLE: {
         defaultMessage: 'Device {deviceLabel} is unavailable',
         id: 'TR_DEVICE_LABEL_IS_UNAVAILABLE',
+    },
+    TR_NONCE_ERROR: {
+        defaultMessage: 'Nonce could not be generated. Please try again.',
+        id: 'TR_NONCE_ERROR',
+    },
+    TR_VERIFY_ERROR: {
+        defaultMessage: 'Address could not be verified. Please try again.',
+        id: 'TR_VERIFY_ERROR',
+    },
+    TR_PAYMENT_REQUESTS_ERROR: {
+        defaultMessage: 'Payment request could not be created. Please try again.',
+        id: 'TR_PAYMENT_REQUESTS_ERROR',
     },
     TR_ETH_ADDRESS_NOT_USED_NOT_CHECKSUMMED: {
         defaultMessage:
