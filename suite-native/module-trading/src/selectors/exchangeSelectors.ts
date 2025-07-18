@@ -1,7 +1,6 @@
 import { CryptoId, ExchangeTrade } from 'invity-api';
 
 import { createWeakMapSelector } from '@suite-common/redux-utils';
-import { invariant } from '@suite-common/suite-utils';
 import {
     TokenDefinitionsRootState,
     filterKnownTokens,
@@ -56,18 +55,17 @@ const createExchangeMemoizedSelector =
 
 export const selectTradingExchange = (state: TradingRootState) => state.wallet.tradingNew.exchange;
 
+export const selectExchangeSelectedSendAccount = createMemoizedSelectorWithAccounts(
+    [state => state, selectTradingExchange],
+    (state, { tradingAccountKey }) => selectAccountByKey(state, tradingAccountKey) || undefined,
+);
+
 export const selectExchangeSelectedReceiveAccount = createMemoizedSelectorWithAccounts(
     [state => state, selectTradingExchange],
     (state, { receiveAddress: address, receiveAccountKey }) => {
-        if (!receiveAccountKey) {
-            return undefined;
-        }
-
         const account = selectAccountByKey(state, receiveAccountKey);
 
-        invariant(account, `Unknown receiveAccountKey: [${receiveAccountKey}]`);
-
-        return { account, address } as ReceiveAccount;
+        return account ? ({ account, address } as ReceiveAccount) : undefined;
     },
 );
 
@@ -91,9 +89,6 @@ export const selectExchangeBuyTradeableAssetsSorted = createMemoizedSelector(
 
 export const selectExchangeQuotes = (state: TradingRootState) =>
     state.wallet.tradingNew.exchange.quotes;
-
-export const selectTradingExchangeIsLoading = (state: TradingRootState) =>
-    state.wallet.tradingNew.exchange.isLoading;
 
 const ratingSortingComparator = (
     a: { rate?: number | undefined },
@@ -239,3 +234,6 @@ export const selectExchangeAccountsWithTokensSectionList = createExchangeMemoize
             })
             .filter(section => section.data.length > 0),
 );
+
+export const selectExchangeAmountLimits = (state: TradingRootState) =>
+    selectTradingExchange(state).amountLimits;
