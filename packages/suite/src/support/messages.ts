@@ -7018,7 +7018,7 @@ export default defineMessages({
     },
     TR_CONTRACT_ADDRESS: {
         id: 'TR_CONTRACT_ADDRESS',
-        defaultMessage: 'Contract address:',
+        defaultMessage: 'Contract address',
     },
     TR_POLICY_ID_ADDRESS: {
         id: 'TR_POLICY_ID_ADDRESS',
@@ -10497,5 +10497,9 @@ export default defineMessages({
     TR_CONTRACT_APPROVE_TITLE: {
         id: 'TR_CONTRACT_APPROVE_TITLE',
         defaultMessage: 'Approve to',
+    },
+    TR_CONNECT_POPUP_SUCCESS: {
+        id: 'TR_CONNECT_POPUP_SUCCESS',
+        defaultMessage: 'Success! {appName} request completed',
     },
 } as const);

@@ -452,7 +452,9 @@ export const TxSimulationModal = () => {
                                                         )?.[1]?.name_tag,
                                                     },
                                                     {
-                                                        label: <Translation id="TR_ADDRESS" />,
+                                                        label: (
+                                                            <Translation id="TR_CONTRACT_ADDRESS" />
+                                                        ),
                                                         value: (
                                                             <TxAddress
                                                                 txAddress={targetContract}
@@ -541,27 +543,31 @@ export const TxSimulationModal = () => {
                         />
                     )}
 
-                    <Text variant="tertiary" margin={{ left: spacings.xs }}>
-                        <Translation
-                            id="TR_SIMULATION_POWERED_BY"
-                            values={{ provider: <Link href="https://blockaid.io">Blockaid</Link> }}
-                        />
-                    </Text>
+                    <Column margin={{ left: spacings.xs }} gap={spacings.md}>
+                        <Text variant="tertiary">
+                            <Translation
+                                id="TR_SIMULATION_POWERED_BY"
+                                values={{
+                                    provider: <Link href="https://blockaid.io">Blockaid</Link>,
+                                }}
+                            />
+                        </Text>
 
-                    {isSigningTransaction && account && (
-                        <Fees
-                            account={account}
-                            feeInfo={feeInfo}
-                            control={control}
-                            register={register}
-                            setValue={setValue}
-                            getValues={getValues}
-                            errors={errors}
-                            isDirty={isDirty}
-                            changeFeeLevel={changeFeeLevel}
-                            trigger={trigger}
-                        />
-                    )}
+                        {isSigningTransaction && account && (
+                            <Fees
+                                account={account}
+                                feeInfo={feeInfo}
+                                control={control}
+                                register={register}
+                                setValue={setValue}
+                                getValues={getValues}
+                                errors={errors}
+                                isDirty={isDirty}
+                                changeFeeLevel={changeFeeLevel}
+                                trigger={trigger}
+                            />
+                        )}
+                    </Column>
                 </Column>
             </Modal.ModalBase>
         </Modal.Backdrop>
