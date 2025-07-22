@@ -900,7 +900,7 @@ export type RefundMemo = {
 
 export type CoinPurchaseMemo = {
     coin_type: number;
-    amount: UintType;
+    amount: string;
     address: string;
     address_n: number[];
     mac: string;
@@ -982,6 +982,12 @@ export enum DebugPhysicalButton {
     LEFT_BTN = 0,
     MIDDLE_BTN = 1,
     RIGHT_BTN = 2,
+}
+
+export enum DebugTouchEventType {
+    TOUCH_FULL_CLICK = 0,
+    TOUCH_START = 1,
+    TOUCH_END = 2,
 }
 
 export enum DebugWaitType {
@@ -1236,6 +1242,7 @@ export type EthereumSignTypedData = {
     primary_type: string;
     metamask_v4_compat?: boolean;
     definitions?: EthereumDefinitions;
+    show_message_hash?: string;
 };
 
 export type EthereumTypedDataStructRequest = {

@@ -1484,6 +1484,15 @@ export enum DebugPhysicalButton {
 export type EnumDebugPhysicalButton = Static<typeof EnumDebugPhysicalButton>;
 export const EnumDebugPhysicalButton = Type.Enum(DebugPhysicalButton);
 
+export enum DebugTouchEventType {
+    TOUCH_FULL_CLICK = 0,
+    TOUCH_START = 1,
+    TOUCH_END = 2,
+}
+
+export type EnumDebugTouchEventType = Static<typeof EnumDebugTouchEventType>;
+export const EnumDebugTouchEventType = Type.Enum(DebugTouchEventType);
+
 export enum DebugWaitType {
     IMMEDIATE = 0,
     NEXT_LAYOUT = 1,
@@ -1891,6 +1900,7 @@ export const EthereumSignTypedData = Type.Object(
         primary_type: Type.String(),
         metamask_v4_compat: Type.Optional(Type.Boolean()),
         definitions: Type.Optional(EthereumDefinitions),
+        show_message_hash: Type.Optional(Type.String()),
     },
     { $id: 'EthereumSignTypedData' },
 );
