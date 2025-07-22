@@ -3,6 +3,7 @@ import { AcquiredDevice, AuthorizedDevice, TrezorDevice } from '@suite-common/su
 import { getNewInstanceNumber } from '@suite-common/suite-utils';
 import { Bip43Path, TrezorConnectBackendType } from '@suite-common/wallet-config';
 import { DiscoveryItem, DiscoveryStatus } from '@suite-common/wallet-types';
+import { shouldDeviceBeRemembered } from '@suite-common/wallet-utils';
 import TrezorConnect, {
     AccountInfo,
     BundleProgress,
@@ -12,7 +13,6 @@ import TrezorConnect, {
     UI,
 } from '@trezor/connect';
 import { DiscoverAccountsProgress } from '@trezor/connect/src/types/api/discoverAccounts';
-import { isNative } from '@trezor/env-utils';
 
 import { DISCOVERY_MODULE_PREFIX, discoveryActions } from './discoveryActions';
 import { isDiscoveryInProgress, selectDiscoveryByDevicePath } from './discoverySelectors';
@@ -21,6 +21,7 @@ import { deviceActions } from '../device/deviceActions';
 import {
     selectDeviceByStaticSessionId,
     selectDevices,
+    selectIsDeviceAutoEjectEnabled,
     selectPhysicalDevices,
     selectSelectedDevice,
 } from '../device/deviceSelectors';
@@ -80,7 +81,7 @@ const applyDeviceStatesThunk = createThunk(
             newDeviceState: DeviceState;
             devicePath: DeviceUniquePath;
         },
-        { dispatch, getState },
+        { dispatch, getState, extra },
     ) => {
         try {
             const devices = selectDevices(getState());
@@ -120,9 +121,15 @@ const applyDeviceStatesThunk = createThunk(
                         device,
                         state: newDeviceState,
                         useEmptyPassphrase: !isAddingHiddenWallet,
+                        isViewOnlyByDefaultEnabled:
+                            extra.selectors.selectIsViewOnlyByDefaultEnabled(getState()),
                     }),
                 );
             } else {
+                const isViewOnlyByDefaultEnabled =
+                    extra.selectors.selectIsViewOnlyByDefaultEnabled(getState());
+                const isDeviceAutoEjectEnabled = selectIsDeviceAutoEjectEnabled(getState());
+
                 dispatch(
                     deviceActions.addAuthorizedDevice({
                         device: {
@@ -130,8 +137,10 @@ const applyDeviceStatesThunk = createThunk(
                             metadata: {},
                             instance: getNewInstanceNumber(selectDevices(getState()), device),
                             useEmptyPassphrase: !isAddingHiddenWallet,
-                            // TODO: On mobile, we don't want to remember the device by default, because it's not supported yet
-                            remember: isNative() ? false : true,
+                            remember: shouldDeviceBeRemembered({
+                                isDeviceAutoEjectEnabled,
+                                isViewOnlyByDefaultEnabled,
+                            }),
                             state: newDeviceState,
                         },
                     }),

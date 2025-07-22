@@ -34,12 +34,13 @@ import { getEnvironment } from '@trezor/env-utils';
 import { exhaustive } from '@trezor/type-utils';
 import { isChanged } from '@trezor/utils';
 
-import { DEVICE_MODULE_PREFIX, deviceActions } from './deviceActions';
+import { ConnectDeviceSettings, DEVICE_MODULE_PREFIX, deviceActions } from './deviceActions';
 import { PORTFOLIO_TRACKER_DEVICE_ID, portfolioTrackerDevice } from './deviceConstants';
 import {
     selectDeviceByBaseStaticSessionId,
     selectDeviceById,
     selectDevices,
+    selectPhysicalDevices,
     selectSelectedDevice,
 } from './deviceSelectors';
 import { selectAccountByKey } from '../accounts/accountsSelectors';
@@ -345,7 +346,11 @@ export const createImportedDeviceThunk = createThunk<
 
         if (device) return rejectWithValue({ error: 'already-created' });
 
-        dispatch(deviceActions.createDeviceInstance({ device: portfolioTrackerDevice }));
+        dispatch(
+            deviceActions.createDeviceInstance({
+                device: portfolioTrackerDevice,
+            }),
+        );
 
         return fulfillWithValue({ device: portfolioTrackerDevice });
     },
@@ -470,14 +475,24 @@ export const deviceConnectThunks = createThunk<void, DeviceConnectThunksParams, 
     `${DEVICE_MODULE_PREFIX}/deviceConnectThunk`,
     ({ type, device }, { dispatch, getState, extra }) => {
         const settings = extra.selectors.selectSuiteSettings(getState());
+        const isViewOnlyByDefaultEnabled =
+            extra.selectors.selectIsViewOnlyByDefaultEnabled(getState());
 
         switch (type) {
             case DEVICE.CONNECT:
-                dispatch(deviceActions.connectDevice({ device, settings }));
+                dispatch(
+                    deviceActions.connectDevice({ device, settings, isViewOnlyByDefaultEnabled }),
+                );
                 dispatch(connectThpDeviceThunk({ device }));
                 break;
             case DEVICE.CONNECT_UNACQUIRED:
-                dispatch(deviceActions.connectUnacquiredDevice({ device, settings }));
+                dispatch(
+                    deviceActions.connectUnacquiredDevice({
+                        device,
+                        settings,
+                        isViewOnlyByDefaultEnabled,
+                    }),
+                );
                 dispatch(autoInitThpAfterDeviceConnectionThunk({ device }));
                 break;
             default:
@@ -544,5 +559,30 @@ export const wipeDeviceThunk = createThunk(
 
             return rejectWithValue(result.payload.error);
         }
+    },
+);
+
+export const toggleAutoEjectThunk = createThunk(
+    `${DEVICE_MODULE_PREFIX}/toggleAutoEjectThunk`,
+    (_, { dispatch, getState }) => {
+        const physicalDevices = selectPhysicalDevices(getState());
+        dispatch(deviceActions.toggleIsDeviceAutoEjectEnabled());
+
+        physicalDevices.forEach(wallet => {
+            if (!wallet.connected && wallet.remember) {
+                const settings: ConnectDeviceSettings = {
+                    defaultWalletLoading: 'standard',
+                };
+
+                dispatch(deviceActions.forgetDevice({ device: wallet, settings }));
+            } else {
+                dispatch(
+                    deviceActions.rememberDevice({
+                        device: wallet,
+                        remember: !wallet.remember,
+                    }),
+                );
+            }
+        });
     },
 );

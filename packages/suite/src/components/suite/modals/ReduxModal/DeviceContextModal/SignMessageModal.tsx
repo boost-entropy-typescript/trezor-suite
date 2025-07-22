@@ -10,6 +10,7 @@ import { spacings, spacingsPx } from '@trezor/theme';
 
 import { AccountLabel } from 'src/components/suite/AccountLabel';
 import { ConnectCallSource } from 'src/components/suite/ConnectCallSource';
+import { ConnectModalBackdrop } from 'src/components/suite/ConnectModalBackdrop';
 import { Translation } from 'src/components/suite/Translation';
 import { useSelector } from 'src/hooks/suite';
 import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
@@ -67,7 +68,7 @@ export const SignMessageModal = ({
     const account = accounts.find(a => a.symbol === network?.symbol && a.path === serializedPath);
 
     return (
-        <Modal.Backdrop>
+        <ConnectModalBackdrop onClick={onCancel} canSwitchDevice>
             <ConfirmOnDevice
                 title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
                 deviceModelInternal={deviceModelInternal}
@@ -96,12 +97,13 @@ export const SignMessageModal = ({
                                 <CoinLogo size={14} symbol={network.symbol} />
                                 {account ? (
                                     <AccountLabel
-                                        accountLabel={
-                                            accountLabels[account.key] || account.accountLabel
-                                        }
-                                        accountType={account.accountType}
-                                        symbol={account.symbol}
-                                        index={account.index}
+                                        account={{
+                                            ...account,
+                                            accountLabel:
+                                                accountLabels[account.key] || account.accountLabel,
+                                        }}
+                                        showAccountTypeBadge
+                                        accountTypeBadgeSize="small"
                                     />
                                 ) : (
                                     network.name
@@ -111,6 +113,7 @@ export const SignMessageModal = ({
                         <ConnectCallSource />
                     </Row>
                 }
+                onCancel={onCancel}
             >
                 <Column gap={spacings.xs}>
                     {account && (
@@ -166,6 +169,6 @@ export const SignMessageModal = ({
                     </Card>
                 </Column>
             </Modal.ModalBase>
-        </Modal.Backdrop>
+        </ConnectModalBackdrop>
     );
 };

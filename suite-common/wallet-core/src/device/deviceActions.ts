@@ -10,7 +10,12 @@ export type ConnectDeviceSettings = {
     defaultWalletLoading: WalletType;
 };
 
-export type DeviceConnectActionPayload = { device: Device; settings: ConnectDeviceSettings };
+export type DeviceConnectActionPayload = {
+    device: Device;
+    settings: ConnectDeviceSettings;
+    // Note: temporary condition until view only by default is not controlled by feature flag on native
+    isViewOnlyByDefaultEnabled: boolean;
+};
 
 const connectDevice = createAction(DEVICE.CONNECT, (payload: DeviceConnectActionPayload) => ({
     payload,
@@ -36,6 +41,7 @@ const setDeviceState = createAction(
         device: TrezorDevice;
         state: DeviceState & { staticSessionId: StaticSessionId };
         useEmptyPassphrase: boolean;
+        isViewOnlyByDefaultEnabled: boolean;
     }) => ({
         payload,
     }),
@@ -120,6 +126,10 @@ const setThpCredentials = createAction(
     }),
 );
 
+const toggleIsDeviceAutoEjectEnabled = createAction(
+    `${DEVICE_MODULE_PREFIX}/toggleAutoEjectDevices`,
+);
+
 export const deviceActions = {
     connectDevice,
     createDeviceInstance,
@@ -140,4 +150,5 @@ export const deviceActions = {
     removeButtonRequests,
     setEntropyCheckFail,
     setThpCredentials,
+    toggleIsDeviceAutoEjectEnabled,
 };
