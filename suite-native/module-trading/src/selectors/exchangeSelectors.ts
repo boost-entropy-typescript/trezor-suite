@@ -8,7 +8,6 @@ import {
     selectTokenDefinitions,
 } from '@suite-common/token-definitions';
 import {
-    TradingRootState as CommonTradingRootState,
     selectTradingExchangeBuyCryptoIds,
     selectTradingExchangeProviders,
     selectTradingExchangeSellCryptoIds,
@@ -42,7 +41,6 @@ import {
 } from '../utils/general/tradeableAssetUtils';
 
 type ExchangeSelectorsRootState = TradingRootState &
-    CommonTradingRootState &
     AccountsRootState &
     DeviceRootState &
     TokenDefinitionsRootState &

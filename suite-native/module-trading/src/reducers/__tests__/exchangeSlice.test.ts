@@ -11,6 +11,17 @@ import {
 } from '../exchangeSlice';
 
 describe('exchangeSlice', () => {
+    it('should have correct initial state', () => {
+        const state = exchangeReducer(undefined, { type: 'unknown_action' });
+
+        expect(state).toEqual({
+            quotes: [],
+            isFromRedirect: false,
+            isLoading: false,
+            formStep: 'RECEIVING_ADDRESS',
+        });
+    });
+
     describe('setReceiveAddress', () => {
         it('should set buy receive address', () => {
             const address = { address: 'bc1qxyz' } as Address;
