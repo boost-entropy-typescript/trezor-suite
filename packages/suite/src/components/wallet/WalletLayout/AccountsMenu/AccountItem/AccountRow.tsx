@@ -68,7 +68,7 @@ export const AccountRow = forwardRef<HTMLDivElement, AccountRowProps>(
             tabIndex={0}
         >
             <Left>
-                <AccountItemLeft type={type} symbol={account.symbol} account={account} />
+                <AccountItemLeft type={type} account={account} />
             </Left>
             <AccountItemContent
                 customFiatValue={customFiatValue}

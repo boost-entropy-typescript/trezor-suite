@@ -19,7 +19,7 @@ import {
 import type {
     Account,
     AccountKey,
-    CurrencyOption,
+    BaseCurrencyOption,
     EthTransactionData,
     ExcludedUtxos,
     ExternalOutput,
@@ -31,7 +31,8 @@ import type {
     SendFormDraftKey,
     TokenAddress,
 } from '@suite-common/wallet-types';
-import { baseCurrencies } from '@trezor/blockchain-link-types';
+import { isBaseCurrencyWithSats } from '@suite-common/wallet-utils';
+import { BaseCurrencyCode, baseCurrencies } from '@trezor/blockchain-link-types';
 import {
     ComposeOutput,
     EthereumTransaction,
@@ -39,6 +40,7 @@ import {
     PROTO,
     TokenInfo,
 } from '@trezor/connect';
+import { typedObjectKeys } from '@trezor/utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import {
@@ -520,15 +522,39 @@ export const getDefaultValues = (currency: Output['currency']): FormState => ({
     selectedUtxos: [],
 });
 
-export const buildCurrencyOptions = (selected: CurrencyOption) => {
-    const result: CurrencyOption[] = [];
+type BuildCurrencyOptionParams = {
+    currency: BaseCurrencyCode | '';
+    areSatsDisplayed: boolean;
+};
 
-    Object.keys(baseCurrencies).forEach(currency => {
+export const buildCurrencyOption = ({
+    currency,
+    areSatsDisplayed,
+}: BuildCurrencyOptionParams): BaseCurrencyOption => ({
+    value: currency,
+    label:
+        currency !== '' && isBaseCurrencyWithSats(currency) && areSatsDisplayed
+            ? 'Sats'
+            : currency.toUpperCase(),
+});
+
+type BuildCurrencyOptionsParams = {
+    selected: BaseCurrencyOption;
+    areSatsDisplayed: boolean;
+};
+
+export const buildCurrencyOptions = ({
+    selected,
+    areSatsDisplayed,
+}: BuildCurrencyOptionsParams): BaseCurrencyOption[] => {
+    const result: BaseCurrencyOption[] = [];
+
+    typedObjectKeys(baseCurrencies).forEach(currency => {
         if (selected.value === currency) {
             return;
         }
 
-        result.push({ value: currency, label: currency.toUpperCase() });
+        result.push(buildCurrencyOption({ currency, areSatsDisplayed }));
     });
 
     return result;

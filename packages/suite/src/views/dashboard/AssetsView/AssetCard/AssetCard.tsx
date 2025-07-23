@@ -5,10 +5,10 @@ import styled, { useTheme } from 'styled-components';
 
 import { AssetFiatBalance } from '@suite-common/assets';
 import { selectCoinDefinitions } from '@suite-common/token-definitions';
-import { Network } from '@suite-common/wallet-config';
+import { Network, NetworkSymbol } from '@suite-common/wallet-config';
 import { selectAnyAccountIsStakingActive } from '@suite-common/wallet-core';
 import { Account, RatesByKey } from '@suite-common/wallet-types';
-import { isTestnet } from '@suite-common/wallet-utils';
+import { AmountUnit } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import {
     Card,
@@ -34,6 +34,7 @@ import {
 } from 'src/components/suite';
 import { FiatHeader } from 'src/components/wallet/FiatHeader';
 import { useLoadingSkeleton, useSelector } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 
 import { AssetCardInfo, AssetCardInfoSkeleton } from './AssetCardInfo';
 import { AssetCardTokensAndStakingInfo } from './AssetCardTokensAndStakingInfo';
@@ -78,10 +79,45 @@ const FailedContainer = styled.div`
     }
 `;
 
+type AmountComponentProps = {
+    failed: boolean;
+    cryptoValue: AmountUnit;
+    symbol: NetworkSymbol;
+    localCurrency: BaseCurrencyCode;
+    shallDisplayBaseCurrency: boolean;
+};
+
+const AmountComponent = ({ failed, cryptoValue, symbol, localCurrency }: AmountComponentProps) => {
+    const theme = useTheme();
+
+    return !failed ? (
+        <Column>
+            <FiatAmount data-testid={`@dashboard/asset/${symbol}/fiat-amount`}>
+                <FiatHeader
+                    symbol={symbol}
+                    amount={cryptoValue}
+                    size="medium"
+                    localCurrency={localCurrency}
+                />
+            </FiatAmount>
+            <CoinAmount>
+                <AmountUnitSwitchWrapper symbol={symbol}>
+                    <CoinBalance value={cryptoValue} symbol={symbol} />
+                </AmountUnitSwitchWrapper>
+            </CoinAmount>
+        </Column>
+    ) : (
+        <FailedContainer>
+            <WarningIcon name="warning" color={theme.legacy.TYPE_RED} size={14} />
+            <Translation id="TR_DASHBOARD_ASSET_FAILED" />
+        </FailedContainer>
+    );
+};
+
 type AssetCardProps = {
     network: Network;
     failed: boolean;
-    cryptoValue: string;
+    cryptoValue: AmountUnit;
     assetsFiatBalances: AssetFiatBalance[];
     stakingAccounts: Account[];
     assetTokens: TokenInfo[];
@@ -107,7 +143,8 @@ export const AssetCard = ({
 }: AssetCardProps) => {
     const { symbol } = network;
     const dispatch = useDispatch();
-    const theme = useTheme();
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
+
     const handleCardClick = () => {
         dispatch(
             goto('wallet-index', {
@@ -177,28 +214,13 @@ export const AssetCard = ({
                         />
                         <Icon size={16} name="arrowRight" variant="disabled" />
                     </Row>
-                    {!failed ? (
-                        <Column>
-                            <FiatAmount data-testid={`@dashboard/asset/${symbol}/fiat-amount`}>
-                                <FiatHeader
-                                    symbol={symbol}
-                                    amount={cryptoValue}
-                                    size="medium"
-                                    localCurrency={localCurrency}
-                                />
-                            </FiatAmount>
-                            <CoinAmount>
-                                <AmountUnitSwitchWrapper symbol={symbol}>
-                                    <CoinBalance value={cryptoValue} symbol={symbol} />
-                                </AmountUnitSwitchWrapper>
-                            </CoinAmount>
-                        </Column>
-                    ) : (
-                        <FailedContainer>
-                            <WarningIcon name="warning" color={theme.legacy.TYPE_RED} size={14} />
-                            <Translation id="TR_DASHBOARD_ASSET_FAILED" />
-                        </FailedContainer>
-                    )}
+                    <AmountComponent
+                        symbol={symbol}
+                        failed={failed}
+                        localCurrency={localCurrency}
+                        cryptoValue={cryptoValue}
+                        shallDisplayBaseCurrency={shallDisplayBaseCurrency}
+                    />
                 </Column>
                 {(shouldRenderStakingRow || shouldRenderTokenRow) && (
                     <AssetCardTokensAndStakingInfo
@@ -210,7 +232,7 @@ export const AssetCard = ({
                         accounts={accounts}
                     />
                 )}
-                {!isTestnet(symbol) && (
+                {shallDisplayBaseCurrency && (
                     <Card data-testid="@dashboard/asset/bottom-info">
                         <Row justifyContent="space-between" flexWrap="wrap" gap={spacings.md}>
                             <InfoItem

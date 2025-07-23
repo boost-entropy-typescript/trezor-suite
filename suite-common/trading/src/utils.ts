@@ -27,6 +27,7 @@ import { CONTRACT_ADDRESS_FOR_NATIVE_TOKEN, CRYPTO_PLATFORM_SEPARATOR } from './
 import { regional } from './regional';
 import {
     TradingAccountOptionsGroupOptionProps,
+    TradingCountryCode,
     TradingExchangeType,
     TradingParsedCryptoIdProps,
     TradingPaymentMethodListProps,
@@ -144,7 +145,7 @@ export const getTagAndInfoNote = (quote: { infoNote?: string }) => {
 export const tradingGetSuccessQuotes = <T extends TradingType>(quotes: TradingTradeMapProps[T][]) =>
     quotes.filter(quote => quote.error === undefined);
 
-export const getDefaultCountry = (country: string = regional.UNKNOWN_COUNTRY) => {
+export const getDefaultCountry = (country: TradingCountryCode = regional.UNKNOWN_COUNTRY) => {
     const label = regional.countriesMap.get(country);
 
     if (!label)

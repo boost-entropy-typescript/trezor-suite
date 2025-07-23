@@ -1,9 +1,11 @@
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
+import { AmountUnit, asAmountUnit } from './AmountTypes';
 import { BaseCurrencyAmount, asBaseCurrencyAmount } from './baseCurrency';
 
 type ToFiatCurrencyParams = {
-    amount: string | BigNumber;
+    // Todo: remove `string`, its used only for backwards compatibility
+    amount: string | AmountUnit;
     rate: number | undefined;
 };
 
@@ -31,18 +33,19 @@ export const toFiatCurrency = ({
     return asBaseCurrencyAmount(localAmount);
 };
 
-type FromFiatCurrencyParams = {
-    fiatAmount: string;
+type FromBaseCurrencyParams = {
+    // Todo: remove string
+    fiatAmount: string | BaseCurrencyAmount;
     rate: number | undefined;
 };
 
 /**
  * This function does only numerical operations, formatting is to be handled in formatters.
  */
-export const fromFiatCurrency = ({
+export const fromBaseCurrencyToCryptoUnit = ({
     fiatAmount,
     rate,
-}: FromFiatCurrencyParams): BigNumber | null => {
+}: FromBaseCurrencyParams): AmountUnit | null => {
     if (!rate) {
         return null;
     }
@@ -54,5 +57,5 @@ export const fromFiatCurrency = ({
 
     const amount = new BigNumber(formattedLocalAmount).div(rate);
 
-    return amount.isNaN() ? null : amount;
+    return amount.isNaN() ? null : asAmountUnit(amount);
 };

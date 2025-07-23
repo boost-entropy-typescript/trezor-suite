@@ -350,9 +350,17 @@ describe(convertAmountUnitsToSubunits.name, () => {
 
 describe(unitsToSubunits.name, () => {
     it('converts BTC->Sats', () => {
-        expect(unitsToSubunits(asAmountUnit(new BigNumber(1), 'btc'), 'btc').toString()).toEqual(
-            String(100_000_000),
-        );
+        const btcSymbolResult = unitsToSubunits({
+            value: asAmountUnit(new BigNumber(1)),
+            symbol: 'btc',
+        });
+        expect(btcSymbolResult.toString()).toEqual(String(100_000_000));
+
+        const decimalsResult = unitsToSubunits({
+            value: asAmountUnit(new BigNumber(1)),
+            decimals: 2,
+        });
+        expect(decimalsResult.toString()).toEqual('100');
     });
 });
 
@@ -364,8 +372,11 @@ describe(convertAmountSubunitsToUnits.name, () => {
 
 describe(subunitsToUnits.name, () => {
     it('converts Sats->BTC', () => {
-        expect(subunitsToUnits(asAmountSubunit(new BigNumber(1), 'btc'), 'btc').toString()).toEqual(
-            '0.00000001',
-        );
+        expect(
+            subunitsToUnits({
+                value: asAmountSubunit(new BigNumber(1)),
+                symbol: 'btc',
+            }).toString(),
+        ).toEqual('0.00000001');
     });
 });

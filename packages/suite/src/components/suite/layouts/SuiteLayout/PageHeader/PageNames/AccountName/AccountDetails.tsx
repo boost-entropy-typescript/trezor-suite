@@ -15,6 +15,7 @@ import {
     MetadataLabeling,
 } from 'src/components/suite';
 import { useDefaultAccountLabel, useSelector } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { selectLabelingDataForSelectedAccount } from 'src/reducers/suite/metadataReducer';
 
 const LOGO_SIZE = 36;
@@ -95,6 +96,7 @@ export const AccountDetails = ({ selectedAccount, isBalanceShown }: AccountDetai
     const selectedAccountLabels = useSelector(selectLabelingDataForSelectedAccount);
     const { getDefaultAccountLabel } = useDefaultAccountLabel();
     const { symbol, key, path, index, accountType, formattedBalance } = selectedAccount;
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
 
     useEffect(() => {
         setHasMounted(true);
@@ -117,7 +119,13 @@ export const AccountDetails = ({ selectedAccount, isBalanceShown }: AccountDetai
                         networkType={selectedAccount.networkType}
                         path={path}
                         defaultVisibleValue={
-                            <AccountLabel account={selectedAccount} showAccountTypeBadge />
+                            <AccountLabel
+                                account={{
+                                    ...selectedAccount,
+                                    accountLabel: selectedAccountLabels.accountLabel,
+                                }}
+                                showAccountTypeBadge
+                            />
                         }
                         payload={{
                             type: 'accountLabel',
@@ -140,13 +148,15 @@ export const AccountDetails = ({ selectedAccount, isBalanceShown }: AccountDetai
                                 <FormattedCryptoAmount value={formattedBalance} symbol={symbol} />
                             </AmountUnitSwitchWrapper>
                         </CryptoBalance>
-                        <ForegroundWrapper>
-                            <BaseCurrencyValue
-                                amount={formattedBalance}
-                                symbol={symbol}
-                                showApproximationIndicator
-                            />
-                        </ForegroundWrapper>
+                        {shallDisplayBaseCurrency && (
+                            <ForegroundWrapper>
+                                <BaseCurrencyValue
+                                    amount={formattedBalance}
+                                    symbol={symbol}
+                                    showApproximationIndicator
+                                />
+                            </ForegroundWrapper>
+                        )}
                     </AccountBalance>
                 )}
             </div>

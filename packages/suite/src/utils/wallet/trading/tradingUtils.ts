@@ -1,4 +1,4 @@
-import { CryptoId } from 'invity-api';
+import { CryptoId, FiatCurrencyCode } from 'invity-api';
 
 import { DefinitionType, isTokenDefinitionKnown } from '@suite-common/token-definitions';
 import {
@@ -64,7 +64,7 @@ export const getTradingNetworkDecimals = ({
     return network?.decimals ?? 8;
 };
 
-export const buildFiatOption = (currency: string) => ({
+export const buildTradingFiatOption = (currency: FiatCurrencyCode) => ({
     value: currency,
     label: currency.toUpperCase(),
 });

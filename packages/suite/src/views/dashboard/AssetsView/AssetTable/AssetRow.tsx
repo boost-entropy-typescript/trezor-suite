@@ -7,7 +7,7 @@ import { selectCoinDefinitions } from '@suite-common/token-definitions';
 import { Network } from '@suite-common/wallet-config';
 import { selectAnyAccountIsStakingActive } from '@suite-common/wallet-core';
 import { Account, RatesByKey } from '@suite-common/wallet-types';
-import { isTestnet } from '@suite-common/wallet-utils';
+import { AmountUnit, isTestnet } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { TokenInfo } from '@trezor/blockchain-link-types';
 import { Column, Icon, IconButton, Row, Table, Text } from '@trezor/components';
@@ -31,13 +31,14 @@ import { AssetCoinName } from '../AssetCoinName';
 import { AssetStakingRow } from './AssetStakingRow';
 import { AssetTableExtraRowsSection as Section } from './AssetTableExtraRowsSection';
 import { AssetTokenRow } from './AssetTokenRow';
+import { useDisplayBaseCurrency } from '../../../../hooks/suite/useDisplayBaseCurrency';
 import { TradingButton } from '../TradingButton';
 import { handleTokensAndStakingData } from '../assetsViewUtils';
 
 export interface AssetTableRowProps {
     network: Network;
     failed: boolean;
-    assetNativeCryptoBalance: string;
+    assetNativeCryptoBalance: AmountUnit;
     stakingAccounts: Account[];
     assetTokens: TokenInfo[];
     isStakeNetwork?: boolean;
@@ -63,6 +64,7 @@ export const AssetRow = memo(
         const { symbol } = network;
         const dispatch = useDispatch();
         const theme = useTheme();
+        const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
 
         const handleRowClick = () => {
             dispatch(
@@ -155,14 +157,16 @@ export const AssetRow = memo(
                                     symbol={symbol}
                                 />
 
-                                <Text typographyStyle="hint" color={theme.textSubdued}>
-                                    <AmountUnitSwitchWrapper symbol={symbol}>
-                                        <CoinBalance
-                                            value={assetNativeCryptoBalance}
-                                            symbol={symbol}
-                                        />
-                                    </AmountUnitSwitchWrapper>
-                                </Text>
+                                {!assetNativeCryptoBalance.eq(0) && (
+                                    <Text typographyStyle="hint" color={theme.textSubdued}>
+                                        <AmountUnitSwitchWrapper symbol={symbol}>
+                                            <CoinBalance
+                                                value={assetNativeCryptoBalance}
+                                                symbol={symbol}
+                                            />
+                                        </AmountUnitSwitchWrapper>
+                                    </Text>
+                                )}
                             </Column>
                         ) : (
                             <Text variant="destructive" typographyStyle="hint" textWrap="nowrap">
@@ -174,11 +178,11 @@ export const AssetRow = memo(
                         )}
                     </Table.Cell>
                     <Table.Cell align="end" data-testid="@dashboard/asset/exchange-rate">
-                        {!isTestnet(symbol) && <PriceTicker symbol={symbol} />}
+                        {shallDisplayBaseCurrency && <PriceTicker symbol={symbol} />}
                     </Table.Cell>
 
                     <Table.Cell data-testid="@dashboard/asset/week-change">
-                        {!isTestnet(symbol) && <TrendTicker symbol={symbol} />}
+                        {shallDisplayBaseCurrency && <TrendTicker symbol={symbol} />}
                     </Table.Cell>
                     <Table.Cell align="end" colSpan={2}>
                         <Row gap={spacings.md}>

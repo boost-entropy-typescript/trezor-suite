@@ -3,7 +3,7 @@ import {
     BaseCurrencyAmount,
     convertAmountUnitsToSubunits,
     formatNetworkAmount,
-    fromFiatCurrency,
+    fromBaseCurrencyToCryptoUnit,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
@@ -15,6 +15,9 @@ type ConvertInput = {
     rate?: number;
 };
 
+/**
+ * @deprecated use `toFiatCurrency` directly
+ */
 export const convertCryptoToFiatAmount = ({
     amount,
     symbol,
@@ -30,6 +33,9 @@ export const convertCryptoToFiatAmount = ({
     return toFiatCurrency({ amount: networkAmount, rate });
 };
 
+/**
+ * @deprecated use `fromBaseCurrencyToCryptoUnit` directly
+ */
 export const convertFiatToCryptoAmount = ({
     amount,
     symbol,
@@ -41,7 +47,7 @@ export const convertFiatToCryptoAmount = ({
     }
 
     const { decimals } = getNetwork(symbol);
-    const cryptoAmount = fromFiatCurrency({ fiatAmount: amount, rate });
+    const cryptoAmount = fromBaseCurrencyToCryptoUnit({ fiatAmount: amount, rate });
 
     if (!cryptoAmount || !isAmountInSats) {
         return cryptoAmount;

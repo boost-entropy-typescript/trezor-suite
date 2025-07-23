@@ -24,7 +24,7 @@ import { TokenAddress } from '@suite-common/wallet-types';
 import {
     convertAmountSubunitsToUnits,
     convertAmountUnitsToSubunits,
-    fromFiatCurrency,
+    fromBaseCurrencyToCryptoUnit,
     isZero,
 } from '@suite-common/wallet-utils';
 import { BigNumber, isChanged } from '@trezor/utils';
@@ -129,7 +129,7 @@ export const useTradingFormActions = <T extends TradingSellExchangeFormProps>({
             }
 
             const cryptoAmount =
-                fromFiatCurrency({
+                fromBaseCurrencyToCryptoUnit({
                     fiatAmount,
                     rate: tradingFiatValues.fiatRate?.rate,
                 })?.toFixed(networkDecimals) ?? null;

@@ -5,12 +5,7 @@ import styled from 'styled-components';
 import { getInstantStakeType } from '@suite-common/staking';
 import { AccountType, Network } from '@suite-common/wallet-config';
 import { selectIsPhishingTransaction } from '@suite-common/wallet-core';
-import {
-    formatNetworkAmount,
-    isStakeTypeTx,
-    isTestnet,
-    isTxFeePaid,
-} from '@suite-common/wallet-utils';
+import { formatNetworkAmount, isStakeTypeTx, isTxFeePaid } from '@suite-common/wallet-utils';
 import { Button, Card, Column, Link, Row, Tooltip } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { HELP_CENTER_REPLACE_BY_FEE_ETHEREUM } from '@trezor/urls';
@@ -23,6 +18,7 @@ import { AccountTransactionBaseAnchor } from 'src/constants/suite/anchors';
 import { SUBPAGE_NAV_HEIGHT } from 'src/constants/suite/layout';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useAnchor } from 'src/hooks/suite/useAnchor';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 import { AccountLabels } from 'src/types/suite/metadata';
 import { WalletAccountTransaction } from 'src/types/wallet';
@@ -89,6 +85,7 @@ export const TransactionItem = memo(
         const [limit, setLimit] = useState(0);
         const [txItemIsHovered, setTxItemIsHovered] = useState(false);
         const [nestedItemIsHovered, setNestedItemIsHovered] = useState(false);
+        const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(transaction.symbol);
 
         const { descriptor: address, symbol } = useSelector(selectSelectedAccount) || {};
 
@@ -118,7 +115,6 @@ export const TransactionItem = memo(
 
         const isStakingTx: boolean = useMemo(() => isStakeTypeTx(txSignature), [txSignature]);
 
-        const useFiatValues = !isTestnet(transaction.symbol);
         const useSingleRowLayout =
             !isUnknown &&
             !isStakingTx &&
@@ -290,14 +286,14 @@ export const TransactionItem = memo(
                                         {type === 'joint' && (
                                             <CoinjoinRow
                                                 transaction={transaction}
-                                                useFiatValues={useFiatValues}
+                                                useFiatValues={shallDisplayBaseCurrency}
                                             />
                                         )}
 
                                         {transaction.cardanoSpecific?.withdrawal && (
                                             <WithdrawalRow
                                                 transaction={transaction}
-                                                useFiatValues={useFiatValues}
+                                                useFiatValues={shallDisplayBaseCurrency}
                                                 isFirst
                                                 isLast
                                             />
@@ -306,7 +302,7 @@ export const TransactionItem = memo(
                                         {transaction.cardanoSpecific?.deposit && (
                                             <DepositRow
                                                 transaction={transaction}
-                                                useFiatValues={useFiatValues}
+                                                useFiatValues={shallDisplayBaseCurrency}
                                                 isFirst
                                                 isLast
                                             />
@@ -317,7 +313,7 @@ export const TransactionItem = memo(
                                                 <StyledFeeRow
                                                     fee={fee}
                                                     transaction={transaction}
-                                                    useFiatValues={useFiatValues}
+                                                    useFiatValues={shallDisplayBaseCurrency}
                                                     $noInputsOutputs={noInputsOutputs}
                                                     isFirst
                                                     isLast

@@ -12,6 +12,7 @@ import { FiatHeader } from 'src/components/wallet/FiatHeader';
 import { useSelector } from 'src/hooks/suite';
 import { useAccountHeaderContext } from 'src/support/suite/AccountHeaderProvider';
 
+import { useDisplayBaseCurrency } from '../../../../hooks/suite/useDisplayBaseCurrency';
 import { ContextMessage } from '../AccountBanners/ContextMessage';
 
 const Container = styled.div`
@@ -54,8 +55,9 @@ const AccountTopPanelSkeleton = ({ animate, symbol }: AccountTopPanelSkeletonPro
 
 export const AccountTopPanel = () => {
     const { account, loader, status } = useSelector(state => state.wallet.selectedAccount);
-    const localCurrency = useSelector(selectLocalCurrency);
+    const baseCurrency = useSelector(selectLocalCurrency);
     const { balanceSectionRef } = useAccountHeaderContext();
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(account?.symbol);
 
     if (status !== 'loaded' || !account) {
         return (
@@ -72,19 +74,21 @@ export const AccountTopPanel = () => {
         <Container>
             <BalanceSection ref={balanceSectionRef}>
                 <AmountUnitSwitchWrapper symbol={symbol}>
-                    <AccountCryptoBalance>
-                        <FormattedCryptoAmount
-                            data-testid="@wallet/account-top-panel/crypto-balance"
-                            value={formattedBalance}
-                            symbol={symbol}
-                        />
-                    </AccountCryptoBalance>
+                    {shallDisplayBaseCurrency && (
+                        <AccountCryptoBalance>
+                            <FormattedCryptoAmount
+                                data-testid="@wallet/account-top-panel/crypto-balance"
+                                value={formattedBalance}
+                                symbol={symbol}
+                            />
+                        </AccountCryptoBalance>
+                    )}
                 </AmountUnitSwitchWrapper>
                 <FiatHeader
                     symbol={account.symbol}
                     amount={account.formattedBalance}
                     size="large"
-                    localCurrency={localCurrency}
+                    localCurrency={baseCurrency}
                     data-testid="@wallet/account-top-panel/fiat-amount"
                 />
             </BalanceSection>

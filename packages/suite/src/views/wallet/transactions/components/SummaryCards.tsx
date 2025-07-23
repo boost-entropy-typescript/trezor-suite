@@ -8,6 +8,7 @@ import {
 } from '@suite-common/wallet-utils';
 import { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { variables } from '@trezor/components';
+import { exhaustive } from '@trezor/type-utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { FormattedDate, HiddenPlaceholder, Translation } from 'src/components/suite';
@@ -16,6 +17,7 @@ import { AggregatedAccountHistory, GraphRange } from 'src/types/wallet/graph';
 import { FiatValueMap, sumFiatValueMap } from 'src/utils/wallet/graph';
 
 import { InfoCard } from './InfoCard';
+import { useDisplayBaseCurrency } from '../../../../hooks/suite/useDisplayBaseCurrency';
 
 const InfoCardsWrapper = styled.div`
     display: grid;
@@ -41,7 +43,8 @@ const getFormattedLabelLong = (rangeLabel: GraphRange['label']) => {
             return <Translation id="TR_DATE_WEEK_LONG" />;
         case 'day':
             return <Translation id="TR_DATE_DAY_LONG" />;
-        // no default
+        default:
+            return exhaustive(rangeLabel);
     }
 };
 
@@ -77,6 +80,9 @@ export const SummaryCards = ({
 }: SummaryCardProps) => {
     const { BaseCurrencyAmountFormatter } = useFormatters();
     const [fromTimestamp, toTimestamp] = dataInterval;
+
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(account.symbol);
+
     // aggregate values from shown graph data
     const numOfTransactions = data.reduce((acc, d) => (acc += d.txs), 0) || account.history.total;
     const totalSentAmount = asBaseCurrencyAmount(
@@ -123,7 +129,7 @@ export const SummaryCards = ({
                         title={<Translation id="TR_INCOMING" />}
                         value={totalReceivedAmount.toFixed()}
                         secondaryValue={
-                            totalReceivedFiatMap[localCurrency] ? (
+                            shallDisplayBaseCurrency && totalReceivedFiatMap[localCurrency] ? (
                                 <BaseCurrencyAmountFormatter
                                     currency={localCurrency}
                                     value={totalReceivedFiatMap[localCurrency]!}
@@ -138,7 +144,7 @@ export const SummaryCards = ({
                         title={<Translation id="TR_OUTGOING" />}
                         value={totalSentAmount.negated().toFixed()}
                         secondaryValue={
-                            totalSentFiatMap[localCurrency] ? (
+                            shallDisplayBaseCurrency && totalSentFiatMap[localCurrency] ? (
                                 <BaseCurrencyAmountFormatter
                                     currency={localCurrency}
                                     value={totalSentFiatMap[localCurrency]!}

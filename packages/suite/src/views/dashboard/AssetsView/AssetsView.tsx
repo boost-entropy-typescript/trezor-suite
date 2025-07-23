@@ -16,6 +16,10 @@ import {
 } from '@suite-common/wallet-core';
 import { RatesByKey } from '@suite-common/wallet-types';
 import {
+    AMOUNT_UNIT_ZERO,
+    AmountUnit,
+    BASE_CURRENCY_ZERO,
+    asAmountUnit,
     getFiatRateKey,
     isSupportedEthStakingNetworkSymbol,
     isSupportedSolStakingNetworkSymbol,
@@ -26,6 +30,7 @@ import { TokenInfo } from '@trezor/blockchain-link-types';
 import { Button, Card, Icon, LoadingContent, Row } from '@trezor/components';
 import { spacings, spacingsPx, typography } from '@trezor/theme';
 import { PartialRecord } from '@trezor/type-utils';
+import { typedObjectKeys } from '@trezor/utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { goto } from 'src/actions/suite/routerActions';
@@ -57,7 +62,7 @@ const GridWrapper = styled.div`
 export type AssetData = {
     network: Network;
     failed: boolean;
-    assetNativeCryptoBalance: string;
+    assetNativeCryptoBalance: AmountUnit;
     stakingAccounts: Account[];
     assetTokens: TokenInfo[];
     isStakeNetwork?: boolean;
@@ -80,7 +85,7 @@ const useAssetsFiatBalances = (
                 .reduce((balance, account) => balance + Number(account.formattedBalance), 0)
                 .toString() ?? '0';
 
-        const fiatBalance = toFiatCurrency({ amount, rate: fiatRate?.rate })?.toFixed(2) ?? '0';
+        const fiatBalance = toFiatCurrency({ amount, rate: fiatRate?.rate }) ?? BASE_CURRENCY_ZERO;
 
         return [...acc, { fiatBalance, symbol: asset.network.symbol }];
     }, []);
@@ -117,45 +122,47 @@ export const AssetsView = () => {
         assets[account.symbol] = symbolAssets;
     });
 
-    const assetSymbols = Object.keys(assets).filter(symbol => isNetworkSymbol(symbol));
+    const assetSymbols = typedObjectKeys(assets).filter(symbol => isNetworkSymbol(symbol));
 
-    const assetsData: AssetData[] = assetSymbols
-        .map(symbol => {
-            const network = getNetwork(symbol);
+    const assetsData: AssetData[] = assetSymbols.map((symbol): AssetData => {
+        const network = getNetwork(symbol);
 
-            const assetNativeCryptoBalance = assets[symbol]?.reduce(
-                (total, account) => total.plus(account.formattedBalance),
-                new BigNumber(0),
-            );
+        const assetNativeCryptoBalance =
+            assets[symbol] !== undefined
+                ? asAmountUnit(
+                      assets[symbol].reduce(
+                          (total, account) => total.plus(account.formattedBalance),
+                          new BigNumber(0),
+                      ),
+                  )
+                : undefined;
 
-            const assetTokens = assets[symbol]?.reduce((allTokens: TokenInfo[], account) => {
-                if (account.tokens) {
-                    allTokens.push(...account.tokens);
-                }
+        const assetTokens = assets[symbol]?.reduce((allTokens: TokenInfo[], account) => {
+            if (account.tokens) {
+                allTokens.push(...account.tokens);
+            }
 
-                return allTokens;
-            }, []);
+            return allTokens;
+        }, []);
 
-            const assetFailed = accounts.find(f => f.symbol === network.symbol && f.failed);
+        const assetFailed = accounts.find(f => f.symbol === network.symbol && f.failed);
 
-            return {
-                symbol,
-                network,
-                failed: !!assetFailed,
-                assetNativeCryptoBalance: assetNativeCryptoBalance
-                    ? assetNativeCryptoBalance.toNumber()
-                    : '0',
-                assetTokens: assetTokens?.length ? assetTokens : undefined,
-                stakingAccounts: accounts.filter(
-                    account =>
-                        isSupportedEthStakingNetworkSymbol(account.symbol) ||
-                        isSupportedSolStakingNetworkSymbol(account.symbol),
-                ),
-                accounts,
-                isStakeNetwork: getNetworkFeatures(symbol).includes('staking'),
-            };
-        })
-        .filter(data => data !== null) as AssetData[];
+        return {
+            network,
+            failed: !!assetFailed,
+            assetNativeCryptoBalance: assetNativeCryptoBalance
+                ? assetNativeCryptoBalance
+                : AMOUNT_UNIT_ZERO,
+            assetTokens: assetTokens?.length ? assetTokens : [],
+            stakingAccounts: accounts.filter(
+                account =>
+                    isSupportedEthStakingNetworkSymbol(account.symbol) ||
+                    isSupportedSolStakingNetworkSymbol(account.symbol),
+            ),
+            accounts,
+            isStakeNetwork: getNetworkFeatures(symbol).includes('staking'),
+        };
+    });
 
     const assetsFiatBalances = useAssetsFiatBalances(
         assetsData,

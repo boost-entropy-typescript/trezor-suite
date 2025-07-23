@@ -7,13 +7,13 @@ import { FiatRates, FiatRatesResult, Output, Rate, Timestamp } from '@suite-comm
 import {
     convertAmountSubunitsToUnits,
     convertAmountUnitsToSubunits,
-    fromFiatCurrency,
+    fromBaseCurrencyToCryptoUnit,
     getFiatRateKey,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
 import { BaseCurrencyCode, baseCurrencies } from '@trezor/blockchain-link-types';
 
-import { importSendFormRequestThunk } from 'src/actions/wallet/send/sendFormThunks';
+import { openDeferredModal } from 'src/actions/suite/modalActions';
 import { useDispatch } from 'src/hooks/suite';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { UseSendFormState } from 'src/types/wallet/sendForm';
@@ -38,7 +38,7 @@ export const useSendFormImport = ({
 
     const importTransaction = async () => {
         // open ImportTransactionModal and get parsed csv
-        const result = await dispatch(importSendFormRequestThunk()).unwrap();
+        const result = await dispatch(openDeferredModal({ type: 'import-transaction' }));
         if (!result || result.length < 1) return; // cancelled
 
         const rates: { currency: string; rate?: number }[] = [];
@@ -94,7 +94,7 @@ export const useSendFormImport = ({
             }
 
             // sanitize csv data
-            const itemCurrency = item.currency.toLowerCase();
+            const itemCurrency = item.currency.toLowerCase() as BaseCurrencyCode;
 
             // currency is specified in csv
             if (itemCurrency) {
@@ -136,7 +136,7 @@ export const useSendFormImport = ({
                     output.fiat = item.amount || '';
 
                     // calculate Amount from Fiat
-                    const cryptoValue = fromFiatCurrency({
+                    const cryptoValue = fromBaseCurrencyToCryptoUnit({
                         fiatAmount: output.fiat,
                         rate: itemRate,
                     })?.toFixed(network.decimals);

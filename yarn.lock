@@ -9335,6 +9335,9 @@ __metadata:
 "@suite-common/assets@workspace:*, @suite-common/assets@workspace:suite-common/assets":
   version: 0.0.0-use.local
   resolution: "@suite-common/assets@workspace:suite-common/assets"
+  dependencies:
+    "@suite-common/wallet-utils": "workspace:*"
+    "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -9453,6 +9456,7 @@ __metadata:
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
+    "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/utils": "workspace:*"
     date-fns: "npm:^4.1.0"
@@ -11040,6 +11044,7 @@ __metadata:
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/urls": "workspace:*"
+    "@trezor/utils": "workspace:*"
     jotai: "npm:^2.12.5"
     react: "npm:19.0.0"
     react-native: "npm:0.79.3"

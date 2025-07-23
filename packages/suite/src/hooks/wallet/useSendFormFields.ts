@@ -2,16 +2,15 @@ import { useCallback } from 'react';
 import { FieldPath, UseFormReturn } from 'react-hook-form';
 
 import { selectCurrentFiatRates } from '@suite-common/wallet-core';
-import { FormOptions, FormState, Rate, TokenAddress } from '@suite-common/wallet-types';
+import { FormOptions, FormState, Output, Rate, TokenAddress } from '@suite-common/wallet-types';
 import {
-    convertAmountUnitsToSubunits,
-    formatNetworkAmount,
-    fromFiatCurrency,
     getFiatRateKey,
-    toFiatCurrency,
+    parseBaseCurrencyToFormattedCrypto,
+    parseCryptoToFormattedBaseCurrency,
 } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { TokenInfo } from '@trezor/blockchain-link-types';
+import { BigNumber } from '@trezor/utils';
 
 import { SendContextValues, UseSendFormState } from 'src/types/wallet/sendForm';
 
@@ -36,7 +35,7 @@ export const useSendFormFields = ({
     network,
     formState: { errors },
 }: UseSendFormFieldsParams) => {
-    const { shouldSendInSats } = useBitcoinAmountUnit(network.symbol);
+    const { shouldSendInSats, areSatsDisplayed } = useBitcoinAmountUnit(network.symbol);
     const currentRates = useSelector(selectCurrentFiatRates);
 
     const getCurrentFiatRate = useCallback(
@@ -50,14 +49,14 @@ export const useSendFormFields = ({
 
     type CalculateFiatFromAmountOrViceVersaParams = {
         outputId: number;
-        target: 'fiat' | 'amount';
-        formatTargetValue: (value: string, fiatRate: number) => string | null;
+        target: Extract<keyof Output, 'fiat' | 'amount'>;
+        convertAndFormatTargetValue: (value: string, fiatRate: number) => string | null;
         value?: string;
     };
 
     const calculateFiatFromAmountOrViceVersa = useCallback(
         ({
-            formatTargetValue,
+            convertAndFormatTargetValue,
             outputId,
             target,
             value,
@@ -92,7 +91,7 @@ export const useSendFormFields = ({
             if (!fiatRate?.rate) {
                 return;
             }
-            const formattedTargetValue = formatTargetValue(value, fiatRate.rate);
+            const formattedTargetValue = convertAndFormatTargetValue(value, fiatRate.rate);
             if (formattedTargetValue) {
                 setValue(targetInputName, formattedTargetValue, { shouldValidate: true });
             }
@@ -100,50 +99,80 @@ export const useSendFormFields = ({
         [clearErrors, getCurrentFiatRate, getValues, setValue, errors],
     );
 
-    const calculateFiatFromAmount = useCallback(
+    const calculateBaseCurrencyAmountFromCryptoAmount = useCallback(
         (outputId: number, amount: string) => {
-            const calculateFormattedFiatValue = (amount: string, fiatRate: number) => {
-                const formattedAmount = shouldSendInSats // toFiatCurrency always works with BTC, not satoshis
-                    ? formatNetworkAmount(amount, network.symbol)
-                    : amount;
+            const convert = (amount: string, fiatRate: number) => {
+                const { outputs } = getValues();
+                const output = outputs[outputId];
+                const baseCurrencyCode = output.currency.value;
 
-                return (
-                    toFiatCurrency({ amount: formattedAmount, rate: fiatRate })?.toFixed(2) ?? null
-                );
+                if (baseCurrencyCode === '') {
+                    return null;
+                }
+
+                return parseCryptoToFormattedBaseCurrency({
+                    baseCurrencyCode,
+                    rate: fiatRate,
+                    value: new BigNumber(amount),
+                    isCryptoInSats: shouldSendInSats === true,
+                    areSatsDisplayed,
+                    symbol: network.symbol,
+                });
             };
 
             return calculateFiatFromAmountOrViceVersa({
-                formatTargetValue: calculateFormattedFiatValue,
+                convertAndFormatTargetValue: convert,
                 outputId,
                 target: 'fiat',
                 value: amount,
             });
         },
-        [calculateFiatFromAmountOrViceVersa, shouldSendInSats, network.symbol],
+        [
+            calculateFiatFromAmountOrViceVersa,
+            getValues,
+            shouldSendInSats,
+            areSatsDisplayed,
+            network.symbol,
+        ],
     );
 
-    const calculateAmountFromFiat = useCallback(
+    const calculateCryptoAmountFromBaseCurrencyAmount = useCallback(
         (outputId: number, fiat: string, token?: TokenInfo) => {
-            const calculateFormattedAmountValue = (fiat: string, fiatRate: number) => {
-                const decimals = token ? token.decimals : network.decimals;
+            const convert = (fiat: string, fiatRate: number) => {
+                const cryptoDecimals = token ? token.decimals : network.decimals;
 
-                const amount =
-                    fromFiatCurrency({ fiatAmount: fiat, rate: fiatRate })?.toFixed(decimals) ??
-                    null;
+                const { outputs } = getValues();
+                const output = outputs[outputId];
 
-                return shouldSendInSats
-                    ? convertAmountUnitsToSubunits(amount || '0', network.decimals)
-                    : amount;
+                const baseCurrencyCode = output.currency.value;
+
+                if (baseCurrencyCode === '') {
+                    return null;
+                }
+
+                return parseBaseCurrencyToFormattedCrypto({
+                    cryptoDecimals,
+                    rate: fiatRate,
+                    isCryptoInSats: shouldSendInSats === true,
+                    areSatsDisplayed,
+                    value: new BigNumber(fiat),
+                });
             };
 
             return calculateFiatFromAmountOrViceVersa({
-                formatTargetValue: calculateFormattedAmountValue,
+                convertAndFormatTargetValue: convert,
                 outputId,
                 target: 'amount',
                 value: fiat,
             });
         },
-        [calculateFiatFromAmountOrViceVersa, shouldSendInSats, network.decimals],
+        [
+            calculateFiatFromAmountOrViceVersa,
+            network.decimals,
+            getValues,
+            shouldSendInSats,
+            areSatsDisplayed,
+        ],
     );
 
     const setAmount = useCallback(
@@ -152,9 +181,9 @@ export const useSendFormFields = ({
                 shouldValidate: amount.length > 0,
                 shouldDirty: true,
             });
-            calculateFiatFromAmount(outputId, amount);
+            calculateBaseCurrencyAmountFromCryptoAmount(outputId, amount);
         },
-        [calculateFiatFromAmount, setValue],
+        [calculateBaseCurrencyAmountFromCryptoAmount, setValue],
     );
 
     const setMax = useCallback(
@@ -210,8 +239,8 @@ export const useSendFormFields = ({
 
     return {
         getCurrentFiatRate,
-        calculateAmountFromFiat,
-        calculateFiatFromAmount,
+        calculateCryptoAmountFromBaseCurrencyAmount,
+        calculateBaseCurrencyAmountFromCryptoAmount,
         setAmount,
         resetDefaultValue,
         setMax,

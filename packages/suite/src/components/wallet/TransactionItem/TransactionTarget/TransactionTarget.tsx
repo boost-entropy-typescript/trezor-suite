@@ -9,9 +9,9 @@ import {
     getFiatRateKey,
     getTargetAmount,
     getTxOperation,
-    isTestnet,
 } from '@suite-common/wallet-utils';
 import { copyToClipboard } from '@trezor/dom-utils';
+import { exhaustive } from '@trezor/type-utils';
 
 import {
     AddressLabeling,
@@ -21,6 +21,7 @@ import {
     Translation,
 } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { selectLabelingValueBeingEdited } from 'src/reducers/suite/metadataReducer';
 import { AccountLabels } from 'src/types/suite/metadata';
 import { WalletAccountTransaction } from 'src/types/wallet';
@@ -55,12 +56,15 @@ export const TransactionTarget = ({
 }: TransactionTargetProps) => {
     const dispatch = useDispatch();
 
-    const fiatCurrencyCode = useSelector(selectLocalCurrency);
+    const baseCurrencyCode = useSelector(selectLocalCurrency);
     const fiatRateKey = getFiatRateKey(
         transaction.symbol,
-        fiatCurrencyCode,
+        baseCurrencyCode,
         type === 'token' ? (payload.contract as TokenAddress) : undefined,
     );
+
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(transaction.symbol);
+
     const historicRate = useSelector(state =>
         selectHistoricFiatRatesByTimestamp(state, fiatRateKey, transaction.blockTime as Timestamp),
     );
@@ -78,6 +82,8 @@ export const TransactionTarget = ({
                 return payload.amount && formatNetworkAmount(payload.amount, transaction.symbol);
             case 'token':
                 return convertAmountSubunitsToUnits(payload.amount, payload.decimals);
+            default:
+                return exhaustive(type);
         }
     }, [type, payload, transaction, isSolanaUnstakeTx]);
 
@@ -103,11 +109,14 @@ export const TransactionTarget = ({
                         alignMultitoken="flex-end"
                     />
                 );
+            default:
+                return exhaustive(type);
         }
     }, [amount, baseLayoutProps.singleRowLayout, operation, transaction.symbol, type, payload]);
+
     const fiatAmountComponent = useMemo(
         () =>
-            !isTestnet(transaction.symbol) && amount ? (
+            shallDisplayBaseCurrency && amount ? (
                 <BaseCurrencyValue
                     amount={amount}
                     symbol={transaction.symbol}
@@ -115,7 +124,7 @@ export const TransactionTarget = ({
                     useHistoricRate
                 />
             ) : undefined,
-        [amount, historicRate, transaction.symbol],
+        [amount, historicRate, transaction.symbol, shallDisplayBaseCurrency],
     );
 
     const metadataId = useMemo(() => {
@@ -126,6 +135,8 @@ export const TransactionTarget = ({
                 return `token-${payload.contract}`;
             case 'internal':
                 return `internal-${payload.to}`;
+            default:
+                return exhaustive(type);
         }
     }, [type, payload]);
     const targetMetadata = accountMetadata?.outputLabels?.[transaction.txid]?.[metadataId];
@@ -175,6 +186,8 @@ export const TransactionTarget = ({
                 );
             case 'internal':
                 return <AddressLabeling address={payload.to} symbol={transaction.symbol} />;
+            default:
+                return exhaustive(type);
         }
     }, [type, transaction, payload, accountMetadata, isPhishingTransaction]);
 

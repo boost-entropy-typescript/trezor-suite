@@ -1,7 +1,11 @@
 import { useSelector } from 'react-redux';
 
 import { type NetworkSymbol } from '@suite-common/wallet-config';
-import { WalletSettingsRootState, selectIsAmountInSats } from '@suite-common/wallet-core';
+import {
+    WalletSettingsRootState,
+    selectIsAmountInSats,
+    selectIsBaseCurrencyInSats,
+} from '@suite-common/wallet-core';
 
 export const decimalTransformer = (value: string) =>
     value
@@ -20,9 +24,10 @@ export const useAmountInputTransformers = (symbol: NetworkSymbol | undefined) =>
     const isAmountInSats = useSelector((state: WalletSettingsRootState) =>
         selectIsAmountInSats(state, symbol),
     );
+    const isBaseCurrencyInSats = useSelector(selectIsBaseCurrencyInSats);
 
     return {
         cryptoAmountTransformer: isAmountInSats ? integerTransformer : decimalTransformer,
-        fiatAmountTransformer: decimalTransformer,
+        fiatAmountTransformer: isBaseCurrencyInSats ? integerTransformer : decimalTransformer,
     };
 };

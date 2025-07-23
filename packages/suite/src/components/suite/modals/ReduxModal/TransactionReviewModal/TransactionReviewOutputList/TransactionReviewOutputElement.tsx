@@ -28,6 +28,7 @@ import {
     Translation,
 } from 'src/components/suite';
 import { TransactionReviewOutputStatus } from 'src/components/suite/modals/ReduxModal/TransactionReviewModal/TransactionReviewOutputList/TransactionReviewOutputStatus';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { Account } from 'src/types/wallet';
 
 const getCardanoFingerprint = (
@@ -124,6 +125,8 @@ type ValueProps = {
 };
 
 const Value = ({ value, type, symbol, token, isFee, isFiatVisible, state }: ValueProps) => {
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
+
     switch (type) {
         case 'address':
             return state !== 'confirmed' ? (
@@ -156,7 +159,7 @@ const Value = ({ value, type, symbol, token, isFee, isFiatVisible, state }: Valu
                         contractAddress={isTokenAmount ? token?.contract : undefined}
                         isTabular={false}
                     />
-                    {symbol && isFiatVisible && (
+                    {shallDisplayBaseCurrency && isFiatVisible && (
                         <Text variant="tertiary" data-testid="@modal/fiat-amount">
                             <BaseCurrencyValue
                                 disableHiddenPlaceholder

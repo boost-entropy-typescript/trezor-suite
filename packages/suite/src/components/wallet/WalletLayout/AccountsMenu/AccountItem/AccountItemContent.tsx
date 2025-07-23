@@ -3,6 +3,7 @@ import { JSX } from 'react';
 import styled from 'styled-components';
 
 import { useFormatters } from '@suite-common/formatters';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import { selectIsDiscreteModeActive, selectLocalCurrency } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
 import { BaseCurrencyAmount, isTestnet } from '@suite-common/wallet-utils';
@@ -24,6 +25,8 @@ import {
 } from 'src/components/suite';
 import { useLoadingSkeleton, useSelector } from 'src/hooks/suite';
 import { AccountItemType } from 'src/types/wallet';
+
+import { useDisplayBaseCurrency } from '../../../../../hooks/suite/useDisplayBaseCurrency';
 
 const AccountLabelContainer = styled.div`
     flex: 1;
@@ -50,6 +53,39 @@ const FiatValueRenderComponent = ({ value }: { value: JSX.Element | null }) => {
     return <TruncateWithTooltip delayShow={TOOLTIP_DELAY_LONG}>{value}</TruncateWithTooltip>;
 };
 
+type BaseCurrencyProps = {
+    isLoading?: boolean;
+    symbol: NetworkSymbol;
+    customFiatValue?: BaseCurrencyAmount;
+    formattedBalance: string;
+};
+
+const BaseCurrency = ({
+    isLoading,
+    symbol,
+    customFiatValue,
+    formattedBalance,
+}: BaseCurrencyProps) => {
+    const { BaseCurrencyAmountFormatter } = useFormatters();
+    const localCurrency = useSelector(selectLocalCurrency);
+    const { shouldAnimate } = useLoadingSkeleton();
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
+
+    return shallDisplayBaseCurrency && customFiatValue !== undefined ? (
+        <HiddenPlaceholder>
+            {isLoading ? (
+                <SkeletonRectangle animate={shouldAnimate} />
+            ) : (
+                <BaseCurrencyAmountFormatter value={customFiatValue} currency={localCurrency} />
+            )}
+        </HiddenPlaceholder>
+    ) : (
+        <BaseCurrencyValue amount={formattedBalance} symbol={symbol}>
+            {FiatValueRenderComponent}
+        </BaseCurrencyValue>
+    );
+};
+
 export const AccountItemContent = ({
     customFiatValue,
     account,
@@ -58,8 +94,6 @@ export const AccountItemContent = ({
     dataTestKey,
     isFiatLoading,
 }: ItemContentProps) => {
-    const { BaseCurrencyAmountFormatter } = useFormatters();
-    const localCurrency = useSelector(selectLocalCurrency);
     const discreetMode = useSelector(selectIsDiscreteModeActive);
     const { shouldAnimate } = useLoadingSkeleton();
 
@@ -75,31 +109,12 @@ export const AccountItemContent = ({
                     {type === 'staking' && <Translation id="TR_NAV_STAKING" />}
                     {type === 'tokens' && <Translation id="TR_NAV_TOKENS" />}
                 </AccountLabelContainer>
-                {customFiatValue && !isTestnet(account.symbol) ? (
-                    <HiddenPlaceholder>
-                        {isFiatLoading ? (
-                            <SkeletonRectangle animate={shouldAnimate} />
-                        ) : (
-                            <BaseCurrencyAmountFormatter
-                                value={customFiatValue}
-                                currency={localCurrency}
-                                minimumFractionDigits={0}
-                                maximumFractionDigits={0}
-                            />
-                        )}
-                    </HiddenPlaceholder>
-                ) : (
-                    <BaseCurrencyValue
-                        amount={formattedBalance}
-                        symbol={account.symbol}
-                        fiatAmountFormatterOptions={{
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                        }}
-                    >
-                        {FiatValueRenderComponent}
-                    </BaseCurrencyValue>
-                )}
+                <BaseCurrency
+                    isLoading={isFiatLoading}
+                    customFiatValue={customFiatValue}
+                    symbol={account.symbol}
+                    formattedBalance={formattedBalance}
+                />
             </Row>
             {isBalanceShown && type !== 'tokens' && (
                 <CoinBalance

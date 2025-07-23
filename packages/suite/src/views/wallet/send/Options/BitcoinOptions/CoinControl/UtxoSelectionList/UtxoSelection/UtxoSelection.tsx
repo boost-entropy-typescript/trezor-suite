@@ -17,6 +17,7 @@ import {
 } from 'src/components/suite';
 import { TransactionTimestamp, UtxoAnonymity } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { useCoinjoinUnavailableUtxos } from 'src/hooks/wallet/form/useCoinjoinUnavailableUtxos';
 import {
@@ -175,7 +176,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
     } = useSendFormContext();
     // selecting metadata from store rather than send form context which does not update on metadata change
     const { addressLabels, outputLabels } = useSelector(selectLabelingDataForSelectedAccount);
-
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(account.symbol);
     const dispatch = useDispatch();
 
     const theme = useTheme();
@@ -320,10 +321,12 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                         </DetailPartVisibleOnHover>
                     )}
 
-                    <StyledFiatValue
-                        amount={formatNetworkAmount(utxo.amount, account.symbol, false)}
-                        symbol={network.symbol}
-                    />
+                    {shallDisplayBaseCurrency && (
+                        <StyledFiatValue
+                            amount={formatNetworkAmount(utxo.amount, account.symbol, false)}
+                            symbol={network.symbol}
+                        />
+                    )}
                 </Row>
             </Body>
         </Wrapper>

@@ -1,20 +1,18 @@
 import { Route } from '@suite-common/suite-types';
-import {
-    getNetwork,
-    getNetworkDisplaySymbol,
-    getNetworkDisplaySymbolName,
-} from '@suite-common/wallet-config';
+import { getNetworkDisplaySymbol, getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
 import { hasNetworkFeatures } from '@suite-common/wallet-utils';
 import { Button, Card, Flex, InfoItem, Row, Text } from '@trezor/components';
 import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 import { CoinLogo } from '@trezor/product-components';
 import { EventType, analytics } from '@trezor/suite-analytics';
 import { spacings } from '@trezor/theme';
+import { exhaustive } from '@trezor/type-utils';
 
 import { goto } from 'src/actions/suite/routerActions';
 import { DashboardSection } from 'src/components/dashboard';
 import { PriceTicker, Translation, TrendTicker } from 'src/components/suite';
 import { useDevice, useDispatch, useLayoutSize } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { Account } from 'src/types/wallet';
 
 type TradeBoxProps = {
@@ -25,7 +23,8 @@ export const TradeBox = ({ account }: TradeBoxProps) => {
     const { isBelowTablet, isBelowMobile } = useLayoutSize();
     const dispatch = useDispatch();
     const { device } = useDevice();
-    const isTestnet = getNetwork(account.symbol).testnet;
+
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(account.symbol);
 
     const isStakeNetwork = hasNetworkFeatures(account, 'staking');
 
@@ -77,6 +76,8 @@ export const TradeBox = ({ account }: TradeBoxProps) => {
 
                             break;
                         }
+                        default:
+                            exhaustive(type);
                     }
                 }}
                 data-testid={dataTestId}
@@ -114,20 +115,28 @@ export const TradeBox = ({ account }: TradeBoxProps) => {
                                 </Text>
                             </InfoItem>
                         </Row>
-                        <InfoItem label={<Translation id="TR_EXCHANGE_RATE" />} width="fit-content">
-                            <PriceTicker
-                                symbol={account.symbol}
-                                noEmptyStateTooltip={isTestnet}
-                                showLoadingSkeleton={!isTestnet}
-                            />
-                        </InfoItem>
-                        <InfoItem label={<Translation id="TR_7D_CHANGE" />} width="fit-content">
-                            <TrendTicker
-                                symbol={account.symbol}
-                                noEmptyStateTooltip={isTestnet}
-                                showLoadingSkeleton={!isTestnet}
-                            />
-                        </InfoItem>
+                        {shallDisplayBaseCurrency ? (
+                            <>
+                                <InfoItem
+                                    label={<Translation id="TR_EXCHANGE_RATE" />}
+                                    width="fit-content"
+                                >
+                                    <PriceTicker
+                                        symbol={account.symbol}
+                                        showLoadingSkeleton={true}
+                                    />
+                                </InfoItem>
+                                <InfoItem
+                                    label={<Translation id="TR_7D_CHANGE" />}
+                                    width="fit-content"
+                                >
+                                    <TrendTicker
+                                        symbol={account.symbol}
+                                        showLoadingSkeleton={true}
+                                    />
+                                </InfoItem>
+                            </>
+                        ) : null}
                     </Flex>
                     <Row gap={spacings.sm}>
                         {isStakeNetwork && (

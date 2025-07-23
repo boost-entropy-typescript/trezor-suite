@@ -17,6 +17,7 @@ import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { BaseCurrencyValue, Translation } from 'src/components/suite';
 import { useLayoutSize, useSelector, useTranslation } from 'src/hooks/suite';
+import { useDisplayBaseCurrency } from 'src/hooks/suite/useDisplayBaseCurrency';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { selectLanguage } from 'src/reducers/suite/suiteReducer';
@@ -33,6 +34,7 @@ interface AmountProps {
     output: Partial<Output>;
     outputId: number;
 }
+
 export const Amount = ({ output, outputId }: AmountProps) => {
     const { translationString } = useTranslation();
     const {
@@ -50,6 +52,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
     const { symbol, tokens } = account;
     const { shouldSendInSats } = useBitcoinAmountUnit(symbol);
     const { isBelowLaptop } = useLayoutSize();
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
 
     const locale = useSelector(selectLanguage);
 
@@ -72,7 +75,8 @@ export const Amount = ({ output, outputId }: AmountProps) => {
         currencyCode: (output.currency?.value ?? '') as BaseCurrencyCode,
     });
 
-    const isWithRate = !!currentRate?.rate || !!currentRate?.isLoading;
+    const isWithBaseCurrency =
+        shallDisplayBaseCurrency && (!!currentRate?.rate || !!currentRate?.isLoading);
 
     let decimals: number;
     if (token) {
@@ -147,9 +151,11 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                     inputState={inputState}
                     locale={locale}
                     labelHoverRight={
-                        !isSetMaxVisible && (!isWithRate || isBelowLaptop) && sendMaxSwitch
+                        !isSetMaxVisible && (!isWithBaseCurrency || isBelowLaptop) && sendMaxSwitch
                     }
-                    labelRight={isSetMaxVisible && (!isWithRate || isBelowLaptop) && sendMaxSwitch}
+                    labelRight={
+                        isSetMaxVisible && (!isWithBaseCurrency || isBelowLaptop) && sendMaxSwitch
+                    }
                     labelLeft={
                         <Row>
                             <Translation id="AMOUNT" />
@@ -170,7 +176,7 @@ export const Amount = ({ output, outputId }: AmountProps) => {
                     }
                 />
 
-                {isWithRate && (
+                {isWithBaseCurrency && (
                     <BaseCurrencyValue amount="1" symbol={symbol}>
                         {({ rate }) =>
                             rate && (

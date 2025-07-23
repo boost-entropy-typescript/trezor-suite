@@ -4,18 +4,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formInputsMaxLength } from '@suite-common/validators';
 import { updateFiatRatesThunk } from '@suite-common/wallet-core';
 import {
-    CurrencyOption,
+    BaseCurrencyOption,
     FiatRatesResult,
     Output,
     Timestamp,
     TokenAddress,
 } from '@suite-common/wallet-types';
 import {
+    buildCurrencyOption,
     buildCurrencyOptions,
-    convertAmountSubunitsToUnits,
     findToken,
+    getDecimalsForBaseCurrency,
     getInputState,
     isLowAnonymityWarning,
+    parseCryptoToFormattedBaseCurrency,
 } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { Select } from '@trezor/components';
@@ -55,7 +57,7 @@ export const BaseCurrencyInput = ({
         watch,
     } = useSendFormContext();
 
-    const { shouldSendInSats } = useBitcoinAmountUnit(account.symbol);
+    const { shouldSendInSats, areSatsDisplayed } = useBitcoinAmountUnit(account.symbol);
 
     const locale = useSelector(selectLanguage);
     const { translationString } = useTranslation();
@@ -71,31 +73,37 @@ export const BaseCurrencyInput = ({
     const baseCurrencyValue = getDefaultValue(baseCurrencyInputName, output.fiat || '');
     const tokenContractAddress = getDefaultValue(tokenInputName, output.token);
 
-    const amountValue = getDefaultValue(amountInputName, '');
+    const cryptoAmountValue = getDefaultValue(amountInputName, '');
     const token = findToken(account.tokens, tokenContractAddress);
 
     const currencyValue = watch(currencyInputName);
+    const baseCurrencyCode = currencyValue.value;
+
+    const baseCurrencyDecimals = getDecimalsForBaseCurrency({
+        code: baseCurrencyCode,
+        areSatsDisplayed,
+    });
 
     const recalculateFiat = (rate: number) => {
-        const formattedAmount = new BigNumber(
-            shouldSendInSats
-                ? convertAmountSubunitsToUnits(amountValue, network.decimals)
-                : amountValue,
-        );
+        const cryptoValue = new BigNumber(cryptoAmountValue);
 
-        if (
-            rate &&
-            formattedAmount &&
-            !formattedAmount.isNaN() &&
-            formattedAmount.gt(0) // formatAmount() returns '-1' on error
-        ) {
-            const fiatValueBigNumber = formattedAmount.multipliedBy(rate);
-
-            setValue(baseCurrencyInputName, fiatValueBigNumber.toFixed(2), {
-                shouldValidate: true,
+        if (rate && !cryptoValue.isNaN() && baseCurrencyCode !== '') {
+            const formatterAmount = parseCryptoToFormattedBaseCurrency({
+                baseCurrencyCode,
+                isCryptoInSats: shouldSendInSats === true,
+                areSatsDisplayed,
+                value: cryptoValue,
+                symbol: network.symbol,
+                rate,
             });
-            // call compose to store draft, precomposedTx should be the same
-            composeTransaction(amountInputName);
+
+            if (formatterAmount !== null) {
+                setValue(baseCurrencyInputName, formatterAmount, {
+                    shouldValidate: true,
+                });
+                // call compose to store draft, precomposedTx should be the same
+                composeTransaction(amountInputName);
+            }
         }
     };
 
@@ -115,14 +123,14 @@ export const BaseCurrencyInput = ({
     const rules = {
         required: translationString('AMOUNT_IS_NOT_SET'),
         validate: {
-            decimals: validateDecimals(translationString, { decimals: 2 }),
+            decimals: validateDecimals(translationString, { decimals: baseCurrencyDecimals }),
         },
     };
 
     interface CallbackParams {
         field: {
             onChange: (...event: any[]) => void;
-            value: any;
+            value: BaseCurrencyOption;
         };
     }
 
@@ -130,17 +138,17 @@ export const BaseCurrencyInput = ({
         field: { onChange, value: selectedOption },
     }: CallbackParams) => (
         <Select
-            options={buildCurrencyOptions(selectedOption)}
-            value={{
-                label: selectedOption.label.toUpperCase(),
-                value: selectedOption.value,
-            }}
+            options={buildCurrencyOptions({ selected: selectedOption, areSatsDisplayed })}
+            value={buildCurrencyOption({
+                currency: selectedOption.value,
+                areSatsDisplayed,
+            })}
             isClearable={false}
             isSearchable
             minValueWidth="58px"
             isClean
             data-testid={currencyInputName}
-            onChange={async (selected: CurrencyOption) => {
+            onChange={async (selected: BaseCurrencyOption) => {
                 // propagate changes to FormState
                 onChange(selected);
 
