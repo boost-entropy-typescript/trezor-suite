@@ -10,17 +10,20 @@ import {
     TransactionsRootState,
     selectAccountByKey,
     selectAccountFormattedBalance,
+    useDisplayBaseCurrency,
 } from '@suite-common/wallet-core';
 import { AccountKey, TokenAddress, TokenSymbol } from '@suite-common/wallet-types';
-import { BaseCurrencyAmount } from '@suite-common/wallet-utils';
+import { BaseCurrencyAmount, asAmountUnit } from '@suite-common/wallet-utils';
 import { DiscreetTextTrigger, VStack } from '@suite-native/atoms';
-import { GraphFiatBalance } from '@suite-native/graph';
+import { CryptoAmountLargeFormatter } from '@suite-native/formatters';
+import { GraphBaseCurrencyBalance } from '@suite-native/graph';
 import { selectIsHistoryEnabledAccountByAccountKey } from '@suite-native/graph/src/selectors';
 import {
     TokensRootState,
     selectAccountTokenBalance,
     selectAccountTokenSymbol,
 } from '@suite-native/tokens';
+import { BigNumber } from '@trezor/utils';
 
 import { AccountDetailCryptoValue } from './AccountDetailCryptoValue';
 import {
@@ -62,6 +65,7 @@ export const AccountDetailHeader = ({
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(account?.symbol);
     const tokenSymbol = useSelector((state: TokensRootState) =>
         selectAccountTokenSymbol(state, accountKey, tokenAddress),
     );
@@ -87,19 +91,34 @@ export const AccountDetailHeader = ({
 
     return (
         <VStack spacing="sp4" alignItems="center">
-            <CryptoBalance
-                symbol={account.symbol}
-                tokenSymbol={tokenSymbol}
-                totalCryptoBalance={totalCryptoBalance}
-            />
-            <GraphFiatBalance
-                selectedPointAtom={selectedPointAtom}
-                referencePointAtom={referencePointAtom}
-                percentageChangeAtom={percentageChangeAtom}
-                showChange={isHistoryEnabledAccount}
-                totalFiatBalance={totalFiatBalance}
-                isHistoryEnabledAccount={isHistoryEnabledAccount}
-            />
+            {shallDisplayBaseCurrency ? (
+                <CryptoBalance
+                    symbol={account.symbol}
+                    tokenSymbol={tokenSymbol}
+                    totalCryptoBalance={totalCryptoBalance}
+                />
+            ) : (
+                <DiscreetTextTrigger>
+                    <CryptoAmountLargeFormatter
+                        value={
+                            totalCryptoBalance !== null
+                                ? asAmountUnit(new BigNumber(totalCryptoBalance))
+                                : null
+                        }
+                        symbol={account.symbol}
+                    />
+                </DiscreetTextTrigger>
+            )}
+            {shallDisplayBaseCurrency ? (
+                <GraphBaseCurrencyBalance
+                    selectedPointAtom={selectedPointAtom}
+                    referencePointAtom={referencePointAtom}
+                    percentageChangeAtom={percentageChangeAtom}
+                    showChange={isHistoryEnabledAccount && shallDisplayBaseCurrency}
+                    totalBaseCurrencyBalance={totalFiatBalance}
+                    isHistoryEnabledAccount={isHistoryEnabledAccount}
+                />
+            ) : null}
         </VStack>
     );
 };

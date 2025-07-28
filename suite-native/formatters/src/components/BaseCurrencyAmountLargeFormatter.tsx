@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useFormatters } from '@suite-common/formatters';
 import { BaseCurrencyAmount } from '@suite-common/wallet-utils';
-import { Box, Text } from '@suite-native/atoms';
+import { Box, HStack, Text } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
 import { FormatterProps } from '../types';
@@ -21,7 +21,7 @@ const wholeNumberStyle = prepareNativeStyle(utils => ({
     textAlign: 'center',
 }));
 
-export const FiatBalanceFormatter = ({
+export const BaseCurrencyAmountLargeFormatter = ({
     value,
     isForcedDiscreetMode,
     testID,
@@ -37,9 +37,11 @@ export const FiatBalanceFormatter = ({
 
     const { currencySymbol, wholeNumber, decimalNumber } = parseBalanceAmount(formattedValue);
 
-    return (
-        <Box flexDirection="row" alignItems="flex-end" flexShrink={1} testID={testID}>
-            <Text variant="titleSmall">{currencySymbol}</Text>
+    const isCrypto =
+        currencySymbol?.toLowerCase() === 'sat' || currencySymbol?.toLowerCase() === 'btc';
+
+    const valueElement = (
+        <Box flexDirection="row" alignItems="flex-end" flexShrink={1}>
             <AmountText
                 value={wholeNumber}
                 variant="titleLarge"
@@ -49,10 +51,29 @@ export const FiatBalanceFormatter = ({
             />
             <AmountText
                 value={decimalNumber}
-                variant="titleSmall"
+                variant={isCrypto ? 'titleLarge' : 'titleSmall'}
                 isDiscreetText
                 isForcedDiscreetMode={isForcedDiscreetMode}
+                style={isCrypto ? applyStyle(wholeNumberStyle) : undefined}
             />
+        </Box>
+    );
+
+    const currencyElement = <Text variant="titleSmall">{currencySymbol}</Text>;
+
+    return (
+        <Box flexDirection="row" alignItems="flex-end" flexShrink={1} testID={testID}>
+            {isCrypto ? (
+                <HStack spacing="sp8" alignItems="center">
+                    {valueElement}
+                    {currencyElement}
+                </HStack>
+            ) : (
+                <>
+                    {currencyElement}
+                    {valueElement}
+                </>
+            )}
         </Box>
     );
 };

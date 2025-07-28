@@ -1,7 +1,7 @@
 import { Control } from 'react-hook-form';
 
 import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
-import { isTestnet } from '@suite-common/wallet-utils';
+import { useDisplayBaseCurrency } from '@suite-common/wallet-core';
 import {
     AccountFormValues,
     AccountLabelFieldHint,
@@ -9,8 +9,8 @@ import {
 } from '@suite-native/accounts';
 import { RoundedIcon, VStack } from '@suite-native/atoms';
 import {
+    BaseCurrencyAmountLargeFormatter,
     CryptoAmountFormatter,
-    FiatBalanceFormatter,
     useFiatFromCryptoValue,
 } from '@suite-native/formatters';
 import { TextInputField } from '@suite-native/forms';
@@ -26,6 +26,7 @@ type AssetsOverviewProps = {
 
 export const AccountImportOverview = ({ balance, symbol, formControl }: AssetsOverviewProps) => {
     const { translate } = useTranslate();
+    const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
 
     const fiatBalanceValue = useFiatFromCryptoValue({
         cryptoValue: balance,
@@ -50,7 +51,9 @@ export const AccountImportOverview = ({ balance, symbol, formControl }: AssetsOv
             }
         >
             <VStack spacing="sp24">
-                {!isTestnet(symbol) && <FiatBalanceFormatter value={fiatBalanceValue} />}
+                {shallDisplayBaseCurrency && (
+                    <BaseCurrencyAmountLargeFormatter value={fiatBalanceValue} />
+                )}
                 <VStack spacing="sp8">
                     <TextInputField
                         testID="@account-import/coin-synced/label-input"
