@@ -267,7 +267,8 @@ export const en = {
                 description: 'The last account you created for this coin has no transactions yet.',
                 actionPrimary: 'Close',
                 actionSecondary: 'Learn more',
-                actionSecondaryUrl: 'https://trezor.io/learn/a/multiple-accounts-in-trezor-suite',
+                actionSecondaryUrl:
+                    'https://trezor.io/guides/trezor-suite/trezor-suite-desktop/multiple-accounts-in-trezor-suite',
             },
             generalError: {
                 title: 'We couldn’t add your account.',
@@ -1026,6 +1027,14 @@ export const en = {
                     walletsEjected: 'Wallets ejected',
                     walletEjected: 'Wallet ejected',
                     walletsWillBeEjected: 'Will be ejected after disconnecting Trezor',
+                },
+                alert: {
+                    title: 'Your balances are still visible even when your Trezor is disconnected.',
+                    subtitle:
+                        'You can always eject your wallets at any time. Funds can’t be moved without a connected device.',
+                    primaryButtonTitle: 'Got it',
+                    secondaryButtonTitle: 'Auto eject wallets',
+                    successToast: 'Wallets now eject after disconnecting Trezor',
                 },
             },
         },

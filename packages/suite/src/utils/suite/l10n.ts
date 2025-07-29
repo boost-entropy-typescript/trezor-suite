@@ -1,19 +1,8 @@
 import { getPlatformLanguages } from '@trezor/env-utils';
 
-import LANGUAGES, { Locale, TRANSLATION_PSEUDOLANGUAGE } from 'src/config/suite/languages';
+import LANGUAGES, { Locale } from 'src/config/suite/languages';
 
-const TRANSLATION_MODE_FLAG = 'translation_mode';
-const DEFAULT_LOCALE = 'en';
-
-export const isTranslationMode = () => localStorage.getItem(TRANSLATION_MODE_FLAG) === 'true';
-
-export const setTranslationMode = (value: boolean) => {
-    if (value !== isTranslationMode()) {
-        if (value) localStorage.setItem(TRANSLATION_MODE_FLAG, 'true');
-        else localStorage.removeItem(TRANSLATION_MODE_FLAG);
-        window.location.reload();
-    }
-};
+const DEFAULT_LOCALE = 'en-US';
 
 export const isLocale = (lang: string): lang is Locale => lang in LANGUAGES;
 
@@ -27,7 +16,7 @@ export const isCompletedLocale = (lang: string): lang is Locale =>
 export const getOsLocale = (defaultLocale: Locale = DEFAULT_LOCALE): Locale => {
     const languages = getPlatformLanguages() || [];
 
-    return languages.map(lang => lang.split('-')[0]).find(isCompletedLocale) || defaultLocale;
+    return languages.find(isCompletedLocale) || defaultLocale;
 };
 
 export const watchOsLocale = (callback: (loc: Locale) => void) => {
@@ -38,13 +27,6 @@ export const watchOsLocale = (callback: (loc: Locale) => void) => {
 };
 
 /**
- * Ensures that when translation mode is on, only translation pseudolanguage is used,
- * and vice versa, when translation mode is off, pseudolanguage is never used.
+ * Ensure locale is valid and return it, otherwise return defaultLocale.
  */
-export const ensureLocale = (loc: string): Locale => {
-    const translationMode = isTranslationMode();
-    if (translationMode) return TRANSLATION_PSEUDOLANGUAGE;
-    if (loc === TRANSLATION_PSEUDOLANGUAGE) return DEFAULT_LOCALE;
-
-    return isLocale(loc) ? loc : DEFAULT_LOCALE;
-};
+export const ensureLocale = (loc: string): Locale => (isLocale(loc) ? loc : DEFAULT_LOCALE);
