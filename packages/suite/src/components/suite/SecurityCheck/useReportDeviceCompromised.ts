@@ -56,6 +56,7 @@ const useCommonData = () => {
 const useReportRevisionCheck = () => {
     const commonData = useCommonData();
     const { device } = useDevice();
+
     const revisionCheck = isDeviceAcquired(device)
         ? device.authenticityChecks.firmwareRevision
         : null;
@@ -64,7 +65,7 @@ const useReportRevisionCheck = () => {
     const errorPayload = isError ? revisionCheck.errorPayload : null;
 
     useEffect(() => {
-        if (!errorType) return;
+        if (errorType === null) return;
         if (revisionCheckErrorScenarios[errorType].shouldReport) {
             reportCheckFail('Firmware revision', { ...commonData, errorType }, errorPayload);
         }
@@ -82,7 +83,7 @@ const useReportHashCheck = () => {
     const attemptCount = isError ? hashCheck.attemptCount : null;
 
     useEffect(() => {
-        if (!errorType) return;
+        if (errorType === null) return;
         if (!hashCheckErrorScenarios[errorType].shouldReport) return;
         const willBeRetried =
             isArrayMember(errorType, FIRMWARE.HASH_CHECK_RETRIABLE_ERRORS) &&
@@ -102,6 +103,10 @@ const useReportHashCheck = () => {
     }, [commonData, warningPayload]);
 };
 
+/**
+ * Optionally report both FW authenticity checks (revision and hash) to Sentry and/or show toast notifications,
+ * based on behavior scenarios definitions. This may happen even when no UI is displayed for the checks.
+ */
 export const useReportDeviceCompromised = () => {
     useReportRevisionCheck();
     useReportHashCheck();

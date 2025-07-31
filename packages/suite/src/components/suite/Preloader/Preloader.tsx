@@ -26,6 +26,7 @@ import { RouterAppWithParams } from '../../../constants/suite/routes';
 import { AnalyticsConsentScreen } from '../../../views/start/AnalyticsConsentScreen';
 import { PrerequisitesGuide } from '../PrerequisitesGuide/PrerequisitesGuide';
 import { DeviceCompromised } from '../SecurityCheck/DeviceCompromised';
+import { useDeviceCompromisedNotification } from '../SecurityCheck/useDeviceCompromisedNotification';
 import { useReportDeviceCompromised } from '../SecurityCheck/useReportDeviceCompromised';
 import { LoggedOutLayout } from '../layouts/LoggedOutLayout';
 import { SuiteLayout } from '../layouts/SuiteLayout/SuiteLayout';
@@ -67,8 +68,8 @@ export const Preloader = ({ children }: PropsWithChildren) => {
     const isEntropyCheckEnabledAndFailed = useSelector(selectIsEntropyCheckEnabledAndFailed);
     const isAnalyticsConsentConfirmed = useSelector(selectIsAnalyticsConfirmed);
 
-    // report firmware authenticity failures even when the UI is disabled
     useReportDeviceCompromised();
+    useDeviceCompromisedNotification();
 
     const dispatch = useDispatch();
 
