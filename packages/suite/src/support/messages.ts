@@ -1740,6 +1740,18 @@ export default defineMessages({
         defaultMessage: 'Use biometric authentication to access Trezor Suite.',
         id: 'TR_BIO_AUTH_DESCRIPTION',
     },
+    TR_BIO_AUTH_FAILED: {
+        defaultMessage: 'Biometric authentication failed',
+        id: 'TR_BIO_AUTH_FAILED',
+    },
+    TR_BIO_AUTH_SYSTEM_MESSAGE_MAC: {
+        defaultMessage: 'verify your identity. Touch ID or enter your password to allow this',
+        id: 'TR_BIO_AUTH_SYSTEM_MESSAGE_MAC',
+    },
+    TR_BIO_AUTH_SYSTEM_MESSAGE_WIN: {
+        defaultMessage: 'Trezor Suite is trying to verify your identity.',
+        id: 'TR_BIO_AUTH_SYSTEM_MESSAGE_WIN',
+    },
     TR_ADDRESS_DISPLAY: {
         defaultMessage: 'Address display',
         id: 'TR_ADDRESS_DISPLAY',
@@ -2802,6 +2814,10 @@ export default defineMessages({
         defaultMessage: 'Privacy',
         id: 'TR_PRIVACY',
     },
+    TR_CONFIRM_AUTO_EJECT: {
+        defaultMessage: 'Enable auto eject',
+        id: 'TR_CONFIRM_AUTO_EJECT',
+    },
     TR_AUTO_EJECT: {
         defaultMessage: 'Auto-eject wallets',
         id: 'TR_AUTO_EJECT',
@@ -2810,6 +2826,15 @@ export default defineMessages({
         defaultMessage:
             'Automatically eject all wallets when your Trezor is disconnected.\nYour balances will be removed from Trezor Suite until you reconnect your device.',
         id: 'TR_AUTO_EJECT_DESCRIPTION',
+    },
+    TR_AUTO_EJECT_CONFIRMATION_DESCRIPTION: {
+        defaultMessage:
+            'Your wallets and their balances will disappear from Suite. They will reappear only when you reconnect your Trezor.',
+        id: 'TR_AUTO_EJECT_CONFIRMATION_DESCRIPTION',
+    },
+    TR_AUTO_EJECT_CONFIRMATION_TITLE: {
+        defaultMessage: 'Are you sure you want to enable auto eject?',
+        id: 'TR_AUTO_EJECT_CONFIRMATION_TITLE',
     },
     TR_LANGUAGE: {
         defaultMessage: 'Language',

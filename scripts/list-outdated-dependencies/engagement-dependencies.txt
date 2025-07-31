@@ -22,9 +22,9 @@ csstype
 date-fns
 framer-motion
 lottie-react
+node-addon-api
 node-loader
 pako
-passport-desktop
 pdfmake
 polished
 postcss-loader

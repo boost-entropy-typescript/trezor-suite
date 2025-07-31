@@ -15,11 +15,9 @@ describe('BuyAlert', () => {
     const renderFormHook = () => renderHookWithStoreProviderAsync(() => useBuyForm());
 
     const renderTradingAlert = () =>
-        renderWithBasicProvider(
-            <Form form={form}>
-                <BuyAlert />
-            </Form>,
-        );
+        renderWithBasicProvider(<BuyAlert />, {
+            wrapper: ({ children }) => <Form form={form}>{children}</Form>,
+        });
 
     beforeEach(async () => {
         const { result } = await renderFormHook();

@@ -28,7 +28,6 @@ import { TransportBackends } from './TransportBackends';
 import { TrezorConnectLogs } from './TrezorConnectLogs';
 import { TriggerHighlight } from './TriggerHighlight';
 import { WipeData } from './WipeData';
-import { BioAuthSettings } from '../SettingsGeneral/BioAuthSettings';
 
 export const SettingsDebug = () => {
     const flags = useSelector(selectSuiteFlags);
@@ -74,9 +73,6 @@ export const SettingsDebug = () => {
             )}
             <SettingsSection title="Backends">
                 <Backends />
-            </SettingsSection>
-            <SettingsSection title="Biometric authentication">
-                <BioAuthSettings />
             </SettingsSection>
             <SettingsSection title="Flags JSON">
                 <PreField>{JSON.stringify(flags)}</PreField>

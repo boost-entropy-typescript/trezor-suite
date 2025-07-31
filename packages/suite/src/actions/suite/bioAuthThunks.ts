@@ -1,8 +1,9 @@
-import { createThunk } from '@suite-common/redux-utils';
+import { createSingleInstanceThunk, createThunk } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { isWeb } from '@trezor/env-utils';
+import { isMacOs, isWeb } from '@trezor/env-utils';
 import { desktopApi } from '@trezor/suite-desktop-api';
 
+import { TranslationFunction } from 'src/hooks/suite/useTranslation';
 import {
     BLUR_LOCK_TIMEOUT_MS,
     selectBioAuthEnabled,
@@ -56,35 +57,67 @@ export const bioAuthWindowFocusThunk = createThunk(
     },
 );
 
+const KNOWN_ERROR_MESSAGES = new Set(['Authentication canceled.']);
+
 export const requestBioAuthChangeThunk = createThunk(
     `${BIO_AUTH_PREFIX}/requestBioAuthChangeThunk`,
-    async (_, { dispatch, getState }) => {
+    async (
+        {
+            nextBioAuthEnabledValue,
+            translationString,
+        }: {
+            translationString: TranslationFunction;
+            nextBioAuthEnabledValue?: boolean;
+        },
+        { dispatch, getState },
+    ) => {
         const prevBioEnabled = selectBioAuthEnabled(getState());
         const isRequestingChange = selectIsRequestingBioAuthChange(getState());
-        const nextBioEnabled = !prevBioEnabled;
+        const nextBioEnabled = nextBioAuthEnabledValue ?? !prevBioEnabled;
+
+        if (nextBioEnabled === prevBioEnabled) {
+            return { success: true };
+        }
 
         if (isRequestingChange || selectIsBioAuthValidationRequested(getState())) {
-            return;
+            return { success: false };
         }
 
         dispatch(bioAuthActions.requestBioAuthChange(nextBioEnabled));
 
         try {
-            await desktopApi.validateBioAuth();
+            await desktopApi.validateBioAuth({
+                message: translationString(
+                    isMacOs() ? 'TR_BIO_AUTH_SYSTEM_MESSAGE_MAC' : 'TR_BIO_AUTH_SYSTEM_MESSAGE_WIN',
+                ),
+            });
 
             dispatch(bioAuthActions.setBioAuthEnabled(nextBioEnabled));
             dispatch(bioAuthActions.bioAuthValidated(new Date().toUTCString()));
             // Persist bioAuthEnabled to storage
             dispatch(storageActions.saveBioAuth());
+
+            return {
+                success: true,
+            };
         } catch (error) {
             dispatch(bioAuthActions.bioAuthValidated(null));
             console.error(error);
+
+            if (KNOWN_ERROR_MESSAGES.has(String(error))) {
+                // NOTE: known error message
+                return;
+            }
             dispatch(
                 notificationsActions.addToast({
                     type: 'error',
-                    error: 'Biometric authentication failed',
+                    error: translationString('TR_BIO_AUTH_FAILED'),
                 }),
             );
+
+            return {
+                success: false,
+            };
         } finally {
             dispatch(bioAuthActions.requestBioAuthChangeEnd());
         }
@@ -93,7 +126,10 @@ export const requestBioAuthChangeThunk = createThunk(
 
 export const requestBioAuthValidationThunk = createThunk(
     `${BIO_AUTH_PREFIX}/validateAuth`,
-    async (_, { dispatch, getState }) => {
+    async (
+        { translationString }: { translationString: TranslationFunction },
+        { dispatch, getState },
+    ) => {
         const isRequestingValidation = selectIsBioAuthValidationRequested(getState());
 
         if (isRequestingValidation) {
@@ -102,7 +138,11 @@ export const requestBioAuthValidationThunk = createThunk(
 
         dispatch(bioAuthActions.toggleBioAuthValidationRequested(true));
         try {
-            await desktopApi.validateBioAuth();
+            await desktopApi.validateBioAuth({
+                message: translationString(
+                    isMacOs() ? 'TR_BIO_AUTH_SYSTEM_MESSAGE_MAC' : 'TR_BIO_AUTH_SYSTEM_MESSAGE_WIN',
+                ),
+            });
             dispatch(bioAuthActions.bioAuthValidated(new Date().toUTCString()));
             const blurTimeoutId = selectBlurTimeoutId(getState());
             if (blurTimeoutId) {
@@ -111,16 +151,28 @@ export const requestBioAuthValidationThunk = createThunk(
         } catch (error) {
             dispatch(bioAuthActions.bioAuthValidated(null));
             console.error(error);
+
+            if (KNOWN_ERROR_MESSAGES.has(String(error))) {
+                // NOTE: known error message
+                return;
+            }
+
             dispatch(
                 notificationsActions.addToast({
                     type: 'error',
-                    error: 'Biometric authentication failed',
+                    error: translationString('TR_BIO_AUTH_FAILED'),
                 }),
             );
         } finally {
             dispatch(bioAuthActions.toggleBioAuthValidationRequested(false));
         }
     },
+);
+
+export const requestOnceBioAuthValidationThunk = createSingleInstanceThunk(
+    `${BIO_AUTH_PREFIX}/validateAuthOnce`,
+    ({ translationString }: { translationString: TranslationFunction }, { dispatch }) =>
+        dispatch(requestBioAuthValidationThunk({ translationString })),
 );
 
 export const checkBioAuthAvailableThunk = createThunk(
