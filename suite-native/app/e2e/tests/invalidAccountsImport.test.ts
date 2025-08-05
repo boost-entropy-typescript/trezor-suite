@@ -1,6 +1,6 @@
 import { expect as detoxExpect } from 'detox';
 
-import onboardingCompleted from '../fixtures/onboardingCompleted.json';
+import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { xpubs } from '../fixtures/xpubs';
 import { onAccountImport } from '../pageObjects/accountImportActions';
 import { onMyAssets } from '../pageObjects/myAssetsActions';
@@ -23,6 +23,7 @@ describe('Import invalid accounts', () => {
         await appIsFullyLoaded();
         await goToBtcImportXpubScreen();
     });
+
     it('Import an already imported XPUB', async () => {
         // add first account
         await onAccountImport.importAccount({

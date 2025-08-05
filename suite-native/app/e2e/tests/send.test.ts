@@ -1,7 +1,7 @@
 import { conditionalDescribe } from '@suite-common/test-utils';
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
-import onboardingCompleted from '../fixtures/onboardingCompleted.json';
+import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { onAccountDetail } from '../pageObjects/accountDetailActions';
 import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
@@ -98,8 +98,9 @@ conditionalDescribe(device.getPlatform() === 'android', 'Send transaction flow.'
         await onSendOutputsForm.waitForScreen();
     });
 
-    afterAll(() => {
-        disconnectTrezorUserEnv();
+    afterAll(async () => {
+        await disconnectTrezorUserEnv();
+        await device.terminateApp();
     });
 
     it('Compose and dispatch a regtest transaction.', async () => {

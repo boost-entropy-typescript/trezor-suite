@@ -3,7 +3,7 @@ import { expect as detoxExpect } from 'detox';
 import { conditionalDescribe } from '@suite-common/test-utils';
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
-import onboardingCompleted from '../fixtures/onboardingCompleted.json';
+import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
 import { onSettings } from '../pageObjects/settingsActions';
@@ -34,14 +34,15 @@ conditionalDescribe(
         });
 
         beforeEach(async () => {
+            await prepareTrezorEmulator();
             await restartApp();
             await appIsFullyLoaded();
             await wait(5000); // wait for trezor device to start communicating with the app
         });
 
         afterAll(async () => {
-            await device.terminateApp();
             await disconnectTrezorUserEnv();
+            await device.terminateApp();
         });
 
         it('Coin Enabling', async () => {

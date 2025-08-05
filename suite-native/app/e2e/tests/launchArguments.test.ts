@@ -1,6 +1,6 @@
 import { conditionalDescribe } from '@suite-common/test-utils';
 
-import onboardingCompleted from '../fixtures/onboardingCompleted.json';
+import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
 import { onConnectingDevice } from '../pageObjects/connectingDevice';
@@ -29,7 +29,7 @@ conditionalDescribe(device.getPlatform() === 'android', 'Launch Arguments', () =
     });
 
     afterAll(async () => {
-        disconnectTrezorUserEnv();
+        await disconnectTrezorUserEnv();
         await device.terminateApp();
     });
 
