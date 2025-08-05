@@ -221,10 +221,19 @@ export const TradingFormOffer = () => {
         ? state.isFormLoading || isFetchingApprovalStatus || isQuoteOutdated
         : state.isFormLoading;
 
+    const selectedAssetCryptoId =
+        !state.isLoadingOrInvalid && receiveCurrency
+            ? receiveCurrency
+            : (selectedCrypto?.value as CryptoId);
+
     return (
         <Column gap={spacings.lg}>
-            <Column gap={spacings.xs} data-testid="@trading/best-offer">
-                <Translation id={amountLabels.offerLabel} />
+            <Column
+                gap={spacings.xs}
+                data-testid="@trading/best-offer"
+                margin={{ bottom: spacings.md }}
+            >
+                {selectedAssetCryptoId && <Translation id={amountLabels.offerLabel} />}
                 {shouldDisplayFiatAmount ? (
                     <TradingFormOfferFiatAmount amount={tradingGetRoundedFiatAmount(sendAmount)} />
                 ) : (
@@ -237,11 +246,7 @@ export const TradingFormOffer = () => {
                                 ? bestScoredQuoteAmounts.receiveAmount
                                 : '0'
                         }
-                        cryptoId={
-                            !state.isLoadingOrInvalid && receiveCurrency
-                                ? receiveCurrency
-                                : (selectedCrypto?.value as CryptoId)
-                        }
+                        cryptoId={selectedAssetCryptoId}
                     />
                 )}
                 {isTradingExchangeContext(context) && contractAddress && network && (
@@ -255,7 +260,7 @@ export const TradingFormOffer = () => {
                     </Paragraph>
                 )}
             </Column>
-            <Column gap={spacings.xxs} margin={{ vertical: spacings.md }}>
+            <Column gap={spacings.xxs}>
                 <Row justifyContent="space-between">
                     {showProviderAdjustedAmountTooltip ? (
                         <Tooltip

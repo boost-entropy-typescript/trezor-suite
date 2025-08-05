@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller } from 'react-hook-form';
 
 import { CryptoId } from 'invity-api';
 
 import {
     CRYPTO_PLATFORM_SEPARATOR,
+    TOKEN_SELECT_SELECTABLE_NETWORKS,
     TRADING_FORM_CRYPTO_CURRENCY_SELECT,
     TRADING_FORM_RECEIVE_CRYPTO_CURRENCY_SELECT,
     TradingBuyFormProps,
@@ -17,7 +18,7 @@ import {
     tradingActions,
     useTradingInfo,
 } from '@suite-common/trading';
-import { Network, NetworkSymbol, getNetworkByCoingeckoId } from '@suite-common/wallet-config';
+import { Network, getNetworkByCoingeckoId } from '@suite-common/wallet-config';
 import { Badge, Row, Select, Text } from '@trezor/components';
 import {
     AssetOptionBaseProps,
@@ -87,6 +88,7 @@ export const TradingFormInputCryptoSelect = <
     supportedCryptoCurrencies,
     methods,
     isDisabled,
+    placeholder,
     'data-testid': dataTestId,
 }: TradingFormInputCryptoSelectProps<TFieldValues>) => {
     const dispatch = useDispatch();
@@ -120,7 +122,6 @@ export const TradingFormInputCryptoSelect = <
                     if (option.type !== 'currency') return option; // label
 
                     const network = cryptoIdToNetwork(option.value);
-
                     if (!network) return null;
 
                     const { symbol } = network;
@@ -193,7 +194,15 @@ export const TradingFormInputCryptoSelect = <
         );
     });
 
-    const quickTabs: NetworkSymbol[] = ['eth', 'sol', 'pol', 'bsc', 'base', 'op', 'arb'];
+    useEffect(() => {
+        if (context.network.symbol) {
+            setActiveTab(
+                TOKEN_SELECT_SELECTABLE_NETWORKS.includes(context.network.symbol)
+                    ? context.network
+                    : null,
+            );
+        }
+    }, [context.network]);
 
     return (
         <>
@@ -225,7 +234,7 @@ export const TradingFormInputCryptoSelect = <
                     filterTabs={
                         <NetworkTabs
                             data-testid="@trading/form/select-crypto/network-tab"
-                            tabs={quickTabs}
+                            tabs={TOKEN_SELECT_SELECTABLE_NETWORKS}
                             networkCount={getNetworkCount(modalOptions)}
                             activeTab={activeTab}
                             setActiveTab={setActiveTab}
@@ -239,6 +248,7 @@ export const TradingFormInputCryptoSelect = <
                 control={control}
                 render={({ field: { value } }) => (
                     <Select
+                        placeholder={placeholder && !isLoading && translationString(placeholder)}
                         value={value}
                         options={formOptions}
                         labelLeft={label && <Translation id={label} />}
