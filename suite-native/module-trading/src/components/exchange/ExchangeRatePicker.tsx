@@ -1,16 +1,14 @@
 import { useSelector } from 'react-redux';
 
-import { ExchangeTrade } from 'invity-api';
+import { ExchangeProviderInfo, ExchangeTrade } from 'invity-api';
 
-import { invariant } from '@suite-common/suite-utils';
 import {
-    selectTradingExchangeIsLoading,
-    selectTradingExchangeProviders,
+    TradingRootState as CommonTradingRootState,
+    selectTradingProviderByNameAndTradeType,
 } from '@suite-common/trading';
 import { HStack, Text } from '@suite-native/atoms';
 import { useTranslate } from '@suite-native/intl';
 
-import { useExchangeFormContext } from '../../hooks/exchange/useExchangeFormContext';
 import { OverviewRow } from '../general/OverviewRow';
 import { OverviewValueSkeleton } from '../general/OverviewValueSkeleton';
 
@@ -18,20 +16,22 @@ type ExchangeRatePickerRightProps = {
     isLoading: boolean;
     selectedValue: ExchangeTrade | undefined;
 };
-const noop = () => {};
+
+export type ExchangeRatePickerProps = ExchangeRatePickerRightProps & {
+    handleRatePress: () => void;
+};
 
 const ExchangeRatePickerRight = ({ isLoading, selectedValue }: ExchangeRatePickerRightProps) => {
     const { translate } = useTranslate();
-    const providers = useSelector(selectTradingExchangeProviders);
+    const { isFixedRate } = (useSelector((state: CommonTradingRootState) =>
+        selectTradingProviderByNameAndTradeType(state, selectedValue?.exchange, 'exchange'),
+    ) ?? {}) as ExchangeProviderInfo;
 
     if (isLoading) {
         return <OverviewValueSkeleton />;
     }
 
-    const { exchange = '' } = selectedValue ?? {};
-    const selectedProvider = providers?.[exchange];
-    invariant(selectedProvider, 'Selected provider should be defined');
-    const rate = selectedProvider.isFixedRate
+    const rate = isFixedRate
         ? translate('moduleTrading.selectRate.fixed')
         : translate('moduleTrading.selectRate.floating');
 
@@ -48,12 +48,12 @@ const ExchangeRatePickerRight = ({ isLoading, selectedValue }: ExchangeRatePicke
     );
 };
 
-export const ExchangeRatePicker = () => {
+export const ExchangeRatePicker = ({
+    isLoading,
+    selectedValue,
+    handleRatePress,
+}: ExchangeRatePickerProps) => {
     const { translate } = useTranslate();
-    const { watch } = useExchangeFormContext();
-    const isLoading = useSelector(selectTradingExchangeIsLoading);
-
-    const selectedValue = watch('quote');
 
     if (!selectedValue && !isLoading) {
         return null;
@@ -62,7 +62,7 @@ export const ExchangeRatePicker = () => {
     return (
         <OverviewRow
             title={translate('moduleTrading.tradingScreen.rate')}
-            onPress={noop}
+            onPress={handleRatePress}
             noCaret={isLoading}
         >
             <ExchangeRatePickerRight isLoading={isLoading} selectedValue={selectedValue} />
