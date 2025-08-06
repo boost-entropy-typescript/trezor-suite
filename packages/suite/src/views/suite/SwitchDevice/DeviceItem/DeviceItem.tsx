@@ -18,7 +18,11 @@ import { mapTrezorModelToIcon } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { setFlag, setRecentlyDisconnectedDevice } from 'src/actions/suite/suiteActions';
+import {
+    addDeviceIdToSeenDisconnectNotification,
+    setFlag,
+    setRecentlyDisconnectedDevice,
+} from 'src/actions/suite/suiteActions';
 import { Translation } from 'src/components/suite';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -47,12 +51,12 @@ export const DeviceItem = ({ device, instances, onCancel }: DeviceItemProps) => 
     const dispatch = useDispatch();
     const [isEjecting, setIsEjecting] = useState(false);
     const selectedDevice = useSelector(selectSelectedDevice);
+    const deviceId = selectedDevice?.id;
     const recentlyDisconnectedDevice = useSelector(state => state.suite.recentlyDisconnectedDevice);
     const hasSeenDisconnectTooltip = useSelector(
         state => state.suite.flags.hasSeenDisconnectTooltip,
     );
     const [showTooltip, setShowTooltip] = useState(false);
-
     const deviceModelInternal = device.features?.internal_model || DEFAULT_FLAGSHIP_MODEL;
     const instancesWithState = instances.filter(i => i.state);
 
@@ -79,6 +83,10 @@ export const DeviceItem = ({ device, instances, onCancel }: DeviceItemProps) => 
         setShowTooltip(false);
         dispatch(setRecentlyDisconnectedDevice(null));
         dispatch(setFlag('hasSeenDisconnectTooltip', true));
+
+        if (deviceId) {
+            dispatch(addDeviceIdToSeenDisconnectNotification(deviceId));
+        }
     };
 
     return (
