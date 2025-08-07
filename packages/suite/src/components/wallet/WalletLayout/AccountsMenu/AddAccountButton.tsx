@@ -24,6 +24,8 @@ interface AddAccountButtonProps extends Omit<ButtonProps, 'children'> {
     closeMenu?: () => void;
     isDisabled?: boolean;
     isFullWidth?: boolean;
+    isIconOnly?: boolean;
+    customModalOpen?: (payload: { device: TrezorDevice }) => void;
 }
 
 export const AddAccountButton = ({
@@ -31,6 +33,8 @@ export const AddAccountButton = ({
     isDisabled,
     closeMenu,
     isFullWidth,
+    isIconOnly,
+    customModalOpen,
     ...rest
 }: AddAccountButtonProps) => {
     const { isDiscoveryRunning } = useDiscovery();
@@ -47,6 +51,14 @@ export const AddAccountButton = ({
             return;
         }
 
+        if (customModalOpen) {
+            customModalOpen({
+                device,
+            });
+
+            return;
+        }
+
         dispatch(
             openModal({
                 type: 'add-account',
@@ -56,19 +68,7 @@ export const AddAccountButton = ({
         if (closeMenu) closeMenu();
     };
 
-    const ButtonComponent = isFullWidth ? (
-        <Button
-            onClick={device ? handleOnClick : undefined}
-            icon="plus"
-            isDisabled={addAccountDisabled || isDisabled}
-            size="small"
-            variant="tertiary"
-            isFullWidth
-            {...rest}
-        >
-            <Translation id="TR_ADD_ACCOUNT" />
-        </Button>
-    ) : (
+    const ButtonComponent = isIconOnly ? (
         <Tooltip isActive={!tooltipMessage} content={<Translation id="TR_ADD_ACCOUNT" />}>
             <TextButton
                 onClick={device ? handleOnClick : undefined}
@@ -80,6 +80,18 @@ export const AddAccountButton = ({
                 {...rest}
             />
         </Tooltip>
+    ) : (
+        <Button
+            onClick={device ? handleOnClick : undefined}
+            icon="plus"
+            isDisabled={addAccountDisabled || isDisabled}
+            size="small"
+            variant="tertiary"
+            isFullWidth={isFullWidth}
+            {...rest}
+        >
+            <Translation id="TR_ADD_ACCOUNT" />
+        </Button>
     );
 
     if (tooltipMessage) {

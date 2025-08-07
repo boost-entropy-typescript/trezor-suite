@@ -55,7 +55,7 @@ type Fields = {
 };
 
 const CSV_NEWLINE = '\n';
-const CSV_SEPARATOR = ';';
+const CSV_SEPARATOR = ',';
 
 // Docs: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/format
 const dateFormat = {
@@ -291,7 +291,7 @@ const prepareContent = (
         .filter(record => record !== null) as Fields[];
 };
 
-const sanitizeCsvValue = (value: string) => {
+export const sanitizeCsvValue = (value: string) => {
     if (value.indexOf(CSV_SEPARATOR) !== -1) {
         return `"${value.replace(/"/g, '""')}"`;
     }
