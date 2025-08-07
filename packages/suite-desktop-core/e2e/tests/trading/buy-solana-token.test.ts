@@ -59,9 +59,11 @@ test.describe('Trading - Buy Solana', { tag: ['@group=trading', '@webOnly'] }, (
             await expect(tradingPage.confirmationPaymentMethod).toHaveText(paymentMethodName);
             const tradeRequestPromise = page.waitForRequest(invityEndpoint.buyTrade);
             await tradingPage.finishTransactionButton.click();
-            await expect(tradeRequestPromise).toHavePayload(invityRequest.buyTradeSolanaPayload, {
-                omit: ['returnUrl', 'trade.orderId', 'trade.paymentId'],
-            });
+            await expect
+                .soft(tradeRequestPromise)
+                .toHavePayload(invityRequest.buyTradeSolanaPayload, {
+                    omit: ['returnUrl', 'trade.orderId', 'trade.paymentId'],
+                });
         });
 
         await tradingPage.waitForRedirectCompletion();

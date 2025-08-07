@@ -118,13 +118,13 @@ export const BuyProviderPicker = () => {
             >
                 <BuyProviderPickerRight isLoading={isLoading} selectedValue={selectedValue} />
             </OverviewRow>
-            <ProviderSheet<BuyTrade>
+            <ProviderSheet
                 quotes={quotes}
-                providerInfos={providers ?? {}}
                 isVisible={isSheetVisible}
                 onClose={hideSheet}
                 onQuoteSelect={handleQuoteSelect}
                 selectedQuote={selectedValue}
+                tradingType="buy"
             />
         </>
     );
