@@ -57,9 +57,6 @@ export class TradingPage {
     readonly youPayFiatCryptoSwitchButton: Locator;
     readonly youPayCryptoInput: Locator;
     readonly cryptoInputBottomText: Locator;
-    readonly youPayFractionButton = (amount: '10%' | '25%' | '50%' | 'Max') =>
-        this.page.getByRole('button', { name: amount });
-
     readonly countryOfResidenceDropdown: Locator;
     readonly countryOfResidenceOption = (countryCode: string) =>
         this.page.getByTestId(`@trading/form/country-select/option/${countryCode}`);
@@ -476,30 +473,20 @@ export class TradingPage {
     }
 
     @step()
-    async waitForSellRedirectCompletion() {
-        await expect(this.page.getByText('Buy & sell')).toBeHidden();
-        //TODO: Workaround because of bug #19743, device switcher should not be opened
-        await Promise.all([
-            expect(this.page.getByText('Buy & sell')).toBeVisible({ timeout: 30_000 }),
-            this.page.getByTestId('@switch-device/cancel-button').click({ timeout: 30_000 }),
-        ]);
-    }
-
-    @step()
-    async verifyBuyFormOpened(cryptoName: string) {
-        await expect(this.accountDropdown).toContainText(cryptoName);
+    async verifyBuyFormOpened(cryptoName: RegExp) {
+        await expect(this.accountDropdown).toHaveText(cryptoName);
         await expect(this.page.getByText('You buy')).toBeVisible();
     }
 
     @step()
-    async verifySellFormOpened(cryptoName: string) {
-        await expect(this.accountDropdown).toContainText(cryptoName);
+    async verifySellFormOpened(cryptoName: RegExp) {
+        await expect(this.accountDropdown).toHaveText(cryptoName);
         await expect(this.page.getByText('You sell')).toBeVisible();
     }
 
     @step()
-    async verifySwapFormOpened(cryptoName: string) {
-        await expect(this.swapFromAccountInput).toContainText(cryptoName);
+    async verifySwapFormOpened(cryptoName: RegExp) {
+        await expect(this.swapFromAccountInput).toHaveText(cryptoName);
         await expect(this.page.getByText('Swap amount')).toBeVisible();
     }
 
