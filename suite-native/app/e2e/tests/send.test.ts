@@ -3,9 +3,7 @@ import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { onAccountDetail } from '../pageObjects/accountDetailActions';
-import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
-import { onConnectingDevice } from '../pageObjects/connectingDevice';
 import { onHome } from '../pageObjects/homeActions';
 import { onMyAssets } from '../pageObjects/myAssetsActions';
 import { onSendAddressReview } from '../pageObjects/send/sendAddressReviewActions';
@@ -78,8 +76,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Send transaction flow.'
         await onCoinEnabling.waitForInitScreen();
         await onCoinEnabling.toggleNetwork('regtest');
         await onCoinEnabling.clickOnConfirmButton();
-
-        await onAlertSheet.skipViewOnlyMode();
     });
 
     beforeEach(async () => {
@@ -88,7 +84,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Send transaction flow.'
 
         await appIsFullyLoaded();
 
-        await onConnectingDevice.waitForScreen();
         await onHome.waitForScreen();
         await onTabBar.navigateToMyAssets();
 

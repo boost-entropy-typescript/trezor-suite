@@ -1,9 +1,7 @@
 import { conditionalDescribe } from '@suite-common/test-utils';
 
 import { onboardingCompleted } from '../fixtures/onboardingCompleted';
-import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
-import { onConnectingDevice } from '../pageObjects/connectingDevice';
 import { onDeviceManager } from '../pageObjects/deviceManagerActions';
 import { redirectToDeviceAuthenticityScreenButton } from '../pageObjects/deviceSettingsActions';
 import {
@@ -24,8 +22,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Launch Arguments', () =
         await onCoinEnabling.toggleNetwork('btc');
 
         await onCoinEnabling.clickOnConfirmButton();
-
-        await onAlertSheet.skipViewOnlyMode();
     });
 
     afterAll(async () => {
@@ -37,7 +33,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Launch Arguments', () =
         beforeEach(async () => {
             await appIsFullyLoaded();
             await restartApp();
-            await onConnectingDevice.waitForScreen();
             await onDeviceManager.tapDeviceSwitch();
             await onDeviceManager.tapDeviceSettingsButton();
         });
@@ -57,7 +52,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Launch Arguments', () =
             await restartApp({ args: { isCheckBackupsEnabled: false } });
             await appIsFullyLoaded();
 
-            await onConnectingDevice.waitForScreen();
             await onDeviceManager.tapDeviceSwitch();
             await onDeviceManager.tapDeviceSettingsButton();
         });

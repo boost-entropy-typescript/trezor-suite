@@ -1,5 +1,6 @@
 import { A, G, pipe } from '@mobily/ts-belt';
 
+import { revisionCheckErrorScenarios } from '@suite-common/firmware-authenticity';
 import {
     Feature,
     MessageSystemRootState,
@@ -17,6 +18,7 @@ import {
     getAccountsByDeviceState,
     selectAccounts,
     selectAccountsByDeviceState,
+    selectBaseCurrency,
     selectCurrentFiatRates,
     selectDeviceAccounts,
     selectDeviceFirmwareVersionArray,
@@ -30,7 +32,6 @@ import {
     selectIsDiscoveredDeviceAccountless,
     selectIsEntropyCheckFailed,
     selectIsUnacquiredDevice,
-    selectLocalCurrency,
     selectSelectedDevice,
     selectSelectedDeviceAuthenticity,
 } from '@suite-common/wallet-core';
@@ -51,7 +52,6 @@ import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { BigNumber } from '@trezor/utils';
 
-import { revisionCheckErrorScenarios } from './config/firmware';
 import { isDeviceSetupSupported, isFirmwareVersionSupported } from './utils';
 
 type NativeDeviceRootState = DeviceRootState &
@@ -117,7 +117,7 @@ const getTotalFiatBalanceNative = ({
         const accountFiatBalance =
             getAccountFiatBalance({
                 account: a,
-                localCurrency,
+                baseCurrencyCode: localCurrency,
                 rates,
                 shouldIncludeStaking: doesCoinSupportStaking(a.symbol),
             }) ?? '0';
@@ -128,13 +128,13 @@ const getTotalFiatBalanceNative = ({
 };
 
 export const selectSelectedDeviceTotalFiatBalance = createMemoizedSelector(
-    [selectDeviceAccounts, selectCurrentFiatRates, selectLocalCurrency],
+    [selectDeviceAccounts, selectCurrentFiatRates, selectBaseCurrency],
     (deviceAccounts, rates, localCurrency) =>
         getTotalFiatBalanceNative({ deviceAccounts, localCurrency, rates }),
 );
 
 export const selectDeviceTotalFiatBalanceByDeviceState = createMemoizedSelector(
-    [selectAccountsByDeviceState, selectCurrentFiatRates, selectLocalCurrency],
+    [selectAccountsByDeviceState, selectCurrentFiatRates, selectBaseCurrency],
     (deviceAccounts, rates, localCurrency) =>
         getTotalFiatBalanceNative({ deviceAccounts, localCurrency, rates }),
 );
@@ -199,6 +199,21 @@ export const selectFirmwareRevisionCheckErrorIfEnabled = (state: FwAuthenticityC
         isFirmwareRevisionCheckEnabled && isDeviceConnectEnabled && isMessageSystemFeatureEnabled;
 
     return isCheckEnabled ? revisionCheckError : null;
+};
+
+export const selectIsSkippedRevisionCheckError = (state: FwAuthenticityCheckState): boolean => {
+    const revisionCheckError = selectFirmwareRevisionCheckErrorIfEnabled(state);
+    if (revisionCheckError === null) return false;
+    if (revisionCheckErrorScenarios[revisionCheckError].type === 'skipped') return true;
+
+    // Special handling for offline error, which is handled as softWarning (top-screen banner),
+    // but the banner is rendered separately in useIsOfflineBannerVisible.
+    // So consider it skipped when rendering the banner centrally.
+    return (
+        revisionCheckError === 'cannot-perform-check-offline' &&
+        // if TS throws error, it means that the aforementioned logic is no longer valid, and it should be reworked
+        revisionCheckErrorScenarios[revisionCheckError].type === 'softWarning'
+    );
 };
 
 /**

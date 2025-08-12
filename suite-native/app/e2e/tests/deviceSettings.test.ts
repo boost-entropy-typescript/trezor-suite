@@ -4,7 +4,6 @@ import { MNEMONICS, TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 import { onboardingCompleted } from '../fixtures/onboardingCompleted';
 import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
-import { onConnectingDevice } from '../pageObjects/connectingDevice';
 import { onDeviceAuthenticitySuccess } from '../pageObjects/deviceAuthenticitySuccess';
 import { onDeviceManager } from '../pageObjects/deviceManagerActions';
 import { onDeviceSettings } from '../pageObjects/deviceSettingsActions';
@@ -26,8 +25,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Device settings', () =>
         await onCoinEnabling.waitForInitScreen();
         await onCoinEnabling.toggleNetwork('btc');
         await onCoinEnabling.clickOnConfirmButton();
-
-        await onAlertSheet.skipViewOnlyMode();
     });
 
     afterAll(async () => {
@@ -41,7 +38,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Device settings', () =>
             await restartApp();
             await appIsFullyLoaded();
 
-            await onConnectingDevice.waitForScreen();
             await onDeviceManager.tapDeviceSwitch();
             await onDeviceManager.tapDeviceSettingsButton();
         });
@@ -133,7 +129,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Device settings', () =>
             await restartApp({ args: { isFirmwareUpdateEnabled: true } });
             await appIsFullyLoaded();
 
-            await onConnectingDevice.waitForScreen();
             await onDeviceManager.tapDeviceSwitch();
             await onDeviceManager.tapDeviceSettingsButton();
         });
@@ -160,7 +155,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Device settings', () =>
             await restartApp();
             await appIsFullyLoaded();
 
-            await onConnectingDevice.waitForScreen();
             await onDeviceManager.tapDeviceSwitch();
             await onDeviceManager.tapDeviceSettingsButton();
         });

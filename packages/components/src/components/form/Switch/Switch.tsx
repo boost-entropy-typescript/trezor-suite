@@ -18,7 +18,7 @@ type AllowedFrameProps = Pick<FrameProps, (typeof allowedSwitchFrameProps)[numbe
 export type SwitchProps = AllowedFrameProps & {
     isChecked: boolean;
     label?: ReactNode;
-    onChange: (isChecked: boolean) => void;
+    onChange?: (isChecked: boolean) => void;
     isDisabled?: boolean;
     size?: SwitchSize;
     'data-testid'?: string;
@@ -98,7 +98,7 @@ export const Switch = ({
 
     const handleChange = () => {
         if (isDisabled) return;
-        onChange(!isChecked);
+        onChange?.(!isChecked);
     };
 
     const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -115,13 +115,13 @@ export const Switch = ({
             gap={mapSizeToLabelContainerGap(size)}
             isReversed={labelPosition === 'start'}
             margin={margin}
+            onClick={handleContainerClick}
         >
             <Container
                 // @ts-expect-error - needed for playwright retry-ability
                 disabled={isDisabled}
                 $isChecked={isChecked}
                 $isDisabled={isDisabled}
-                onClick={handleContainerClick}
                 data-testid={dataTest}
             >
                 <Box

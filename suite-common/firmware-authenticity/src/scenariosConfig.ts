@@ -4,12 +4,9 @@ import {
     FirmwareRevisionCheckError,
 } from '@trezor/connect';
 import { DeviceModelInternal } from '@trezor/device-utils';
-import { FilterPropertiesByType } from '@trezor/type-utils';
 
 /*
- * Various scenarios how firmware authenticity check errors are handled in Suite
- * see suite-native/device/src/config/firmware.ts for Suite Lite
- * TODO deduplicate them by creating a new suite-common package
+ * Various scenarios how firmware authenticity check errors are handled in Suite and Suite Lite
  */
 
 type BehaviorBaseType = {
@@ -44,6 +41,7 @@ export const revisionCheckErrorScenarios = {
         shouldNotify: false,
         isConclusive: true,
     },
+    // Note that in native, a banner is displayed, but with special handling, see useIsOfflineBannerVisible
     'cannot-perform-check-offline': {
         type: 'softWarning',
         shouldReport: false,
@@ -98,25 +96,6 @@ export const hashCheckErrorScenarios = {
     },
 } satisfies HashCheckErrorScenarios;
 
-// TODO: when this is moved to suite-common, extract the following derived types & typeguards to a new file
-export type SkippedRevisionCheckError = keyof FilterPropertiesByType<
-    typeof revisionCheckErrorScenarios,
-    { type: 'skipped' }
->;
-
-export const isSkippedRevisionCheckError = (
-    error: FirmwareRevisionCheckError,
-): error is SkippedRevisionCheckError => revisionCheckErrorScenarios[error].type === 'skipped';
-
-export type SkippedHashCheckError = keyof FilterPropertiesByType<
-    typeof hashCheckErrorScenarios,
-    { type: 'skipped' }
->;
-
-export const isSkippedHashCheckError = (
-    error: FirmwareHashCheckError,
-): error is SkippedHashCheckError => hashCheckErrorScenarios[error].type === 'skipped';
-
 // stricter type than required by @trezor/connect, which is very permissive, being a library
 type ExhaustiveFirmwareHashCheckTimeouts = FirmwareHashCheckTimeouts &
     Record<DeviceModelInternal, number | undefined>;
@@ -130,24 +109,3 @@ export const FW_HASH_CHECK_DEFAULT_TIMEOUTS: ExhaustiveFirmwareHashCheckTimeouts
     [DeviceModelInternal.T3W1]: undefined,
     [DeviceModelInternal.UNKNOWN]: undefined,
 };
-
-export type RevisionCheckErrorWithNotification = keyof FilterPropertiesByType<
-    typeof revisionCheckErrorScenarios,
-    { shouldNotify: true }
->;
-
-export const isRevisionCheckErrorWithNotification = (
-    error: FirmwareRevisionCheckError,
-): error is RevisionCheckErrorWithNotification =>
-    revisionCheckErrorScenarios[error].shouldNotify === true;
-
-export type HashCheckErrorWithNotification = keyof FilterPropertiesByType<
-    typeof hashCheckErrorScenarios,
-    { shouldNotify: true }
->;
-
-export const isHashCheckErrorWithNotification = (
-    error: FirmwareHashCheckError,
-): error is HashCheckErrorWithNotification =>
-    // @ts-expect-error if this no longer gives error, then TODO hash check notifications must be implemented
-    hashCheckErrorScenarios[error].shouldNotify === true;

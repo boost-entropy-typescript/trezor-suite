@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 
+import {
+    RevisionCheckErrorWithNotification,
+    isRevisionCheckErrorWithNotification,
+} from '@suite-common/firmware-authenticity';
 import { TranslationKey } from '@suite-common/intl-types';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 
-import {
-    RevisionCheckErrorWithNotification,
-    isRevisionCheckErrorWithNotification,
-} from 'src/constants/suite/firmware';
 import { useDevice, useDispatch } from 'src/hooks/suite';
 
 const revisionCheckNotifications: Record<RevisionCheckErrorWithNotification, TranslationKey> = {
@@ -16,6 +16,8 @@ const revisionCheckNotifications: Record<RevisionCheckErrorWithNotification, Tra
 
 /**
  * Dispatch one-time toast notifications for firmware authenticity check errors.
+ * duplicated with suite-native/device/src/hooks/useDeviceCompromisedNotification.ts
+ * Because suite-native does not use the suite-common/toast-notification
  */
 export const useDeviceCompromisedNotification = () => {
     const { device } = useDevice();

@@ -12,8 +12,6 @@ export const FeatureFlag = {
     IsTradingBuyEnabled: 'isTradingBuyEnabled',
     IsTradingExchangeEnabled: 'isTradingExchangeEnabled',
     IsTradingSellEnabled: 'isTradingSellEnabled',
-    IsCheckBackupsEnabled: 'isCheckBackupsEnabled',
-    IsViewOnlyByDefaultEnabled: 'isViewOnlyByDefaultEnabled',
 } as const;
 
 export type FeatureFlag = (typeof FeatureFlag)[keyof typeof FeatureFlag];
@@ -41,10 +39,6 @@ export const featureFlagsInitialState: FeatureFlagsState = {
         process.env.EXPO_PUBLIC_FF_IS_TRADING_SWAP_ENABLED === 'true',
     [FeatureFlag.IsTradingSellEnabled]:
         process.env.EXPO_PUBLIC_FF_IS_TRADING_SELL_ENABLED === 'true',
-    [FeatureFlag.IsCheckBackupsEnabled]:
-        process.env.EXPO_PUBLIC_FF_IS_CHECK_BACKUPS_ENABLED === 'true',
-    [FeatureFlag.IsViewOnlyByDefaultEnabled]:
-        process.env.EXPO_PUBLIC_FF_IS_VIEW_ONLY_BY_DEFAULT_ENABLED === 'true',
 };
 
 export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
@@ -56,8 +50,6 @@ export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
     FeatureFlag.IsTradingBuyEnabled,
     FeatureFlag.IsTradingExchangeEnabled,
     FeatureFlag.IsTradingSellEnabled,
-    FeatureFlag.IsCheckBackupsEnabled,
-    FeatureFlag.IsViewOnlyByDefaultEnabled,
 ];
 
 export const featureFlagsSlice = createSlice({
@@ -72,9 +64,6 @@ export const featureFlagsSlice = createSlice({
 
 export const selectIsFeatureFlagEnabled = (state: FeatureFlagsRootState, key: FeatureFlag) =>
     state.featureFlags[key];
-
-export const selectIsViewOnlyByDefaultEnabled = (state: FeatureFlagsRootState) =>
-    state.featureFlags[FeatureFlag.IsViewOnlyByDefaultEnabled];
 
 export const { toggleFeatureFlag } = featureFlagsSlice.actions;
 export const featureFlagsReducer = featureFlagsSlice.reducer;

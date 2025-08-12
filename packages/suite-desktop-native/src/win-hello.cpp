@@ -5,6 +5,7 @@
 #include <mutex>
 #include <atomic>
 #include <future>
+#include <chrono>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Security.Credentials.UI.h>
 
@@ -13,6 +14,7 @@
 
 using namespace winrt;
 using namespace Windows::Security::Credentials::UI;
+using namespace std::chrono;
 
 Napi::Value isHelloAvailable(const Napi::CallbackInfo& info) {
     try {
@@ -93,6 +95,77 @@ Napi::Value isHelloAvailable(const Napi::CallbackInfo& info) {
     }
 }
 
+// Helper function to find and elevate Windows Hello dialog
+HWND FindAndElevateHelloWindow() {
+    HWND helloWindow = FindWindowW(L"Credential Dialog Xaml Host", NULL);
+    if (helloWindow != NULL && IsWindow(helloWindow)) {
+        // Make it topmost and bring to foreground
+        SetWindowPos(helloWindow, HWND_TOPMOST, 0, 0, 0, 0, 
+                    SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        
+        // Force the window to be the foreground window
+        // Local helper to check if our target is already foreground
+        auto isForeground = [&]() -> bool { return GetForegroundWindow() == helloWindow; };
+
+        // If already foreground, no further action is necessary
+        if (isForeground()) {
+            return helloWindow;
+        }
+
+        // 1. Basic foreground window setting
+        SetForegroundWindow(helloWindow);
+        if (isForeground()) {
+            return helloWindow;
+        }
+
+        // 2. Thread attachment technique for input focus
+        DWORD currentThreadId = GetCurrentThreadId();
+        DWORD windowThreadId = GetWindowThreadProcessId(helloWindow, NULL);
+        if (AttachThreadInput(currentThreadId, windowThreadId, TRUE)) {
+            // Activate and focus
+            BringWindowToTop(helloWindow);
+            SetActiveWindow(helloWindow);
+            SetFocus(helloWindow);
+            AttachThreadInput(currentThreadId, windowThreadId, FALSE);
+        }
+        if (isForeground()) {
+            return helloWindow;
+        }
+
+        // 3. Simulate Alt key press which can help with focus
+        keybd_event(VK_MENU, 0, 0, 0);                // Alt press
+        SetForegroundWindow(helloWindow);             // Set foreground
+        keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0); // Alt release
+        if (isForeground()) {
+            return helloWindow;
+        }
+
+        // 4. Force update of window (doesn't affect foreground but may help rendering)
+        UpdateWindow(helloWindow);
+
+        // 5. Disable then re-enable the window to force focus only if still not foreground
+        if (!isForeground()) {
+            EnableWindow(helloWindow, FALSE);
+            EnableWindow(helloWindow, TRUE);
+            if (isForeground()) {
+                return helloWindow;
+            }
+
+            // 6. Flash the window to get user attention as a last resort
+            FLASHWINFO fi;
+            fi.cbSize = sizeof(FLASHWINFO);
+            fi.hwnd = helloWindow;
+            fi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+            fi.uCount = 3;
+            fi.dwTimeout = 0;
+            FlashWindowEx(&fi);
+        }
+
+        return helloWindow;
+    }
+    return NULL;
+}
+
 Napi::String requestHello(const Napi::CallbackInfo& info) {
     try {
         std::string message = "Verify your identity";
@@ -100,32 +173,28 @@ Napi::String requestHello(const Napi::CallbackInfo& info) {
             message = info[0].As<Napi::String>();
         }
         
-        HWND parentWindow = NULL;
-        if (info.Length() > 1 && !info[1].IsNull() && !info[1].IsUndefined()) {
-            if (info[1].IsBuffer()) {
-                Napi::Buffer<uint8_t> handleBuffer = info[1].As<Napi::Buffer<uint8_t>>();
-                if (handleBuffer.Length() >= sizeof(HWND)) {
-                    parentWindow = *reinterpret_cast<HWND*>(handleBuffer.Data());
-                    
-                    if (!IsWindow(parentWindow)) {
-                        parentWindow = NULL;
-                    }
-                }
-            }
-        }
-        
         winrt::hstring promptMessage = winrt::to_hstring(message);
         std::string resultString = "Error";
         std::atomic<bool> threadCompleted(false);
         std::exception_ptr threadException = nullptr;
         
-        if (parentWindow != NULL && IsWindow(parentWindow)) {
-            ShowWindow(parentWindow, SW_RESTORE);
-            SetWindowPos(parentWindow, HWND_NOTOPMOST, 0, 0, 0, 0, 
-                        SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
-            AllowSetForegroundWindow(ASFW_ANY);
-            Sleep(100);
-        }
+        // Always enable foreground window switching
+        AllowSetForegroundWindow(ASFW_ANY);
+        
+        // Create a flag to signal the window monitor thread to stop
+        std::atomic<bool> stopWindowMonitor(false);
+        
+        // Start a thread to continuously monitor and elevate the Windows Hello dialog
+        std::thread windowMonitorThread([&stopWindowMonitor]() {
+            // Wait a bit for the dialog to appear
+            Sleep(500);
+            
+            // Keep checking for the Windows Hello dialog and elevating it
+            while (!stopWindowMonitor) {
+                FindAndElevateHelloWindow();
+                Sleep(100); // Check every 100ms
+            }
+        });
         
         std::thread staThread([promptMessage, &resultString, &threadCompleted, &threadException]() {
             try {
@@ -195,11 +264,12 @@ Napi::String requestHello(const Napi::CallbackInfo& info) {
         
         staThread.join();
         
-        if (parentWindow != NULL && IsWindow(parentWindow)) {
-            SetWindowPos(parentWindow, HWND_TOP, 0, 0, 0, 0, 
-                        SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
-            SetForegroundWindow(parentWindow);
-        }
+        // Signal the window monitor thread to stop and wait for it to finish
+        stopWindowMonitor = true;
+        windowMonitorThread.join();
+        
+        // Final attempt to elevate the Windows Hello dialog
+        FindAndElevateHelloWindow();
         
         if (threadException) {
             try {

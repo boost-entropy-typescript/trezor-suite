@@ -8,7 +8,6 @@ import TrezorConnect from '@trezor/connect-mobile';
 import { MNEMONICS, TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
 
 import { onboardingCompleted } from '../fixtures/onboardingCompleted';
-import { onAlertSheet } from '../pageObjects/alertSheetActions';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
 import {
     appIsFullyLoaded,
@@ -61,13 +60,25 @@ conditionalDescribe(device.getPlatform() === 'android', 'Deeplink connect popup.
         await device.reverseTcpPort(SERVER_PORT);
 
         await prepareTrezorEmulator();
-        await openApp({ newInstance: true, args: { preloadedState: onboardingCompleted } });
+        await openApp({
+            newInstance: true,
+            args: {
+                preloadedState: {
+                    appSettings: {
+                        ...onboardingCompleted?.appSettings,
+                    },
+                    device: {
+                        isDeviceAutoEjectEnabled: true,
+                        devices: [],
+                    },
+                },
+            },
+        });
 
         await onCoinEnabling.waitForInitScreen();
         await onCoinEnabling.toggleNetwork('btc');
         await onCoinEnabling.clickOnConfirmButton();
 
-        await onAlertSheet.skipViewOnlyMode();
         await detoxExpect(element(by.id('@home/portfolio/header'))).toExist();
 
         // This `TrezorConnect` instance here is pretending to be the integrator or @trezor/connect-mobile
@@ -95,6 +106,7 @@ conditionalDescribe(device.getPlatform() === 'android', 'Deeplink connect popup.
 
     afterAll(async () => {
         await disconnectTrezorUserEnv();
+
         await new Promise(resolve => {
             if (server) {
                 server.close(() => {

@@ -3,6 +3,9 @@
     "compilerOptions": { "outDir": "libDev" },
     "references": [
         {
+            "path": "../../suite-common/firmware-authenticity"
+        },
+        {
             "path": "../../suite-common/message-system"
         },
         {
@@ -31,6 +34,7 @@
         { "path": "../navigation" },
         { "path": "../sentry" },
         { "path": "../settings" },
+        { "path": "../toasts" },
         { "path": "../../packages/connect" },
         { "path": "../../packages/device-utils" },
         { "path": "../../packages/env-utils" },
