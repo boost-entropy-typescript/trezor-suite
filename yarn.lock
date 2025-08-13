@@ -2189,6 +2189,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electron/fuses@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@electron/fuses@npm:2.0.0"
+  bin:
+    electron-fuses: dist/bin.js
+  checksum: 10/12af9e5164a9870f353368cebd8b451b82ca0abd82bc62b2a3745c51dd3692a761e8e107c2f35cf85aa0781bbbda3afafac8b77c4f8692b6dc820d9a455297a7
+  languageName: node
+  linkType: hard
+
 "@electron/get@npm:^2.0.0":
   version: 2.0.2
   resolution: "@electron/get@npm:2.0.2"
@@ -10510,10 +10519,13 @@ __metadata:
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/semver": "npm:^7.7.0"
+    expo-haptics: "npm:~14.1.4"
+    expo-linear-gradient: "npm:~14.1.5"
     jotai: "npm:^2.12.5"
     lottie-react-native: "npm:7.2.2"
     react: "npm:19.0.0"
     react-native: "npm:0.79.3"
+    react-native-gesture-handler: "npm:~2.24.0"
     react-native-reanimated: "npm:^3.18.0"
     react-native-svg: "npm:15.11.2"
     react-redux: "npm:9.2.0"
@@ -10942,6 +10954,7 @@ __metadata:
     "@trezor/connect-mobile": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
+    expo-clipboard: "npm:~7.1.4"
     expo-linking: "npm:~7.1.5"
     react: "npm:19.0.0"
     react-native: "npm:0.79.3"
@@ -12701,7 +12714,7 @@ __metadata:
   resolution: "@trezor/suite-desktop-core@workspace:packages/suite-desktop-core"
   dependencies:
     "@currents/playwright": "npm:^1.13.4"
-    "@electron/fuses": "npm:^1.8.0"
+    "@electron/fuses": "npm:^2.0.0"
     "@electron/notarize": "npm:3.0.2"
     "@octokit/rest": "npm:^21.1.1"
     "@playwright/browser-chromium": "npm:^1.52.0"

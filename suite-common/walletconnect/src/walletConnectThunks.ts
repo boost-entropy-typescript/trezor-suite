@@ -13,7 +13,7 @@ import * as trezorConnectPopupActions from '@suite-common/connect-popup';
 import { createThunk } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { getNetwork } from '@suite-common/wallet-config';
-import { selectAllAccountsToList } from '@suite-common/wallet-core';
+import { selectAllSuccessfulAccountsToList } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
 import { CallMethodResponse } from '@trezor/connect';
 
@@ -33,7 +33,7 @@ export const sessionAuthenticateThunk = createThunk<
 >(`${WALLETCONNECT_MODULE}/sessionAuthenticateThunk`, async ({ event }, { getState, dispatch }) => {
     // Support for Sign-In with Ethereum (SIWE) message, enhanced by ReCaps (ReCap Capabilities)
     try {
-        const accounts = selectAllAccountsToList(getState());
+        const accounts = selectAllSuccessfulAccountsToList(getState());
         const supportedNamespaces = getNamespaces(accounts);
         const authPayload = populateAuthPayload({
             authPayload: event.params.authPayload,
@@ -98,7 +98,7 @@ export const sessionAuthenticateThunk = createThunk<
         dispatch(
             notificationsActions.addToast({
                 type: 'error',
-                error: `WalletConnect pairing failed - ${error.message}`,
+                error: error.message,
             }),
         );
         await walletKit.rejectSessionAuthenticate({
@@ -115,7 +115,7 @@ export const sessionProposalThunk = createThunk<
     }
 >(`${WALLETCONNECT_MODULE}/sessionProposalThunk`, ({ event }, { dispatch, getState }) => {
     // Check supported networks
-    const accounts = selectAllAccountsToList(getState());
+    const accounts = selectAllSuccessfulAccountsToList(getState());
     const networks: PendingConnectionProposalNetwork[] = [];
     processNamespaces(accounts, networks, event.params.requiredNamespaces, true);
     processNamespaces(accounts, networks, event.params.optionalNamespaces, false);
@@ -198,7 +198,7 @@ export const switchSelectedAccountThunk = createThunk<
 >(
     `${WALLETCONNECT_MODULE}/switchSelectedAccountThunk`,
     async ({ account, sessionTopic }, { getState }) => {
-        const accounts = selectAllAccountsToList(getState());
+        const accounts = selectAllSuccessfulAccountsToList(getState());
         const updatedNamespaces = getNamespaces([account, ...accounts]);
         const network = getNetwork(account.symbol);
         if (!network) {
@@ -270,7 +270,7 @@ export const sessionProposalApproveThunk = createThunk<
                 throw new Error('Proposal not found');
             }
 
-            const accounts = selectAllAccountsToList(getState());
+            const accounts = selectAllSuccessfulAccountsToList(getState());
             const supportedNamespaces = getNamespaces([
                 ...(selectedDefaultAccount ? [selectedDefaultAccount] : []),
                 ...accounts,
@@ -419,7 +419,7 @@ export const walletConnectInitThunk = createThunk(
 
 export const walletConnectPairThunk = createThunk<void, { uri: string }>(
     `${WALLETCONNECT_MODULE}/walletConnectPairThunk`,
-    async ({ uri }, { dispatch }) => {
+    async ({ uri }) => {
         try {
             await walletKit.pair({ uri });
             analytics.report({
@@ -427,18 +427,13 @@ export const walletConnectPairThunk = createThunk<void, { uri: string }>(
             });
         } catch (error) {
             console.error('WalletKit.pair:', error);
-            // TODO: make this a friendly localized message
-            dispatch(
-                notificationsActions.addToast({
-                    type: 'error',
-                    error: `WalletConnect pairing failed - ${error.message}`,
-                }),
-            );
 
             analytics.report({
                 type: EventType.WalletConnectError,
                 payload: { error: error.message },
             });
+
+            throw error;
         }
     },
 );
