@@ -1,6 +1,6 @@
 import { TrezorDevice } from '@suite-common/suite-types';
 import { testMocks } from '@suite-common/test-utils';
-import { ConnectDeviceSettings, deviceActions } from '@suite-common/wallet-core';
+import { deviceActions } from '@suite-common/wallet-core';
 import { DEVICE } from '@trezor/connect';
 import { DeepPartial } from '@trezor/type-utils';
 
@@ -17,10 +17,6 @@ type Fixture<TAction> = {
     result: DeepPartial<TrezorDevice>[];
 };
 
-const SUITE_SETTINGS: ConnectDeviceSettings = {
-    defaultWalletLoading: 'standard',
-};
-
 const connect: Fixture<
     | ReturnType<typeof deviceActions.connectDevice>
     | ReturnType<typeof deviceActions.connectUnacquiredDevice>
@@ -35,9 +31,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -64,9 +57,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -99,9 +89,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -129,9 +116,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -165,9 +149,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -204,9 +185,6 @@ const connect: Fixture<
                     device: getConnectDevice({
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -215,58 +193,6 @@ const connect: Fixture<
                 type: 'acquired',
                 path: '1',
                 connected: true,
-            },
-        ],
-    },
-    {
-        description:
-            'Connect device with different "passphrase_protection" (create new missing instance)',
-        initialState: {
-            devices: [
-                getSuiteDevice(
-                    {
-                        useEmptyPassphrase: false,
-                        instance: 1,
-                    },
-                    {
-                        passphrase_protection: true,
-                    },
-                ),
-            ],
-        },
-        actions: [
-            {
-                type: DEVICE.CONNECT,
-                payload: {
-                    device: getConnectDevice({
-                        path: '1',
-                    }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
-                },
-            },
-        ],
-        result: [
-            {
-                type: 'acquired',
-                path: '1',
-                connected: true,
-                available: false,
-                instance: 1,
-                features: {
-                    passphrase_protection: false,
-                },
-            },
-            {
-                type: 'acquired',
-                path: '1',
-                instance: undefined,
-                connected: true,
-                available: true,
-                features: {
-                    passphrase_protection: false,
-                },
             },
         ],
     },
@@ -281,9 +207,6 @@ const connect: Fixture<
                         type: 'unacquired',
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -312,9 +235,6 @@ const connect: Fixture<
                         type: 'unacquired',
                         path: '1',
                     }),
-                    settings: {
-                        defaultWalletLoading: 'standard',
-                    },
                 },
             },
         ],
@@ -798,135 +718,6 @@ const updateTimestamp: Array<
     },
 ];
 
-const changePassphraseMode: Fixture<ReturnType<typeof deviceActions.updatePassphraseMode>>[] = [
-    {
-        description: `Receive passphrase mode: true > false`,
-        initialState: { devices: [SUITE_DEVICE] },
-        actions: [
-            {
-                type: deviceActions.updatePassphraseMode.type,
-                payload: {
-                    hidden: true,
-                    device: SUITE_DEVICE,
-                },
-            },
-        ],
-        result: [
-            {
-                useEmptyPassphrase: false,
-            },
-        ],
-    },
-    {
-        description: `Receive passphrase mode (2 connected, 1 affected)`,
-        initialState: {
-            devices: [
-                getSuiteDevice(undefined, {
-                    device_id: 'ignored-device-id',
-                }),
-                SUITE_DEVICE,
-            ],
-        },
-        actions: [
-            {
-                type: deviceActions.updatePassphraseMode.type,
-                payload: {
-                    device: SUITE_DEVICE,
-                    hidden: true,
-                },
-            },
-        ],
-        result: [
-            {
-                useEmptyPassphrase: true,
-                features: {
-                    device_id: 'ignored-device-id',
-                },
-            },
-            {
-                useEmptyPassphrase: false,
-                features: {
-                    device_id: 'device-id',
-                },
-            },
-        ],
-    },
-    {
-        description: `Update passphrase mode (2 instances, 1 affected)`,
-        initialState: {
-            devices: [SUITE_DEVICE, getSuiteDevice({ instance: 1 })],
-        },
-        actions: [
-            {
-                type: deviceActions.updatePassphraseMode.type,
-                payload: {
-                    device: getSuiteDevice({ instance: 1 }),
-                    hidden: true,
-                },
-            },
-        ],
-        result: [
-            {
-                instance: undefined,
-                useEmptyPassphrase: true,
-                features: {
-                    device_id: 'device-id',
-                },
-            },
-            {
-                instance: 1,
-                useEmptyPassphrase: false,
-                features: {
-                    device_id: 'device-id',
-                },
-            },
-        ],
-    },
-    {
-        description: `device is unacquired`,
-        initialState: { devices: [SUITE_DEVICE] },
-        actions: [
-            {
-                type: deviceActions.updatePassphraseMode.type,
-                payload: {
-                    device: {
-                        ...getSuiteDevice({
-                            type: 'unacquired',
-                        }),
-                        useEmptyPassphrase: false,
-                        connected: true,
-                        available: true,
-                        ts: 1,
-                        buttonRequests: [],
-                        metadata: {},
-                        passwords: {},
-                    },
-                    hidden: false,
-                },
-            },
-        ],
-        result: [
-            {
-                useEmptyPassphrase: true,
-            },
-        ],
-    },
-    {
-        description: `device doesn't exist in reducer`,
-        initialState: { devices: [] },
-        actions: [
-            {
-                type: deviceActions.updatePassphraseMode.type,
-                payload: {
-                    hidden: false,
-                    device: SUITE_DEVICE,
-                },
-            },
-        ],
-        result: [],
-    },
-];
-
 const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
     {
         description: `Forget multiple instances (2 connected, 5 instances, 3 affected, last instance remains with undefined state)`,
@@ -955,18 +746,16 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
                 type: deviceActions.forgetDevice.type,
                 payload: {
                     device: getSuiteDevice({ instance: 1 }),
-                    settings: SUITE_SETTINGS,
                 },
             },
             {
                 type: deviceActions.forgetDevice.type,
-                payload: { device: SUITE_DEVICE, settings: SUITE_SETTINGS },
+                payload: { device: SUITE_DEVICE },
             },
             {
                 type: deviceActions.forgetDevice.type,
                 payload: {
                     device: getSuiteDevice({ connected: true, instance: 3 }),
-                    settings: SUITE_SETTINGS,
                 },
             },
         ],
@@ -976,17 +765,18 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
                 features: {
                     device_id: 'ignored-device-id',
                 },
+                useEmptyPassphrase: undefined,
             },
             {
                 instance: 1,
                 features: {
                     device_id: 'ignored-device-id',
                 },
+                useEmptyPassphrase: undefined,
             },
             {
                 ...getSuiteDevice({ connected: true, instance: 3 }),
                 state: undefined,
-                useEmptyPassphrase: true,
             },
         ],
     },
@@ -1011,7 +801,7 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
         actions: [
             {
                 type: deviceActions.forgetDevice.type,
-                payload: { device: getSuiteDevice({ instance: 3 }), settings: SUITE_SETTINGS },
+                payload: { device: getSuiteDevice({ instance: 3 }) },
             },
             {
                 type: deviceActions.forgetDevice.type,
@@ -1019,12 +809,11 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
                     device: getSuiteDevice(undefined, {
                         device_id: 'ignored-device-id',
                     }),
-                    settings: SUITE_SETTINGS,
                 },
             },
             {
                 type: deviceActions.forgetDevice.type,
-                payload: { device: SUITE_DEVICE, settings: SUITE_SETTINGS },
+                payload: { device: SUITE_DEVICE },
             },
         ],
         result: [
@@ -1052,7 +841,6 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
                     device: getSuiteDevice({
                         type: 'unacquired',
                     }),
-                    settings: SUITE_SETTINGS,
                 },
             },
         ],
@@ -1068,7 +856,7 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
         actions: [
             {
                 type: deviceActions.forgetDevice.type,
-                payload: { device: SUITE_DEVICE, settings: SUITE_SETTINGS },
+                payload: { device: SUITE_DEVICE },
             },
         ],
         result: [],
@@ -1237,7 +1025,6 @@ export default {
     disconnect,
     changed,
     updateTimestamp,
-    changePassphraseMode,
     forget,
     remember,
 };

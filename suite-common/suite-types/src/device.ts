@@ -27,8 +27,7 @@ export type ButtonRequest = Omit<DeviceEvent['payload'], 'device' | 'code'> & {
 };
 
 export interface ExtendedDevice {
-    useEmptyPassphrase: boolean;
-    passphraseOnDevice?: boolean;
+    useEmptyPassphrase?: boolean;
     remember?: boolean; // device should be remembered
     forceRemember?: true; // device was forced to be remembered
     temporaryRemember?: boolean; // device should be remembered only for fw update or this session
@@ -58,6 +57,7 @@ export type UnreadableDevice = UnreadableDeviceBase & ExtendedDevice;
 export type TrezorDevice = AcquiredDevice | UnknownDevice | UnreadableDevice;
 
 export type AuthorizedDevice = AcquiredDevice & {
+    useEmptyPassphrase: boolean;
     state: Required<DeviceState>;
     instance: number;
     walletNumber: number;

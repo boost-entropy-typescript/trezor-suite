@@ -359,7 +359,7 @@ export const selectRememberedStandardWalletsCount = createMemoizedSelector(
     [selectPhysicalDevices],
     devices =>
         returnStableArrayIfEmpty(
-            devices.filter(device => device.remember && device.useEmptyPassphrase),
+            devices.filter(device => device.remember && device.useEmptyPassphrase === true),
         ).length,
 );
 
@@ -367,7 +367,7 @@ export const selectRememberedHiddenWalletsCount = createMemoizedSelector(
     [selectPhysicalDevices],
     devices =>
         returnStableArrayIfEmpty(
-            devices.filter(device => device.remember && !device.useEmptyPassphrase),
+            devices.filter(device => device.remember && device.useEmptyPassphrase === false),
         ).length,
 );
 
@@ -480,4 +480,8 @@ export const selectDeviceDefaultBackupType = createMemoizedSelector(
 
         return deviceModel ? defaultBackupTypeMap[deviceModel] : 'shamir-single';
     },
+);
+
+export const selectStandardWalletDevice = createMemoizedSelector([selectDevices], devices =>
+    devices.find(device => device.useEmptyPassphrase),
 );

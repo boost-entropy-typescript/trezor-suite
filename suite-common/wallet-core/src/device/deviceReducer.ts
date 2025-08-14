@@ -10,9 +10,8 @@ import * as deviceUtils from '@suite-common/suite-utils';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
 import { shouldDeviceBeRemembered } from '@suite-common/wallet-utils';
 import { Device, DeviceState, Features, KnownDevice, StaticSessionId } from '@trezor/connect';
-import { isNative } from '@trezor/env-utils';
 
-import { ConnectDeviceSettings, deviceActions } from './deviceActions';
+import { deviceActions } from './deviceActions';
 import { PORTFOLIO_TRACKER_DEVICE_ID } from './deviceConstants';
 
 export type DeviceReducerState = {
@@ -102,32 +101,13 @@ const merge = (
     },
 });
 
-const getShouldUseEmptyPassphrase = (
-    device: Device | TrezorDevice,
-    deviceInstance: number | undefined,
-    settings: ConnectDeviceSettings,
-): boolean => {
-    if (!device.features) return false;
-
-    if (isNative() && (!deviceInstance || deviceInstance === 1)) {
-        // On mobile, if device has instance === 1, we always want to use empty passphrase since we
-        // connect & authorize standard wallet by default. Other instances will have `usePassphraseProtection` set same way as web/desktop app.
-        return true;
-    }
-
-    return !device.features.passphrase_protection || settings.defaultWalletLoading === 'standard';
-};
 /**
  * Action handler: DEVICE.CONNECT + DEVICE.CONNECT_UNACQUIRED
  * @param {DeviceReducerState} draft
  * @param {Device} device
  * @returns
  */
-const connectDevice = (
-    draft: DeviceReducerState,
-    device: Device,
-    settings: ConnectDeviceSettings,
-) => {
+const connectDevice = (draft: DeviceReducerState, device: Device) => {
     const currentTime = new Date().getTime();
 
     const deviceCommonFields = {
@@ -154,7 +134,6 @@ const connectDevice = (
             ...device,
             ...deviceCommonFields,
             available: false,
-            useEmptyPassphrase: true,
         });
 
         return;
@@ -184,13 +163,11 @@ const connectDevice = (
         ? deviceUtils.getNewInstanceNumber(draft.devices, device) || 1
         : undefined;
 
-    const useEmptyPassphrase = getShouldUseEmptyPassphrase(device, deviceInstance, settings);
-
     const newDevice: TrezorDevice = {
         ...device,
         ...deviceCommonFields,
         state: device._state,
-        useEmptyPassphrase,
+        useEmptyPassphrase: undefined,
         remember: shouldDeviceBeRemembered({
             isDeviceAutoEjectEnabled: draft.isDeviceAutoEjectEnabled,
             device,
@@ -205,7 +182,7 @@ const connectDevice = (
         const changedDevices = affectedDevices.map(d => {
             // change availability according to "passphrase_protection" field
             if (
-                !d.useEmptyPassphrase &&
+                d.useEmptyPassphrase === true &&
                 isUnlocked(device.features) &&
                 !features.passphrase_protection
             ) {
@@ -215,12 +192,6 @@ const connectDevice = (
             return merge(d, { ...device, connected: true, available: true });
         });
 
-        // affected device with current "passphrase_protection" does not exists
-        // basically it means that the "standard" device without "useEmptyPassphrase" was forgotten or never created (removed from reducer)
-        // automatically create new "standard" instance
-        if (!changedDevices.find(d => d.available)) {
-            changedDevices.push(newDevice);
-        }
         // fill draft with affectedDevices values
         changedDevices.forEach(d => draft.devices.push(d));
     } else {
@@ -406,39 +377,6 @@ const updateTimestamp = (draft: DeviceReducerState, device?: TrezorDevice) => {
 };
 
 /**
- * Action handler: SUITE.RECEIVE_PASSPHRASE_MODE + SUITE.UPDATE_PASSPHRASE_MODE
- * @param {DeviceReducerState} draft
- * @param {TrezorDevice} device
- * @param {boolean} hidden
- * @param {boolean} [alwaysOnDevice=false]
- * @returns
- */
-const updatePassphraseMode = (
-    draft: DeviceReducerState,
-    device: TrezorDevice,
-    hidden: boolean,
-    alwaysOnDevice = false,
-) => {
-    // only acquired devices
-    if (!device || !device.features) return;
-    const index = deviceUtils.findInstanceIndex(draft.devices, device);
-    if (!draft.devices[index]) return;
-    // update fields
-    draft.devices[index].useEmptyPassphrase = !hidden;
-    draft.devices[index].passphraseOnDevice = alwaysOnDevice;
-    draft.devices[index].ts = new Date().getTime();
-    if (hidden && typeof draft.devices[index].walletNumber !== 'number') {
-        draft.devices[index].walletNumber = deviceUtils.getNewWalletNumber(
-            draft.devices,
-            draft.devices[index],
-        );
-    }
-    if (!hidden && typeof draft.devices[index].walletNumber === 'number') {
-        delete draft.devices[index].walletNumber;
-    }
-};
-
-/**
  * Action handler: SUITE.CREATE_DEVICE_INSTANCE
  * @param {DeviceReducerState} draft
  * @param {TrezorDevice} device
@@ -454,7 +392,6 @@ const createInstance = (draft: DeviceReducerState, device: TrezorDevice) => {
     const currentTime = new Date().getTime();
     const newDevice: TrezorDevice = {
         ...device,
-        passphraseOnDevice: false,
         remember: true,
         // In mobile app, we need to keep device state defined by the constant
         // to be able to filter device accounts for portfolio tracker
@@ -525,11 +462,7 @@ const setTemporaryRememberedDevice = (
  * @param {TrezorDevice} device
  * @returns
  */
-const forget = (
-    draft: DeviceReducerState,
-    device: TrezorDevice,
-    settings: ConnectDeviceSettings,
-) => {
+const forget = (draft: DeviceReducerState, device: TrezorDevice) => {
     // only acquired devices
     if (!device || !device.features) return;
     const index = deviceUtils.findInstanceIndex(draft.devices, device);
@@ -540,13 +473,8 @@ const forget = (
         draft.devices[index].state = undefined;
         draft.devices[index].walletNumber = undefined;
 
-        draft.devices[index].useEmptyPassphrase = getShouldUseEmptyPassphrase(
-            device,
-            undefined,
-            settings,
-        );
+        draft.devices[index].useEmptyPassphrase = undefined;
 
-        draft.devices[index].passphraseOnDevice = false;
         // set remember to false to make it disappear after device is disconnected
         draft.devices[index].remember = false;
         draft.devices[index].metadata = {};
@@ -628,9 +556,6 @@ export const prepareDeviceReducer = createReducerWithExtraDeps(initialState, (bu
         .addCase(deviceActions.deviceDisconnect, (state, { payload }) => {
             disconnectDevice(state, payload);
         })
-        .addCase(deviceActions.updatePassphraseMode, (state, { payload }) => {
-            updatePassphraseMode(state, payload.device, payload.hidden, payload.alwaysOnDevice);
-        })
         .addCase(deviceActions.rememberDevice, (state, { payload }) => {
             remember(state, payload.device, payload.remember, payload.forceRemember);
         })
@@ -638,7 +563,7 @@ export const prepareDeviceReducer = createReducerWithExtraDeps(initialState, (bu
             setTemporaryRememberedDevice(state, payload.device, payload.temporaryRemember);
         })
         .addCase(deviceActions.forgetDevice, (state, { payload }) => {
-            forget(state, payload.device, payload.settings);
+            forget(state, payload.device);
         })
         .addCase(deviceActions.addButtonRequest, (state, { payload }) => {
             addButtonRequest(state, payload.device, payload.buttonRequest);
@@ -688,8 +613,8 @@ export const prepareDeviceReducer = createReducerWithExtraDeps(initialState, (bu
         })
         .addMatcher(
             isAnyOf(deviceActions.connectDevice, deviceActions.connectUnacquiredDevice),
-            (state, { payload: { device, settings } }) => {
-                connectDevice(state, device, settings);
+            (state, { payload: { device } }) => {
+                connectDevice(state, device);
             },
         );
 });

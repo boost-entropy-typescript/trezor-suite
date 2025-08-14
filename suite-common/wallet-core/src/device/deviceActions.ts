@@ -1,18 +1,12 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { ButtonRequest, ThpSuiteCredentials, TrezorDevice } from '@suite-common/suite-types';
-import { WalletType } from '@suite-common/wallet-types';
 import { DEVICE, Device, DeviceState, StaticSessionId } from '@trezor/connect';
 
 export const DEVICE_MODULE_PREFIX = '@suite/device';
 
-export type ConnectDeviceSettings = {
-    defaultWalletLoading: WalletType;
-};
-
 export type DeviceConnectActionPayload = {
     device: Device;
-    settings: ConnectDeviceSettings;
 };
 
 const connectDevice = createAction(DEVICE.CONNECT, (payload: DeviceConnectActionPayload) => ({
@@ -55,11 +49,6 @@ const deviceDisconnect = createAction(DEVICE.DISCONNECT, (payload: TrezorDevice)
     payload,
 }));
 
-const updatePassphraseMode = createAction(
-    `${DEVICE_MODULE_PREFIX}/updatePassphraseMode`,
-    (payload: { device: TrezorDevice; hidden: boolean; alwaysOnDevice?: boolean }) => ({ payload }),
-);
-
 const rememberDevice = createAction(
     `${DEVICE_MODULE_PREFIX}/rememberDevice`,
     (payload: { device: TrezorDevice; remember: boolean; forceRemember?: true }) => ({
@@ -74,7 +63,7 @@ const setTemporaryRememberedDevice = createAction(
 
 const forgetDevice = createAction(
     `${DEVICE_MODULE_PREFIX}/forgetDevice`,
-    (payload: { device: TrezorDevice; settings: ConnectDeviceSettings }) => ({
+    (payload: { device: TrezorDevice }) => ({
         payload,
     }),
 );
@@ -136,7 +125,6 @@ export const deviceActions = {
     addAuthorizedDevice,
     deviceDisconnect,
     dismissFirmwareAuthenticityCheck,
-    updatePassphraseMode,
     rememberDevice,
     setTemporaryRememberedDevice,
     forgetDevice,
