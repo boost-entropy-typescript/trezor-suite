@@ -89,9 +89,9 @@ export const firmwareUpdate = createThunk<
 
         const targetFirmwareType = getTargetFirmwareType();
         const toBitcoinOnlyFirmware = targetFirmwareType === FirmwareType.BitcoinOnly;
-        const targetTranslationLanguage = device.firmwareRelease?.release.translations?.find(
-            language => language.startsWith(suiteLanguage),
-        );
+        const targetTranslationLanguage = Object.keys(
+            device.firmwareReleaseConfigInfo?.translations ?? [],
+        ).find(language => language.startsWith(suiteLanguage));
 
         const firmwareUpdateResponse = await TrezorConnect.firmwareUpdate({
             device,
@@ -105,7 +105,7 @@ export const firmwareUpdate = createThunk<
         const targetProperties = binary
             ? {}
             : {
-                  toFwVersion: device?.firmwareRelease?.release.version.join('.'),
+                  toFwVersion: device?.firmwareReleaseConfigInfo?.release.version.join('.'),
                   toBtcOnly: toBitcoinOnlyFirmware,
               };
 

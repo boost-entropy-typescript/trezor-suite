@@ -1,5 +1,4 @@
-import releasesT1B1 from '@trezor/connect-common/files/firmware/t1b1/releases.json';
-import releasesT2T1 from '@trezor/connect-common/files/firmware/t2t1/releases.json';
+import { DeviceModelInternal, FirmwareType } from '@trezor/device-utils';
 import { parseConfigure } from '@trezor/protobuf';
 import { v1 as protocolV1 } from '@trezor/protocol';
 import { buildMessage } from '@trezor/transport/src/utils/send';
@@ -8,6 +7,7 @@ import { Log } from '@trezor/utils';
 import * as mockFwHash from '../../api/firmware/calculateFirmwareHash';
 import { DataManager } from '../../data/DataManager';
 import { parseConnectSettings } from '../../data/connectSettings';
+import { getBundledRelease } from '../../data/firmwareInfo';
 import { DeviceList } from '../../device/DeviceList';
 // mocks
 import * as mockAssets from '../../utils/assets';
@@ -23,7 +23,6 @@ const ASSETS_BASE_URL = '';
 // jest.setTimeout(30000);
 
 const { createTestTransport } = global.JestMocks;
-const LATEST_RELEASE = releasesT2T1[0];
 
 type ResponseFixture = {
     id: string; // messageType from .write
@@ -76,7 +75,11 @@ const transportApiMock = (fixtures: ResponseFixture[]) => {
                 return response(success);
             } else if (request === '0058') {
                 // GetFirmwareHash > FirmwareHash
-                return response('3f23230059000000160a14' + LATEST_RELEASE.firmware_revision);
+                return response(
+                    '3f23230059000000160a14' +
+                        getBundledRelease(DeviceModelInternal.T2T1, FirmwareType.Universal)
+                            .firmware_revision,
+                );
             }
 
             // Success
@@ -91,7 +94,8 @@ const buildProtobufMessage = (messages: any, override: any = {}) => {
     const major_version = override.data?.major_version || 2;
     const model = major_version === 1 ? 1 : 2;
     const internal_model = major_version === 1 ? 'T1B1' : 'T2T1';
-    const latest = major_version === 1 ? releasesT1B1[0] : LATEST_RELEASE;
+    const deviceModel = major_version === 1 ? DeviceModelInternal.T1B1 : DeviceModelInternal.T2T1;
+    const latest = getBundledRelease(deviceModel, FirmwareType.Universal);
     const [fw_major, fw_minor, fw_patch] = latest.version;
     const version = {
         major_version: fw_major,
@@ -118,7 +122,7 @@ const buildProtobufMessage = (messages: any, override: any = {}) => {
                   firmware_present: override.data?.bootloader_mode ? false : true,
                   model,
                   internal_model,
-                  revision: LATEST_RELEASE.firmware_revision, // used in calculateFirmwareHashMock
+                  revision: latest.firmware_revision, // used in calculateFirmwareHashMock
                   ...override.data,
               },
         protocol: protocolV1,
@@ -132,7 +136,9 @@ const httpRequestMock = (version?: number[]) => {
         Buffer.alloc(200 - 5),
         Buffer.from('TRZF', 'utf-8'),
         Buffer.alloc(12),
-        Buffer.from(version || LATEST_RELEASE.version),
+        Buffer.from(
+            version || getBundledRelease(DeviceModelInternal.T2T1, FirmwareType.Universal).version,
+        ),
     ]);
 
     // as ArrayBuffer:
@@ -141,7 +147,10 @@ const httpRequestMock = (version?: number[]) => {
 };
 
 const calculateFirmwareHashMock = (hash?: string) => ({
-    hash: hash || LATEST_RELEASE.firmware_revision,
+    hash:
+        hash ||
+        getBundledRelease(DeviceModelInternal.T2T1, FirmwareType.Universal).firmware_revision ||
+        '',
     challenge: '',
 });
 
@@ -207,8 +216,8 @@ const setupTest = () => {
 };
 
 describe('onCallFirmwareUpdate', () => {
-    beforeAll(() => {
-        DataManager.load(parseConnectSettings({}));
+    beforeAll(async () => {
+        await DataManager.load(parseConnectSettings({}));
     });
     beforeEach(() => {
         if (!ASSETS_BASE_URL) {
@@ -265,6 +274,32 @@ describe('onCallFirmwareUpdate', () => {
 
         return resultPromise;
     };
+
+    it('T2T1: from binary, binary version mismatch', async () => {
+        const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
+
+        await waitForDeviceList([
+            // GetFeatures in bootloader mode
+            buildFixture('0037', {
+                bootloader_mode: true,
+            }),
+            // Initialize in bootloader mode
+            buildFixture('0000', {}),
+            // GetFeatures after reboot
+            buildFixture('0037', {}),
+        ]);
+
+        const binary = await httpRequestMock([2, 8, 3]);
+        const result = await runFirmwareUpdate({
+            params: { binary },
+            context,
+        });
+
+        expect(result.versionCheck).toEqual(false);
+        expect(result.binaryVersion).not.toEqual(result.installedVersion);
+
+        await deviceList.dispose();
+    });
 
     it('T2T1: updated to latest release', async () => {
         const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
@@ -412,32 +447,6 @@ describe('onCallFirmwareUpdate', () => {
         await deviceList.dispose();
     });
 
-    it('T2T1: from binary, binary version mismatch', async () => {
-        const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
-
-        await waitForDeviceList([
-            // GetFeatures in bootloader mode
-            buildFixture('0037', {
-                bootloader_mode: true,
-            }),
-            // Initialize in bootloader mode
-            buildFixture('0000', {}),
-            // GetFeatures after reboot
-            buildFixture('0037', {}),
-        ]);
-
-        const binary = await httpRequestMock([2, 8, 3]);
-        const result = await runFirmwareUpdate({
-            params: { binary },
-            context,
-        });
-
-        expect(result.versionCheck).toEqual(false);
-        expect(result.binaryVersion).not.toEqual(result.installedVersion);
-
-        await deviceList.dispose();
-    });
-
     it('T1B1: updated to latest release', async () => {
         const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
 
@@ -513,34 +522,6 @@ describe('onCallFirmwareUpdate', () => {
         await deviceList.dispose();
     });
 
-    it('T3W1: from binary', async () => {
-        const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
-        const t3 = {
-            internal_model: 'T3W1',
-        };
-
-        await waitForDeviceList([
-            // GetFeatures before reboot
-            buildFixture('0037', { ...t3 }),
-            // GetFeatures in bootloader mode
-            buildFixture('0037', { ...t3, bootloader_mode: true }),
-            // Initialize in bootloader mode
-            buildFixture('0000', { ...t3 }),
-            // GetFeatures after reboot
-            buildFixture('0037', { ...t3 }),
-        ]);
-
-        const binary = await httpRequestMock();
-        const result = await runFirmwareUpdate({
-            params: { binary },
-            context,
-        });
-
-        expect(result.versionCheck).toEqual(true);
-
-        await deviceList.dispose();
-    });
-
     // NOTE: this test fails because there are no official releases for T3W1, should be removed after release
     it('T3W1: failed from config', async () => {
         const { context, deviceList, waitForDeviceList, buildFixture } = setupTest();
@@ -556,7 +537,7 @@ describe('onCallFirmwareUpdate', () => {
                 params: {},
                 context,
             }),
-        ).rejects.toThrow('firmwareRelease is not set');
+        ).rejects.toThrow('Device missing features');
 
         await deviceList.dispose();
     });

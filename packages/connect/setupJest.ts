@@ -80,38 +80,39 @@ export const getDeviceFeatures = (feat?: Partial<Features>): Features => ({
     ...feat,
 });
 
-const getRelease = (model: 1 | 2): FirmwareRelease => ({
+const commonReleaseData: FirmwareRelease = {
     required: false,
-    version: [model, 0, 0],
-    min_firmware_version: [model, 0, 0],
-    min_bootloader_version: [model, 0, 0],
-    url: 'data/firmware/t1b1/trezor-t1b1-1.8.1.bin',
-    fingerprint: '019e849c1eb285a03a92bbad6d18a328af3b4dc6999722ebb47677b403a4cd16',
-    changelog: '* Fix fault when using the device with no PIN* Fix OMNI transactions parsing',
+    url: '/some/path/to/firmware.bin',
+    version: [2, 8, 9],
+    min_bootloader_version: [2, 1, 6],
+    min_firmware_version: [2, 7, 2],
+    bootloader_version: [2, 1, 8],
+    translations: {
+        'cs-CZ': 'firmware/translations/t2t1/translation-T2T1-cs-CZ-2.8.9.bin',
+        'de-DE': 'firmware/translations/t2t1/translation-T2T1-de-DE-2.8.9.bin',
+        'es-ES': 'firmware/translations/t2t1/translation-T2T1-es-ES-2.8.9.bin',
+        'fr-FR': 'firmware/translations/t2t1/translation-T2T1-fr-FR-2.8.9.bin',
+        'it-IT': 'firmware/translations/t2t1/translation-T2T1-it-IT-2.8.9.bin',
+        'pt-BR': 'firmware/translations/t2t1/translation-T2T1-pt-BR-2.8.9.bin',
+    },
+    firmware_revision: 'fad9682201cf9289bba2adb66e6e07ed1cf78936',
+    fingerprint: 'ac995c394f7a7b3ea4cbd9c04977621d6d2fbef30bba856f707f585f34866ac4',
+    changelog:
+        '* Ability to cancel recovery flow on word count selection screen.\n' +
+        '* New UI for confirming long messages.\n' +
+        '* Changed "swipe to continue" to "tap to continue". Screens still respond to swipe-up, but the preferred interaction method is now tapping the lower part of the screen.',
+};
+
+const getReleaseData = (releaseInfo: Partial<FirmwareRelease> = {}): FirmwareRelease => ({
+    ...commonReleaseData,
+    ...releaseInfo,
 });
-
-const getReleaseT1 = (release: any): FirmwareRelease => ({
-    ...getRelease(1),
-    ...release,
-});
-
-const getReleaseT2 = (release: any): FirmwareRelease => ({
-    ...getRelease(2),
-    ...release,
-});
-
-const getReleasesT1 = (releases: Partial<FirmwareRelease>[]) => releases.map(r => getReleaseT1(r));
-
-const getReleasesT2 = (releases: Partial<FirmwareRelease>[]) => releases.map(r => getReleaseT2(r));
 
 declare global {
     var JestMocks: {
         getDeviceFeatures: typeof getDeviceFeatures;
-        getReleaseT1: typeof getReleaseT1;
-        getReleaseT2: typeof getReleaseT2;
-        getReleasesT1: typeof getReleasesT1;
-        getReleasesT2: typeof getReleasesT2;
         createTestTransport: typeof createTestTransport;
+        getReleaseData: typeof getReleaseData;
     };
 
     type TestFixtures<TestedMethod extends (...args: any) => any> = {
@@ -123,9 +124,6 @@ declare global {
 
 global.JestMocks = {
     getDeviceFeatures,
-    getReleaseT1,
-    getReleaseT2,
-    getReleasesT1,
-    getReleasesT2,
     createTestTransport,
+    getReleaseData,
 };

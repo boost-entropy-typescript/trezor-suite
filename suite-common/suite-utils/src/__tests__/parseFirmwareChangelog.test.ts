@@ -9,29 +9,29 @@ import {
 const CHANGELOG_STRING =
     '* Replacement transaction signing for replace-by-fee.\n* Support for Output Descriptors export.\n* Show Ypub/Zpub correctly for multisig GetAddress.\n* Show amounts in mBTC, uBTC and sat denominations.';
 
-const CHANGELOG_ARRAY = [
-    '* Replacement transaction signing for replace-by-fee.',
-    '* Support for Output Descriptors export.',
-    '* Show Ypub/Zpub correctly for multisig GetAddress.',
-    '* Show amounts in mBTC, uBTC and sat denominations.',
-];
-
 const EXPECTED_STRING =
     '* Replacement transaction signing for replace-by-fee.\n' +
     '* Support for Output Descriptors export.\n' +
     '* Show Ypub/Zpub correctly for multisig GetAddress.\n' +
     '* Show amounts in mBTC, uBTC and sat denominations.';
 
-const releaseData: Omit<FirmwareRelease, 'changelog' | 'changelogBtcOnly'> = {
+const releaseData: Omit<FirmwareRelease, 'changelog'> = {
     required: false,
     version: [1, 9, 4],
     bootloader_version: [1, 8, 0],
     min_firmware_version: [1, 6, 2],
     min_bootloader_version: [1, 5, 0],
     url: 'firmware/1/trezor-1.9.4.bin',
-    url_bitcoinonly: 'firmware/1/trezor-1.9.4-bitcoinonly.bin',
     fingerprint: '867017bd784cc4e9ce6f0875c61ea86f89b19380d54045c34608b85472998000',
-    fingerprint_bitcoinonly: '3f73dfbcfc48f66c8814f6562524d81888230e0acd1c19b52b6e8772c6c67e7f',
+    translations: {
+        'cs-CZ': 'firmware/translations/t1b1/translation-T2T1-cs-CZ-2.7.2.bin',
+        'de-DE': 'firmware/translations/t1b1/translation-T2T1-de-DE-2.7.2.bin',
+        'es-ES': 'firmware/translations/t1b1/translation-T2T1-es-ES-2.7.2.bin',
+        'fr-FR': 'firmware/translations/t1b1/translation-T2T1-fr-FR-2.7.2.bin',
+        'it-IT': 'firmware/translations/t1b1/translation-T2T1-it-IT-2.7.2.bin',
+        'pt-BR': 'firmware/translations/t1b1/translation-T2T1-pt-BR-2.7.2.bin',
+    },
+    firmware_revision: 'fad9682201cf9289bba2adb66e6e07ed1cf78936',
 };
 
 const resultData = {
@@ -47,7 +47,6 @@ const parseFirmwareChangelogFixture: Array<{
         description: 'parses release universal changelog passed as an string',
         input: {
             release: { ...releaseData, changelog: CHANGELOG_STRING },
-            isBtcOnly: false,
         },
 
         result: { ...resultData, changelog: EXPECTED_STRING },
@@ -56,17 +55,8 @@ const parseFirmwareChangelogFixture: Array<{
         description: 'return null when no release value is provided',
         input: {
             release: undefined,
-            isBtcOnly: false,
         },
         result: null,
-    },
-    {
-        description: 'parses BTC-only changelog from array of strings',
-        input: {
-            release: { ...releaseData, changelog: '', changelog_bitcoinonly: CHANGELOG_ARRAY },
-            isBtcOnly: true,
-        },
-        result: { ...resultData, changelog: EXPECTED_STRING },
     },
     {
         description:
@@ -75,9 +65,7 @@ const parseFirmwareChangelogFixture: Array<{
             release: {
                 ...releaseData,
                 changelog: CHANGELOG_STRING,
-                changelog_bitcoinonly: undefined,
             },
-            isBtcOnly: true,
         },
         result: { ...resultData, changelog: EXPECTED_STRING },
     },
@@ -85,8 +73,7 @@ const parseFirmwareChangelogFixture: Array<{
         description:
             'results to null for whole changelog data, when empty string is provided (trimmed)',
         input: {
-            release: { ...releaseData, changelog: '   \n   ', changelog_bitcoinonly: undefined },
-            isBtcOnly: true,
+            release: { ...releaseData, changelog: '   \n   ' },
         },
         result: null,
     },

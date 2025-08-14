@@ -101,7 +101,10 @@ type RestartAppProps = {
 
 export const restartApp = async ({ args = {} }: RestartAppProps = {}) => {
     await device.terminateApp();
-    await openApp({ newInstance: false, args });
+    await openApp({
+        newInstance: false,
+        args,
+    });
 };
 
 export const scrollUntilVisible = async (

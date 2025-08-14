@@ -88,35 +88,19 @@ export type PartialDevice = {
 
 export type FirmwareSource = 'official' | 'unknown' | 'NA - bootloader';
 
+// Type `FirmwareRelease` is the original in releases.json probably we should get rid of it once this is replaced by the new FirmwareReleaseConfig
 export type FirmwareRelease = {
     required: boolean;
     url: string;
-    fingerprint: string;
-    changelog: string | string[];
-    changelog_bitcoinonly?: string | string[]; // Added later, may not be there for older releases
-    firmware_revision?: string;
-    version: VersionArray;
-    min_firmware_version: VersionArray;
-    min_bootloader_version: VersionArray;
-    bootloader_version?: VersionArray;
-    url_bitcoinonly?: string;
-    fingerprint_bitcoinonly?: string;
-    channel?: string;
-    translations?: string[];
-};
-
-export interface FirmwareReleaseConfigInfo {
-    required: boolean;
-    url: string;
     version: VersionArray;
     bootloader_version?: VersionArray;
     min_firmware_version: VersionArray;
     min_bootloader_version: VersionArray;
-    translations: string[];
+    translations: Record<string, string>;
     firmware_revision?: string;
     fingerprint: string;
     changelog?: string;
-}
+};
 
 export interface ConditionalRelease {
     firmware_type: FirmwareType;
@@ -126,19 +110,15 @@ export interface ConditionalRelease {
         };
         rollout_probability: number;
     };
-    release: FirmwareReleaseConfigInfo;
+    releasePath: string;
+    release?: FirmwareRelease;
 }
 
-export interface ReleasesConfig {
-    T1B1: ConditionalRelease[];
-    T2T1: ConditionalRelease[];
-    T2B1: ConditionalRelease[];
-    T3B1: ConditionalRelease[];
-    T3T1: ConditionalRelease[];
-    T3W1: ConditionalRelease[];
-}
+export type ReleasesConfig = Record<DeviceModelInternal, Record<FirmwareType, ConditionalRelease>>;
+
 export interface IntermediaryReleaseConfig {
-    if_version_less_than: string;
+    min_firmware_version: VersionArray;
+    min_bootloader_version: VersionArray;
     version: number;
     firmware_revision: string;
     url: string;
