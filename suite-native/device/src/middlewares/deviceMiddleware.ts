@@ -17,6 +17,7 @@ import {
 import { EventType, analytics } from '@suite-native/analytics';
 import { clearAndUnlockDeviceAccessQueue } from '@suite-native/device-mutex';
 import { FeatureFlag, selectIsFeatureFlagEnabled } from '@suite-native/feature-flags';
+import { reportSecurityCheck } from '@suite-native/sentry';
 import { setShouldShowAutoEjectAlert } from '@suite-native/settings';
 import { DEVICE } from '@trezor/connect';
 import {
@@ -25,7 +26,6 @@ import {
     isDeviceInBootloaderMode,
 } from '@trezor/device-utils';
 
-import { reportCheckFail } from '../hooks/useReportDeviceCompromised';
 import { isDeviceEventAction } from '../utils';
 
 const isActionDeviceRelated = (action: AnyAction): boolean => {
@@ -118,13 +118,17 @@ export const prepareDeviceMiddleware = createMiddlewareWithExtraDeps(
 
             case DEVICE.FIRMWARE_VERSION_CHANGED: {
                 const { device, oldVersion, newVersion } = action.payload;
-                reportCheckFail('Firmware version', {
-                    model: device?.features?.internal_model,
-                    revision: device?.features?.revision,
-                    oldVersion,
-                    newVersion,
-                    vendor: device?.features?.fw_vendor,
-                    error: 'Firmware version changed unexpectedly.',
+                reportSecurityCheck({
+                    level: 'error',
+                    checkType: 'Firmware version',
+                    contextData: {
+                        model: device?.features?.internal_model,
+                        revision: device?.features?.revision,
+                        oldVersion,
+                        newVersion,
+                        vendor: device?.features?.fw_vendor,
+                        error: 'Firmware version changed unexpectedly.',
+                    },
                 });
                 break;
             }
