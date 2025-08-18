@@ -12,6 +12,8 @@ import {
     getFirmwareVersionArray,
     hasBitcoinOnlyFirmware,
 } from '@trezor/device-utils';
+import { getSuiteVersion } from '@trezor/env-utils';
+import { versionUtils } from '@trezor/utils';
 
 import { PORTFOLIO_TRACKER_DEVICE_ID } from './deviceConstants';
 import { DeviceRootState } from './deviceReducer';
@@ -303,13 +305,13 @@ export const selectDeviceModel = createMemoizedSelector(
     selectedDevice => selectedDevice?.features?.internal_model ?? null,
 );
 
-export const selectDeviceReleaseInfo = createMemoizedSelector(
+export const selectFirmwareReleaseConfig = createMemoizedSelector(
     [selectSelectedDevice],
     device => device?.firmwareReleaseConfigInfo ?? null,
 );
 
 export const selectIsFirmwareUpgradable = createMemoizedSelector(
-    [selectDeviceReleaseInfo],
+    [selectFirmwareReleaseConfig],
     deviceReleaseInfo => deviceReleaseInfo?.isNewer ?? false,
 );
 
@@ -322,6 +324,7 @@ export const selectDeviceFirmwareVersionArray = createMemoizedSelector(
     device => getFirmwareVersionArray(device),
 );
 
+// todo: these are not necessarily physical, might be passphrases as well - sounds like a bug to me.
 export const selectPhysicalDevices = createMemoizedSelector([selectDevices], devices =>
     pipe(
         devices,
@@ -430,6 +433,24 @@ export const selectInstacelessUnselectedDevices = createMemoizedSelector(
 
 export const selectHasBitcoinOnlyFirmware = createMemoizedSelector([selectSelectedDevice], device =>
     hasBitcoinOnlyFirmware(device),
+);
+
+export const selectShouldOfferUpdateFirmware = createMemoizedSelector(
+    [selectFirmwareReleaseConfig],
+    firmwareReleaseConfig => {
+        if (!firmwareReleaseConfig) return false;
+        const { releaseConditions } = firmwareReleaseConfig;
+        const { environment } = releaseConditions;
+        const isValidSuiteNativeVersion = environment?.min_suite_native_version
+            ? versionUtils.isNewerOrEqual(getSuiteVersion(), environment?.min_suite_native_version)
+            : false;
+
+        return (
+            firmwareReleaseConfig?.isNewer &&
+            isValidSuiteNativeVersion &&
+            releaseConditions.shouldBeOffered
+        );
+    },
 );
 
 export const selectDeviceUpdateFirmwareVersion = (state: DeviceRootState) => {
