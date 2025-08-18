@@ -16,7 +16,7 @@ import { ERRORS, FIRMWARE, PROTO } from '../constants';
 import { DeviceCurrentSession, TypedCallProvider } from './DeviceCurrentSession';
 import { IStateStorage } from './StateStorage';
 import { checkFirmwareRevision } from './checkFirmwareRevision';
-import { getThpChannel } from './thp';
+import { abortThpWorkflow, getThpChannel } from './thp';
 import { checkFirmwareHashWithRetries } from './workflow/checkFirmwareHashWithRetries';
 import { getAllNetworks } from '../data/coinInfo';
 import { getFirmwareReleaseConfigInfo, getFirmwareStatus, getLanguage } from '../data/firmwareInfo';
@@ -439,6 +439,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     async interrupt(reason: Error) {
+        await abortThpWorkflow(this);
         await this.currentSession?.abort(reason);
 
         // reject inner defer
@@ -499,6 +500,9 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 if (this.protocol.name === 'v2') {
                     const withInteraction = !!fn;
                     await getThpChannel(this, withInteraction);
+                    if (this.getThpState()?.isAutoconnectPaired || withInteraction) {
+                        await this.getFeatures();
+                    }
                 } else if (fn) {
                     await this.initialize(!!options.useCardanoDerivation);
                 } else {
