@@ -98,10 +98,6 @@ export const toggleRememberDevice = createThunk(
         ),
 );
 
-export type CreateDeviceInstanceError = {
-    error: 'passphrase-enabling-cancelled' | 'features-unavailable';
-};
-
 /**
  * Triggered by `@trezor/connect DEVICE_EVENT`
  * @param {Device} device
@@ -428,7 +424,8 @@ export const wipeDeviceThunk = createThunk(
                 path: device.path,
             },
             // In bootloader mode we need the skip the final reload, otherwise we never get the resolution
-            skipFinalReload: isBootloaderMode,
+            // THP device will require pairing. THP state is cleared, credentials are invalid
+            skipFinalReload: isBootloaderMode || !!device.thp,
         });
 
         if (
