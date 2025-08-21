@@ -7,22 +7,22 @@ import {
     userEvent,
 } from '@suite-native/test-utils';
 
-import { useBuyForm } from '../../../hooks/buy/useBuyForm';
-import { BuyFormType } from '../../../types/buy';
-import { BuyCountryOfResidencePicker } from '../BuyCountryOfResidencePicker';
+import { useSellForm } from '../../../../hooks/sell/useSellForm';
+import { SellFormType } from '../../../../types/sell';
+import { SellCountryOfResidencePicker } from '../SellCountryOfResidencePicker';
 
-describe('BuyCountryOfResidencePicker', () => {
-    let form: BuyFormType;
+describe('SellCountryOfResidencePicker', () => {
+    let form: SellFormType;
 
-    const renderBuyForm = () => renderHookWithStoreProviderAsync(() => useBuyForm());
+    const renderSellForm = () => renderHookWithStoreProviderAsync(() => useSellForm());
 
     const renderCountryOfResidencePicker = () =>
-        renderWithBasicProvider(<BuyCountryOfResidencePicker />, {
+        renderWithBasicProvider(<SellCountryOfResidencePicker />, {
             wrapper: ({ children }) => <Form form={form}>{children}</Form>,
         });
 
     beforeEach(async () => {
-        const { result } = await renderBuyForm();
+        const { result } = await renderSellForm();
         form = result.current;
     });
 
@@ -33,7 +33,7 @@ describe('BuyCountryOfResidencePicker', () => {
 
         const { getByTestId } = renderCountryOfResidencePicker();
 
-        expect(getByTestId('@trading/buy/country/value')).toHaveTextContent('United States');
+        expect(getByTestId('@trading/sell/country/value')).toHaveTextContent('United States');
     });
 
     it('should call analytics on country change', async () => {
@@ -47,7 +47,7 @@ describe('BuyCountryOfResidencePicker', () => {
         expect(reportSpy).toHaveBeenCalledWith({
             type: EventType.TradingParameterChanged,
             payload: {
-                type: 'buy',
+                type: 'sell',
                 parameter: 'country',
             },
         });

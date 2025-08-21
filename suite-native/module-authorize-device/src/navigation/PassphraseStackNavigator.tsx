@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { selectDiscoveryForSelectedDevice, selectSelectedDevice } from '@suite-common/wallet-core';
-import { DiscoveryStatus } from '@suite-common/wallet-types';
 import {
     selectCheckPassphraseOnDevice,
     selectDeviceRequestedPin,
@@ -30,31 +29,6 @@ import { useRedirectOnPassphraseCompletion } from '../useRedirectOnPassphraseCom
 
 export const PassphraseStack = createNativeStackNavigator<AuthorizeDeviceStackParamList>();
 
-const determineNativePassphraseFlowState = (
-    discovery: DiscoveryStatus,
-    options: {
-        checkingOnDevice: boolean;
-    },
-) => {
-    if (options.checkingOnDevice) {
-        return 'passphrase-checking-on-device';
-    }
-
-    if (discovery.status === 'failed') {
-        return 'passphrase-redirecting';
-    }
-
-    if (discovery.status === 'complete') {
-        return 'passphrase-complete';
-    }
-
-    if (discovery.status === 'starting') {
-        return 'enter-passphrase';
-    }
-
-    return discovery.status;
-};
-
 export const PassphraseStackNavigator = () => {
     const selectedDevice = useSelector(selectSelectedDevice);
     const discovery = useSelector(selectDiscoveryForSelectedDevice);
@@ -67,13 +41,7 @@ export const PassphraseStackNavigator = () => {
 
     if (!selectedDevice || !discovery) return null;
 
-    // Use the shared determinePassphraseFlowState function to get the current state
-    const passphraseState = determineNativePassphraseFlowState(discovery, {
-        checkingOnDevice,
-    });
-
-    // If there's no passphrase state, don't render anything
-    if (!passphraseState) return null;
+    const passphraseState = checkingOnDevice ? 'passphrase-checking-on-device' : discovery.status;
 
     return (
         <PassphraseStack.Navigator
@@ -99,7 +67,7 @@ export const PassphraseStackNavigator = () => {
                 />
             )}
 
-            {passphraseState === 'enter-passphrase' && (
+            {passphraseState === 'starting' && (
                 <PassphraseStack.Screen
                     name={AuthorizeDeviceStackRoutes.PassphraseForm}
                     component={PassphraseFormScreen}
@@ -107,10 +75,18 @@ export const PassphraseStackNavigator = () => {
             )}
 
             {passphraseState === 'confirm-empty-passphrase' && (
-                <PassphraseStack.Screen
-                    name={AuthorizeDeviceStackRoutes.PassphraseEmptyWallet}
-                    component={PassphraseEmptyWalletScreen}
-                />
+                <>
+                    <PassphraseStack.Screen
+                        name={AuthorizeDeviceStackRoutes.PassphraseEmptyWallet}
+                        component={PassphraseEmptyWalletScreen}
+                    />
+                    {/* The PassphraseVerifyEmptyWallet screen is shown when user confirms they want to use an empty passphrase */}
+
+                    <PassphraseStack.Screen
+                        name={AuthorizeDeviceStackRoutes.PassphraseVerifyEmptyWallet}
+                        component={PassphraseVerifyEmptyWalletScreen}
+                    />
+                </>
             )}
 
             {passphraseState === 'passphrase-mismatch' && (
@@ -130,14 +106,6 @@ export const PassphraseStackNavigator = () => {
                 <PassphraseStack.Screen
                     name={AuthorizeDeviceStackRoutes.PassphraseEnableOnDevice}
                     component={PassphraseEnableOnDeviceScreen}
-                />
-            )}
-
-            {/* The PassphraseVerifyEmptyWallet screen is shown when user confirms they want to use an empty passphrase */}
-            {passphraseState === 'confirm-empty-passphrase' && (
-                <PassphraseStack.Screen
-                    name={AuthorizeDeviceStackRoutes.PassphraseVerifyEmptyWallet}
-                    component={PassphraseVerifyEmptyWalletScreen}
                 />
             )}
             {passphraseState === 'passphrase-checking-on-device' && (
