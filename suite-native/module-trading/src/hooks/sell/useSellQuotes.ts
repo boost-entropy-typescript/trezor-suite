@@ -3,70 +3,78 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { invariant } from '@suite-common/suite-utils';
 import {
-    HandleExchangeRequestThunkProps,
+    HandleSellRequestThunkProps,
     cryptoIdToNetwork,
-    exchangeThunks,
-    selectTradingExchangeIsLoading,
+    selectTradingSellIsLoading,
+    sellThunks,
 } from '@suite-common/trading';
 import { WalletSettingsRootState, selectIsAmountInSats } from '@suite-common/wallet-core';
-import { useFormState } from '@suite-native/forms';
 import { Timer, useDebounce } from '@trezor/react-utils';
 
-import { exchangeActions } from '../../reducers';
-import { selectExchangeQuotes } from '../../selectors/exchangeSelectors';
-import { ExchangeFormType } from '../../types/exchange';
+import { sellActions } from '../../reducers';
+import { selectSellQuotes } from '../../selectors/sellSelectors';
 import { AbortablePromise } from '../../types/general';
-import { tradingExchangeFormToTradingExchangeFormProps } from '../../utils/exchange/quotesUtils';
+import { SellFormType } from '../../types/sell';
 import { getSymbolFromTradeableAsset } from '../../utils/general/tradeableAssetUtils';
+import { tradingSellFormToTradingSellFormProps } from '../../utils/sell/quotesUtils';
 import { useQuotesInvalidator } from '../general/useQuotesInvalidator';
 import { useReloadTimer } from '../general/useReloadTimer';
 
-type ShouldFetchExchangeQuotesRef = {
+type ShouldFetchSellQuotes = {
+    isFetchAllowed: boolean;
+    shouldFetchQuotes: boolean;
+};
+
+type ShouldFetchSellQuotesRef = {
     sendAsset: string | undefined;
-    receiveAsset: string | undefined;
-    sendCryptoAmount: string | undefined;
+    amount: string | undefined;
+    amountInCrypto: boolean | undefined;
+    fiatCurrency: string | undefined;
+    country: string | undefined;
     accountDescriptor: string | undefined;
 };
 
-const noop = () => {};
-
-const defaultState = {
+const defaultState: ShouldFetchSellQuotesRef = {
     sendAsset: undefined,
-    receiveAsset: undefined,
-    sendCryptoAmount: undefined,
+    amount: undefined,
+    amountInCrypto: true,
+    fiatCurrency: undefined,
+    country: undefined,
     accountDescriptor: undefined,
 } as const;
 
-const useShouldFetchExchangeQuotes = (
-    watch: ExchangeFormType['watch'],
-    control: ExchangeFormType['control'],
-): { isFetchAllowed: boolean; shouldFetchQuotes: boolean } => {
-    const prevState = useRef<ShouldFetchExchangeQuotesRef>(defaultState);
+const noop = () => {};
 
-    const { isValid } = useFormState({ control });
-    if (!isValid) {
-        prevState.current = defaultState;
+const useShouldFetchSellQuotes = ({ watch }: SellFormType): ShouldFetchSellQuotes => {
+    const prevState = useRef<ShouldFetchSellQuotesRef>(defaultState);
 
-        return {
-            isFetchAllowed: false,
-            shouldFetchQuotes: false,
-        };
-    }
-
-    const [sendAsset, receiveAsset, sendCryptoAmount, sendAccount] = watch([
+    const [
+        sendAsset,
+        sendAccount,
+        cryptoStringAmount,
+        fiatStringAmount,
+        amountInCrypto,
+        fiatCurrency,
+        country,
+    ] = watch([
         'sendAsset',
-        'receiveAsset',
-        'sendCryptoAmount',
         'sendAccount',
+        'cryptoStringAmount',
+        'fiatStringAmount',
+        'amountInCrypto',
+        'fiatCurrency',
+        'country',
     ]);
 
-    const isFetchAllowed =
-        !!sendAsset && !!receiveAsset && !!sendCryptoAmount && parseFloat(sendCryptoAmount) > 0;
+    const amount = amountInCrypto ? cryptoStringAmount : fiatStringAmount;
+    const isFetchAllowed = !!(sendAsset && fiatCurrency && amount && parseFloat(amount) > 0);
 
     if (
         sendAsset?.cryptoId === prevState.current.sendAsset &&
-        receiveAsset?.cryptoId === prevState.current.receiveAsset &&
-        sendCryptoAmount === prevState.current.sendCryptoAmount &&
+        amount === prevState.current.amount &&
+        amountInCrypto === prevState.current.amountInCrypto &&
+        fiatCurrency === prevState.current.fiatCurrency &&
+        country?.value === prevState.current.country &&
         sendAccount?.descriptor === prevState.current.accountDescriptor
     ) {
         return {
@@ -77,8 +85,10 @@ const useShouldFetchExchangeQuotes = (
 
     prevState.current = {
         sendAsset: sendAsset?.cryptoId,
-        receiveAsset: receiveAsset?.cryptoId,
-        sendCryptoAmount,
+        amount,
+        amountInCrypto,
+        fiatCurrency,
+        country: country?.value,
         accountDescriptor: sendAccount?.descriptor,
     };
 
@@ -88,8 +98,27 @@ const useShouldFetchExchangeQuotes = (
     };
 };
 
-const useExchangeQuotesThunk = (
-    getValues: ExchangeFormType['getValues'],
+const useSellQuotesInvalidator = (
+    isFormValid: boolean,
+    quotesPromiseRef: RefObject<AbortablePromise | undefined>,
+    debounce: ReturnType<typeof useDebounce>,
+) => {
+    const quotes = useSelector(selectSellQuotes);
+    const isLoading = useSelector(selectTradingSellIsLoading);
+
+    useQuotesInvalidator({
+        isFormValid,
+        isLoading,
+        anyQuotesLoaded: quotes.length > 0,
+        quotesPromiseRef,
+        debounce,
+        getClearRequestAction: sellActions.clearQuotesAndQuotesRequest,
+        getClearStateAction: sellActions.clearState,
+    });
+};
+
+const useSellQuotesThunk = (
+    getValues: SellFormType['getValues'],
     timer: Timer,
     shouldRefetchQuotes: boolean,
     quotesPromiseRef: RefObject<AbortablePromise | undefined>,
@@ -114,15 +143,14 @@ const useExchangeQuotesThunk = (
                 const network = cryptoIdToNetwork(selectedAsset.cryptoId);
                 invariant(network, `Network not found for [${selectedAsset.cryptoId}]`);
 
-                const payload: HandleExchangeRequestThunkProps = {
-                    formValues: tradingExchangeFormToTradingExchangeFormProps(getValues),
+                const payload: HandleSellRequestThunkProps = {
                     network,
-                    timer,
                     shouldSendInSats,
+                    timer,
+                    formValues: tradingSellFormToTradingSellFormProps(getValues),
                     composeRequestCallback: noop,
                 };
-
-                quotesPromiseRef.current = dispatch(exchangeThunks.handleRequestThunk(payload));
+                quotesPromiseRef.current = dispatch(sellThunks.handleRequestThunk(payload));
             });
         }
     }, [
@@ -136,36 +164,16 @@ const useExchangeQuotesThunk = (
     ]);
 };
 
-const useExchangeQuotesInvalidator = (
-    isFormValid: boolean,
-    quotesPromiseRef: RefObject<AbortablePromise | undefined>,
-    debounce: ReturnType<typeof useDebounce>,
-) => {
-    const quotes = useSelector(selectExchangeQuotes);
-    const isLoading = useSelector(selectTradingExchangeIsLoading);
-
-    useQuotesInvalidator({
-        isFormValid,
-        isLoading,
-        anyQuotesLoaded: quotes.length > 0,
-        quotesPromiseRef,
-        debounce,
-        getClearRequestAction: exchangeActions.clearQuotesAndQuotesRequest,
-        getClearStateAction: exchangeActions.clearState,
-    });
-};
-
-export const useExchangeQuotes = ({ watch, getValues, control }: ExchangeFormType) => {
+export const useSellQuotes = (form: SellFormType) => {
     const debounce = useDebounce();
     const promiseRef = useRef<AbortablePromise | undefined>(undefined);
 
-    const { isFetchAllowed, shouldFetchQuotes } = useShouldFetchExchangeQuotes(watch, control);
-
+    const { isFetchAllowed, shouldFetchQuotes } = useShouldFetchSellQuotes(form);
     const { timer, shouldReload } = useReloadTimer({ isEnabled: isFetchAllowed });
 
-    useExchangeQuotesInvalidator(isFetchAllowed, promiseRef, debounce);
-    useExchangeQuotesThunk(
-        getValues,
+    useSellQuotesInvalidator(isFetchAllowed, promiseRef, debounce);
+    useSellQuotesThunk(
+        form.getValues,
         timer,
         isFetchAllowed && (shouldFetchQuotes || shouldReload),
         promiseRef,
@@ -174,6 +182,6 @@ export const useExchangeQuotes = ({ watch, getValues, control }: ExchangeFormTyp
 
     return {
         timer,
-        quotesRequest: promiseRef.current,
+        quotesPromiseRef: promiseRef.current,
     };
 };
