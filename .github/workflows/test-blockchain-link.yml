@@ -13,10 +13,8 @@ on:
       - "packages/e2e-utils/src/mocks/backendServer.ts"
       # dependencies of packages/blockchain-link
       - "packages/utxo-lib/**"
-      - "packages/utils/**"
       - "docker/docker-blockchain-link-test.sh"
       - ".github/workflows/blockchain-link-test.yml"
-      - "yarn.lock"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
