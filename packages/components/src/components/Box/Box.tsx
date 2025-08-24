@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components';
 
 import {
     BorderWidths,
+    CSSColor,
     Elevation,
     mapElevationToBackground,
     mapElevationToBorder,
@@ -42,16 +43,11 @@ const Container = styled.div<
         $borderWidth?: BorderWidth;
         $elevation: Elevation;
         $hasBackground?: boolean;
+        $backgroundColor?: CSSColor;
     }
 >`
     border: 0 solid ${mapElevationToBorder};
     transition: background 0.2s ease;
-
-    ${({ $borderRadius }) =>
-        $borderRadius &&
-        css`
-            border-radius: ${$borderRadius};
-        `}
 
     ${({ $borderWidth }) =>
         $borderWidth &&
@@ -66,11 +62,17 @@ const Container = styled.div<
                   border-width: ${$borderWidth};
               `)}
 
-        ${({ $hasBackground, $elevation, theme }) =>
+    ${({ $hasBackground, $elevation, theme }) =>
         $hasBackground &&
         css`
             background: ${mapElevationToBackground({ theme, $elevation })};
         `}
+
+    ${({ $backgroundColor }) =>
+        $backgroundColor &&
+        css`
+            background: ${$backgroundColor};
+        `} 
 
     ${withFrameProps};
 `;
@@ -90,6 +92,7 @@ export type BoxProps = AllowedFrameProps & {
     children: React.ReactNode;
     borderWidth?: BorderWidth;
     hasBackground?: boolean;
+    backgroundColor?: CSSColor;
     'data-testid'?: string;
     'aria-hidden'?: boolean;
     as?: React.ElementType;
@@ -102,6 +105,7 @@ export const Box = ({
     children,
     borderWidth,
     hasBackground,
+    backgroundColor,
     'data-testid': dataTestId,
     'aria-hidden': ariaHidden,
     as = 'div',
@@ -119,6 +123,7 @@ export const Box = ({
             data-testid={dataTestId}
             aria-hidden={ariaHidden}
             $borderWidth={borderWidth}
+            $backgroundColor={backgroundColor}
             $hasBackground={hasBackground}
             $elevation={elevation}
             onClick={onClick}
