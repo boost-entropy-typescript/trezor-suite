@@ -10,7 +10,14 @@ import {
     extractBaseAddress,
 } from '@stellar/stellar-sdk';
 
-import type { Target, Transaction, TransactionDetail } from '@trezor/blockchain-link-types';
+import type {
+    Target,
+    TokenDetailByMint,
+    Transaction,
+    TransactionDetail,
+} from '@trezor/blockchain-link-types';
+import { isCodesignBuild } from '@trezor/env-utils';
+import type { StellarAsset } from '@trezor/protobuf/src/messages';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 export const STELLAR_DECIMALS = 7;
@@ -165,6 +172,7 @@ export const buildSendTransaction = (
     destinationActivated: boolean,
     destination: string,
     amount: string,
+    asset: StellarAsset,
     destinationTag?: string,
     isTestnet = false,
 ) => {
@@ -184,7 +192,7 @@ export const buildSendTransaction = (
             Operation.payment({
                 destination,
                 amount,
-                asset: Asset.native(),
+                asset: new Asset(asset.code || 'XLM', asset.issuer),
             }),
         );
     } else {
@@ -197,4 +205,20 @@ export const buildSendTransaction = (
     }
 
     return txBuilder.build();
+};
+
+export const getTokenMetadata = async (): Promise<TokenDetailByMint> => {
+    const env = isCodesignBuild() ? 'stable' : 'develop';
+
+    const response = await fetch(
+        `https://data.trezor.io/suite/definitions/${env}/stellar.advanced.coin.definitions.v1.json`,
+    );
+
+    if (!response.ok) {
+        throw Error(`Failed to fetch token metadata: ${response.statusText}`);
+    }
+
+    const data: TokenDetailByMint = await response.json();
+
+    return data;
 };

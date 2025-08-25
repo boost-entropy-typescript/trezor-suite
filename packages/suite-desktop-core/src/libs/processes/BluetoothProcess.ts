@@ -7,7 +7,15 @@ export class BluetoothProcess extends BaseProcess {
     private readonly port;
 
     constructor(port = 21327) {
-        super('bluetooth', 'trezor-bluetooth');
+        super('bluetooth', 'trezor-bluetooth', {
+            autoRestart: 0,
+            env: {
+                // https://github.com/electron/electron/blob/ab2a4fd836d539194bc5cde5f0d665eddeb6a134/docs/api/environment-variables.md?plain=1#L190
+                // Electron sometimes modifies the value of XDG_CURRENT_DESKTOP
+                XDG_CURRENT_DESKTOP:
+                    process.env.ORIGINAL_XDG_CURRENT_DESKTOP || process.env.XDG_CURRENT_DESKTOP,
+            },
+        });
         this.port = port;
     }
 
@@ -37,13 +45,10 @@ export class BluetoothProcess extends BaseProcess {
             });
             this.logger.debug(this.logTopic, `Checking status (${resp.status})`);
             if (resp.status === 200) {
-                const data = await resp.json();
-                if (data?.version) {
-                    return {
-                        service: true,
-                        process: true,
-                    };
-                }
+                return {
+                    service: true,
+                    process: true,
+                };
             }
         } catch (err) {
             this.logger.debug(this.logTopic, `Status error: ${err.message}`);

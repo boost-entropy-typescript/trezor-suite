@@ -108,7 +108,17 @@ const inputs = [
     },
     {
         key: 'groups',
-        value: Object.values(groups),
+        value: ({ model, firmware }) => {
+            return Object.values(groups).filter(group => {
+                if (group.name === 'thp') {
+                    return firmware !== '2.3.0' && model === 'T3W1';
+                }
+                if (['nem', 'eos'].includes(group.name)) {
+                    return !['T3W1', 'T3T1', 'T3B1'].includes(model);
+                }
+                return true;
+            });
+        },
     },
     {
         key: 'env',
