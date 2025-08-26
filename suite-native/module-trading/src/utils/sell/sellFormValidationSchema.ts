@@ -1,3 +1,11 @@
 import { yup } from '@suite-common/validators';
 
-export const sellFormValidationSchema = yup.object({});
+import {
+    fiatAmountInputValidationSchema,
+    sendCryptoAmountValidationSchema,
+} from '../general/validationSchemes';
+
+export const sellFormValidationSchema = yup.object({
+    cryptoStringAmount: sendCryptoAmountValidationSchema,
+    fiatStringAmount: fiatAmountInputValidationSchema,
+});

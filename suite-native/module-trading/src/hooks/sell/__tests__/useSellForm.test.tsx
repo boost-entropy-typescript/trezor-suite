@@ -1,0 +1,471 @@
+import { SellFiatTrade } from 'invity-api';
+
+import { TrezorDevice } from '@suite-common/suite-types';
+import { tradingSellActions } from '@suite-common/trading';
+import { deviceActions } from '@suite-common/wallet-core';
+import { EventType, analytics } from '@suite-native/analytics';
+import { Form, useField } from '@suite-native/forms';
+import {
+    PreloadedState,
+    TestStore,
+    act,
+    initStore,
+    renderHook,
+    renderHookWithStoreProviderAsync,
+    waitFor,
+} from '@suite-native/test-utils';
+import { PROTO } from '@trezor/connect';
+
+import { getBtcAccount } from '../../../__fixtures__/account';
+import { sellQuotes } from '../../../__fixtures__/sellQuotes';
+import { btcAsset, usdcAsset } from '../../../__fixtures__/tradeableAssets';
+import { getWalletState } from '../../../__fixtures__/walletState';
+import { sellActions } from '../../../reducers';
+import { SellFormType } from '../../../types/sell';
+import { useSellForm } from '../useSellForm';
+
+describe('useSellForm', () => {
+    let store: TestStore;
+
+    const renderUseSellForm = () =>
+        renderHookWithStoreProviderAsync(() => useSellForm(), { store });
+
+    const getInitializedStore = async (bitcoinAmountUnit = PROTO.AmountUnit.BITCOIN) => {
+        const preloadedState: PreloadedState = {
+            wallet: getWalletState({ tradeType: 'sell', bitcoinAmountUnit }),
+        };
+
+        return await initStore(preloadedState);
+    };
+
+    beforeEach(async () => {
+        store = await getInitializedStore();
+    });
+
+    describe('sendAccount', () => {
+        it('should be undefined by default', async () => {
+            const { result } = await renderUseSellForm();
+
+            expect(result.current.getValues('sendAccount')).toBeUndefined();
+        });
+
+        it('should update sendAccount value when account in redux store is changed', async () => {
+            const { result } = await renderUseSellForm();
+
+            act(() => {
+                store.dispatch(tradingSellActions.setTradingAccountKey('btc-account-1'));
+            });
+
+            expect(result.current.getValues('sendAccount')).toEqual(getBtcAccount('btc-account-1'));
+        });
+    });
+
+    describe('sendAsset', () => {
+        it('should clear crypto amount on change', async () => {
+            const { result } = await renderUseSellForm();
+            act(() => {
+                result.current.setValue('sendAsset', btcAsset);
+                result.current.setValue('cryptoStringAmount', '100');
+            });
+
+            act(() => {
+                result.current.setValue('sendAsset', usdcAsset);
+            });
+
+            expect(result.current.getValues('cryptoStringAmount')).toBeUndefined();
+        });
+
+        it('should report change to analytics', async () => {
+            const reportSpy = jest.spyOn(analytics, 'report');
+            const { result } = await renderUseSellForm();
+
+            act(() => {
+                result.current.setValue('sendAsset', btcAsset);
+            });
+
+            expect(reportSpy).toHaveBeenCalledWith({
+                type: EventType.TradingParameterChanged,
+                payload: {
+                    type: 'sell',
+                    parameter: 'cryptoFrom',
+                },
+            });
+        });
+
+        it('should dispatch sendAssetChanged action', async () => {
+            const dispatchSpy = jest.spyOn(store, 'dispatch');
+            const { result } = await renderUseSellForm();
+
+            act(() => {
+                result.current.setValue('sendAsset', btcAsset);
+            });
+
+            expect(dispatchSpy).toHaveBeenCalledWith(sellActions.sendAssetChanged());
+        });
+    });
+
+    describe('fiatCurrency', () => {
+        it('should clear fiat amount on change', async () => {
+            const { result } = await renderUseSellForm();
+            act(() => {
+                result.current.setValue('fiatCurrency', 'czk');
+                result.current.setValue('fiatStringAmount', '100');
+            });
+
+            act(() => {
+                result.current.setValue('fiatCurrency', 'pln');
+            });
+
+            expect(result.current.getValues('fiatStringAmount')).toBeUndefined();
+        });
+
+        it('should report change to analytics', async () => {
+            const reportSpy = jest.spyOn(analytics, 'report');
+            const { result } = await renderUseSellForm();
+
+            act(() => {
+                result.current.setValue('fiatCurrency', 'pln');
+            });
+
+            expect(reportSpy).toHaveBeenCalledWith({
+                type: EventType.TradingParameterChanged,
+                payload: {
+                    type: 'sell',
+                    parameter: 'fiat',
+                },
+            });
+        });
+
+        it('should dispatch fiatCurrencyChanged action', async () => {
+            const dispatchSpy = jest.spyOn(store, 'dispatch');
+            const { result } = await renderUseSellForm();
+
+            act(() => {
+                result.current.setValue('fiatCurrency', 'pln');
+            });
+
+            expect(dispatchSpy).toHaveBeenCalledWith(sellActions.fiatCurrencyChanged());
+        });
+    });
+
+    describe('cryptoStringAmount', () => {
+        const renderUseCryptoStringAmountField = (form: SellFormType) => {
+            const { result } = renderHook(() => useField({ name: 'cryptoStringAmount' }), {
+                wrapper: ({ children }) => <Form form={form}>{children}</Form>,
+            });
+
+            return result;
+        };
+
+        it('should set amountInCrypto to true when user edits cryptoStringAmount', async () => {
+            const { result } = await renderUseSellForm();
+            const fieldResult = renderUseCryptoStringAmountField(result.current);
+
+            act(() => {
+                result.current.setValue('amountInCrypto', false);
+                result.current.setValue('focusedValue', 'cryptoStringAmount');
+                fieldResult.current.onChange('50');
+            });
+
+            expect(result.current.getValues('amountInCrypto')).toBe(true);
+        });
+
+        it('should clear fiatStringAmount when user edits cryptoStringAmount', async () => {
+            const { result } = await renderUseSellForm();
+            const fieldResult = renderUseCryptoStringAmountField(result.current);
+
+            act(() => {
+                result.current.setValue('fiatStringAmount', '100');
+                result.current.setValue('focusedValue', 'cryptoStringAmount');
+                fieldResult.current.onChange('50');
+            });
+
+            expect(result.current.getValues('fiatStringAmount')).toBeUndefined();
+            expect(result.current.getValues('cryptoStringAmount')).toBe('50');
+        });
+    });
+
+    describe('fiatStringAmount', () => {
+        const renderUseFiatStringAmountField = (form: SellFormType) => {
+            const { result } = renderHook(() => useField({ name: 'fiatStringAmount' }), {
+                wrapper: ({ children }) => <Form form={form}>{children}</Form>,
+            });
+
+            return result;
+        };
+
+        it('should set amountInCrypto to false when user edits fiatStringAmount', async () => {
+            const { result } = await renderUseSellForm();
+            const fieldResult = renderUseFiatStringAmountField(result.current);
+
+            act(() => {
+                result.current.setValue('amountInCrypto', true);
+                result.current.setValue('focusedValue', 'fiatStringAmount');
+                fieldResult.current.onChange('50');
+            });
+
+            expect(result.current.getValues('amountInCrypto')).toBe(false);
+        });
+
+        it('should clear cryptoStringAmount when user edits fiatStringAmount', async () => {
+            const { result } = await renderUseSellForm();
+            const fieldResult = renderUseFiatStringAmountField(result.current);
+
+            act(() => {
+                result.current.setValue('cryptoStringAmount', '100');
+                result.current.setValue('focusedValue', 'fiatStringAmount');
+                fieldResult.current.onChange('50');
+            });
+
+            expect(result.current.getValues('cryptoStringAmount')).toBeUndefined();
+            expect(result.current.getValues('fiatStringAmount')).toBe('50');
+        });
+    });
+
+    describe('validations', () => {
+        describe('cryptoStringAmount', () => {
+            it.each([
+                ['0.00001', 'Minimum is 0.0001 BTC'],
+                ['100', 'Maximum is 50 BTC'],
+                ['1', 'Insufficient balance'],
+            ])('should display error for crypto amount %s BTC', async (amount, expectedValue) => {
+                const { result } = await renderUseSellForm();
+                act(() => {
+                    store.dispatch(tradingSellActions.setTradingAccountKey('btc-account-1'));
+                    result.current.setValue('amountInCrypto', true);
+                    result.current.setValue('sendAsset', btcAsset);
+                    result.current.setValue('cryptoStringAmount', amount);
+                    store.dispatch(
+                        tradingSellActions.setAmountLimits({
+                            minCrypto: '0.0001',
+                            maxCrypto: '50',
+                            currency: 'BTC',
+                        }),
+                    );
+                });
+
+                await act(() => result.current.trigger('cryptoStringAmount'));
+
+                const { error, invalid } = result.current.getFieldState('cryptoStringAmount');
+                expect(invalid).toBe(true);
+                expect(error).toEqual(expect.objectContaining({ message: expectedValue }));
+            });
+
+            it.each([
+                ['100', 'Minimum is 10000 sat'],
+                ['10000000000', 'Maximum is 5000000000 sat'],
+                ['10000000', 'Insufficient balance'],
+            ])('should display error for crypto amount %s SATS', async (amount, expectedValue) => {
+                store = await getInitializedStore(PROTO.AmountUnit.SATOSHI);
+                const { result } = await renderUseSellForm();
+                act(() => {
+                    store.dispatch(tradingSellActions.setTradingAccountKey('btc-account-1'));
+                    result.current.setValue('amountInCrypto', true);
+                    result.current.setValue('sendAsset', btcAsset);
+                    result.current.setValue('cryptoStringAmount', amount);
+                    store.dispatch(
+                        tradingSellActions.setAmountLimits({
+                            minCrypto: '0.0001',
+                            maxCrypto: '50',
+                            currency: 'BTC',
+                        }),
+                    );
+                });
+
+                await act(() => result.current.trigger('cryptoStringAmount'));
+
+                const { error, invalid } = result.current.getFieldState('cryptoStringAmount');
+                expect(invalid).toBe(true);
+                expect(error).toEqual(expect.objectContaining({ message: expectedValue }));
+            });
+
+            it.each<[string, boolean]>([
+                ['1', false],
+                ['2', true],
+            ])(
+                'should use correct balance for USDC and amount %s',
+                async (amount, expectedInvalid) => {
+                    const { result } = await renderUseSellForm();
+                    act(() => {
+                        store.dispatch(tradingSellActions.setTradingAccountKey('eth-account-1'));
+                        result.current.setValue('amountInCrypto', true);
+                        result.current.setValue('sendAsset', usdcAsset);
+                        result.current.setValue('cryptoStringAmount', amount);
+                    });
+
+                    await act(() => result.current.trigger('cryptoStringAmount'));
+
+                    const { invalid } = result.current.getFieldState('cryptoStringAmount');
+                    expect(invalid).toBe(expectedInvalid);
+                },
+            );
+        });
+
+        describe('fiatStringAmount', () => {
+            it.each([
+                ['10', 'Minimum is $1,000.00'],
+                ['3000', 'Maximum is $2,000.00'],
+            ])('should display fiat error for amount %s', async (amount, expectedValue) => {
+                const { result } = await renderUseSellForm();
+                act(() => {
+                    store.dispatch(tradingSellActions.setTradingAccountKey('btc-account-1'));
+                    result.current.setValue('amountInCrypto', false);
+                    result.current.setValue('sendAsset', btcAsset);
+                    result.current.setValue('fiatStringAmount', amount);
+                    store.dispatch(
+                        tradingSellActions.setAmountLimits({
+                            minFiat: '1000',
+                            maxFiat: '2000',
+                            currency: 'USD',
+                        }),
+                    );
+                });
+
+                await act(() => result.current.trigger('fiatStringAmount'));
+
+                const { error, invalid } = result.current.getFieldState('fiatStringAmount');
+                expect(invalid).toBe(true);
+                expect(error).toEqual(expect.objectContaining({ message: expectedValue }));
+            });
+        });
+
+        it('should trigger validation once limits are loaded', async () => {
+            act(() => {
+                store.dispatch(tradingSellActions.setAmountLimits(undefined));
+                store.dispatch(tradingSellActions.setTradingAccountKey('btc-account-1'));
+            });
+            const { result } = await renderUseSellForm();
+            act(() => {
+                result.current.setValue('sendAsset', btcAsset);
+                result.current.setValue('amountInCrypto', true);
+                result.current.setValue('cryptoStringAmount', '10');
+            });
+
+            act(() => {
+                store.dispatch(
+                    tradingSellActions.setAmountLimits({ maxCrypto: '5', currency: 'BTC' }),
+                );
+            });
+
+            await waitFor(() => {
+                const { invalid } = result.current.getFieldState('cryptoStringAmount');
+                expect(invalid).toBe(true);
+            });
+        });
+
+        describe('generalAlert', () => {
+            it('should be undefined by default', async () => {
+                const { result } = await renderUseSellForm();
+
+                act(() => {
+                    store.dispatch(tradingSellActions.saveQuotes([] as SellFiatTrade[]));
+                    store.dispatch(tradingSellActions.setAmountLimits(undefined));
+                });
+
+                expect(result.current.getValues('generalAlert')).toBeUndefined();
+            });
+
+            it('should be set when empty quotes are fetched and no limits are set', async () => {
+                const { result } = await renderUseSellForm();
+
+                act(() => {
+                    store.dispatch(
+                        tradingSellActions.saveQuoteRequest({
+                            cryptoCurrency: btcAsset.cryptoId,
+                            amountInCrypto: true,
+                            fiatCurrency: 'USD',
+                        }),
+                    );
+                    store.dispatch(tradingSellActions.saveQuotes([] as SellFiatTrade[]));
+                    store.dispatch(tradingSellActions.setAmountLimits(undefined));
+                });
+
+                expect(result.current.getValues('generalAlert')).toEqual(
+                    'No offers available for your request. Change amount or currency.',
+                );
+            });
+
+            it('should be undefined when empty quotes are fetched and limits are set', async () => {
+                const { result } = await renderUseSellForm();
+
+                act(() => {
+                    store.dispatch(
+                        tradingSellActions.saveQuoteRequest({
+                            cryptoCurrency: btcAsset.cryptoId,
+                            amountInCrypto: true,
+                            fiatCurrency: 'USD',
+                        }),
+                    );
+                    store.dispatch(tradingSellActions.saveQuotes([] as SellFiatTrade[]));
+                    store.dispatch(
+                        tradingSellActions.setAmountLimits({
+                            currency: 'BTC',
+                            minCrypto: '0.0001',
+                        }),
+                    );
+                });
+
+                expect(result.current.getValues('generalAlert')).toBeUndefined();
+            });
+
+            it('should be undefined once quotes are fetched', async () => {
+                const { result } = await renderUseSellForm();
+
+                act(() => {
+                    store.dispatch(
+                        tradingSellActions.saveQuoteRequest({
+                            cryptoCurrency: btcAsset.cryptoId,
+                            amountInCrypto: true,
+                            fiatCurrency: 'USD',
+                        }),
+                    );
+                    store.dispatch(tradingSellActions.saveQuotes(sellQuotes));
+                    store.dispatch(tradingSellActions.setAmountLimits(undefined));
+                });
+
+                expect(result.current.getValues('generalAlert')).toBeUndefined();
+            });
+
+            it('should be cleared once quotes are fetched', async () => {
+                const { result } = await renderUseSellForm();
+
+                act(() => {
+                    store.dispatch(
+                        tradingSellActions.saveQuoteRequest({
+                            cryptoCurrency: btcAsset.cryptoId,
+                            amountInCrypto: true,
+                            fiatCurrency: 'USD',
+                        }),
+                    );
+                    store.dispatch(tradingSellActions.saveQuotes([] as SellFiatTrade[]));
+                    store.dispatch(tradingSellActions.setAmountLimits(undefined));
+                });
+
+                act(() => {
+                    store.dispatch(tradingSellActions.saveQuotes(sellQuotes));
+                });
+
+                expect(result.current.getValues('generalAlert')).toBeUndefined();
+            });
+        });
+    });
+
+    it('should clear sendAsset on device change', async () => {
+        const { result } = await renderUseSellForm();
+        act(() => {
+            result.current.setValue('sendAsset', btcAsset);
+        });
+
+        act(() => {
+            store.dispatch(
+                deviceActions.selectDevice({
+                    name: 'TEST_DEVICE',
+                    state: { staticSessionId: 'TEST_DEVICE_SESSION_ID' },
+                    id: 'TEST_DEVICE_ID',
+                } as unknown as TrezorDevice),
+            );
+        });
+
+        expect(result.current.getValues('sendAsset')).toEqual(undefined);
+    });
+});
