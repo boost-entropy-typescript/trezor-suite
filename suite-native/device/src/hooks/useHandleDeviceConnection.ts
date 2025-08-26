@@ -20,13 +20,12 @@ import { selectDeviceRequestedPin } from '@suite-native/device-authorization';
 import { selectIsFirmwareInstallationRunning } from '@suite-native/firmware';
 import {
     AppTabsRoutes,
-    AuthorizeDeviceStackParamList,
     AuthorizeDeviceStackRoutes,
     DeviceOnboardingStackRoutes,
     HomeStackRoutes,
     RootStackParamList,
     RootStackRoutes,
-    StackToStackCompositeNavigationProps,
+    StackNavigationProps,
     useNavigateToInitialScreen,
     useNavigationRouteMatch,
 } from '@suite-native/navigation';
@@ -42,11 +41,7 @@ import {
 import { selectIsDeviceSetupSupported } from '../selectors';
 import { useDeviceChecks } from './useDeviceChecks';
 
-type NavigationProp = StackToStackCompositeNavigationProps<
-    AuthorizeDeviceStackParamList | RootStackParamList,
-    AuthorizeDeviceStackRoutes.PinMatrix | RootStackRoutes.OnboardingStack,
-    RootStackParamList
->;
+type NavigationProp = StackNavigationProps<RootStackParamList, RootStackRoutes>;
 
 const pinMatrixBlacklistedScreens = [
     RootStackRoutes.DeviceSettingsStack,
@@ -95,7 +90,7 @@ export const useHandleDeviceConnection = () => {
         DeviceOnboardingStackRoutes.ConnectAndUnlockDevice,
     );
 
-    const lastRoute = useNavigationState(state => state?.routes.at(-1)?.name);
+    const lastRoute = useNavigationState(state => state.routes.at(-1)?.name);
     const isSendStackFocused = lastRoute === RootStackRoutes.SendStack;
     const isOnboardingStackFocused = lastRoute === RootStackRoutes.OnboardingStack;
     const isDeviceOnboardingStackFocused = lastRoute === RootStackRoutes.DeviceOnboardingStack;

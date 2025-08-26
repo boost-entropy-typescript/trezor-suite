@@ -16,7 +16,7 @@ import {
     AuthorizeDeviceStackRoutes,
     NavigateParameters,
     RootStackParamList,
-    StackToTabCompositeProps,
+    StackToStackCompositeNavigationProps,
     useHandleHardwareBackNavigation,
 } from '@suite-native/navigation';
 import TrezorConnect from '@trezor/connect';
@@ -29,9 +29,9 @@ type ConnectDeviceScreenHeaderProps = {
     helpButton?: ReactNode;
 };
 
-type NavigationProp = StackToTabCompositeProps<
+type NavigationProp = StackToStackCompositeNavigationProps<
     AuthorizeDeviceStackParamList,
-    AuthorizeDeviceStackRoutes.ConnectingDevice,
+    AuthorizeDeviceStackRoutes.ConnectAndUnlockDevice,
     RootStackParamList
 >;
 
@@ -71,7 +71,8 @@ export const ConnectDeviceScreenHeader = ({
             }
 
             if (onCancelNavigationTarget) {
-                navigation.navigate(onCancelNavigationTarget);
+                // Temporary solution, the onCancelNavigationTarget should be removed completely as a follow up.
+                navigation.navigateDeprecated({ ...onCancelNavigationTarget });
 
                 return;
             }
