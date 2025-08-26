@@ -62,6 +62,7 @@
         "@playwright/browser-webkit": "^1.52.0",
         "@playwright/test": "^1.52.0",
         "@sentry/webpack-plugin": "^2.22.7",
+        "@trezor/blockchain-link-types": "workspace:^",
         "@trezor/device-utils": "workspace:*",
         "@trezor/protobuf": "workspace:*",
         "@trezor/trezor-user-env-link": "workspace:*",
