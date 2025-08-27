@@ -6,13 +6,14 @@ import {
     HandleSellRequestThunkProps,
     cryptoIdToNetwork,
     selectTradingSellIsLoading,
+    selectValidTradingSellQuotes,
     sellThunks,
 } from '@suite-common/trading';
 import { WalletSettingsRootState, selectIsAmountInSats } from '@suite-common/wallet-core';
+import { useFormState } from '@suite-native/forms';
 import { Timer, useDebounce } from '@trezor/react-utils';
 
 import { sellActions } from '../../reducers';
-import { selectSellQuotes } from '../../selectors/sellSelectors';
 import { AbortablePromise } from '../../types/general';
 import { SellFormType } from '../../types/sell';
 import { getSymbolFromTradeableAsset } from '../../utils/general/tradeableAssetUtils';
@@ -45,8 +46,18 @@ const defaultState: ShouldFetchSellQuotesRef = {
 
 const noop = () => {};
 
-const useShouldFetchSellQuotes = ({ watch }: SellFormType): ShouldFetchSellQuotes => {
+const useShouldFetchSellQuotes = ({ watch, control }: SellFormType): ShouldFetchSellQuotes => {
     const prevState = useRef<ShouldFetchSellQuotesRef>(defaultState);
+
+    const { isValid } = useFormState({ control });
+    if (!isValid) {
+        prevState.current = defaultState;
+
+        return {
+            isFetchAllowed: false,
+            shouldFetchQuotes: false,
+        };
+    }
 
     const [
         sendAsset,
@@ -103,7 +114,7 @@ const useSellQuotesInvalidator = (
     quotesPromiseRef: RefObject<AbortablePromise | undefined>,
     debounce: ReturnType<typeof useDebounce>,
 ) => {
-    const quotes = useSelector(selectSellQuotes);
+    const quotes = useSelector(selectValidTradingSellQuotes);
     const isLoading = useSelector(selectTradingSellIsLoading);
 
     useQuotesInvalidator({

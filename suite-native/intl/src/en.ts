@@ -103,10 +103,6 @@ export const en = {
                 title: 'Connect your Trezor',
                 description: 'Manage your coins with your Trezor connected.',
                 connectButton: 'Connect',
-                bluetooth: {
-                    title: 'Connect your Trezor Safe 7',
-                    connectButton: 'Connect via Bluetooth',
-                },
             },
             syncCoins: {
                 title: 'Track your coins',
@@ -1981,11 +1977,14 @@ export const en = {
         tradingScreen: {
             buyTitle: 'Buy',
             receiveAccount: 'Receive account',
+            receiveMethod: 'Receive method',
             paymentMethod: 'Payment method',
             noPaymentMethod: 'No payment method selected',
+            noReceiveMethod: 'No receive method selected',
             selectedProvider: 'Selected provider',
             noProvider: 'No provider selected',
             selectedPaymentMethod: 'Selected payment method',
+            selectedReceiveMethod: 'Selected receive method',
             countryOfResidence: 'Country of residence',
             noCountryOfResidence: 'No country of residence selected',
             selectedCountryOfResidence: 'Selected country of residence',

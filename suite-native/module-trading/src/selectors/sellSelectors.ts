@@ -1,7 +1,15 @@
-import { FiatCurrencyCode } from 'invity-api';
+import { FiatCurrencyCode, SellCryptoPaymentMethod, SellFiatTrade } from 'invity-api';
 
 import { returnStableArrayIfEmpty } from '@suite-common/redux-utils';
-import { TradingCountryCode, regional, selectTradingSellInfo } from '@suite-common/trading';
+import {
+    TradingCountryCode,
+    TradingPaymentMethodProps,
+    getBestRatedQuote,
+    getTradingQuotesByPaymentMethod,
+    regional,
+    selectTradingSellInfo,
+    selectValidTradingSellQuotes,
+} from '@suite-common/trading';
 import { selectAccountByKey } from '@suite-common/wallet-core';
 
 import { supportedFiatCurrenciesMap } from '../consts/general/supportedFiatCurrencies';
@@ -69,4 +77,42 @@ export const selectSellSelectedSendAccount = createMemoizedSelectorWithAccounts(
     (state, { tradingAccountKey }) => selectAccountByKey(state, tradingAccountKey) || undefined,
 );
 
-export const selectSellQuotes = (state: TradingRootState) => state.wallet.tradingNew.sell.quotes;
+export const selectSellBestQuotesForAvailablePaymentMethods = createMemoizedSelector(
+    [selectValidTradingSellQuotes],
+    quotes => {
+        const allQuotesByPaymentMethodMap = quotes.reduce((quotesByPaymentMethodMap, quote) => {
+            const { paymentMethod, paymentMethodName } = quote;
+            if (!paymentMethod || !paymentMethodName) {
+                return quotesByPaymentMethodMap;
+            }
+
+            const existingQuotes = quotesByPaymentMethodMap.get(paymentMethod);
+            if (!existingQuotes) {
+                quotesByPaymentMethodMap.set(paymentMethod, [quote]);
+            } else {
+                existingQuotes.push(quote);
+            }
+
+            return quotesByPaymentMethodMap;
+        }, new Map<SellCryptoPaymentMethod, SellFiatTrade[]>());
+
+        return [...allQuotesByPaymentMethodMap.values()].map(quotesForPaymentMethod =>
+            getBestRatedQuote(quotesForPaymentMethod, 'sell'),
+        ) as SellFiatTrade[];
+    },
+);
+
+export const selectSellQuotesByPaymentMethod = createMemoizedSelector(
+    [
+        selectValidTradingSellQuotes,
+        (_: TradingRootState, paymentMethod: TradingPaymentMethodProps | undefined) =>
+            paymentMethod,
+    ],
+    (quotes, paymentMethod) => ({
+        fixed: paymentMethod
+            ? getTradingQuotesByPaymentMethod<'sell'>(quotes, paymentMethod)?.sort(
+                  (a, b) => (b.rate ?? 0) - (a.rate ?? 0),
+              )
+            : [],
+    }),
+);

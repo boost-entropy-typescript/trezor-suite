@@ -6,7 +6,6 @@ import {
     initDevices,
     periodicCheckStakeDataThunk,
     periodicFetchFiatRatesThunk,
-    selectDevices,
     updateMissingTxFiatRatesThunk,
 } from '@suite-common/wallet-core';
 import * as walletConnectActions from '@suite-common/walletconnect';
@@ -18,7 +17,8 @@ import * as languageActions from 'src/actions/settings/languageActions';
 import * as metadataLabelingActions from 'src/actions/suite/metadataLabelingActions';
 import * as modalActions from 'src/actions/suite/modalActions';
 import * as routerActions from 'src/actions/suite/routerActions';
-import type { AcquiredDevice, Dispatch, GetState } from 'src/types/suite';
+import { handleDeviceConnect } from 'src/actions/wallet/handleDeviceConnectThunk';
+import type { Dispatch, GetState } from 'src/types/suite';
 
 import { SUITE } from './constants';
 import { onSuiteReady, setFlag } from './suiteActions';
@@ -74,43 +74,11 @@ export const init = () => async (dispatch: Dispatch, getState: GetState) => {
         // see more details here: https://redux-toolkit.js.org/api/createAsyncThunk#unwrapping-result-actions
         await dispatch(
             trezorConnectActions.connectInitThunk({
-                [DEVICE.CONNECT]: (_device, prevConnectedDevices) => {
-                    const previouslyConnectedUniqueDevices = prevConnectedDevices
-                        .filter(device => device.connected)
-                        .reduce<Map<string, AcquiredDevice>>((acc, device) => {
-                            if (device.id && !acc.has(device.id)) {
-                                acc.set(device.id, device);
-                            }
-
-                            return acc;
-                        }, new Map<string, AcquiredDevice>());
-
-                    const currentConnectedDevices = selectDevices(getState()).filter(
-                        device => device.connected,
-                    );
-
-                    const uniqueConnectedDevices = currentConnectedDevices.reduce<
-                        Map<string, AcquiredDevice>
-                    >((acc, device) => {
-                        if (device.id && !acc.has(device.id)) {
-                            acc.set(device.id, device);
-                        }
-
-                        return acc;
-                    }, new Map<string, AcquiredDevice>());
-
-                    if (
-                        uniqueConnectedDevices.size > 1 &&
-                        uniqueConnectedDevices.size > previouslyConnectedUniqueDevices.size
-                    ) {
-                        dispatch(
-                            routerActions.goto('suite-switch-device', {
-                                params: {
-                                    cancelable: true,
-                                },
-                            }),
-                        );
-                    }
+                [DEVICE.CONNECT]: device => {
+                    dispatch(handleDeviceConnect(device));
+                },
+                [DEVICE.CONNECT_UNACQUIRED]: device => {
+                    dispatch(handleDeviceConnect(device));
                 },
                 [UI.INVALID_PIN_ATTEMPTS_DEPLETED]: () => {
                     dispatch(
