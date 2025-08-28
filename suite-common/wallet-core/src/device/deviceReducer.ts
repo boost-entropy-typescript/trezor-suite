@@ -24,12 +24,14 @@ export type DeviceReducerState = {
     };
     lastConnectedAuthenticityChecks?: KnownDevice['authenticityChecks'];
     isDeviceAutoEjectEnabled: boolean;
+    isConnectionModalOpen: boolean;
 };
 
 const initialState: DeviceReducerState = {
     devices: [],
     selectedDevice: undefined,
     isDeviceAutoEjectEnabled: false,
+    isConnectionModalOpen: false,
 };
 
 export const deviceReducerInitialState = initialState;
@@ -109,6 +111,7 @@ const merge = (
  */
 const connectDevice = (draft: DeviceReducerState, device: Device) => {
     const currentTime = new Date().getTime();
+    draft.isConnectionModalOpen = false;
 
     const deviceCommonFields = {
         connected: true,
@@ -620,6 +623,9 @@ export const prepareDeviceReducer = createReducerWithExtraDeps(initialState, (bu
         })
         .addCase(deviceActions.toggleIsDeviceAutoEjectEnabled, state => {
             state.isDeviceAutoEjectEnabled = !state.isDeviceAutoEjectEnabled;
+        })
+        .addCase(deviceActions.toggleConnectionModal, state => {
+            state.isConnectionModalOpen = !state.isConnectionModalOpen;
         })
         .addMatcher(
             isAnyOf(deviceActions.connectDevice, deviceActions.connectUnacquiredDevice),

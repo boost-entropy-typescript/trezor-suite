@@ -6,8 +6,8 @@ import { Button, Column, Modal, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { ThpPairingCodeEntry } from './ThpPairingCodeEntry';
-import { useDevice, useDispatch, useSelector } from '../../hooks/suite';
-import { Translation } from '../suite/Translation';
+import { useDevice, useDispatch, useSelector } from '../../../hooks/suite';
+import { Translation } from '../../suite/Translation';
 
 export const ThpPairingFailedModal = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ export const ThpPairingFailedModal = () => {
             data-testid="@modal/thp-paring-failed"
             bottomContent={
                 <>
-                    <Button onClick={handleRetry} isLoading={isLoading}>
+                    <Button onClick={handleRetry} isLoading={isLoading} variant="destructive">
                         <Translation id="TR_THP_GET_NEW_CODE" />
                     </Button>
                     <Button onClick={onCancel} variant="tertiary">
