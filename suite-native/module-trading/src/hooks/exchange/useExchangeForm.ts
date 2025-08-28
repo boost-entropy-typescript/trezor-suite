@@ -25,7 +25,9 @@ import { ExchangeFormType, ExchangeFormValues } from '../../types/exchange';
 import { exchangeFormValidationSchema } from '../../utils/exchange/exchangeFormValidationSchema';
 import { getSymbolFromTradeableAsset } from '../../utils/general/tradeableAssetUtils';
 import { useContextForTradingForm } from '../general/form/useContextForTradingForm';
+import { useReceiveAccountChangeEffect } from '../general/form/useReceiveAccountChangeEffect';
 import { useSendAccountAssetBalance } from '../general/form/useSendAccountAssetBalance';
+import { useSendAccountChangeEffect } from '../general/form/useSendAccountChangeEffect';
 
 const useExchangeQuotesChangeEffect = ({ getValues, setValue }: ExchangeFormType) => {
     const providers = useSelector(selectTradingExchangeProviders);
@@ -97,22 +99,6 @@ const useExchangeQuoteChangeEffect = ({ watch, setValue }: ExchangeFormType) => 
     }, [selectedQuote, isAmountInSats, symbol, setValue]);
 };
 
-const useSendAccountChangeEffect = ({ setValue }: ExchangeFormType) => {
-    const sendAccount = useSelector(selectExchangeSelectedSendAccount);
-
-    useEffect(() => {
-        setValue('sendAccount', sendAccount);
-    }, [sendAccount, setValue]);
-};
-
-const useReceiveAccountChangeEffect = ({ setValue }: ExchangeFormType) => {
-    const receiveAccount = useSelector(selectExchangeSelectedReceiveAccount);
-
-    useEffect(() => {
-        setValue('receiveAccount', receiveAccount);
-    }, [receiveAccount, setValue]);
-};
-
 const useValidations = (
     { trigger, setValue }: ExchangeFormType,
     limits: TradingExchangeAmountLimitProps | undefined,
@@ -143,11 +129,12 @@ export const useExchangeForm = () => {
         validation: exchangeFormValidationSchema,
         context,
     });
+    const { setValue } = form;
 
     useExchangeQuotesChangeEffect(form);
     useExchangeQuoteChangeEffect(form);
-    useSendAccountChangeEffect(form);
-    useReceiveAccountChangeEffect(form);
+    useSendAccountChangeEffect(setValue, selectExchangeSelectedSendAccount);
+    useReceiveAccountChangeEffect(setValue, selectExchangeSelectedReceiveAccount);
     useSendAccountAssetBalance(form, setBalance, setSendSymbol);
     useValidations(form, limits);
 

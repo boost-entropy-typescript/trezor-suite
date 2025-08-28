@@ -15,14 +15,14 @@
         "@reduxjs/toolkit": "2.8.2",
         "@suite-common/formatters": "workspace:*",
         "@suite-native/intl": "workspace:*",
-        "@testing-library/react-native": "13.0.0",
+        "@testing-library/react-native": "13.3.0",
         "@trezor/styles": "workspace:*",
         "@trezor/theme": "workspace:*",
         "react": "19.0.0",
         "react-native": "0.79.3",
-        "react-native-keyboard-controller": "1.16.5",
-        "react-native-permissions": "5.2.5",
-        "react-native-safe-area-context": "5.4.0",
+        "react-native-keyboard-controller": "1.18.5",
+        "react-native-permissions": "5.4.2",
+        "react-native-safe-area-context": "5.6.1",
         "react-redux": "9.2.0"
     }
 }
