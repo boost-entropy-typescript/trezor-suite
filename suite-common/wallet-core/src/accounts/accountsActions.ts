@@ -1,7 +1,12 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { getNetwork, networks } from '@suite-common/wallet-config';
-import { Account, DiscoveryItem, SelectedAccountStatus } from '@suite-common/wallet-types';
+import { getNetwork } from '@suite-common/wallet-config';
+import {
+    Account,
+    AccountBackendSpecific,
+    AccountFailureSpecific,
+    SelectedAccountStatus,
+} from '@suite-common/wallet-types';
 import {
     enhanceAddresses,
     enhanceTokens,
@@ -31,109 +36,67 @@ const removeAccount = createAction(
     }),
 );
 
-export type CreateAccountActionProps = {
-    deviceState: StaticSessionId;
-    discoveryItem: DiscoveryItem;
+export type CreateAccountActionProps = Pick<
+    Account,
+    | 'path'
+    | 'unlockPath'
+    | 'symbol'
+    | 'index'
+    | 'accountType'
+    | 'deviceState'
+    | 'imported'
+    | 'accountLabel'
+    | 'visible'
+> & {
     accountInfo: AccountInfo;
-    imported?: boolean;
-    accountLabel?: string;
-    error?: string;
-    visible: boolean;
-};
-
-const composeCreateAccountActionPayload = ({
-    deviceState,
-    discoveryItem,
-    accountInfo,
-    imported,
-    accountLabel,
-    visible,
-    error,
-}: CreateAccountActionProps): Account => {
-    try {
-        const { chainId } = getNetwork(discoveryItem.coin);
-        const { networkType } = networks[discoveryItem.coin];
-        const isNonEthEvm = networkType === 'ethereum' && discoveryItem.coin !== 'eth';
-
-        const metadataKey = isNonEthEvm
-            ? `${accountInfo.descriptor}-${chainId}`
-            : accountInfo.legacyXpub || accountInfo.descriptor;
-
-        const result: Account = {
-            deviceState,
-            accountLabel,
-            imported,
-            ...(error !== undefined ? { error, failed: true } : { failed: undefined }),
-            index: discoveryItem.index,
-            path: discoveryItem.path,
-            unlockPath: discoveryItem.unlockPath,
-            descriptor: accountInfo.descriptor,
-            descriptorChecksum: accountInfo.descriptorChecksum,
-            key: getAccountKey(accountInfo.descriptor, discoveryItem.coin, deviceState),
-            accountType: discoveryItem.accountType,
-            symbol: discoveryItem.coin,
-            empty: accountInfo.empty,
-            ...(discoveryItem.backendType === 'coinjoin'
-                ? {
-                      backendType: 'coinjoin',
-                      status: discoveryItem.status,
-                  }
-                : {
-                      backendType: discoveryItem.backendType,
-                  }),
-            visible,
-            balance: accountInfo.balance,
-            availableBalance: accountInfo.availableBalance,
-            formattedBalance: formatNetworkAmount(
-                // Ripple and Stellar `availableBalance` is reduced by reserve, use regular balance
-                isArrayMember(networkType, ['ripple', 'stellar'])
-                    ? accountInfo.balance
-                    : accountInfo.availableBalance,
-                discoveryItem.coin,
-            ),
-            tokens: enhanceTokens(accountInfo.tokens),
-            addresses: enhanceAddresses(accountInfo, {
-                networkType,
-                index: discoveryItem.index,
-                addresses: accountInfo.addresses,
-            }),
-            utxo: enhanceUtxo(accountInfo.utxo, networkType, discoveryItem.index),
-            history: accountInfo.history,
-            metadata: {
-                key: metadataKey,
-            },
-            ts: Date.now(),
-            ...getAccountSpecific(accountInfo, networkType),
-        };
-
-        return result;
-    } catch (error) {
-        console.error('Error creating account payload:', error);
-        throw new Error('Failed to create account payload');
-    }
-};
+} & AccountBackendSpecific &
+    AccountFailureSpecific;
 
 const createAccount = createAction(
     `${ACCOUNTS_MODULE_PREFIX}/createAccount`,
-    ({
-        deviceState,
-        discoveryItem,
-        accountInfo,
-        imported,
-        accountLabel,
-        visible,
-        error,
-    }: CreateAccountActionProps): { payload: Account } => ({
-        payload: composeCreateAccountActionPayload({
-            deviceState,
-            discoveryItem,
-            accountInfo,
-            imported,
-            accountLabel,
-            visible,
-            error,
-        }),
-    }),
+    ({ accountInfo, ...account }: CreateAccountActionProps): { payload: Account } => {
+        const { symbol, index, deviceState } = account;
+        const { descriptor, descriptorChecksum, legacyXpub } = accountInfo;
+        const { empty, balance, availableBalance, addresses, history, utxo, tokens } = accountInfo;
+
+        try {
+            const { chainId, networkType } = getNetwork(symbol);
+
+            const isNonEthEvm = networkType === 'ethereum' && symbol !== 'eth';
+            const metadataKey = isNonEthEvm ? `${descriptor}-${chainId}` : legacyXpub || descriptor;
+
+            const payload: Account = {
+                ...account,
+                descriptor,
+                descriptorChecksum,
+                empty,
+                balance,
+                availableBalance,
+                history,
+                key: getAccountKey(descriptor, symbol, deviceState),
+                formattedBalance: formatNetworkAmount(
+                    // Ripple and Stellar `availableBalance` is reduced by reserve, use regular balance
+                    isArrayMember(networkType, ['ripple', 'stellar']) ? balance : availableBalance,
+                    symbol,
+                ),
+                tokens: enhanceTokens(tokens),
+                addresses: enhanceAddresses(accountInfo, {
+                    networkType,
+                    index,
+                    addresses,
+                }),
+                utxo: enhanceUtxo(utxo, networkType, index),
+                metadata: { key: metadataKey },
+                ts: Date.now(),
+                ...getAccountSpecific(accountInfo, networkType),
+            };
+
+            return { payload };
+        } catch (error) {
+            console.error('Error creating account payload:', error);
+            throw new Error('Failed to create account payload');
+        }
+    },
 );
 
 const createAccountFromAccountInfo = createAction(
@@ -163,7 +126,7 @@ const updateAccount = createAction(
                     visible: account.visible || !accountInfo.empty,
                     formattedBalance: formatNetworkAmount(
                         // Ripple and Stellar `availableBalance` is reduced by reserve, use regular balance
-                        account.networkType === 'ripple' || account.networkType === 'stellar'
+                        ['ripple', 'stellar'].includes(account.networkType)
                             ? accountInfo.balance
                             : accountInfo.availableBalance,
                         account.symbol,

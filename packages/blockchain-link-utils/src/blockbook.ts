@@ -17,7 +17,14 @@ import type {
 } from '@trezor/blockchain-link-types/src/blockbook';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-import { Addresses, enhanceVinVout, filterTargets, sumVinVout, transformTarget } from './utils';
+import {
+    Addresses,
+    enhanceVinVout,
+    filterShadowedPendingTxsByNonce,
+    filterTargets,
+    sumVinVout,
+    transformTarget,
+} from './utils';
 
 export const transformServerInfo = (payload: ServerInfo) => ({
     name: payload.name,
@@ -387,21 +394,22 @@ export const transformAccountInfo = (payload: BlockbookAccountInfo): AccountInfo
     const unconfirmedBalance = new BigNumber(payload.unconfirmedBalance);
 
     let availableBalance = payload.balance;
-    if (!unconfirmedBalance.isNaN()) {
-        if (!isEVM) {
-            availableBalance = unconfirmedBalance.plus(payload.balance).toString();
-        } else if (isEVM && unconfirmedBalance.lt(0)) {
-            // if unconfirmed balance is positive it means that address has pending receive transaction
-            // this address cannot use this balance yet so it should not be visible
-            // however, for negative it has to be applied, otherwise it would not be possible to e.g. bump fee
-            // (when tx is pending the balance is still on the account)
-            availableBalance = unconfirmedBalance.plus(payload.balance).toString();
-        }
+    if (!unconfirmedBalance.isNaN() && !isEVM) {
+        availableBalance = unconfirmedBalance.plus(payload.balance).toString();
     }
     const empty =
         payload.txs === 0 &&
         payload.unconfirmedTxs === 0 &&
         new BigNumber(availableBalance).isZero();
+
+    const unfilteredTransactions = payload.transactions
+        ? payload.transactions.map(t => transformTransaction(t, addresses ?? descriptor))
+        : undefined;
+
+    const transactions =
+        isEVM && unfilteredTransactions
+            ? filterShadowedPendingTxsByNonce(unfilteredTransactions, descriptor.toLowerCase())
+            : unfilteredTransactions;
 
     return {
         descriptor,
@@ -418,9 +426,7 @@ export const transformAccountInfo = (payload: BlockbookAccountInfo): AccountInfo
                     ? payload.txs - payload.nonTokenTxs
                     : undefined,
             unconfirmed: payload.unconfirmedTxs,
-            transactions: payload.transactions
-                ? payload.transactions.map(t => transformTransaction(t, addresses ?? descriptor))
-                : undefined,
+            transactions,
         },
         misc,
         page,

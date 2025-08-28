@@ -9240,6 +9240,126 @@ export default defineMessages({
         id: 'TR_TO',
         defaultMessage: 'To',
     },
+    TR_STAKING_DASHBOARD_TITLE: {
+        id: 'TR_STAKING_DASHBOARD_TITLE',
+        defaultMessage: 'Staking',
+    },
+    TR_STAKING_DASHBOARD_TEXT: {
+        id: 'TR_STAKING_DASHBOARD_TEXT',
+        defaultMessage:
+            'Grow your crypto by locking it to help secure the network—and earn rewards in return.',
+    },
+    TR_STAKING_DASHBOARD_ACTIVE: {
+        id: 'TR_STAKING_DASHBOARD_ACTIVE',
+        defaultMessage: 'Active',
+    },
+    TR_STAKING_DASHBOARD_NOT_ACTIVE: {
+        id: 'TR_STAKING_DASHBOARD_NOT_ACTIVE',
+        defaultMessage: 'Not active',
+    },
+    TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE: {
+        id: 'TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE',
+        defaultMessage: 'Account balance',
+    },
+    TR_STAKING_DASHBOARD_TABLE_APY: {
+        id: 'TR_STAKING_DASHBOARD_TABLE_APY',
+        defaultMessage: 'APY',
+    },
+    TR_STAKING_DASHBOARD_TABLE_YEARLY_REWARDS: {
+        id: 'TR_STAKING_DASHBOARD_TABLE_YEARLY_REWARDS',
+        defaultMessage: 'Your yearly rewards',
+    },
+    TR_STAKING_DASHBOARD_TABLE_POTENTIAL_REWARDS: {
+        id: 'TR_STAKING_DASHBOARD_TABLE_POTENTIAL_REWARDS',
+        defaultMessage: 'Potential rewards',
+    },
+    TR_STAKING_DASHBOARD_STAKE_NOW: {
+        id: 'TR_STAKING_DASHBOARD_STAKE_NOW',
+        defaultMessage: 'Stake now',
+    },
+    TR_STAKING_DASHBOARD_STAKE_MORE: {
+        id: 'TR_STAKING_DASHBOARD_STAKE_MORE',
+        defaultMessage: 'Stake more',
+    },
+    TR_STAKING_DASHBOARD_ACTIVATE: {
+        id: 'TR_STAKING_DASHBOARD_ACTIVATE',
+        defaultMessage: 'Activate {networkName}',
+    },
+    TR_STAKING_DASHBOARD_MINIMUM_STAKE: {
+        id: 'TR_STAKING_DASHBOARD_MINIMUM_STAKE',
+        defaultMessage: 'Minimum {amount} {displaySymbol} required to stake',
+    },
+    TR_STAKING_DASHBOARD_MAXIMUM_STAKE: {
+        id: 'TR_STAKING_DASHBOARD_MAXIMUM_STAKE',
+        defaultMessage: 'Maximum staked',
+    },
+    TR_STAKING_DASHBOARD_IF_YOU_ADD: {
+        id: 'TR_STAKING_DASHBOARD_IF_YOU_ADD',
+        defaultMessage: 'If you add {amount} {displaySymbol}',
+    },
+    TR_STAKING_DASHBOARD_STAKED: {
+        id: 'TR_STAKING_DASHBOARD_STAKED',
+        defaultMessage: '{amount} {displaySymbol} staked',
+    },
+    TR_STAKING_BANNER_DETAIL_TITLE: {
+        id: 'TR_STAKING_BANNER_DETAIL_TITLE',
+        defaultMessage: 'Earn ~{apy}% APY by staking your {displaySymbol}',
+    },
+    TR_STAKING_BANNER_DETAIL_TEXT: {
+        id: 'TR_STAKING_BANNER_DETAIL_TEXT',
+        defaultMessage:
+            'Stake your balance and earn ~{potentialRewards} {displaySymbol} yearly at the current APY.',
+    },
+    TR_STAKING_BANNER_DETAIL_TEXT_EMPTY: {
+        id: 'TR_STAKING_BANNER_DETAIL_TEXT_EMPTY',
+        defaultMessage: 'Make your {displaySymbol} work for you. Start staking to earn rewards.',
+    },
+    TR_STAKING_BANNER_DETAIL_EXPLORE_STAKING: {
+        id: 'TR_STAKING_BANNER_DETAIL_EXPLORE_STAKING',
+        defaultMessage: 'Explore staking',
+    },
+    TR_STAKING_CARD_TITLE: {
+        id: 'TR_STAKING_CARD_TITLE',
+        defaultMessage: 'Earn ~{apy}% APY by staking your {displaySymbol}',
+    },
+    TR_STAKING_CARD_TEXT: {
+        id: 'TR_STAKING_CARD_TEXT',
+        defaultMessage:
+            'Stake your full balance and earn ~{potentialRewards} {displaySymbol} yearly at the current APY. Temporarily locking your {displaySymbol} earns you rewards while boosting the network’s security.',
+    },
+    TR_STAKING_CARD_TEXT_EMPTY: {
+        id: 'TR_STAKING_CARD_TEXT_EMPTY',
+        defaultMessage:
+            'Stake your full balance and start earning rewards. Temporarily locking your {displaySymbol} earns you rewards while boosting the network’s security.',
+    },
+    TR_STAKING_CARD_START_STAKING: {
+        id: 'TR_STAKING_CARD_START_STAKING',
+        defaultMessage: 'Start staking',
+    },
+    TR_STAKING_CARD_KEEP_EARNING_TITLE: {
+        id: 'TR_STAKING_CARD_KEEP_EARNING_TITLE',
+        defaultMessage: 'Keep earning',
+    },
+    TR_STAKING_CARD_KEEP_EARNING_TEXT: {
+        id: 'TR_STAKING_CARD_KEEP_EARNING_TEXT',
+        defaultMessage: '<t>APY</t> is your yearly return on staked funds, with compounding.',
+    },
+    TR_STAKING_CARD_LOCK_IN_TITLE: {
+        id: 'TR_STAKING_CARD_LOCK_IN_TITLE',
+        defaultMessage: 'Lock in with flexibility',
+    },
+    TR_STAKING_CARD_LOCK_IN_TEXT: {
+        id: 'TR_STAKING_CARD_LOCK_IN_TEXT',
+        defaultMessage: 'Staking locks in your funds, but you can unstake them anytime.',
+    },
+    TR_STAKING_CARD_RESTAKE_TITLE: {
+        id: 'TR_STAKING_CARD_RESTAKE_TITLE',
+        defaultMessage: 'Restake automatically',
+    },
+    TR_STAKING_CARD_RESTAKE_TEXT: {
+        id: 'TR_STAKING_CARD_RESTAKE_TEXT',
+        defaultMessage: 'Your rewards are restaked automatically—so your balance grows faster.',
+    },
     TR_STAKE_NETWORK: {
         id: 'TR_STAKE_NETWORK',
         defaultMessage: 'Stake {symbol}',
@@ -9325,24 +9445,6 @@ export default defineMessages({
     TR_MAYBE_LATER: {
         id: 'TR_MAYBE_LATER',
         defaultMessage: 'Maybe later',
-    },
-    TR_STAKE_WHAT_IS_STAKING: {
-        id: 'TR_STAKE_WHAT_IS_STAKING',
-        defaultMessage: 'What is staking?',
-    },
-    TR_STAKE_STAKING_IS: {
-        id: 'TR_STAKE_STAKING_IS',
-        defaultMessage:
-            "Staking involves temporarily locking your {symbol} assets to support the blockchain's operation. In return, you'll receive additional {symbol} as a reward.",
-    },
-    TR_STAKE_ANY_AMOUNT_ETH: {
-        id: 'TR_STAKE_ANY_AMOUNT_ETH',
-        defaultMessage:
-            'Stake a minimum amount of {amount} {networkDisplaySymbol} and start receiving rewards. With our current APY rate of {apyPercent}%, your rewards earn too!',
-    },
-    TR_STAKE_LEARN_MORE: {
-        id: 'TR_STAKE_LEARN_MORE',
-        defaultMessage: 'Learn more',
     },
     TR_STAKE_STAKING_IN_A_NUTSHELL: {
         id: 'TR_STAKE_STAKING_IN_A_NUTSHELL',

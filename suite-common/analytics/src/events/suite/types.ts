@@ -236,6 +236,7 @@ export type SuiteAnalyticsEvent =
               from:
                   | 'dashboard/header'
                   | 'dashboard/assets'
+                  | 'dashboard/staking-dashboard'
                   | 'account/header'
                   | 'account/tokens'
                   | 'account/tradebox'
@@ -349,8 +350,8 @@ export type SuiteAnalyticsEvent =
                   | 'account/navigation'
                   | 'account/banner'
                   | 'account/tradebox'
-                  | 'dashboard/banner'
-                  | 'dashboard/assets';
+                  | 'dashboard/assets'
+                  | 'dashboard/staking-dashboard';
               networkSymbol?: string;
           };
       }
@@ -581,6 +582,12 @@ export type SuiteAnalyticsEvent =
       }
     | {
           type: EventType.SettingsGeneralAutoEject;
+          payload: {
+              value: boolean;
+          };
+      }
+    | {
+          type: EventType.SettingsGeneralBioAuth;
           payload: {
               value: boolean;
           };

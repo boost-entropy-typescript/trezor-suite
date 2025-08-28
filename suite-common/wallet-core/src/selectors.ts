@@ -1,7 +1,13 @@
 import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
-import { NetworkSymbol, networksCollection } from '@suite-common/wallet-config';
+import { TrezorDevice } from '@suite-common/suite-types';
+import { NetworkSymbol, networks, networksCollection } from '@suite-common/wallet-config';
 import { ReviewOutput } from '@suite-common/wallet-types';
-import { findAccountsByAddress, sortByCoin } from '@suite-common/wallet-utils';
+import {
+    findAccountsByAddress,
+    isAccountDiscoverable,
+    sortByCoin,
+    tryGetAccountIdentity,
+} from '@suite-common/wallet-utils';
 import { StaticSessionId, type TrezorConnect } from '@trezor/connect';
 import { arrayToDictionary } from '@trezor/utils';
 
@@ -70,53 +76,72 @@ export const selectAllSuccessfulAccountsToList = createMemoizedSelector(
     },
 );
 
+type DiscoveryAccountsParam = Parameters<TrezorConnect['discoverAccounts']>[0]['coins'];
+
 export const selectDiscoveryAccountsParam = (
     state: CompoundRootState,
-    staticSessionId: StaticSessionId,
-): Parameters<TrezorConnect['discoverAccounts']>[0]['accounts'] => {
-    const networks = selectEnabledSupportedNetworks(state);
-    const accounts = selectAccountsByDeviceState(state, staticSessionId);
+    deviceState: StaticSessionId,
+    knownOnly?: boolean,
+): DiscoveryAccountsParam => {
+    const symbols = selectEnabledSupportedNetworks(state);
+    const knownAccounts = selectAccountsByDeviceState(state, deviceState);
+    const discoverableAccounts = knownAccounts.filter(isAccountDiscoverable);
 
-    const symbolMap = arrayToDictionary(accounts, acc => acc.symbol, true);
+    const symbolMap = arrayToDictionary(discoverableAccounts, acc => acc.symbol, true);
 
-    return networks.flatMap(symbol => {
+    return symbols.map(symbol => {
         const symbolAccounts = symbolMap[symbol];
+        const { networkType } = networks[symbol];
+        const identity = tryGetAccountIdentity({ networkType, deviceState });
 
         // undiscovered network; discover as a whole
-        if (!symbolAccounts) return [{ symbol }];
+        if (!symbolAccounts) return { symbol, identity };
 
         // discovered network; separate by account type
         const typeMap = arrayToDictionary(symbolAccounts, acc => acc.accountType, true);
 
-        return Object.entries(typeMap).flatMap(([type, accs]) => {
+        const known = Object.entries(typeMap).map(([type, accs]) => {
             // account with the highest index
             const lastAccount = accs.reduce((last, current) =>
                 current.index > last.index ? current : last,
             );
 
             // last account is a failed one; try to discover it again
-            if (lastAccount.failed) return [{ symbol, type, skip: lastAccount.index }];
+            if (lastAccount.failed) return { type, skip: lastAccount.index };
             // last account is a used one; skip it and try to discover next one
-            else if (!lastAccount.empty) return [{ symbol, type, skip: lastAccount.index + 1 }];
-            // last account is an empty one; no need to discover
-            else return [];
+            else if (!lastAccount.empty) return { type, skip: lastAccount.index + 1 };
+            // last account is an empty one; skip this type completely
+            else return { type };
         });
+
+        return { symbol, identity, known, knownOnly } as DiscoveryAccountsParam[number];
     });
 };
 
-export const selectShouldRediscoverNetworks = (
+const selectShouldRediscoverHelper = (
     state: CompoundRootState,
-    staticSessionId?: StaticSessionId,
+    device: TrezorDevice | undefined,
+    allowUndiscovered: boolean,
 ) => {
+    const staticSessionId = device?.state?.staticSessionId;
     if (!staticSessionId) return false;
+
     if (selectHasRunningDiscovery(state)) return false;
 
-    const networks = selectEnabledSupportedNetworks(state);
+    if (allowUndiscovered && !device.discovered) return true;
+
+    const symbols = selectEnabledSupportedNetworks(state);
     const accounts = selectAccountsByDeviceState(state, staticSessionId);
     const discoveredNetworks = new Set(accounts.map(account => account.symbol));
 
-    return networks.some(network => !discoveredNetworks.has(network));
+    return symbols.some(symbol => !discoveredNetworks.has(symbol));
 };
+
+export const selectShowRediscoverButton = (state: CompoundRootState, device?: TrezorDevice) =>
+    selectShouldRediscoverHelper(state, device, false);
+
+export const selectShouldRediscover = (state: CompoundRootState, device?: TrezorDevice) =>
+    selectShouldRediscoverHelper(state, device, true);
 
 export const selectAccountsToBeForgotten = (
     state: DiscoveryRootState & AccountsRootState & WalletSettingsRootState,
