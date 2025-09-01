@@ -17,11 +17,8 @@ import { Elevation, borders, spacingsPx } from '@trezor/theme';
 import { GuideButton, GuideRouter } from 'src/components/guide';
 // importing directly, otherwise unit tests fail, seems to be a styled-components issue
 import { SuiteBanners } from 'src/components/suite/banners';
-import { MAX_ONBOARDING_WIDTH } from 'src/constants/suite/layout';
 import { useSelector } from 'src/hooks/suite';
-import { selectIsTEXDashboardPromoBannerShown } from 'src/selectors/suite/suiteSelectors';
 import { ResponsiveContextProvider } from 'src/support/suite/ResponsiveContext';
-import { DashboardPromoBanner } from 'src/views/dashboard/DashboardPromoBanner/DashboardPromoBanner';
 
 import { LoggedOutSidebar } from '../LoggedOutSidebar';
 import { DebugLegend } from '../SuiteLayout/DebugLegend';
@@ -52,7 +49,6 @@ const PureChildrenWrapper = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: ${MAX_ONBOARDING_WIDTH}px;
 `;
 
 const ChildrenWrapper = styled.div`
@@ -61,7 +57,6 @@ const ChildrenWrapper = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: ${MAX_ONBOARDING_WIDTH}px;
     gap: ${spacingsPx.md};
     padding: ${spacingsPx.xxl};
     border-radius: ${borders.radii.md};
@@ -91,8 +86,6 @@ type RightContentProps = {
 const RightSideContent = ({ bannerSlot, showPureChildren, children }: RightContentProps) => {
     const { elevation } = useElevation();
 
-    const shouldShowTEXDashboardPromoBanner = useSelector(selectIsTEXDashboardPromoBannerShown);
-
     if (showPureChildren) {
         return (
             <Content $elevation={elevation} $verticalCenter={true}>
@@ -115,13 +108,6 @@ const RightSideContent = ({ bannerSlot, showPureChildren, children }: RightConte
                 <ChildrenWrapper>
                     <ElevationUp>{children}</ElevationUp>
                 </ChildrenWrapper>
-                {shouldShowTEXDashboardPromoBanner && (
-                    <>
-                        <Divider />
-                        <DashboardPromoBanner />
-                        <Divider />
-                    </>
-                )}
             </Content>
         </ResponsiveContextProvider>
     );

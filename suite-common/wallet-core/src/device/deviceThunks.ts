@@ -497,12 +497,16 @@ export const toggleAutoEjectThunk = createThunk(
 
 type FailEntropyCheckParams = {
     device: AcquiredDevice;
-    error: string;
+    error: { code?: string; error: string };
 };
 
 export const failEntropyCheckThunk = createThunk(
     `${DEVICE_MODULE_PREFIX}/failEntropyCheckThunk`,
     ({ device, error }: FailEntropyCheckParams, { dispatch, extra }) => {
+        if (error.code === 'Method_Cancel') {
+            // resetDevice call was cancelled by user
+            return;
+        }
         const contextData = {
             model: device?.features?.internal_model,
             revision: device?.features?.revision,
@@ -524,7 +528,7 @@ export const failEntropyCheckThunk = createThunk(
             // This one was not in Sentry but can be triggered by manually disconnecting the device. Investigate. https://github.com/trezor/trezor-suite-private/issues/135
             'device disconnected during action',
         ];
-        if (!temporarilySkippedErrorsToBeInvestigated.includes(error)) {
+        if (!temporarilySkippedErrorsToBeInvestigated.includes(error.error)) {
             dispatch(deviceActions.setEntropyCheckFail(device.id));
         }
     },
