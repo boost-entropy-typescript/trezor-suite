@@ -2,6 +2,7 @@ import { decode, verify } from 'jws';
 
 import { createThunk } from '@suite-common/redux-utils';
 import { MessageSystem } from '@suite-common/suite-types';
+import { PollingController } from '@suite-common/suite-utils';
 import { getJWSPublicKey, isCodesignBuild, isNative } from '@trezor/env-utils';
 import { scheduleAction } from '@trezor/utils';
 
@@ -17,17 +18,16 @@ import {
     VERSION,
 } from './messageSystemConstants';
 import {
+    selectMessageSystemConfigSource,
     selectMessageSystemCurrentSequence,
     selectMessageSystemTimestamp,
 } from './messageSystemSelectors';
 import { jws as configJwsLocal } from '../files/config.v1';
 
-// Enable this for local development purposes:
-// set to true to always fetch local JWS
-const FORCE_LOCAL_JWS = false;
+export const messageSystemPolling = new PollingController();
 
-const getConfigJws = async () => {
-    if (FORCE_LOCAL_JWS) {
+const getConfigJws = async (forceLocalJws: boolean) => {
+    if (forceLocalJws) {
         return {
             configJws: configJwsLocal,
             isRemote: false,
@@ -63,18 +63,26 @@ const getConfigJws = async () => {
     }
 };
 
+const shouldFetchConfig = (isLocal: boolean, lastTimestamp: number) => {
+    if (isLocal) return true;
+
+    const now = Date.now();
+    const interval = isNative() ? FETCH_INTERVAL_IN_MS_MOBILE : FETCH_INTERVAL_IN_MS;
+
+    return now >= lastTimestamp + interval;
+};
+
 export const fetchConfigThunk = createThunk(
     `${ACTION_PREFIX}/fetchConfig`,
     async (_, { dispatch, getState }) => {
         const timestamp = selectMessageSystemTimestamp(getState());
         const currentSequence = selectMessageSystemCurrentSequence(getState());
+        const configSource = selectMessageSystemConfigSource(getState());
+        const useLocalConfig = configSource === 'local';
 
-        if (
-            Date.now() >=
-            timestamp + (isNative() ? FETCH_INTERVAL_IN_MS_MOBILE : FETCH_INTERVAL_IN_MS)
-        ) {
+        if (shouldFetchConfig(useLocalConfig, timestamp)) {
             try {
-                const { configJws, isRemote } = await getConfigJws();
+                const { configJws, isRemote } = await getConfigJws(useLocalConfig);
 
                 const decodedJws = decode(configJws);
 
@@ -111,18 +119,15 @@ export const fetchConfigThunk = createThunk(
 
                 const timestampNew = isRemote ? Date.now() : 0;
 
-                if (
-                    currentSequence < config.sequence ||
-                    FORCE_LOCAL_JWS /* Allow to skip sequence check for local testing */
-                ) {
-                    await dispatch(
+                if (currentSequence < config.sequence || useLocalConfig) {
+                    dispatch(
                         messageSystemActions.fetchSuccessUpdate({
                             config,
                             timestamp: timestampNew,
                         }),
                     );
                 } else if (currentSequence === config.sequence) {
-                    await dispatch(messageSystemActions.fetchSuccess({ timestamp: timestampNew }));
+                    dispatch(messageSystemActions.fetchSuccess({ timestamp: timestampNew }));
                 } else {
                     throw Error(
                         `Sequence of config (${config.sequence}) is older than the current one (${currentSequence}).`,
@@ -139,17 +144,13 @@ export const fetchConfigThunk = createThunk(
 export const initMessageSystemThunk = createThunk(
     `${ACTION_PREFIX}/init`,
     async (_, { dispatch }) => {
-        const checkConfig = async () => {
-            await dispatch(fetchConfigThunk());
-
-            setTimeout(
-                () => {
-                    checkConfig();
-                },
-                isNative() ? FETCH_CHECK_INTERVAL_IN_MS_MOBILE : FETCH_CHECK_INTERVAL_IN_MS,
-            );
+        const run = async () => {
+            await dispatch(fetchConfigThunk()).unwrap();
         };
+        const interval = isNative()
+            ? FETCH_CHECK_INTERVAL_IN_MS_MOBILE
+            : FETCH_CHECK_INTERVAL_IN_MS;
 
-        await checkConfig();
+        await messageSystemPolling.restart(run, interval);
     },
 );

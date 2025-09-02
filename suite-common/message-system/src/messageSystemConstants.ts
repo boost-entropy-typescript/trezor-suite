@@ -1,3 +1,18 @@
+import {
+    CTAAction,
+    Category,
+    Condition,
+    CountryCode,
+    FirmwareVariant,
+    Model,
+    Variant,
+    Vendor,
+} from '@suite-common/suite-types';
+
+import { Context, Feature } from './messageSystemTypes';
+import { collectStringsDeep, toMessageSystemOptions } from './messageSystemUtils';
+import schema from '../schema/config.schema.v1.json';
+
 /*
  * Bump version in case the new version of message system is not backward compatible.
  */
@@ -27,3 +42,58 @@ export const CONFIG_URL_REMOTE = {
     stable: `${CONFIG_URL_REMOTE_BASE}/stable/${JWS_CONFIG_FILENAME_REMOTE}`,
     develop: `${CONFIG_URL_REMOTE_BASE}/develop/${JWS_CONFIG_FILENAME_REMOTE}`,
 };
+
+export const FEATURE_LIST = collectStringsDeep(Feature).sort();
+
+export const CONTEXT_PATTERNS = {
+    getGeneral: {
+        pattern: 'dashboard',
+        regex: /^dashboard$/,
+    },
+    getAccount: {
+        pattern: 'accounts.{networkSymbol}',
+        regex: /^accounts\.[a-z0-9-]+$/,
+    },
+    getStaking: {
+        pattern: 'accounts.{networkSymbol}.staking',
+        regex: /^accounts\.[a-z0-9-]+\.staking$/,
+    },
+    getTrading: {
+        pattern: 'trading.{type}',
+        regex: /^trading\.(buy|sell|exchange)$/,
+    },
+    getSettings: {
+        pattern: 'settings.{category}',
+        regex: /^settings\.(general|device|networks|debug)$/,
+    },
+    getLegal: {
+        pattern: 'legal.{key}',
+        regex: /^legal\.[a-z0-9-]+$/,
+    },
+} as const satisfies Record<keyof typeof Context, { pattern: string; regex: RegExp }>;
+
+export const CATEGORY_ENUM = schema.definitions.category.enum.sort() as readonly Category[];
+export const VARIANT_ENUM = schema.properties.actions.items.properties.message.properties.variant
+    .enum as readonly Variant[];
+export const COUNTRY_CODES = schema.definitions.countryCodes
+    .enum as unknown as readonly CountryCode[];
+export const CTA_ACTION_ENUM = schema.properties.actions.items.properties.message.properties.cta
+    .properties.action.enum as readonly CTAAction[];
+export const MODEL_ENUM = schema.definitions.conditions.items.properties.devices.items.properties
+    .model.enum as readonly Model[];
+export const FW_VARIANT_ENUM = schema.definitions.conditions.items.properties.devices.items
+    .properties.variant.enum as readonly FirmwareVariant[];
+export const VENDOR_ENUM = schema.definitions.conditions.items.properties.devices.items.properties
+    .vendor.enum as readonly Vendor[];
+
+export const CATEGORY_OPTIONS = toMessageSystemOptions(CATEGORY_ENUM);
+export const CATEGORY_FILTER_OPTIONS = toMessageSystemOptions([
+    'all',
+    ...(schema.definitions.category.enum as Category[]),
+]);
+
+const CONDITION_KEYS = [
+    ...Object.keys(schema.definitions.conditions.items.properties),
+].sort() as readonly (keyof Condition)[];
+
+export const CONDITION_OPTIONS = toMessageSystemOptions(CONDITION_KEYS);

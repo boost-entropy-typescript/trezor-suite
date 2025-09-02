@@ -9600,6 +9600,7 @@ __metadata:
     react-redux: "npm:9.2.0"
     semver: "npm:^7.7.1"
     tsx: "npm:^4.20.3"
+    uuid: "npm:^11.1.0"
   languageName: unknown
   linkType: soft
 
@@ -10884,6 +10885,7 @@ __metadata:
     "@suite-common/message-system": "workspace:*"
     "@suite-common/trading": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/alerts": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
@@ -10899,6 +10901,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
+    expo: "npm:53.0.20"
     react: "npm:19.0.0"
     react-native: "npm:0.79.3"
     react-redux: "npm:9.2.0"
@@ -11362,6 +11365,8 @@ __metadata:
     "@suite-native/sentry": "workspace:*"
     "@suite-native/settings": "workspace:*"
     "@suite-native/storage": "workspace:*"
+    "@trezor/protobuf": "workspace:^"
+    "@trezor/transport": "workspace:^"
     "@trezor/transport-native-bluetooth": "workspace:*"
     "@trezor/transport-native-usb": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -12937,6 +12942,7 @@ __metadata:
     stylelint: "npm:^16.14.1"
     stylelint-config-standard: "npm:^38.0.0"
     typescript-styled-plugin: "npm:^0.18.3"
+    uuid: "npm:^11.1.0"
     web3-utils: "npm:^4.3.1"
   languageName: unknown
   linkType: soft
@@ -13028,7 +13034,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/transport@workspace:*, @trezor/transport@workspace:packages/transport":
+"@trezor/transport@workspace:*, @trezor/transport@workspace:^, @trezor/transport@workspace:packages/transport":
   version: 0.0.0-use.local
   resolution: "@trezor/transport@workspace:packages/transport"
   dependencies:

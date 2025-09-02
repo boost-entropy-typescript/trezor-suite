@@ -4,6 +4,8 @@ import type { AccountType, NetworkSymbol, StakingNetworkSymbol } from '@suite-co
 
 export type MessageState = { [key in Category]: boolean };
 
+export type MessageSystemConfigSource = 'remote' | 'local';
+
 export type MessageSystemState = {
     config: MessageSystem | null;
     currentSequence: number;
@@ -13,6 +15,8 @@ export type MessageSystemState = {
         [key: string]: MessageState;
     };
     validExperiments: string[];
+    configSource: MessageSystemConfigSource;
+    manuallyAddedMessageIds: Record<string, true>;
 };
 
 export type MessageSystemRootState = {
@@ -56,6 +60,7 @@ export const Feature = {
         },
     },
     dashboardPromoBanner: 'dashboard.promoBanner',
+    mevProtection: 'settings.mevProtection',
 } as const;
 
 type ExtractFeatureValues<T> =
@@ -122,6 +127,7 @@ export type ContextDomain = FunctionContextReturnValues;
 
 export const Experiment = {
     tradingFeedbackForm: '092db279-98dc-418e-bbfa-ef70716fb211',
+    tradingFiatValues: 'b73df44d-37ed-4b66-aba1-5c4164493bae',
 } as const;
 
 export type ExperimentKey = keyof typeof Experiment;

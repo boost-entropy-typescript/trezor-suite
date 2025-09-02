@@ -1,6 +1,8 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { Category, MessageSystem } from '@suite-common/suite-types';
+import { Action, Category, MessageSystem } from '@suite-common/suite-types';
+
+import { MessageSystemConfigSource } from './messageSystemTypes';
 
 export type ValidMessagesPayload = { [key in Category]: string[] };
 
@@ -43,6 +45,19 @@ const updateValidExperiments = createAction(
     }),
 );
 
+const setConfigSource = createAction(
+    `${ACTION_PREFIX}/setConfigSource`,
+    (payload: MessageSystemConfigSource) => ({
+        payload,
+    }),
+);
+
+const addMessage = createAction(`${ACTION_PREFIX}/addMessage`, (payload: Action) => ({ payload }));
+
+const removeMessage = createAction(`${ACTION_PREFIX}/removeMessage`, (payload: string) => ({
+    payload,
+}));
+
 export const messageSystemActions = {
     updateValidMessages,
     updateValidExperiments,
@@ -50,4 +65,7 @@ export const messageSystemActions = {
     fetchSuccess,
     fetchSuccessUpdate,
     fetchError,
+    setConfigSource,
+    addMessage,
+    removeMessage,
 } as const;

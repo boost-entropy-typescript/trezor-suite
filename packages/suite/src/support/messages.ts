@@ -639,7 +639,7 @@ export default defineMessages({
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_OFFERED',
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_AMOUNT: {
-        defaultMessage: 'Maximum slippage amount',
+        defaultMessage: 'Maximum slippage',
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_AMOUNT',
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_MINIMUM: {
@@ -736,7 +736,7 @@ export default defineMessages({
         id: 'TR_EXCHANGE_FLOAT',
     },
     TR_EXCHANGE_DEX: {
-        defaultMessage: 'Decentralized exchange offer',
+        defaultMessage: 'DEX',
         id: 'TR_EXCHANGE_DEX',
     },
     TR_TRADING_EXCHANGE_FIXED_OFFERS_HEADING: {
@@ -1260,10 +1260,6 @@ export default defineMessages({
         defaultMessage: 'You get',
         id: 'TR_TRADING_YOU_GET',
     },
-    TR_TRADING_YOU_RECEIVE: {
-        defaultMessage: 'You receive',
-        id: 'TR_TRADING_YOU_RECEIVE',
-    },
     TR_TRADING_COUNTRY: {
         defaultMessage: 'Country of residence',
         id: 'TR_TRADING_COUNTRY',
@@ -1442,10 +1438,6 @@ export default defineMessages({
         defaultMessage: 'KYC is never required. Exceptional cases are automatically refunded.',
         id: 'TR_TRADING_KYC_NO_KYC',
     },
-    TR_TRADING_KYC_DEX: {
-        defaultMessage: 'KYC is never required. DEX swaps either succeed or fail.',
-        id: 'TR_TRADING_KYC_DEX',
-    },
     TR_TRADING_DCA_HEADING: {
         defaultMessage: 'Invest with Invity, secure with Trezor',
         id: 'TR_TRADING_DCA_HEADING',
@@ -1586,6 +1578,10 @@ export default defineMessages({
         defaultMessage: 'Provider',
         id: 'TR_TRADING_PROVIDER',
     },
+    TR_TRADING_EXCHANGE_TYPE: {
+        defaultMessage: 'Exchange type',
+        id: 'TR_TRADING_EXCHANGE_TYPE',
+    },
     TR_ADDRESS_MODAL_CLIPBOARD: {
         defaultMessage: 'Copy address',
         id: 'TR_ADDRESS_MODAL_CLIPBOARD',
@@ -1722,7 +1718,7 @@ export default defineMessages({
         id: 'TR_BIO_AUTH',
     },
     TR_BIO_AUTH_DESCRIPTION: {
-        defaultMessage: 'Use your fingerprint or PIN/Password to access Trezor Suite.',
+        defaultMessage: 'Use Touch ID or Windows Hello authentication to access Trezor Suite.',
         id: 'TR_BIO_AUTH_DESCRIPTION',
     },
     TR_BIO_AUTH_FAILED: {
@@ -1842,7 +1838,7 @@ export default defineMessages({
     },
     TR_MULTI_SHARE_BACKUP_DESCRIPTION: {
         defaultMessage:
-            'Generates multiple 20-word shares (wordlists) to recover your wallet. A minimum number of shares, set by you, are needed to regain access to your wallet.',
+            'Create multiple 20-word shares (wordlists) to recover your wallet. Set a minimum number of shares required to regain access to your wallet.',
         id: 'TR_MULTI_SHARE_BACKUP_DESCRIPTION',
     },
     TR_MULTI_SHARE_BACKUP_IN_PROGRESS: {
@@ -1872,7 +1868,7 @@ export default defineMessages({
     },
     TR_MULTI_SHARE_BACKUP_EXPLANATION_1: {
         defaultMessage:
-            'Generates multiple 20-word shares (wordlists) to recover your wallet. A minimum number of shares, set by you, are needed to regain access to your wallet.',
+            'Create multiple 20-word shares (wordlists) to recover your wallet. Set a minimum number of shares required to regain access to your wallet.',
         id: 'TR_MULTI_SHARE_BACKUP_EXPLANATION_1',
     },
     TR_MULTI_SHARE_BACKUP_EXPLANATION_2: {
@@ -2118,10 +2114,20 @@ export default defineMessages({
         defaultMessage: '{label} (with non-recommended characters)',
         id: 'TR_NON_ASCII_CHARS',
     },
-    TR_CONNECT_YOUR_DEVICE: {
+    TR_CONNECT_UNLOCK_YOUR_DEVICE: {
         defaultMessage: 'Connect & unlock your Trezor',
+        description: 'Prompt to user to connect and unlock device in modal.',
+        id: 'TR_CONNECT_UNLOCK_YOUR_DEVICE',
+    },
+    TR_CONNECT_YOUR_DEVICE: {
+        defaultMessage: 'Connect your Trezor',
         description: 'Prompt to user to connect his device.',
         id: 'TR_CONNECT_YOUR_DEVICE',
+    },
+    TR_CONNECT_DEVICE_DESCRIPTION: {
+        defaultMessage: 'Manage your coins with your Trezor connected.',
+        description: 'Description under the connection prompt',
+        id: 'TR_CONNECT_DEVICE_DESCRIPTION',
     },
     TR_CONNECT_VIA_BLUETOOTH: {
         defaultMessage: 'Connect via Bluetooth',
@@ -2199,7 +2205,7 @@ export default defineMessages({
     },
     TR_DEVICE_DISCONNECTED_DURING_ACTION_DESCRIPTION: {
         defaultMessage:
-            'Your Trezor was disconnected during the wallet backup process. We strongly recommend that you use the factory reset option in Device settings to wipe your device and start the wallet backup process again.',
+            'Your Trezor was disconnected during the wallet backup setup. We strongly recommend that you use the factory reset option in Device settings to wipe your device and start the wallet backup setup again.',
         description: 'Error message. Instruction what to do.',
         id: 'TR_DEVICE_DISCONNECTED_DURING_ACTION_DESCRIPTION',
     },
@@ -2360,7 +2366,7 @@ export default defineMessages({
         id: 'TR_DEVICE_SETTINGS_HOMESCREEN_EDITOR',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_240x240: {
-        defaultMessage: 'Supports JPG format, 240x240 px, up to 16 KB.',
+        defaultMessage: 'Use a JPG file (240×240 px, up to 16 KB).',
         id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR_240x240',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_SELECT_FROM_GALLERY: {
@@ -2578,11 +2584,12 @@ export default defineMessages({
         defaultMessage: '7d change',
     },
     TR_FAILED_BACKUP: {
-        defaultMessage: 'Wallet backup failed. Wipe your Trezor and start the setup process again.',
+        defaultMessage: 'Wallet backup has failed. Wipe your Trezor and start the setup again.',
         id: 'TR_FAILED_BACKUP',
     },
     TR_RECEIVE_ADDRESS_FAILED_BACKUP: {
-        defaultMessage: 'Wallet backup failed. Sending funds to this wallet is not secure.',
+        defaultMessage:
+            "Wallet backup has failed. Sending funds to this wallet isn't safe or secure.",
         id: 'TR_RECEIVE_ADDRESS_FAILED_BACKUP',
     },
     TR_FIAT_RATES_NOT_AVAILABLE: {
@@ -2803,6 +2810,23 @@ export default defineMessages({
         defaultMessage: 'Privacy',
         id: 'TR_PRIVACY',
     },
+    TR_SECURITY: {
+        defaultMessage: 'Security',
+        id: 'TR_SECURITY',
+    },
+    TR_MEV: {
+        defaultMessage: 'MEV protection',
+        id: 'TR_MEV',
+    },
+    TR_MEV_DESCRIPTION: {
+        defaultMessage:
+            'Stay safe and secure fair prices by preventing others from interfering with your transactions.',
+        id: 'TR_MEV_DESCRIPTION',
+    },
+    TR_MEV_AVAILABLE_ON: {
+        defaultMessage: 'Available on {supportedNetworks}.',
+        id: 'TR_MEV_AVAILABLE_ON',
+    },
     TR_CONFIRM_AUTO_EJECT: {
         defaultMessage: 'Enable auto-eject',
         id: 'TR_CONFIRM_AUTO_EJECT',
@@ -2813,7 +2837,7 @@ export default defineMessages({
     },
     TR_AUTO_EJECT_DESCRIPTION: {
         defaultMessage:
-            'Automatically eject all wallets when you disconnect your Trezor.\nYour balances will be removed from Trezor Suite until you reconnect your device.',
+            'Automatically eject all wallets when you disconnect your Trezor.\nYour balances will be hidden from Trezor Suite until you reconnect your device.',
         id: 'TR_AUTO_EJECT_DESCRIPTION',
     },
     TR_AUTO_EJECT_CONFIRMATION_DESCRIPTION: {
@@ -4262,7 +4286,7 @@ export default defineMessages({
     },
     TR_TOR_MISBEHAVING: {
         id: 'TR_TOR_MISBEHAVING',
-        defaultMessage: 'Misbehaving',
+        defaultMessage: 'Running slow',
     },
     TR_TOR_TITLE: {
         id: 'TR_TOR_TITLE',
@@ -5043,7 +5067,7 @@ export default defineMessages({
     TR_LABEL_REQUIREMENTS: {
         id: 'TR_LABEL_REQUIREMENTS',
         defaultMessage:
-            'Names can have a maximum length of {length} characters and can only include characters from the English alphabet.',
+            'Use names up to {length} characters, containing only letters from the English alphabet.',
         description: 'How many characters may be in device label and of what type.',
     },
     TR_LABEL_ERROR_LENGTH: {
@@ -6488,7 +6512,7 @@ export default defineMessages({
     TR_BACKUP_RECOVERY_SEED_FAILED_DESC: {
         id: 'TR_BACKUP_RECOVERY_SEED_FAILED_DESC',
         defaultMessage:
-            "The wallet backup process has failed. It's highly recommended to back up your wallet. Follow the link to learn how to create a wallet backup.",
+            "Wallet backup has failed. It's highly recommended to back up your wallet. Follow the link to learn how to create a wallet backup.",
     },
     TR_BACKUP_FAILED: {
         id: 'TR_BACKUP_FAILED',
@@ -7398,7 +7422,7 @@ export default defineMessages({
         id: 'TR_ONBOARDING_DEVICE_CHECK_4',
         description: 'Shown only if device has firmware already installed',
         defaultMessage:
-            'Firmware is already installed on the connected Trezor. Only continue with setup if you have used this Trezor before.',
+            "Firmware is already installed on this connected Trezor. Only continue with setup if you've used this Trezor before.",
     },
     TR_I_HAVE_NOT_USED_IT: {
         id: 'TR_I_HAVE_NOT_USED_IT',
@@ -7532,7 +7556,7 @@ export default defineMessages({
     TR_CHECK_DEVICE_ORIGIN_DESCRIPTION: {
         id: 'TR_CHECK_DEVICE_ORIGIN_DESCRIPTION',
         defaultMessage:
-            "We'll verify the integrity of your Trezor device, ensuring its safety and confirming the authenticity of the chip.",
+            'Verify your Trezor device to ensure its security and confirm the chip’s authenticity.',
     },
     TR_CHECK_ORIGIN: {
         id: 'TR_CHECK_ORIGIN',
@@ -9021,11 +9045,11 @@ export default defineMessages({
     },
     TR_MOBILE_APP_PROMO_TEXT_FOOTER: {
         id: 'TR_MOBILE_APP_PROMO_TEXT_FOOTER',
-        defaultMessage: 'Sync & track on your phone with <b>Trezor Suite on mobile</b>',
+        defaultMessage: 'Sync & track your assets on the go with <b>Trezor Suite on mobile</b>',
     },
     TR_DASHBOARD_REFERRAL_BUTTON: {
         id: 'TR_DASHBOARD_REFERRAL_BUTTON',
-        defaultMessage: 'Earn $20 per Referral',
+        defaultMessage: 'Earn $20 per referral',
     },
     TR_PROMO_BANNER_DASHBOARD_TEX_TITLE: {
         id: 'TR_PROMO_BANNER_DASHBOARD_TEX_TITLE',
@@ -9986,7 +10010,7 @@ export default defineMessages({
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP2_BUTTON: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP2_BUTTON',
-        defaultMessage: 'Got it, continue',
+        defaultMessage: 'Got it',
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP3_TITLE: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP3_TITLE',
@@ -10011,7 +10035,7 @@ export default defineMessages({
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM2: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM2',
-        defaultMessage: 'A passphrase opens a wallet secured by that phrase.',
+        defaultMessage: 'A passphrase opens a wallet secured by that exact phrase.',
     },
     TR_PASSPHRASE_DESCRIPTION_ITEM3: {
         id: 'TR_PASSPHRASE_DESCRIPTION_ITEM3',
@@ -10028,7 +10052,7 @@ export default defineMessages({
     },
     TR_PASSPHRASE_EXAMPLES_ITEM1_HEADING: {
         id: 'TR_PASSPHRASE_EXAMPLES_ITEM1_HEADING',
-        defaultMessage: 'A few uncommon random words',
+        defaultMessage: 'Enter a few unique random words.',
     },
     TR_PASSPHRASE_EXAMPLES_ITEM2_DESCRIPTION: {
         id: 'TR_PASSPHRASE_EXAMPLES_ITEM2_DESCRIPTION',
@@ -10053,15 +10077,15 @@ export default defineMessages({
     },
     TR_DEVICE_DISCONNECTED_TOOLTIP_TITLE: {
         id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_TITLE',
-        defaultMessage: 'Your balances remain visible even after you disconnect your Trezor.',
+        defaultMessage: 'Your balances now stay visible even when your Trezor is disconnected.',
     },
     TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_1: {
         id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_1',
-        defaultMessage: 'Eject your wallets at any time.',
+        defaultMessage: 'Enable auto-eject to hide your balances when you disconnect your Trezor.',
     },
     TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_2: {
         id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_ITEM_2',
-        defaultMessage: "Assets can't be moved without a connected device.",
+        defaultMessage: "Assets can't be moved or swapped without a connected device.",
     },
     TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_PRIMARY: {
         id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_PRIMARY',
@@ -10069,7 +10093,7 @@ export default defineMessages({
     },
     TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_SECONDARY: {
         id: 'TR_DEVICE_DISCONNECTED_TOOLTIP_BUTTON_SECONDARY',
-        defaultMessage: 'Auto-eject wallets',
+        defaultMessage: 'Enable auto-eject',
     },
     TR_CONNECT_DEVICE_GENERIC_PROMO_TITLE: {
         id: 'TR_CONNECT_DEVICE_GENERIC_PROMO_TITLE',
@@ -10228,6 +10252,10 @@ export default defineMessages({
         id: 'TR_BLUETOOTH',
         defaultMessage: 'Bluetooth',
     },
+    TR_DONE_REMOVING_TREZOR_FROM_SETTINGS: {
+        id: 'TR_DONE_REMOVING_TREZOR_FROM_SETTINGS',
+        defaultMessage: 'I’ve removed it',
+    },
     TR_CABLE: {
         id: 'TR_CABLE',
         defaultMessage: 'Cable',
@@ -10330,11 +10358,38 @@ export default defineMessages({
     },
     TR_BLUETOOTH_TURNED_OFF: {
         id: 'TR_BLUETOOTH_TURNED_OFF',
-        defaultMessage: 'Bluetooth is turned off',
+        defaultMessage: 'Turn on Bluetooth',
+    },
+    TR_TURN_ON_BLUETOOTH_CTA: {
+        id: 'TR_TURN_ON_BLUETOOTH_CTA',
+        defaultMessage: 'Turn on Bluetooth',
+        description:
+            'Button text to turn on Bluetooth in the modal when the Bluetooth is turned off',
+    },
+    TR_BLUETOOTH_DEVICE_TURNED_ON_UNLOCKED_HEADING: {
+        id: 'TR_BLUETOOTH_DEVICE_TURNED_ON_UNLOCKED_HEADING',
+        defaultMessage: 'Make sure your Trezor is turned on and unlocked.',
+        description: 'Displayed as hints of bluetooth connection in connect modal',
+    },
+    TR_BLUETOOTH_MANUAL_PAIR_DEVICE_GUIDE_HEADING: {
+        id: 'TR_BLUETOOTH_MANUAL_PAIR_DEVICE_GUIDE_HEADING',
+        defaultMessage: 'Try manually pairing your Trezor:',
+        description: 'Displayed as hints of bluetooth connection in connect modal',
+    },
+    TR_BLUETOOTH_MANUAL_PAIR_DEVICE_GUIDE_DESCRIPTION: {
+        id: 'TR_BLUETOOTH_MANUAL_PAIR_DEVICE_GUIDE_DESCRIPTION',
+        defaultMessage: "Go to your Trezor's Menu > Pair & Connect > Pair new device",
+        description: 'Displayed as hints of bluetooth connection in connect modal',
     },
     TR_BLUETOOTH_SETTINGS: {
         id: 'TR_BLUETOOTH_SETTINGS',
         defaultMessage: 'Open System Settings',
+    },
+    TR_ALLOW_BLUETOOTH_CTA: {
+        id: 'TR_ALLOW_BLUETOOTH_CTA',
+        defaultMessage: 'Allow',
+        description:
+            'Button text to allow Bluetooth permissions in the modal when the Bluetooth permissions are denied',
     },
     TR_BLUETOOTH_TURN_ON_BLUETOOTH: {
         id: 'TR_BLUETOOTH_TURN_ON_BLUETOOTH',
@@ -10351,11 +10406,12 @@ export default defineMessages({
     },
     TR_BLUETOOTH_ALLOW_BLUETOOTH_PERMISSIONS: {
         id: 'TR_BLUETOOTH_ALLOW_BLUETOOTH_PERMISSIONS',
-        defaultMessage: 'Allow Bluetooth permissions',
+        defaultMessage: 'Allow Trezor Suite to use Bluetooth',
     },
     TR_BLUETOOTH_OR_CONNECT_VIA_CABLE: {
         id: 'TR_BLUETOOTH_OR_CONNECT_VIA_CABLE',
-        defaultMessage: 'Allow Bluetooth permissions',
+        defaultMessage:
+            'Bluetooth access is disabled for Trezor Suite. Enable access by going to the Bluetooth settings on your computer.',
     },
     TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_PERMISSIONS: {
         id: 'TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_PERMISSIONS',
@@ -10717,7 +10773,7 @@ export default defineMessages({
     },
     TR_CONTRACT_REVOKE_TITLE: {
         id: 'TR_CONTRACT_REVOKE_TITLE',
-        defaultMessage: 'Revoke from',
+        defaultMessage: 'Revoke approval from',
     },
     TR_CONTRACT_APPROVE_TITLE: {
         id: 'TR_CONTRACT_APPROVE_TITLE',

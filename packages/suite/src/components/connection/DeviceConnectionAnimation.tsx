@@ -1,9 +1,7 @@
 import styled, { keyframes } from 'styled-components';
 
-import { DeviceModelInternal } from '@trezor/device-utils';
-
 import { ConnectorImage } from './ConnectorImage';
-import { DeviceImage } from './DeviceImage';
+import { DEFAULT_CONNECT_DEVICE_NAME, DeviceImage } from './DeviceImage';
 
 const slideUp = keyframes`
     0% {
@@ -33,6 +31,7 @@ const DeviceWrapper = styled.div`
 
 const CableWrapper = styled.div`
     animation: ${slideUp} 1.2s ease-out 0.3s both;
+    animation-delay: 2s;
     z-index: 1;
     margin-top: -20px; /* Overlap slightly with device for connection effect */
 `;
@@ -46,7 +45,7 @@ export const CableConnectionAnimation = ({
 }: CableConnectionAnimationProps) => (
     <Wrapper>
         <DeviceWrapper>
-            <DeviceImage size="large" deviceModel={DeviceModelInternal.T3W1} />
+            <DeviceImage size="large" deviceModel={DEFAULT_CONNECT_DEVICE_NAME} />
         </DeviceWrapper>
         {!isBluetooth && (
             <CableWrapper>

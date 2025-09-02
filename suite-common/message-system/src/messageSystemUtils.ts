@@ -1,8 +1,11 @@
 import * as semver from 'semver';
+import { v4 as uuidv4 } from 'uuid';
 
 import type { CountryCode } from '@suite-common/geolocation';
 import { Localization } from '@suite-common/suite-types';
 import type {
+    Action,
+    Category,
     Condition,
     Device,
     Duration,
@@ -30,6 +33,7 @@ import {
     getOsName,
     getSuiteVersion,
 } from '@trezor/env-utils';
+import { exhaustive } from '@trezor/type-utils';
 
 import { getCachedOsVersion } from './cachedEnvData';
 import { ValidMessagesPayload } from './messageSystemActions';
@@ -326,4 +330,137 @@ export const resolveMessageContent = (localizedMessages: Localization, language:
     const fallbackLanguage = language.split('-')[0];
 
     return localizedMessages[fallbackLanguage] ?? localizedMessages.en;
+};
+
+export const toMessageSystemOptions = <T extends string>(
+    values: readonly T[],
+): ReadonlyArray<{ label: string; value: T }> =>
+    values.map(value => ({
+        value,
+        label: value.replace(/^./, char => char.toUpperCase()),
+    }));
+
+/** Recursively collects all string leaf values from arrays/objects. */
+export const collectStringsDeep = (value: unknown): string[] => {
+    if (typeof value === 'string') return [value];
+    if (Array.isArray(value)) return value.flatMap(collectStringsDeep);
+    if (value && typeof value === 'object') {
+        return Object.values(value as Record<string, unknown>).flatMap(collectStringsDeep);
+    }
+
+    return [];
+};
+
+/** Format a string or string[] into a single string joined by `separator` (default: ", "). */
+export const toCommaSeparated = (value: string | string[], separator = ', '): string =>
+    Array.isArray(value) ? value.join(separator) : value;
+
+const defaultLocalization = {
+    en: '',
+    cs: '',
+    es: '',
+    de: '',
+    fr: '',
+    pt: '',
+} as const satisfies Localization;
+
+type ExtraByCategory = {
+    modal: { modal: { title: Localization; image: string } };
+    context: { context: { domain: string } };
+    feature: { feature: Array<{ domain: string; flag: boolean }> };
+    banner: {};
+};
+
+const EXTRA_BY_CATEGORY = {
+    modal: {
+        modal: {
+            title: defaultLocalization,
+            image: '',
+        },
+    },
+    context: {
+        context: {
+            domain: '',
+        },
+    },
+    feature: {
+        feature: [
+            {
+                domain: '',
+                flag: true,
+            },
+        ],
+    },
+    banner: {},
+} as const satisfies Record<Category, ExtraByCategory[Category]>;
+
+export const getDefaultActionByCategory = (category: Category): Action => {
+    const baseMessage = {
+        id: uuidv4(),
+        priority: 100,
+        dismissible: true,
+        variant: 'info' as const,
+        category,
+        content: defaultLocalization,
+    };
+
+    return {
+        message: {
+            ...baseMessage,
+            ...EXTRA_BY_CATEGORY[category],
+        },
+        conditions: [{}],
+    };
+};
+
+export const getDefaultConditionValue = (key: keyof Condition): Condition[keyof Condition] => {
+    switch (key) {
+        case 'duration': {
+            const now = new Date();
+            const from = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+            const to = new Date(now.setFullYear(now.getFullYear() + 1)).toISOString();
+
+            return { from, to };
+        }
+
+        case 'environment':
+            return { desktop: '*', mobile: '*', web: '*' };
+
+        case 'os':
+            return {
+                macos: '*',
+                linux: '*',
+                windows: '*',
+                android: '*',
+                ios: '*',
+                chromeos: '*',
+            };
+
+        case 'browser':
+            return { firefox: '*', chrome: '*', chromium: '*' };
+
+        case 'transport':
+            return { bridge: '*', webusbplugin: '*' };
+
+        case 'settings':
+            return [{ tor: false }];
+
+        case 'devices':
+            return [
+                {
+                    model: 'T3T1',
+                    firmwareRevision: '*',
+                    firmware: '*',
+                    bootloader: '*',
+                    variant: '*',
+                    vendor: '*',
+                },
+            ];
+
+        case 'countryCodes':
+            return ['CZ'];
+
+        default:
+            return exhaustive(key);
+    }
 };

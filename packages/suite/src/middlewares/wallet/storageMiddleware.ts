@@ -138,6 +138,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 isAnyOf(
                     messageSystemActions.fetchSuccessUpdate,
                     messageSystemActions.dismissMessage,
+                    messageSystemActions.setConfigSource,
                 )(action)
             ) {
                 api.dispatch(storageActions.saveMessageSystem());
@@ -239,6 +240,7 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 case WALLET_SETTINGS.SET_HIDE_BALANCE:
                 case setBaseCurrency.type:
                 case WALLET_SETTINGS.SET_BITCOIN_AMOUNT_UNITS:
+                case WALLET_SETTINGS.SET_MEV_PROTECTION:
                     api.dispatch(storageActions.saveWalletSettings());
                     break;
                 case SUITE.SET_LANGUAGE:

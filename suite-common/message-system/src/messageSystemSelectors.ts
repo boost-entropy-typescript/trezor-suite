@@ -1,15 +1,20 @@
-import { ExperimentId, resolveMessageContent } from '@suite-common/message-system';
+import { createSelector } from '@reduxjs/toolkit';
+
+import { selectAnalyticsInstanceId } from '@suite-common/analytics';
 import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
 import { Category, Message } from '@suite-common/suite-types';
 
+import { getActiveExperimentGroup, getExperimentNameById } from './experimentUtils';
 import {
     ContextDomain,
     Experiment,
+    ExperimentId,
     ExperimentKey,
     ExperimentsItemType,
     FeatureDomain,
     MessageSystemRootState,
 } from './messageSystemTypes';
+import { resolveMessageContent } from './messageSystemUtils';
 
 // Create app-specific selectors with correct types
 export const createMemoizedSelector = createWeakMapSelector.withTypes<MessageSystemRootState>();
@@ -23,6 +28,9 @@ export const selectMessageSystemTimestamp = (state: MessageSystemRootState) =>
 
 export const selectMessageSystemCurrentSequence = (state: MessageSystemRootState) =>
     state.messageSystem.currentSequence;
+
+export const selectMessageSystemConfigSource = (state: MessageSystemRootState) =>
+    state.messageSystem.configSource;
 
 const comparePriority = (a: Message, b: Message) => b.priority - a.priority;
 
@@ -137,6 +145,9 @@ export const selectIsFeatureDisabled = (
     return featureFlag !== undefined ? !featureFlag : (defaultValue ?? false);
 };
 
+export const selectAllManuallyAddedMessageIds = (state: MessageSystemRootState) =>
+    state.messageSystem.manuallyAddedMessageIds;
+
 const selectValidMessages = (state: MessageSystemRootState) => state.messageSystem.validMessages;
 const selectValidExperiments = (state: MessageSystemRootState) =>
     state.messageSystem.validExperiments;
@@ -186,3 +197,23 @@ export const selectExperimentByKey = (key: ExperimentKey) =>
             (experiment): experiment is ExperimentsItemType => experiment.id === Experiment[key],
         ),
     );
+
+export const selectActiveExperimentsWithVariants = createSelector(
+    [selectAnalyticsInstanceId, selectAllValidExperiments],
+    (instanceId, experiments) =>
+        returnStableArrayIfEmpty(
+            experiments.flatMap(experiment => {
+                const id = experiment.id as ExperimentId;
+                const name = getExperimentNameById(id);
+                const activeGroup = getActiveExperimentGroup({
+                    instanceId,
+                    experiment: {
+                        ...experiment,
+                        id,
+                    },
+                });
+
+                return activeGroup ? [{ name, variant: activeGroup.variant }] : [];
+            }),
+        ),
+);

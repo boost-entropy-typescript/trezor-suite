@@ -19,6 +19,10 @@ const initialState: MessageSystemState = {
     dismissedMessages: {},
 
     validExperiments: [],
+
+    configSource: 'remote',
+
+    manuallyAddedMessageIds: {},
 };
 
 export const messageSystemInitialState = initialState;
@@ -52,9 +56,29 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
             })
             .addCase(messageSystemActions.fetchSuccessUpdate, (state, { payload }) => {
                 const { timestamp, config } = payload;
+
                 state.timestamp = timestamp;
-                state.config = config;
                 state.currentSequence = config.sequence;
+
+                const validMessageIds = new Set(
+                    state.config?.actions?.map(a => a.message.id) ?? [],
+                );
+                state.manuallyAddedMessageIds = Object.fromEntries(
+                    Object.keys(state.manuallyAddedMessageIds ?? {})
+                        .filter(id => validMessageIds.has(id))
+                        .map(id => [id, true] as const),
+                );
+
+                const prevManuallyAddedMessageIds =
+                    state.config?.actions?.filter(
+                        action => !!state.manuallyAddedMessageIds[action.message.id],
+                    ) ?? [];
+                const incomingFileActions = config.actions ?? [];
+
+                state.config = {
+                    ...config,
+                    actions: [...prevManuallyAddedMessageIds, ...incomingFileActions],
+                };
             })
             .addCase(messageSystemActions.fetchError, state => {
                 state.timestamp = 0;
@@ -69,6 +93,27 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
             })
             .addCase(messageSystemActions.updateValidExperiments, (state, { payload }) => {
                 state.validExperiments = payload;
+            })
+            .addCase(messageSystemActions.setConfigSource, (state, { payload }) => {
+                state.configSource = payload;
+            })
+            .addCase(messageSystemActions.addMessage, (state, { payload }) => {
+                if (state.config) {
+                    state.config.actions = [payload, ...state.config.actions];
+                    state.manuallyAddedMessageIds = state.manuallyAddedMessageIds || {};
+                    state.manuallyAddedMessageIds[payload.message.id] = true;
+                }
+            })
+            .addCase(messageSystemActions.removeMessage, (state, { payload }) => {
+                if (state.config) {
+                    state.config.actions = state.config.actions.filter(
+                        action => action.message.id !== payload,
+                    );
+
+                    if (state.manuallyAddedMessageIds[payload]) {
+                        delete state.manuallyAddedMessageIds[payload];
+                    }
+                }
             })
             .addMatcher(
                 action => action.type === extra.actionTypes.storageLoad,
