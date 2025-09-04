@@ -16,23 +16,25 @@ type BluetoothDeviceProps = {
 };
 
 export const BluetoothDeviceComponent = ({ device, flex, margin }: BluetoothDeviceProps) => {
-    const model = device.manufacturerData.deviceModel;
+    const internalModel = device.manufacturerData.deviceModel;
+    const modelConfig = models[internalModel];
+    const modelName = modelConfig.name;
     const color = device.manufacturerData.deviceColor;
-    const colorName = models[model]?.colors[color.toString()];
+    const colorName = modelConfig.colors[color.toString()];
 
     const { showBluetoothDebugInfo } = useSelector(selectSuiteFlags);
 
     return (
         <Row gap={spacings.md} alignItems="stretch" flex={flex} margin={margin}>
             <RotateDeviceImage
-                deviceModel={model}
+                deviceModel={internalModel}
                 deviceColor={color}
                 animationHeight="44px"
                 animationWidth="44px"
             />
 
             <Column justifyContent="start" alignItems="start" flex="1">
-                <Text typographyStyle="body">Trezor Safe 7</Text>
+                <Text typographyStyle="body">{modelName}</Text>
                 {showBluetoothDebugInfo && <BluetoothDebugInfo device={device} />}
 
                 <InfoSegments>
