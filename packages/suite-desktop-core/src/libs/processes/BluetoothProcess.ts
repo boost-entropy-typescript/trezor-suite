@@ -1,15 +1,18 @@
 import path from 'path';
 
 import { isDevEnv } from '@suite-common/suite-utils';
-import { isMacOs } from '@trezor/env-utils';
+import { isMacOs, isWindows } from '@trezor/env-utils';
 
 import { BaseProcess, Status } from './BaseProcess';
 import { getSwitchValue } from '../process-switches';
 
 export class BluetoothProcess extends BaseProcess {
     private readonly port;
+    private readonly debug;
 
     constructor(port = 21327) {
+        const debug = isDevEnv || getSwitchValue('log-level') === 'debug';
+
         super('bluetooth', 'trezor-bluetooth', {
             autoRestart: 0,
             env: {
@@ -17,9 +20,13 @@ export class BluetoothProcess extends BaseProcess {
                 // Electron sometimes modifies the value of XDG_CURRENT_DESKTOP
                 XDG_CURRENT_DESKTOP:
                     process.env.ORIGINAL_XDG_CURRENT_DESKTOP || process.env.XDG_CURRENT_DESKTOP,
+                TREZOR_BLUETOOTH_PORT: port.toString(),
             },
+            stdio: debug && !isWindows() ? 'inherit' : undefined,
         });
+
         this.port = port;
+        this.debug = debug;
     }
 
     getUrl() {
@@ -65,7 +72,7 @@ export class BluetoothProcess extends BaseProcess {
     }
 
     async start() {
-        if (isDevEnv || getSwitchValue('log-level') === 'debug') {
+        if (this.debug) {
             process.env.RUST_LOG = 'debug';
             process.env.RUST_BACKTRACE = '1';
         }
@@ -80,6 +87,6 @@ export class BluetoothProcess extends BaseProcess {
             return;
         }
 
-        return super.start(['-p', this.port.toString()]);
+        return super.start(['-p', this.port.toString()]); // TODO: remove params after next binary release
     }
 }
