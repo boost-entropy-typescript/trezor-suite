@@ -91,7 +91,12 @@ const ClaimModalLoaded = ({ onCancel, selectedAccount }: ClaimModalModalProps) =
     return (
         <Modal
             data-testid="@staking/claim-modal"
-            heading={<Translation id="TR_STAKE_CLAIM" />}
+            heading={
+                <Translation
+                    id="TR_STAKE_CLAIM_TOKEN"
+                    values={{ symbol: getNetworkDisplaySymbol(account.symbol) }}
+                />
+            }
             description={
                 <Translation
                     id="TR_STAKE_CLAIMED_AMOUNT_TRANSFERRED"
@@ -110,7 +115,7 @@ const ClaimModalLoaded = ({ onCancel, selectedAccount }: ClaimModalModalProps) =
                             onClick={onClaimClick}
                             icon={isClaimingDisabled ? 'info' : undefined}
                         >
-                            <Translation id="TR_STAKE_CLAIM" />
+                            <Translation id="TR_CONTINUE" />
                         </Modal.Button>
                     </Tooltip>
                     <Modal.Button variant="tertiary" onClick={onCancelClick}>
