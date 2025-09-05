@@ -18,7 +18,11 @@ import {
     selectTradingSellSellCryptoIds,
     toTokenCryptoId,
 } from '@suite-common/trading';
-import { getNetwork, getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
+import {
+    getNetwork,
+    getNetworkDisplaySymbolName,
+    getNetworkType,
+} from '@suite-common/wallet-config';
 import {
     AccountsRootState,
     DeviceRootState,
@@ -30,6 +34,7 @@ import {
 } from '@suite-common/wallet-core';
 import { Account, TokenAddress, TokenSymbol } from '@suite-common/wallet-types';
 import { getAccountFiatBalance, getFiatRateKey, toFiatCurrency } from '@suite-common/wallet-utils';
+import { sortAccountsByNetworksAndAccountTypes } from '@suite-native/accounts/src/utils';
 import {
     FeatureFlag,
     FeatureFlagsRootState,
@@ -48,7 +53,8 @@ export type CombinedSelectorsRootState = TradingRootState &
     TokenDefinitionsRootState &
     FiatRatesRootState &
     WalletSettingsRootState &
-    TokensRootState;
+    TokensRootState &
+    FeatureFlagsRootState;
 
 const createCombinedMemoizedSelector =
     createWeakMapSelector.withTypes<CombinedSelectorsRootState>();
@@ -153,6 +159,8 @@ export const selectAccountsWithTokensToSellSectionListByTradingType =
             selectBaseCurrency,
             selectTradingSellSellCryptoIds,
             selectTradingExchangeSellCryptoIds,
+            (state: CombinedSelectorsRootState) =>
+                selectIsFeatureFlagEnabled(state, FeatureFlag.IsCardanoSendEnabled),
             (_state, tradingType: TradingType) => tradingType,
         ],
         (
@@ -162,6 +170,7 @@ export const selectAccountsWithTokensToSellSectionListByTradingType =
             localCurrency,
             sellSellCryptoIds,
             exchangeSellCryptoIds,
+            isCardanoSendEnabled,
             tradingType,
         ) => {
             if (tradingType === 'buy') {
@@ -171,7 +180,17 @@ export const selectAccountsWithTokensToSellSectionListByTradingType =
             const sellCryptoIds =
                 tradingType === 'sell' ? sellSellCryptoIds : exchangeSellCryptoIds;
 
-            return accounts
+            // TODO: Remove this filter when Cardano send is implemented (#15068)
+            // Currently filtering out Cardano accounts and tokens from trading until Cardano send is supported
+            const filteredAccounts = accounts.filter(account => {
+                const networkType = getNetworkType(account.symbol);
+
+                return networkType !== 'cardano' || isCardanoSendEnabled;
+            });
+
+            const sortedAccounts = sortAccountsByNetworksAndAccountTypes(filteredAccounts);
+
+            return sortedAccounts
                 .map<SectionListData<MyAsset, Account>[number]>((account: Account) => {
                     const networkTokenDefinitions = getSimpleCoinDefinitionsByNetwork(
                         tokenDefinitions,

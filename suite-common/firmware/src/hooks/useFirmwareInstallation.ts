@@ -148,7 +148,9 @@ export const useFirmwareInstallation = (
 
     const showConfirmationPill =
         (!showReconnectPrompt && progressEvent?.operation === 'downloading') ||
-        isThpConfirmationRequested;
+        isThpConfirmationRequested ||
+        firmware.uiEvent?.type === UI.FIRMWARE_RECONNECT ||
+        firmware.uiEvent?.type === 'button';
 
     const updateStatus = useMemo<FirmwareOperationStatus>(() => {
         if (isThpInProgress) {
@@ -172,6 +174,10 @@ export const useFirmwareInstallation = (
         // Automatically restarting from bootloader to normal mode at the end of non-intermediary installation:
         if (reconnectEvent?.method === 'wait') {
             return { operation: 'restarting', progress: 100 };
+        }
+
+        if (!progressEvent) {
+            return { operation: null, progress: 100 };
         }
 
         return { operation: null, progress: 0 };
