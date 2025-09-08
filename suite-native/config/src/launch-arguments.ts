@@ -5,7 +5,7 @@ export type LaunchArguments = {
     DTXDisableMainRunLoopSync?: boolean;
     isBluetoothEnabled?: boolean;
     isCardanoSendEnabled?: boolean;
-    isConnectPopupEnabled?: boolean;
+    isConnectPopupEnabled_v2?: boolean;
     isDebugKeysAllowed?: boolean;
     isWalletConnectEnabled_v2?: boolean;
     isTradingBuyEnabled?: boolean;
@@ -15,6 +15,7 @@ export type LaunchArguments = {
     areDebugOnlyNetworksEnabled?: boolean;
     preloadedState?: Record<string, unknown>;
     isFirmwareUpdateEnabled?: boolean;
+    isLocalizationEnabled?: boolean;
 };
 
 export const launchArguments = LaunchArguments.value<LaunchArguments>();

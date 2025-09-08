@@ -7,12 +7,13 @@ export const FeatureFlag = {
     IsBluetoothEnabled: 'isBluetoothEnabled',
     AreDebugOnlyNetworksEnabled: 'areDebugOnlyNetworksEnabled',
     IsCardanoSendEnabled: 'isCardanoSendEnabled',
-    IsConnectPopupEnabled: 'isConnectPopupEnabled',
+    IsConnectPopupEnabled: 'isConnectPopupEnabled_v2', // v2: after changing default value for Android
     IsDebugKeysAllowed: 'isDebugKeysAllowed',
     IsWalletConnectEnabled: 'isWalletConnectEnabled_v2', // v2: after changing default value for Android
     IsTradingBuyEnabled: 'isTradingBuyEnabled',
     IsTradingExchangeEnabled: 'isTradingExchangeEnabled',
     IsTradingSellEnabled: 'isTradingSellEnabled',
+    IsLocalizationEnabled: 'isLocalizationEnabled',
 } as const;
 
 export type FeatureFlag = (typeof FeatureFlag)[keyof typeof FeatureFlag];
@@ -33,7 +34,8 @@ export const featureFlagsInitialState: FeatureFlagsState = {
     [FeatureFlag.IsCardanoSendEnabled]:
         process.env.EXPO_PUBLIC_FF_IS_CARDANO_SEND_ENABLED === 'true',
     [FeatureFlag.IsConnectPopupEnabled]:
-        process.env.EXPO_PUBLIC_FF_IS_CONNECT_POPUP_ENABLED === 'true',
+        process.env.EXPO_PUBLIC_FF_IS_CONNECT_POPUP_ENABLED === 'true' ||
+        (isAndroid() && process.env.EXPO_PUBLIC_FF_IS_CONNECT_POPUP_ENABLED !== 'false'),
     [FeatureFlag.IsDebugKeysAllowed]: process.env.EXPO_PUBLIC_FF_IS_DEBUG_KEYS_ALLOWED === 'true',
     [FeatureFlag.IsWalletConnectEnabled]:
         process.env.EXPO_PUBLIC_FF_IS_WALLET_CONNECT_ENABLED === 'true' ||
@@ -43,6 +45,8 @@ export const featureFlagsInitialState: FeatureFlagsState = {
         process.env.EXPO_PUBLIC_FF_IS_TRADING_SWAP_ENABLED === 'true',
     [FeatureFlag.IsTradingSellEnabled]:
         process.env.EXPO_PUBLIC_FF_IS_TRADING_SELL_ENABLED === 'true',
+    [FeatureFlag.IsLocalizationEnabled]:
+        process.env.EXPO_PUBLIC_FF_IS_LOCALIZATION_ENABLED === 'true',
 };
 
 export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
@@ -55,6 +59,7 @@ export const featureFlagsPersistedKeys: Array<keyof FeatureFlagsState> = [
     FeatureFlag.IsTradingBuyEnabled,
     FeatureFlag.IsTradingExchangeEnabled,
     FeatureFlag.IsTradingSellEnabled,
+    FeatureFlag.IsLocalizationEnabled,
 ];
 
 export const featureFlagsSlice = createSlice({

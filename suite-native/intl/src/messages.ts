@@ -3,7 +3,7 @@
 // 2. Don't split string because of formatting or nested components use Rich Text Formatting instead https://formatjs.io/docs/react-intl/components#rich-text-formatting
 // 3. Always wrap keys per module/screen/feature for example: module.graph.legend
 
-export const en = {
+export const messages = {
     generic: {
         trezorSuite: 'Trezor Suite',
         trezorSuiteLite: 'Trezor Suite Lite',
@@ -2538,6 +2538,14 @@ export const en = {
             },
         },
     },
+    navigation: {
+        tabs: {
+            home: 'Home',
+            accounts: 'My assets',
+            trade: 'Trade',
+            settings: 'Settings',
+        },
+    },
 };
 
-export type Translations = typeof en;
+export type Translations = typeof messages;

@@ -5,8 +5,10 @@ import {
     createListenerMiddleware,
 } from '@reduxjs/toolkit';
 
+import { isThpDevice } from '@suite-common/suite-utils';
 import {
     deviceActions,
+    deviceConnectThunks,
     selectIsDeviceConnectedAndAuthorized,
     selectIsDeviceInitialized,
     selectIsDeviceRemembered,
@@ -60,7 +62,7 @@ deviceConnectionMiddleware.startListening({
         // If device is not initialized and is compromised, we display the modal (reason why this condition is here) and then want to redirect to uninitialized device landing.
         (selectIsDeviceInitialized(currentState) || selectIsDeviceCompromised(currentState)),
     effect: (
-        _action: UnknownAction,
+        action: UnknownAction,
         { getState }: ListenerEffectAPI<NativeDeviceRootState, Dispatch<UnknownAction>>,
     ) => {
         const shouldNavigateToDeviceCompromisedModal = selectIsDeviceCompromised(getState());
@@ -85,7 +87,14 @@ deviceConnectionMiddleware.startListening({
         // The passphrase flow handles connection differently and redirect to connecting screen is not wanted.
         const isDeviceUsingPassphrase = selectIsDeviceUsingPassphrase(getState());
 
-        if (isDeviceUsingPassphrase || isDeviceConnectedAndAuthorized) return;
+        if (isDeviceUsingPassphrase) return;
+
+        const isNonThpRememberedDeviceConnectAction =
+            isDeviceConnectedAndAuthorized &&
+            deviceConnectThunks.fulfilled.match(action) &&
+            !isThpDevice(action.meta.arg.device);
+
+        if (isNonThpRememberedDeviceConnectAction) return;
 
         handleDeviceConnectNavigation({ isCoinEnablingInitFinished });
     },

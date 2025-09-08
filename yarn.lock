@@ -5616,13 +5616,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ciphers@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@noble/ciphers@npm:2.0.0"
-  checksum: 10/3346baa09ac25e8e0587c87613f97590634cdc0fdb95dd68e2406791d108b3173552413092361c771ff23533129a1d37811b3f1a5c9bfcf42f9bf9239a76ca16
-  languageName: node
-  linkType: hard
-
 "@noble/curves@npm:1.4.2, @noble/curves@npm:~1.4.0":
   version: 1.4.2
   resolution: "@noble/curves@npm:1.4.2"
@@ -9725,6 +9718,7 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:^"
     "@trezor/env-utils": "workspace:*"
+    "@trezor/protocol": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
     date-fns: "npm:^4.1.0"
@@ -9870,7 +9864,6 @@ __metadata:
   dependencies:
     "@evolu/common": "npm:^6.0.1-preview.19"
     "@mobily/ts-belt": "npm:^3.13.1"
-    "@noble/ciphers": "npm:^2.0.0"
     "@reduxjs/toolkit": "npm:2.8.2"
     "@suite-common/bluetooth": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
@@ -10641,9 +10634,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/intl@workspace:suite-native/intl"
   dependencies:
+    "@reduxjs/toolkit": "npm:2.8.2"
+    "@suite-common/suite-types": "workspace:*"
+    expo-localization: "npm:16.1.6"
     intl-pluralrules: "npm:^2.0.1"
     react: "npm:19.0.0"
     react-intl: "npm:^7.1.11"
+    react-native: "npm:0.79.3"
+    react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
 
@@ -10901,6 +10899,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:7.3.25"
     "@reduxjs/toolkit": "npm:2.8.2"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
     "@suite-common/trading": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-native/alerts": "workspace:*"
@@ -10910,6 +10909,7 @@ __metadata:
     "@suite-native/firmware": "workspace:*"
     "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
+    "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/sentry": "workspace:*"
@@ -11435,6 +11435,7 @@ __metadata:
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
     react: "npm:19.0.0"
+    react-intl: "npm:^7.1.11"
     react-native: "npm:0.79.3"
     react-native-keyboard-controller: "npm:1.18.5"
     react-native-permissions: "npm:5.4.2"
@@ -11854,6 +11855,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link@workspace:packages/blockchain-link"
   dependencies:
+    "@solana-program/compute-budget": "npm:^0.8.0"
     "@solana-program/stake": "npm:^0.2.1"
     "@solana-program/token": "npm:^0.5.1"
     "@solana-program/token-2022": "npm:^0.4.2"
@@ -12173,11 +12175,14 @@ __metadata:
     "@types/react": "npm:^19.0.0"
     babel-loader: "npm:^10.0.0"
     copy-webpack-plugin: "npm:^13.0.1"
+    crypto-browserify: "npm:3.12.0"
     eth-phishing-detect: "npm:^1.2.0"
     html-webpack-plugin: "npm:^5.6.3"
     react-dom: "npm:19.0.0"
     rimraf: "npm:^6.0.1"
+    stream-browserify: "npm:^3.0.0"
     terser-webpack-plugin: "npm:^5.3.14"
+    vm-browserify: "npm:^1.1.2"
     webpack: "npm:5.100.0"
     webpack-cli: "npm:^6.0.1"
     webpack-dev-server: "npm:^5.2.2"

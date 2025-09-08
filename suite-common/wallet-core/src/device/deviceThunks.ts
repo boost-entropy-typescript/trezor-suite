@@ -5,6 +5,7 @@ import {
     getDeviceInstances,
     getFirstDeviceInstance,
     getSelectedDevice,
+    isThpDevice,
     sortByTimestamp,
 } from '@suite-common/suite-utils';
 import {
@@ -407,7 +408,7 @@ export const deviceConnectThunks = createThunk<void, DeviceConnectThunksParams, 
         switch (type) {
             case DEVICE.CONNECT:
                 dispatch(deviceActions.connectDevice({ device }));
-                if (device.thp !== undefined) {
+                if (isThpDevice(device)) {
                     dispatch(connectThpDeviceThunk({ device }));
                 }
                 break;
@@ -526,7 +527,7 @@ export const forgetSingleDevicePersistentDataThunk = createThunk(
             dispatch(bluetoothActions.removeKnownDeviceAction({ id: device.bluetoothProps.id }));
         }
         // TODO: this works only for a connected device, as we intentionally do not link THP credentials in a remembered wallet.
-        if (device.thp !== undefined) {
+        if (isThpDevice(device)) {
             dispatch(thpActions.removeCredentials({ credentials: device.thp.credentials }));
         }
     },
@@ -554,10 +555,6 @@ type FailEntropyCheckParams = {
 export const failEntropyCheckThunk = createThunk(
     `${DEVICE_MODULE_PREFIX}/failEntropyCheckThunk`,
     ({ device, error }: FailEntropyCheckParams, { dispatch, extra }) => {
-        if (error.code === 'Method_Cancel') {
-            // resetDevice call was cancelled by user
-            return;
-        }
         const contextData = {
             model: device?.features?.internal_model,
             revision: device?.features?.revision,

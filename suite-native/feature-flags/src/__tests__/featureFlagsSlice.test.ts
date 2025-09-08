@@ -20,12 +20,13 @@ describe('featureFlagsSlice', () => {
                 isBluetoothEnabled: false,
                 areDebugOnlyNetworksEnabled: false,
                 isCardanoSendEnabled: false,
-                isConnectPopupEnabled: false,
+                isConnectPopupEnabled_v2: true,
                 isDebugKeysAllowed: false,
                 isWalletConnectEnabled_v2: true,
                 isTradingBuyEnabled: false,
                 isTradingExchangeEnabled: false,
                 isTradingSellEnabled: false,
+                isLocalizationEnabled: false,
             });
         });
 
@@ -44,12 +45,13 @@ describe('featureFlagsSlice', () => {
                 isBluetoothEnabled: false,
                 areDebugOnlyNetworksEnabled: false,
                 isCardanoSendEnabled: false,
-                isConnectPopupEnabled: false,
+                isConnectPopupEnabled_v2: false,
                 isDebugKeysAllowed: false,
                 isWalletConnectEnabled_v2: false,
                 isTradingBuyEnabled: false,
                 isTradingExchangeEnabled: false,
                 isTradingSellEnabled: false,
+                isLocalizationEnabled: false,
             });
         });
     });
