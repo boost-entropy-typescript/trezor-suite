@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import styled from 'styled-components';
 
-import { Button, DropdownMenuItemProps, Row } from '@trezor/components';
+import { processMetadataMessageThunk } from '@suite-common/local-first-storage';
+import { Button, DropdownMenuItemProps, Row, Text, Tooltip } from '@trezor/components';
 import { StaticSessionId } from '@trezor/connect';
 import { spacingsPx } from '@trezor/theme';
-import type { TimerId } from '@trezor/type-utils';
+import { TimerId } from '@trezor/type-utils';
 
 import { addMetadata, init, setEditing } from 'src/actions/suite/metadataLabelingActions';
 import { Translation } from 'src/components/suite';
@@ -19,6 +20,7 @@ import { MetadataAddPayload } from 'src/types/suite/metadata';
 import { ExtendedProps, Props } from './definitions';
 import { withDropdown } from './withDropdown';
 import { withEditable } from './withEditable';
+import { useLabelingCombined } from '../../../../hooks/suite/useLabelingCombined';
 import { AccountTypeBadge } from '../../AccountTypeBadge';
 
 const LabelValue = styled.div`
@@ -282,8 +284,8 @@ export const MetadataLabeling = ({
     onSubmit,
     visible,
     updateFlag,
+    deviceStaticSessionId,
 }: Props) => {
-    const metadata = useSelector(state => state.metadata);
     const dispatch = useDispatch();
     const { isDiscoveryRunning } = useDiscovery();
     const [showSuccess, setShowSuccess] = useState(false);
@@ -293,6 +295,14 @@ export const MetadataLabeling = ({
     const dataTestBase = `@metadata/${payload.type}/${payload.defaultValue}`;
     const actionButtonsDisabled = isDiscoveryRunning || pending;
     const isSubscribedToSubmitResult = useRef(payload.defaultValue);
+
+    const {
+        isLocalFirstStorageEnabled,
+        isEvoluSupportedByDevice,
+        legacyMetadataState,
+        hasDeviceLocalFirstStorageKeys,
+    } = useLabelingCombined({ deviceStaticSessionId });
+
     let timeout: TimerId | undefined;
     useEffect(() => {
         setPending(false);
@@ -304,23 +314,24 @@ export const MetadataLabeling = ({
         };
     }, [payload.defaultValue, timeout]);
 
-    const isLabelingInitPossible = useSelector(selectIsLabelingInitPossible);
+    const isLegacyLabelingInitPossible = useSelector(selectIsLabelingInitPossible);
     const deviceState =
         payload.type === 'walletLabel' ? (payload.entityKey as StaticSessionId) : undefined;
-    const isLabelingAvailable = useSelector(state =>
+    const isLegacyLabelingEnabled = useSelector(state =>
         selectIsLabelingAvailableForEntity(state, payload.entityKey, deviceState),
     );
 
     // is this concrete instance being edited?
-    const editActive = metadata.editing === payload.defaultValue;
+    const editActive = legacyMetadataState.editing === payload.defaultValue;
 
     const activateEdit = () => {
         // When clicking on inline input edit, ensure that everything needed is already ready.
         if (
+            !isLocalFirstStorageEnabled &&
             // Isn't initiation in progress?
-            !metadata.initiating &&
+            !legacyMetadataState.initiating &&
             // Is there something that needs to be initiated?
-            !isLabelingAvailable
+            !isLegacyLabelingEnabled
         ) {
             dispatch(
                 init(
@@ -347,7 +358,7 @@ export const MetadataLabeling = ({
     }
 
     const handleBlur = () => {
-        if (!metadata.initiating) {
+        if (!legacyMetadataState.initiating) {
             dispatch(setEditing(undefined));
         }
     };
@@ -355,22 +366,29 @@ export const MetadataLabeling = ({
     const defaultOnSubmit = async (value: string | undefined) => {
         isSubscribedToSubmitResult.current = payload.defaultValue;
         setPending(true);
-        const result = await dispatch(
-            addMetadata({
-                ...payload,
-                value: value || undefined,
-            }),
-        );
-        // payload.defaultValue might change during next render, this comparison
-        // ensures that success state does not appear if it is no longer relevant.
-        if (isSubscribedToSubmitResult.current === payload.defaultValue) {
-            setPending(false);
-            if (result) {
-                setShowSuccess(true);
-            }
+
+        if (isLocalFirstStorageEnabled) {
+            await dispatch(processMetadataMessageThunk({ payload, deviceStaticSessionId, value }));
+
+            setShowSuccess(true);
             timeout = setTimeout(() => {
                 setShowSuccess(false);
             }, 2000);
+            setPending(false);
+        } else {
+            const result = await dispatch(addMetadata({ ...payload, value: value || undefined }));
+
+            // payload.defaultValue might change during next render, this comparison
+            // ensures that success state does not appear if it is no longer relevant.
+            if (isSubscribedToSubmitResult.current === payload.defaultValue) {
+                setPending(false);
+                if (result) {
+                    setShowSuccess(true);
+                }
+                timeout = setTimeout(() => {
+                    setShowSuccess(false);
+                }, 2000);
+            }
         }
     };
 
@@ -384,16 +402,20 @@ export const MetadataLabeling = ({
 
     const labelContainerDataTest = `${dataTestBase}/hover-container`;
 
+    const isEvoluLabeling =
+        isLocalFirstStorageEnabled && isEvoluSupportedByDevice && hasDeviceLocalFirstStorageKeys;
+
     // Should "add label"/"edit label" button be visible?
     const showActionButton =
         !isDisabled &&
-        (isLabelingAvailable || isLabelingInitPossible) &&
+        (isLegacyLabelingEnabled || isLegacyLabelingInitPossible || isEvoluLabeling) &&
         !showSuccess &&
         !editActive;
+
     const isVisible = pending || visible;
 
     // Metadata is still initiating, on hover, show only disabled button with spinner.
-    if (metadata.initiating)
+    if (legacyMetadataState.initiating)
         return (
             <LabelContainer data-testid={labelContainerDataTest}>
                 {defaultVisibleValue}
@@ -411,93 +433,106 @@ export const MetadataLabeling = ({
         showActionButton && (!payload.value || (payload.value && pending));
 
     return (
-        <LabelContainer
-            data-testid={labelContainerDataTest}
-            onClick={e => payload.value && !editActive && e.stopPropagation()}
+        <Tooltip
+            content={
+                isLocalFirstStorageEnabled &&
+                !isEvoluSupportedByDevice && (
+                    <Text variant="warning">
+                        <Translation id="FIRMWARE_NEEDS_UPGRADE_FOR_EVOLU" />
+                    </Text>
+                )
+            }
         >
-            {payload.type === 'outputLabel' ? (
-                <>
-                    <ButtonLikeLabelWithDropdown
-                        editActive={editActive}
-                        onSubmit={onSubmit || defaultOnSubmit}
-                        onBlur={handleBlur}
-                        data-testid={dataTestBase}
-                        payload={payload}
-                        defaultEditableValue={defaultEditableValue}
-                        defaultVisibleValue={defaultVisibleValue}
-                        dropdownOptions={dropdownItems}
-                    />
-                    {showOutputLabelActionButton && (
-                        <ActionButton
-                            data-testid={`${dataTestBase}/add-label-button`}
-                            variant="tertiary"
-                            icon={!actionButtonsDisabled ? 'tag' : undefined}
-                            isLoading={actionButtonsDisabled}
-                            isDisabled={actionButtonsDisabled}
-                            $isVisible={isVisible}
-                            size="tiny"
-                            onClick={e => {
-                                e.stopPropagation();
-                                // By clicking on add label button, metadata.editing field is set
-                                // to default value of whatever may be labeled (address, etc..)
-                                // this way we ensure that only one field may be active at time.
-                                activateEdit();
-                            }}
-                        >
-                            {l10nLabelling.add}
-                        </ActionButton>
-                    )}
-                </>
-            ) : (
-                <>
-                    <TextLikeLabel
-                        editActive={editActive}
-                        accountType={accountType}
-                        onSubmit={onSubmit || defaultOnSubmit}
-                        onBlur={handleBlur}
-                        data-testid={dataTestBase}
-                        payload={payload}
-                        networkType={networkType}
-                        path={path}
-                        defaultEditableValue={defaultEditableValue}
-                        defaultVisibleValue={defaultVisibleValue}
-                        updateFlag={updateFlag}
-                    />
+            <LabelContainer
+                data-testid={labelContainerDataTest}
+                onClick={e => payload.value && !editActive && e.stopPropagation()}
+            >
+                {payload.type === 'outputLabel' ? (
+                    <>
+                        <ButtonLikeLabelWithDropdown
+                            editActive={editActive}
+                            onSubmit={onSubmit || defaultOnSubmit}
+                            onBlur={handleBlur}
+                            data-testid={dataTestBase}
+                            payload={payload}
+                            defaultEditableValue={defaultEditableValue}
+                            defaultVisibleValue={defaultVisibleValue}
+                            dropdownOptions={dropdownItems}
+                            deviceStaticSessionId={deviceStaticSessionId}
+                        />
+                        {showOutputLabelActionButton && (
+                            <ActionButton
+                                data-testid={`${dataTestBase}/add-label-button`}
+                                variant="tertiary"
+                                icon={!actionButtonsDisabled ? 'tag' : undefined}
+                                isLoading={actionButtonsDisabled}
+                                isDisabled={actionButtonsDisabled}
+                                $isVisible={isVisible}
+                                size="tiny"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    // By clicking on add label button, metadata.editing field is set
+                                    // to default value of whatever may be labeled (address, etc..)
+                                    // this way we ensure that only one field may be active at time.
+                                    activateEdit();
+                                }}
+                            >
+                                {l10nLabelling.add}
+                            </ActionButton>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        <TextLikeLabel
+                            editActive={editActive}
+                            accountType={accountType}
+                            onSubmit={onSubmit || defaultOnSubmit}
+                            onBlur={handleBlur}
+                            data-testid={dataTestBase}
+                            payload={payload}
+                            networkType={networkType}
+                            path={path}
+                            defaultEditableValue={defaultEditableValue}
+                            defaultVisibleValue={defaultVisibleValue}
+                            updateFlag={updateFlag}
+                            deviceStaticSessionId={deviceStaticSessionId}
+                        />
 
-                    {showActionButton && (
-                        <ActionButton
-                            data-testid={
-                                payload.value
-                                    ? `${dataTestBase}/edit-label-button`
-                                    : `${dataTestBase}/add-label-button`
-                            }
-                            variant="tertiary"
-                            icon={!actionButtonsDisabled ? 'tag' : undefined}
-                            isLoading={actionButtonsDisabled}
-                            isDisabled={actionButtonsDisabled}
-                            $isVisible={isVisible}
-                            size="tiny"
-                            onClick={e => {
-                                e.stopPropagation();
-                                activateEdit();
-                            }}
-                        >
-                            {payload.value ? l10nLabelling.edit : l10nLabelling.add}
-                        </ActionButton>
-                    )}
-                </>
-            )}
+                        {showActionButton && (
+                            <ActionButton
+                                data-testid={
+                                    payload.value
+                                        ? `${dataTestBase}/edit-label-button`
+                                        : `${dataTestBase}/add-label-button`
+                                }
+                                variant="tertiary"
+                                icon={!actionButtonsDisabled ? 'tag' : undefined}
+                                isLoading={actionButtonsDisabled}
+                                isDisabled={actionButtonsDisabled}
+                                $isVisible={isVisible}
+                                size="tiny"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    activateEdit();
+                                }}
+                            >
+                                {payload.value ? l10nLabelling.edit : l10nLabelling.add}
+                            </ActionButton>
+                        )}
+                    </>
+                )}
 
-            {showSuccess && !editActive && (
-                <SuccessButton
-                    variant="tertiary"
-                    data-testid={`${dataTestBase}/success`}
-                    icon="check"
-                    size="tiny"
-                >
-                    {l10nLabelling.edited}
-                </SuccessButton>
-            )}
-        </LabelContainer>
+                {showSuccess && !editActive && (
+                    <SuccessButton
+                        variant="tertiary"
+                        data-testid={`${dataTestBase}/success`}
+                        icon="check"
+                        size="tiny"
+                    >
+                        {l10nLabelling.edited}
+                    </SuccessButton>
+                )}
+            </LabelContainer>
+        </Tooltip>
     );
 };
