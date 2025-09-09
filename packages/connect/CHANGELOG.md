@@ -1,15 +1,24 @@
-|             Package              | Stable | Canary |
-| :------------------------------: | :----: | :----: |
-|       npm @trezor/connect        | 9.6.2  |   -    |
-|     npm @trezor/connect-web      | 9.6.2  |   -    |
-| npm @trezor/connect-webextension | 9.6.2  |   -    |
-|    npm @trezor/connect-mobile    | 9.6.2  |   -    |
+|             Package              | Stable |    Canary    |
+| :------------------------------: | :----: | :----------: |
+|       npm @trezor/connect        | 9.6.2  | 9.6.3-beta.1 |
+|     npm @trezor/connect-web      | 9.6.2  | 9.6.3-beta.1 |
+| npm @trezor/connect-webextension | 9.6.2  | 9.6.3-beta.1 |
+|    npm @trezor/connect-mobile    | 9.6.2  | 9.6.3-beta.1 |
 
-|     Deployment     | Stable | Canary |
-| :----------------: | :----: | :----: |
-| connect.trezor.io/ | 9.6.2  |   -    |
+|     Deployment     | Stable |    Canary    |
+| :----------------: | :----: | :----------: |
+| connect.trezor.io/ | 9.6.2  | 9.6.3-beta.1 |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
+
+# 9.6.3-beta.1
+
+We’ve added support for Cardano message signing based on the CIP-8 standard, available through the new cardanoSignMessage method.
+
+    - feat(connect-explorer): Add cardanoSignMessage (bc88818)
+    - feat(connect): Cardano message signing (01c4a0f)
+
+Other than that only bug fixing, refactorings and chores are present.
 
 # 9.6.2
 

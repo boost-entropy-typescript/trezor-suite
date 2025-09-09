@@ -5,8 +5,6 @@ import { DiscoveryRootState } from './discoveryReducer';
 import { DeviceRootState } from '../device/deviceReducer';
 import { selectSelectedDevice } from '../device/deviceSelectors';
 
-export const selectDiscovery = (state: DiscoveryRootState) => state.wallet.discovery;
-
 export const selectDiscoveryByDevicePath = (state: DiscoveryRootState, path?: DeviceUniquePath) =>
     path !== undefined ? state.wallet.discovery[path] : undefined;
 
@@ -42,7 +40,7 @@ export const selectHasRunningDiscovery = (state: DiscoveryRootState & DeviceRoot
 /**
  * Helper selector called from components
  */
-export const selectIsDiscoveryAuthConfirmationRequired = (
+export const selectIsDiscoveryStatusConfirmEmptyPassphrase = (
     state: DiscoveryRootState & DeviceRootState,
     path?: DeviceUniquePath,
 ) => selectDiscoveryByDevicePath(state, path)?.status === 'confirm-empty-passphrase';

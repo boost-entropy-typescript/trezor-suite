@@ -6,7 +6,6 @@ type CommonDiscoveryStatus = {
     isAddingExistingWallet?: boolean; // to control visibility of special loader
     isAddingHiddenWalletWithRespectToSettings?: boolean;
     hasLoadedAnyNonEmptyAccount?: boolean; // NOTE: used to indicate the the discovery started loading actual accounts
-    emptyWallet?: boolean;
     passphraseOnDevice?: boolean;
     startTimestamp?: number;
     passphraseSubmitted?: boolean;
@@ -40,7 +39,6 @@ export type DiscoveryStatus = CommonDiscoveryStatus &
           }
         | {
               status: 'confirm-empty-passphrase';
-              //   accountsToBeCreated: Account[];
           }
         | {
               status: 'complete';

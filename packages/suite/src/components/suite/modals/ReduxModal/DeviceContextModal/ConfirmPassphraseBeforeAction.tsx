@@ -1,7 +1,11 @@
 import { useCallback } from 'react';
 import { useIntl } from 'react-intl';
 
-import { selectDeviceModel, selectSelectedDevice } from '@suite-common/wallet-core';
+import {
+    selectDeviceModel,
+    selectHasDevicePassphraseEntryCapability,
+    selectSelectedDevice,
+} from '@suite-common/wallet-core';
 import { Column, H3, Paragraph } from '@trezor/components';
 import TrezorConnect, { UI } from '@trezor/connect';
 import { spacings } from '@trezor/theme';
@@ -34,11 +38,11 @@ export const ConfirmPassphraseBeforeAction = () => {
         });
     }, []);
 
+    const offerPassphraseOnDevice = useSelector(selectHasDevicePassphraseEntryCapability);
+
     if (!device) {
         return null;
     }
-
-    const onDeviceOffer = !!device?.features?.capabilities?.includes('Capability_PassphraseEntry');
 
     return (
         <SwitchDeviceModal onCancel={onEnterPassphraseDialogCancel}>
@@ -53,7 +57,7 @@ export const ConfirmPassphraseBeforeAction = () => {
                     <PassphraseInputCard
                         deviceModel={deviceModel ?? undefined}
                         onSubmit={onSubmit}
-                        offerPassphraseOnDevice={onDeviceOffer}
+                        offerPassphraseOnDevice={offerPassphraseOnDevice}
                         allowNonAsciiCharacters
                     />
                 </Column>
