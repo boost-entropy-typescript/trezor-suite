@@ -14,12 +14,13 @@ import { CoinjoinApi } from './CoinjoinApi';
 import { ConnectPopup } from './ConnectPopup';
 import { DeviceAuthenticity } from './DeviceAuthenticity';
 import { Devkit } from './Devkit';
-import { FirmwareUpdate } from './FirmwareUpdate';
+import { FirmwareUpdateEnvironmentSelect } from './FirmwareUpdateEnvironmentSelect';
 import { ForgetAllDevicesButton } from './ForgetBluetoothDevices';
 import { GithubIssue } from './GithubIssue';
 import { InvityApi } from './InvityApi';
 import { LocalFirstStorageSettings } from './LocalFirstStorageSettings';
 import { MessageSystemConfigSourceSelect } from './MessageSystem/MessageSystemConfigSourceSelect';
+import { MessageSystemDebug } from './MessageSystem/MessageSystemDebug';
 import { Metadata } from './Metadata';
 import { OAuthApi } from './OAuthApi';
 import { PreField } from './PreField';
@@ -88,6 +89,7 @@ export const SettingsDebug = () => {
             </SettingsSection>
             <SettingsSection title="Message system info">
                 <MessageSystemConfigSourceSelect />
+                <MessageSystemDebug />
             </SettingsSection>
             {isDesktop() && (
                 <SettingsSection title={<Translation id="TR_BLUETOOTH" />}>
@@ -104,7 +106,7 @@ export const SettingsDebug = () => {
                 {isDesktop() && <ConnectPopup />}
             </SettingsSection>
             <SettingsSection title="Firmware update source">
-                <FirmwareUpdate />
+                <FirmwareUpdateEnvironmentSelect />
             </SettingsSection>
             <LocalFirstStorageSettings />
         </SettingsLayout>

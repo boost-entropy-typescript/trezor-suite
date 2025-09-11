@@ -5,6 +5,7 @@ use btleplug::api::CentralState;
 pub enum AbortProcess {
     ClientDisconnected(String), // websocket client disconnected
     DeviceDisconnected(String), // device disconnected
+    Read(String),               // device closed/disconnected
     Scan,                       // stop scan
 }
 
@@ -52,6 +53,10 @@ pub enum WsRequestMethod {
     ConnectDevice(ConnectDeviceParams),
     DisconnectDevice(String),
     ForgetDevice(String),
+    OpenDevice(String),
+    CloseDevice(String),
+    Write(WriteParams),
+    Read(String),
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -73,6 +78,7 @@ pub enum WsResponsePayload {
     },
     Peripherals(Vec<TrezorDevice>),
     Success(bool),
+    Read(Vec<u8>),
 }
 
 #[derive(serde::Serialize, Clone, Debug)]
@@ -137,6 +143,10 @@ pub enum NotificationEvent {
     DeviceConnectionStatus(TrezorDevice),
     #[allow(dead_code)]
     DeviceSettingsUi, // only on linux
+    DeviceRead {
+        id: String,
+        data: Vec<u8>,
+    },
 }
 
 #[derive(Debug, thiserror::Error)]
