@@ -1,14 +1,11 @@
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/core';
-import { useSetAtom } from 'jotai';
 
 import { useAlert } from '@suite-native/alerts';
-import {
-    ConnectAndUnlockDeviceScreenContent,
-    isOnboardingDeviceDisconnectedAlertDisplayedAtom,
-    wasDeviceOnboardingCancelledAtom,
-} from '@suite-native/device';
+import { ConnectAndUnlockDeviceScreenContent } from '@suite-native/device';
+import { setWasDeviceOnboardingCancelled } from '@suite-native/device-onboarding';
 import { useTranslate } from '@suite-native/intl';
 import {
     AppTabsRoutes,
@@ -28,17 +25,13 @@ type NavigationProp = StackToStackCompositeNavigationProps<
 >;
 
 export const ConnectAndUnlockDeviceScreen = () => {
+    const dispatch = useDispatch();
+
     const { showAlert } = useAlert();
+
     const { translate } = useTranslate();
+
     const navigation = useNavigation<NavigationProp>();
-    const setIsOnboardingDeviceDisconnectedAlertDisplayed = useSetAtom(
-        isOnboardingDeviceDisconnectedAlertDisplayedAtom,
-    );
-
-    const hideDeviceDisconnectedAlert = () =>
-        setIsOnboardingDeviceDisconnectedAlertDisplayed(false);
-
-    const setWasDeviceOnboardingCancelled = useSetAtom(wasDeviceOnboardingCancelledAtom);
 
     const navigateToHome = () =>
         navigation.popTo(RootStackRoutes.AppTabs, {
@@ -49,10 +42,7 @@ export const ConnectAndUnlockDeviceScreen = () => {
         });
 
     useEffect(() => {
-        // This alert should be shown only if the device was physically disconnected from the phone.
-        // In case that user "disconnects" device by cancelling the onboarding flow via the app UI, the alert is not shown!
-        setIsOnboardingDeviceDisconnectedAlertDisplayed(true);
-        setWasDeviceOnboardingCancelled(false);
+        dispatch(setWasDeviceOnboardingCancelled(false));
 
         showAlert({
             title: translate('moduleDeviceOnboarding.deviceDisconnectedAlert.title'),
@@ -64,10 +54,8 @@ export const ConnectAndUnlockDeviceScreen = () => {
             primaryButtonVariant: 'redBold',
             secondaryButtonTitle: translate('generic.buttons.cancel'),
             secondaryButtonVariant: 'redElevation0',
-            onPressPrimaryButton: hideDeviceDisconnectedAlert,
             onPressSecondaryButton: () => {
                 setWasDeviceOnboardingCancelled(true);
-                hideDeviceDisconnectedAlert();
                 navigateToHome();
             },
         });

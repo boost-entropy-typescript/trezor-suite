@@ -15,6 +15,7 @@ import {
     selectIsDeviceRemembered,
     selectIsDeviceUsingPassphrase,
 } from '@suite-common/wallet-core';
+import { selectWasDeviceOnboardingCancelled } from '@suite-native/device-onboarding';
 import { selectIsFirmwareInstallationRunning } from '@suite-native/firmware';
 import {
     AuthorizeDeviceStackRoutes,
@@ -22,7 +23,8 @@ import {
     HomeStackRoutes,
     RootStackRoutes,
     checkIsActiveRouteAnyOf,
-    checkIsActiveRouteAnyOfBlacklisted,
+    checkIsDeviceOnboardingFocused,
+    checkIsHomeStackFocused,
     navigationContainerRef,
 } from '@suite-native/navigation';
 import { selectIsCoinEnablingInitFinished } from '@suite-native/settings';
@@ -34,6 +36,7 @@ import {
 import {
     NativeDeviceRootState,
     selectIsDeviceCompromised,
+    selectIsDeviceSetupSupported,
     selectIsEntropyCheckEnabledAndFailed,
 } from '../selectors';
 import { isDeviceConnectAction } from '../utils';
@@ -42,9 +45,63 @@ export const deviceConnectionMiddleware = createListenerMiddleware<NativeDeviceR
 
 const handleDeviceConnectNavigation = ({
     isCoinEnablingInitFinished,
+    isDeviceInitialized,
+    isDeviceSetupSupported,
+    wasDeviceOnboardingCancelled,
 }: {
     isCoinEnablingInitFinished: boolean;
+    isDeviceInitialized: boolean;
+    isDeviceSetupSupported: boolean;
+    wasDeviceOnboardingCancelled: boolean;
 }) => {
+    if (!isDeviceInitialized) {
+        // If device setup is not supported, we don't want to navigate anywhere
+        // We handle it separately in `useDetectDeviceError` hook. Ideally, the alert would be triggered here (it would need to be in redux though).
+        if (!isDeviceSetupSupported) return;
+
+        // If user previously cancelled the onboarding, they should remaing on homescreen
+        if (wasDeviceOnboardingCancelled) {
+            // No need to navigate if we are already on home screen (preventing sliding to new screen)
+            if (checkIsHomeStackFocused()) return;
+
+            navigationContainerRef.reset({
+                index: 0,
+                routes: [
+                    {
+                        name: RootStackRoutes.AppTabs,
+                        params: {
+                            screen: HomeStackRoutes.Home,
+                        },
+                    },
+                ],
+            });
+
+            return;
+        } else {
+            // If THP confirmation screen was shown, we want to prevent swiping/navigating back to
+            // that THP confirmation screen. Swiping/navigating back shall lead to the Home screen.
+            navigationContainerRef.reset({
+                index: 1,
+                routes: [
+                    {
+                        name: RootStackRoutes.AppTabs,
+                        params: {
+                            screen: HomeStackRoutes.Home,
+                        },
+                    },
+                    {
+                        name: RootStackRoutes.DeviceOnboardingStack,
+                        params: {
+                            screen: DeviceOnboardingStackRoutes.UninitializedDeviceLanding,
+                        },
+                    },
+                ],
+            });
+
+            return;
+        }
+    }
+
     if (isCoinEnablingInitFinished) {
         navigationContainerRef.navigate(RootStackRoutes.AuthorizeDeviceStack, {
             screen: AuthorizeDeviceStackRoutes.ConnectingDevice,
@@ -55,20 +112,14 @@ const handleDeviceConnectNavigation = ({
 };
 
 deviceConnectionMiddleware.startListening({
-    predicate: (action, currentState) =>
-        isDeviceConnectAction(action) &&
-        // TODO this should dissappear after we merge device onboarding redirect here as well
-        // https://github.com/trezor/trezor-suite/issues/20157
-        // If device is not initialized and is compromised, we display the modal (reason why this condition is here) and then want to redirect to uninitialized device landing.
-        (selectIsDeviceInitialized(currentState) || selectIsDeviceCompromised(currentState)),
+    predicate: action => isDeviceConnectAction(action),
     effect: (
         action: UnknownAction,
         { getState }: ListenerEffectAPI<NativeDeviceRootState, Dispatch<UnknownAction>>,
     ) => {
         const shouldNavigateToDeviceCompromisedModal = selectIsDeviceCompromised(getState());
-        const isCoinEnablingInitFinished = selectIsCoinEnablingInitFinished(getState());
 
-        if (!checkIsActiveRouteAnyOfBlacklisted(DEVICE_CONNECTION_BLACKLISTED_ROUTES)) return;
+        if (checkIsActiveRouteAnyOf(DEVICE_CONNECTION_BLACKLISTED_ROUTES)) return;
 
         // During firmware installation, device restarts (disconnect + connect) and we want to ignore it.
         if (selectIsFirmwareInstallationRunning(getState())) return;
@@ -96,7 +147,12 @@ deviceConnectionMiddleware.startListening({
 
         if (isNonThpRememberedDeviceConnectAction) return;
 
-        handleDeviceConnectNavigation({ isCoinEnablingInitFinished });
+        handleDeviceConnectNavigation({
+            isCoinEnablingInitFinished: selectIsCoinEnablingInitFinished(getState()),
+            isDeviceInitialized: selectIsDeviceInitialized(getState()),
+            isDeviceSetupSupported: selectIsDeviceSetupSupported(getState()),
+            wasDeviceOnboardingCancelled: selectWasDeviceOnboardingCancelled(getState()),
+        });
     },
 });
 
@@ -107,28 +163,32 @@ deviceConnectionMiddleware.startListening({
         const isEntropyCheckEnabledAndFailed = selectIsEntropyCheckEnabledAndFailed(getState());
         const isFirmwareInstallationRunning = selectIsFirmwareInstallationRunning(getState());
 
-        const isDeviceDisconnectionNavigationAllowed = checkIsActiveRouteAnyOfBlacklisted(
-            buildDisconnectionBlacklist(isEntropyCheckEnabledAndFailed, isDeviceRemembered),
-        );
+        if (
+            checkIsActiveRouteAnyOf(
+                buildDisconnectionBlacklist(isEntropyCheckEnabledAndFailed, isDeviceRemembered),
+            ) ||
+            isFirmwareInstallationRunning
+        )
+            return;
 
-        if (!isDeviceDisconnectionNavigationAllowed || isFirmwareInstallationRunning) return;
-
-        if (checkIsActiveRouteAnyOf([RootStackRoutes.DeviceOnboardingStack])) {
+        if (checkIsDeviceOnboardingFocused()) {
             navigationContainerRef.navigate(RootStackRoutes.DeviceOnboardingStack, {
                 screen: DeviceOnboardingStackRoutes.ConnectAndUnlockDevice,
             });
         } else {
-            navigationContainerRef.reset({
-                index: 0,
-                routes: [
-                    {
-                        name: RootStackRoutes.AppTabs,
-                        params: {
-                            screen: HomeStackRoutes.Home,
+            if (!checkIsHomeStackFocused()) {
+                navigationContainerRef.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: RootStackRoutes.AppTabs,
+                            params: {
+                                screen: HomeStackRoutes.Home,
+                            },
                         },
-                    },
-                ],
-            });
+                    ],
+                });
+            }
         }
     },
 });

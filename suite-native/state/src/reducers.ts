@@ -31,6 +31,7 @@ import { prepareWalletConnectReducer } from '@suite-common/walletconnect/src/wal
 import { bannerFlagsPersistWhitelist, bannerFlagsReducer } from '@suite-native/banner-flags';
 import { bluetoothSlice } from '@suite-native/bluetooth';
 import { deviceAuthorizationReducer } from '@suite-native/device-authorization';
+import { deviceOnboardingReducer } from '@suite-native/device-onboarding';
 import { featureFlagsPersistedKeys, featureFlagsReducer } from '@suite-native/feature-flags';
 import { nativeFirmwareReducer } from '@suite-native/firmware';
 import { graphPersistTransform, graphReducer } from '@suite-native/graph';
@@ -38,6 +39,7 @@ import { localePersistWhitelist, localeReducer } from '@suite-native/intl';
 import { tradingSlice } from '@suite-native/module-trading';
 import { appSettingsPersistWhitelist, appSettingsReducer } from '@suite-native/settings';
 import {
+    backfillDeviceAuthenticityChecks,
     bluetoothPersistTransform,
     deriveAccountTypeFromPaymentType,
     devicePersistTransform,
@@ -194,7 +196,7 @@ export const prepareRootReducers = async () => {
         reducer: deviceReducer,
         persistedKeys: ['devices', 'isDeviceAutoEjectEnabled'],
         key: 'devices',
-        version: 2,
+        version: 3,
         transforms: [devicePersistTransform],
         migrations: {
             2: oldState => {
@@ -205,6 +207,12 @@ export const prepareRootReducers = async () => {
                 const migratedState = { ...oldState, devices: migratedDevices };
 
                 return migratedState;
+            },
+            3: oldState => {
+                if (!oldState.devices) return oldState;
+                const migratedDevices = backfillDeviceAuthenticityChecks(oldState.devices);
+
+                return { ...oldState, devices: migratedDevices };
             },
         },
     });
@@ -277,6 +285,7 @@ export const prepareRootReducers = async () => {
             graph: graphReducer,
             device: devicePersistedReducer,
             deviceAuthorization: deviceAuthorizationReducer,
+            deviceOnboarding: deviceOnboardingReducer,
             firmware: firmwarePersistedReducer,
             nativeFirmware: nativeFirmwareReducer,
             logs: logsSlice.reducer,

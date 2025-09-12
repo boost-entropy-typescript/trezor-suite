@@ -3,20 +3,17 @@ import { AnyAction, isAnyOf } from '@reduxjs/toolkit';
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
 import { isAnyDeviceEventAction } from '@suite-common/suite-utils';
 import {
-    createImportedDeviceThunk,
     deviceActions,
     forgetAccountsThunk,
     forgetDisconnectedDevices,
     handleDeviceDisconnect,
     observeSelectedDevice,
     selectAccountsByDeviceState,
-    selectDeviceThunk,
     selectDiscoveryByDevicePath,
     selectIsDeviceForceRemembered,
 } from '@suite-common/wallet-core';
 import { EventType, analytics } from '@suite-native/analytics';
 import { clearAndUnlockDeviceAccessQueue } from '@suite-native/device-mutex';
-import { FeatureFlag, selectIsFeatureFlagEnabled } from '@suite-native/feature-flags';
 import { reportSecurityCheck } from '@suite-native/sentry';
 import { setShouldShowAutoEjectAlert } from '@suite-native/settings';
 import { DEVICE } from '@trezor/connect';
@@ -63,10 +60,6 @@ export const prepareDeviceMiddleware = createMiddlewareWithExtraDeps(
          expect that the state was already changed by the action stored in the `action` variable. */
         next(action);
 
-        if (isAnyOf(createImportedDeviceThunk.fulfilled)(action)) {
-            dispatch(selectDeviceThunk({ device: action.payload.device }));
-        }
-
         if (deviceActions.forgetDevice.match(action)) {
             dispatch(handleDeviceDisconnect(action.payload.device));
 
@@ -77,18 +70,9 @@ export const prepareDeviceMiddleware = createMiddlewareWithExtraDeps(
             }
         }
 
-        const isUsbDeviceConnectFeatureEnabled = selectIsFeatureFlagEnabled(
-            getState(),
-            FeatureFlag.IsDeviceConnectEnabled,
-        );
-
         switch (action.type) {
             case DEVICE.CONNECT:
             case DEVICE.CONNECT_UNACQUIRED: {
-                if (isUsbDeviceConnectFeatureEnabled) {
-                    dispatch(selectDeviceThunk(action.payload));
-                }
-
                 const { device } = action.payload;
                 const { features, mode } = device;
 
