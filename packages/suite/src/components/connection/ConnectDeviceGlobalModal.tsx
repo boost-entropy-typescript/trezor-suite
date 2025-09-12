@@ -230,7 +230,7 @@ export const ConnectDeviceGlobalModal = ({ onCancel }: { onCancel: () => void })
                     gap={32}
                     maxHeight="calc(80vh - 86px)"
                     overflow="hidden"
-                    margin={{ top: 12, bottom: !isBluetoothMode ? -16 : 24 }}
+                    margin={{ top: 12, bottom: 0 }}
                 >
                     {isBluetoothEnabled && (
                         <Button
