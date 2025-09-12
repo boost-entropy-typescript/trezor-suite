@@ -2,23 +2,27 @@ import { ReactNode } from 'react';
 
 import styled from 'styled-components';
 
-import { Button, Row, variables } from '@trezor/components';
+import { Button, Flex, Row, variables } from '@trezor/components';
+import { isDesktop, isMacOs } from '@trezor/env-utils';
 import { spacings, spacingsPx, zIndices } from '@trezor/theme';
 import { TREZOR_SUPPORT_URL } from '@trezor/urls';
 
+import { MODAL } from 'src/actions/suite/constants';
 import { GuideButton, GuideRouter } from 'src/components/guide';
 import { OnboardingProgressBar } from 'src/components/onboarding';
 import { Translation } from 'src/components/suite';
 import { SuiteBanners } from 'src/components/suite/banners';
+import { ReduxModal } from 'src/components/suite/modals/ReduxModal/ReduxModal';
 import { MAX_ONBOARDING_WIDTH } from 'src/constants/suite/layout';
-import { useSelector } from 'src/hooks/suite';
+import { useFilteredModal, useSelector } from 'src/hooks/suite';
 
 import {
     OnboardingCancelButtonContext,
     useOnboardingCancelButtonContext,
 } from './OnboardingCancelButtonContext';
 import { SmallDeviceItem } from '../../views/suite/SwitchDevice/DeviceItem/SmallDeviceItem';
-import { TrafficLightOffset } from '../suite/TrafficLightOffset';
+import { ConnectionGlobalModal } from '../connection/ConnectionGlobalModal';
+import { TRAFFIC_LIGHT_DEFAULT_OFFSET } from '../suite/TrafficLightOffset';
 import { DebugLegend } from '../suite/layouts/SuiteLayout/DebugLegend';
 
 const Wrapper = styled.div`
@@ -39,6 +43,12 @@ const Body = styled.div`
 const ScrollingWrapper = styled.div`
     position: relative;
     display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const OnboardingSpacer = styled.div`
+    height: ${TRAFFIC_LIGHT_DEFAULT_OFFSET}px;
     width: 100%;
 `;
 
@@ -164,13 +174,26 @@ type OnboardingLayoutProps = {
 export const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
     const theme = useSelector(state => state.suite.settings.theme);
 
-    return (
-        <TrafficLightOffset>
-            <Wrapper>
-                <SuiteBanners isOnboarding />
+    const isMac = isMacOs();
+    const isDesktopApp = isDesktop();
 
+    const allowedModal = useFilteredModal(
+        [MODAL.CONTEXT_USER],
+        ['advanced-coin-settings', 'disable-tor'],
+    );
+
+    return (
+        <>
+            <ConnectionGlobalModal />
+            {allowedModal !== null ? <ReduxModal {...allowedModal} /> : null}
+
+            <Wrapper>
                 <Body data-testid="@onboarding-layout/body">
                     <ScrollingWrapper>
+                        {isMac && isDesktopApp && <OnboardingSpacer />}
+                        <Flex direction="column" alignItems="center">
+                            <SuiteBanners isOnboarding />
+                        </Flex>
                         <OnboardingCancelButtonContext>
                             <OnboardingContent>{children}</OnboardingContent>
                         </OnboardingCancelButtonContext>
@@ -181,6 +204,6 @@ export const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
                 </Body>
             </Wrapper>
             {theme.variant === 'debug' && <DebugLegend />}
-        </TrafficLightOffset>
+        </>
     );
 };

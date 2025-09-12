@@ -1,7 +1,6 @@
 import { createThunk } from '@suite-common/redux-utils/';
 import { isThpDevice } from '@suite-common/suite-utils';
 import { thpActions } from '@suite-common/thp';
-import { notificationsActions } from '@suite-common/toast-notifications';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
 import TrezorConnect from '@trezor/connect';
 
@@ -25,7 +24,7 @@ export const removeThpAutoconnectThunk = createThunk<
     `${THP_PREFIX}/removeThpAutoconnectThunk`,
     async (
         params,
-        { getState, dispatch, fulfillWithValue },
+        { getState, dispatch, fulfillWithValue, rejectWithValue },
     ): Promise<RemoveThpAutoconnectThunkResult> => {
         const device = selectSelectedDevice(getState());
 
@@ -42,12 +41,12 @@ export const removeThpAutoconnectThunk = createThunk<
 
         if (response.success) {
             dispatch(thpActions.removeCredentials({ credentials: credentialsToRemove }));
-        } else {
-            dispatch(
-                notificationsActions.addToast({ type: 'error', error: response.payload.error }),
-            );
         }
         dispatch(thpActions.finishThpFlow());
+
+        if (!response.success) {
+            rejectWithValue(response);
+        }
 
         return fulfillWithValue(response);
     },

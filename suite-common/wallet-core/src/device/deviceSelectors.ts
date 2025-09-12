@@ -37,6 +37,11 @@ export const selectIsPendingTransportEvent = createMemoizedSelector(
     devices => devices.length < 1,
 );
 
+export const selectDeviceAutoconnectCredentials = createMemoizedSelector(
+    [selectSelectedDevice],
+    device => device?.thp?.credentials.filter(cred => cred.autoconnect) ?? [],
+);
+
 export const selectIsDeviceUnlocked = createMemoizedSelector(
     [selectSelectedDevice],
     device => !!device?.features?.unlocked,
@@ -515,3 +520,31 @@ export const selectDeviceDefaultBackupType = createMemoizedSelector(
 export const selectStandardWalletDevice = createMemoizedSelector([selectDevices], devices =>
     devices.find(device => device.useEmptyPassphrase),
 );
+
+/**
+ * Get firmware revision check error, or null if check was successful / skipped.
+ */
+export const selectFirmwareRevisionCheckError = (state: DeviceRootState) => {
+    const device = selectSelectedDevice(state);
+    if (!deviceUtils.isDeviceAcquired(device) || !device.authenticityChecks) return null;
+    const checkResult = device.authenticityChecks.firmwareRevision;
+
+    // null means not performed, then don't consider it failed
+    if (!checkResult || checkResult.success) return null;
+
+    return checkResult.error;
+};
+
+/**
+ * Get firmware hash check error, or null if check was successful / skipped.
+ */
+export const selectFirmwareHashCheckError = (state: DeviceRootState) => {
+    const device = selectSelectedDevice(state);
+    if (!deviceUtils.isDeviceAcquired(device) || !device.authenticityChecks) return null;
+    const checkResult = device.authenticityChecks.firmwareHash;
+
+    // null means not performed, then don't consider it failed
+    if (!checkResult || checkResult.success) return null;
+
+    return checkResult.error;
+};

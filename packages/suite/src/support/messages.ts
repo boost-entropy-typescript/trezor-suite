@@ -2275,8 +2275,12 @@ export default defineMessages({
         id: 'TR_NEEDS_ATTENTION_WAS_USED_IN_OTHER_WINDOW',
     },
     TR_NEEDS_ATTENTION_UNACQUIRED: {
-        defaultMessage: 'Trezor is already in use in another window.',
+        defaultMessage: 'Trezor is already in use.',
         id: 'TR_NEEDS_ATTENTION_UNACQUIRED',
+    },
+    TR_USE_HERE: {
+        defaultMessage: 'Use here',
+        id: 'TR_USE_HERE',
     },
     TR_NEEDS_ATTENTION_FIRMWARE_REQUIRED: {
         defaultMessage: 'Firmware update required.',
@@ -2291,7 +2295,7 @@ export default defineMessages({
         id: 'TR_NEEDS_ATTENTION_UNREADABLE',
     },
     TR_NEEDS_ATTENTION_UNACQUIRED_THP_REQUIRED: {
-        defaultMessage: 'Secure connection not set up',
+        defaultMessage: "Secure connection isn't set up",
         id: 'TR_NEEDS_ATTENTION_UNACQUIRED_THP_REQUIRED',
     },
     TR_NEEDS_ATTENTION_UNABLE_TO_CONNECT: {
@@ -2849,6 +2853,11 @@ export default defineMessages({
         defaultMessage: 'Enable auto-eject?',
         id: 'TR_AUTO_EJECT_CONFIRMATION_TITLE',
     },
+    TR_AUTO_EJECT_FORCED_TOOLTIP: {
+        id: 'TR_AUTO_EJECT_FORCED_TOOLTIP',
+        defaultMessage:
+            'All wallets will be auto-ejected as storing device-related data is disabled.',
+    },
     TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_TITLE: {
         id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_TITLE',
         defaultMessage: 'Store device-related data',
@@ -2883,6 +2892,10 @@ export default defineMessages({
         id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_DESCRIPTION',
         defaultMessage:
             'No data gets stored, advanced security features are disabled. Requires secure pairing connection to be reestablished every time. For experienced users only. Use at your own risk.',
+    },
+    TR_STORE_DEVICE_DATA_MODAL_DISABLED_BADGE: {
+        id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_BADGE',
+        defaultMessage: 'Advanced',
     },
     TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING: {
         id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING',
@@ -7405,7 +7418,7 @@ export default defineMessages({
     },
     TR_NEEDS_ATTENTION_INITIALIZE: {
         id: 'TR_NEEDS_ATTENTION_INITIALIZE',
-        defaultMessage: 'Trezor has not been set up.',
+        defaultMessage: 'Trezor is not set up',
     },
     TR_DEVICE_CONNECTED_NEW_DEVICE_STATE: {
         id: 'TR_DEVICE_CONNECTED_NEW_DEVICE_STATE',
@@ -10992,6 +11005,10 @@ export default defineMessages({
     TR_DYK_ITEM_10: {
         id: 'TR_DYK_ITEM_10',
         defaultMessage: 'Trezor has sold wallets in over 150 countries.',
+    },
+    TR_JUST_INSTALL: {
+        id: 'TR_JUST_INSTALL',
+        defaultMessage: 'Install',
     },
     TR_DYK_ITEM_11: {
         id: 'TR_DYK_ITEM_11',
