@@ -12,7 +12,6 @@ export interface BioAuthState {
     bioAuthEnabledNextValue: boolean | null;
     lastBioAuthValidatedTimestamp: number | null;
     lastWindowBlurTimestamp: number | null;
-    bioAuthValidationInProgress: boolean;
     bioAuthValidationRequested: boolean;
     bioAuthValidationRequired: boolean;
     windowBlurred: boolean;
@@ -33,7 +32,6 @@ const initialState: BioAuthState = {
     bioAuthEnabledNextValue: null,
     lastBioAuthValidatedTimestamp: null,
     lastWindowBlurTimestamp: null,
-    bioAuthValidationInProgress: false,
     bioAuthValidationRequested: false,
     bioAuthValidationRequired: false,
     windowBlurred: false,
@@ -114,7 +112,7 @@ export const prepareBioAuthReducer = createReducerWithExtraDeps<BioAuthState>(
     },
 );
 
-export const selectBioAuthState = (state: BioAuthRootState) => state.bioAuth;
+const selectBioAuthState = (state: BioAuthRootState) => state.bioAuth;
 
 export const selectBioAuthEnabled = (state: BioAuthRootState) =>
     selectBioAuthState(state).bioAuthEnabled;
@@ -125,7 +123,7 @@ export const selectBioAuthChangeNextValue = (state: BioAuthRootState) =>
 export const selectIsRequestingBioAuthChange = (state: BioAuthRootState) =>
     selectBioAuthState(state).bioAuthEnabledNextValue !== null;
 
-export const selectLastBioAuthValidatedTimestamp = (state: BioAuthRootState) =>
+const selectLastBioAuthValidatedTimestamp = (state: BioAuthRootState) =>
     selectBioAuthState(state).lastBioAuthValidatedTimestamp;
 
 export const selectIsBioAuthValidationRequired = (
@@ -165,9 +163,6 @@ export const selectIsAppUiHidden = (state: BioAuthRootState) => {
         (selectIsBioAuthValidationRequested(state) && selectBioAuthEnabled(state))
     );
 };
-
-export const selectIsWindowFocused = (state: BioAuthRootState) =>
-    !selectBioAuthState(state).windowBlurred;
 
 export const selectIsBioAuthAvailableStateKnown = (state: BioAuthRootState) =>
     selectBioAuthState(state).bioAuthAvailable !== null;

@@ -1,9 +1,8 @@
 # Storage changelog
 
-## 25.9.0
+## 25.9.2
 
-- persist `suite.stakingDashboardCollapsed` in `suiteSettings`
-- persist `wallet.settings.mevProtection` in `walletSettings`
+- clear `security.devicesWithFailedEntropyCheck` because of false positives in 25.8
 
 ## 25.8.0
 

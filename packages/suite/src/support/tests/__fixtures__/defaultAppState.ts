@@ -19,7 +19,6 @@ export const initialAppState: AppState = {
     device: initialState,
     bluetooth: {
         unpairedDeviceNeedsManualOsRemoval: false,
-        isBluetoothListOpen: false,
         connectingDeviceIds: [],
         isUnpairingDevice: false,
         adapterStatus: 'unknown',
@@ -112,7 +111,6 @@ export const initialAppState: AppState = {
         bioAuthEnabledNextValue: null,
         lastBioAuthValidatedTimestamp: null,
         lastWindowBlurTimestamp: null,
-        bioAuthValidationInProgress: false,
         bioAuthValidationRequested: false,
         bioAuthValidationRequired: false,
         windowBlurred: false,
