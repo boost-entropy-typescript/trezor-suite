@@ -147,6 +147,9 @@ export const selectIsFeatureDisabled = (
 export const selectAllManuallyAddedMessageIds = (state: MessageSystemRootState) =>
     state.messageSystem.manuallyAddedMessageIds;
 
+export const selectAllManuallyAddedExperimentIds = (state: MessageSystemRootState) =>
+    state.messageSystem.manuallyAddedExperimentIds;
+
 const selectValidMessages = (state: MessageSystemRootState) => state.messageSystem.validMessages;
 const selectValidExperiments = (state: MessageSystemRootState) =>
     state.messageSystem.validExperiments;
@@ -209,3 +212,12 @@ export const selectActiveExperimentsWithVariants = createSelector(
             }),
         ),
 );
+
+export const selectAllExperimentInclusionOverrides = (state: MessageSystemRootState) =>
+    state.messageSystem.experimentInclusionOverrides;
+
+export const selectExperimentInclusionOverrideById = (id: ExperimentId) =>
+    createMemoizedSelector(
+        [selectAllExperimentInclusionOverrides],
+        inclusionOverrides => inclusionOverrides?.[id] ?? null,
+    );

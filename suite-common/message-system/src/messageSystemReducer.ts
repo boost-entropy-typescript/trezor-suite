@@ -23,6 +23,8 @@ const initialState: MessageSystemState = {
     configSource: 'remote',
 
     manuallyAddedMessageIds: {},
+
+    manuallyAddedExperimentIds: {},
 };
 
 export const messageSystemInitialState = initialState;
@@ -61,7 +63,7 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
                 state.currentSequence = config.sequence;
 
                 const validMessageIds = new Set(
-                    state.config?.actions?.map(a => a.message.id) ?? [],
+                    state.config?.actions?.map(action => action.message.id) ?? [],
                 );
                 state.manuallyAddedMessageIds = Object.fromEntries(
                     Object.keys(state.manuallyAddedMessageIds ?? {})
@@ -69,15 +71,30 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
                         .map(id => [id, true] as const),
                 );
 
-                const prevManuallyAddedMessageIds =
+                const prevManuallyAddedActions =
                     state.config?.actions?.filter(
                         action => !!state.manuallyAddedMessageIds[action.message.id],
                     ) ?? [];
                 const incomingFileActions = config.actions ?? [];
 
+                const validExperimentsIds = new Set(
+                    state.config?.experiments?.map(experiment => experiment.experiment.id) ?? [],
+                );
+                state.manuallyAddedExperimentIds = Object.fromEntries(
+                    Object.keys(state.manuallyAddedExperimentIds ?? {})
+                        .filter(id => validExperimentsIds.has(id))
+                        .map(id => [id, true] as const),
+                );
+                const prevManuallyAddedExperiments =
+                    state.config?.experiments?.filter(
+                        experiment => !!state.manuallyAddedExperimentIds[experiment.experiment.id],
+                    ) ?? [];
+                const incomingFileExperiments = config.experiments ?? [];
+
                 state.config = {
                     ...config,
-                    actions: [...prevManuallyAddedMessageIds, ...incomingFileActions],
+                    actions: [...prevManuallyAddedActions, ...incomingFileActions],
+                    experiments: [...prevManuallyAddedExperiments, ...incomingFileExperiments],
                 };
             })
             .addCase(messageSystemActions.fetchError, state => {
@@ -115,6 +132,41 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
                     }
                 }
             })
+            .addCase(messageSystemActions.addExperiment, (state, { payload }) => {
+                if (state.config) {
+                    state.config.experiments = [payload, ...(state.config.experiments ?? [])];
+                    state.manuallyAddedExperimentIds = state.manuallyAddedExperimentIds || {};
+                    state.manuallyAddedExperimentIds[payload.experiment.id] = true;
+                }
+            })
+            .addCase(messageSystemActions.removeExperiment, (state, { payload }) => {
+                if (state.config) {
+                    state.config.experiments = state.config.experiments?.filter(
+                        experiment => experiment.experiment.id !== payload,
+                    );
+
+                    if (state.manuallyAddedExperimentIds[payload]) {
+                        delete state.manuallyAddedExperimentIds[payload];
+                    }
+                }
+            })
+            .addCase(messageSystemActions.setExperimentInclusionOverride, (state, { payload }) => {
+                if (!state.experimentInclusionOverrides) {
+                    state.experimentInclusionOverrides = {};
+                }
+                state.experimentInclusionOverrides[payload.id] = payload.inclusion;
+            })
+            .addCase(
+                messageSystemActions.clearExperimentInclusionOverride,
+                (state, { payload }) => {
+                    if (state.experimentInclusionOverrides) {
+                        delete state.experimentInclusionOverrides[payload];
+                        if (Object.keys(state.experimentInclusionOverrides).length === 0) {
+                            delete state.experimentInclusionOverrides;
+                        }
+                    }
+                },
+            )
             .addMatcher(
                 action => action.type === extra.actionTypes.storageLoad,
                 (state, action: AnyAction) => ({

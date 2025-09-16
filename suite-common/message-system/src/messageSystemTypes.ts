@@ -16,6 +16,8 @@ export type MessageSystemState = {
     validExperiments: string[];
     configSource: MessageSystemConfigSource;
     manuallyAddedMessageIds: Record<string, true>;
+    manuallyAddedExperimentIds: Record<string, true>;
+    experimentInclusionOverrides?: Record<string, number>;
 };
 
 export type MessageSystemRootState = {
