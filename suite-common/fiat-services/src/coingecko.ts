@@ -21,9 +21,14 @@ interface FetchCurrentFiatRatesOptions {
 
 const rateLimiter = new RateLimiter(1_000, 15_000);
 
-const fetchCoinGecko = async (url: string, init?: RequestInit) => {
+const fetchCoinGecko = async (url: string, skipCache?: boolean) => {
     try {
-        const res = await rateLimiter.limit(signal => fetchUrl(url, { signal, ...init }));
+        let res: Response;
+        if (skipCache) {
+            res = await fetchUrl(url, { headers: { 'X-Bypass-Cache': '1' } });
+        } else {
+            res = await rateLimiter.limit(signal => fetchUrl(url, { signal }));
+        }
         if (!res.ok) {
             console.warn(`Coingecko: Fiat rates failed to fetch: ${res.status}`);
 
@@ -44,30 +49,44 @@ const fetchCoinGecko = async (url: string, init?: RequestInit) => {
  * @returns
  */
 const buildCoinUrls = (ticker: TickerId) => {
-    const { coingeckoId, settlementLayer } = getNetwork(ticker.symbol);
+    const { coingeckoId, tradeCryptoId, settlementLayer, networkType } = getNetwork(ticker.symbol);
     if (!coingeckoId) {
-        console.error('buildCoinUrls: cannot find coingecko asset platform id for ', ticker);
+        console.error('buildCoinUrls: cannot find coingeckoId for ', ticker);
 
         return null;
     }
 
-    const baseUrl = `${COINGECKO_API_BASE_URL}/coins/${coingeckoId}`;
+    let baseId = coingeckoId;
+    if (networkType === 'ethereum') {
+        if (ticker.tokenAddress) {
+            // token on network -> network coingecko id
+            baseId = coingeckoId;
+        } else if (settlementLayer) {
+            baseId = networks[settlementLayer]?.coingeckoId ?? coingeckoId;
+        } else {
+            // native token on network -> native token coingecko id
+            if (!tradeCryptoId) {
+                console.error('buildCoinUrls: cannot find tradeCryptoId for', ticker);
 
-    if (settlementLayer && !ticker.tokenAddress) {
-        return [`${COINGECKO_API_BASE_URL}/coins/${networks[settlementLayer].coingeckoId}`];
+                return null;
+            }
+            baseId = tradeCryptoId;
+        }
     }
+
+    const baseUrl = `${COINGECKO_API_BASE_URL}/coins/${baseId}`;
 
     if (!ticker.tokenAddress) {
         return [baseUrl];
     }
 
-    if (ticker.symbol === 'ada') {
+    if (networkType === 'cardano') {
         const { policyId } = parseAsset(ticker.tokenAddress || '');
 
         return [`${baseUrl}/contract/${policyId}`, `${baseUrl}/contract/${ticker.tokenAddress}`];
     }
 
-    if (ticker.symbol === 'xlm') {
+    if (networkType === 'stellar') {
         const [code, issuer] = ticker.tokenAddress.split('-');
 
         // There are currently three formats on CoinGecko, we try them in order of frequency.
@@ -98,11 +117,9 @@ export const fetchCurrentFiatRates = async (
     const urlParams =
         'tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false&localization=false';
 
-    const headers = options?.skipCache ? { 'X-Bypass-Cache': '1' } : undefined;
-
     for (const coinUrl of coinUrls) {
         const url = `${coinUrl}?${urlParams}`;
-        const rates = await fetchCoinGecko(url, { headers });
+        const rates = await fetchCoinGecko(url, options?.skipCache);
 
         if (rates) {
             return {
