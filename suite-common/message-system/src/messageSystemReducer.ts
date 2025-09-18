@@ -33,6 +33,7 @@ export const messageSystemPersistedWhitelist: Array<keyof MessageSystemState> = 
     'config',
     'currentSequence',
     'dismissedMessages',
+    'configSource',
 ];
 
 const getMessageStateById = (draft: MessageSystemState, id: string): MessageState => {
@@ -111,9 +112,10 @@ export const prepareMessageSystemReducer = createReducerWithExtraDeps(
             .addCase(messageSystemActions.updateValidExperiments, (state, { payload }) => {
                 state.validExperiments = payload;
             })
-            .addCase(messageSystemActions.setConfigSource, (state, { payload }) => {
-                state.configSource = payload;
-            })
+            .addCase(messageSystemActions.setConfigSource, (_state, { payload }) => ({
+                ...initialState,
+                configSource: payload,
+            }))
             .addCase(messageSystemActions.addMessage, (state, { payload }) => {
                 if (state.config) {
                     state.config.actions = [payload, ...state.config.actions];
