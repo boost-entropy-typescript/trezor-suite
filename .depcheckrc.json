@@ -13,7 +13,10 @@
         "protobufjs-cli",
         "buffer",
         "node-gyp",
-        "version-bump-prompt"
-    ],
-    "skip-missing": true
+        "version-bump-prompt",
+        "uuid",
+        "uint8array-tools",
+        "bitcore-lib",
+        "@types/node-fetch"
+    ]
 }

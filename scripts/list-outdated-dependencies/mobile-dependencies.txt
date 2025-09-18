@@ -1,7 +1,9 @@
 @babel/plugin-transform-export-namespace-from
 @config-plugins/detox
+@evolu/react-native
 @expo/config-plugins
 @gorhom/bottom-sheet
+@jest/reporters
 @mobily/ts-belt
 @react-native-async-storage/async-storage
 @react-native-community/cli
@@ -12,6 +14,7 @@
 @react-navigation/core
 @react-navigation/native
 @react-navigation/native-stack
+@react-navigation/routers
 @sentry/react-native
 @shopify/flash-list
 @shopify/react-native-skia
@@ -46,6 +49,7 @@ expo-local-authentication
 expo-localization
 expo-secure-store
 expo-splash-screen
+expo-sqlite
 expo-status-bar
 expo-system-ui
 expo-updates
@@ -90,4 +94,5 @@ react-qr-code
 redux-devtools-expo-dev-plugin
 redux-persist
 ts-jest
+type-fest
 yup

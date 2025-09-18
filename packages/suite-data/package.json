@@ -10,6 +10,7 @@
     "license": "SEE LICENSE IN LICENSE.md",
     "description": "Trezor data",
     "scripts": {
+        "depcheck": "yarn g:depcheck",
         "build:lib": "yarn browser-detection && yarn guide-pull-content",
         "browser-detection": "webpack --config ./browser-detection.webpack.ts",
         "guide-pull-content": "yarn tsx ./src/guide/index.ts",
@@ -19,10 +20,7 @@
     "dependencies": {
         "@suite-common/suite-types": "workspace:*",
         "@suite-common/suite-utils": "workspace:*",
-        "@trezor/connect": "workspace:*",
         "@trezor/env-utils": "workspace:*",
-        "@trezor/urls": "workspace:*",
-        "@trezor/utils": "workspace:*",
         "semver": "^7.7.1"
     },
     "devDependencies": {

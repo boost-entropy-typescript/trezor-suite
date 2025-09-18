@@ -1,0 +1,12 @@
+{
+    "ignore-patterns": ["libDev", "lib"],
+    "ignores": [
+        "babel-loader",
+        "webpack-cli",
+        "css-loader",
+        "style-loader",
+        "postcss-loader",
+        "// Todo: This need so be solved. See: https://github.com/trezor/trezor-suite/issues/21561",
+        "@trezor/suite"
+    ]
+}

@@ -18,14 +18,10 @@
             "path": "../../suite-common/suite-constants"
         },
         {
-            "path": "../../suite-common/validators"
+            "path": "../../suite-common/wallet-config"
         },
         { "path": "../asset-utils" },
         { "path": "../device-utils" },
-        { "path": "../dom-utils" },
-        { "path": "../env-utils" },
-        { "path": "../react-utils" },
-        { "path": "../styles" },
         { "path": "../theme" },
         { "path": "../type-utils" },
         { "path": "../utils" },

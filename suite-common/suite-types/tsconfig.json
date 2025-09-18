@@ -4,8 +4,10 @@
     "references": [
         { "path": "../metadata-types" },
         { "path": "../suite-config" },
+        { "path": "../wallet-config" },
         { "path": "../wallet-types" },
         { "path": "../../packages/connect" },
+        { "path": "../../packages/device-utils" },
         { "path": "../../packages/protocol" },
         { "path": "../../packages/type-utils" },
         { "path": "../../packages/utils" }

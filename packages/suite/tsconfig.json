@@ -42,9 +42,11 @@
         {
             "path": "../../suite-common/geolocation"
         },
-        { "path": "../../suite-common/icons" },
         {
             "path": "../../suite-common/intl-types"
+        },
+        {
+            "path": "../../suite-common/local-first-storage"
         },
         { "path": "../../suite-common/logger" },
         {
@@ -58,6 +60,9 @@
         },
         { "path": "../../suite-common/sentry" },
         { "path": "../../suite-common/staking" },
+        {
+            "path": "../../suite-common/staking-solana"
+        },
         {
             "path": "../../suite-common/suite-config"
         },

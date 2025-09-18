@@ -11,16 +11,22 @@
         {
             "path": "../../suite-common/wallet-core"
         },
+        {
+            "path": "../../suite-common/wallet-utils"
+        },
         { "path": "../analytics" },
         { "path": "../atoms" },
+        { "path": "../config" },
         { "path": "../device" },
         { "path": "../feature-flags" },
         { "path": "../formatters" },
         { "path": "../icons" },
         { "path": "../intl" },
+        { "path": "../labeling" },
         { "path": "../link" },
         { "path": "../navigation" },
         { "path": "../../packages/styles" },
-        { "path": "../../packages/theme" }
+        { "path": "../../packages/theme" },
+        { "path": "../../packages/urls" }
     ]
 }

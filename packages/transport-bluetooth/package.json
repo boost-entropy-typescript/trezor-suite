@@ -17,6 +17,7 @@
     "main": "./src/index.ts",
     "browser": "./src/browser.ts",
     "scripts": {
+        "depcheck": "yarn g:depcheck",
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'",
         "type-check": "yarn g:tsc --build",
         "lint:rs": "cargo fmt --all -- --check",
@@ -37,12 +38,13 @@
     },
     "dependencies": {
         "@trezor/ipc-proxy": "workspace:*",
-        "@trezor/protocol": "workspace:*",
         "@trezor/transport": "workspace:*",
         "@trezor/utils": "workspace:*",
         "@trezor/websocket-client": "workspace:*"
     },
     "devDependencies": {
+        "@types/jest": "29.5.12",
+        "@types/node": "22.13.10",
         "html-webpack-plugin": "^5.6.3",
         "react": "19.0.0",
         "react-dom": "19.0.0",

@@ -12,7 +12,9 @@
         { "path": "../helpers" },
         { "path": "../icons" },
         { "path": "../intl" },
+        { "path": "../labeling" },
         { "path": "../toasts" },
+        { "path": "../../packages/connect" },
         { "path": "../../packages/styles" },
         { "path": "../../packages/theme" }
     ]
