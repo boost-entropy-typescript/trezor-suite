@@ -1,7 +1,7 @@
 {
     "version": 1,
-    "timestamp": "2025-09-15T00:00:00+00:00",
-    "sequence": 112,
+    "timestamp": "2025-09-19T12:00:00+00:00",
+    "sequence": 113,
     "actions": [
         {
             "conditions": [
@@ -874,6 +874,37 @@
         {
             "conditions": [
                 {
+                    "countryCodes": ["GB"]
+                }
+            ],
+            "message": {
+                "id": "fae0be7c-3138-463f-b325-a79dc104a18b",
+                "priority": 94,
+                "dismissible": false,
+                "variant": "warning",
+                "category": "context",
+                "content": {
+                    "en": "There are currently no buy options available in the United Kingdom.",
+                    "es": "Actualmente no hay opciones de compra disponibles en el Reino Unido.",
+                    "cs": "V současné době nejsou ve Spojeném království k dispozici žádné možnosti nákupu.",
+                    "ru": "В настоящее время в Великобритании нет доступных вариантов покупки.",
+                    "ja": "現在、イギリスでは購入オプションは利用できません。",
+                    "hu": "Jelenleg nincs elérhető vásárlási lehetőség az Egyesült Királyságban.",
+                    "it": "Attualmente non ci sono opzioni di acquisto disponibili nel Regno Unito.",
+                    "fr": "Il n'existe actuellement aucune option d'achat disponible au Royaume-Uni.",
+                    "de": "Derzeit sind im Vereinigten Königreich keine Kaufoptionen verfügbar.",
+                    "tr": "Birleşik Krallık'ta şu anda herhangi bir satın alma seçeneği mevcut değildir.",
+                    "pt": "Atualmente não há opções de compra disponíveis no Reino Unido.",
+                    "uk": "Наразі у Великій Британії немає доступних варіантів покупки."
+                },
+                "context": {
+                    "domain": "trading.buy"
+                }
+            }
+        },
+        {
+            "conditions": [
+                {
                     "environment": {
                         "desktop": ">=21.7.1",
                         "mobile": "!",
@@ -1485,56 +1516,6 @@
             "conditions": [
                 {
                     "environment": {
-                        "desktop": "*",
-                        "mobile": ">25.3.1",
-                        "web": "*"
-                    }
-                }
-            ],
-            "message": {
-                "id": "2dd5cdf7-4b63-4667-9667-4c7eebd9fb54",
-                "priority": 49,
-                "dismissible": true,
-                "variant": "warning",
-                "category": ["banner"],
-                "content": {
-                    "en": "We've seen an increase in phishing attempts targeting users to access their wallet backup (recovery seed). Never enter your wallet backup online — Trezor support will NEVER ask for it.",
-                    "es": "Hemos visto un aumento en los intentos de phishing dirigidos a los usuarios para acceder a su copia de seguridad de la cartera (semilla de recuperación). Nunca introduzcas tu copia de seguridad de la cartera en línea: el soporte de Trezor NUNCA te lo pedirá.",
-                    "cs": "Zaznamenali jsme nárůst phishingových pokusů zaměřených na uživatele s cílem získat jejich zálohu peněženky (recovery seed). Nikdy nezadávejte svou zálohu peněženky online – Trezor Support o ni NIKDY žádat nebude.",
-                    "ru": "Мы наблюдаем рост попыток фишинга, нацеленных на пользователей для доступа к их резервной копии кошелька (seed восстановления). Никогда не вводите свою резервную копию кошелька в интернете — поддержка Trezor НИКОГДА не попросит вас об этом.",
-                    "ja": "ウォレットのバックアップ（リカバリーシード）にアクセスするためのフィッシング試行が増加しています。ウォレットのバックアップをオンラインで入力しないでください—Trezorサポートは絶対にそれを要求しません。",
-                    "hu": "A pénztárca biztonsági mentéséhez (helyreállítási mag) való hozzáférés céljából növekvő számú adathalászati kísérletet észleltünk. Soha ne adja meg a pénztárca biztonsági mentését online - a Trezor támogatás SOHA nem fogja kérni.",
-                    "it": "Abbiamo visto un aumento dei tentativi di phishing mirati agli utenti per accedere al backup del portafoglio (seme di ripristino). Non inserire mai il backup del portafoglio online: il supporto Trezor NON lo chiederà MAI.",
-                    "fr": "Nous avons constaté une augmentation des tentatives de phishing visant les utilisateurs pour accéder à leur sauvegarde de portefeuille (seed de récupération). Ne saisissez jamais votre sauvegarde de portefeuille en ligne - le support Trezor ne vous le demandera JAMAIS.",
-                    "de": "Wir haben einen Anstieg von Phishing-Versuchen festgestellt, die darauf abzielen, Benutzern den Zugriff auf ihre Wallet-Sicherung (Wiederherstellungsphrase) zu ermöglichen. Geben Sie Ihre Wallet-Sicherung niemals online ein – der Trezor-Support wird Sie NIEMALS danach fragen.",
-                    "tr": "Cüzdan yedeğinize (kurtarma tohumuna) erişmek için kullanıcıları hedef alan artan kimlik avı girişimleri gördük. Cüzdan yedeğinizi asla çevrimiçi olarak girmeyin - Trezor desteği ASLA bunu istemez.",
-                    "pt": "Vimos um aumento nas tentativas de phishing direcionadas a usuários para acessar o backup da carteira (semente de recuperação). Nunca insira o backup da sua carteira online - o suporte Trezor NUNCA pedirá isso.",
-                    "uk": "Ми спостерігаємо збільшення спроб фішингу, спрямованих на користувачів для доступу до їх резервної копії гаманця (seed відновлення). Ніколи не вводьте резервну копію гаманця в Інтернеті — підтримка Trezor НІКОЛИ не попросить вас про це."
-                },
-                "cta": {
-                    "action": "external-link",
-                    "link": "https://trezor.io/learn/security-privacy/personal-security-standards/scams-and-phishing",
-                    "label": {
-                        "en": "Learn More",
-                        "es": "Más Información",
-                        "cs": "Více Informací",
-                        "ru": "Подробнее",
-                        "ja": "詳細はこちら",
-                        "hu": "További Információ",
-                        "it": "Scopri di Più",
-                        "fr": "En Savoir Plus",
-                        "de": "Mehr Erfahren",
-                        "tr": "Daha Fazla Bilgi",
-                        "pt": "Saiba Mais",
-                        "uk": "Дізнатись більше"
-                    }
-                }
-            }
-        },
-        {
-            "conditions": [
-                {
-                    "environment": {
                         "desktop": ">23.10.1",
                         "mobile": "!",
                         "web": ">23.10.1"
@@ -1625,6 +1606,57 @@
                     "tr": "INPUT HERE ağı ile senkronizasyon sorunları yaşıyoruz. Bu, geçici olarak INPUT HERE'da hatalara veya yavaş yanıt sürelerine neden olabilir. Bu sorun, INPUT HERE fonlarınızın güvenliğini hiçbir şekilde etkilemez. Rahatsızlık için özür dileriz.",
                     "pt": "Estamos enfrentando problemas de sincronização com a rede INPUT HERE. Isso pode resultar temporariamente em erros ou tempos de respuesta lentos na INPUT HERE. Este problema não afeta de forma alguma a segurança dos seus fundos INPUT HERE. Pedimos desculpas pelo inconveniente.",
                     "uk": "У нас виникли проблеми з синхронізацією мережі INPUT HERE. Це може тимчасово призвести до помилок або повільних часів відповіді на INPUT HERE. Ця проблема ніяк не впливає на безпеку ваших коштів INPUT HERE. Приносимо вибачення за незручності."
+                }
+            }
+        },
+        {
+            "conditions": [
+                {
+                    "environment": {
+                        "desktop": "25.9.2",
+                        "mobile": "!",
+                        "web": "!"
+                    }
+                }
+            ],
+            "message": {
+                "id": "a8fb0361-7920-4695-adaa-8784acbeec1b",
+                "priority": 91,
+                "dismissible": true,
+                "variant": "warning",
+                "category": ["banner"],
+                "content": {
+                    "en": "Update Trezor Suite for enhanced security, all the latest features, and to keep everything running as smoothly as possible.",
+                    "es": "Actualiza Trezor Suite para mejorar la seguridad, disfrutar de las funciones más recientes y para que todo funcione sin problemas.",
+                    "cs": "Aktualizujte Trezor Suite, abyste získali lepší zabezpečení a nejnovější funkce.",
+                    "ru": "Обновите Trezor Suite, чтобы улучшить безопасность, использовать все новейшие функции и обеспечить максимально эффективную работу.",
+                    "ja": "Trezor Suiteをアップデートすることで、セキュリティの強化、最新機能の搭載、スムーズな動作が可能になります。",
+                    "hu": "Frissítse a Trezor Suite-ot a fokozott biztonság, a legújabb funkciók és a lehető leggördülékenyebb működés érdekében.",
+                    "it": "Aggiornate Trezor Suite per ottenere una maggiore sicurezza, tutte le funzioni più recenti e per far funzionare tutto nel modo più fluido possibile.",
+                    "fr": "Mettez à jour Trezor Suite pour bénéficier d’une sécurité renforcée, de toutes les dernières fonctionnalités, et pour garantir un fonctionnement optimal.",
+                    "de": "Aktualisiere Trezor Suite für mehr Sicherheit, neue Funktionen und reibungslose Abläufe.",
+                    "tr": "Geliştirilmiş güvenlik, en yeni özellikler ve her şeyin olabildiğince sorunsuz çalışması için Trezor Suite'i güncelleyin.",
+                    "pt": "Atualize o Trezor Suite para maior segurança, todos os recursos mais recentes e para manter tudo funcionando da forma mais suave possível.",
+                    "uk": "Оновіть Trezor Suite для підвищення безпеки, використання всіх новітніх функцій та забезпечення максимально плавної роботи."
+                },
+                "cta": {
+                    "action": "internal-link",
+                    "link": "settings-index",
+                    "anchor": "@general-settings/version-with-update",
+                    "label": {
+                        "en": "Update Suite",
+                        "es": "Actualizar Suite",
+                        "cs": "Aktualizovat Suite",
+                        "ru": "Обновить Suite",
+                        "ja": "Suiteのアップデート",
+                        "hu": "Frissítés Suite",
+                        "it": "Aggiorna Suite",
+                        "fr": "Mettre à jour Suite",
+                        "de": "Suite aktualisieren",
+                        "tr": "Suite'i Güncelle",
+                        "pt": "Atualizar Suite",
+                        "uk": "Оновити Suite"
+                    }
                 }
             }
         },

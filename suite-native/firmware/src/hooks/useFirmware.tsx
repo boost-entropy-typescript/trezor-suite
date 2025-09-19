@@ -6,7 +6,7 @@ import {
     UseFirmwareInstallationParams,
     useFirmwareInstallation,
 } from '@suite-common/firmware';
-import { selectIsBluetoothDevice } from '@suite-common/wallet-core';
+import { selectIsDeviceConnectedViaBluetooth } from '@suite-common/wallet-core';
 import { TxKeyPath, useTranslate } from '@suite-native/intl';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { setPriorityMode } from '@trezor/react-native-usb';
@@ -30,6 +30,7 @@ export const useFirmware = (
         status,
         error,
         progress,
+        setStatus,
         ...firmwareInstallation
     } = useFirmwareInstallation(params);
     const { translate } = useTranslate();
@@ -40,12 +41,12 @@ export const useFirmware = (
         targetFirmwareType: firmwareInstallation.targetFirmwareType,
         navigationLocation: params?.navigationLocation,
     });
-    const [isInitialFirmwareInstallationRunning, setIsInitialFirmwareInstallationRunning] =
-        useState<boolean>(false);
 
     // When the device is restarted after FW installation via Bluetooth, this flag changes to false
     // for a moment which triggers firmwareUpdate again. => Use ref to prevent this.
-    const isBluetoothDeviceRef = useRef(useSelector(selectIsBluetoothDevice));
+    const isDeviceConnectedViaBluetoothRef = useRef(
+        useSelector(selectIsDeviceConnectedViaBluetooth),
+    );
 
     const setIsFirmwareInstallationRunning = useCallback(
         (isRunning: boolean) => {
@@ -80,7 +81,7 @@ export const useFirmware = (
     }, [progress, status, setMayBeStuckedTimeout, resetMayBeStuckedTimeout]);
 
     const firmwareUpdate = useCallback(async () => {
-        if (!isBluetoothDeviceRef.current) {
+        if (!isDeviceConnectedViaBluetoothRef.current) {
             setPriorityMode(true);
         }
         const result = await firmwareUpdateCommon({ ignoreBaseUrl: true })
@@ -94,7 +95,7 @@ export const useFirmware = (
             })
             .then(({ connectResponse }) => connectResponse)
             .finally(() => {
-                if (!isBluetoothDeviceRef.current) {
+                if (!isDeviceConnectedViaBluetoothRef.current) {
                     setPriorityMode(false);
                 }
                 resetMayBeStuckedTimeout();
@@ -118,7 +119,7 @@ export const useFirmware = (
 
         const isInitialState = (status === 'started' && operation === null) || status === 'initial';
 
-        if (status === 'error' && !isInitialFirmwareInstallationRunning) {
+        if (status === 'error') {
             text = {
                 title: 'firmware.firmwareUpdateProgress.error.title',
             };
@@ -155,15 +156,7 @@ export const useFirmware = (
             title: translate(text.title),
             subtitle: text.subtitle ? translate(text.subtitle) : error,
         };
-    }, [
-        status,
-        operation,
-        isInitialFirmwareInstallationRunning,
-        confirmOnDevice,
-        translate,
-        error,
-        originalFirmwareVersion,
-    ]);
+    }, [status, operation, confirmOnDevice, translate, error, originalFirmwareVersion]);
 
     return {
         ...firmwareInstallation,
@@ -174,9 +167,8 @@ export const useFirmware = (
         operation,
         status,
         error,
-        isInitialFirmwareInstallationRunning,
-        setIsInitialFirmwareInstallationRunning,
         mayBeStucked,
         progress,
+        setStatus,
     };
 };
