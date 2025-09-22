@@ -61,8 +61,6 @@ jobs:
 
       - name: Run crowdin sync [desktop]
         if: github.event.inputs.platform == 'desktop'
-        env:
-          GITHUB_TOKEN: ${{ steps.trezor-bot-token.outputs.token }}
         run: |
           yarn workspace @trezor/suite translations:download --token=${{ secrets.CROWDIN_PERSONAL_TOKEN }}
           yarn workspace @trezor/suite translations:backport-en
@@ -76,8 +74,6 @@ jobs:
 
       - name: Run crowdin sync [mobile]
         if: github.event.inputs.platform == 'mobile'
-        env:
-          GITHUB_TOKEN: ${{ steps.trezor-bot-token.outputs.token }}
         run: |
           yarn workspace @suite-native/intl translations:download --token=${{ secrets.CROWDIN_PERSONAL_TOKEN_MOBILE }}
           yarn workspace @suite-native/intl translations:backport-en
@@ -87,6 +83,8 @@ jobs:
           yarn workspace @suite-native/intl translations:upload --token=${{ secrets.CROWDIN_PERSONAL_TOKEN_MOBILE }}
 
       - name: create translations PR
+        env:
+          GITHUB_TOKEN: ${{ steps.trezor-bot-token.outputs.token }}
         run: |
           if [ "${{ github.event.inputs.platform }}" = "desktop" ]; then
             PR_TITLE="Crowdin translations update [DESKTOP]"
@@ -98,16 +96,16 @@ jobs:
             COMMIT_SCOPE="suite-native"
           fi
 
-          COMMIT_MSG="chore(${COMMIT_SCOPE}): crowdin translation update${SUFFIX}"
-
           if [[ "${{ env.SOURCE_BRANCH }}" == release/* ]] || [[ "${{ env.SOURCE_BRANCH }}" == release-native/* ]]; then
             SUFFIX=" [RELEASE ONLY]"
           else
             SUFFIX=""
           fi
 
+          COMMIT_MSG="chore(${COMMIT_SCOPE}): crowdin translation update${SUFFIX}"
+
           git add .
-          git commit -m "$${COMMIT_MSG}${SUFFIX}"
+          git commit -m "${COMMIT_MSG}"
           git push origin ${{ env.BRANCH_NAME }} -f
 
           gh config set prompt disabled
