@@ -2850,10 +2850,6 @@ export default defineMessages({
         defaultMessage:
             'Securely stores minimal device information locally to enable advanced security features like anti-counterfeit checks and secure pairing.',
     },
-    TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_BUTTON: {
-        id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_BUTTON',
-        defaultMessage: 'Change',
-    },
     TR_STORE_DEVICE_DATA_MODAL_TITLE: {
         id: 'TR_STORE_DEVICE_DATA_MODAL_TITLE',
         defaultMessage: 'Store device-related data',
@@ -4691,6 +4687,38 @@ export default defineMessages({
     TR_FORGET_DEVICE_DESCRIPTION: {
         id: 'TR_FORGET_DEVICE_DESCRIPTION',
         defaultMessage: 'Removes all device-related data from Trezor Suite',
+    },
+    TR_DEVICE_CONNECTION: {
+        id: 'TR_DEVICE_CONNECTION',
+        defaultMessage: 'Device connection',
+    },
+    TR_FORGET_DEVICE_MODAL_HEADING: {
+        id: 'TR_FORGET_DEVICE_MODAL_HEADING',
+        defaultMessage: 'Are you sure you want to forget this Trezor?',
+    },
+    TR_FORGET_DEVICE_MODAL_BULLET_FORGET: {
+        id: 'TR_FORGET_DEVICE_MODAL_BULLET_FORGET',
+        defaultMessage: 'Suite will forget any existence of this device',
+    },
+    TR_FORGET_DEVICE_MODAL_BLUETOOTH_REMOVED_AND_DISCONNECTED: {
+        id: 'TR_FORGET_DEVICE_MODAL_BLUETOOTH_REMOVED_AND_DISCONNECTED',
+        defaultMessage: 'Bluetooth pairing will be removed and Trezor will be disconnected',
+    },
+    TR_FORGET_DEVICE_MODAL_BLUETOOTH_REMOVED: {
+        id: 'TR_FORGET_DEVICE_MODAL_BLUETOOTH_REMOVED',
+        defaultMessage: 'Bluetooth pairing will be removed',
+    },
+    TR_FORGET_DEVICE_MODAL_BULLET_NOT_WIPE: {
+        id: 'TR_FORGET_DEVICE_MODAL_BULLET_NOT_WIPE',
+        defaultMessage: 'This does not wipe your seed, nor your funds',
+    },
+    TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_ENABLE: {
+        id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_ENABLE',
+        defaultMessage: 'Enable',
+    },
+    TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_DISABLE: {
+        id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_DISABLE',
+        defaultMessage: 'Disable',
     },
     RECEIVE_TITLE: {
         id: 'RECEIVE_TITLE',
@@ -10844,5 +10872,9 @@ export default defineMessages({
     TR_PUBLIC_KEY_COSE: {
         id: 'TR_PUBLIC_KEY_COSE',
         defaultMessage: 'COSE (CIP-30)',
+    },
+    TR_CONFIRM_BLUETOOTH_PAIRING: {
+        id: 'TR_CONFIRM_BLUETOOTH_PAIRING',
+        defaultMessage: 'Confirm the Bluetooth pairing request on your Trezor as well.',
     },
 } as const);
