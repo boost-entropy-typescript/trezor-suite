@@ -8,7 +8,11 @@ import { DefinitionType, TokenManagementAction } from '@suite-common/token-defin
 import type { TradingTransaction } from '@suite-common/trading';
 import type { Explorer, NetworkSymbol } from '@suite-common/wallet-config';
 import { FormDraftPrefixKeyValues } from '@suite-common/wallet-constants';
-import { deviceActions, selectDevices } from '@suite-common/wallet-core';
+import {
+    deviceActions,
+    selectDevices,
+    selectPersistentDeviceData,
+} from '@suite-common/wallet-core';
 import type { FormState, RatesByTimestamps, SuccessfulAccount } from '@suite-common/wallet-types';
 import { FormDraftKeyPrefix } from '@suite-common/wallet-types';
 import {
@@ -540,13 +544,15 @@ export const saveMessageSystem = () => async (_dispatch: Dispatch, getState: Get
     );
 };
 
-export const saveEntropyCheckFail = () => async (_dispatch: Dispatch, getState: GetState) => {
-    if (!(await db.isAccessible())) return;
-    const { devicesWithFailedEntropyCheck } = getState().device;
-    if (!devicesWithFailedEntropyCheck) return;
+export const savePersistentDeviceData = createThunk(
+    `${STORAGE.MODULE_PREFIX}/savePersistentDeviceData`,
+    async (_, { getState }) => {
+        if (!(await db.isAccessible())) return;
+        const data = selectPersistentDeviceData(getState());
 
-    db.addItem('security', { devicesWithFailedEntropyCheck }, 'security', true);
-};
+        db.addItem('persistentDeviceData', data, 'persistentDeviceData', true);
+    },
+);
 
 export const saveConnectSettings = () => async (_dispatch: Dispatch, getState: GetState) => {
     if (!(await db.isAccessible())) return;

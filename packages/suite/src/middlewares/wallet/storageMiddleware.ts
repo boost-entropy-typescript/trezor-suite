@@ -241,6 +241,17 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 api.dispatch(storageActions.saveThpCredentials());
             }
 
+            if (
+                !isAutoForgetEnabled &&
+                isAnyOf(
+                    deviceActions.connectDevice,
+                    deviceActions.deviceChanged,
+                    deviceActions.setEntropyCheckResult,
+                )(action)
+            ) {
+                api.dispatch(storageActions.savePersistentDeviceData());
+            }
+
             switch (action.type) {
                 case WALLET_SETTINGS.SET_HIDE_BALANCE:
                 case setBaseCurrency.type:
@@ -331,10 +342,6 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     }
                     break;
                 }
-
-                case deviceActions.setEntropyCheckFail.type:
-                    api.dispatch(storageActions.saveEntropyCheckFail());
-                    break;
 
                 case COINJOIN.ACCOUNT_DISCOVERY_RESET:
                 case COINJOIN.ACCOUNT_DISCOVERY_PROGRESS:
