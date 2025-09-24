@@ -69,6 +69,10 @@ export const getStatus = (device: TrezorDevice) => {
         return 'connected';
     }
 
+    if (device.type === 'unacquired' && device.status === 'busy') {
+        return 'device-busy';
+    }
+
     if (device.type === 'unacquired' && device.thp?.properties !== undefined) {
         return 'unacquired-thp-required';
     }
@@ -107,6 +111,7 @@ export const deviceNeedsAttention = (deviceStatus: ConnectedDeviceStatus): boole
         case 'unacquired':
         case 'firmware-required':
         case 'unreadable':
+        case 'device-busy':
         case 'unacquired-thp-required':
             return true;
 
@@ -138,6 +143,9 @@ export const shouldDisplayInitialWarningIcon = (deviceStatus: ConnectedDeviceSta
 };
 
 export const isDeviceRemembered = (device?: TrezorDevice): boolean => !!device?.remember;
+
+export const isDeviceConnectedViaBluetooth = (device?: TrezorDevice): boolean =>
+    !!device?.bluetoothProps;
 
 export const isDeviceAcquired = (device?: TrezorDevice): device is AcquiredDevice =>
     !!device?.features;

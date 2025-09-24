@@ -2285,6 +2285,18 @@ export default defineMessages({
         defaultMessage: 'Failed to communicate with your Trezor',
         id: 'TR_NEEDS_ATTENTION_UNABLE_TO_CONNECT',
     },
+    TR_NEEDS_ATTENTION_DEVICE_BUSY: {
+        defaultMessage: 'Trezor detected in incorrect state. Restart it to reconnect.',
+        id: 'TR_NEEDS_ATTENTION_DEVICE_BUSY',
+    },
+    TR_DEVICE_CONNECTED_BUSY_BOOTLOADER: {
+        defaultMessage: 'Trezor is busy, it cannot communicate',
+        id: 'TR_DEVICE_CONNECTED_BUSY_BOOTLOADER',
+    },
+    TR_DEVICE_CONNECTED_BUSY_BOOTLOADER_DESCRIPTION: {
+        defaultMessage: 'Device may be in the bootloader mode, restart the device and try again.',
+        id: 'TR_DEVICE_CONNECTED_BUSY_BOOTLOADER_DESCRIPTION',
+    },
     TR_NEEDS_TREZOR_HOST_PROTOCOL_PAIRING: {
         defaultMessage: 'Trezor Safe 7 detected',
         id: 'TR_NEEDS_TREZOR_HOST_PROTOCOL_PAIRING',

@@ -109,6 +109,8 @@ export type SendStackParamList = {
         transaction: GeneralPrecomposedTransactionFinal;
         accountKey: AccountKey;
         tokenContract?: TokenAddress;
+        prevHeaderHeight?: number;
+        initialSnapIndex?: number;
     };
     [SendStackRoutes.SendOutputsReview]: {
         accountKey: AccountKey;
@@ -132,7 +134,9 @@ export type OnboardingStackParamList = {
 };
 
 export type DeviceOnboardingStackParamList = {
-    [DeviceOnboardingStackRoutes.ConnectAndUnlockDevice]: undefined;
+    [DeviceOnboardingStackRoutes.DeviceDisconnected]: {
+        wasDeviceConnectedViaBluetooth: boolean;
+    };
     [DeviceOnboardingStackRoutes.UninitializedDeviceLanding]: undefined;
     [DeviceOnboardingStackRoutes.SuspiciousDevice]: {
         suspicionCause: DeviceSuspicionCause;

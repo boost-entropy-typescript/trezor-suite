@@ -5,11 +5,10 @@ import {
     createListenerMiddleware,
 } from '@reduxjs/toolkit';
 
-import { TrezorDevice } from '@suite-common/suite-types';
 import {
     getDeviceInternalModel,
-    getIsDeviceConnectedAndAuthorized,
     getIsDeviceInitialized,
+    isDeviceConnectedViaBluetooth,
     isThpDevice,
 } from '@suite-common/suite-utils';
 import { isThpPairingUIRequestButtonAction } from '@suite-common/thp';
@@ -17,6 +16,7 @@ import {
     deviceActions,
     selectIsDeviceRemembered,
     selectIsDeviceUsingPassphrase,
+    selectSelectedDevice,
 } from '@suite-common/wallet-core';
 import { selectWasDeviceOnboardingCancelled } from '@suite-native/device-onboarding';
 import { selectIsFirmwareInstallationRunning } from '@suite-native/firmware';
@@ -151,14 +151,11 @@ deviceConnectionMiddleware.startListening({
         if (isDeviceUsingPassphrase) return;
 
         // If device is authorized already (usually in case of remembered device which has already been authorized)
-        const isDeviceConnectedAndAuthorized = getIsDeviceConnectedAndAuthorized({
-            deviceState: device.state as TrezorDevice['state'],
-            deviceFeatures: device.features,
-        });
+        const isDeviceRemembered =
+            !!device.features && selectSelectedDevice(getState())?.id === device.id;
+
         const isNonThpRememberedDeviceConnectAction =
-            isDeviceConnectedAndAuthorized &&
-            deviceActions.connectDevice.match(action) &&
-            !isThpDevice(action.payload.device);
+            isDeviceRemembered && !isThpDevice(action.payload.device);
 
         if (isNonThpRememberedDeviceConnectAction) return;
 
@@ -176,10 +173,15 @@ deviceConnectionMiddleware.startListening({
 
 deviceConnectionMiddleware.startListening({
     predicate: action => deviceActions.deviceDisconnect.match(action),
-    effect: (_action: UnknownAction, { getState }) => {
+    effect: (action: UnknownAction, { getState }) => {
+        if (!deviceActions.deviceDisconnect.match(action)) {
+            throw new Error('This listener only handles deviceDisconnect action');
+        }
+
         const isDeviceRemembered = selectIsDeviceRemembered(getState());
         const isEntropyCheckEnabledAndFailed = selectIsEntropyCheckEnabledAndFailed(getState());
         const isFirmwareInstallationRunning = selectIsFirmwareInstallationRunning(getState());
+        const wasDeviceConnectedViaBluetooth = isDeviceConnectedViaBluetooth(action.payload);
 
         if (
             checkIsActiveRouteAnyOf(
@@ -191,7 +193,8 @@ deviceConnectionMiddleware.startListening({
 
         if (checkIsDeviceOnboardingFocused()) {
             navigationContainerRef.navigate(RootStackRoutes.DeviceOnboardingStack, {
-                screen: DeviceOnboardingStackRoutes.ConnectAndUnlockDevice,
+                screen: DeviceOnboardingStackRoutes.DeviceDisconnected,
+                params: { wasDeviceConnectedViaBluetooth },
             });
         } else {
             if (!checkIsHomeStackFocused()) {
