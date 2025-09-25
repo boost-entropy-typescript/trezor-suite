@@ -32,7 +32,7 @@ export const SignSuccessMessage = () => {
         >
             <LottieAnimation source={sendArrowsLottie} size="small" />
             <Text variant="highlight" textAlign="center">
-                <Translation id="moduleSend.review.outputs.successMessage" />
+                <Translation id="transactionManagement.review.outputs.signSuccessMessage" />
             </Text>
         </VStack>
     );

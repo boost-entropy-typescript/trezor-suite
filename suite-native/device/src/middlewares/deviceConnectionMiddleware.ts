@@ -9,7 +9,6 @@ import {
     getDeviceInternalModel,
     getIsDeviceInitialized,
     isDeviceConnectedViaBluetooth,
-    isThpDevice,
 } from '@suite-common/suite-utils';
 import { isThpPairingUIRequestButtonAction } from '@suite-common/thp';
 import {
@@ -31,6 +30,7 @@ import {
     navigationContainerRef,
 } from '@suite-native/navigation';
 import { selectIsCoinEnablingInitFinished } from '@suite-native/settings';
+import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 
 import {
     DEVICE_CONNECTION_BLACKLISTED_ROUTES,
@@ -46,11 +46,13 @@ import { getIsDeviceSetupSupported } from '../utils';
 export const deviceConnectionMiddleware = createListenerMiddleware<NativeDeviceRootState>();
 
 const handleDeviceConnectNavigation = ({
+    hasDeviceBitcoinOnlyFirmware,
     isCoinEnablingInitFinished,
     isDeviceInitialized,
     isDeviceSetupSupported,
     wasDeviceOnboardingCancelled,
 }: {
+    hasDeviceBitcoinOnlyFirmware: boolean;
     isCoinEnablingInitFinished: boolean;
     isDeviceInitialized: boolean;
     isDeviceSetupSupported: boolean;
@@ -104,7 +106,8 @@ const handleDeviceConnectNavigation = ({
         }
     }
 
-    if (isCoinEnablingInitFinished) {
+    if (isCoinEnablingInitFinished || hasDeviceBitcoinOnlyFirmware) {
+        // Bitcoin is enabled and coin enabling finished with btc-only FW in discoverMiddleware.
         navigationContainerRef.navigate(RootStackRoutes.AuthorizeDeviceStack, {
             screen: AuthorizeDeviceStackRoutes.ConnectingDevice,
         });
@@ -154,12 +157,10 @@ deviceConnectionMiddleware.startListening({
         const isDeviceRemembered =
             !!device.features && selectSelectedDevice(getState())?.id === device.id;
 
-        const isNonThpRememberedDeviceConnectAction =
-            isDeviceRemembered && !isThpDevice(action.payload.device);
-
-        if (isNonThpRememberedDeviceConnectAction) return;
+        if (isDeviceRemembered) return;
 
         handleDeviceConnectNavigation({
+            hasDeviceBitcoinOnlyFirmware: hasBitcoinOnlyFirmware(device),
             isCoinEnablingInitFinished: selectIsCoinEnablingInitFinished(getState()),
             isDeviceInitialized: getIsDeviceInitialized({
                 deviceMode: device.mode,

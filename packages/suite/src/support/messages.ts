@@ -2355,18 +2355,17 @@ export default defineMessages({
         defaultMessage: 'Display rotation',
         id: 'TR_DEVICE_SETTINGS_DISPLAY_ROTATION',
     },
-    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW_128x64: {
-        defaultMessage:
-            'Supports PNG or JPG (128 x 64 pixels) in pure black and white (no grayscale).',
-        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW_128x64',
+    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS: {
+        defaultMessage: 'Recommended dimensions: {width}×{height} px.',
+        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS',
+    },
+    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW: {
+        defaultMessage: 'Image must be in pure black and white (no grayscale).',
+        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_BW',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_EDITOR: {
         defaultMessage: 'Homescreen editor',
         id: 'TR_DEVICE_SETTINGS_HOMESCREEN_EDITOR',
-    },
-    TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR: {
-        defaultMessage: 'Use a JPG file ({width}×{height} px, up to {maxSizeKb} KB).',
-        id: 'TR_DEVICE_SETTINGS_HOMESCREEN_IMAGE_SETTINGS_COLOR',
     },
     TR_DEVICE_SETTINGS_HOMESCREEN_SELECT_FROM_GALLERY: {
         defaultMessage: 'Gallery',
@@ -5608,7 +5607,7 @@ export default defineMessages({
     },
     IMAGE_VALIDATION_ERROR_INVALID_SIZE_JPG: {
         id: 'IMAGE_VALIDATION_ERROR_INVALID_SIZE_JPG',
-        defaultMessage: 'Invalid size (Image must be less than 16KB)',
+        defaultMessage: 'Invalid size (Image must be less than {maxImageSize} KB)',
     },
     IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG: {
         id: 'IMAGE_VALIDATION_ERROR_PROGRESSIVE_JPG',
@@ -7452,6 +7451,10 @@ export default defineMessages({
     TR_DEVICE_CONNECTED_BOOTLOADER_RECONNECT_IN_NORMAL_NO_TOUCH: {
         id: 'TR_DEVICE_CONNECTED_BOOTLOADER_RECONNECT_IN_NORMAL_NO_TOUCH',
         defaultMessage: 'Reconnect the device without touching the screen.',
+    },
+    TR_DEVICE_CONNECTED_BOOTLOADER_RESTART_FROM_MENU: {
+        id: 'TR_DEVICE_CONNECTED_BOOTLOADER_RESTART_FROM_MENU',
+        defaultMessage: 'Restart the device from Trezor menu.',
     },
     TR_DEVICE_CONNECTED_UNACQUIRED: {
         id: 'TR_DEVICE_CONNECTED_UNACQUIRED',

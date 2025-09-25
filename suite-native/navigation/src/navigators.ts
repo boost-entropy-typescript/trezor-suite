@@ -342,4 +342,9 @@ export type TradingStackParamList = {
         accountKey: AccountKey;
         tradingType: TradingType;
     };
+    [TradingStackRoutes.TradingOutputsReview]: {
+        tradingType: TradingType;
+        accountKey: AccountKey;
+        tokenContract?: TokenAddress;
+    };
 };

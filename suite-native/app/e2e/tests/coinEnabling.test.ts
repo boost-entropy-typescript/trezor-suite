@@ -1,9 +1,9 @@
-import { expect as detoxExpect } from 'detox';
-
 import { conditionalDescribe } from '@suite-common/test-utils';
 
-import { onboardingCompleted } from '../fixtures/onboardingCompleted';
+import { onboardingCompletedState } from '../fixtures/onboardingCompletedState';
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
+import { onDeviceConnecting } from '../pageObjects/deviceConnectingActions';
+import { onHome } from '../pageObjects/homeActions';
 import { onSettings } from '../pageObjects/settingsActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
 import { disconnectTrezorUserEnv, openApp, prepareTrezorEmulator } from '../utils';
@@ -11,7 +11,7 @@ import { disconnectTrezorUserEnv, openApp, prepareTrezorEmulator } from '../util
 conditionalDescribe(device.getPlatform() === 'android', 'Coin enabling', () => {
     beforeAll(async () => {
         await prepareTrezorEmulator();
-        await openApp({ newInstance: true, args: { preloadedState: onboardingCompleted } });
+        await openApp({ newInstance: true, args: { preloadedState: onboardingCompletedState } });
     });
 
     afterAll(async () => {
@@ -23,7 +23,13 @@ conditionalDescribe(device.getPlatform() === 'android', 'Coin enabling', () => {
         await onCoinEnabling.waitForInitScreen();
         await onCoinEnabling.toggleNetwork('btc');
         await onCoinEnabling.clickOnConfirmButton();
-        await detoxExpect(element(by.id('@home/portfolio/header'))).toExist();
+
+        await onDeviceConnecting.waitForDeviceConnectingScreen();
+        await onHome.waitForScreen();
+
+        const bitcoinTextElement = element(by.text('Bitcoin'));
+
+        await waitFor(bitcoinTextElement).toExist().withTimeout(10000);
 
         await onTabBar.navigateToSettings();
         await onSettings.tapCoinEnabling();
@@ -33,8 +39,7 @@ conditionalDescribe(device.getPlatform() === 'android', 'Coin enabling', () => {
         await onTabBar.navigateToHome();
 
         const ethereumTextElement = element(by.text('Ethereum'));
-
-        await detoxExpect(ethereumTextElement).toExist();
+        await waitFor(ethereumTextElement).toExist().withTimeout(10000);
 
         await onTabBar.navigateToSettings();
         await onSettings.tapCoinEnabling();
@@ -42,6 +47,6 @@ conditionalDescribe(device.getPlatform() === 'android', 'Coin enabling', () => {
         await device.pressBack();
         await onTabBar.navigateToHome();
 
-        await detoxExpect(ethereumTextElement).not.toExist();
+        await waitFor(ethereumTextElement).not.toExist().withTimeout(10000);
     });
 });

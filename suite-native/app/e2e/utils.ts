@@ -4,6 +4,7 @@ import { resolveConfig } from 'detox/internals';
 import { LaunchArguments } from '@suite-native/config';
 import { PreloadedState } from '@suite-native/state';
 import { MNEMONICS, MODELS, Model, TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
+import { mergeDeepObject } from '@trezor/utils';
 
 const platform = device.getPlatform();
 
@@ -27,7 +28,9 @@ const INITIAL_LAUNCH_ARGS: LaunchArgumentsWithPreloadedState = {
 
 const TREZOR_E2E_DEVICE_LABEL = 'Trezor T - Tester';
 
-export const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+export const wait = async (ms: number) => {
+    await new Promise(resolve => setTimeout(resolve, ms));
+};
 
 const getExpoDeepLinkUrl = () => {
     const expoLauncherUrl = encodeURIComponent(
@@ -108,6 +111,11 @@ export const restartApp = async ({ args = {} }: RestartAppProps = {}) => {
     });
 };
 
+export const wipeAppData = async () => {
+    await device.uninstallApp();
+    await device.installApp();
+};
+
 export const scrollUntilVisible = async (
     target: Detox.IndexableNativeElement,
     scrollViewTestId: string = '@screen/mainScrollView',
@@ -124,6 +132,9 @@ export const scrollUntilVisible = async (
 
         // add extra scroll in case that the element is still not fully visible.
         await element(by.id(scrollViewTestId)).scroll(150, 'down');
+
+        // wait for scroll animation to finish before performing next action
+        await wait(1000);
     }
 };
 
@@ -182,10 +193,6 @@ export const disconnectTrezorUserEnv = async () => {
     await TrezorUserEnvLink.disconnect();
 };
 
-export const wait = async (ms: number) => {
-    await new Promise(resolve => setTimeout(resolve, ms));
-};
-
 export const waitForElementByTextToBeVisible = (text: string, timeout = 30000) =>
     waitFor(element(by.text(text)))
         .toBeVisible()
@@ -195,3 +202,13 @@ export const waitForElementByIdToBeVisible = (testId: string, timeout = 30000) =
     waitFor(element(by.id(testId)))
         .toBeVisible()
         .withTimeout(timeout);
+
+/**
+ * Merges multiple preloaded state fragments into a single preloaded state. Be mindful about the
+ * order of the fragments, as the later fragments will always override the earlier ones!
+ */
+export const mergePreloadedReduxState = (...stateFragments: PreloadedState[]): PreloadedState => {
+    const definedFragments = stateFragments.filter(fragment => fragment !== undefined);
+
+    return mergeDeepObject(...definedFragments);
+};

@@ -1,15 +1,18 @@
 import { Context } from '@suite-common/message-system';
 import { SUPPORTS_DEVICE_AUTHENTICITY_CHECK } from '@suite-common/suite-constants';
-import { isDeviceRemembered, isDeviceWithButtons } from '@suite-common/suite-utils';
+import { isDeviceRemembered } from '@suite-common/suite-utils';
 import { selectIsDeviceConnectedViaBluetooth } from '@suite-common/wallet-core';
 import { isBitcoinOnlyDevice } from '@trezor/device-utils';
 
-import { DeviceBanner, SettingsLayout, SettingsSection } from 'src/components/settings';
+import { DeviceBanner } from 'src/components/settings/DeviceBanner';
+import { SettingsLayout } from 'src/components/settings/SettingsLayout';
+import { SettingsSection } from 'src/components/settings/SettingsSection';
 import { Translation } from 'src/components/suite';
 import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanners/ContextMessage';
 import { useDevice, useSelector } from 'src/hooks/suite';
 import { selectHasActiveTransport, selectSuiteFlags } from 'src/selectors/suite/suiteSelectors';
 import type { TrezorDevice } from 'src/types/suite';
+import { getHowToGetFromBootloaderInstructionsMap } from 'src/utils/device/bootloader';
 import { isRecoveryInProgress } from 'src/utils/device/isRecoveryInProgress';
 
 import { AuthenticateDevice } from './AuthenticateDevice';
@@ -99,6 +102,8 @@ export const SettingsDevice = () => {
 
     const isThpDevice = device?.thp !== undefined;
 
+    const bootloaderDescription = getHowToGetFromBootloaderInstructionsMap({ deviceModelInternal });
+
     return (
         <SettingsLayout>
             <ContextMessage context={Context.getSettings('device')} />
@@ -107,13 +112,9 @@ export const SettingsDevice = () => {
                 <DeviceBanner
                     title={<Translation id="TR_SETTINGS_DEVICE_BANNER_TITLE_BOOTLOADER" />}
                     description={
-                        <Translation
-                            id={
-                                deviceModelInternal && isDeviceWithButtons(deviceModelInternal)
-                                    ? 'TR_DEVICE_CONNECTED_BOOTLOADER_RECONNECT_IN_NORMAL_NO_BUTTON'
-                                    : 'TR_DEVICE_CONNECTED_BOOTLOADER_RECONNECT_IN_NORMAL_NO_TOUCH'
-                            }
-                        />
+                        bootloaderDescription !== null ? (
+                            <Translation id={bootloaderDescription} />
+                        ) : null
                     }
                 />
             )}

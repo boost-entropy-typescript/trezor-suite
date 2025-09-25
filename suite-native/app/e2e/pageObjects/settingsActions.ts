@@ -47,6 +47,7 @@ class SettingsActions {
 
         const currencySelectorItemElement = element(by.id(`@select/item/${currencyCode}`));
         await scrollUntilVisible(currencySelectorItemElement, '@bottom-sheet/scroll-view');
+
         await currencySelectorItemElement.tap();
     }
 
@@ -57,7 +58,7 @@ class SettingsActions {
         await waitFor(currencySelectorTriggerElement).toBeVisible().withTimeout(10000);
         await currencySelectorTriggerElement.tap();
 
-        const currencySelectorItemElement = element(by.id(`@select/item/${unit}`));
+        const currencySelectorItemElement = element(by.id(`@select/item/${unit}/content`));
         await scrollUntilVisible(currencySelectorItemElement, '@bottom-sheet/scroll-view');
         await currencySelectorItemElement.tap();
     }

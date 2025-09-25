@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Tooltip, variables } from '@trezor/components';
 
 import { applySettings } from 'src/actions/settings/deviceSettingsActions';
-import { SettingsSectionItem } from 'src/components/settings';
+import { SettingsSectionItem } from 'src/components/settings/SettingsSectionItem';
 import {
     ActionButton,
     ActionColumn,
@@ -17,6 +17,7 @@ import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDevice, useDispatch } from 'src/hooks/suite';
 import {
     ImageValidationError,
+    convertImage,
     deviceModelInformation,
     fileToDataUrl,
     imagePathToHex,
@@ -72,9 +73,16 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
 
     const onUploadHomescreen = async (files: FileList | null) => {
         if (!files || !files.length) return;
-        const file = files[0];
+        let file = files[0];
 
-        const validationResult = await validateImage({ file, deviceModelInternal });
+        let validationResult = await validateImage({ file, deviceModelInternal });
+
+        // Do NOT touch the image if it's already valid
+        if (validationResult) {
+            file = (await convertImage({ file, deviceModelInternal })) ?? file;
+            validationResult = await validateImage({ file, deviceModelInternal });
+        }
+
         setValidationError(validationResult);
 
         const dataUrl = await fileToDataUrl(file);
@@ -90,6 +98,18 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
 
     const isSupportedHomescreen = isHomescreenSupportedOnDevice(device);
 
+    const cancelButton = (
+        <ActionButton
+            variant="tertiary"
+            onClick={resetUpload}
+            isDisabled={isDeviceLocked}
+            isTooltipActive={isDeviceLocked}
+            tooltipContent={<Translation id="TR_SETTINGS_DEVICE_BANNER_TITLE_REMEMBERED" />}
+        >
+            <Translation id="TR_CANCEL" />
+        </ActionButton>
+    );
+
     return (
         <>
             <SettingsSectionItem anchorId={SettingsAnchor.Homescreen}>
@@ -99,7 +119,7 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                     <HiddenInput
                         ref={fileInputElement}
                         type="file"
-                        accept={deviceModelInformation[deviceModelInternal].supports
+                        accept={['png', 'jpeg', 'gif', 'webp', 'svg+xml']
                             .map(format => `image/${format}`)
                             .join(', ')}
                         onChange={e => onUploadHomescreen(e.target.files)}
@@ -136,17 +156,7 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                         <ActionButton onClick={onChangeHomescreen} isDisabled={isDeviceLocked}>
                             <Translation id="TR_CHANGE_HOMESCREEN" />
                         </ActionButton>
-                        <ActionButton
-                            variant="primary"
-                            onClick={resetUpload}
-                            isDisabled={isDeviceLocked}
-                            isTooltipActive={isDeviceLocked}
-                            tooltipContent={
-                                <Translation id="TR_SETTINGS_DEVICE_BANNER_TITLE_REMEMBERED" />
-                            }
-                        >
-                            <Translation id="TR_DROP_IMAGE" />
-                        </ActionButton>
+                        {cancelButton}
                     </ActionColumn>
                 </SectionItem>
             )}
@@ -161,6 +171,9 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                                     values={{
                                         width: deviceModelInformation[deviceModelInternal].width,
                                         height: deviceModelInformation[deviceModelInternal].height,
+                                        maxImageSize:
+                                            deviceModelInformation[deviceModelInternal]
+                                                .maxImageSize / 1024,
                                     }}
                                 />
                             </ValidationMessage>
@@ -180,19 +193,7 @@ export const Homescreen = ({ isDeviceLocked }: HomescreenProps) => {
                             />
                         </Col>
                     )}
-                    <ActionColumn>
-                        <ActionButton
-                            variant="primary"
-                            onClick={resetUpload}
-                            isDisabled={isDeviceLocked}
-                            isTooltipActive={isDeviceLocked}
-                            tooltipContent={
-                                <Translation id="TR_SETTINGS_DEVICE_BANNER_TITLE_REMEMBERED" />
-                            }
-                        >
-                            <Translation id="TR_DROP_IMAGE" />
-                        </ActionButton>
-                    </ActionColumn>
+                    <ActionColumn>{cancelButton}</ActionColumn>
                 </SectionItem>
             )}
         </>

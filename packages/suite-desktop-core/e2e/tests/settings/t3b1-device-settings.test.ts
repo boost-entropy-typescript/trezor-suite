@@ -8,51 +8,49 @@ import { TestCategory, TestPriority } from '@trezor/e2e-utils';
 import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
 
-test.describe.serial(
-    'T3B1 - Device settings',
-    { tag: ['@group=settings', '@specificModel'] },
-    () => {
-        test.use({
-            emulatorStartConf: { model: 'T3B1', wipe: true },
-        });
+test.describe('T3B1 - Device settings', { tag: ['@group=settings', '@specificModel'] }, () => {
+    test.describe.configure({ mode: 'serial' });
 
-        test.beforeEach(async ({ onboardingPage, settingsPage }) => {
-            await onboardingPage.completeOnboarding();
-            await settingsPage.navigateTo('device');
-        });
+    test.use({
+        emulatorStartConf: { model: 'T3B1', wipe: true },
+    });
 
-        test(
-            'change all possible device settings',
-            {
-                annotation: createTestAnnotation({
-                    testCase: 'Verifies that a user can change all possible device settings.',
-                    category: TestCategory.Settings,
-                    priority: TestPriority.Medium,
-                }),
-            },
-            async ({ settingsPage, page }) => {
-                await test.step('Verify firmware modal', async () => {
-                    await page.getByTestId('@settings/device/update-button').click();
-                    await page.getByTestId('@modal/close-button').click();
-                });
+    test.beforeEach(async ({ onboardingPage, settingsPage }) => {
+        await onboardingPage.completeOnboarding();
+        await settingsPage.navigateTo('device');
+    });
 
-                await test.step("Change and verify device's name", async () => {
-                    const newDeviceName = 'TREVOR!';
-                    await settingsPage.changeDeviceName(newDeviceName);
-                    await expect(page.getByTestId('@menu/device/label')).toHaveText(newDeviceName);
-                });
+    test(
+        'change all possible device settings',
+        {
+            annotation: createTestAnnotation({
+                testCase: 'Verifies that a user can change all possible device settings.',
+                category: TestCategory.Settings,
+                priority: TestPriority.Medium,
+            }),
+        },
+        async ({ settingsPage, page }) => {
+            await test.step('Verify firmware modal', async () => {
+                await page.getByTestId('@settings/device/update-button').click();
+                await page.getByTestId('@modal/close-button').click();
+            });
 
-                await settingsPage.changeDeviceBackground('circleweb');
-            },
-        );
+            await test.step("Change and verify device's name", async () => {
+                const newDeviceName = 'TREVOR!';
+                await settingsPage.changeDeviceName(newDeviceName);
+                await expect(page.getByTestId('@menu/device/label')).toHaveText(newDeviceName);
+            });
 
-        test('Device Wipe', async ({ page, trezorUserEnvLink }) => {
-            await page.getByTestId('@settings/device/open-wipe-modal-button').click();
-            await page.getByTestId('@wipe/checkbox-1').click();
-            await page.getByTestId('@wipe/checkbox-2').click();
-            await page.getByTestId('@wipe/wipe-button').click();
-            await trezorUserEnvLink.pressYes();
-            //TODO: Verification?
-        });
-    },
-);
+            await settingsPage.changeDeviceBackground('circleweb');
+        },
+    );
+
+    test('Device Wipe', async ({ page, trezorUserEnvLink }) => {
+        await page.getByTestId('@settings/device/open-wipe-modal-button').click();
+        await page.getByTestId('@wipe/checkbox-1').click();
+        await page.getByTestId('@wipe/checkbox-2').click();
+        await page.getByTestId('@wipe/wipe-button').click();
+        await trezorUserEnvLink.pressYes();
+        //TODO: Verification?
+    });
+});

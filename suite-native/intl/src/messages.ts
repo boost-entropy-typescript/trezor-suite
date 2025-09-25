@@ -1958,10 +1958,6 @@ export const messages = {
         },
         review: {
             confirmOnDeviceMessage: 'Go to your Trezor and confirm the amounts & recipients.',
-            cancelAlert: {
-                title: 'Are you sure you’d like to cancel sending the transaction?',
-                continueButton: 'Continue editing',
-            },
             deviceDisconnectedAlert: {
                 title: 'Your Trezor has been disconnected.',
                 description: 'Reconnect your Trezor to continue.',
@@ -2001,7 +1997,6 @@ export const messages = {
             },
             outputs: {
                 title: 'Review with Trezor',
-                successMessage: 'Everything is ready, you can send the transaction now.',
                 submitButton: 'Send transaction',
                 errorAlert: {
                     secondaryButtonTitle: 'I’ll do it later',
@@ -2330,6 +2325,10 @@ export const messages = {
                 body: 'Fees are paid directly to network miners for processing your transactions.',
             },
         },
+        tradingReviewOutputs: {
+            title: 'Review with Trezor',
+            submitButton: 'Send transaction',
+        },
         exchangeApprovalLimitSheet: {
             title: 'Set limit',
             unlimitedCard: {
@@ -2642,6 +2641,11 @@ export const messages = {
                     maxFee: 'Maximum fee',
                 },
                 noAccount: 'Account not found.',
+                signSuccessMessage: 'Everything is ready, you can send the transaction now.',
+            },
+            cancelAlert: {
+                title: 'Are you sure you’d like to cancel sending the transaction?',
+                continueButton: 'Continue editing',
             },
         },
     },
