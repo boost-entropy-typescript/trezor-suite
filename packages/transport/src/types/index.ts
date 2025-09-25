@@ -1,6 +1,6 @@
 import { Branded } from '@trezor/type-utils';
 
-import type { DEVICE_TYPE } from '../api/abstract';
+import { DEVICE_TYPE } from '../constants';
 
 export * from './apiCall';
 
@@ -33,6 +33,20 @@ export type Descriptor = Omit<DescriptorApiLevel, 'path'> & {
     /** only reported by transport-bluetooth */
     id?: string;
 };
+
+/** Device boot/startup notification */
+type NotifyBoot = 0;
+/** Device unlocked and ready to accept messages */
+type NotifyUnlock = 1;
+/** Device hard-locked and won't accept messages */
+type NotifyLock = 2;
+type NormalMode = 0;
+type BootloaderMode = 1;
+export type NotificationData = [
+    1,
+    NotifyBoot | NotifyUnlock | NotifyLock,
+    NormalMode | BootloaderMode,
+];
 
 export interface Logger {
     info(...args: any): void;

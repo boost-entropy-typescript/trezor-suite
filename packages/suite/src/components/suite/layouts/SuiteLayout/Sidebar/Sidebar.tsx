@@ -3,11 +3,21 @@ import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
 
-import { ElevationUp, ResizableBox, useElevation } from '@trezor/components';
-import { Elevation, mapElevationToBackground, mapElevationToBorder, zIndices } from '@trezor/theme';
+import { selectDevicesCount, selectSelectedDevice } from '@suite-common/wallet-core';
+import { Box, ElevationUp, Icon, ResizableBox, useElevation } from '@trezor/components';
+import { TrezorLogo } from '@trezor/product-components';
+import {
+    Elevation,
+    mapElevationToBackground,
+    mapElevationToBorder,
+    spacingsPx,
+    zIndices,
+} from '@trezor/theme';
 
+import { setSidebarWidth as setSidebarWidthInRedux } from 'src/actions/suite/suiteActions';
 import { AccountsMenu } from 'src/components/wallet/WalletLayout/AccountsMenu/AccountsMenu';
-import { useDispatch } from 'src/hooks/suite';
+import { useDispatch, useSelector } from 'src/hooks/suite';
+import { selectShouldDisplayDeviceCompromised } from 'src/selectors/suite/suiteAuthenticityChecksSelectors';
 import { useResponsiveContext } from 'src/support/suite/ResponsiveContext';
 
 import { Navigation } from './Navigation';
@@ -16,7 +26,6 @@ import { TrafficLightOffset } from '../../../TrafficLightOffset';
 import { DeviceSelector } from '../DeviceSelector/DeviceSelector';
 import { UpdateNotificationBanner } from './QuickActions/Update/UpdateNotificationBanner';
 import { useUpdateStatus } from './QuickActions/Update/useUpdateStatus';
-import { setSidebarWidth as setSidebarWidthInRedux } from '../../../../../actions/suite/suiteActions';
 
 const Container = styled.nav<{ $elevation: Elevation }>`
     overflow-x: hidden;
@@ -39,9 +48,44 @@ const Content = styled.div`
     flex-direction: column;
 `;
 
+const HorizontalSpacer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    z-index: ${zIndices.expandableNavigationHeader};
+    overflow: auto;
+    gap: ${spacingsPx.sm};
+`;
+
+type WalletSwitcherProps = {
+    isCollapsed: boolean;
+};
+
+const WalletSwitcher = ({ isCollapsed }: WalletSwitcherProps) => {
+    const devicesCount = useSelector(selectDevicesCount);
+
+    if (devicesCount > 0) {
+        return <DeviceSelector />;
+    }
+
+    return isCollapsed ? (
+        <Box margin={{ left: 'auto', right: 'auto', top: 12, bottom: 12 }}>
+            <Icon name="trezorLogo" size="large" pointerEvents="none" />
+        </Box>
+    ) : (
+        <Box margin={{ left: 20, right: 12, top: 12, bottom: 12 }}>
+            <TrezorLogo width="107px" type="horizontal" />
+        </Box>
+    );
+};
+
 export const SIDEBAR_MIN_WIDTH = 84;
 
-export const Sidebar = () => {
+type SidebarProps = {
+    showAccounts?: boolean;
+};
+
+export const Sidebar = ({ showAccounts = true }: SidebarProps) => {
     const [closedNotificationDevice, setClosedNotificationDevice] = useState(false);
     const [closedNotificationSuite, setClosedNotificationSuite] = useState(false);
     const [isBannerVisible, setIsBannerVisible] = useState(true);
@@ -50,6 +94,9 @@ export const Sidebar = () => {
 
     const { elevation } = useElevation();
     const { updateStatusDevice, updateStatusSuite } = useUpdateStatus();
+
+    const shouldDisplayDeviceCompromised = useSelector(selectShouldDisplayDeviceCompromised);
+    const selectedDevice = useSelector(selectSelectedDevice);
 
     const handleSidebarWidthChanged = (width: number) => {
         setSidebarWidth(width);
@@ -72,6 +119,12 @@ export const Sidebar = () => {
         (updateStatusSuite !== 'up-to-date' && !closedNotificationSuite) ||
         (!['up-to-date', 'disconnected'].includes(updateStatusDevice) && !closedNotificationDevice);
 
+    const showAccountsAndIsDeviceReady =
+        !shouldDisplayDeviceCompromised &&
+        selectedDevice !== undefined &&
+        selectedDevice.mode === 'normal' && // not bootloader, etc...
+        showAccounts;
+
     return (
         <Wrapper>
             <ResizableBox
@@ -88,11 +141,13 @@ export const Sidebar = () => {
                 <Container $elevation={elevation}>
                     <TrafficLightOffset>
                         <Content>
-                            <DeviceSelector />
+                            <WalletSwitcher isCollapsed={isSidebarCollapsed} />
                             <ElevationUp>
                                 <Navigation />
                             </ElevationUp>
-                            <AccountsMenu />
+                            <HorizontalSpacer>
+                                {showAccountsAndIsDeviceReady && <AccountsMenu />}
+                            </HorizontalSpacer>
                             <AnimatePresence onExitComplete={onNotificationBannerClosed}>
                                 {showUpdateBannerNotification &&
                                     !isSidebarCollapsed &&

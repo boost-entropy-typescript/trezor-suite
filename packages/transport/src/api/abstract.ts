@@ -7,6 +7,7 @@ import type {
     AsyncResultWithTypedError,
     DescriptorApiLevel,
     Logger,
+    NotificationData,
     PathInternal,
     Success,
 } from '../types';
@@ -16,18 +17,7 @@ export interface AbstractApiConstructorParams {
     logger?: Logger;
 }
 
-// https://github.dev/trezor/trezord-go/blob/db03d99230f5b609a354e3586f1dfc0ad6da16f7/core/core.go#L46-L47
-export enum DEVICE_TYPE {
-    TypeT1Hid = 0,
-    TypeT1Webusb = 1,
-    TypeT1WebusbBoot = 2,
-    TypeT2 = 3,
-    TypeT2Boot = 4,
-    TypeEmulator = 5,
-    TypeBluetooth = 6,
-}
-
-export type OpenDeviceChannel = 'read' | 'push-notification' | 'battery-level';
+export type OpenDeviceChannel = 'read' | 'trezor-push-notification' | 'battery-level';
 
 type AccessLock = {
     read: boolean;
@@ -43,7 +33,7 @@ type AccessLock = {
 export abstract class AbstractApi extends TypedEmitter<{
     'transport-interface-change': DescriptorApiLevel[];
     'transport-interface-error': { error: typeof ERRORS.API_DISCONNECTED };
-    [TRANSPORT.TREZOR_PUSH_NOTIFICATION]: { id: string; data: number[] };
+    [TRANSPORT.TREZOR_PUSH_NOTIFICATION]: { id: string; data: NotificationData };
     [TRANSPORT.BATTERY_LEVEL]: { id: string; data: number[] };
 }> {
     protected logger?: Logger;

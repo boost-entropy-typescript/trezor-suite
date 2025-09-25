@@ -109,7 +109,9 @@ test.describe('Analytics Events', { tag: ['@group=suite', '@webOnly'] }, () => {
 
     test('Analytics capture suite-ready after getting enabled', async ({
         analytics,
+        model,
         page,
+        suite,
         analyticsSection,
         settingsPage,
         onboardingPage,
@@ -124,12 +126,16 @@ test.describe('Analytics Events', { tag: ['@group=suite', '@webOnly'] }, () => {
             // the only message about the analytics being sent is the "settings/analytics" disabled.
             await analytics.interceptAnalytics();
 
-            await trezorUserEnvLink.startEmu({ wipe: true, model: 'T3T1' });
+            await trezorUserEnvLink.startEmu({ wipe: true, model: model.model });
             await trezorUserEnvLink.setupEmu({
                 passphrase_protection: true,
             });
 
             await trezorUserEnvLink.startBridge(BRIDGE_VERSION);
+            if (model.isModelWithTHP()) {
+                await onboardingPage.allowConnectToTrezor();
+                await onboardingPage.enterTHPPairingCode();
+            }
         });
 
         await test.step('Change settings before enabling analytics', async () => {
@@ -153,7 +159,7 @@ test.describe('Analytics Events', { tag: ['@group=suite', '@webOnly'] }, () => {
             await settingsPage.navigateTo('application');
             await settingsPage.analyticsSwitch.click();
             await settingsPage.closeSettings();
-            await page.reload();
+            await suite.reloadApp();
             await onboardingPage.onboardingContinueButton.click();
         });
 

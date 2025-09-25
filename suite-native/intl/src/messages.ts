@@ -191,6 +191,7 @@ export const messages = {
                     'The Trezor you’re trying to connect may still be remembered in your phone’s Bluetooth settings. Remove it and try again.',
                 primaryButton: 'Open system settings',
                 secondaryButton: 'Device removed',
+                deviceNamePlaceholder: 'your Trezor',
             },
             systemUnpairing: {
                 title: {
@@ -465,7 +466,10 @@ export const messages = {
         },
         turnOnAndUnlockScreen: {
             title: 'Turn on & unlock\nyour Trezor',
-            scanningLoader: 'Scanning for nearby Trezors',
+            status: {
+                adapterDisabled: 'Bluetooth is turned off',
+                scanning: 'Scanning for nearby Trezors',
+            },
         },
         pinScreen: {
             title: 'Enter PIN\non your Trezor',
@@ -2646,6 +2650,20 @@ export const messages = {
             cancelAlert: {
                 title: 'Are you sure you’d like to cancel sending the transaction?',
                 continueButton: 'Continue editing',
+            },
+        },
+        precomposedTransaction: {
+            errors: {
+                amountNotEnoughCurrencyFee:
+                    'Insufficient {networkDisplaySymbol} to cover the transaction fee',
+                amountIsNotEnough: "You don't have enough funds.",
+                amountIsTooLow: 'Amount is too low',
+                amountIsLessThanReserve: 'Recipient account requires minimum reserve to activate',
+                stakeNotEnoughFunds: 'Insufficient funds for staking',
+                remainingBalanceLessThanRent:
+                    'After sending this amount, your account will have SOL remaining lower than the rent.',
+                amountNotEnoughCurrencyFeeWithEthAmount:
+                    'Insufficient {networkDisplaySymbol} to cover the transaction fee.',
             },
         },
     },
