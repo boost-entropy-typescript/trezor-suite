@@ -10,7 +10,7 @@ import {
     selectTradingProviderByNameAndTradeType,
     selectTradingSellAccountKey,
 } from '@suite-common/trading';
-import { AccountsRootState, selectAccountNetworkSymbol } from '@suite-common/wallet-core';
+import { AccountsRootState, selectAccountNetworkType } from '@suite-common/wallet-core';
 import { Text, VStack } from '@suite-native/atoms';
 import { splitAddressToChunks } from '@suite-native/helpers';
 import { Translation, useTranslate } from '@suite-native/intl';
@@ -29,8 +29,8 @@ export const ProviderReceiveAddress = ({ trade }: { trade: ExchangeTrade | SellF
             : selectTradingSellAccountKey(state),
     );
 
-    const networkSymbol = useSelector((state: AccountsRootState) =>
-        sendAccountKey ? selectAccountNetworkSymbol(state, sendAccountKey) : null,
+    const networkType = useSelector((state: AccountsRootState) =>
+        sendAccountKey ? selectAccountNetworkType(state, sendAccountKey) : null,
     );
 
     const providerName =
@@ -42,12 +42,12 @@ export const ProviderReceiveAddress = ({ trade }: { trade: ExchangeTrade | SellF
             ? (trade as ExchangeTrade).sendAddress
             : (trade as SellFiatTrade).destinationAddress;
 
-    if (!receiveAddress) {
+    if (!receiveAddress || !networkType) {
         return null;
     }
 
     const addressText =
-        networkSymbol === 'sol'
+        networkType === 'solana'
             ? receiveAddress
             : splitAddressToChunks(receiveAddress ?? '').join(' ');
 

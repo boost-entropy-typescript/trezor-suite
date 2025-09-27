@@ -103,7 +103,7 @@ export const useExchangeFlow = () => {
     const { isConsentRequested, waitForConsent, resolveConsent } = useConsent();
 
     useFeesFetching({
-        accountKey: sendAccount?.key,
+        networkSymbol: sendAccount?.symbol,
         isRefetchDisabled: selectedFee === 'custom',
     });
 
@@ -287,8 +287,6 @@ export const useExchangeFlow = () => {
             selectedAccount,
             paymentRequests,
         }: TradingSignAndPushSendFormTransactionProps): Promise<TradingFulfillValue> => {
-            resolveConsent(true);
-
             const result = await dispatch(
                 signAndPushSendFormTransactionThunk({
                     formState,
@@ -344,7 +342,6 @@ export const useExchangeFlow = () => {
         dispatch,
         getCommonFunctions,
         isSlip24Active,
-        resolveConsent,
         selectedQuote,
         sendAccount,
         shouldSendInSats,
