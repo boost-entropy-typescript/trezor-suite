@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useNetInfo } from '@react-native-community/netinfo';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { parseCryptoId, selectTradingExchangeSelectedQuote } from '@suite-common/trading';
 import { selectSendPrecomposedTx } from '@suite-common/wallet-core';
@@ -74,10 +75,10 @@ export const TradingExchangePreviewScreen = ({ navigation }: TradingExchangePrev
         }
         try {
             const success = await confirmTrade({
-                sendAccount: fromAccount,
                 receiveAddress: addressText,
                 trade: quote,
                 approvalFlow: false,
+                nextStep: () => {},
             });
 
             if (success) {
@@ -90,7 +91,7 @@ export const TradingExchangePreviewScreen = ({ navigation }: TradingExchangePrev
 
             console.error('Failed to confirm trade', e);
         }
-    }, [confirmTrade, debounce, fetchFeesAndCompose, fromAccount, quote, toAccount]);
+    }, [confirmTrade, debounce, fetchFeesAndCompose, quote, toAccount]);
 
     useEffect(() => {
         if (isConfirmationErrorRequested) {
@@ -123,15 +124,15 @@ export const TradingExchangePreviewScreen = ({ navigation }: TradingExchangePrev
         showAlert,
     ]);
 
-    useEffect(() => {
-        if (!hasRequestedTradeConfirmation.current) {
-            hasRequestedTradeConfirmation.current = true;
+    useFocusEffect(
+        useCallback(() => {
+            if (!hasRequestedTradeConfirmation.current) {
+                hasRequestedTradeConfirmation.current = true;
 
-            handleConfirmTrade();
-        }
-        // only run on mount
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+                handleConfirmTrade();
+            }
+        }, [handleConfirmTrade]),
+    );
 
     const handleSignTransaction = () => {
         if (!quote || !fromAccount) {
@@ -150,8 +151,10 @@ export const TradingExchangePreviewScreen = ({ navigation }: TradingExchangePrev
                 tradingType: 'exchange',
                 accountKey: fromAccount.key,
                 tokenContract,
+                orderId: quote.orderId ?? '',
             },
         });
+        hasRequestedTradeConfirmation.current = false;
     };
 
     return (

@@ -1,8 +1,7 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 
 import { selectWalletLabel } from '@suite-common/local-first-storage';
 import { TrezorDevice } from '@suite-common/suite-types';
-import * as deviceUtils from '@suite-common/suite-utils';
 import { TOOLTIP_DELAY_LONG, TruncateWithTooltip } from '@trezor/components';
 
 import { Translation } from 'src/components/suite/Translation';
@@ -13,18 +12,13 @@ import { selectLabelingDataForWallet } from 'src/reducers/suite/metadataReducer'
 import { DeviceConnectionText } from './DeviceConnectionText';
 
 type DeviceStatusTextProps = {
-    onRefreshClick?: MouseEventHandler;
     device: TrezorDevice;
     forceConnectionInfo: boolean;
 };
 
-type DeviceStatusVisible = {
-    connected: boolean;
-    device: TrezorDevice;
-    forceConnectionInfo: boolean;
-};
+export const DeviceStatusText = ({ device, forceConnectionInfo }: DeviceStatusTextProps) => {
+    const { connected } = device;
 
-const DeviceStatusVisible = ({ device, connected, forceConnectionInfo }: DeviceStatusVisible) => {
     const { walletLabel: walletLabelOld } = useSelector(state =>
         selectLabelingDataForWallet(state, device.state),
     );
@@ -57,37 +51,5 @@ const DeviceStatusVisible = ({ device, connected, forceConnectionInfo }: DeviceS
                 <Translation id={connected ? 'TR_CONNECTED' : 'TR_DISCONNECTED'} />
             )}
         </DeviceConnectionText>
-    );
-};
-
-export const DeviceStatusText = ({
-    onRefreshClick,
-    device,
-    forceConnectionInfo,
-}: DeviceStatusTextProps) => {
-    const { connected } = device;
-    const deviceStatus = deviceUtils.getStatus(device);
-    const needsAttention = deviceUtils.deviceNeedsAttention(deviceStatus);
-
-    if (connected && needsAttention && onRefreshClick) {
-        return (
-            <DeviceConnectionText
-                variant="warning"
-                icon="repeat"
-                data-testid={connected ? '@deviceStatus-connected' : '@deviceStatus-disconnected'}
-                data-testid-alt="@deviceStatus"
-                isAction
-            >
-                <Translation id="TR_SOLVE_ISSUE" />
-            </DeviceConnectionText>
-        );
-    }
-
-    return (
-        <DeviceStatusVisible
-            connected={connected}
-            device={device}
-            forceConnectionInfo={forceConnectionInfo}
-        />
     );
 };

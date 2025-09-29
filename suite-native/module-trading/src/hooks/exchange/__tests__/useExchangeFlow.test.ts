@@ -96,6 +96,7 @@ describe('useExchangeFlow', () => {
         it('should call confirmTradeThunk when confirmTrade is called', async () => {
             const store = await getInitializedStore();
             const dispatchSpy = jest.spyOn(store, 'dispatch');
+            const mockNextStep = jest.fn();
 
             const { result } = await renderUseExchangeFlow({ store });
 
@@ -104,17 +105,12 @@ describe('useExchangeFlow', () => {
                 orderId: 'test-order',
             };
 
-            const mockAccount = {
-                key: 'btc1',
-                symbol: 'btc',
-            };
-
             await act(async () => {
                 await result.current.confirmTrade({
                     receiveAddress: 'test-address',
                     trade: mockTrade,
                     approvalFlow: false,
-                    sendAccount: mockAccount,
+                    nextStep: mockNextStep,
                 });
             });
 
@@ -133,7 +129,7 @@ describe('useExchangeFlow', () => {
                     approvalFlow: false,
                     triggerAnalyticsTradeConfirmation: expect.any(Function),
                     processResponseData: expect.any(Function),
-                    nextStep: expect.any(Function),
+                    nextStep: mockNextStep,
                 },
                 unwrap: expect.any(Function),
             });
@@ -157,18 +153,13 @@ describe('useExchangeFlow', () => {
                 orderId: 'test-order',
             };
 
-            const mockAccount = {
-                key: 'btc1',
-                symbol: 'btc',
-            };
-
             const confirmResult = await act(
                 async () =>
                     await result.current.confirmTrade({
                         receiveAddress: 'test-address',
                         trade: mockTrade,
                         approvalFlow: false,
-                        sendAccount: mockAccount,
+                        nextStep: jest.fn(),
                     }),
             );
 
@@ -386,11 +377,15 @@ describe('useExchangeFlow', () => {
         it('should call sendTransactionThunk with correct parameters', async () => {
             const store = await getInitializedStore();
             const dispatchSpy = jest.spyOn(store, 'dispatch');
+            const mockNextStep = jest.fn();
 
             const { result } = await renderUseExchangeFlow({ store });
 
             await act(async () => {
-                await result.current.signAndSendTransaction();
+                await result.current.signAndSendTransaction({
+                    nextStep: mockNextStep,
+                    onError: jest.fn(),
+                });
             });
 
             expect(dispatchSpy).toHaveBeenCalledWith({
@@ -403,7 +398,7 @@ describe('useExchangeFlow', () => {
                     decimals: expect.any(Number),
                     shouldSendInSats: expect.any(Boolean),
                     isSlip24Active: false,
-                    nextStep: expect.any(Function),
+                    nextStep: mockNextStep,
                     processResponseData: expect.any(Function),
                     triggerAnalyticsTradeConfirmation: expect.any(Function),
                     signAndPushSendFormTransaction: expect.any(Function),
@@ -428,7 +423,10 @@ describe('useExchangeFlow', () => {
             });
 
             await act(async () => {
-                await result.current.signAndSendTransaction();
+                await result.current.signAndSendTransaction({
+                    nextStep: jest.fn(),
+                    onError: jest.fn(),
+                });
             });
 
             // Now resolve the push consent
@@ -461,7 +459,7 @@ describe('useExchangeFlow', () => {
                     receiveAddress: 'test-address',
                     trade: undefined,
                     approvalFlow: false,
-                    sendAccount: { key: 'btc1', symbol: 'btc' },
+                    nextStep: jest.fn(),
                 }),
             );
 
