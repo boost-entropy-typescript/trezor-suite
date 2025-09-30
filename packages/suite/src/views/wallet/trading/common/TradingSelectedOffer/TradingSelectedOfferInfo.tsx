@@ -1,5 +1,6 @@
-import { CryptoId } from 'invity-api';
+import { type CryptoId } from 'invity-api';
 
+import { TradingTradeType, isBuyTrade, isExchangeTrade } from '@suite-common/trading';
 import { Column } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
@@ -12,6 +13,14 @@ import { TradingInfoPaymentMethod } from 'src/views/wallet/trading/common/Tradin
 import { TradingInfoProvider } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingInfo/TradingInfoProvider';
 import { TradingTransactionId } from 'src/views/wallet/trading/common/TradingTransactionId';
 import { TradingUtilsKyc } from 'src/views/wallet/trading/common/TradingUtils/TradingUtilsKyc';
+
+function getReceiveAddress(selectedQuote: TradingTradeType) {
+    if (!isExchangeTrade(selectedQuote) && !isBuyTrade(selectedQuote)) {
+        return undefined;
+    }
+
+    return selectedQuote.receiveAddress;
+}
 
 export const TradingSelectedOfferInfo = ({
     account,
@@ -49,6 +58,7 @@ export const TradingSelectedOfferInfo = ({
             currency={quoteAmounts?.receiveCurrency}
             amount={quoteAmounts?.receiveAmount}
             formStep={formStep}
+            receiveAddress={getReceiveAddress(selectedQuote)}
             isReceive
         />,
     ];

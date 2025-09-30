@@ -131,6 +131,21 @@ const connectDevice = (draft: DeviceReducerState, device: Device) => {
     };
     // connected device is unacquired/unreadable
     if (!device.features) {
+        const knownDevices = draft.devices.filter(
+            ({ bluetoothProps }) =>
+                bluetoothProps && bluetoothProps?.id === device.bluetoothProps?.id,
+        );
+        if (knownDevices.length > 0) {
+            knownDevices.forEach(dd => {
+                dd.connected = true;
+                dd.path = device.path;
+                dd.status = device.status;
+                dd.thp = device.thp;
+            });
+
+            return;
+        }
+
         // check if device already exists in reducer
         const unacquiredDevices = draft.devices.filter(d => d.path === device.path);
         if (unacquiredDevices.length > 0) {
@@ -226,15 +241,13 @@ const changeDevice = (
     device: Device | TrezorDevice,
     extended: Partial<AcquiredDevice>,
 ) => {
-    // change only acquired and THP devices
     if (!device.features) {
-        if (device.thp) {
-            const affectedDevice = draft.devices.find(d => !d.features && d.path === device.path);
-            if (affectedDevice) {
+        draft.devices.forEach(affectedDevice => {
+            if (affectedDevice.path === device.path) {
                 affectedDevice.status = device.status;
                 affectedDevice.thp = device.thp;
             }
-        }
+        });
 
         return;
     }

@@ -6,12 +6,27 @@ import { Branded } from '@trezor/type-utils';
 import type { FirmwareReleaseConfigInfo } from './firmware';
 
 /**
+ * - `busy`               application has an active session but device is currently unresponsive (example: connect to host device screen after RebootToBootloader)
+ * - `bootloader-locked`  from push-notification. device is either restarting or was rebooted to bootloader and waiting for confirmation
+ * - `rebooting`          from push-notification. device is booting to normal mode
+ * - `hard-locked`        from push-notification. device won't accept messages. eg., cancel bootloader mode
+ * - `pin-locked`         device responded with specific THP error
+ * - `thp-locked`         device is waiting for THP pairing
+ */
+export type DeviceBusyStatus =
+    | 'busy'
+    | 'rebooting'
+    | 'bootloader-locked'
+    | 'hard-locked'
+    | 'pin-locked'
+    | 'thp-locked';
+
+/**
  * - `available`  no other application has an active session
  * - `occupied`   other application has an active session
  * - `used`       another has released the device and no other application has an active session
- * - `busy`       this application has an active session but device is currently busy (example: connect to host device screen after RebootToBootloader)
  */
-export type DeviceStatus = 'available' | 'occupied' | 'used' | 'busy';
+export type DeviceStatus = 'available' | 'occupied' | 'used' | DeviceBusyStatus;
 
 export type DeviceMode = 'normal' | 'bootloader' | 'initialize' | 'seedless';
 
@@ -77,16 +92,26 @@ export type FirmwareHashCheckResult =
           errorPayload?: unknown;
       };
 
+/**
+ * The Unique Device Identifier per Suite run & Connected Device.
+ * When Suite is restarted or the Device is reconnected this will change.
+ *
+ * The main reason for this identifier is to reference device which is unacquired
+ * and therefore has no `id` yet. Typical use case is THP pairing
+ */
 export type DeviceUniquePath = string & Branded<'DeviceUniquePath'>;
-export const DeviceUniquePath = (id: string) => id as DeviceUniquePath;
+export const asDeviceUniquePath = (id: string) => id as DeviceUniquePath;
 
 type BaseDevice = {
     path: DeviceUniquePath;
     name: string;
 };
 
+export type BluetoothDeviceId = string & Branded<'BluetoothDeviceId'>;
+export const asBluetoothDeviceId = (id: string) => id as BluetoothDeviceId;
+
 export type BluetoothDeviceProps = {
-    id: string;
+    id: BluetoothDeviceId;
 };
 
 export type KnownDevice = BaseDevice & {

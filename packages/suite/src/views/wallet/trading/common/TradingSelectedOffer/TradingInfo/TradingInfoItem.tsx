@@ -13,13 +13,28 @@ import { Box, Column, InfoItem, Row, Text } from '@trezor/components';
 import { borders, spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils';
 
+import { copyAddressToClipboard } from 'src/actions/suite/copyAddressActions';
 import { AccountLabel, BaseCurrencyValue, Translation } from 'src/components/suite';
 import { ExperimentWrapper } from 'src/components/suite/Experiment/ExperimentWrapper';
+import { TokenAddressRow } from 'src/components/suite/copy/TokenAddressRow';
 import { useTranslation } from 'src/hooks/suite';
 import { TradingPayGetLabelType } from 'src/types/trading/trading';
 import { TradingCoinLogo } from 'src/views/wallet/trading/common/TradingCoinLogo';
 import { TradingCryptoAmount } from 'src/views/wallet/trading/common/TradingCryptoAmount';
 import { TradingFiatAmount } from 'src/views/wallet/trading/common/TradingFiatAmount';
+
+function isFormStepWithAccountLabel({
+    formStep,
+    isReceive,
+    account,
+    type,
+}: Pick<TradingInfoItemProps, 'formStep' | 'isReceive' | 'account' | 'type'>): boolean {
+    return Boolean(
+        (['SEND_TRANSACTION', 'SIGN_DATA'].some(f => f === formStep) || !isReceive) &&
+            account &&
+            type !== 'sell',
+    );
+}
 
 interface TradingInfoItemProps {
     account?: Account;
@@ -29,6 +44,7 @@ interface TradingInfoItemProps {
     amount?: string;
     isReceive?: boolean;
     formStep?: TradingExchangeStepType | TradingSellStepType;
+    receiveAddress?: string;
 }
 
 export const TradingInfoItem = ({
@@ -39,15 +55,17 @@ export const TradingInfoItem = ({
     currency,
     amount,
     formStep,
+    receiveAddress,
 }: TradingInfoItemProps) => {
     const { translationString } = useTranslation();
     const currencyInfo = currency && cryptoIdToNetworkSymbolAndContractAddress(currency);
     const accountLabelPrefix = translationString(isReceive ? 'TR_TO' : 'TR_FROM').toLowerCase();
 
-    const shouldShowAccountLabel =
-        ((formStep && ['SEND_TRANSACTION', 'SIGN_DATA'].includes(formStep)) || !isReceive) &&
-        account &&
-        type !== 'sell';
+    const showAccountLabel = isFormStepWithAccountLabel({ formStep, isReceive, account, type });
+
+    // `account` is undefined for external addresses
+    const isExternalBuyOrExchange =
+        (type === 'exchange' || type === 'buy') && !account && !!receiveAddress;
 
     return type === 'exchange' || isReceive ? (
         <Column width="100%">
@@ -55,15 +73,24 @@ export const TradingInfoItem = ({
                 <Text variant="tertiary" typographyStyle="hint">
                     <Translation id={label} />
                 </Text>
-                {shouldShowAccountLabel && (
+                {(showAccountLabel || isExternalBuyOrExchange) && (
                     <Text variant="tertiary" typographyStyle="hint" as="div">
                         <Row>
                             {accountLabelPrefix}&nbsp;
-                            <AccountLabel
-                                account={account}
-                                showAccountTypeBadge
-                                accountTypeBadgeSize="small"
-                            />
+                            {isExternalBuyOrExchange && (
+                                <TokenAddressRow
+                                    tokenContractAddress={receiveAddress}
+                                    shouldAllowCopy={true}
+                                    onCopy={() => copyAddressToClipboard(receiveAddress)}
+                                />
+                            )}
+                            {!isExternalBuyOrExchange && account && (
+                                <AccountLabel
+                                    account={account}
+                                    showAccountTypeBadge
+                                    accountTypeBadgeSize="small"
+                                />
+                            )}
                         </Row>
                     </Text>
                 )}

@@ -41,6 +41,8 @@ import {
     UiResponseWord,
 } from '../events';
 import {
+    BluetoothDeviceId,
+    DeviceBusyStatus,
     DeviceFirmwareStatus,
     DeviceState,
     DeviceStatus,
@@ -53,6 +55,7 @@ import {
     KnownDevice,
     UnavailableCapabilities,
     VersionArray,
+    asBluetoothDeviceId,
 } from '../types';
 import { handshakeCancel } from './workflow/handshake';
 import { getReleaseAsset } from '../utils/assetUtils';
@@ -147,7 +150,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     private _bluetoothProps?: {
         channels: Record<OpenDeviceChannel, boolean> | undefined;
-        id: string;
+        id: BluetoothDeviceId;
     };
     public get bluetoothProps() {
         return this._bluetoothProps;
@@ -192,7 +195,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     // DeviceState list [this.instance]: DeviceState | undefined
     private state: DeviceState[] = [];
     private stateStorage?: IStateStorage = undefined;
-    private busy?: boolean;
+    private busy?: DeviceBusyStatus;
 
     private _unavailableCapabilities: UnavailableCapabilities = {};
     public get unavailableCapabilities(): Readonly<UnavailableCapabilities> {
@@ -242,7 +245,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         if (descriptor.id) {
             this._bluetoothProps = {
-                id: descriptor.id,
+                id: asBluetoothDeviceId(descriptor.id),
                 channels: undefined,
             };
         }
@@ -579,19 +582,23 @@ export class Device extends TypedEmitter<DeviceEvents> {
                     await getThpChannel(this, withInteraction);
                     if (this.getThpState()?.isAutoconnectPaired || withInteraction) {
                         await this.getFeatures();
+                    } else {
+                        this.busy = 'thp-locked';
                     }
                 } else if (fn) {
                     await this.initialize(!!options.useCardanoDerivation);
                 } else {
                     await this.getFeatures();
                 }
-
-                this.busy = false;
             } catch (error) {
                 _log.warn('Device._runInner error: ', error.message);
 
                 if (error.code === 'Failure_Busy') {
-                    this.busy = true;
+                    this.busy = 'busy';
+                }
+
+                if (error.code === 'ThpDeviceLocked') {
+                    this.busy = 'pin-locked';
                 }
 
                 if (error.code === 'Device_ThpPairingTagInvalid') {
@@ -946,6 +953,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
         this.name = deviceInfo.name;
 
+        this.busy = undefined;
+
         // todo: move to 553
         if (feat?.unit_color) {
             const deviceUnitColor = feat.unit_color.toString();
@@ -1091,7 +1100,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     private getStatus(): DeviceStatus {
         if (this.isUsedElsewhere()) return 'occupied';
         if (this.wasUsedElsewhere) return 'used';
-        if (this.busy) return 'busy';
+        if (this.busy) return this.busy;
 
         return 'available';
     }
@@ -1120,7 +1129,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 transportSessionOwner: this.sessionAcquired ? undefined : sessionOwner,
                 bluetoothProps: this.bluetoothProps,
                 thp: this.thp?.serialize(),
-                status: this.busy ? 'busy' : undefined,
+                status: this.busy ? this.busy : undefined,
             };
         }
         const defaultLabel = 'My Trezor';
