@@ -23,8 +23,11 @@ export class UdpApi extends AbstractApi {
     private debugLink?: boolean;
     private readBuffer: ReturnType<typeof readMessageBuffer>;
 
-    constructor({ logger, debugLink }: AbstractApiConstructorParams & { debugLink?: boolean }) {
-        super({ logger });
+    constructor({
+        logger,
+        debugLink,
+    }: Omit<AbstractApiConstructorParams, 'type'> & { debugLink?: boolean }) {
+        super({ logger, type: 'udp' });
         this.debugLink = debugLink;
         this.readBuffer = readMessageBuffer();
 
@@ -152,7 +155,14 @@ export class UdpApi extends AbstractApi {
                 paths.map(path =>
                     this.ping(path, signal).then(pinged =>
                         pinged
-                            ? { path, type: DEVICE_TYPE.TypeEmulator, product: 0, vendor: 0 }
+                            ? {
+                                  path,
+                                  type: DEVICE_TYPE.TypeEmulator,
+                                  product: 0,
+                                  vendor: 0,
+                                  id: path,
+                                  apiType: this.type,
+                              }
                             : undefined,
                     ),
                 ),

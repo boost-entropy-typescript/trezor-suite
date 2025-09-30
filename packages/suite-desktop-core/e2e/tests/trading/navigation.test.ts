@@ -19,17 +19,17 @@ test.describe('Trading - Navigation', { tag: ['@group=trading'] }, () => {
                 testCase: 'Verifies navigation to all Trading Forms.',
             }),
         },
-        async ({ page, dashboardPage, tradingPage, walletPage }) => {
+        async ({ dashboardPage, tradingPage, walletPage }) => {
             // BUY
             await test.step('Buy from dashboard asset card', async () => {
                 await dashboardPage.navigateTo();
-                await page.getByTestId('@dashboard/asset/btc/buy-button').click();
+                await dashboardPage.buyButton('btc').click();
                 await tradingPage.verifyBuyFormOpened(/BTC/);
             });
 
             await test.step('Buy from account trade section', async () => {
                 await walletPage.openAccount({ symbol: 'btc' });
-                await page.getByTestId('@trading/menu/wallet-trading-buy').click();
+                await tradingPage.buyButton.click();
                 await tradingPage.verifyBuyFormOpened(/BTC/);
             });
 
@@ -45,7 +45,7 @@ test.describe('Trading - Navigation', { tag: ['@group=trading'] }, () => {
 
             await test.step('Buy from empty account', async () => {
                 await walletPage.openAccount({ symbol: 'ltc' });
-                await page.getByTestId('@accounts/empty-account/buy').click();
+                await walletPage.buyButton.click();
                 await tradingPage.verifyBuyFormOpened(/LTC/);
             });
 
@@ -58,7 +58,7 @@ test.describe('Trading - Navigation', { tag: ['@group=trading'] }, () => {
             // We don't test cases where navigation goes first thru buy form
             await test.step('Sell from account trade section', async () => {
                 await walletPage.openAccount({ symbol: 'btc' });
-                await page.getByTestId('@trading/menu/wallet-trading-sell').click();
+                await walletPage.sellButton.click();
                 await tradingPage.verifySellFormOpened(/BTC/);
             });
 
@@ -80,7 +80,7 @@ test.describe('Trading - Navigation', { tag: ['@group=trading'] }, () => {
 
             await test.step('Swap from account trade section', async () => {
                 await walletPage.openAccount({ symbol: 'btc' });
-                await page.getByTestId('@trading/menu/wallet-trading-exchange').click();
+                await walletPage.swapButton.click();
                 await tradingPage.verifySwapFormOpened(/BTC/);
             });
 

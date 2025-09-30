@@ -23,8 +23,8 @@ export class BluetoothApi extends AbstractApi {
     private pushNotificationSubscribedDevices = new Set<string>();
     private batteryLevelChangeSubscribedDevices = new Set<string>();
 
-    constructor(params: AbstractApiConstructorParams) {
-        super(params);
+    constructor(params: Omit<AbstractApiConstructorParams, 'type'>) {
+        super({ ...params, type: 'bluetooth' });
         this.subscriptions = [
             bluetoothManager.onDeviceConnectionStatusChange(event => {
                 this.logger?.debug('onDeviceConnectionStatusChange', event);
@@ -62,6 +62,7 @@ export class BluetoothApi extends AbstractApi {
             path: deviceId as PathInternal,
             type: DEVICE_TYPE.TypeBluetooth,
             id: deviceId,
+            apiType: this.type,
         }));
 
         return descriptors;

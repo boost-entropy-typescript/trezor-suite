@@ -47,6 +47,7 @@ export class TradingPage {
     readonly offerSpinner: Locator;
     readonly section: Locator;
     readonly form: Locator;
+    readonly buyButton: Locator;
     readonly sellTabButton: Locator;
     readonly quoteProvider: Locator;
     readonly bestOfferSection: Locator;
@@ -129,6 +130,7 @@ export class TradingPage {
         this.offerSpinner = this.page.getByTestId('@trading/offers/loading-spinner');
         this.section = this.page.getByTestId('@trading');
         this.form = this.page.getByTestId('@trading/form');
+        this.buyButton = this.page.getByTestId('@trading/menu/wallet-trading-buy');
         this.sellTabButton = this.page.getByTestId('@trading/menu/wallet-trading-sell');
         this.quoteProvider = this.page.getByTestId(quoteProviderLocator);
         this.bestOfferSection = this.page.getByTestId('@trading/best-offer');

@@ -6,7 +6,6 @@ import {
     thp as protocolThp,
     v1 as protocolV1,
     v2 as protocolV2,
-    tpn,
 } from '@trezor/protocol';
 import { Session, TRANSPORT, TRANSPORT_ERROR } from '@trezor/transport';
 import { type Descriptor, type Transport } from '@trezor/transport';
@@ -41,7 +40,6 @@ import {
     UiResponseWord,
 } from '../events';
 import {
-    BluetoothDeviceId,
     DeviceBusyStatus,
     DeviceFirmwareStatus,
     DeviceState,
@@ -67,6 +65,7 @@ import {
     parseRevision,
 } from '../utils/deviceFeaturesUtils';
 import { getFirmwareMode, getFirmwareType } from '../utils/firmwareUtils';
+import { trezorPushNotificationHandler } from './workflow/trezorPushNotification';
 
 // custom log
 const _log = initLog('Device');
@@ -126,9 +125,8 @@ type DeviceParams = {
 
 export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
-    public readonly transportPath;
     private thp: protocolThp.ThpState | undefined;
-    private readonly descriptorType;
+    private readonly descriptor: Descriptor;
     private sessionAcquired: Session | null;
 
     // protocol related
@@ -148,12 +146,20 @@ export class Device extends TypedEmitter<DeviceEvents> {
      */
     private unreadableError?: string;
 
-    private _bluetoothProps?: {
-        channels: Record<OpenDeviceChannel, boolean> | undefined;
-        id: BluetoothDeviceId;
+    private channels: Record<Exclude<OpenDeviceChannel, 'read'>, boolean> = {
+        'battery-level': false,
+        'trezor-push-notification': false,
     };
+
     public get bluetoothProps() {
-        return this._bluetoothProps;
+        if (this.descriptor.id && this.descriptor.apiType === 'bluetooth') {
+            return {
+                id: asBluetoothDeviceId(this.descriptor.id),
+                channels: this.channels,
+            };
+        }
+
+        return undefined;
     }
 
     // @ts-expect-error: strictPropertyInitialization
@@ -208,11 +214,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     private get possibleHIDdevice() {
-        return this.descriptorType === 0 || this.descriptorType === 2;
+        return this.descriptor.type === 0 || this.descriptor.type === 2;
     }
 
     public get possibleT1() {
-        return (this.descriptorType ?? 0) <= 2;
+        return (this.descriptor.type ?? 0) <= 2;
     }
 
     private name = 'Trezor';
@@ -240,20 +246,16 @@ export class Device extends TypedEmitter<DeviceEvents> {
         // === immutable properties
         this.uniquePath = id;
         this.transport = transport;
-        this.transportPath = descriptor.path;
-        this.descriptorType = descriptor.type;
-
-        if (descriptor.id) {
-            this._bluetoothProps = {
-                id: asBluetoothDeviceId(descriptor.id),
-                channels: undefined,
-            };
-        }
+        this.descriptor = descriptor;
 
         this.sessionAcquired = null;
 
         transport.on(TRANSPORT.STOPPED, this.onTransportStopped);
-        transport.deviceEvents.on(this.transportPath, this.onTransportDeviceEvent);
+        transport.deviceEvents.on(this.descriptor.path, this.onTransportDeviceEvent);
+    }
+
+    get transportPath() {
+        return this.descriptor.path;
     }
 
     private readonly onTransportStopped = () => this.disconnect();
@@ -307,10 +309,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     acquire() {
         const sessionPromise = this.getSessionChangePromise();
-        const previous = this.transport.getDescriptor(this.transportPath)?.session ?? null;
+        const previous = this.transport.getDescriptor(this.descriptor.path)?.session ?? null;
 
         this.acquirePromise = this.transport
-            .acquire({ input: { path: this.transportPath, previous } })
+            .acquire({ input: { path: this.descriptor.path, previous } })
             .then(result => this.waitAndCompareSession(result, sessionPromise))
             .then(result => {
                 if (result.success) {
@@ -334,39 +336,29 @@ export class Device extends TypedEmitter<DeviceEvents> {
         return this.acquirePromise;
     }
 
-    trezorPushNotificationHandler(message: number[]) {
-        // TODO: now we are just emitting event, other logic will be implemented for some notifications.
-        const decoded: DecodedTrezorPushNotification = tpn.decode(message);
-        this.lifecycle.emit(DEVICE.TREZOR_PUSH_NOTIFICATION, decoded);
-    }
-
     subscribe() {
-        if (this._bluetoothProps?.id) {
+        if (this.descriptor.id && this.descriptor.apiType === 'bluetooth') {
             this.transport
                 .subscribe({
-                    path: this._bluetoothProps.id,
+                    path: this.descriptor.id,
                     channels: ['battery-level', 'trezor-push-notification'],
                 })
                 .then(result => {
-                    if (result.success && this._bluetoothProps) {
-                        const channels = result.payload;
-                        this._bluetoothProps = {
-                            ...this._bluetoothProps,
-                            channels,
-                        };
+                    if (result.success) {
+                        this.channels = result.payload;
                         this.lifecycle.emit(DEVICE.CHANGED);
                     }
 
-                    if (this._bluetoothProps?.channels?.['battery-level']) {
+                    if (this.channels['battery-level']) {
                         this.transport.on('battery-level', event => {
                             this._updateFeature('soc', event.data[0]);
                             this.lifecycle.emit(DEVICE.CHANGED);
                         });
                     }
-                    if (this._bluetoothProps?.channels?.['trezor-push-notification']) {
+                    if (this.channels['trezor-push-notification']) {
                         this.transport.on('trezor-push-notification', ({ id, data }) => {
-                            if (id === this._bluetoothProps?.id) {
-                                this.trezorPushNotificationHandler(data);
+                            if (id === this.descriptor.id) {
+                                trezorPushNotificationHandler({ device: this, message: data });
                             }
                         });
                     }
@@ -382,7 +374,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         const sessionPromise = this.getSessionChangePromise();
 
         this.releasePromise = this.transport
-            .release({ session: this.sessionAcquired, path: this.transportPath })
+            .release({ session: this.sessionAcquired, path: this.descriptor.path })
             .then(result => this.waitAndCompareSession(result, sessionPromise))
             .then(result => {
                 if (result.success) {
@@ -1008,7 +1000,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
         _log.debug('Disconnect cleanup');
 
         this.transport.off(TRANSPORT.STOPPED, this.onTransportStopped);
-        this.transport.deviceEvents.off(this.transportPath, this.onTransportDeviceEvent);
+        this.transport.deviceEvents.off(this.descriptor.path, this.onTransportDeviceEvent);
         this.removeAllListeners();
 
         this.sessionDfd?.reject(new Error());
@@ -1055,7 +1047,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
 
     isUsed() {
-        return !!this.transport.getDescriptor(this.transportPath)?.session;
+        return !!this.transport.getDescriptor(this.descriptor.path)?.session;
     }
 
     isUsedHere() {
@@ -1106,8 +1098,8 @@ export class Device extends TypedEmitter<DeviceEvents> {
     }
     // simplified object to pass via postMessage
     toMessageObject(): DeviceTyped {
-        const { name, uniquePath: path } = this;
-        const base = { path, name };
+        const { name, uniquePath: path, descriptor } = this;
+        const base = { path, name, descriptor };
 
         if (this.unreadableError) {
             return {
@@ -1119,7 +1111,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             };
         }
         if (this.isUnacquired()) {
-            const sessionOwner = this.transport.getDescriptor(this.transportPath)?.sessionOwner;
+            const sessionOwner = this.transport.getDescriptor(this.descriptor.path)?.sessionOwner;
 
             return {
                 ...base,

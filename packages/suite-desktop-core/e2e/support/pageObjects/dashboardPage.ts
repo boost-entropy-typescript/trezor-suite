@@ -1,5 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 
+import { NetworkSymbol } from '@suite-common/wallet-config';
+
 import { TrezorUserEnvLinkProxy, step } from '../common';
 import { DevicePrompt } from './devicePrompt';
 
@@ -37,6 +39,8 @@ export class DashboardPage {
     readonly notificationNoBackupButton: Locator;
     readonly openUnusedWalletButton1: Locator;
     readonly openUnusedWalletButton2: Locator;
+    readonly buyButton = (networkSymbol: NetworkSymbol): Locator =>
+        this.page.getByTestId(`@dashboard/asset/${networkSymbol}/buy-button`);
 
     constructor(
         private readonly page: Page,

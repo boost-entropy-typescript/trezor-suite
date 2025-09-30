@@ -11,6 +11,8 @@ export const PathInternal = (input: string) => input as PathInternal;
 export type PathPublic = `${number}` & Branded<'PathPublic'>;
 export const PathPublic = (input: `${number}`) => `${input}` as PathPublic;
 
+export type ApiType = 'usb' | 'bluetooth' | 'udp';
+
 export type DescriptorApiLevel = {
     path: PathInternal;
     /** only used in status page */
@@ -19,6 +21,7 @@ export type DescriptorApiLevel = {
     product?: number;
     /** only reported by old bridge */
     vendor?: number;
+    apiType: ApiType;
 };
 
 export type Descriptor = Omit<DescriptorApiLevel, 'path'> & {
@@ -30,8 +33,10 @@ export type Descriptor = Omit<DescriptorApiLevel, 'path'> & {
     debugSession?: null | Session;
     /** only reported by old bridge */
     debug?: boolean;
-    /** only reported by transport-bluetooth */
+    /** api level device id.  */
     id?: string;
+    // todo: make it required
+    apiType: ApiType;
 };
 
 export interface Logger {
