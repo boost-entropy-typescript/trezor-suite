@@ -1,12 +1,13 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { saveAs } from 'file-saver';
+import { type History, createMemoryHistory } from 'history';
 
 import { FW_HASH_CHECK_DEFAULT_TIMEOUTS } from '@suite-common/firmware-authenticity';
 import {
     subscribeLocalFirstStorageThunk,
     unsubscribeAndDisposeLocalFirstStorageThunk,
 } from '@suite-common/local-first-storage';
-import { ExtraDependencies } from '@suite-common/redux-utils';
+import { ExtraDependencies, LocationPushState, To } from '@suite-common/redux-utils';
 import {
     TokenDefinitionsState,
     buildTokenDefinitionsFromStorage,
@@ -58,6 +59,11 @@ const connectInitSettings = {
     enableFirmwareHashCheck: true,
     firmwareHashCheckTimeouts: FW_HASH_CHECK_DEFAULT_TIMEOUTS,
 };
+
+export const createRouterServices = (history: History) => ({
+    getLocation: () => history.location,
+    navigate: (to: To, state?: LocationPushState) => history.push(to, state),
+});
 
 export const extraDependencies: ExtraDependencies = {
     thunks: {
@@ -237,4 +243,5 @@ export const extraDependencies: ExtraDependencies = {
         connectInitSettings,
         reportSecurityCheck,
     },
+    routerServices: createRouterServices(createMemoryHistory()),
 };

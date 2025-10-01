@@ -1,6 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { ExtraDependencies, createThunk } from '@suite-common/redux-utils';
+import {
+    type ExtraDependencies,
+    type LocationPushState,
+    type To,
+    createThunk,
+} from '@suite-common/redux-utils';
 import { ReportSecurityCheckProps, Route } from '@suite-common/suite-types';
 import { AddressDisplayOptions, SelectedAccountLoaded } from '@suite-common/wallet-types';
 
@@ -143,5 +148,13 @@ export const extraDependenciesMock: ExtraDependencies = {
         },
         reportSecurityCheck: ({ level, checkType }: ReportSecurityCheckProps) =>
             console.warn(`Mock reporting ${checkType} check ${level} to Sentry.`),
+    },
+    routerServices: {
+        getLocation: () => ({
+            pathname: 'mocked_path',
+            hash: 'mocked_hash',
+        }),
+        navigate: (to: To, state?: LocationPushState) =>
+            console.warn(`Mock navigating to ${to} with state`, state),
     },
 };

@@ -709,6 +709,13 @@ export const messages = {
         toasts: {
             firmwareRevisionCheckOtherError: "Couldn't perform firmware authenticity check.",
         },
+        alerts: {
+            lowBattery: {
+                title: 'Charge your Trezor before continuing',
+                description:
+                    'Charge your Trezor to at least {percentage}% or power it with a cable to prevent interruptions.',
+            },
+        },
     },
     moduleDeviceSettings: {
         sectionTitles: {
@@ -832,14 +839,15 @@ export const messages = {
         autoconnect: {
             enable: {
                 title: 'Turn on Auto-connect',
-                subtitle: 'Confirm every connection on Trezor',
+                subtitle: 'Allow Trezor to connect automatically',
                 description:
                     'Trezor will connect automatically to Trezor Suite. No need to confirm each time.',
                 turnOnButton: 'Turn on Auto-connect',
+                error: 'Turning on auto-connect failed.',
             },
             disable: {
                 title: 'Turn off Auto-connect',
-                subtitle: 'Allow Trezor to connect automatically',
+                subtitle: 'Confirm every connection on Trezor',
                 description:
                     'Trezor will no longer connect automatically to Trezor Suite. You’ll confirm each connection on your device.',
                 turnOnButton: 'Turn off Auto-connect',

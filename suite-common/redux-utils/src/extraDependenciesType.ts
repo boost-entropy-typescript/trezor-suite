@@ -36,6 +36,16 @@ type ConnectInitSettings = {
     manifest: Manifest;
 } & Partial<ConnectSettings>;
 
+type Path = {
+    pathname: string;
+    search: string;
+    hash: string;
+};
+
+export type To = string | Partial<Path>;
+
+export type LocationPushState = Record<string, unknown>;
+
 export type ExtraDependencies = {
     thunks: {
         cardanoValidatePendingTxOnBlock: SuiteCompatibleThunk<{
@@ -119,6 +129,15 @@ export type ExtraDependencies = {
         saveAs: (data: Blob, fileName: string) => void;
         connectInitSettings: ConnectInitSettings;
         reportSecurityCheck: (props: ReportSecurityCheckProps) => void;
+    };
+    routerServices: {
+        getLocation: () => {
+            // NOTE: this type is satisfied by the history from history package, it is not window.location
+            // but window.location does satisfies it, we can extend it depending of needs of using history object
+            pathname: string;
+            hash: string;
+        };
+        navigate: (to: To, state?: LocationPushState) => void;
     };
 };
 
