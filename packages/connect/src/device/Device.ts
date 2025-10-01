@@ -155,7 +155,6 @@ export class Device extends TypedEmitter<DeviceEvents> {
         if (this.descriptor.id && this.descriptor.apiType === 'bluetooth') {
             return {
                 id: asBluetoothDeviceId(this.descriptor.id),
-                channels: this.channels,
             };
         }
 
@@ -334,6 +333,19 @@ export class Device extends TypedEmitter<DeviceEvents> {
             });
 
         return this.acquirePromise;
+    }
+
+    reset() {
+        _log.info(`Resetting Features and ThpState`);
+        // @ts-expect-error
+        this._features = undefined;
+        this._protocol = protocolV1;
+        this.thp?.resetState();
+        this.thp = undefined;
+    }
+
+    setBusy(value?: DeviceBusyStatus) {
+        this.busy = value;
     }
 
     subscribe() {

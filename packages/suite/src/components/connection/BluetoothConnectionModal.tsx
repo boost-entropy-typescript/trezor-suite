@@ -1,41 +1,23 @@
 import { Modal } from '@trezor/components';
-import { BluetoothDeviceId } from '@trezor/connect';
 
-import { DesktopBluetoothDevice } from 'src/actions/bluetooth/DesktopBluetoothDevice';
 import { selectConnectingDevices } from 'src/actions/bluetooth/desktopBluetoothSelectors';
 import { Translation } from 'src/components/suite/Translation';
-import { BluetoothDeviceList } from 'src/components/suite/bluetooth/BluetoothDeviceList';
 import { BluetoothPairingPin } from 'src/components/suite/bluetooth/BluetoothPairingPin';
 import { BluetoothScanningList } from 'src/components/suite/bluetooth/BluetoothScanningList';
 import { BluetoothSelectedDevice } from 'src/components/suite/bluetooth/BluetoothSelectedDevice';
 import { useSelector } from 'src/hooks/suite';
 
+import { useConnectionGlobalModalContext } from './context/ConnectionGlobalModalContext';
+
 type BluetoothConnectionModalProps = {
-    devices: DesktopBluetoothDevice[];
-    selectedDevice: DesktopBluetoothDevice | undefined;
-    nearbyDevices: DesktopBluetoothDevice[] | null;
-    knownDevices: DesktopBluetoothDevice[] | null;
-    shouldPairAgain: boolean;
-    onPairingCancel: (deviceId: BluetoothDeviceId) => Promise<void>;
-    onRescanClick: () => void;
-    onConnect: (deviceId: BluetoothDeviceId) => Promise<void>;
-    onCancel: () => void;
     onClose: () => void;
 };
 
 const selectedDeviceConnectionTypes = ['connecting', 'pairing'];
 
-export const BluetoothConnectionModal = ({
-    devices,
-    nearbyDevices,
-    knownDevices,
-    selectedDevice,
-    onPairingCancel,
-    onRescanClick,
-    onConnect,
-    onCancel,
-    onClose,
-}: BluetoothConnectionModalProps) => {
+export const BluetoothConnectionModal = ({ onClose }: BluetoothConnectionModalProps) => {
+    const { handlePairingCancel, onReScanClick, onConnect, devices, selectedDevice } =
+        useConnectionGlobalModalContext();
     const connectingDevices = useSelector(selectConnectingDevices);
 
     if (
@@ -46,7 +28,7 @@ export const BluetoothConnectionModal = ({
     ) {
         return (
             <Modal
-                onCancel={() => onPairingCancel(selectedDevice.id)}
+                onCancel={() => handlePairingCancel(selectedDevice.id)}
                 heading={<Translation id="TR_CONNECT_YOUR_TREZOR" />}
                 description={<Translation id="TR_CONNECT_YOUR_TREZOR_DESCRIPTION" />}
             >
@@ -70,46 +52,23 @@ export const BluetoothConnectionModal = ({
                 description={<Translation id="TR_CONNECT_YOUR_TREZOR_DESCRIPTION" />}
                 size="small"
             >
-                <BluetoothSelectedDevice device={selectedDevice} onReScanClick={onRescanClick} />
+                <BluetoothSelectedDevice device={selectedDevice} onReScanClick={onReScanClick} />
             </Modal>
         );
     }
 
-    // show result of scanning and let user connect
-    if (devices.length > 0 && !selectedDevice && nearbyDevices && nearbyDevices.length > 0) {
-        return (
-            <Modal
-                onCancel={onClose}
-                heading={<Translation id="TR_CONNECT_YOUR_TREZOR" />}
-                description={<Translation id="TR_CONNECT_YOUR_TREZOR_DESCRIPTION" />}
-                size="small"
-            >
-                <BluetoothScanningList
-                    devices={devices}
-                    onConnect={onConnect}
-                    onReScanClick={onRescanClick}
-                />
-            </Modal>
-        );
-    }
-
-    // if there are no nearby devices, but we do have a know devices or cant connect -> pair again
-    if (nearbyDevices && nearbyDevices.length === 0 && knownDevices && knownDevices.length > 0) {
-        return (
-            <Modal
-                onCancel={onCancel}
-                heading={<Translation id="TR_CONNECT_YOUR_TREZOR" />}
-                description={<Translation id="TR_CONNECT_YOUR_TREZOR_DESCRIPTION" />}
-                size="small"
-            >
-                <BluetoothDeviceList
-                    deviceList={knownDevices}
-                    onConnect={onConnect}
-                    isScanning={false}
-                />
-            </Modal>
-        );
-    }
-
-    return null;
+    return (
+        <Modal
+            onCancel={onClose}
+            heading={<Translation id="TR_CONNECT_YOUR_TREZOR" />}
+            description={<Translation id="TR_CONNECT_YOUR_TREZOR_DESCRIPTION" />}
+            size="small"
+        >
+            <BluetoothScanningList
+                devices={devices}
+                onConnect={onConnect}
+                onReScanClick={onReScanClick}
+            />
+        </Modal>
+    );
 };

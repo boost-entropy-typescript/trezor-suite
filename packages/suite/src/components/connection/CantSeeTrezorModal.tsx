@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 
-import { selectKnownDevices, selectNearbyDevices } from '@suite-common/bluetooth';
 import { TranslationKey } from '@suite-common/intl-types';
 import { Modal } from '@trezor/components';
 import { isDesktop } from '@trezor/env-utils';
@@ -23,11 +22,9 @@ import { useSelector } from 'src/hooks/suite';
 import { useBridgeDesktopApi } from 'src/hooks/suite/useBridgeDesktopApi';
 import { selectHasTransportOfType } from 'src/selectors/suite/suiteSelectors';
 
+import { useConnectionGlobalModalContext } from './context/ConnectionGlobalModalContext';
+
 type DontSeeYourTrezorModalProps = {
-    isBluetoothMode: boolean;
-    onGoBack: () => void;
-    onRescan: () => void;
-    onStillDontWork: () => void;
     onClose: () => void;
 };
 
@@ -37,24 +34,25 @@ const commonCableTips = [
     TROUBLESHOOTING_TIP_USB,
 ];
 
-export const CantSeeTrezorModal = ({
-    onGoBack,
-    isBluetoothMode,
-    onRescan,
-    onStillDontWork,
-    onClose,
-}: DontSeeYourTrezorModalProps) => {
-    const nearbyDevices = useSelector(selectNearbyDevices);
-    const knownDevices = useSelector(selectKnownDevices);
+export const CantSeeTrezorModal = ({ onClose }: DontSeeYourTrezorModalProps) => {
+    const {
+        isBluetoothMode,
+        toggleShouldPairAgain,
+        toggleShowHints,
+        onReScanClick,
+        notConnectedKnownDevices,
+        notConnectedNearbyDevices,
+    } = useConnectionGlobalModalContext();
     const isWebUsbTransport = useSelector(selectHasTransportOfType('WebUsbTransport'));
 
     const bridgeDesktopApi = useBridgeDesktopApi();
 
-    const allowPairAgain = nearbyDevices?.length === 0 && knownDevices.length > 0;
+    const allowPairAgain =
+        notConnectedNearbyDevices?.length === 0 && notConnectedKnownDevices.length > 0;
 
     const openTrezorSupport = () => {
         window.open(TREZOR_SUPPORT_URL, '_blank');
-        onGoBack?.();
+        toggleShowHints();
     };
 
     const cableItem: TroubleshootingTipsItem[] = useMemo(() => {
@@ -93,15 +91,15 @@ export const CantSeeTrezorModal = ({
 
     const handlePrimaryCta = () => {
         if (isBluetoothMode) {
-            onRescan?.();
+            onReScanClick();
         }
-        onGoBack?.();
+        toggleShowHints();
     };
 
     const handleTertiaryCta = () => {
         if (isBluetoothMode) {
-            if (allowPairAgain) onStillDontWork();
-            onGoBack();
+            if (allowPairAgain) toggleShouldPairAgain();
+            toggleShowHints();
         } else {
             openTrezorSupport();
             onClose();

@@ -19,6 +19,7 @@ export {
     selectAutoConnectPolicy,
 } from './bluetoothSelectors';
 
-export { filterOutOldDuplicatesByName } from './filterOutOldDuplicatesByName';
+export { filterOutOldDuplicates } from './filterOutOldDuplicates';
 
 export { parseManufacturerData, serializeManufacturerData } from './manufacturerDataUtils';
+export { SCAN_TIMEOUT, UNPAIRED_DEVICES_LAST_UPDATED_LIMIT } from './bluetoothConstants';
