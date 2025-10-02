@@ -72,9 +72,9 @@ export const trezorPushNotificationHandler = async ({ device, message }: TpnWork
     switch (type) {
         case TrezorPushNotificationType.SETTING_CHANGE:
         case TrezorPushNotificationType.PIN_CHANGE:
-            await device.acquire();
-            await device.getFeatures();
-            await device.release();
+            if (device.isUsedHere()) {
+                await device.getFeatures();
+            }
             break;
         case TrezorPushNotificationType.LOCK:
             device.setBusy(
@@ -86,6 +86,14 @@ export const trezorPushNotificationHandler = async ({ device, message }: TpnWork
             break;
         case TrezorPushNotificationType.UNLOCK:
             await setupDeviceMode(device, decoded.mode);
+            break;
+        case TrezorPushNotificationType.SOFTLOCK:
+            device.setBusy('pin-locked');
+            device.lifecycle.emit(DEVICE.CHANGED);
+            break;
+        case TrezorPushNotificationType.SOFTUNLOCK:
+            device.setBusy(device.features ? undefined : 'thp-locked');
+            device.lifecycle.emit(DEVICE.CHANGED);
             break;
         default:
             break;
