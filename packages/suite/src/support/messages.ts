@@ -10086,7 +10086,7 @@ export default defineMessages({
     TR_BRIDGE_TIP_AUTOSTART: {
         id: 'TR_BRIDGE_TIP_AUTOSTART',
         defaultMessage:
-            'Tip: Enable the auto-start feature and have Trezor Bridge always running in the background.',
+            'Tip: Enable the auto-start and allow Trezor Suite to runing the background to enable smooth interaction with 3rd party apps.',
     },
     TR_BRIDGE_NEEDED_DESCRIPTION: {
         id: 'TR_BRIDGE_NEEDED_DESCRIPTION',
@@ -10179,7 +10179,7 @@ export default defineMessages({
     },
     TR_DONE_REMOVING_TREZOR_FROM_SETTINGS: {
         id: 'TR_DONE_REMOVING_TREZOR_FROM_SETTINGS',
-        defaultMessage: 'Device removed',
+        defaultMessage: 'I’ve removed it',
     },
     TR_PAIR_NEW_BLUETOOTH_DEVICE: {
         id: 'TR_PAIR_NEW_BLUETOOTH_DEVICE',
@@ -10187,7 +10187,7 @@ export default defineMessages({
     },
     TR_SCAN_TREZORS_NEARBY: {
         id: 'TR_SCAN_TREZORS_NEARBY',
-        defaultMessage: 'Scanning for neaby Trezors',
+        defaultMessage: 'Scanning for nearby Trezors',
     },
     TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_REMOVE_DEVICE: {
         id: 'TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS_REMOVE_DEVICE',
@@ -10453,6 +10453,15 @@ export default defineMessages({
         id: 'TR_WALLETCONNECT_NO_NETWORKS_ACTIVATED',
         defaultMessage:
             'To connect to the app, activate at least one supported asset in Trezor Suite.',
+    },
+    TR_STANDALONE_BRIDGE_DEPRECATED: {
+        id: 'TR_STANDALONE_BRIDGE_DEPRECATED',
+        defaultMessage: 'Standalone Trezor Bridge is deprecated',
+    },
+    TR_STANDALONE_BRIDGE_DEPRECATED_DESCRIPTION: {
+        id: 'TR_STANDALONE_BRIDGE_DEPRECATED_DESCRIPTION',
+        defaultMessage:
+            'We recommend <a>uninstalling</a> standalone Trezor Bridge as explained in this article. Having standalone Trezor Bridge installed on your computer may interfere with using your Trezor device in future releases.',
     },
     TR_REQUESTED_NETWORKS: {
         id: 'TR_REQUESTED_NETWORKS',

@@ -2,9 +2,10 @@ import { JSX, ReactNode, useCallback, useEffect, useMemo, useState } from 'react
 
 import styled from 'styled-components';
 
-import { CoreRequestMessage, POPUP, UI, UI_REQUEST } from '@trezor/connect';
+import { CoreRequestMessage, POPUP, UI } from '@trezor/connect';
 import { isConnectOutdated } from '@trezor/connect/src/utils/versionCheck';
 import { OriginBoundState, storage } from '@trezor/connect-common';
+import { isNewerOrEqual } from '@trezor/utils/src/versionUtils';
 
 // views
 
@@ -12,10 +13,8 @@ import { BottomRightFloatingBar } from './components/BottomRightFloatingBar';
 import { InfoPanel } from './components/InfoPanel';
 import { Loader } from './components/Loader';
 import {
-    BackupNotification,
-    BridgeUpdateNotification,
-    FirmwareUpdateNotification,
     SuspiciousOriginNotification,
+    UseSuiteDesktopNotification,
 } from './components/Notification';
 import { ErrorBoundary } from './support/ErrorBoundary';
 import { GlobalStyle } from './support/GlobalStyle';
@@ -99,7 +98,8 @@ export const ConnectUI = ({ postMessage, clearLegacyView }: ConnectUIProps) => {
         };
     }, [state?.settings?.origin]);
 
-    const outdated = state?.transports?.find(t => t.type === 'BridgeTransport')?.outdated;
+    const suiteDesktopIsSupported =
+        !!state.settings?.npmVersion && isNewerOrEqual(state.settings?.npmVersion, '9.6.0');
 
     const [Component, Notifications] = useMemo(() => {
         let component: ReactNode | null;
@@ -129,15 +129,13 @@ export const ConnectUI = ({ postMessage, clearLegacyView }: ConnectUIProps) => {
 
         // notifications
         const notifications: { [key: string]: JSX.Element } = {};
-        if (outdated) {
-            notifications['bridge-outdated'] = <BridgeUpdateNotification key="bridge-outdated" />;
+        if (suiteDesktopIsSupported) {
+            notifications['use-suite-desktop'] = (
+                <UseSuiteDesktopNotification key="use-suite-desktop" />
+            );
         }
         messages.forEach(message => {
-            if (message?.type === UI_REQUEST.FIRMWARE_OUTDATED) {
-                notifications[message.type] = <FirmwareUpdateNotification key={message.type} />;
-            } else if (message?.type === UI_REQUEST.DEVICE_NEEDS_BACKUP) {
-                notifications[message.type] = <BackupNotification key={message.type} />;
-            } else if (message?.type === 'phishing-domain') {
+            if (message?.type === 'phishing-domain') {
                 notifications[message.type] = <SuspiciousOriginNotification key={message.type} />;
             }
 
@@ -145,7 +143,7 @@ export const ConnectUI = ({ postMessage, clearLegacyView }: ConnectUIProps) => {
         });
 
         return [component, notifications];
-    }, [messages, postMessage, outdated]);
+    }, [messages, postMessage, suiteDesktopIsSupported]);
 
     useEffect(() => {
         if (Component) {

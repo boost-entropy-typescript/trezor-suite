@@ -98,14 +98,9 @@ export class BridgeTransport extends AbstractTransport {
 
                 this.version = response.payload.version;
 
-                if (this.version.startsWith('3')) {
-                    this.isOutdated = false;
-                } else {
-                    this.isOutdated =
-                        // as for trezord-go only 2.0.27 (standalone) and 2.0.33 (suite-desktop bundled) are supported
-                        !['2.0.27', '2.0.33'].includes(this.version);
+                if (!this.version.startsWith('3')) {
+                    this.isOutdated = true;
                 }
-
                 this.useProtocolMessages = !!response.payload.protocolMessages;
 
                 this.stopped = false;
