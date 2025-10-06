@@ -1,7 +1,10 @@
 import { AnyAction, isAnyOf } from '@reduxjs/toolkit';
 
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
-import { isAnyDeviceEventAction } from '@suite-common/suite-utils';
+import {
+    getIsDeviceDescriptorApiTypeBluetooth,
+    isAnyDeviceEventAction,
+} from '@suite-common/suite-utils';
 import {
     accountsActions,
     deviceActions,
@@ -72,24 +75,25 @@ export const prepareDeviceMiddleware = createMiddlewareWithExtraDeps(
         }
 
         switch (action.type) {
-            case DEVICE.CONNECT:
-            case DEVICE.CONNECT_UNACQUIRED: {
+            case DEVICE.CONNECT: {
                 const { device } = action.payload;
                 const { features, mode } = device;
 
-                if (features && mode) {
-                    analytics.report({
-                        type: EventType.ConnectDevice,
-                        payload: {
-                            mode: isDeviceInBootloaderMode(device) ? 'bootloader' : mode,
-                            firmwareVersion: getFirmwareVersionArray(device),
-                            pinProtection: features.pin_protection,
-                            isBitcoinOnly: hasBitcoinOnlyFirmware(device),
-                            deviceLanguage: features.language,
-                            deviceModel: features.internal_model,
-                        },
-                    });
-                }
+                analytics.report({
+                    type: EventType.ConnectDevice,
+                    payload: {
+                        mode: isDeviceInBootloaderMode(device) ? 'bootloader' : mode,
+                        firmwareVersion: getFirmwareVersionArray(device),
+                        pinProtection: features.pin_protection,
+                        isBitcoinOnly: hasBitcoinOnlyFirmware(device),
+                        deviceLanguage: features.language,
+                        deviceModel: features.internal_model,
+                        connectionType: getIsDeviceDescriptorApiTypeBluetooth(device)
+                            ? 'bluetooth'
+                            : 'cable',
+                    },
+                });
+
                 break;
             }
             case DEVICE.DISCONNECT:

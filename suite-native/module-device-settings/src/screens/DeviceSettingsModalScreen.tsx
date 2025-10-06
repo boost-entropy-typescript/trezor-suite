@@ -8,6 +8,7 @@ import {
     selectIsDeviceBackupUnfinished,
     selectIsDeviceConnectedViaBluetooth,
     selectIsDeviceInitialized,
+    selectIsThpDevice,
 } from '@suite-common/wallet-core';
 import { TitledSection, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
@@ -15,11 +16,11 @@ import { Screen, ScreenHeader, useNavigateToInitialScreen } from '@suite-native/
 
 import { DeviceAuthenticityCard } from '../components/DeviceAuthenticityCard';
 import { DeviceAutoConnectCard } from '../components/DeviceAutoConnectCard';
-import { DeviceBluetoothCard } from '../components/DeviceBluetoothCard';
 import { DeviceCheckBackupCard } from '../components/DeviceCheckBackupCard';
 import { DeviceFirmwareCard } from '../components/DeviceFirmwareCard';
 import { DeviceInfo } from '../components/DeviceInfo';
 import { DevicePinProtectionCard } from '../components/DevicePinProtectionCard';
+import { UnpairBluetoothDeviceCard } from '../components/UnpairBluetoothDeviceCard';
 import { WipeDeviceCard } from '../components/WipeDeviceCard';
 import { useDeviceChangedCheck } from '../hooks/useDeviceChangedCheck';
 
@@ -33,6 +34,7 @@ export const DeviceSettingsModalScreen = () => {
     const isDeviceConnectedViaBluetooth = useSelector(selectIsDeviceConnectedViaBluetooth);
     const isDeviceBackupUnfinished = useSelector(selectIsDeviceBackupUnfinished);
     const isDeviceInitialized = useSelector(selectIsDeviceInitialized);
+    const isThpDevice = useSelector(selectIsThpDevice);
     const isCheckBackupAvailable = isDeviceInitialized && !isDeviceBackupUnfinished;
 
     if (!deviceModel || !deviceName) {
@@ -50,8 +52,8 @@ export const DeviceSettingsModalScreen = () => {
                 >
                     {isDeviceInitialized && <DevicePinProtectionCard />}
                     <DeviceFirmwareCard />
-                    {isDeviceConnectedViaBluetooth && <DeviceBluetoothCard />}
-                    {isDeviceConnectedViaBluetooth && <DeviceAutoConnectCard />}
+                    {isThpDevice && <DeviceAutoConnectCard />}
+                    {isDeviceConnectedViaBluetooth && <UnpairBluetoothDeviceCard />}
                 </TitledSection>
                 <TitledSection
                     title={<Translation id="moduleDeviceSettings.sectionTitles.security" />}

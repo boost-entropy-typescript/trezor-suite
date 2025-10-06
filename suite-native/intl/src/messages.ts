@@ -829,11 +829,8 @@ export const messages = {
             title: 'Unpair Trezor',
             content: 'Unpair your Trezor from this device',
             unpairTrezorButton: 'Unpair',
-            info: {
-                title: 'Unpair Trezor',
-                description:
-                    'This removes your Trezor from the list of paired devices in Trezor Suite.',
-            },
+            description:
+                'This removes your Trezor from the list of paired devices in Trezor Suite.',
             successMessage: 'Trezor has been unpaired.',
         },
         autoconnect: {
@@ -2520,10 +2517,10 @@ export const messages = {
         typeBitcoinOnly: 'Bitcoin-only',
         updateNotAvailable: 'Firmware update disabled',
         seedBottomSheet: {
-            title: 'It’s a good practice to check your backup before installing new firmware.',
+            title: 'It’s a good practice to check your backup before updating firmware.',
             description:
                 'Although unlikely, a firmware update might fail. If this were to happen, you would need to access your assets with your wallet backup.',
-            continueButton: 'Install firmware',
+            continueButton: 'I’ve checked it',
             checkBackupButton: 'Check backup',
         },
         updateCard: {
@@ -2531,6 +2528,26 @@ export const messages = {
             newVersionAvailable: 'Update available',
             updateToVersionAvailable: 'Update to version {firmwareVersion} available',
             updateButton: 'Update',
+        },
+
+        firmwareInfoScreen: {
+            title: { update: 'Firmware update', install: 'Firmware installation' },
+            subtitle: "Firmware is your Trezor's operating system",
+            list: {
+                item1: {
+                    update: 'This update will take some time to complete.',
+                    install: 'This installation will take some time to complete.',
+                },
+                item2: '<b>Don’t leave or close the app</b> during installation. Doing so will corrupt the firmware.',
+                item3: {
+                    update: 'While the firmware is updating, <b>leave your phone as is</b>. It won’t shut off.',
+                    install:
+                        'While the firmware is installing, <b>leave your phone as is</b>. It won’t shut off.',
+                },
+            },
+            installButton: 'Install now',
+            updateButton: 'Update now',
+            cancelButton: 'Cancel installation',
         },
         firmwareUpdateScreen: {
             updateFirmware: 'Update firmware',
@@ -2569,7 +2586,16 @@ export const messages = {
             error: {
                 title: 'Update failed',
             },
-            dontCloseAppMessage: 'Don’t close the app.',
+            doNotCloseApp: {
+                alertBox: {
+                    title: 'Please don’t close the app.',
+                    button: 'Why?',
+                },
+                alert: {
+                    title: 'Leaving the app would corrupt the firmware and you’d need to start the installation over.',
+                    button: 'Okay, got it',
+                },
+            },
             confirmOnDeviceMessage: 'Go to your device and confirm the firmware update.',
             retryButton: 'Retry',
             contactSupportButton: 'Contact support',

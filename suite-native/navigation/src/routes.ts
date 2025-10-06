@@ -43,6 +43,7 @@ export enum DeviceOnboardingStackRoutes {
     UninitializedDeviceLanding = 'UninitializedDeviceLanding',
     SuspiciousDevice = 'SuspiciousDevice',
     SecurityCheck = 'SecurityCheck',
+    FirmwareInfo = 'FirmwareInfo',
     ConfirmFirmwareUpdate = 'ConfirmFirmwareUpdate',
     FirmwareInstallation = 'FirmwareInstallation',
     ThpPairingInfo = 'ThpPairingInfo',
@@ -82,6 +83,7 @@ export enum DeviceSettingsStackRoutes {
     WipeDeviceStack = 'WipeDeviceStack',
     DeviceNameStack = 'DeviceNameStack',
     DeviceCheckBackupStack = 'DeviceCheckBackupStack',
+    UnpairBluetoothDevice = 'UnpairBluetoothDevice',
     AutoConnectSettings = 'AutoConnectSettings',
 }
 
@@ -94,6 +96,7 @@ export enum DevicePinProtectionStackRoutes {
 
 export enum FirmwareUpdateStackRoutes {
     ConfirmFirmwareUpdate = 'ConfirmFirmwareUpdate',
+    FirmwareInfo = 'FirmwareInfo',
     FirmwareInstallation = 'FirmwareInstallation',
     ThpConfirmation = 'ThpConfirmation',
 }
