@@ -37,6 +37,7 @@ export type SuiteAnalyticsEventSuiteReady = {
         desktopOsArchitecture?: string;
         isAutomaticUpdateEnabled: boolean;
         experimentVariants: string[];
+        mevProtection: boolean;
     };
 };
 
@@ -690,6 +691,12 @@ export type SuiteAnalyticsEvent =
                   | 'inMemoryTest'
                   | 'closed'
                   | ''; // Todo: 'sdCard' not implemented yet
+          };
+      }
+    | {
+          type: EventType.SettingsGeneralMevProtection;
+          payload: {
+              value: boolean;
           };
       }
     | {

@@ -32,6 +32,8 @@ export class OnboardingPage {
     readonly continueCoinsButton: Locator;
     readonly finalTitle: Locator;
     readonly createWalletButton: Locator;
+    readonly selectSeedTypeCheckbox = (seedType: SeedType): Locator =>
+        this.page.getByTestId(`@onboarding/select-seed-type-${seedType}`);
     readonly selectSeedTypeOpenButton: Locator;
     readonly selectSeedConfirmButton: Locator;
     readonly continueAtYourOwnRiskButton: Locator;
@@ -251,7 +253,7 @@ export class OnboardingPage {
     @step()
     async selectSeedType(seedType: SeedType) {
         await this.selectSeedTypeOpenButton.click();
-        await this.page.getByTestId(`@onboarding/select-seed-type-${seedType}`).click();
+        await this.selectSeedTypeCheckbox(seedType).click();
         await this.selectSeedConfirmButton.click();
     }
 }

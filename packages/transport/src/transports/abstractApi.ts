@@ -411,6 +411,7 @@ export abstract class AbstractApiTransport extends AbstractTransport {
                         apiRead,
                         signal,
                         graceful: true,
+                        logger: this.logger,
                     });
 
                     if (!decoded.success) {
@@ -461,7 +462,9 @@ export abstract class AbstractApiTransport extends AbstractTransport {
             });
         }
         super.stop();
-        this.sessionsClient.dispose();
+        // note:
+        // not disposing sessionClient on purpose. on window reload, transport.stop is called. we do not want to clear sessions background data in this case because
+        // there might be another client connected to it. When the last client disconnects, the background disposes itself.
         this.api.dispose();
     }
 }
