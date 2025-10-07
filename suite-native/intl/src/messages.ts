@@ -985,6 +985,82 @@ export const messages = {
                 title: 'Need more help?',
                 contact: 'Contact support',
             },
+            bluetoothEnabled: {
+                android: {
+                    '3': {
+                        answer: {
+                            subtitle:
+                                'If you’re having trouble connecting your Trezor and your mobile device, try the following:',
+                            cabled: {
+                                title: 'For cabled connections:',
+                            },
+                            wireless: {
+                                title: 'For wireless connections:',
+                                '0': 'Check the devices are in close proximity',
+                                '1': 'Make sure bluetooth is enabled on both devices',
+                                '2': 'Remove old Trezor device Bluetooth connections',
+                                '3': 'Restart your device(s)',
+                                '4': 'Turn Bluetooth on/off again on your mobile device',
+                                '5': 'Forget and re-pair the devices',
+                                '6': 'Update Trezor firmware and your mobile device OS',
+                            },
+                            footer: 'If you’re still having issues, contact <link>Trezor Support</link>.',
+                        },
+                    },
+                    '4': {
+                        answer: {
+                            '4': 'Trezor Safe 7: all versions',
+                        },
+                    },
+                },
+                ios: {
+                    '0': {
+                        question: 'Can I connect my Trezor to Trezor Suite on Mobile?',
+                        answer: 'Yes, you can connect your Trezor Safe 7 and use the app to manage your crypto with ease and confidence. For all Trezor devices the app is designed to work as a companion to the desktop/web version of Trezor Suite. As we add more features, it’ll become a standalone mobile application to manage your crypto funds on the go.',
+                    },
+                    '1': {
+                        question:
+                            'What is the difference between Portfolio Tracker and Connected Trezor functionality?',
+                        answer: 'Portfolio Tracker helps you monitor your account balances without having to physically connect your Trezor device. Simply sync your coin addresses and keep track of your crypto on the go. You can also combine coin addresses from multiple wallets or Trezor devices to track your whole portfolio in one place. Connected Trezor allows you to manage your funds protected by your Trezor device. You can verify receive addresses and check your balances and transactions. However, if you disconnect the Trezor, you’ll no longer see the data from the Trezor device.',
+                    },
+                    '2': {
+                        question: 'What are public keys (XPUB) and receive addresses?',
+                        answer: 'An XPUB is a master public key for hierarchical deterministic wallets like bitcoin, generating multiple child keys and receive addresses for improved privacy. Ethereum uses a single, unchanging address for all transactions. For Ethereum, share only your address, while keeping your private key secure.',
+                    },
+                    '3': {
+                        question: 'My Trezor device can’t connect',
+                        answer: {
+                            subtitle:
+                                'If you’re having trouble connecting your Trezor and your mobile device, try the following:',
+                            '0': 'Check the devices are in close proximity',
+                            '1': 'Make sure bluetooth is enabled on both devices',
+                            '2': 'Remove old Trezor device Bluetooth connections',
+                            '3': 'Restart your device(s)',
+                            '4': 'Turn Bluetooth on/off again on your mobile device',
+                            '5': 'Forget and re-pair the devices',
+                            '6': 'Update Trezor firmware and your mobile device OS',
+                            footer: 'If you’re still having issues, contact <link>Trezor Support</link>.',
+                        },
+                    },
+                    '4': {
+                        question:
+                            'Which firmware versions are supported by Trezor Suite on Mobile?',
+                        answer: 'Trezor Safe 7: all versions',
+                    },
+                    '5': {
+                        question: 'Why don’t I see my coin listed?',
+                        answer: 'Trezor Suite on Mobile currently supports a limited number of cryptocurrencies. If your coin isn’t listed, it may not be compatible with the app. However, Trezor regularly adds support for new coins and tokens, so check back periodically to see which coins have been added.',
+                    },
+                    '6': {
+                        question: 'What does the graph display?',
+                        answer: 'The graph displays the price history of your portfolio’s synced assets over a specified period. You can adjust the time period by selecting a different range on the bottom of the graph.',
+                    },
+                    '7': {
+                        question: 'What is the “Eject wallets” feature?',
+                        answer: 'Turn on this feature if you want to eject all wallets automatically after disconnecting your Trezor hardware wallet. With the auto-eject feature disabled, you can see your account balances even after disconnecting your Trezor. This lets you track your funds without compromising security. Remember if you want to move funds, you’ll always need to connect your Trezor.',
+                    },
+                },
+            },
             usbEnabled: {
                 '0': {
                     question: 'Can I connect my Trezor to Trezor Suite?',
@@ -1009,7 +1085,7 @@ export const messages = {
                     },
                 },
                 '4': {
-                    question: 'What version of Trezor device Firmware Trezor Suite supports?',
+                    question: 'Which firmware versions are supported by Trezor Suite on mobile?',
                     answer: {
                         '0': 'Trezor One: from version 1.12.1',
                         '1': 'Trezor T: from version 2.6.3',
@@ -1026,8 +1102,8 @@ export const messages = {
                     answer: 'The graph in Trezor Suite displays the price history of your portfolio’s synced assets over specified time period. You can adjust the time period by selecting a different range on the bottom of the graph.',
                 },
                 '7': {
-                    question: 'What is View-only?',
-                    answer: 'Even when your Trezor device is disconnected, you can still keep track of your balances with the View-Only. This feature provides peace of mind by allowing you to monitor your funds without compromising security. Plus no more waiting for retrieving all the assets and balances while connecting your Trezor device.',
+                    question: 'What is the “Eject wallets” feature?',
+                    answer: 'Turn on this feature if you want to eject all wallets automatically after disconnecting your Trezor hardware wallet. With the auto-eject feature disabled, you can see your account balances even after disconnecting your Trezor. This lets you track your funds without compromising security. Remember if you want to move funds, you’ll always need to connect your Trezor.',
                 },
             },
             usbDisabled: {
@@ -2579,12 +2655,6 @@ export const messages = {
             confirming: {
                 title: 'Confirm firmware update on your Trezor.',
             },
-            updating: {
-                title: 'Updating your firmware',
-            },
-            installing: {
-                title: 'Installing firmware',
-            },
             restarting: {
                 title: 'Restarting Trezor',
             },
@@ -2604,6 +2674,21 @@ export const messages = {
                     title: 'Leaving the app would corrupt the firmware and you’d need to start the installation over.',
                     button: 'Okay, got it',
                 },
+            },
+            trezorFacts: {
+                title: 'Did you know?',
+                1: 'Trezor was founded in Prague by SatoshiLabs and is still proudly independent today.',
+                2: 'Trezor launched the world’s first hardware wallet in 2014.',
+                3: 'Founders Stick & Slush started Trezor as a side project in 2011.',
+                4: 'Trezor means “vault” in Czech, reflecting its focus on security.',
+                5: 'Trezor’s hardware and firmware are fully open-source for maximum transparency.',
+                6: 'Trezor’s initial prototypes were created on Raspberry Pi boards.',
+                7: 'Trezor helped establish key wallet standards like BIP-39 and BIP-44.',
+                8: 'Trezor’s co-founder Marek “Slush” Palatinus also created the first Bitcoin mining pool.',
+                9: 'Trezor began controlling its own chip supply chain in 2023 for better security.',
+                10: 'Trezor has sold wallets in over 150 countries.',
+                11: 'Trezor’s Safe 5 Freedom Edition, limited to 2,100 units, launched in Jan 2025.',
+                12: 'Trezor wallets can store and manage over 9,000+ cryptocurrencies securely in one place.',
             },
             confirmOnDeviceMessage: 'Go to your device and confirm the firmware update.',
             retryButton: 'Retry',
