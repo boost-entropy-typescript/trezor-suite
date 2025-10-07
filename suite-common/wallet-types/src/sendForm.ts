@@ -9,7 +9,7 @@ export type FormOptions =
     | 'broadcast'
     | 'utxoSelection'
     | 'bitcoinLocktime'
-    | 'ethereumData'
+    | 'transactionData'
     | 'ethereumNonce' // TODO
     | 'destinationTag';
 
@@ -79,8 +79,8 @@ export interface FormState {
     bitcoinLocktimeDatetime?: string;
     ethereumNonce?: string; // TODO: ethereum RBF
     ethereumDataAscii?: string;
-    ethereumDataHex?: string;
     ethereumAdjustGasLimit?: string; // if used, final gas limit = estimated limit * ethereumAdjustGasLimit
+    transactionData?: string; // used for solana serialized txn from trading api or ethereum txn hex data
     destinationTag?: string; // For Ripple and Stellar
     rbfParams?: RbfTransactionParams;
     isCoinControlEnabled: boolean;

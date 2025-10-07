@@ -218,7 +218,7 @@ export interface RbfTransactionParamsEthereum {
         token?: string;
     }>;
     ethereumNonce: number;
-    ethereumData: string;
+    transactionData: string;
     gasPrice: string;
     maxFeePerGas: string;
     maxPriorityFeePerGas: string;
@@ -267,7 +267,7 @@ export interface ComposeTransactionData {
     isMaxActive: boolean;
     address?: string;
     token?: string;
-    ethereumDataHex?: string;
+    transactionData?: string;
     isInvity?: boolean;
 }
 
