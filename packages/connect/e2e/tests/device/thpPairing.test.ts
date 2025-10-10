@@ -177,16 +177,16 @@ describe('THP pairing', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
         TrezorConnect.cancel(CANCEL_ERR);
     };
-    const buttonRequestHandler = (msg?: string) => (br: { name?: string }) => {
-        if (msg && msg === br.name) {
-            controller.send({ type: 'emulator-press-no' });
-        } else {
-            controller.send({ type: 'emulator-press-yes' });
-        }
-    };
+    const buttonRequestHandler =
+        (cancelOnButtonRequestName?: string) => (br: { name?: string }) => {
+            if (cancelOnButtonRequestName && cancelOnButtonRequestName === br.name) {
+                controller.send({ type: 'emulator-press-no' });
+            } else {
+                controller.send({ type: 'emulator-press-yes' });
+            }
+        };
 
-    // quarantined test. we are trying to fix it here https://github.com/trezor/trezor-suite/pull/22084
-    it.skip('ThpPairing cancel workflow', async () => {
+    it('ThpPairing cancel workflow', async () => {
         const device = await waitForDevice({
             pairingMethods: ['CodeEntry'],
             knownCredentials: [],
@@ -208,6 +208,9 @@ describe('THP pairing', () => {
         result = await TrezorConnect.getFeatures({ device });
         if (result.success) throw ERR;
         expect(result.payload.error).toMatch(FW_CANCEL_ERR);
+
+        // Emulate user interaction delay in order to let the device recover with ThpTransportBusy
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 3. reject pairing confirmation from Trezor
         TrezorConnect.removeAllListeners('ui-button');
@@ -240,13 +243,13 @@ describe('THP pairing', () => {
         expect(result).toMatchObject({ success: true });
     });
 
-    it.skip('ThpState cancel workflow', async () => {
+    it('ThpState cancel workflow', async () => {
         // enable passphrase
         await setup(controller, { mnemonic: 'mnemonic_all', passphrase_protection: true });
 
         const device = await waitForDevice({ pairingMethods: ['SkipPairing'] });
 
-        const passphraseHandler = (value: string) => () => {
+        const enterPassphraseOnHost = (value: string) => () => {
             TrezorConnect.uiResponse({
                 type: 'ui-receive_passphrase',
                 payload: {
@@ -263,7 +266,7 @@ describe('THP pairing', () => {
         result = await TrezorConnect.getFeatures({ device });
         expect(result).toMatchObject({ success: true });
 
-        TrezorConnect.on('ui-request_passphrase', passphraseHandler(''));
+        TrezorConnect.on('ui-request_passphrase', enterPassphraseOnHost(''));
 
         // 4. reject ButtonRequest from host
         TrezorConnect.removeAllListeners('ui-button');
@@ -308,7 +311,7 @@ describe('THP pairing', () => {
         // 6. reject passphrase from Trezor
         TrezorConnect.removeAllListeners('ui-request_passphrase');
         TrezorConnect.removeAllListeners('ui-button');
-        TrezorConnect.on('ui-request_passphrase', passphraseHandler('a'));
+        TrezorConnect.on('ui-request_passphrase', enterPassphraseOnHost('a'));
         TrezorConnect.on('ui-button', buttonRequestHandler('passphrase_host1')); // NOTE: .name may be changed in the future
         result = await TrezorConnect.getAddress({
             device: {
@@ -324,12 +327,12 @@ describe('THP pairing', () => {
         // and finally check if device is still responsive
         TrezorConnect.removeAllListeners('ui-button');
         TrezorConnect.removeAllListeners('ui-request_passphrase');
-        TrezorConnect.on('ui-request_passphrase', passphraseHandler('a'));
+        TrezorConnect.on('ui-request_passphrase', enterPassphraseOnHost('a'));
         TrezorConnect.on('ui-button', buttonRequestHandler());
         result = await TrezorConnect.getAddress({
             device: {
                 ...device,
-                state: 'ms1TJk4b4s7aisyL3jfrkCqwznttWwiS4r@448CCE89D32A733A1632F345:1',
+                state: 'ms1TJk4b4s7aisyL3jfrkCqwznttWwiS4r@7ED4F891C5F1098B60B881DE:1',
                 instance: 1,
             },
             path: "m/44'/0'/0'/1/1",

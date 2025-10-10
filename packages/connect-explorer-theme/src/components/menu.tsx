@@ -13,11 +13,13 @@ import styled from 'styled-components';
 import { Select, variables } from '@trezor/components';
 import { CoinLogo } from '@trezor/product-components';
 
-import { useActiveAnchor, useConfig, useMenu } from '../contexts';
-import { renderComponent } from '../utils';
 import { Anchor } from './anchor';
 import { Collapse } from './collapse';
 import { FocusedItemContext, OnFocusItemContext } from './sidebar';
+import { useActiveAnchor } from '../contexts/active-anchor';
+import { useMenu } from '../contexts/menu';
+import { useConfig } from '../contexts/useConfig';
+import { renderComponent } from '../utils';
 
 const TreeState: Record<string, boolean> = Object.create(null);
 const FolderLevelContext = createContext(0);

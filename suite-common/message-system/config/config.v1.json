@@ -1,7 +1,7 @@
 {
     "version": 1,
-    "timestamp": "2025-09-19T12:00:00+00:00",
-    "sequence": 113,
+    "timestamp": "2025-10-03T00:00:00+00:00",
+    "sequence": 114,
     "actions": [
         {
             "conditions": [
@@ -456,6 +456,109 @@
                         "pt": "Atualizar Suite",
                         "uk": "Оновити Suite"
                     }
+                }
+            }
+        },
+        {
+            "conditions": [
+                {
+                    "environment": {
+                        "desktop": "<25.10.2",
+                        "mobile": "!",
+                        "web": "!"
+                    },
+                    "devices": [
+                        {
+                            "model": "T3W1",
+                            "firmware": "*",
+                            "bootloader": "*",
+                            "variant": "*",
+                            "firmwareRevision": "*",
+                            "vendor": "*"
+                        }
+                    ]
+                }
+            ],
+            "message": {
+                "id": "7a558c1a-801e-4b25-a24f-41da990c7223",
+                "priority": 98,
+                "dismissible": false,
+                "variant": "critical",
+                "category": ["banner"],
+                "content": {
+                    "en": "Update required! This version of Trezor Suite isn’t compatible with your device. Update to continue.",
+                    "es": "Es necesaria una actualización. Esta versión de Trezor Suite no es compatible con tu dispositivo. Instala la actualización para continuar.",
+                    "cs": "Nutná aktualizace! Tato verze Trezor Suite není kompatibilní s vaším zařízením. Chcete-li pokračovat, proveďte aktualizaci.",
+                    "ru": "Требуется обновление! Данная версия Trezor Suite несовместима с вашим устройством. Обновите программу, чтобы продолжить.",
+                    "ja": "アップデートが必要です！このバージョンのTrezor Suiteは、お使いのデバイスと互換性がありません。続行するには、アップデートしてください。",
+                    "hu": "Frissítés szükséges! A Trezor Suite ezen verziója nem kompatibilis az Ön készülékével. A folytatáshoz frissítsen.",
+                    "it": "È necessario un aggiornamento! Questa versione di Trezor Suite non è compatibile con il vostro dispositivo. Aggiornare per continuare.",
+                    "fr": "Mise à jour requise ! Cette version de Trezor Suite n’est pas compatible avec votre dispositif. Procédez à la mise à jour pour continuer.",
+                    "de": "Update erforderlich! Diese Version von Trezor Suite ist nicht mit deinem Gerät kompatibel. Aktualisiere, um fortzufahren.",
+                    "tr": "Güncelleme gerekiyor! Bu Trezor Suite sürümü cihazınızla uyumlu değil. Devam etmek için güncelleyin.",
+                    "pt": "Atualização necessária! Esta versão do Trezor Suite não é compatível com o seu dispositivo. Atualize para continuar.",
+                    "uk": "Потрібне оновлення! Ця версія Trezor Suite несумісна з вашим пристроєм. Оновіть програму, щоб продовжити."
+                },
+                "cta": {
+                    "action": "internal-link",
+                    "link": "settings-index",
+                    "anchor": "@general-settings/version-with-update",
+                    "label": {
+                        "en": "Update Suite",
+                        "es": "Actualizar Suite",
+                        "cs": "Aktualizovat Suite",
+                        "ru": "Обновить Suite",
+                        "ja": "Suiteのアップデート",
+                        "hu": "Frissítés Suite",
+                        "it": "Aggiorna Suite",
+                        "fr": "Mettre à jour Suite",
+                        "de": "Suite aktualisieren",
+                        "tr": "Suite'i Güncelle",
+                        "pt": "Atualizar Suite",
+                        "uk": "Оновити Suite"
+                    }
+                }
+            }
+        },
+        {
+            "conditions": [
+                {
+                    "environment": {
+                        "desktop": "!",
+                        "mobile": "<25.10.2",
+                        "web": "!"
+                    },
+                    "devices": [
+                        {
+                            "model": "T3W1",
+                            "firmware": "*",
+                            "bootloader": "*",
+                            "variant": "*",
+                            "firmwareRevision": "*",
+                            "vendor": "*"
+                        }
+                    ]
+                }
+            ],
+            "message": {
+                "id": "d0ac9c78-1911-4474-916c-78ca435a33a7",
+                "priority": 98,
+                "dismissible": false,
+                "variant": "critical",
+                "category": ["banner"],
+                "content": {
+                    "en": "Update required! This version of Trezor Suite isn’t compatible with your device. Update to continue.",
+                    "es": "Es necesaria una actualización. Esta versión de Trezor Suite no es compatible con tu dispositivo. Instala la actualización para continuar.",
+                    "cs": "Nutná aktualizace! Tato verze Trezor Suite není kompatibilní s vaším zařízením. Chcete-li pokračovat, proveďte aktualizaci.",
+                    "ru": "Требуется обновление! Данная версия Trezor Suite несовместима с вашим устройством. Обновите программу, чтобы продолжить.",
+                    "ja": "アップデートが必要です！このバージョンのTrezor Suiteは、お使いのデバイスと互換性がありません。続行するには、アップデートしてください。",
+                    "hu": "Frissítés szükséges! A Trezor Suite ezen verziója nem kompatibilis az Ön készülékével. A folytatáshoz frissítsen.",
+                    "it": "È necessario un aggiornamento! Questa versione di Trezor Suite non è compatibile con il vostro dispositivo. Aggiornare per continuare.",
+                    "fr": "Mise à jour requise ! Cette version de Trezor Suite n’est pas compatible avec votre dispositif. Procédez à la mise à jour pour continuer.",
+                    "de": "Update erforderlich! Diese Version von Trezor Suite ist nicht mit deinem Gerät kompatibel. Aktualisiere, um fortzufahren.",
+                    "tr": "Güncelleme gerekiyor! Bu Trezor Suite sürümü cihazınızla uyumlu değil. Devam etmek için güncelleyin.",
+                    "pt": "Atualização necessária! Esta versão do Trezor Suite não é compatível com o seu dispositivo. Atualize para continuar.",
+                    "uk": "Потрібне оновлення! Ця версія Trezor Suite несумісна з вашим пристроєм. Оновіть програму, щоб продовжити."
                 }
             }
         },
@@ -1626,18 +1729,18 @@
                 "variant": "warning",
                 "category": ["banner"],
                 "content": {
-                    "en": "Update Trezor Suite for enhanced security, all the latest features, and to keep everything running as smoothly as possible.",
-                    "es": "Actualiza Trezor Suite para mejorar la seguridad, disfrutar de las funciones más recientes y para que todo funcione sin problemas.",
-                    "cs": "Aktualizujte Trezor Suite, abyste získali lepší zabezpečení a nejnovější funkce.",
-                    "ru": "Обновите Trezor Suite, чтобы улучшить безопасность, использовать все новейшие функции и обеспечить максимально эффективную работу.",
-                    "ja": "Trezor Suiteをアップデートすることで、セキュリティの強化、最新機能の搭載、スムーズな動作が可能になります。",
-                    "hu": "Frissítse a Trezor Suite-ot a fokozott biztonság, a legújabb funkciók és a lehető leggördülékenyebb működés érdekében.",
-                    "it": "Aggiornate Trezor Suite per ottenere una maggiore sicurezza, tutte le funzioni più recenti e per far funzionare tutto nel modo più fluido possibile.",
-                    "fr": "Mettez à jour Trezor Suite pour bénéficier d’une sécurité renforcée, de toutes les dernières fonctionnalités, et pour garantir un fonctionnement optimal.",
-                    "de": "Aktualisiere Trezor Suite für mehr Sicherheit, neue Funktionen und reibungslose Abläufe.",
-                    "tr": "Geliştirilmiş güvenlik, en yeni özellikler ve her şeyin olabildiğince sorunsuz çalışması için Trezor Suite'i güncelleyin.",
-                    "pt": "Atualize o Trezor Suite para maior segurança, todos os recursos mais recentes e para manter tudo funcionando da forma mais suave possível.",
-                    "uk": "Оновіть Trezor Suite для підвищення безпеки, використання всіх новітніх функцій та забезпечення максимально плавної роботи."
+                    "en": "Keep your Trezor Suite secure and smooth—update now for the latest features and enhancements.",
+                    "es": "Mantén tu Trezor Suite seguro y fluido: actualiza ahora para obtener las últimas funciones y mejoras.",
+                    "cs": "Udržujte aplikaci Trezor Suite bezpečnou a plynulou – aktualizujte nyní a získejte nejnovější funkce a vylepšení.",
+                    "ru": "Сохраняйте Trezor Suite безопасным и стабильным — обновитесь сейчас, чтобы получить новые функции и улучшения.",
+                    "ja": "Trezor Suite を安全かつ快適に保ちましょう—今すぐ更新して最新の機能と改善を入手してください。",
+                    "hu": "Tartsa a Trezor Suite-ot biztonságosan és gördülékenyen – frissítsen most a legújabb funkciókért és fejlesztésekért.",
+                    "it": "Mantieni il tuo Trezor Suite sicuro e fluido: aggiorna ora per le ultime funzionalità e miglioramenti.",
+                    "fr": "Gardez votre Trezor Suite sécurisé et fluide — mettez à jour maintenant pour profiter des dernières fonctionnalités et améliorations.",
+                    "de": "Halten Sie Ihr Trezor Suite sicher und reibungslos – aktualisieren Sie jetzt, um die neuesten Funktionen und Verbesserungen zu erhalten.",
+                    "tr": "Trezor Suite'inizi güvenli ve sorunsuz tutun — en son özellikler ve iyileştirmeler için şimdi güncelleyin.",
+                    "pt": "Mantenha seu Trezor Suite seguro e fluido — atualize agora para obter os recursos e melhorias mais recentes.",
+                    "uk": "Зберігайте свій Trezor Suite безпечним і плавним — оновіть зараз, щоб отримати найновіші функції та вдосконалення."
                 },
                 "cta": {
                     "action": "internal-link",
@@ -1677,18 +1780,18 @@
                 "variant": "warning",
                 "category": ["banner"],
                 "content": {
-                    "en": "Update Trezor Suite for enhanced security, all the latest features, and to keep everything running as smoothly as possible.",
-                    "es": "Actualiza Trezor Suite para mejorar la seguridad, disfrutar de las funciones más recientes y para que todo funcione sin problemas.",
-                    "cs": "Aktualizujte Trezor Suite, abyste získali lepší zabezpečení a nejnovější funkce.",
-                    "ru": "Обновите Trezor Suite, чтобы улучшить безопасность, использовать все новейшие функции и обеспечить максимально эффективную работу.",
-                    "ja": "Trezor Suiteをアップデートすることで、セキュリティの強化、最新機能の搭載、スムーズな動作が可能になります。",
-                    "hu": "Frissítse a Trezor Suite-ot a fokozott biztonság, a legújabb funkciók és a lehető leggördülékenyebb működés érdekében.",
-                    "it": "Aggiornate Trezor Suite per ottenere una maggiore sicurezza, tutte le funzioni più recenti e per far funzionare tutto nel modo più fluido possibile.",
-                    "fr": "Mettez à jour Trezor Suite pour bénéficier d’une sécurité renforcée, de toutes les dernières fonctionnalités, et pour garantir un fonctionnement optimal.",
-                    "de": "Aktualisiere Trezor Suite für mehr Sicherheit, neue Funktionen und reibungslose Abläufe.",
-                    "tr": "Geliştirilmiş güvenlik, en yeni özellikler ve her şeyin olabildiğince sorunsuz çalışması için Trezor Suite'i güncelleyin.",
-                    "pt": "Atualize o Trezor Suite para maior segurança, todos os recursos mais recentes e para manter tudo funcionando da forma mais suave possível.",
-                    "uk": "Оновіть Trezor Suite для підвищення безпеки, використання всіх новітніх функцій та забезпечення максимально плавної роботи."
+                    "en": "Keep your Trezor Suite secure and smooth—update now for the latest features and enhancements.",
+                    "es": "Mantén tu Trezor Suite seguro y fluido: actualiza ahora para obtener las últimas funciones y mejoras.",
+                    "cs": "Udržujte aplikaci Trezor Suite bezpečnou a plynulou – aktualizujte nyní a získejte nejnovější funkce a vylepšení.",
+                    "ru": "Сохраняйте Trezor Suite безопасным и стабильным — обновитесь сейчас, чтобы получить новые функции и улучшения.",
+                    "ja": "Trezor Suite を安全かつ快適に保ちましょう—今すぐ更新して最新の機能と改善を入手してください。",
+                    "hu": "Tartsa a Trezor Suite-ot biztonságosan és gördülékenyen – frissítsen most a legújabb funkciókért és fejlesztésekért.",
+                    "it": "Mantieni il tuo Trezor Suite sicuro e fluido: aggiorna ora per le ultime funzionalità e miglioramenti.",
+                    "fr": "Gardez votre Trezor Suite sécurisé et fluide — mettez à jour maintenant pour profiter des dernières fonctionnalités et améliorations.",
+                    "de": "Halten Sie Ihr Trezor Suite sicher und reibungslos – aktualisieren Sie jetzt, um die neuesten Funktionen und Verbesserungen zu erhalten.",
+                    "tr": "Trezor Suite'inizi güvenli ve sorunsuz tutun — en son özellikler ve iyileştirmeler için şimdi güncelleyin.",
+                    "pt": "Mantenha seu Trezor Suite seguro e fluido — atualize agora para obter os recursos e melhorias mais recentes.",
+                    "uk": "Зберігайте свій Trezor Suite безпечним і плавним — оновіть зараз, щоб отримати найновіші функції та вдосконалення."
                 },
                 "cta": {
                     "action": "internal-link",

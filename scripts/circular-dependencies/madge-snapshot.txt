@@ -17,54 +17,20 @@ packages/coinjoin/src/types/backend.ts > packages/coinjoin/src/backend/CoinjoinB
 packages/coinjoin/src/types/backend.ts > packages/coinjoin/src/backend/CoinjoinBackendClient.ts > packages/coinjoin/src/backend/CoinjoinWebsocketController.ts > packages/coinjoin/src/types/index.ts
 packages/coinjoin/src/types/backend.ts > packages/coinjoin/src/backend/CoinjoinFilterController.ts
 packages/coinjoin/src/types/backend.ts > packages/coinjoin/src/backend/CoinjoinMempoolController.ts
-packages/components/src/components/BulletList/BulletList.tsx > packages/components/src/components/BulletList/BulletListItem.tsx
-packages/components/src/components/Collapsible/Collapsible.tsx > packages/components/src/components/Collapsible/CollapsibleContent.tsx
-packages/components/src/components/Collapsible/Collapsible.tsx > packages/components/src/components/Collapsible/CollapsibleToggle.tsx
-packages/components/src/components/Collapsible/Collapsible.tsx > packages/components/src/components/Collapsible/CollapsibleToggleIcon.tsx
-packages/components/src/components/List/List.tsx > packages/components/src/components/List/ListItem.tsx
 packages/components/src/components/Table/Table.tsx > packages/components/src/components/Table/TableCell.tsx
 packages/components/src/components/Table/Table.tsx > packages/components/src/components/Table/TableCell.tsx > packages/components/src/components/Table/TableHeader.tsx
 packages/components/src/components/Table/Table.tsx > packages/components/src/components/Table/TableRow.tsx
 packages/components/src/components/form/Select/Select.tsx > packages/components/src/components/form/Select/customComponents.tsx
 packages/components/src/components/form/Select/Select.tsx > packages/components/src/components/form/Select/useOnKeyDown.ts
-packages/components/src/index.ts > packages/components/src/components/form/SelectBar/SelectBar.tsx
-packages/components/src/index.ts > packages/components/src/support/Story.tsx
-packages/components/src/utils/frameProps.tsx > packages/components/src/components/Flex/Flex.tsx
-packages/connect-explorer-theme/src/components/404.tsx > packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/500.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/breadcrumb.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/flexsearch.tsx > packages/connect-explorer-theme/src/components/search.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/mdx-components.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/navbar.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/sidebar.tsx > packages/connect-explorer-theme/src/components/menu.tsx
-packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/toc.tsx
+packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/navbar.tsx
+packages/connect-explorer-theme/src/components/anchor.tsx > packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/toc.tsx
 packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx
 packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/mdx-components.tsx
 packages/connect-explorer-theme/src/components/sidebar.tsx > packages/connect-explorer-theme/src/components/menu.tsx
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/flexsearch.tsx
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/flexsearch.tsx > packages/connect-explorer-theme/src/components/search.tsx > packages/connect-explorer-theme/src/types.ts
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/mdx-components.tsx
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/polyfill.ts
-packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/contexts/config.tsx
-packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/mdx-components.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/500.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/500.tsx > packages/connect-explorer-theme/src/utils/index.ts > packages/connect-explorer-theme/src/utils/use-git-edit-url.ts
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/banner.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/flexsearch.tsx > packages/connect-explorer-theme/src/components/search.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/footer.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/footer.tsx > packages/connect-explorer-theme/src/components/locale-switch.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/head.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/nav-links.tsx > packages/connect-explorer-theme/src/index.tsx > packages/connect-explorer-theme/src/mdx-components.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/navbar.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/sidebar.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/sidebar.tsx > packages/connect-explorer-theme/src/components/menu.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/theme-switch.tsx
-packages/connect-explorer-theme/src/contexts/index.ts > packages/connect-explorer-theme/src/contexts/active-anchor.tsx > packages/connect-explorer-theme/src/constants.tsx > packages/connect-explorer-theme/src/components/index.ts > packages/connect-explorer-theme/src/components/toc.tsx
+packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/navbar.tsx
+packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/navbar.tsx > packages/connect-explorer-theme/src/utils/index.ts > packages/connect-explorer-theme/src/utils/use-git-edit-url.ts
+packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/theme-switch.tsx
+packages/connect-explorer-theme/src/contexts/useConfig.tsx > packages/connect-explorer-theme/src/schema.ts > packages/connect-explorer-theme/src/components/toc.tsx
 packages/connect-explorer/src/actions/index.ts > packages/connect-explorer/src/actions/methodActions.ts > packages/connect-explorer/src/types/index.ts > packages/connect-explorer/src/actions/trezorConnectActions.ts
 packages/connect-explorer/src/actions/index.ts > packages/connect-explorer/src/actions/methodActions.ts > packages/connect-explorer/src/types/index.ts > packages/connect-explorer/src/reducers/index.ts > packages/connect-explorer/src/reducers/trezorConnectReducer.ts
 packages/connect-explorer/src/actions/methodActions.ts > packages/connect-explorer/src/types/index.ts
@@ -98,36 +64,10 @@ packages/connect/src/events/index.ts > packages/connect/src/events/call.ts > pac
 packages/ipc-proxy/src/proxy-handler.ts > packages/ipc-proxy/src/validateIpcMessage.ts
 packages/product-components/src/components/SelectAssetModal/SelectAssetModal.tsx > packages/product-components/src/components/SelectAssetModal/AssetItem.tsx
 packages/suite-desktop-core/e2e/support/analytics.ts > packages/suite-desktop-core/e2e/support/fixtures.ts
-packages/suite-desktop-core/src/modules/auto-start.ts > packages/suite-desktop-core/src/modules/index.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/auto-updater.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/bluetooth.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/bridge.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/coinjoin.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/crash-recover.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/csp.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/custom-protocols.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/dev-tools.ts
 packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/event-logging/app.ts
 packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/event-logging/contents.ts
 packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/event-logging/index.ts
 packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/event-logging/process.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/external-links.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/file-protocol.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/firmware.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/http-receiver.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/menu.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/metadata.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/power-monitor.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/request-filter.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/request-interceptor.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/shortcuts.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/store.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/system-settings.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/theme.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/tray.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/trezor-connect.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/user-data.ts
-packages/suite-desktop-core/src/modules/index.ts > packages/suite-desktop-core/src/modules/window-controls.ts
 packages/suite/src/actions/suite/metadataActions.ts > packages/suite/src/actions/suite/metadataProviderActions.ts
 packages/suite/src/components/suite/graph/TransactionsGraph/TransactionsGraph.tsx > packages/suite/src/components/suite/graph/TransactionsGraph/GraphTooltipAccount.tsx
 packages/suite/src/components/suite/graph/TransactionsGraph/TransactionsGraph.tsx > packages/suite/src/components/suite/graph/TransactionsGraph/GraphTooltipDashboard.tsx
