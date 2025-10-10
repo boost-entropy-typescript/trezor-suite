@@ -9,18 +9,16 @@ import { OnboardingLayout } from 'src/components/onboarding/OnboardingLayout';
 import * as STEP from 'src/constants/onboarding/steps';
 import { useDispatch, useOnboarding, useSelector } from 'src/hooks/suite';
 import { UnexpectedState } from 'src/views/onboarding/UnexpectedState';
-import { BackupStep } from 'src/views/onboarding/steps/Backup';
-import BasicSettingsStep from 'src/views/onboarding/steps/BasicSettings';
-import CreateOrRecover from 'src/views/onboarding/steps/CreateOrRecover';
-import { FinalStep } from 'src/views/onboarding/steps/Final';
+import { BackupStep } from 'src/views/onboarding/steps/BackupStep';
+import { CoinsStep } from 'src/views/onboarding/steps/CoinsStep';
+import { CreateOrRecoverStep } from 'src/views/onboarding/steps/CreateOrRecoverStep';
+import { DeviceAuthenticityStep } from 'src/views/onboarding/steps/DeviceAuthenticityStep';
+import { DeviceTutorialStep } from 'src/views/onboarding/steps/DeviceTutorialStep';
 import { FirmwareStep } from 'src/views/onboarding/steps/FirmwareStep';
-import SetPinStep from 'src/views/onboarding/steps/Pin';
-import { RecoveryStep } from 'src/views/onboarding/steps/Recovery';
-import { ResetDeviceStep } from 'src/views/onboarding/steps/ResetDevice';
-import SecurityStep from 'src/views/onboarding/steps/Security';
-
-import { DeviceTutorial } from './steps/DeviceTutorial';
-import { DeviceAuthenticity } from './steps/SecurityCheck/DeviceAuthenticity';
+import { PinStep } from 'src/views/onboarding/steps/PinStep';
+import { RecoveryStep } from 'src/views/onboarding/steps/RecoveryStep';
+import { ResetDeviceStep } from 'src/views/onboarding/steps/ResetDeviceStep';
+import { SecurityStep } from 'src/views/onboarding/steps/SecurityStep';
 
 export const Onboarding = () => {
     const dispatch = useDispatch();
@@ -45,13 +43,13 @@ export const Onboarding = () => {
                 return FirmwareStep;
             case STEP.ID_AUTHENTICATE_DEVICE_STEP:
                 // Device authenticity check
-                return () => <DeviceAuthenticity goToNext={() => goToNextStep()} />;
+                return () => <DeviceAuthenticityStep goToNext={() => goToNextStep()} />;
             case STEP.ID_TUTORIAL_STEP:
                 // Device tutorial
-                return DeviceTutorial;
+                return DeviceTutorialStep;
             case STEP.ID_CREATE_OR_RECOVER:
                 // Selection between a new seed or seed recovery
-                return CreateOrRecover;
+                return CreateOrRecoverStep;
             case STEP.ID_RESET_DEVICE_STEP:
                 // a) Generating a new seed, selection between seed types
                 return ResetDeviceStep;
@@ -66,12 +64,10 @@ export const Onboarding = () => {
                 return BackupStep;
             case STEP.ID_SET_PIN_STEP:
                 // Pin setup
-                return SetPinStep;
+                return PinStep;
             case STEP.ID_COINS_STEP:
                 // Suite settings
-                return BasicSettingsStep;
-            case STEP.ID_FINAL_STEP:
-                return FinalStep;
+                return CoinsStep;
             default:
                 return exhaustive(activeStepId);
         }

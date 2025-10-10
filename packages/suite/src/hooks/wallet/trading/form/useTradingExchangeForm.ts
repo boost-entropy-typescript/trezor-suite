@@ -17,6 +17,7 @@ import {
     type TradingSendRejectedProps,
     type TradingSignAndPushSendFormTransactionProps,
     type TradingTransactionExchange,
+    cryptoIdToNetwork,
     exchangeThunks,
     getUnusedAddressFromAccount,
     invityAPI,
@@ -42,7 +43,6 @@ import {
     useFormDraft,
 } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
-import { toFiatCurrency } from '@suite-common/wallet-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
 
 import { openDeferredModal } from 'src/actions/suite/modalActions';
@@ -194,12 +194,6 @@ export const useTradingExchangeForm = ({
     const output = values.outputs?.[0];
     const outputAddress = output?.address;
 
-    const fiatValues = useTradingFiatValues({
-        cryptoId: sendCryptoSelect?.value,
-        amount: sendCryptoSelect?.balance,
-        fiatCurrency: output?.currency?.value as FiatCurrencyCode,
-    });
-
     const receiveCryptoId = receiveCryptoSelect?.value;
 
     const tradingReceiveAddress = useTradingReceiveAddress({
@@ -218,13 +212,6 @@ export const useTradingExchangeForm = ({
         amount: receiveCryptoSelect?.balance,
         fiatCurrency: output?.currency?.value as FiatCurrencyCode,
     });
-
-    const fiatOfBestScoredQuote = quotes?.[0]?.sendStringAmount
-        ? (toFiatCurrency({
-              amount: quotes?.[0]?.sendStringAmount,
-              rate: fiatValues?.fiatRate?.rate,
-          })?.toFixed(2) ?? null)
-        : null;
 
     const formIsValid = Object.keys(formState.errors).length === 0;
     const hasValues = !!output?.amount && !!values.receiveCryptoSelect;
@@ -266,8 +253,6 @@ export const useTradingExchangeForm = ({
         account,
         methods,
         network,
-        quoteCryptoAmount: quotes?.[0]?.sendStringAmount,
-        quoteFiatAmount: fiatOfBestScoredQuote ?? '',
         inputNames: {
             cryptoInput: TRADING_FORM_OUTPUT_AMOUNT,
             fiatInput: TRADING_FORM_OUTPUT_FIAT,
@@ -784,24 +769,28 @@ export const useTradingExchangeForm = ({
 
     // set transactionData from DEX quote for correct fees fetching
     useEffect(() => {
-        if (pageType !== 'form') {
-            return;
-        }
+        if (pageType !== 'form') return;
+        if (!sendCryptoSelect?.value) return;
+        if (isFormLoading || isLoadingQuote) return;
 
         if (exchangeType !== TRADING_EXCHANGE_FORM_DEX) {
             setValue('transactionData', '');
-        }
+            setValue(TRADING_FORM_OUTPUT_ADDRESS, '');
 
-        if (isFormLoading || isLoadingQuote) {
             return;
         }
 
-        const isEvmNativeToken = isSendingEvmNativeToken(sendCryptoSelect?.value);
+        const network = cryptoIdToNetwork(sendCryptoSelect.value);
+        const isEvmNativeToken = isSendingEvmNativeToken(sendCryptoSelect.value);
+        const requiresApproval = network?.networkType === 'ethereum' && !isEvmNativeToken;
 
-        const quote = preselectedQuote ?? (isEvmNativeToken ? dexQuotes[0] : selectedQuote);
+        const quote = preselectedQuote ?? (requiresApproval ? selectedQuote : dexQuotes[0]);
 
         if (!quote || !quote.dexTx) {
-            return setValue('transactionData', '');
+            setValue('transactionData', '');
+            setValue(TRADING_FORM_OUTPUT_ADDRESS, '');
+
+            return;
         }
 
         const { dexTx } = quote;

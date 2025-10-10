@@ -71,7 +71,7 @@ export const BackupStep = () => {
                         }
                         outerActions={
                             <OnboardingCard.SecondaryButton
-                                data-testid="@onboarding/exit-app-button"
+                                data-testid="@onboarding/skip-backup"
                                 onClick={handleSkip}
                             >
                                 <Translation id="TR_SKIP_BACKUP" />
@@ -117,8 +117,12 @@ export const BackupStep = () => {
                         description={
                             <Translation id="TR_DEVICE_DISCONNECTED_DURING_ACTION_DESCRIPTION" />
                         }
+                        variant="destructive"
                         innerActions={
-                            <OnboardingCard.Button onClick={handleResetOnboarding}>
+                            <OnboardingCard.Button
+                                variant="destructive"
+                                onClick={handleResetOnboarding}
+                            >
                                 <Translation id="TR_GO_TO_SETTINGS" />
                             </OnboardingCard.Button>
                         }
