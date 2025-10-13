@@ -9,26 +9,22 @@ import { bluetoothDisconnectDeviceThunk } from 'src/actions/bluetooth/bluetoothD
 import { setConnectionModal } from 'src/actions/device/deviceSlice';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
-export type UseBluetoothConnectionProps = {
+type UseBluetoothConnectionProps = {
     devices: DesktopBluetoothDevice[];
     onReScanClick: () => void;
-    toggleBluetoothMode: () => void;
 };
 
 export type UseBluetoothConnectionReturn = {
     selectedDevice: DesktopBluetoothDevice | undefined;
-    selectedDeviceId: string | null;
     notConnectedKnownDevices: DesktopBluetoothDevice[];
     notConnectedNearbyDevices: DesktopBluetoothDevice[];
     onConnect: (deviceId: BluetoothDeviceId) => Promise<void>;
     handlePairingCancel: (deviceId: BluetoothDeviceId) => Promise<void>;
-    handleBluetoothConnectionCancel: () => void;
 };
 
 export const useBluetoothConnection = ({
     devices,
     onReScanClick,
-    toggleBluetoothMode,
 }: UseBluetoothConnectionProps): UseBluetoothConnectionReturn => {
     const dispatch = useDispatch();
     const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
@@ -78,19 +74,11 @@ export const useBluetoothConnection = ({
         onReScanClick();
     };
 
-    const handleBluetoothConnectionCancel = (): void => {
-        setSelectedDeviceId(null);
-        onReScanClick();
-        toggleBluetoothMode();
-    };
-
     return {
         selectedDevice,
-        selectedDeviceId,
         notConnectedKnownDevices,
         notConnectedNearbyDevices,
         onConnect,
         handlePairingCancel,
-        handleBluetoothConnectionCancel,
     };
 };

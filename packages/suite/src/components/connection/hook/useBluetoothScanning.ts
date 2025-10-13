@@ -9,7 +9,7 @@ import { bluetoothStopScanningThunk } from 'src/actions/bluetooth/bluetoothStopS
 import { removeNonResponsiveNearbyDevicesThunk } from 'src/actions/bluetooth/removeNonResponsiveNearbyDevicesThunk';
 import { useDispatch } from 'src/hooks/suite';
 
-export type UseBluetoothScanningProps = {
+type UseBluetoothScanningProps = {
     bluetoothMode: boolean;
     devices: DesktopBluetoothDevice[];
     setShowHints: (value: boolean) => void;
@@ -57,7 +57,7 @@ export const useBluetoothScanning = ({
         }
     }, [dispatch, bluetoothMode]);
 
-    // stop scanning after 15s
+    // stop scanning (visually) after 30s
     useEffect(() => {
         if (bluetoothMode) {
             scannerTimerId.current = setTimeout(() => {
