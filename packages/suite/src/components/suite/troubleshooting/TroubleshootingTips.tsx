@@ -10,11 +10,9 @@ import {
     IconName,
     Modal,
     Row,
-    SelectBar,
     Text,
 } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-import { typedObjectKeys } from '@trezor/utils';
 
 import { TroubleshootingTipsList } from './TroubleshootingTipsList';
 import { useLayoutSize } from '../../../hooks/suite';
@@ -29,8 +27,6 @@ export type TroubleshootingTipsItem = {
     icon?: IconName;
 };
 
-type SectionDefinition = { label: ReactNode; items: TroubleshootingTipsItem[] };
-
 type TroubleshootingTipsBaseProps = {
     label?: ReactNode;
     ctaLabel?: ReactNode;
@@ -39,60 +35,28 @@ type TroubleshootingTipsBaseProps = {
     'data-testid'?: string;
     toggleText?: ReactNode;
     variant?: BannerVariant;
-};
-
-type TroubleshootingTipsProps = TroubleshootingTipsBaseProps & {
     items: TroubleshootingTipsItem[];
 };
 
-type TroubleshootingTipsWithSectionsProps<
-    K extends string,
-    T extends K,
-> = TroubleshootingTipsBaseProps & {
-    items: Record<K, SectionDefinition>;
-    defaultSection?: T;
-};
-
-export const TroubleshootingTipsWithSections = <K extends string, T extends K>({
+export const TroubleshootingTips = ({
     label,
     items,
     cta,
     ctaLabel,
     initiallyIsOpen,
-    defaultSection,
     toggleText,
     variant = 'warning',
     'data-testid': dataTest,
-}: TroubleshootingTipsWithSectionsProps<K, T>) => {
-    const itemsKeys = typedObjectKeys(items);
-    const firstSectionKey = itemsKeys[0];
-    const [selectedSection, setSelectedSection] = useState<K>(defaultSection ?? firstSectionKey);
-
-    const hasMultipleSections = itemsKeys.length > 1;
-
+}: TroubleshootingTipsBaseProps) => {
     // @TODO isn't `labelRow` duplicate information? If not, where to show it?
     const labelRow =
-        label !== undefined || hasMultipleSections ? (
+        label !== undefined ? (
             <Row
                 justifyContent="space-between"
                 alignItems="center"
                 margin={{ horizontal: spacings.sm }}
             >
                 <Text typographyStyle="body">{label}</Text>
-
-                {hasMultipleSections ? (
-                    <Row>
-                        <SelectBar<K>
-                            onChange={setSelectedSection}
-                            options={itemsKeys.map(key => ({
-                                label: items[key].label,
-                                value: key,
-                            }))}
-                            selectedOption={selectedSection}
-                            size="small"
-                        />
-                    </Row>
-                ) : undefined}
             </Row>
         ) : null;
 
@@ -105,6 +69,9 @@ export const TroubleshootingTipsWithSections = <K extends string, T extends K>({
             </Banner>
         );
     };
+
+    // todo: this filter is duplicated with TroubleshootingTipsList
+    const visibleTips = items.filter(item => !item.hide);
 
     const TroubleshootingButton = () => {
         const [isTroubleshootingModalVisible, setIsTroubleshootingModalVisible] = useState(false);
@@ -130,6 +97,7 @@ export const TroubleshootingTipsWithSections = <K extends string, T extends K>({
                 >
                     {toggleText ?? <Translation id="TR_TROUBLE_SHOOTING_TIPS" />}
                 </Button>
+
                 {isTroubleshootingModalVisible && (
                     <Modal
                         heading={toggleText ?? <Translation id="TR_TROUBLE_SHOOTING_TIPS" />}
@@ -139,7 +107,7 @@ export const TroubleshootingTipsWithSections = <K extends string, T extends K>({
                         data-testid="@onboarding/troubleshooting-tips/modal"
                     >
                         <Card header={labelRow}>
-                            <TroubleshootingTipsList items={items[selectedSection].items} />
+                            <TroubleshootingTipsList items={visibleTips} />
                         </Card>
                     </Modal>
                 )}
@@ -150,19 +118,9 @@ export const TroubleshootingTipsWithSections = <K extends string, T extends K>({
     return cta ? (
         <Column gap={80} alignItems="center">
             <ActionBanner />
-            <TroubleshootingButton />
+            {visibleTips.length > 0 && <TroubleshootingButton />}
         </Column>
     ) : (
-        <Box margin={{ top: 80 }}>
-            <TroubleshootingButton />
-        </Box>
+        <Box margin={{ top: 80 }}>{visibleTips.length > 0 && <TroubleshootingButton />}</Box>
     );
 };
-
-export const TroubleshootingTips = ({ items, ...props }: TroubleshootingTipsProps) => (
-    <TroubleshootingTipsWithSections
-        {...props}
-        // key is arbitrary, label won't be displayed with only one section
-        items={{ default: { items, label: '' } }}
-    />
-);
