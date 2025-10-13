@@ -12,16 +12,19 @@ import { DeviceConnectionText } from './DeviceConnectionText';
 import { DeviceStatusTextThp } from './DeviceStatusTextThp';
 
 type DeviceStatusTextProps = {
-    onRefreshClick?: (e: React.MouseEvent) => void;
     device: TrezorDevice;
     forceConnectionInfo: boolean;
+    deviceNeedsRefresh?: boolean;
 };
 
-export const DeviceStatusText = ({ device, forceConnectionInfo }: DeviceStatusTextProps) => {
-    const { connected } = device;
+export const DeviceStatusText = ({
+    device,
+    forceConnectionInfo,
+    deviceNeedsRefresh,
+}: DeviceStatusTextProps) => {
     const deviceStatus = deviceUtils.getStatus(device);
     const dispatch = useDispatch();
-    if (connected && ['was-used-in-other-window', 'used-in-other-window'].includes(deviceStatus)) {
+    if (deviceNeedsRefresh) {
         return (
             <DeviceConnectionText
                 variant="warning"

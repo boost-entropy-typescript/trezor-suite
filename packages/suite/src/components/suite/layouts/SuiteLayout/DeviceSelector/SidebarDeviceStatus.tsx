@@ -9,13 +9,14 @@ import { useSelector } from '../../../../../hooks/suite';
 import { useIsSidebarCollapsed } from '../Sidebar/utils';
 
 const needsRefresh = (device?: TrezorDevice) => {
-    if (!device) return false;
+    if (!device?.connected) return false;
 
     const deviceStatus = deviceUtils.getStatus(device);
-    const needsAcquire =
-        device.type === 'unacquired' ||
-        deviceStatus === 'used-in-other-window' ||
-        deviceStatus === 'was-used-in-other-window';
+    const needsAcquire = [
+        'unacquired',
+        'used-in-other-window',
+        'was-used-in-other-window',
+    ].includes(deviceStatus);
 
     return needsAcquire;
 };
