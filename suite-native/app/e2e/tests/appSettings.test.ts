@@ -5,24 +5,24 @@ import { portfolioTrackerBtcAccountState } from '../fixtures/portfolioTrackerBtc
 import { onHome } from '../pageObjects/homeActions';
 import { onSettings } from '../pageObjects/settingsActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
-import { appIsFullyLoaded, mergePreloadedReduxState, openApp, restartApp } from '../utils';
+import { openApp, preparePreloadedReduxState, wipeAppData } from '../utils';
 
-const preloadedState = mergePreloadedReduxState(
+const preloadedState = preparePreloadedReduxState(
     portfolioTrackerBtcAccountState,
     onboardingCompletedState,
 );
 
 describe('App Settings - without device interactions', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
         await openApp({
             newInstance: true,
             args: { preloadedState },
         });
+        await onHome.assertIsPortfolioGraphVisible();
     });
 
-    beforeEach(async () => {
-        await restartApp();
-        await appIsFullyLoaded();
+    afterEach(async () => {
+        await wipeAppData();
     });
 
     afterAll(async () => {
@@ -37,7 +37,7 @@ describe('App Settings - without device interactions', () => {
         await onTabBar.navigateToSettings();
         await onSettings.tapPreferences();
         await onSettings.changeLocalizationCurrency('czk');
-        await device.pressBack();
+        await onTabBar.tapBackButton();
         await onTabBar.navigateToHome();
 
         await waitFor(element(by.text(/^.*CZK.*$/i)))
@@ -53,7 +53,7 @@ describe('App Settings - without device interactions', () => {
         await onTabBar.navigateToSettings();
         await onSettings.tapPreferences();
         await onSettings.changeBitcoinUnits(PROTO.AmountUnit.SATOSHI);
-        await device.pressBack();
+        await onTabBar.tapBackButton();
         await onTabBar.navigateToHome();
 
         await waitFor(element(by.text('0 sat')))
@@ -67,7 +67,7 @@ describe('App Settings - without device interactions', () => {
         await onTabBar.navigateToSettings();
         await onSettings.tapPrivacyAndSecurity();
         await onSettings.toggleDiscreetMode();
-        await device.pressBack();
+        await onTabBar.tapBackButton();
         await onTabBar.navigateToHome();
 
         await onHome.assertIsDiscreetModeEnabled();

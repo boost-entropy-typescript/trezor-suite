@@ -5,7 +5,7 @@ import { xpubs } from '../fixtures/xpubs';
 import { onAccountImport } from '../pageObjects/accountImportActions';
 import { onMyAssets } from '../pageObjects/myAssetsActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
-import { appIsFullyLoaded, openApp, restartApp } from '../utils';
+import { openApp, preparePreloadedReduxState, wipeAppData } from '../utils';
 
 const goToBtcImportXpubScreen = async () => {
     await onTabBar.navigateToMyAssets();
@@ -13,15 +13,21 @@ const goToBtcImportXpubScreen = async () => {
     await onAccountImport.selectCoin({ networkSymbol: 'btc' });
 };
 
+const preloadedState = preparePreloadedReduxState(onboardingCompletedState);
+
 describe('Import invalid accounts', () => {
-    beforeAll(async () => {
-        await openApp({ newInstance: true, args: { preloadedState: onboardingCompletedState } });
+    beforeEach(async () => {
+        await openApp({
+            newInstance: true,
+            args: {
+                preloadedState,
+            },
+        });
+        await goToBtcImportXpubScreen();
     });
 
-    beforeEach(async () => {
-        await restartApp();
-        await appIsFullyLoaded();
-        await goToBtcImportXpubScreen();
+    afterEach(async () => {
+        await wipeAppData();
     });
 
     it('Import an already imported XPUB', async () => {

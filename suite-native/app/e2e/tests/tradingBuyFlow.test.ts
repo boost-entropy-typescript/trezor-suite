@@ -1,11 +1,12 @@
 import { onboardingCompletedState } from '../fixtures/onboardingCompletedState';
 import { portfolioTrackerBtcAccountState } from '../fixtures/portfolioTrackerBtcAccountState';
+import { onHome } from '../pageObjects/homeActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
 import { tradingBuyActions } from '../pageObjects/tradingBuyActions';
 import { tradingHistoryActions } from '../pageObjects/tradingHistoryActions';
-import { appIsFullyLoaded, mergePreloadedReduxState, openApp, restartApp } from '../utils';
+import { openApp, preparePreloadedReduxState } from '../utils';
 
-const preloadedState = mergePreloadedReduxState(
+const preloadedState = preparePreloadedReduxState(
     portfolioTrackerBtcAccountState,
     onboardingCompletedState,
 );
@@ -18,17 +19,13 @@ describe('Trade Buy', () => {
                 preloadedState,
             },
         });
+        await onHome.assertIsPortfolioGraphVisible();
+        await onTabBar.navigateToTrade();
+        await tradingBuyActions.waitForTradeDataToLoad();
     });
 
     afterAll(async () => {
         await device.terminateApp();
-    });
-
-    beforeEach(async () => {
-        await restartApp();
-        await appIsFullyLoaded();
-        await onTabBar.navigateToTrade();
-        await tradingBuyActions.waitForTradeDataToLoad();
     });
 
     it('Basic buy for 100 PLN flow', async () => {
