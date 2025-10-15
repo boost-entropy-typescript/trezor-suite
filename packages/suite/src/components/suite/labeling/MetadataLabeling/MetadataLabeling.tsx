@@ -22,6 +22,7 @@ import { withDropdown } from './withDropdown';
 import { withEditable } from './withEditable';
 import { useLabelingCombined } from '../../../../hooks/suite/useLabelingCombined';
 import { AccountTypeBadge } from '../../AccountTypeBadge';
+import { NO_HIGHLIGHT_ATTRIBUTE } from '../../FindBar/consts';
 
 const LabelValue = styled.div`
     overflow: hidden;
@@ -516,6 +517,7 @@ export const MetadataLabeling = ({
             <LabelContainer
                 data-testid={labelContainerDataTest}
                 onClick={e => payload.value && !editActive && e.stopPropagation()}
+                {...{ [NO_HIGHLIGHT_ATTRIBUTE]: editActive || undefined }}
             >
                 <LabelContent
                     variant={variant}

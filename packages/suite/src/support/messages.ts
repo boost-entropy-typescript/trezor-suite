@@ -10774,6 +10774,26 @@ export default defineMessages({
         id: 'TR_CONFIRM_BLUETOOTH_PAIRING',
         defaultMessage: 'Confirm the Bluetooth pairing request on your Trezor as well.',
     },
+    TR_FIND_PLACEHOLDER: {
+        id: 'TR_FIND_PLACEHOLDER',
+        defaultMessage: 'Find in page...',
+    },
+    TR_FIND_NEXT: {
+        id: 'TR_FIND_NEXT',
+        defaultMessage: 'Next',
+    },
+    TR_FIND_PREV: {
+        id: 'TR_FIND_PREV',
+        defaultMessage: 'Previous',
+    },
+    TR_FIND_CLOSE: {
+        id: 'TR_FIND_CLOSE',
+        defaultMessage: 'Close find bar',
+    },
+    TR_FIND_NOT_FOUND: {
+        id: 'TR_FIND_NOT_FOUND',
+        defaultMessage: 'Not found',
+    },
     TR_THP_LOADING: {
         id: 'TR_THP_LOADING',
         defaultMessage: 'Securing connection...',

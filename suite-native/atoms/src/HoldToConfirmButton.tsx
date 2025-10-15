@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Platform, Vibration } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -76,13 +77,14 @@ export const HoldToConfirmButton = ({
     );
 
     const tapGesture = Gesture.LongPress()
+        .minDuration(0)
         .hitSlop({
             top: GESTURE_HIT_SLOP,
             bottom: GESTURE_HIT_SLOP,
             left: GESTURE_HIT_SLOP,
             right: GESTURE_HIT_SLOP,
         })
-        .onBegin(() => {
+        .onStart(() => {
             runOnJS(startOnHoldVibration)();
             animationProgress.value = withTiming(1, { duration: BUTTON_ANIMATION_DURATION });
         })
@@ -120,6 +122,12 @@ export const HoldToConfirmButton = ({
                 }),
             ),
         };
+    });
+
+    useEffect(() => () => {
+        // If the animation finished succesfully but unmounts (by .popTo in navigation for example),
+        // it will keep vibrating until app restart so we need to cancel the animation in this case.
+        Vibration.cancel();
     });
 
     return (
