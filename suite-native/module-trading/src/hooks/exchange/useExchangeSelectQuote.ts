@@ -5,8 +5,10 @@ import { useNavigation } from '@react-navigation/native';
 
 import {
     exchangeThunks,
+    parseCryptoId,
     selectTradingExchangeIsLoading,
     selectTradingMaxSlippagePercentage,
+    tokenSupportsIncreasingAllowance,
 } from '@suite-common/trading';
 import {
     RootStackParamList,
@@ -23,6 +25,7 @@ import {
     selectExchangeSelectedSendAccount,
 } from '../../selectors/exchangeSelectors';
 import { ExchangeFormType } from '../../types/exchange';
+import { getApprovalStatus } from '../../utils/general/approvalStatusUtils';
 import { isFullySelectedReceiveAccount } from '../../utils/general/receiveAccountUtils';
 import { getSymbolFromTradeableAsset } from '../../utils/general/tradeableAssetUtils';
 import { useConsent } from '../general/useConsent';
@@ -92,7 +95,36 @@ export const useExchangeSelectQuote = (form: ExchangeFormType) => {
                 userConsent: waitForConsent,
                 nextStep: () => {
                     clearExchangeFormQuoteData(form);
-                    navigation.navigate(TradingStackRoutes.TradingExchangePreview);
+
+                    const approvalStatus = getApprovalStatus(candidateQuote);
+                    if (approvalStatus === 'approved' || approvalStatus === 'not_needed') {
+                        return navigation.navigate(TradingStackRoutes.TradingExchangePreview, {});
+                    }
+
+                    const { contractAddress } = candidateQuote.send
+                        ? parseCryptoId(candidateQuote.send)
+                        : {};
+
+                    const isIncreasingAllowanceSupported =
+                        tokenSupportsIncreasingAllowance(contractAddress);
+
+                    if (approvalStatus === 'needs_increase' && isIncreasingAllowanceSupported) {
+                        return navigation.navigate(TradingStackRoutes.TradingExchangeApproval, {
+                            quote: candidateQuote,
+                            shouldIncreaseLimit: true,
+                        });
+                    }
+
+                    if (approvalStatus === 'needs_increase') {
+                        return navigation.navigate(TradingStackRoutes.TradingExchangeRevoke, {
+                            quote: candidateQuote,
+                            shouldIncreaseLimit: true,
+                        });
+                    }
+
+                    return navigation.navigate(TradingStackRoutes.TradingExchangeApproval, {
+                        quote: candidateQuote,
+                    });
                 },
                 onCancel: () => {},
             }),
