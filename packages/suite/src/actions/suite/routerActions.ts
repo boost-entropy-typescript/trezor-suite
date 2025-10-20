@@ -4,6 +4,7 @@
 
 import { ExtraDependencies, createThunk } from '@suite-common/redux-utils';
 import { Route } from '@suite-common/suite-types';
+import { Branded } from '@trezor/type-utils';
 
 import { ROUTER } from 'src/actions/suite/constants';
 import * as suiteActions from 'src/actions/suite/suiteActions';
@@ -21,13 +22,18 @@ import {
     getRoute,
 } from 'src/utils/suite/router';
 
+export type NonLeadingHashString = string & Branded<'NonLeadingHashString'>;
+const sanitizeForNonLeadingHashString = (s: string): NonLeadingHashString =>
+    (s.startsWith('#') ? s.slice(1) : s) as NonLeadingHashString;
+
 export type RouterAction =
     | {
           type: typeof ROUTER.LOCATION_CHANGE;
           payload: {
               url: string;
               pathname: string;
-              hash?: string;
+              search?: string;
+              hash?: NonLeadingHashString;
               settingsBackRoute?: SettingsBackRoute;
               anchor?: AnchorType;
           } & RouterAppWithParams;
@@ -54,14 +60,15 @@ export const onBeforePopState = () => (_dispatch: Dispatch, getState: GetState) 
  * @param {string} url
  */
 export const onLocationChange =
-    (url: string, anchor?: AnchorType) => (dispatch: Dispatch, getState: GetState) => {
+    (url: string, anchor?: AnchorType) =>
+    (dispatch: Dispatch, getState: GetState, extra: ExtraDependencies) => {
         const unlocked = dispatch(onBeforePopState());
         const { router } = getState();
         if (!unlocked && router.loaded) return;
         if (router.url === url && router.app !== 'unknown') return null;
         // TODO: check if the view is not locked by the device request
 
-        const [pathname, hash] = url.split('#');
+        const { pathname, search, hash } = extra.routerServices.getLocation();
 
         const appWithParams = getAppWithParams(url);
 
@@ -70,7 +77,8 @@ export const onLocationChange =
             payload: {
                 url,
                 pathname,
-                hash,
+                search,
+                hash: sanitizeForNonLeadingHashString(hash),
                 anchor,
                 ...appWithParams,
             },
@@ -91,8 +99,8 @@ export const onAnchorChange = (anchor?: AnchorType) => (dispatch: Dispatch, _get
 export const init = () => (dispatch: Dispatch, getState: GetState, extra: ExtraDependencies) => {
     // check if location was not already changed by initialRedirection
     if (getState().router.app === 'unknown') {
-        const location = extra.routerServices.getLocation();
-        const url = location.pathname + location.hash;
+        const { pathname, search, hash } = extra.routerServices.getLocation();
+        const url = `${pathname}${search ?? ''}${hash ?? ''}`;
         dispatch(onLocationChange(url));
     }
 };
@@ -177,7 +185,11 @@ export const closeModalApp =
             extra.routerServices.navigate(getPrefixedURL(location.pathname));
         } else {
             // + history.location.hash is here to preserve params (e.g. nth account)
-            dispatch(onLocationChange(location.pathname + location.hash));
+            dispatch(
+                onLocationChange(
+                    `${location.pathname}${location.search ?? ''}${location.hash ?? ''}`,
+                ),
+            );
         }
     };
 
@@ -189,7 +201,9 @@ export const initialRedirection = createThunk(
     '@suite/initial-redirection',
     (_, { dispatch, getState, extra }) => {
         const location = extra.routerServices.getLocation();
-        const route = findRoute(location.pathname + location.hash);
+        const route = findRoute(
+            `${location.pathname}${location.search ?? ''}${location.hash ?? ''}`,
+        );
 
         const { initialRun } = getState().suite.flags;
         // only do initial redirection of route is valid

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router';
 
 import { Column } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
+import { Route } from 'src/components/suite/Route';
 import { WalletLayout } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
@@ -40,28 +40,22 @@ export const Nfts = () => {
                     setSearchQuery={setSearchQuery}
                     isNft
                 />
-                <Routes>
-                    <Route
-                        path="hidden"
-                        element={
-                            <NftsTablesSection
-                                selectedAccount={selectedAccount}
-                                searchQuery={searchQuery}
-                                isShown={false}
-                            />
-                        }
+                <Route
+                    name="wallet-nfts-hidden"
+                    fallback={
+                        <NftsTablesSection
+                            selectedAccount={selectedAccount}
+                            searchQuery={searchQuery}
+                            isShown
+                        />
+                    }
+                >
+                    <NftsTablesSection
+                        selectedAccount={selectedAccount}
+                        searchQuery={searchQuery}
+                        isShown={false}
                     />
-                    <Route
-                        path="*"
-                        element={
-                            <NftsTablesSection
-                                selectedAccount={selectedAccount}
-                                searchQuery={searchQuery}
-                                isShown
-                            />
-                        }
-                    />
-                </Routes>
+                </Route>
             </Column>
         </WalletLayout>
     );

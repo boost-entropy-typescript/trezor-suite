@@ -1,4 +1,7 @@
+import { createWeakMapSelector } from '@suite-common/redux-utils';
+
 import { ROUTER } from 'src/actions/suite/constants';
+import { type NonLeadingHashString } from 'src/actions/suite/routerActions';
 import type { AnchorType } from 'src/constants/suite/anchors';
 import { RouterAppWithParams, SettingsBackRoute } from 'src/constants/suite/routes';
 import { Action } from 'src/types/suite';
@@ -17,7 +20,8 @@ export type RouterState = {
     loaded: boolean;
     url: string;
     pathname: string;
-    hash?: string;
+    search?: string;
+    hash?: NonLeadingHashString;
     settingsBackRoute: SettingsBackRoute; // TODO: Probably not needed with the new router
     anchor?: AnchorType;
 } & RouterAppWithParams;
@@ -25,6 +29,8 @@ export type RouterState = {
 export type RouterRootState = {
     router: RouterState;
 };
+
+const createMemoizedSelector = createWeakMapSelector.withTypes<RouterRootState>();
 
 const initialState: RouterState = {
     loaded: false,
@@ -64,6 +70,11 @@ export const selectRouter = (state: RouterRootState) => state.router;
 export const selectRoute = (state: RouterRootState): RouterState['route'] => state.router.route;
 export const selectRouterParams = (state: RouterRootState) => state.router.params;
 export const selectRouteName = (state: RouterRootState) => state.router.route?.name;
+export const selectRouterSearch = (state: RouterRootState) => state.router.search;
+export const selectURLSearchParams = createMemoizedSelector(
+    [selectRouterSearch],
+    (search): URLSearchParams | null => (search ? new URLSearchParams(search) : null),
+);
 
 // TODO: perhaps TabPage is not the most ideal name...
 // however currently there are account pages accessible via tabs on the "front page"

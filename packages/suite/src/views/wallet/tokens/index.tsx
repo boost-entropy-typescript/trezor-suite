@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router';
 
 import { hasNetworkFeatures } from '@suite-common/wallet-utils';
 import { Column } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
+import { Route } from 'src/components/suite/Route';
 import { WalletLayout } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectRouteName } from 'src/reducers/suite/routerReducer';
@@ -45,26 +45,17 @@ export const Tokens = () => {
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
                 />
-                <Routes>
-                    <Route
-                        path="hidden"
-                        element={
-                            <HiddenTokensTable
-                                selectedAccount={selectedAccount}
-                                searchQuery={searchQuery}
-                            />
-                        }
+                <Route
+                    name="wallet-tokens-hidden"
+                    fallback={
+                        <CoinsTable selectedAccount={selectedAccount} searchQuery={searchQuery} />
+                    }
+                >
+                    <HiddenTokensTable
+                        selectedAccount={selectedAccount}
+                        searchQuery={searchQuery}
                     />
-                    <Route
-                        path="*"
-                        element={
-                            <CoinsTable
-                                selectedAccount={selectedAccount}
-                                searchQuery={searchQuery}
-                            />
-                        }
-                    />
-                </Routes>
+                </Route>
             </Column>
         </WalletLayout>
     );
