@@ -38,9 +38,9 @@ describe(connectThpDeviceThunk.name, () => {
     it.each([
         [1, 2, null],
         [2, 3, 'AutoconnectInfo'],
-        [3, 4, null],
+        [3, 3, null],
     ])(
-        'updates the connection counter with initial value %d',
+        'updates the connection counter, unless the threshold has already been reached',
         (initialCounter, expectedCounter, expectedStep) => {
             const store = configureMockStore({
                 extra: {},
