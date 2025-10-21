@@ -61,6 +61,7 @@ export interface Flags {
     dashboardGraphHidden: boolean; // dashboard UI
     dashboardAssetsGridMode: boolean; // dashboard UI
     showTEXDashboardPromoBanner: boolean;
+    showTS7DashboardPromoBanner: boolean;
     showSettingsDesktopAppPromoBanner: boolean;
     stakeEthBannerClosed: boolean; // banner in account view (Overview tab) presenting ETH staking feature
     stakeSolBannerClosed: boolean; // banner in account view (Overview tab) presenting SOL staking feature
@@ -69,7 +70,6 @@ export interface Flags {
     showUnhideTokenModal: boolean;
     showCopyAddressModal: boolean;
     enableAutoupdateOnNextRun: boolean;
-    isBluetoothEnabled: boolean;
     showBluetoothDebugInfo: boolean;
     stellarLimitedHistoryBannerClosed: boolean; // banner in account view (Overview tab) presenting limited history for Stellar
     solanaLimitedHistoryBannerClosed: boolean; // banner in account view (Overview tab) presenting limited history for Solana
@@ -157,6 +157,7 @@ const initialState: SuiteState = {
         dashboardGraphHidden: false,
         dashboardAssetsGridMode: true,
         showTEXDashboardPromoBanner: true,
+        showTS7DashboardPromoBanner: true,
         showSettingsDesktopAppPromoBanner: true,
         stakeEthBannerClosed: false,
         stakeSolBannerClosed: false,
@@ -165,7 +166,6 @@ const initialState: SuiteState = {
         showCopyAddressModal: true,
         showUnhideTokenModal: true,
         enableAutoupdateOnNextRun: false,
-        isBluetoothEnabled: false,
         showBluetoothDebugInfo: false,
         stellarLimitedHistoryBannerClosed: false,
         solanaLimitedHistoryBannerClosed: false,

@@ -4,7 +4,6 @@ import {
     selectAdapterStatus,
     selectAutoConnectPolicy,
     selectKnownDevices,
-    selectNearbyDevices,
 } from '@suite-common/bluetooth';
 import { selectFirmware } from '@suite-common/firmware';
 import { createThunk } from '@suite-common/redux-utils';
@@ -14,8 +13,6 @@ import TrezorConnect from '@trezor/connect';
 import { desktopApi } from '@trezor/suite-desktop-api';
 import { BluetoothDevice, bluetoothIpc } from '@trezor/transport-bluetooth';
 import { resolveAfter } from '@trezor/utils';
-
-import { selectSuiteFlags } from 'src/selectors/suite/suiteSelectors';
 
 import {
     DesktopBluetoothDevice,
@@ -30,12 +27,6 @@ import { remapKnownDevicesForLinuxAndWindows } from './remapKnownDevicesForLinux
 export const initBluetoothThunk = createThunk<void, void, void>(
     `${BLUETOOTH_PREFIX}/initBluetoothThunk`,
     async (_, { getState, dispatch, extra }) => {
-        const { isBluetoothEnabled } = selectSuiteFlags(getState());
-
-        if (!isBluetoothEnabled) {
-            return;
-        }
-
         const knownDevices = selectKnownDevices<DesktopBluetoothDevice>(getState());
         const result = await bluetoothIpc.init({
             knownDevices: knownDevices.map(toBluetoothDevice),
@@ -162,18 +153,13 @@ export const initBluetoothThunk = createThunk<void, void, void>(
             dispatch(bluetoothActions.deviceUpdateAction({ device }));
         });
 
-        bluetoothIpc.on('open-bluetooth-settings', async () => {
+        bluetoothIpc.on('open-bluetooth-settings', async ({ id }) => {
             const result = await desktopApi.openSystemSettings('bluetooth');
             if (!result.success) {
                 // stop here and disconnect the device (abort pairing before it starts)
+                // this should throw BluetoothSettingsMissing error in current connection process
                 // device needs to be paired manually via system settings
-                const connectingDevices = selectConnectingDevices(getState());
-                const nearbyDevices = selectNearbyDevices(getState());
-                nearbyDevices.forEach(({ id }) => {
-                    if (connectingDevices.includes(id)) {
-                        bluetoothIpc.disconnectDevice(id);
-                    }
-                });
+                bluetoothIpc.disconnectDevice(id);
             }
         });
 
