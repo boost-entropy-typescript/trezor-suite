@@ -3,16 +3,18 @@ import * as crypto from 'crypto';
 import { getSubtleCrypto } from '@trezor/crypto-utils';
 import { bufferUtils } from '@trezor/utils';
 
-import { fixSignature, parseCertificate } from './x509certificate';
-import { PROTO } from '../../constants';
-import { DeviceAuthenticityBlacklistConfig } from '../../data/deviceAuthenticityBlacklistConfig';
-import { DeviceAuthenticityConfig } from '../../data/deviceAuthenticityConfigTypes';
-import { AuthenticateDeviceResult } from '../../types/api/authenticateDevice';
+import {
+    VerifyAuthenticityProofParams,
+    VerifyAuthenticityProofResult,
+    VerifySignature,
+} from './verifyAuthenticity/types';
+import { getRootPubKeyBlacklist, getRootPubKeys } from './verifyAuthenticity/utils';
+import { AlgorithmName, parseCertificate } from './x509certificate';
 
 // There is incomparability in results between nodejs and window SubtleCrypto api.
 // window.crypto.subtle.importKey (CryptoKey) cannot be used by `crypto-browserify`.Verify
 // The only common format of publicKey is PEM.
-const verifySignature = async (rawKey: Buffer, data: Uint8Array, signature: Uint8Array) => {
+const verifySignatureP256: VerifySignature = async (rawKey, data, signature) => {
     const signer = crypto.createVerify('sha256');
     signer.update(Buffer.from(data));
 
@@ -39,15 +41,28 @@ const verifySignature = async (rawKey: Buffer, data: Uint8Array, signature: Uint
     return signer.verify({ key }, Buffer.from(signature));
 };
 
-interface AuthenticityProofData extends PROTO.AuthenticityProof {
-    challenge: Buffer;
-    config: DeviceAuthenticityConfig;
-    blacklistConfig: DeviceAuthenticityBlacklistConfig;
-    allowDebugKeys?: boolean;
-    deviceModel: keyof typeof PROTO.DeviceModelInternal; // Device.features.internal_model
-}
+// Verifies Ed25519 signature using SubtleCrypto (browser or Node.js)
+const verifySignatureEd25519: VerifySignature = async (rawKey, data, signature) => {
+    try {
+        const SubtleCrypto = getSubtleCrypto();
+        // get Ed25519 key from RAW key
+        const edPubKey = await SubtleCrypto.importKey('raw', rawKey, { name: 'Ed25519' }, true, [
+            'verify',
+        ]);
 
-export const getRandomChallenge = () => crypto.randomBytes(32);
+        // Verify signature
+        return await SubtleCrypto.verify({ name: 'Ed25519' }, edPubKey, signature, data);
+    } catch {
+        // Consider invalid inputs an unsuccessful verification rather than throw
+        return false;
+    }
+};
+
+const getVerifyFn = (algorithmName: AlgorithmName): VerifySignature => {
+    if (algorithmName === 'P-256') return verifySignatureP256;
+    if (algorithmName === 'Ed25519') return verifySignatureEd25519;
+    throw new Error(`Unsupported signature algorithm.`);
+};
 
 // Check that this certificate is a valid Trezor CA.
 // KeyUsage must be present and allow certificate signing.
@@ -86,23 +101,27 @@ const validateCaCertExtensions = (cert: ReturnType<typeof parseCertificate>, pat
 };
 
 export const verifyAuthenticityProof = async ({
-    optiga_certificates,
-    optiga_signature,
     challenge,
+    certificates,
+    signature,
+    deviceModel,
+    allowDebugKeys,
     config,
     blacklistConfig,
-    allowDebugKeys,
-    deviceModel,
-}: AuthenticityProofData): Promise<AuthenticateDeviceResult> => {
-    const modelConfig = config[deviceModel];
-    if (!modelConfig) {
-        throw new Error(`Pubkeys for ${deviceModel} not found in config`);
-    }
-    const { debug } = modelConfig;
-    const { blacklistedCaPubKeys, debug: debugBlacklist } = blacklistConfig;
+}: VerifyAuthenticityProofParams): Promise<VerifyAuthenticityProofResult> => {
+    // Parse config with given device model, type of secure element and debug mode.
+    const allRootPubKeys = getRootPubKeys({
+        config,
+        deviceModel,
+        allowDebugKeys,
+    });
+    const rootPubKeyBlacklist = getRootPubKeyBlacklist({
+        blacklistConfig,
+        allowDebugKeys,
+    });
 
     // 1. parse all x509 certificates received from AuthenticityProof
-    const [deviceCert, caCert] = optiga_certificates.map((c, i) => {
+    const [deviceCert, caCert] = certificates.map((c, i) => {
         const cert = parseCertificate(new Uint8Array(Buffer.from(c, 'hex')));
         if (i === 0) {
             // deviceCert is always at index 0
@@ -112,18 +131,21 @@ export const verifyAuthenticityProof = async ({
 
         return cert;
     });
+    const deviceCertAlgName = deviceCert.signatureAlgorithm.algorithmName;
+    const caCertAlgName = caCert.signatureAlgorithm.algorithmName;
+    if (deviceCertAlgName !== caCertAlgName) {
+        throw new Error('Mismatched signature algorithms in device and CA certificates');
+    }
+    const verifySignatureFn = getVerifyFn(deviceCertAlgName);
 
     // 2. validate that CA certificate was created using one of rootPubkeys
     const caPubKey = Buffer.from(caCert.tbsCertificate.subjectPublicKeyInfo.bits.bytes).toString(
         'hex',
     );
-    const rootPubKeys = allowDebugKeys
-        ? modelConfig.rootPubKeys.concat(debug?.rootPubKeys || [])
-        : modelConfig.rootPubKeys;
 
     const isCertSignedByRootPubkey = await Promise.all(
-        rootPubKeys.map(rootPubKey =>
-            verifySignature(
+        allRootPubKeys.map(rootPubKey =>
+            verifySignatureFn(
                 Buffer.from(rootPubKey, 'hex'),
                 caCert.tbsCertificate.asn1.raw,
                 caCert.signatureValue.bits.bytes,
@@ -132,15 +154,15 @@ export const verifyAuthenticityProof = async ({
     );
 
     const rootPubKeyIndex = isCertSignedByRootPubkey.findIndex(valid => !!valid);
-    const rootPubKey = rootPubKeys[rootPubKeyIndex];
-    const isDebugRootPubKey = debug?.rootPubKeys.includes(rootPubKey);
+    //TS evaluates string[][number] as string, but it can also be undefined (when index is -1)
+    const rootPubKeyMatch: string | undefined = allRootPubKeys[rootPubKeyIndex];
     const caCertValidityFrom = caCert.tbsCertificate.validity.from.getTime();
 
     if (caCertValidityFrom > new Date().getTime()) {
-        throw new Error(`CA validity from ${caCertValidityFrom} cant't be in the future!`);
+        throw new Error(`CA validity from ${caCertValidityFrom} can't be in the future!`);
     }
 
-    if (!rootPubKey) {
+    if (rootPubKeyMatch === undefined) {
         return {
             valid: false,
             caPubKey,
@@ -151,7 +173,7 @@ export const verifyAuthenticityProof = async ({
     // 3. validate DEVICE certificate subject (Trezor features internal_model)
     const [subject] = deviceCert.tbsCertificate.subject;
     // subject algorithm (OID) https://www.alvestrand.no/objectid/2.5.4.3.html
-    if (!subject.parameters || subject.algorithm !== '2.5.4.3') {
+    if (!subject.parameters || subject.algorithmOid !== '2.5.4.3') {
         throw new Error('Missing certificate subject');
     }
     // slice 4 bytes from the subject (internal model)
@@ -160,12 +182,13 @@ export const verifyAuthenticityProof = async ({
         return {
             valid: false,
             caPubKey,
+            rootPubKey: rootPubKeyMatch,
             error: 'INVALID_DEVICE_MODEL',
         };
     }
 
     // 4. validate that DEVICE certificate was created using pubKey from CA certificate
-    const isDeviceCertValid = await verifySignature(
+    const isDeviceCertValid = await verifySignatureFn(
         Buffer.from(caCert.tbsCertificate.subjectPublicKeyInfo.bits.bytes),
         deviceCert.tbsCertificate.asn1.raw,
         deviceCert.signatureValue.bits.bytes,
@@ -179,20 +202,18 @@ export const verifyAuthenticityProof = async ({
         bufferUtils.getChunkSize(challenge.length),
         challenge,
     ]);
-    const isSignatureValid = await verifySignature(
+    const isSignatureValid = await verifySignatureFn(
         Buffer.from(deviceCert.tbsCertificate.subjectPublicKeyInfo.bits.bytes),
         prefixedChallenge,
-        fixSignature(Buffer.from(optiga_signature, 'hex')),
+        Buffer.from(signature, 'hex'),
     );
 
-    if (rootPubKey && isDeviceCertValid && isSignatureValid) {
-        if (
-            (!isDebugRootPubKey && blacklistedCaPubKeys.includes(caPubKey)) ||
-            (isDebugRootPubKey && debugBlacklist?.blacklistedCaPubKeys.includes(caPubKey))
-        ) {
+    if (isDeviceCertValid && isSignatureValid) {
+        if (rootPubKeyBlacklist.includes(caPubKey)) {
             return {
                 valid: false,
                 caPubKey,
+                rootPubKey: rootPubKeyMatch,
                 error: 'CA_PUBKEY_BLACKLISTED',
             };
         }
@@ -200,7 +221,7 @@ export const verifyAuthenticityProof = async ({
         return {
             valid: true,
             caPubKey,
-            debugKey: isDebugRootPubKey,
+            rootPubKey: rootPubKeyMatch,
         };
     }
 
@@ -208,6 +229,7 @@ export const verifyAuthenticityProof = async ({
         return {
             valid: false,
             caPubKey,
+            rootPubKey: rootPubKeyMatch,
             error: 'INVALID_DEVICE_CERTIFICATE',
         };
     }
@@ -215,6 +237,7 @@ export const verifyAuthenticityProof = async ({
     return {
         valid: false,
         caPubKey,
+        rootPubKey: rootPubKeyMatch,
         error: 'INVALID_DEVICE_SIGNATURE',
     };
 };

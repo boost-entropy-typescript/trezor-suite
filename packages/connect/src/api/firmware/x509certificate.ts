@@ -14,7 +14,12 @@ interface Asn1 {
     raw: Uint8Array; // original byte array
 }
 
-type Oid = `${number}.${number}.${number}.${number}`;
+type Oid =
+    | `${number}.${number}.${number}.${number}`
+    | `${number}.${number}.${number}.${number}.${number}.${number}`;
+
+// algorithms supported by Suite to verify certificates and signatures
+export type AlgorithmName = 'P-256' | 'Ed25519' | 'unknown';
 
 type Extension =
     | {
@@ -32,6 +37,13 @@ type Extension =
           key: Oid;
           critical?: boolean;
       });
+
+const parseOidToAlgorithmName = (oid: Oid): AlgorithmName => {
+    if (oid === '1.2.840.10045.4.3.2') return 'P-256'; // https://oid-base.com/get/1.2.840.10045.4.3.2
+    if (oid === '1.3.101.112') return 'Ed25519'; // https://oid-base.com/get/1.3.101.112
+
+    return 'unknown';
+};
 
 const derToAsn1 = (byteArray: Uint8Array): Asn1 => {
     let position = 0;
@@ -114,63 +126,14 @@ const derBitStringValue = (byteArray: Uint8Array) => ({
     bytes: byteArray.subarray(1),
 });
 
-// Optiga may produce a malformed signature with probability 1 in 256.
-// https://github.com/trezor/trezor-firmware/issues/3411
-export const fixSignature = (byteArray: Uint8Array) => {
-    const asn1 = derToAsn1(byteArray);
-
-    if (asn1.cls !== 0 || asn1.tag !== 16 || !asn1.structured) {
-        throw new Error('Bad signature. Not a SEQUENCE.');
-    }
-
-    const items = derToAsn1List(asn1.contents);
-    let newLength = 0;
-    const fixedItems = items.map(chunk => {
-        // find first significant byte
-        const index = chunk.contents.findIndex(value => value > 0x00);
-        const data = chunk.contents.subarray(index);
-        // According to the DER-encoding rules, the integers are supposed to be prefixed with a 0x00 byte
-        // if **and only if** the most significant byte is >= 0x80
-        const offset = data[0] >= 0x80 ? 1 : 0;
-        // create replacement for chunk
-        const chunkLength = data.length + offset;
-        const newChunk = new Uint8Array(chunkLength + 2);
-        // set first two bytes: original value and new length of the chunk
-        newChunk.set([chunk.raw[0], chunkLength]);
-        // optionally add 0
-        if (offset > 0) {
-            newChunk.set([0], 2);
-        }
-        // fill new chunk with data
-        newChunk.set(data, 2 + offset);
-        newLength += newChunk.length;
-
-        return newChunk;
-    });
-
-    // create replacement for sequence object
-    const signature = new Uint8Array(newLength + 2);
-    // set two first bytes: original value and new length of all chunks
-    signature.set([byteArray[0], newLength]);
-    // fill new sequence with fixed items
-    let signatureOffset = 2;
-    fixedItems.forEach(item => {
-        signature.set(item, signatureOffset);
-        signatureOffset += item.length;
-    });
-
-    return signature;
-};
-
 const parseSignatureValue = (asn1: Asn1) => {
     if (asn1.cls !== 0 || asn1.tag !== 3 || asn1.structured) {
         throw new Error('Bad signature value. Not a BIT STRING.');
     }
-    const { unusedBits, bytes } = derBitStringValue(asn1.contents);
 
     return {
         asn1,
-        bits: { unusedBits, bytes: fixSignature(bytes) },
+        bits: derBitStringValue(asn1.contents),
     };
 };
 
@@ -209,11 +172,13 @@ const parseAlgorithmIdentifier = (asn1: Asn1) => {
     if (encodedAlgorithm.cls !== 0 || encodedAlgorithm.tag !== 6 || encodedAlgorithm.structured) {
         throw new Error('Bad algorithm identifier. Does not begin with an OBJECT IDENTIFIER.');
     }
-    const algorithm = derObjectIdentifierValue(encodedAlgorithm.contents);
+    const algorithmOid = derObjectIdentifierValue(encodedAlgorithm.contents);
+    const algorithmName = parseOidToAlgorithmName(algorithmOid);
 
     return {
         asn1,
-        algorithm,
+        algorithmOid,
+        algorithmName,
         parameters: pieces.length === 2 ? { asn1: pieces[1] } : null,
     };
 };
