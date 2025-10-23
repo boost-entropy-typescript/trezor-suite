@@ -1570,9 +1570,9 @@ export default defineMessages({
         defaultMessage: "Enter {networkName} address that isn't in Trezor Suite.",
         id: 'TR_TRADING_RECEIVE_ADDRESS_ENTER_TEXT',
     },
-    TR_TRADING_RECEIVE_ADDRESS_NEW_ADDRESSES: {
-        defaultMessage: 'New addresses',
-        id: 'TR_TRADING_RECEIVE_ADDRESS_NEW_ADDRESSES',
+    TR_TRADING_RECEIVE_ADDRESS_NEW_ADDRESS: {
+        defaultMessage: 'New address',
+        id: 'TR_TRADING_RECEIVE_ADDRESS_NEW_ADDRESS',
     },
     TR_TRADING_RECEIVE_ADDRESS_USED_ADDRESSES: {
         defaultMessage: 'Used addresses',
@@ -9370,6 +9370,52 @@ export default defineMessages({
     TR_STAKING_CARD_TITLE: {
         id: 'TR_STAKING_CARD_TITLE',
         defaultMessage: 'Earn ~{apy}% APY by staking your {displaySymbol}',
+    },
+    TR_STAKING_NEW_PROVIDER_TITLE: {
+        id: 'TR_STAKING_NEW_PROVIDER_TITLE',
+        defaultMessage: 'Start earning rewards with Everstake',
+    },
+    TR_STAKING_NEW_PROVIDER_TEXT: {
+        id: 'TR_STAKING_NEW_PROVIDER_TEXT',
+        defaultMessage:
+            'Update to our new provider, Everstake, and earn ~{apy}% APY. Your {displaySymbol} with our previous provider is safe, and your rewards stay intact, though rates aren’t guaranteed.',
+    },
+    TR_STAKING_UPDATE_PROVIDER: {
+        id: 'TR_STAKING_UPDATE_PROVIDER',
+        defaultMessage: 'Update provider',
+    },
+    TR_STAKING_REWARDS_REMAIN_INTACT: {
+        id: 'TR_STAKING_REWARDS_REMAIN_INTACT',
+        defaultMessage: 'Your past rewards remain safe and intact.',
+    },
+    TR_STAKING_NEW_PROVIDER: {
+        id: 'TR_STAKING_NEW_PROVIDER',
+        defaultMessage: 'New provider',
+    },
+    TR_STAKING_DELEGATE_YOUR_VOTING_RIGHTS: {
+        id: 'TR_STAKING_DELEGATE_YOUR_VOTING_RIGHTS',
+        defaultMessage: 'Delegate your voting rights',
+    },
+    TR_STAKING_DELEGATE_TO_EVERSTAKE: {
+        id: 'TR_STAKING_DELEGATE_TO_EVERSTAKE',
+        defaultMessage: 'Delegate to Everstake',
+    },
+    TR_STAKING_DELEGATE_TO_ANOTHER_DREP: {
+        id: 'TR_STAKING_DELEGATE_TO_ANOTHER_DREP',
+        defaultMessage: 'Delegate to another DRep',
+    },
+    TR_STAKING_DELEGATION_INFO_TEXT: {
+        id: 'TR_STAKING_DELEGATION_INFO_TEXT',
+        defaultMessage:
+            "You can choose to support the Cardano ecosystem by delegating your community voting rights. This helps strengthen the network's resilience, sustainability, and community-driven governance. This has no effect on your staking.",
+    },
+    TR_STAKING_INVALID_DREP_ID: {
+        id: 'TR_STAKING_INVALID_DREP_ID',
+        defaultMessage: 'Invalid DRep ID',
+    },
+    TR_STAKING_DREP_ID: {
+        id: 'TR_STAKING_DREP_ID',
+        defaultMessage: 'DRep ID',
     },
     TR_STAKING_CARD_TEXT: {
         id: 'TR_STAKING_CARD_TEXT',

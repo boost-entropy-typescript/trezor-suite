@@ -1,17 +1,17 @@
-|             Package              | Stable |    Canary    |
-| :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.6.3  | 9.6.4-beta.1 |
-|     npm @trezor/connect-web      | 9.6.3  | 9.6.4-beta.1 |
-| npm @trezor/connect-webextension | 9.6.3  | 9.6.4-beta.1 |
-|    npm @trezor/connect-mobile    | 9.6.3  | 9.6.4-beta.1 |
+|             Package              | Stable | Canary |
+| :------------------------------: | :----: | :----: |
+|       npm @trezor/connect        | 9.6.4  |   -    |
+|     npm @trezor/connect-web      | 9.6.4  |   -    |
+| npm @trezor/connect-webextension | 9.6.4  |   -    |
+|    npm @trezor/connect-mobile    | 9.6.4  |   -    |
 
-|     Deployment     | Stable |    Canary    |
-| :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.6.3  | 9.6.4-beta.1 |
+|     Deployment     | Stable | Canary |
+| :----------------: | :----: | :----: |
+| connect.trezor.io/ | 9.6.4  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-# 9.6.4-beta.1
+# 9.6.4
 
 This release primarily introduces support for the new Trezor device and enhancements to the transport API, including a new API type:
 
