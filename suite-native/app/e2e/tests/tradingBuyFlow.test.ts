@@ -2,8 +2,8 @@ import { onboardingCompletedState } from '../fixtures/onboardingCompletedState';
 import { portfolioTrackerBtcAccountState } from '../fixtures/portfolioTrackerBtcAccountState';
 import { onHome } from '../pageObjects/homeActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
-import { tradingBuyActions } from '../pageObjects/tradingBuyActions';
-import { tradingHistoryActions } from '../pageObjects/tradingHistoryActions';
+import { tradingBuyActions } from '../pageObjects/trading/tradingBuyActions';
+import { tradingHistoryActions } from '../pageObjects/trading/tradingHistoryActions';
 import { openApp, preparePreloadedReduxState } from '../utils';
 
 const preloadedState = preparePreloadedReduxState(
@@ -20,7 +20,7 @@ describe('Trade Buy', () => {
     });
 
     it('Basic buy for 100 PLN flow', async () => {
-        await tradingBuyActions.selectAsset('BTC');
+        await tradingBuyActions.selectReceiveAsset('BTC');
         await tradingBuyActions.selectBtcReceiveAccount('BTC SegWit', "m/84'/0'/0'/0/0");
         await tradingBuyActions.selectFiatCurrency('PLN');
         await tradingBuyActions.selectCountry('Polan', '🇵🇱 Poland');
@@ -29,9 +29,12 @@ describe('Trade Buy', () => {
         await tradingBuyActions.scrollScreenToBottom();
         await tradingBuyActions.viewPaymentMethods();
         await tradingBuyActions.viewProviders();
-
         await tradingBuyActions.expectValidBuyForm();
-        await tradingBuyActions.confirmBuyForm();
+
+        await tradingBuyActions.openLegalSheet();
+        await tradingBuyActions.closeBottomSheet();
+        await tradingBuyActions.expectValidBuyForm();
+        await tradingBuyActions.confirmTradingForm();
         await tradingBuyActions.closePaymentWebview();
 
         await tradingHistoryActions.openTradeHistory();
