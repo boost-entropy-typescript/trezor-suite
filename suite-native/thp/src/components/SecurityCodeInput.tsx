@@ -1,45 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, TextInput } from 'react-native';
+import { Pressable, TextInput } from 'react-native';
 
-import { Box, HStack, Text } from '@suite-native/atoms';
+import { HStack } from '@suite-native/atoms';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
-type DigitBoxProps = {
-    value?: string;
-    isFocused: boolean;
-};
-
-const digitBoxStyle = prepareNativeStyle<{ isFocused: boolean }>(
-    ({ colors, borders }, { isFocused }) => ({
-        margin: isFocused ? 0 : borders.widths.small,
-        borderColor: isFocused ? colors.borderInputFocus : colors.borderInputDefault,
-        borderWidth: isFocused ? borders.widths.large : borders.widths.small,
-        borderRadius: borders.radii.r12,
-        backgroundColor: colors.backgroundNeutralSubtleOnElevation0,
-        justifyContent: 'center',
-    }),
-);
-
-const digitStyle = prepareNativeStyle(utils => ({
-    width: 48,
-    height: 56,
-    ...utils.typography.titleMedium,
-    // TODO: Is there a better way?
-    lineHeight: Platform.OS === 'ios' ? 62 : 56, // centers the digit vertically
-    letterSpacing: 0, // fixes slight horizontal offset from the center
-    textAlign: 'center',
-    color: utils.colors.textDefault,
-}));
-
-const DigitBox = ({ value, isFocused }: DigitBoxProps) => {
-    const { applyStyle } = useNativeStyles();
-
-    return (
-        <Box style={applyStyle(digitBoxStyle, { isFocused })}>
-            <Text style={applyStyle(digitStyle)}>{value}</Text>
-        </Box>
-    );
-};
+import { DigitBox } from './DigitBox';
 
 type SecurityCodeInputProps = {
     length: number;
@@ -97,6 +62,7 @@ export const SecurityCodeInput = ({ length, onSubmit }: SecurityCodeInputProps) 
                 onBlur={() => setIsFocused(false)}
                 onKeyPress={e => onKeyPress(e.nativeEvent.key)}
                 style={applyStyle(textInputStyle)}
+                testID="@thpSecurityCode/Input"
             />
             <HStack justifyContent="center" alignItems="center">
                 {Array.from({ length }).map((_, i) => (

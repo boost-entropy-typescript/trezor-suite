@@ -4,14 +4,14 @@ import { onHome } from '../pageObjects/homeActions';
 import { onTabBar } from '../pageObjects/tabBarActions';
 import { tradingBuyActions } from '../pageObjects/trading/tradingBuyActions';
 import { tradingHistoryActions } from '../pageObjects/trading/tradingHistoryActions';
-import { openApp, preparePreloadedReduxState } from '../utils';
+import { openApp, preparePreloadedReduxState } from '../support/setup';
 
 const preloadedState = preparePreloadedReduxState(
     portfolioTrackerBtcAccountState,
     onboardingCompletedState,
 );
 
-describe('Trade Buy', () => {
+describe('Trade Buy [@noDevice]', () => {
     beforeEach(async () => {
         await openApp({ args: { preloadedState } });
         await onHome.assertIsPortfolioGraphVisible();
