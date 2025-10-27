@@ -3,10 +3,10 @@ import { useBluetoothAdapter } from '@suite-native/bluetooth';
 import {
     useDetectDeviceError,
     useDeviceCompromisedNotification,
-    useHandleDeviceConnection,
     useRenderDeviceDangerBanner,
     useRetryFwAuthenticityChecks,
 } from '@suite-native/device';
+import { useHandleDeviceAuthorization } from '@suite-native/device-authorization';
 import { useConnectPopupNavigation } from '@suite-native/module-connect-popup';
 
 /**
@@ -18,8 +18,8 @@ export const useGlobalHooks = () => {
 
     useBluetoothAdapter();
 
-    useHandleDeviceConnection();
     useDetectDeviceError();
+    useHandleDeviceAuthorization();
     useReportDeviceCompromised();
     useRenderDeviceDangerBanner();
     useDeviceCompromisedNotification();
