@@ -1,8 +1,8 @@
 export type ImageType = keyof typeof IMAGES;
 
 export const IMAGES = {
-    APP_STORE_BADGE: 'app-store-badge.svg',
-    APP_STORE_TITLE: 'app-store-title.svg',
+    APP_STORE: 'app-store.svg',
+    BRIDGE_CHECK_TREZOR_T2T1: 'bridge-check-trezor-t2t1.svg',
     CONFIRM_EVM_EXPLANATION_ETH: 'confirm-evm-explanation-eth.svg',
     CONFIRM_EVM_EXPLANATION_OTHER: 'confirm-evm-explanation-other.svg',
     CONFIRM_FW_INSTALLATION_SCREEN_T1B1: 'confirm-fw-installation-screen-t1b1.png',
@@ -16,8 +16,8 @@ export const IMAGES = {
     GAINS_GRAPH: 'gains-graph.svg',
     GHOST: 'ghost.svg',
     INVITY_LOGO: 'invity-logo.svg',
-    PLAY_STORE_BADGE: 'play-store-badge.svg',
-    PLAY_STORE_TITLE: 'play-store-title.svg',
+    PLAY_STORE: 'play-store.svg',
+    SPINNER: 'spinner.svg',
     STROKE_BORDER: 'stroke-border.svg',
     TOUCH: 'touch.webp',
     TRADING_DCA_INVITY_APP: 'trading-dca-invity-app.webp',
@@ -60,6 +60,9 @@ export const IMAGES = {
     TREZOR_T3T1_ON_CONNECT: 't3t1/t3t1-on-large.webp',
     TREZOR_T3W1: 't3w1/t3w1.png',
     TREZOR_T3W1_2x: 't3w1/t3w1@2x.png',
+    TREZOR_T3W1_BACKCOLOR_1: 't3w1/t3w1-backcolor-1.webp',
+    TREZOR_T3W1_BACKCOLOR_2: 't3w1/t3w1-backcolor-2.webp',
+    TREZOR_T3W1_BACKCOLOR_3: 't3w1/t3w1-backcolor-3.webp',
     TREZOR_T3W1_FRONTCOLOR_2_LARGE: 't3w1/t3w1-frontcolor-2-large.webp',
     TREZOR_T3W1_FRONTCOLOR_2_LARGE_2x: 't3w1/t3w1-frontcolor-2-large@2x.webp',
     TREZOR_T3W1_HOLOGRAM: 't3w1/t3w1-hologram.webp',
