@@ -1,0 +1,20 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": { "outDir": "libDev" },
+    "references": [
+        { "path": "../../suite-common/trading" },
+        {
+            "path": "../../suite-common/validators"
+        },
+        { "path": "../analytics" },
+        { "path": "../atoms" },
+        { "path": "../feature-flags" },
+        { "path": "../forms" },
+        { "path": "../icons" },
+        { "path": "../intl" },
+        { "path": "../navigation" },
+        { "path": "../trading-atoms" },
+        { "path": "../../packages/styles" },
+        { "path": "../test-utils" }
+    ]
+}

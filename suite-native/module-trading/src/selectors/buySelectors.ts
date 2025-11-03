@@ -15,6 +15,7 @@ import {
     selectValidTradingBuyQuotes,
 } from '@suite-common/trading';
 import { selectAccountByKey } from '@suite-common/wallet-core';
+import { selectTradingResidenceCountry } from '@suite-native/trading-residence';
 
 import {
     TradingRootState,
@@ -25,10 +26,7 @@ import { BuyFormValues } from '../types/buy';
 import { FiatCurrencyItem } from '../types/general';
 import { getCurrencyLabel } from '../utils/general/currencyUtils';
 import { getReceiveAccountFromAccountAndAddressString } from '../utils/general/receiveAccountUtils';
-import {
-    coinInfoToTradeableAsset,
-    tradeableAssetSortingComparator,
-} from '../utils/general/tradeableAssetUtils';
+import { coinInfoToTradeableAsset } from '../utils/general/tradeableAssetUtils';
 
 const DEFAULT_FIAT_CURRENCY_FALLBACK = 'USD';
 
@@ -51,7 +49,7 @@ export const selectBuySelectedReceiveAccount = createMemoizedSelectorWithAccount
 export const selectBuySupportedFiatCurrencies = (state: TradingRootState) =>
     returnStableArrayIfEmpty(selectTradingBuy(state).buyInfo?.supportedFiatCurrencies);
 
-export const selectBuyTradeableAssetsSorted = createMemoizedSelector(
+export const selectBuyTradeableAssets = createMemoizedSelector(
     [
         selectTradingBuySupportedCryptoIds as unknown as (
             state: TradingRootState,
@@ -63,9 +61,7 @@ export const selectBuyTradeableAssetsSorted = createMemoizedSelector(
             return [];
         }
 
-        return cryptoIds
-            .map(cryptoId => coinInfoToTradeableAsset(cryptoId, coins[cryptoId]))
-            .sort(tradeableAssetSortingComparator);
+        return cryptoIds.map(cryptoId => coinInfoToTradeableAsset(cryptoId, coins[cryptoId]));
     },
 );
 
@@ -75,14 +71,15 @@ export const selectBuyFormDefaultValues = createMemoizedSelector(
             state: TradingRootState,
         ) => ReturnType<typeof selectTradingBuyInfo>,
         ({ wallet }) => wallet.trading.info.coins,
+        selectTradingResidenceCountry,
     ],
-    (buyInfo, coins) => {
+    (buyInfo, coins, residenceCountry) => {
         if (!buyInfo || !coins) {
             return {} as Partial<BuyFormValues>;
         }
 
         const { suggestedFiatCurrency } = buyInfo.buyInfo;
-        const country = buyInfo.buyInfo.country as TradingCountryCode;
+        const country = residenceCountry ?? (buyInfo.buyInfo.country as TradingCountryCode);
 
         const fiatCurrency = suggestedFiatCurrency || DEFAULT_FIAT_CURRENCY_FALLBACK;
         const countryDefaultValue =

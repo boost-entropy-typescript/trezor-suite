@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import type { BuyTrade, CryptoId } from 'invity-api';
+import type { BuyTrade } from 'invity-api';
 
 import { AccountsRootState } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
@@ -17,22 +17,19 @@ import {
     selectBuySelectedReceiveAccount,
     selectBuySupportedFiatCurrencies,
     selectBuySupportedFiatCurrenciesList,
-    selectBuyTradeableAssetsSorted,
+    selectBuyTradeableAssets,
     selectTradingBuy,
     selectValidTradingBuyQuotesNative,
 } from '../buySelectors';
-
-jest.mock('react-native', () => ({
-    Platform: {
-        OS: 'ios',
-        select: jest.fn(specifics => specifics.ios ?? specifics.default),
-    },
-}));
 
 describe('buySelectors', () => {
     let state: TradingRootState & AccountsRootState;
 
     beforeEach(() => {
+        Platform.OS = 'ios';
+        jest.spyOn(Platform, 'select').mockImplementation(
+            (specifics: any) => specifics.ios ?? specifics.default,
+        );
         state = { wallet: getWalletState() };
     });
 
@@ -77,45 +74,23 @@ describe('buySelectors', () => {
         });
     });
 
-    describe('selectBuyTradeableAssetsSorted', () => {
+    describe('selectBuyTradeableAssets', () => {
         it('should select only coins with buy set to true', () => {
-            expect(selectBuyTradeableAssetsSorted(state)).toEqual([
-                expect.objectContaining({ cryptoId: 'bitcoin' }),
-                expect.objectContaining({ cryptoId: 'ethereum' }),
-                expect.objectContaining({
-                    cryptoId: 'base--0x0000000000000000000000000000000000000000',
-                }),
+            expect(selectBuyTradeableAssets(state)).toEqual([
                 expect.objectContaining({
                     cryptoId: 'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                 }),
-            ]);
-        });
-
-        it('should sort coins', () => {
-            state.wallet.trading.buy.buyInfo!.supportedCryptoCurrencies = [
-                'bitcoin',
-                'ethereum',
-                'eos',
-                'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-                'base--0x0000000000000000000000000000000000000000',
-                'ethereum--0xWithoutObjectInCoinsInfo',
-            ] as CryptoId[];
-
-            expect(selectBuyTradeableAssetsSorted(state)).toEqual([
-                expect.objectContaining({ cryptoId: 'bitcoin' }),
-                expect.objectContaining({ cryptoId: 'ethereum' }),
                 expect.objectContaining({
                     cryptoId: 'base--0x0000000000000000000000000000000000000000',
                 }),
-                expect.objectContaining({
-                    cryptoId: 'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-                }),
+                expect.objectContaining({ cryptoId: 'ethereum' }),
+                expect.objectContaining({ cryptoId: 'bitcoin' }),
             ]);
         });
 
         it('should be stable', () => {
-            const first = selectBuyTradeableAssetsSorted(state);
-            const second = selectBuyTradeableAssetsSorted(state);
+            const first = selectBuyTradeableAssets(state);
+            const second = selectBuyTradeableAssets(state);
 
             expect(first).toBe(second);
         });
@@ -123,7 +98,7 @@ describe('buySelectors', () => {
         it('should be empty array when coins are not set', () => {
             state.wallet.trading.info.coins = undefined;
 
-            expect(selectBuyTradeableAssetsSorted(state)).toEqual([]);
+            expect(selectBuyTradeableAssets(state)).toEqual([]);
         });
     });
 
@@ -143,6 +118,19 @@ describe('buySelectors', () => {
                 },
                 amountInCrypto: false,
             });
+        });
+
+        it('should respect residence settings', () => {
+            state.wallet.trading.residence.country = 'DE';
+
+            expect(selectBuyFormDefaultValues(state)).toEqual(
+                expect.objectContaining({
+                    country: {
+                        label: '🇩🇪 Germany',
+                        value: 'DE',
+                    },
+                }),
+            );
         });
 
         it('should use default value for fiat currency if no fiat is suggested', () => {
@@ -274,21 +262,12 @@ describe('buySelectors', () => {
         });
 
         describe('on android device', () => {
-            beforeAll(() => {
+            it('should ignore applePay', () => {
                 Platform.OS = 'android';
                 (Platform.select as jest.Mock).mockImplementation(
                     specifics => specifics.android ?? specifics.default,
                 );
-            });
 
-            afterAll(() => {
-                Platform.OS = 'ios';
-                (Platform.select as jest.Mock).mockImplementation(
-                    specifics => specifics.ios ?? specifics.default,
-                );
-            });
-
-            it('should ignore applePay', () => {
                 expect(selectValidTradingBuyQuotesNative(state)).toEqual([
                     expect.objectContaining({ orderId: 'order_id_1' }),
                     expect.objectContaining({ orderId: 'order_id_3' }),

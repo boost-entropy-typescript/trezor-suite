@@ -1,0 +1,20 @@
+/**
+ * Jest configuration for native packages.
+ * Keeping this file next to the package.json file instead of providing configuration
+ * with `-c ../../jest.config.native` option in package.json scripts
+ * allows us to run jest tests directly from IDEs.
+ */
+const baseConfig = require('../../jest.config.native');
+
+module.exports = {
+    ...baseConfig,
+    workerIdleMemoryLimit: '1024MB',
+    coverageThreshold: {
+        global: {
+            statements: 80,
+            branches: 80,
+            functions: 80,
+            lines: 80,
+        },
+    },
+};

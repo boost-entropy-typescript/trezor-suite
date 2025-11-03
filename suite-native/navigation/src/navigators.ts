@@ -80,6 +80,7 @@ export type SettingsStackParamList = {
     [SettingsStackRoutes.SettingsDeviceChecks]: undefined;
     [SettingsStackRoutes.TurnOffDeviceAuthenticityCheck]: undefined;
     [SettingsStackRoutes.TurnOffFirmwareAuthenticityCheck]: undefined;
+    [SettingsStackRoutes.SettingsTradingLocation]: undefined;
 };
 
 export type ReceiveStackParamList = {
@@ -133,6 +134,7 @@ export type OnboardingStackParamList = {
     [OnboardingStackRoutes.Welcome]: undefined;
     [OnboardingStackRoutes.AnalyticsConsent]: undefined;
     [OnboardingStackRoutes.Biometrics]: undefined;
+    [OnboardingStackRoutes.TradingLocation]: undefined;
 };
 
 export type DeviceOnboardingStackParamList = {
@@ -336,6 +338,7 @@ export type RootStackParamList = {
         orderId?: string;
     };
     [RootStackRoutes.BootloaderMode]: undefined;
+    [RootStackRoutes.TradingLocationModal]: undefined;
 };
 
 export type TradingStackParamList = {

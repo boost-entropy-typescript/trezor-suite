@@ -9323,6 +9323,10 @@ export default defineMessages({
         defaultMessage:
             'Stake your balance and earn ~{potentialRewards} {displaySymbol} yearly at the current APY.',
     },
+    TR_STAKING_EARN_APY_WITH_EVERSTAKE: {
+        id: 'TR_STAKING_EARN_APY_WITH_EVERSTAKE',
+        defaultMessage: 'Earn ~{apy}% APY with our trusted new staking partner, Everstake.',
+    },
     TR_STAKING_BANNER_DETAIL_TEXT_EMPTY: {
         id: 'TR_STAKING_BANNER_DETAIL_TEXT_EMPTY',
         defaultMessage: 'Make your {displaySymbol} work for you. Start staking to earn rewards.',
@@ -9481,6 +9485,10 @@ export default defineMessages({
         id: 'TR_STAKE_ENTER_ACTIVATION_PERIOD',
         defaultMessage: 'Enter activation period',
     },
+    TR_STAKE_KEEP_EARNING_REWARDS_WITH_CURRENT_PROVIDER: {
+        id: 'TR_STAKE_KEEP_EARNING_REWARDS_WITH_CURRENT_PROVIDER',
+        defaultMessage: 'Keep earning rewards with your current provider for ~{days} days',
+    },
     TR_STAKE_ACTIVATION_PERIOD: {
         id: 'TR_STAKE_ACTIVATION_PERIOD',
         defaultMessage: 'Activation period',
@@ -9501,6 +9509,10 @@ export default defineMessages({
         id: 'TR_STAKE_TIME_TO_START_EARNING',
         defaultMessage: 'Time it takes before you start earning rewards',
     },
+    TR_STAKE_START_EARNING_FROM_NEW_PROVIDER: {
+        id: 'TR_STAKE_START_EARNING_FROM_NEW_PROVIDER',
+        defaultMessage: 'Start earning rewards from your new provider',
+    },
     TR_STAKE_APY_APPROX: {
         id: 'TR_STAKE_APY_APPROX',
         defaultMessage: '~{apyPercent}% APY',
@@ -9516,6 +9528,10 @@ export default defineMessages({
     TR_STAKE_STAKING_PROCESS: {
         id: 'TR_STAKE_STAKING_PROCESS',
         defaultMessage: 'Staking process',
+    },
+    TR_STAKE_PROVIDER_UPDATE: {
+        id: 'TR_STAKE_PROVIDER_UPDATE',
+        defaultMessage: 'Provider update',
     },
     TR_STAKE_UNSTAKING_PROCESS: {
         id: 'TR_STAKE_UNSTAKING_PROCESS',
@@ -9673,6 +9689,18 @@ export default defineMessages({
         id: 'TR_STAKE_ACTIVE_STAKE',
         defaultMessage: 'Active stake',
     },
+    TR_STAKE_STAKED_AUTOMATICALLY: {
+        id: 'TR_STAKE_STAKED_AUTOMATICALLY',
+        defaultMessage: 'Staked automatically',
+    },
+    TR_STAKE_FULL_BALANCE: {
+        id: 'TR_STAKE_FULL_BALANCE',
+        defaultMessage: 'Full balance',
+    },
+    TR_STAKE_FUNDS_FULLY_ACCESSIBLE: {
+        id: 'TR_STAKE_FUNDS_FULLY_ACCESSIBLE',
+        defaultMessage: 'Your {networkDisplaySymbol} stays fully accessible while earning rewards.',
+    },
     TR_STAKE_UNSTAKE: {
         id: 'TR_STAKE_UNSTAKE',
         defaultMessage: 'Unstake',
@@ -9724,6 +9752,10 @@ export default defineMessages({
     TR_STAKE_APPROXIMATE_DAYS: {
         id: 'TR_STAKE_APPROXIMATE_DAYS',
         defaultMessage: '~{count, plural, one {# day} other {# days}}',
+    },
+    TR_STAKE_APPROXIMATE_EPOCHS: {
+        id: 'TR_STAKE_APPROXIMATE_EPOCHS',
+        defaultMessage: '{count, plural, one {# epoch} other {# epochs}}',
     },
     TR_STAKE_MAX_REWARD_DAYS: {
         id: 'TR_STAKE_MAX_REWARD_DAYS',

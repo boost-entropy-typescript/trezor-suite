@@ -23,6 +23,7 @@ export enum RootStackRoutes {
     BackupFailedModal = 'BackupFailedModal',
     TradingWebView = 'TradingWebView',
     BootloaderMode = 'BootloaderMode',
+    TradingLocationModal = 'TradingLocationModal',
 }
 
 export enum AppTabsRoutes {
@@ -36,6 +37,7 @@ export enum OnboardingStackRoutes {
     Welcome = 'Welcome',
     AnalyticsConsent = 'AnalyticsConsent',
     Biometrics = 'Biometrics',
+    TradingLocation = 'TradingLocation',
 }
 
 export enum DeviceOnboardingStackRoutes {
@@ -198,6 +200,7 @@ export enum SettingsStackRoutes {
     SettingsDeviceChecks = 'SettingsDeviceChecks',
     TurnOffDeviceAuthenticityCheck = 'TurnOffDeviceAuthenticityCheck',
     TurnOffFirmwareAuthenticityCheck = 'TurnOffFirmwareAuthenticityCheck',
+    SettingsTradingLocation = 'SettingsTradingLocation',
 }
 
 export enum TradingStackRoutes {
