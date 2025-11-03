@@ -365,7 +365,7 @@ export const networks = {
         bip43Path: "m/44'/61'/0'/0/i",
         decimals: 18,
         testnet: false,
-        explorer: getExplorerUrls('https://etc1.trezor.io', 'ethereum'),
+        explorer: getExplorerUrls('https://etc.trezor.io', 'ethereum'),
         features: ['sign-verify', 'tokens', 'coin-definitions', 'graph'],
         backendTypes: ['blockbook'],
         accountTypes: {},
@@ -678,3 +678,29 @@ export const networks = {
 } as const satisfies Networks;
 
 export type NetworkDisplaySymbol = (typeof networks)[keyof typeof networks]['displaySymbol'];
+
+type NetworksConfig = typeof networks;
+
+export type StakingNetworkSymbol = {
+    [S in keyof NetworksConfig]: 'staking' extends NetworksConfig[S]['features'][number]
+        ? S
+        : never;
+}[keyof NetworksConfig];
+
+export type StakingNetworkType = NetworksConfig[StakingNetworkSymbol]['networkType'];
+
+export const [STAKING_SYMBOLS, STAKING_TYPES] = (
+    Object.entries(networks) as Array<[keyof NetworksConfig, NetworksConfig[keyof NetworksConfig]]>
+).reduce<[StakingNetworkSymbol[], StakingNetworkType[]]>(
+    (acc, [symbol, { features, networkType }]) => {
+        if ((features as readonly string[]).includes('staking')) {
+            acc[0].push(symbol as StakingNetworkSymbol);
+
+            const t = networkType as StakingNetworkType;
+            if (!acc[1].includes(t)) acc[1].push(t);
+        }
+
+        return acc;
+    },
+    [[], []],
+) as readonly [readonly StakingNetworkSymbol[], readonly StakingNetworkType[]];

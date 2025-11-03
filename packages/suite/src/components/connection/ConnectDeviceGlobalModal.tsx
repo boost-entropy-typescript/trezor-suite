@@ -5,12 +5,16 @@ import { Box, Button, Column, Modal, Row, Spinner, Text } from '@trezor/componen
 import { isDesktop } from '@trezor/env-utils';
 import { borders } from '@trezor/theme';
 
-import { selectIsUnpairingDevice } from 'src/actions/bluetooth/desktopBluetoothSelectors';
+import {
+    selectIsManualPairingRequired,
+    selectIsUnpairingDevice,
+} from 'src/actions/bluetooth/desktopBluetoothSelectors';
 import { Translation } from 'src/components/suite/Translation';
 import { useSelector } from 'src/hooks/suite';
 
 import { BluetoothAdapterStatusModal } from './BluetoothAdapterStatusModal';
 import { BluetoothConnectionModal } from './BluetoothConnectionModal';
+import { BluetoothManualPairingModal } from './BluetoothManualPairingModal';
 import { CantSeeTrezorModal } from './CantSeeTrezorModal';
 import { CableConnectionAnimation } from './DeviceConnectionAnimation';
 import { useConnectionGlobalModalContext } from './context/ConnectionGlobalModalContext';
@@ -73,17 +77,23 @@ export const ConnectDeviceGlobalModal = ({ onCancel }: { onCancel: () => void })
         shouldShowBluetoothUnPairDeviceList,
         notConnectedKnownDevices,
         notConnectedNearbyDevices,
+        manuallyPairedConnectedDevices,
         showRemoveFromOsBluetooth,
         closeShowRemoveFromOsBluetooth,
         selectedDevice,
     } = useConnectionGlobalModalContext();
 
+    const isManualPairingRequired = useSelector(selectIsManualPairingRequired);
     const wasBluetoothDeviceWiped = useSelector(selectIsDeviceOsUnpairingRequired);
     const isUnpairingDevice = useSelector(selectIsUnpairingDevice);
 
     const bluetoothAdapterStatus = useSelector(selectAdapterStatus);
 
     if (wasBluetoothDeviceWiped || isUnpairingDevice) return null;
+
+    if (isBluetoothMode && isManualPairingRequired) {
+        return <BluetoothManualPairingModal onCancel={onCancel} />;
+    }
 
     if (showHints) {
         return <CantSeeTrezorModal onClose={onCancel} />;
@@ -123,8 +133,12 @@ export const ConnectDeviceGlobalModal = ({ onCancel }: { onCancel: () => void })
         );
     }
 
-    // there are nearby devices, show the list and let user connect
-    if (isBluetoothMode && (notConnectedNearbyDevices.length > 0 || selectedDevice)) {
+    // there are nearby devices which can be selected to proceed, show the list and let user connect
+    const areConnectableDevices =
+        selectedDevice ||
+        notConnectedNearbyDevices.length > 0 ||
+        manuallyPairedConnectedDevices.length > 0;
+    if (isBluetoothMode && areConnectableDevices) {
         return <BluetoothConnectionModal onClose={onCancel} />;
     }
 

@@ -6457,6 +6457,22 @@ export default defineMessages({
         id: 'TR_LABELING_REMOVE_OUTPUT',
         defaultMessage: 'Remove label',
     },
+    TR_LABELING_ON: {
+        id: 'TR_LABELING_ON',
+        defaultMessage: 'On',
+    },
+    TR_LABELING_OFF: {
+        id: 'TR_LABELING_OFF',
+        defaultMessage: 'Off',
+    },
+    TR_LABELING_LEGACY: {
+        id: 'TR_LABELING_LEGACY',
+        defaultMessage: 'Legacy',
+    },
+    TR_LABELING_SECURE_SYNC: {
+        id: 'TR_LABELING_SECURE_SYNC',
+        defaultMessage: 'Secure Sync (recommended)',
+    },
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',
         defaultMessage:
@@ -10318,6 +10334,19 @@ export default defineMessages({
         id: 'TR_BLUETOOTH_MANUAL_PAIR_DEVICE_GUIDE_DESCRIPTION',
         defaultMessage: "Go to your Trezor's Menu > Pair & Connect > Pair new device",
         description: 'Displayed as hints of bluetooth connection in connect modal',
+    },
+    TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING: {
+        id: 'TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING',
+        defaultMessage: 'Your Trezor needs to be paired manually',
+    },
+    TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING_TEXT: {
+        id: 'TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING_TEXT',
+        defaultMessage:
+            'Your system does not support automatic pairing via Trezor Suite. Please open your System Bluetooth Settings, find your Trezor device and pair it there.',
+    },
+    TR_DONE: {
+        id: 'TR_DONE',
+        defaultMessage: 'Done',
     },
     TR_ALLOW_BLUETOOTH_CTA: {
         id: 'TR_ALLOW_BLUETOOTH_CTA',

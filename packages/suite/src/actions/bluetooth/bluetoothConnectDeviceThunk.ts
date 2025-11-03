@@ -6,6 +6,7 @@ import { desktopApi } from '@trezor/suite-desktop-api';
 import { bluetoothIpc } from '@trezor/transport-bluetooth';
 
 import {
+    setBluetoothDeviceNeedsManualPairing,
     startConnectingBluetoothDevice,
     stopConnectingBluetoothDevice,
 } from './desktopBluetoothReducer';
@@ -30,6 +31,14 @@ export const bluetoothConnectDeviceThunk = createThunk<
         desktopApi.appFocus();
 
         if (!result.success) {
+            // handling for this error: https://github.com/trezor/trezor-suite/blob/837cdf89c70cca80fd5dabb910e9a8509de7c3b1/packages/transport-bluetooth/src/server/platform/linux.rs#L253
+            if (result.error === 'BluetoothSettingsMissing') {
+                dispatch(stopConnectingBluetoothDevice({ deviceId }));
+                dispatch(setBluetoothDeviceNeedsManualPairing(true));
+
+                return fulfillWithValue({ success: result.success });
+            }
+
             // This can fail, but we are silent about this as the device may not be there anymore
             await bluetoothIpc.disconnectDevice(deviceId);
 
