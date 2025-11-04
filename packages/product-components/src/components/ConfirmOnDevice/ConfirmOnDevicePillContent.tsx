@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 import styled, { css } from 'styled-components';
 
-import { Column, IconButton, Row, Text } from '@trezor/components';
+import { Column, NewIconButton, Row, Text } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { borders, spacings, spacingsPx } from '@trezor/theme';
 
@@ -55,12 +55,12 @@ export const ConfirmOnDevicePillContent = ({
     const hasSteps = steps && activeStep !== undefined;
 
     return (
-        <Row gap={spacings.xl}>
+        <Row gap={16}>
             <RotateDeviceImage
                 deviceModel={deviceModelInternal}
                 deviceColor={deviceUnitColor}
-                height={34}
-                maxWidth={30}
+                height={28}
+                width={28}
             />
 
             <Column alignItems="center">
@@ -92,11 +92,12 @@ export const ConfirmOnDevicePillContent = ({
             </Column>
 
             {onCancel && (
-                <IconButton
+                <NewIconButton
                     icon="x"
                     onClick={onCancel}
                     data-testid="@confirm-on-device/close-button"
-                    variant="tertiary"
+                    intent="neutral"
+                    priority="secondary"
                     size="small"
                 />
             )}

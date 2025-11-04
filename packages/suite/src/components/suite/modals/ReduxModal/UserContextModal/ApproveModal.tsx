@@ -70,15 +70,10 @@ export const ApproveModal = ({
         confirmApproval,
         sendTransaction,
         preselectedQuote,
-        control,
         feeInfo,
         composedLevels,
-        formState: { errors, isDirty },
-        register,
         setValue,
-        getValues,
         changeFeeLevel,
-        trigger,
         fetchFeesAndCompose,
         tradingReceiveAddress,
     } = context;
@@ -234,7 +229,6 @@ export const ApproveModal = ({
                 <>
                     {selectedQuote.status === 'APPROVAL_REQ' && (
                         <Modal.Button
-                            size="medium"
                             isLoading={isFormLoading || isConfirmButtonLoading}
                             isDisabled={!device?.connected}
                             onClick={confirmAndSend}
@@ -245,7 +239,6 @@ export const ApproveModal = ({
 
                     {selectedQuote.status === 'ERROR' && (
                         <Modal.Button
-                            size="medium"
                             isLoading={isFormLoading}
                             isDisabled={!device?.connected || isFormLoading}
                             onClick={onRefreshClick}
@@ -254,7 +247,7 @@ export const ApproveModal = ({
                         </Modal.Button>
                     )}
 
-                    <Modal.Button size="medium" variant="tertiary" onClick={() => onClose()}>
+                    <Modal.Button intent="neutral" priority="secondary" onClick={() => onClose()}>
                         <Translation id="TR_CANCEL" />
                     </Modal.Button>
                 </>
@@ -269,6 +262,8 @@ export const ApproveModal = ({
                     />
                 </Row>
             }
+            // Disable shadow bottom to make `Fees` component fully visible
+            shadowBottom={false}
         >
             <Column gap={spacings.sm}>
                 <Box
@@ -382,17 +377,10 @@ export const ApproveModal = ({
                 >
                     <Fees
                         label="TR_TX_FEE"
-                        control={control}
                         feeInfo={feeInfo}
                         account={account}
                         composedLevels={composedLevels}
-                        errors={errors}
-                        isDirty={isDirty}
-                        register={register}
-                        setValue={setValue}
-                        getValues={getValues}
                         changeFeeLevel={changeFeeLevel}
-                        trigger={trigger}
                     />
                 </Box>
             </Column>

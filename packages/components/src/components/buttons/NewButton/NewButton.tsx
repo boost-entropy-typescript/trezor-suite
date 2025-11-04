@@ -43,7 +43,7 @@ type ButtonContainerProps = TransientProps<AllowedNewButtonFrameProps> & {
     $priority: NewButtonPriority;
     $intent: NewButtonIntent;
     $isInverse: boolean;
-    disabled: boolean;
+    $isDisabled: boolean;
 };
 
 const Container = styled.button<ButtonContainerProps>`
@@ -51,8 +51,8 @@ const Container = styled.button<ButtonContainerProps>`
 
     border-radius: ${({ $size }) => mapSizeToBorderRadius($size)};
 
-    ${({ $intent, $priority, disabled, $isInverse, theme }) =>
-        mapPropsToCSS($intent, $priority, disabled, $isInverse, theme)}
+    ${({ $intent, $priority, $isDisabled, $isInverse, theme }) =>
+        mapPropsToCSS($intent, $priority, $isDisabled, $isInverse, theme)}
 
     ${withFrameProps}
 `;
@@ -83,6 +83,7 @@ export type NewButtonProps = SelectedHTMLButtonProps &
         intent?: NewButtonIntent;
         priority?: NewButtonPriority;
         shortcut?: string[];
+        className?: string;
     };
 
 export const NewButton = ({
@@ -102,6 +103,8 @@ export const NewButton = ({
     target,
     type = 'button',
     priority = 'primary',
+    // TODO: remove className
+    className,
     ...rest
 }: NewButtonProps) => {
     const theme = useTheme();
@@ -118,9 +121,10 @@ export const NewButton = ({
         <Container
             as={isLink ? 'a' : 'button'}
             data-testid={dataTestId}
-            disabled={isDisabled}
+            $isDisabled={isDisabled}
+            disabled={isDisabled || isLoading}
             href={href}
-            onClick={onClick}
+            onClick={isDisabled || isLoading ? undefined : onClick}
             tabIndex={tabIndex}
             target={target}
             type={type}
@@ -128,6 +132,7 @@ export const NewButton = ({
             $priority={priority}
             $intent={intent}
             $isInverse={isInverse}
+            className={className}
             {...frameProps}
         >
             <Row
@@ -135,6 +140,7 @@ export const NewButton = ({
                 padding={mapSizeToPadding(size)}
                 justifyContent="center"
                 overflow="hidden"
+                width="100%"
             >
                 {isLoading && (
                     <Spinner

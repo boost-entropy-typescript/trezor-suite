@@ -5,12 +5,13 @@ import { AcquiredDevice } from '@suite-common/suite-types';
 import { getConnectedDeviceStatus } from '@suite-common/suite-utils';
 import { deviceActions, selectDevices, selectSelectedDevice } from '@suite-common/wallet-core';
 import {
-    Button,
     Card,
     Column,
     Divider,
     H3,
     Icon,
+    NewButton,
+    Note,
     Paragraph,
     Row,
     Text,
@@ -18,7 +19,7 @@ import {
     Tooltip,
 } from '@trezor/components';
 import { models } from '@trezor/device-utils';
-import { spacings } from '@trezor/theme';
+import { breakpoints, spacings } from '@trezor/theme';
 import {
     TREZOR_RESELLERS_URL,
     TREZOR_SUPPORT_FW_ALREADY_INSTALLED,
@@ -40,6 +41,7 @@ import { selectSuiteFlags } from 'src/selectors/suite/suiteSelectors';
 
 import { SecurityChecklist } from './SecurityChecklist';
 import { SecurityChecklistItem } from './types';
+import { useResponsiveContext } from '../../../../support/suite/ResponsiveContext';
 
 import { DeviceAuthenticityStep } from './index';
 
@@ -99,6 +101,28 @@ const getNoFirmwareChecklist = (isBelowTablet: boolean) =>
         },
     ] as const satisfies SecurityChecklistItem[];
 
+type ButtonFlexProps = {
+    isContentSmall: boolean;
+    children: React.ReactNode;
+};
+
+const ButtonFlex = ({ isContentSmall, children }: ButtonFlexProps) => {
+    const Component = isContentSmall ? Column : Row;
+
+    return (
+        <Component
+            isReversed={isContentSmall}
+            alignItems={isContentSmall ? 'center' : 'stretch'}
+            flexWrap="wrap"
+            gap={spacings.xl}
+            width="100%"
+            margin={{ top: spacings.xxxxl }}
+        >
+            {children}
+        </Component>
+    );
+};
+
 type SecurityCheckContentProps = {
     goToDeviceAuthentication: () => void;
     goToSuiteOrNextDevice: () => void;
@@ -114,7 +138,7 @@ const SecurityCheckContent = ({
     const recovery = useSelector(state => state.recovery);
     const device = useSelector(selectSelectedDevice);
     const isOnboardingActive = useSelector(selectIsOnboardingActive);
-
+    const { contentWidth } = useResponsiveContext();
     const [isFailed, setIsFailed] = useState(false);
 
     const { goToNextStep, rerun, updateAnalytics } = useOnboarding();
@@ -172,15 +196,23 @@ const SecurityCheckContent = ({
         [device],
     );
 
+    const isContentBelowMobile = !!(contentWidth && contentWidth < breakpoints.mobile);
+
     return isFailed ? (
         <SecurityCheckFail
             ctaSection={
-                <>
-                    <Button variant="tertiary" onClick={toggleView} size="large">
+                <ButtonFlex isContentSmall={isContentBelowMobile}>
+                    <NewButton
+                        intent="neutral"
+                        priority="secondary"
+                        onClick={toggleView}
+                        size={isContentBelowMobile ? 'medium' : 'large'}
+                        minWidth={100}
+                    >
                         <Translation id="TR_BACK" />
-                    </Button>
+                    </NewButton>
                     <ContactSupport supportUrl={supportUrl} />
-                </>
+                </ButtonFlex>
             }
             heading="TR_PLAY_IT_SAFE"
             text="TR_DEVICE_COMPROMISED_TEXT_SOFT"
@@ -206,48 +238,46 @@ const SecurityCheckContent = ({
                 </H3>
                 <SecurityChecklist items={checklistItems} />
             </Column>
-            <Row
-                alignItems="stretch"
-                flexWrap="wrap"
-                gap={spacings.xl}
-                width="100%"
-                margin={{ top: spacings.xxxxl }}
-            >
-                <Button variant="tertiary" onClick={toggleView} size="large">
+            <ButtonFlex isContentSmall={isContentBelowMobile}>
+                <NewButton
+                    intent="neutral"
+                    priority="secondary"
+                    onClick={toggleView}
+                    size={isContentBelowMobile ? 'medium' : 'large'}
+                    minWidth={240}
+                >
                     <Translation id={secondaryButtonText} />
-                </Button>
+                </NewButton>
                 {initialized ? (
-                    <Button
+                    <NewButton
                         data-testid="@onboarding/exit-app-button"
                         onClick={handleContinueButtonClick}
-                        isFullWidth
                         size="large"
-                        variant="primary"
-                        flex="1"
+                        intent="brand"
+                        minWidth={240}
                     >
                         <Translation id="TR_YES_CONTINUE" />
-                    </Button>
+                    </NewButton>
                 ) : (
-                    <Button
-                        onClick={handleSetupButtonClick}
-                        data-testid="@analytics/continue-button"
-                        isFullWidth
-                        size="large"
-                        variant="primary"
-                        flex="1"
+                    <Tooltip
+                        content={
+                            <Note iconName="clock">
+                                <Translation id="TR_TAKES_N_MINUTES" />
+                            </Note>
+                        }
                     >
-                        <Column alignItems="center">
+                        <NewButton
+                            onClick={handleSetupButtonClick}
+                            data-testid="@analytics/continue-button"
+                            size="large"
+                            intent="brand"
+                            minWidth={240}
+                        >
                             <Translation id={primaryButtonTopText} />
-                            <Text typographyStyle="label" as="div" opacity={0.65}>
-                                <Row gap={spacings.xxs}>
-                                    <Icon size={12} name="clock" />
-                                    <Translation id="TR_TAKES_N_MINUTES" />
-                                </Row>
-                            </Text>
-                        </Column>
-                    </Button>
+                        </NewButton>
+                    </Tooltip>
                 )}
-            </Row>
+            </ButtonFlex>
         </SecurityCheckLayout>
     );
 };

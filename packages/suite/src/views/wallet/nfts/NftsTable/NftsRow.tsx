@@ -12,14 +12,14 @@ import { SelectedAccountStatus } from '@suite-common/wallet-types';
 import { getNftContractExplorerUrl, getNftExplorerUrl } from '@suite-common/wallet-utils';
 import {
     Badge,
-    Button,
     Card,
     Column,
     Dropdown,
     Icon,
-    IconButton,
     IconCircle,
     InfoItem,
+    NewButton,
+    NewIconButton,
     Row,
     Table,
     Text,
@@ -109,10 +109,10 @@ const NftsRow = ({
                                                         value={nft.contract}
                                                     />
                                                 </Text>
-                                                <IconButton
+                                                <NewIconButton
                                                     icon="copy"
-                                                    size="tiny"
-                                                    variant="tertiary"
+                                                    intent="neutral"
+                                                    priority="secondary"
                                                     onClick={() => {
                                                         dispatch(
                                                             shouldShowCopyAddressModal
@@ -180,8 +180,8 @@ const NftsRow = ({
                             ]}
                         />
                         {!isShown && (
-                            <Button
-                                icon="eye"
+                            <NewButton
+                                iconLeft="eye"
                                 onClick={() => {
                                     dispatch(
                                         tokenDefinitionsActions.setTokenStatus({
@@ -192,11 +192,12 @@ const NftsRow = ({
                                         }),
                                     );
                                 }}
-                                variant="tertiary"
+                                intent="neutral"
+                                priority="secondary"
                                 size="small"
                             >
                                 <Translation id="TR_UNHIDE" />
-                            </Button>
+                            </NewButton>
                         )}
                     </Row>
                 </Table.Cell>

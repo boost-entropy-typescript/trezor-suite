@@ -779,6 +779,11 @@ export default defineMessages({
         defaultMessage: 'Your swap might be partially filled based on market conditions',
         id: 'TR_TRADING_EXCHANGE_SIGN_BANNER_POINT_3',
     },
+    TR_INSTALLATION_FW_SLOW_TIP_BANNER: {
+        id: 'TR_INSTALLATION_FW_SLOW_TIP_BANNER',
+        defaultMessage:
+            'Firmware installation is taking longer than usual. This may be cause by other connected bluetooth devices. Consider disconnecting them.',
+    },
     TR_SELL_STATUS_ERROR: {
         defaultMessage: 'Rejected',
         id: 'TR_SELL_STATUS_ERROR',
@@ -5304,15 +5309,6 @@ export default defineMessages({
         defaultMessage:
             'For experienced users only. Use at your own risk. These features are in testing, may be unstable, and might not have long-term support.',
     },
-    TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE: {
-        id: 'TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE',
-        defaultMessage: 'Global send & receive',
-    },
-    TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE_DESCRIPTION',
-        defaultMessage:
-            'Send and receive transactions from your dashboard directly to any account.',
-    },
     TR_GO_TO_EXP_FEATURE: {
         id: 'TR_GO_TO_EXP_FEATURE',
         defaultMessage: 'Open',
@@ -6016,17 +6012,24 @@ export default defineMessages({
         description: 'Label in Send form for Ethereum network type',
         id: 'MAX_FEE',
     },
+    TO_BE_CALCULATED: {
+        defaultMessage: 'To be calculated',
+        description: 'Placeholder for (maximum) fee when it could not have been calculated yet',
+        id: 'TO_BE_CALCULATED',
+    },
     EXPECTED_FEE: {
         defaultMessage: 'Expected fee',
         description: 'Label in Send form for Solana network type',
         id: 'EXPECTED_FEE',
     },
     FEE_LEVEL_STANDARD: {
-        defaultMessage: 'Standard',
+        defaultMessage: 'Select standard fee',
+        description: 'A button to switch to standard, pre-defined network fee',
         id: 'FEE_LEVEL_STANDARD',
     },
     FEE_LEVEL_ADVANCED: {
         defaultMessage: 'Customize fee',
+        description: 'A button to enable custom network fee inputs',
         id: 'FEE_LEVEL_ADVANCED',
     },
     FEE_LEVEL_HIGH: {
@@ -9527,6 +9530,10 @@ export default defineMessages({
     TR_STAKE_APY_APPROX: {
         id: 'TR_STAKE_APY_APPROX',
         defaultMessage: '~{apyPercent}% APY',
+    },
+    TR_STAKE_UNKNOWN_APY: {
+        id: 'TR_STAKE_UNKNOWN_APY',
+        defaultMessage: 'Unknown',
     },
     TR_STAKE_APY_DESC: {
         id: 'TR_STAKE_APY_DESC',

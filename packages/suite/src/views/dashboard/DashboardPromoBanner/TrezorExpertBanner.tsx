@@ -1,7 +1,7 @@
 import styled, { useTheme } from 'styled-components';
 
 import { resolveStaticPath } from '@suite-common/suite-utils';
-import { Box, Button, Column, IMAGES, IMAGES_PATH, Row, Text } from '@trezor/components';
+import { Box, Column, IMAGES, IMAGES_PATH, NewButton, Row, Text } from '@trezor/components';
 import { borders, colorVariants, spacings, spacingsPx } from '@trezor/theme';
 import { DASHBOARD_BANNER_TEX_URL } from '@trezor/urls';
 
@@ -78,9 +78,9 @@ const CTAButton = ({ onClick }: { onClick: () => void }) => {
     const href = useExternalLink(DASHBOARD_BANNER_TEX_URL);
 
     return (
-        <Button variant="primary" size="small" onClick={onClick} href={href}>
+        <NewButton intent="brand" onClick={onClick} href={href}>
             <Translation id="TR_PROMO_BANNER_DASHBOARD_TEX_BUTTON" />
-        </Button>
+        </NewButton>
     );
 };
 
@@ -98,7 +98,7 @@ export const TrezorExpertBanner = ({ onClose, onCTAClick, isVisible }: TrezorExp
         <AnimatedWrapper isVisible={isVisible} flagToHide="showTEXDashboardPromoBanner">
             <Box
                 height={213}
-                padding={{ left: 24, right: 24 }}
+                padding={{ horizontal: 24 }}
                 backgroundColor={theme.baseFillSurfaceBrandDark}
             >
                 <Row
@@ -120,7 +120,7 @@ export const TrezorExpertBanner = ({ onClose, onCTAClick, isVisible }: TrezorExp
                     <StyledImage src={mainImage} alt="Trezor Expert" />
                 </Row>
 
-                <CloseButton onClose={onClose} />
+                <CloseButton onClose={onClose} isInverse />
             </Box>
         </AnimatedWrapper>
     );

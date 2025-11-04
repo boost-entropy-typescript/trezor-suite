@@ -27,7 +27,7 @@ import {
 } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 import { TokenInfo } from '@trezor/blockchain-link-types';
-import { Button, Card, Icon, LoadingContent, Row } from '@trezor/components';
+import { Card, Icon, LoadingContent, NewButton, NewIconButton, Row } from '@trezor/components';
 import { spacings, spacingsPx, typography } from '@trezor/theme';
 import { PartialRecord } from '@trezor/type-utils';
 import { typedObjectKeys } from '@trezor/utils';
@@ -195,36 +195,30 @@ export const AssetsView = () => {
                 ) : (
                     <Row justifyContent="space-around" gap={spacings.sm}>
                         {hasMainnetNetworksToEnable && (
-                            <Button
-                                variant="tertiary"
-                                icon="plus"
-                                size="small"
+                            <NewButton
+                                intent="neutral"
+                                priority="secondary"
+                                iconLeft="plus"
                                 onClick={goToCoinsSettings}
                                 data-testid="@dashboard/assets/enable-more-coins"
                             >
                                 <Translation id="TR_ENABLE_MORE_COINS" />
-                            </Button>
+                            </NewButton>
                         )}
-                        <Row gap={spacings.xxxs}>
-                            <Icon
-                                name="table"
+                        <Row gap={4}>
+                            <NewIconButton
+                                icon="rowsFilled"
                                 data-testid="@dashboard/assets/table-icon"
                                 onClick={setTable}
-                                color={
-                                    !dashboardAssetsGridMode
-                                        ? theme.textPrimaryDefault
-                                        : theme.textSubdued
-                                }
+                                intent={dashboardAssetsGridMode ? 'neutral' : 'brand'}
+                                priority="secondary"
                             />
-                            <Icon
-                                name="gridNine"
+                            <NewIconButton
+                                icon="gridNineFilled"
                                 data-testid="@dashboard/assets/grid-icon"
                                 onClick={setGrid}
-                                color={
-                                    dashboardAssetsGridMode
-                                        ? theme.textPrimaryDefault
-                                        : theme.textSubdued
-                                }
+                                intent={dashboardAssetsGridMode ? 'brand' : 'neutral'}
+                                priority="secondary"
                             />
                         </Row>
                     </Row>

@@ -6,7 +6,7 @@ import { selectConnectPopupCall } from '@suite-common/connect-popup';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { sortLevels } from '@suite-common/wallet-core';
 import { Account, FormState } from '@suite-common/wallet-types';
-import { Button, Column, Modal } from '@trezor/components';
+import { Column, Modal, NewButton } from '@trezor/components';
 import type { ComposeOutput, UiRequestSelectFee } from '@trezor/connect';
 import { spacings } from '@trezor/theme';
 
@@ -120,13 +120,8 @@ export const SelectFeeModal = ({ data }: SelectAccountModalProps) => {
         composeRequest: () => {},
     });
     const {
-        control,
-        register,
-        setValue,
-        getValues,
         handleSubmit,
-        formState: { isDirty, errors },
-        trigger,
+        formState: { errors },
     } = methods;
 
     const onSend = handleSubmit(data => {
@@ -171,12 +166,12 @@ export const SelectFeeModal = ({ data }: SelectAccountModalProps) => {
                 }
                 bottomContent={
                     <>
-                        <Button onClick={onSend} isDisabled={!errors} variant="primary">
+                        <NewButton onClick={onSend} isDisabled={!errors} intent="brand">
                             <Translation id="TR_CONTINUE" />
-                        </Button>
-                        <Button onClick={onClose} variant="tertiary">
+                        </NewButton>
+                        <NewButton onClick={onClose} intent="neutral" priority="secondary">
                             <Translation id="TR_CANCEL" />
-                        </Button>
+                        </NewButton>
                     </>
                 }
             >
@@ -185,18 +180,7 @@ export const SelectFeeModal = ({ data }: SelectAccountModalProps) => {
                         {popupCall?.state === 'ongoing' && popupCall?.payload?.outputs && (
                             <OutputsSummary account={account} outputs={popupCall.payload.outputs} />
                         )}
-                        <Fees
-                            account={account}
-                            feeInfo={feeInfo}
-                            control={control}
-                            register={register}
-                            setValue={setValue}
-                            getValues={getValues}
-                            errors={errors}
-                            isDirty={isDirty}
-                            changeFeeLevel={changeFeeLevel}
-                            trigger={trigger}
-                        />
+                        <Fees account={account} feeInfo={feeInfo} changeFeeLevel={changeFeeLevel} />
                     </Column>
                 </FormProvider>
             </Modal.ModalBase>

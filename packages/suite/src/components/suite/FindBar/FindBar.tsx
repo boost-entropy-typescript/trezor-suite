@@ -5,10 +5,10 @@ import styled, { useTheme } from 'styled-components';
 
 import {
     Box,
-    ButtonGroup,
     Icon,
-    IconButton,
     Input,
+    NewButtonGroup,
+    NewIconButton,
     Paragraph,
     Row,
     TOOLTIP_DELAY_LONG,
@@ -119,38 +119,29 @@ export const FindBarForm = ({ setIsVisible }: FindBarFormProps) => {
                         onChange={handleInputChange}
                     />
                     <Row gap={8} justifyContent="flex-end">
-                        <ButtonGroup variant="tertiary" size="small">
+                        <NewButtonGroup intent="neutral" priority="secondary" size="small">
                             <Tooltip
                                 content={<Translation id="TR_FIND_PREV" />}
                                 delayShow={TOOLTIP_DELAY_LONG}
                             >
-                                <IconButton
-                                    icon="arrowUp"
-                                    variant="tertiary"
-                                    size="tiny"
-                                    onClick={prev}
-                                />
+                                <NewIconButton icon="arrowUp" onClick={prev} />
                             </Tooltip>
                             <Tooltip
                                 content={<Translation id="TR_FIND_NEXT" />}
                                 delayShow={TOOLTIP_DELAY_LONG}
                             >
-                                <IconButton
-                                    icon="arrowDown"
-                                    variant="tertiary"
-                                    size="tiny"
-                                    onClick={next}
-                                />
+                                <NewIconButton icon="arrowDown" onClick={next} />
                             </Tooltip>
-                        </ButtonGroup>
+                        </NewButtonGroup>
                         <Tooltip
                             content={<Translation id="TR_FIND_CLOSE" />}
                             delayShow={TOOLTIP_DELAY_LONG}
                         >
-                            <IconButton
+                            <NewIconButton
                                 icon="x"
-                                variant="tertiary"
-                                size="tiny"
+                                size="small"
+                                intent="neutral"
+                                priority="secondary"
                                 onClick={handleCloseFindBar}
                             />
                         </Tooltip>

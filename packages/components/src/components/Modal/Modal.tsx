@@ -26,7 +26,7 @@ import { ElevationContext, ElevationUp, useElevation } from '../ElevationContext
 import { Column, Row } from '../Flex/Flex';
 import { IconName } from '../Icon/Icon';
 import { IconCircle } from '../IconCircle/IconCircle';
-import { IconButton } from '../buttons/IconButton/IconButton';
+import { NewIconButton } from '../buttons/NewIconButton/NewIconButton';
 import { H3 } from '../typography/Heading/Heading';
 import { Text } from '../typography/Text/Text';
 
@@ -65,6 +65,7 @@ type ModalProps = AllowedFrameProps & {
     iconName?: IconName;
     'data-testid'?: string;
     padding?: Padding;
+    shadowBottom?: boolean;
 };
 
 const InnerModalBase = ({
@@ -81,6 +82,7 @@ const InnerModalBase = ({
     height,
     'data-testid': dataTest = '@modal',
     padding,
+    shadowBottom = true,
 }: ModalProps) => {
     const { scrollElementRef, onScroll, ShadowTop, ShadowBottom } = useScrollShadow();
     const { elevation } = useElevation();
@@ -107,12 +109,12 @@ const InnerModalBase = ({
                         >
                             <ElevationUp>
                                 {onBackClick && (
-                                    <IconButton
-                                        variant="tertiary"
+                                    <NewIconButton
+                                        intent="neutral"
+                                        priority="secondary"
                                         icon="caretLeft"
                                         data-testid="@modal/back-button"
                                         onClick={onBackClick}
-                                        size="small"
                                     />
                                 )}
 
@@ -134,12 +136,12 @@ const InnerModalBase = ({
                                 )}
 
                                 {onCancel && (
-                                    <IconButton
-                                        variant="tertiary"
+                                    <NewIconButton
+                                        intent="neutral"
+                                        priority="secondary"
                                         icon="x"
                                         data-testid="@modal/close-button"
                                         onClick={onCancel}
-                                        size="small"
                                         margin={{ left: 'auto' }}
                                     />
                                 )}
@@ -163,7 +165,7 @@ const InnerModalBase = ({
                                 <ElevationUp>{children}</ElevationUp>
                             </Column>
                         </ScrollContainer>
-                        <ShadowBottom />
+                        {shadowBottom && <ShadowBottom />}
                     </Box>
                     {bottomContent && (
                         <>

@@ -65,7 +65,9 @@ test.describe('Trading - Sell inputs', { tag: ['@group=trading', '@webOnly'] }, 
 
             for (const percentage of [10, 25, 50]) {
                 await test.step(`${percentage}% of BTC balance`, async () => {
-                    await page.getByRole('button', { name: percentage + '%' }).click();
+                    await tradingPage.cryptoInputFractionButtons
+                        .getByRole('button', { name: percentage + '%' })
+                        .click();
                     await tradingPage.expectInputToBe({
                         percentage,
                         balance: bitcoinBalance,
@@ -75,10 +77,12 @@ test.describe('Trading - Sell inputs', { tag: ['@group=trading', '@webOnly'] }, 
             }
 
             await test.step('Max of BTC balance', async () => {
-                await page.getByRole('button', { name: 'Max' }).click();
+                await tradingPage.cryptoInputFractionButtons
+                    .getByRole('button', { name: 'Max' })
+                    .click();
                 await expect
                     .soft(async () => {
-                        const resultingFee = await tradingPage.fees.customAmount.textContent();
+                        const resultingFee = await tradingPage.fees.maxFee.textContent();
                         if (!resultingFee) {
                             throw new Error('Custom Fee amount is undefined or null');
                         }
