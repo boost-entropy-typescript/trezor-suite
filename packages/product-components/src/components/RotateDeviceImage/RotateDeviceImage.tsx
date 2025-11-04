@@ -11,8 +11,6 @@ export type RotateDeviceImageProps = AllowedAnimationPrimitiveFrameProps & {
     deviceColor?: number;
     className?: string;
     loop?: boolean;
-    animationHeight?: string;
-    animationWidth?: string;
 };
 
 export const RotateDeviceImage = ({
@@ -20,8 +18,6 @@ export const RotateDeviceImage = ({
     deviceColor,
     className,
     loop,
-    animationHeight,
-    animationWidth,
     ...rest
 }: RotateDeviceImageProps) => {
     if (!deviceModel) {
@@ -37,10 +33,10 @@ export const RotateDeviceImage = ({
             loop={loop}
             className={className}
             type="ROTATE"
-            deviceModelInternal={deviceModel}
-            deviceUnitColor={normalizeDeviceColorVariant(deviceColor)}
-            height={animationHeight}
-            width={animationWidth}
+            deviceModelInternal={
+                deviceModel === DeviceModelInternal.T2B1 ? DeviceModelInternal.T3B1 : deviceModel
+            }
+            deviceUnitColor={normalizeDeviceColorVariant(deviceColor) as any}
             {...rest}
         />
     );

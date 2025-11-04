@@ -1,9 +1,7 @@
-import { CSSProperties, MouseEventHandler, forwardRef } from 'react';
+import { MouseEventHandler, forwardRef } from 'react';
 
 import { useTheme } from 'styled-components';
 
-// TODO: suite-common imports in non-suite packages should not be allowed
-import { DEFAULT_FLAGSHIP_MODEL } from '@suite-common/suite-constants';
 import {
     AllowedAnimationPrimitiveFrameProps,
     AnimationWrapper,
@@ -13,119 +11,131 @@ import {
 } from '@trezor/components';
 import { DeviceModelInternal, getNarrowedDeviceModelInternal } from '@trezor/device-utils';
 
-import { ConnectBtAnimation } from './ConnectBtAnimation';
 import { Video } from './Video';
+import {
+    AnimationType,
+    ColorsFor,
+    DEVICE_ANIMATION_CONFIG,
+    ModelFor,
+} from './deviceAnimationConfig';
 
-export const animationDeviceTypes = [
-    'BOOTLOADER', // No longer available for T3T1
-    'BOOTLOADER_TWO_BUTTONS', // Only available for T1B1 with old FW
-    'NORMAL', // Only available for T1B1
-    'HOLOGRAM',
-    'ROTATE',
-    'CONNECT_BT',
-    'CONNECT_CABLE',
-] as const;
-export type AnimationDeviceType = (typeof animationDeviceTypes)[number];
+const getThemeVariant = (theme: any) =>
+    (theme?.legacy?.THEME as string | undefined)?.toLowerCase() === 'dark' ? 'dark' : 'light';
 
-export type DeviceAnimationProps = AllowedAnimationPrimitiveFrameProps & {
-    height?: CSSProperties['height'];
-    width?: CSSProperties['width'];
-    type: AnimationDeviceType;
+type Base = AllowedAnimationPrimitiveFrameProps & {
     loop?: boolean;
     shape?: Shape;
-    deviceModelInternal?: DeviceModelInternal;
-    deviceUnitColor?: number;
+    onEnded?: () => void;
     className?: string;
-    sizeVariant?: 'LARGE';
-
     onVideoMouseOver?: MouseEventHandler<HTMLVideoElement>;
 };
 
+type GenericDeviceAnimationProps<T extends AnimationType> = {
+    [M in ModelFor<T>]: Base & {
+        type: T;
+        deviceModelInternal: M;
+    } & (ColorsFor<T, M> extends never ? {} : { deviceUnitColor?: ColorsFor<T, M> }) &
+        ((typeof DEVICE_ANIMATION_CONFIG)[T] extends { hasSize: true }
+            ? { sizeVariant?: 'LARGE' }
+            : {});
+}[ModelFor<T>];
+
+export type DeviceAnimationProps = {
+    [T in AnimationType]: GenericDeviceAnimationProps<T>;
+}[AnimationType];
+
 export const DeviceAnimation = forwardRef<HTMLVideoElement, DeviceAnimationProps>(
-    (
-        {
-            height,
-            width,
+    (props, videoRef) => {
+        const {
             type,
             loop = false,
             shape,
-            deviceModelInternal = DEFAULT_FLAGSHIP_MODEL,
-            deviceUnitColor,
-            sizeVariant,
             onVideoMouseOver: onMouseOver,
+            onEnded,
             ...rest
-        },
-        videoRef,
-    ) => {
+        } = props;
+
         const theme = useTheme();
-
-        // Animations on following devices are transparent.
-        const themeSuffix = [
-            DeviceModelInternal.T2B1,
-            DeviceModelInternal.T3B1,
-            DeviceModelInternal.T3T1,
-            DeviceModelInternal.T3W1,
-        ].includes(deviceModelInternal)
-            ? ''
-            : `_${theme.legacy.THEME}`;
-
-        const deviceModelInFilename =
-            getNarrowedDeviceModelInternal(deviceModelInternal).toLowerCase();
-
-        // Key is used to force re-render of the video element. When `src` of the inner <source> tag
-        // changes, the video element does not re-render. This is a workaround.
-        const rerenderKey = `${deviceModelInFilename}_${type.toLowerCase()}_${deviceUnitColor}_${themeSuffix}`;
-
-        const commonProps = {
-            loop,
-            videoRef,
-            onMouseOver,
-            rerenderKey,
-        };
-
-        if (deviceModelInternal === DeviceModelInternal.UNKNOWN) return null;
         const frameProps = pickAndPrepareFrameProps(rest, allowedAnimationPrimitivesFrameProps);
 
+        const model = getNarrowedDeviceModelInternal(props.deviceModelInternal);
+        const variant = getThemeVariant(theme);
+        const modelDir = model.toLowerCase();
+
+        const withVariant = (base: string) => `${base}_${variant}.webm`;
+        const basePath = `videos/device/${modelDir}`;
+        const rerenderKey = `${modelDir}_${type.toLowerCase()}_${variant}`;
+        const commonVideoProps = { loop, videoRef, onMouseOver, rerenderKey, onEnded };
+
+        const content = (() => {
+            switch (type) {
+                case 'BOOTLOADER': {
+                    const file =
+                        model === DeviceModelInternal.T3B1
+                            ? 'bootloader.webm'
+                            : withVariant('bootloader');
+
+                    return <Video src={`${basePath}/${file}`} {...commonVideoProps} />;
+                }
+
+                case 'BOOTLOADER_TWO_BUTTONS':
+                    return (
+                        <Video
+                            src={`${basePath}/${withVariant('bootloader_two_buttons')}`}
+                            {...commonVideoProps}
+                        />
+                    );
+
+                case 'NORMAL':
+                    return (
+                        <Video src={`${basePath}/${withVariant('normal')}`} {...commonVideoProps} />
+                    );
+
+                case 'HOLOGRAM':
+                    return <Video src={`${basePath}/hologram.webm`} {...commonVideoProps} />;
+
+                case 'ROTATE': {
+                    const { deviceModelInternal, deviceUnitColor, sizeVariant } = props as Extract<
+                        DeviceAnimationProps,
+                        { type: 'ROTATE' }
+                    >;
+
+                    const modelConfig =
+                        DEVICE_ANIMATION_CONFIG.ROTATE.models[
+                            deviceModelInternal as keyof typeof DEVICE_ANIMATION_CONFIG.ROTATE.models
+                        ];
+
+                    const allowedColors = modelConfig.colors ?? [1];
+                    const color = deviceUnitColor ?? allowedColors[0];
+                    const size = sizeVariant ? '_large' : '';
+
+                    return (
+                        <Video
+                            src={`${basePath}/rotate_color_${color}${size}.webm`}
+                            {...commonVideoProps}
+                        />
+                    );
+                }
+
+                case 'PAIRING_MODE':
+                    return (
+                        <Video
+                            src={`${basePath}/pairing_mode_${theme.legacy.THEME}.webm`}
+                            {...commonVideoProps}
+                        />
+                    );
+                case 'CONNECT_CABLE':
+                    return <Video src={`${basePath}/connect_cable.webm`} {...commonVideoProps} />;
+                case 'CONNECT_BT_INTRO':
+                    return <Video src={`${basePath}/connect_bt.webm`} {...commonVideoProps} />;
+                case 'CONNECT_BT_LOOP':
+                    return <Video src={`${basePath}/connect_bt_loop.webm`} {...commonVideoProps} />;
+            }
+        })();
+
         return (
-            <AnimationWrapper height={height} width={width} shape={shape} {...frameProps}>
-                {['BOOTLOADER'].includes(type) && (
-                    <Video
-                        src={`videos/device/trezor_${deviceModelInFilename}_${type.toLowerCase()}${themeSuffix}.webm`}
-                        {...commonProps}
-                    />
-                )}
-                {/* Images available only for T1B1 */}
-                {['BOOTLOADER_TWO_BUTTONS', 'NORMAL'].includes(type) && (
-                    <Video
-                        src={`videos/device/trezor_${DeviceModelInternal.T1B1.toLowerCase()}_${type.toLowerCase()}${themeSuffix}.webm`}
-                        {...commonProps}
-                    />
-                )}
-                {type === 'HOLOGRAM' && (
-                    <Video
-                        src={`videos/device/trezor_${deviceModelInFilename}_hologram.webm`}
-                        {...commonProps}
-                    />
-                )}
-                {type === 'ROTATE' && (
-                    <Video
-                        src={`videos/device/trezor_${deviceModelInFilename}_rotate_color_${
-                            // if device unit color is not set, use first color available
-                            deviceUnitColor ?? 1
-                        }${sizeVariant ? `_${sizeVariant.toLowerCase()}` : ''}.webm`}
-                        {...commonProps}
-                    />
-                )}
-                {type === 'CONNECT_CABLE' && (
-                    <Video src="videos/device/trezor_t3w1_connect_cable.webm" {...commonProps} />
-                )}
-                {type === 'CONNECT_BT' && (
-                    <ConnectBtAnimation
-                        rerenderKey={rerenderKey}
-                        videoRef={videoRef}
-                        onMouseOver={onMouseOver}
-                    />
-                )}
+            <AnimationWrapper shape={shape} {...frameProps}>
+                {content}
             </AnimationWrapper>
         );
     },

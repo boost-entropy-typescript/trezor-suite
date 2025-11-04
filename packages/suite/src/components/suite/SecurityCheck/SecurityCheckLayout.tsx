@@ -1,10 +1,12 @@
 import { selectSelectedDevice } from '@suite-common/wallet-core';
 import { Box, Column, Grid, Image } from '@trezor/components';
+import { DeviceModelInternal, getDeviceColorVariant } from '@trezor/device-utils';
 import {
     DeviceAnimation,
     DeviceWithScene,
     getLargeModelImagePath,
 } from '@trezor/product-components';
+import type { ModelFor } from '@trezor/product-components';
 import { borders, spacings } from '@trezor/theme';
 
 import { useLayoutSize, useSelector } from 'src/hooks/suite';
@@ -15,6 +17,16 @@ type SecurityCheckLayoutProps = {
     imageMode?: 'ROTATE' | 'STATIC';
 };
 
+type RotateModel = Extract<DeviceModelInternal, ModelFor<'ROTATE'>>;
+
+const isModelWithRotate = (model: DeviceModelInternal | undefined): model is RotateModel =>
+    !!model && model !== DeviceModelInternal.UNKNOWN;
+
+const getDeviceModel = (deviceModelInternal: DeviceModelInternal | undefined): RotateModel =>
+    isModelWithRotate(deviceModelInternal)
+        ? deviceModelInternal
+        : (DeviceModelInternal.T3W1 as RotateModel);
+
 export const SecurityCheckLayout = ({
     isFailed,
     children,
@@ -23,18 +35,16 @@ export const SecurityCheckLayout = ({
     const device = useSelector(selectSelectedDevice);
     const { isBelowTablet } = useLayoutSize();
 
-    const deviceModelInternal = device?.features?.internal_model;
-    const isDeviceImageRotating = imageMode === 'ROTATE' && deviceModelInternal;
-
-    const deviceUnitColor = device?.features?.unit_color;
-
-    const image = getLargeModelImagePath(deviceModelInternal, deviceUnitColor);
+    const model = getDeviceModel(device?.features?.internal_model);
+    const isDeviceImageRotating = imageMode === 'ROTATE';
+    const deviceUnitColor = getDeviceColorVariant(device);
+    const image = getLargeModelImagePath(model, deviceUnitColor);
 
     const getDeviceImage = () => {
         if (isFailed) {
             return (
                 <DeviceWithScene
-                    deviceModel={deviceModelInternal!}
+                    deviceModel={model}
                     scene="ghost"
                     width={150}
                     unitColor={device?.features?.unit_color}
@@ -47,15 +57,15 @@ export const SecurityCheckLayout = ({
 
     return (
         <Grid columns={isBelowTablet ? '1fr' : '260px 1fr'} gap={spacings.xl} width="100%">
-            {deviceModelInternal && (
+            {model && (
                 <Box hasBackground borderRadius={borders.radii.sm} padding={spacings.xxl}>
                     <Column height="100%" justifyContent="center" alignItems="center">
                         {isDeviceImageRotating ? (
                             <DeviceAnimation
                                 type="ROTATE"
-                                deviceModelInternal={deviceModelInternal}
-                                deviceUnitColor={deviceUnitColor}
-                                height="300px" // NOTE: fill out the fixed height, we know that the video is 2x
+                                deviceModelInternal={model}
+                                deviceUnitColor={deviceUnitColor as any}
+                                height={300}
                                 sizeVariant="LARGE"
                             />
                         ) : (
