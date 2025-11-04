@@ -48,7 +48,7 @@ const RebootDeviceGraphics = ({
     const getRebootType = () => {
         // Used during intermediary update on T1B1.
         if (device?.mode === 'bootloader') {
-            return { type: 'NORMAL', deviceModelInternal: DeviceModelInternal.T1B1 };
+            return { type: 'RECONNECT', deviceModelInternal: DeviceModelInternal.T1B1 };
         }
         // T1B1 bootloader before firmware version 1.8.0 can only be invoked by holding both buttons.
         const deviceFwVersion = device?.features ? getFirmwareVersion(device) : '';
@@ -92,7 +92,8 @@ export const ReconnectDevicePrompt = ({ onClose, onSuccess }: ReconnectDevicePro
         status,
         reconnectEvent,
         buttonEvent,
-        deviceIsWaitingForConfirmationToConnectToHost,
+        deviceIsWaitingForConfirmationToInitiateConnection,
+        pinRequested,
     } = useFirmwareDesktopUpdate();
     const { device } = useDevice();
 
@@ -123,7 +124,9 @@ export const ReconnectDevicePrompt = ({ onClose, onSuccess }: ReconnectDevicePro
     const showWebUsbButton = rebootPhase === 'disconnected' && isWebUsbTransport;
     const toNormal = reconnectEvent?.target === 'normal' && reconnectEvent.method === 'manual';
     const showConfirmOnDevice =
-        (!isManualRebootRequired && !isRebootDone) || deviceIsWaitingForConfirmationToConnectToHost;
+        (!isManualRebootRequired && !isRebootDone) ||
+        deviceIsWaitingForConfirmationToInitiateConnection ||
+        pinRequested;
 
     const getHeading = () => {
         if (isRebootDone) {
@@ -171,7 +174,11 @@ export const ReconnectDevicePrompt = ({ onClose, onSuccess }: ReconnectDevicePro
                     title={<Translation id="TR_CONFIRM_ON_TREZOR" />}
                     deviceModelInternal={eventDevice?.features?.internal_model}
                     deviceUnitColor={eventDevice?.features?.unit_color}
-                    isConfirmed={!buttonEvent && !deviceIsWaitingForConfirmationToConnectToHost}
+                    isConfirmed={
+                        !buttonEvent &&
+                        !deviceIsWaitingForConfirmationToInitiateConnection &&
+                        !pinRequested
+                    }
                 />
             )}
             <Modal.ModalBase

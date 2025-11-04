@@ -3671,11 +3671,6 @@ export default defineMessages({
         description: 'Info what is happening with users device.',
         id: 'TR_RESTARTING_TREZOR',
     },
-    TR_RESTARTING_TREZOR_ENTER_PIN_IF_NEEDED: {
-        defaultMessage: 'Restarting Trezor. Enter PIN if prompted.',
-        description: 'Info what is happening with users device.',
-        id: 'TR_RESTARTING_TREZOR_ENTER_PIN_IF_NEEDED',
-    },
     TR_WALLET_DUPLICATE_DESC: {
         defaultMessage: "The Passphrase wallet you're accessing has already been discovered.",
         id: 'TR_WALLET_DUPLICATE_DESC',
@@ -7356,6 +7351,14 @@ export default defineMessages({
         id: 'TR_DEVICE_CONNECTED_INITIAL_DEVICE_STATE',
         defaultMessage: 'Device connected—complete setup to continue',
     },
+    TR_INITIAL_RECONNECT_DEVICE_TITLE: {
+        id: 'TR_INITIAL_RECONNECT_DEVICE_TITLE',
+        defaultMessage: 'Reconnect device',
+    },
+    TR_INITIAL_RECONNECT_DEVICE_DESCRIPTION: {
+        id: 'TR_INITIAL_RECONNECT_DEVICE_DESCRIPTION',
+        defaultMessage: 'Disconnect and connect device to continue.',
+    },
     TR_DEVICE_CONNECTED_BOOTLOADER: {
         id: 'TR_DEVICE_CONNECTED_BOOTLOADER',
         defaultMessage: 'Device connected in bootloader',
@@ -10787,7 +10790,7 @@ export default defineMessages({
     TR_CONNECT_EXPORT_ACCOUNTS_DESCRIPTION: {
         id: 'TR_CONNECT_EXPORT_ACCOUNTS_DESCRIPTION',
         defaultMessage:
-            'The following addresses from {passphraseWalletLabel} on {deviceLabel} will be shared with {thirdParty}. Your private keys stay secure and are never exposed.',
+            'The following accounts from {passphraseWalletLabel} on {deviceLabel} will be shared with {thirdParty}. Your private keys stay secure and are never exposed.',
     },
     TR_DYK_TITLE: {
         id: 'TR_DYK_TITLE',
@@ -10914,5 +10917,9 @@ export default defineMessages({
         id: 'TR_SEND_MIN_ADA_AMOUNT_TOOLTIP',
         defaultMessage:
             'Every transaction output with tokens must include a minimum amount of {networkDisplaySymbol}, based on the number of different tokens in the transaction output.',
+    },
+    TR_PUBLIC_KEYS: {
+        id: 'TR_PUBLIC_KEYS',
+        defaultMessage: 'Public keys',
     },
 } as const);

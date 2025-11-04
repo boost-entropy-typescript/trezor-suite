@@ -14,7 +14,7 @@ import {
 import { isArrayMember } from '@trezor/utils';
 
 import { firmwareActions } from '../firmwareActions';
-import { selectFirmware } from '../firmwareReducer';
+import { selectFirmware, selectSwitchFirmwareType } from '../firmwareReducer';
 import { FirmwareUpdateProps, firmwareUpdate as firmwareUpdateThunk } from '../firmwareThunks';
 
 /*
@@ -27,13 +27,13 @@ There are three firmware update flows, depending on current firmware version:
 // TODO: Determine this in Connect.
 const determineIfDeviceWillBeWiped = (
     device: TrezorDevice | undefined,
-    shouldSwitchFirmwareType: boolean,
+    switchFirmwareType: boolean,
 ) => {
     const deviceModelInternal = device?.features?.internal_model;
     const deviceIsInitializedOrInBootloader = device?.mode !== 'initialize';
     // Changing the vendor header always results in device wipe. T1B1 and T2T1 have the same vendor header for bitcoin-only and universal firmware.
     const installationWillChangeFirmwareVendorHeader =
-        !!shouldSwitchFirmwareType &&
+        !!switchFirmwareType &&
         deviceModelInternal !== undefined &&
         ![DeviceModelInternal.T1B1, DeviceModelInternal.T2T1].includes(deviceModelInternal);
     // Faulty firmware version.
@@ -44,12 +44,6 @@ const determineIfDeviceWillBeWiped = (
         (installationWillChangeFirmwareVendorHeader || firmwareVersionIsGuaranteedToWipeDevice)
     );
 };
-
-export type UseFirmwareInstallationParams =
-    | {
-          shouldSwitchFirmwareType?: boolean;
-      }
-    | undefined;
 
 export type FirmwareOperationStatus = {
     operation: 'installing' | 'restarting' | 'thp' | 'completed' | null;
@@ -107,16 +101,13 @@ const shouldShowReconnectPrompt = ({
     return expectedButtonRequests.includes(buttonEvent.code);
 };
 
-export const useFirmwareInstallation = (
-    { shouldSwitchFirmwareType }: UseFirmwareInstallationParams = {
-        shouldSwitchFirmwareType: false,
-    },
-) => {
+export const useFirmwareInstallation = () => {
     const dispatch = useDispatch();
     const firmware = useSelector(selectFirmware);
     const device = useSelector(selectSelectedDevice);
     const isThpInProgress = useSelector(selectIsThpInProgress);
     const thpStep = useSelector(selectThpStep);
+    const switchFirmwareType = useSelector(selectSwitchFirmwareType);
 
     const [reconnectEvent, buttonEvent, progressEvent] = useMemo(() => {
         if (firmware.uiEvent) {
@@ -141,7 +132,7 @@ export const useFirmwareInstallation = (
     // To instruct user to reboot to bootloader manually, UI.FIRMWARE_DISCONNECT event is emitted first,
     // and UI.FIRMWARE_RECONNECT is emitted after the device disconnects.
     const showManualReconnectPrompt = reconnectEvent?.method === 'manual';
-    const deviceIsWaitingForConfirmationToConnectToHost =
+    const deviceIsWaitingForConfirmationToInitiateConnection =
         reconnectEvent?.method === 'auto' && reconnectEvent.target === 'bootloader';
     const pinRequested = Boolean(
         buttonEvent?.code && ['ButtonRequest_PinEntry'].includes(buttonEvent.code),
@@ -154,13 +145,10 @@ export const useFirmwareInstallation = (
             originalDevice,
         }) ||
         showManualReconnectPrompt ||
-        deviceIsWaitingForConfirmationToConnectToHost ||
+        deviceIsWaitingForConfirmationToInitiateConnection ||
         pinRequested;
 
-    const deviceWillBeWiped = determineIfDeviceWillBeWiped(
-        originalDevice,
-        !!shouldSwitchFirmwareType,
-    );
+    const deviceWillBeWiped = determineIfDeviceWillBeWiped(originalDevice, !!switchFirmwareType);
 
     const isThpConfirmationRequested = thpStep === 'ConfirmOnlyConnection';
 
@@ -208,7 +196,11 @@ export const useFirmwareInstallation = (
 
         // Automatically restarting from bootloader to normal mode at the end of non-intermediary installation:
         if (reconnectEvent?.method === 'wait' || reconnectEvent?.method === 'auto') {
-            return { operation: 'restarting', progress: 100 };
+            return {
+                operation: 'restarting',
+                // NOTE: when restarting to bootloader, set the progress to 0 (can't be finished yet)
+                progress: reconnectEvent && reconnectEvent.target === 'bootloader' ? 0 : 100,
+            };
         }
 
         if (!progressEvent && firmware.status !== 'started') {
@@ -216,21 +208,21 @@ export const useFirmwareInstallation = (
         }
 
         return { operation: null, progress: 0 };
-    }, [isThpInProgress, firmware.status, progressEvent, reconnectEvent?.method]);
+    }, [isThpInProgress, firmware.status, progressEvent, reconnectEvent]);
 
     const targetFirmwareType = useMemo(() => {
         const isCurrentlyBitcoinOnly = hasBitcoinOnlyFirmware(originalDevice);
         const isBitcoinOnlyAvailable =
             !!originalDevice?.firmwareReleaseConfigInfo?.isBitcoinOnlyAvailable;
 
-        return (isCurrentlyBitcoinOnly && !shouldSwitchFirmwareType) ||
+        return (isCurrentlyBitcoinOnly && !switchFirmwareType) ||
             // Switching to Bitcoin-only:
-            (!isCurrentlyBitcoinOnly && shouldSwitchFirmwareType && isBitcoinOnlyAvailable) ||
+            (!isCurrentlyBitcoinOnly && switchFirmwareType && isBitcoinOnlyAvailable) ||
             // Bitcoin-only device:
             isBitcoinOnlyDevice(originalDevice)
             ? FirmwareType.BitcoinOnly
             : FirmwareType.Universal;
-    }, [originalDevice, shouldSwitchFirmwareType]);
+    }, [originalDevice, switchFirmwareType]);
 
     const firmwareUpdate = useCallback(
         (arg: FirmwareUpdateProps) => dispatch(firmwareUpdateThunk(arg)),
@@ -254,13 +246,14 @@ export const useFirmwareInstallation = (
         targetFirmwareType,
         showManualReconnectPrompt,
         confirmOnDevice,
-        shouldSwitchFirmwareType,
+        switchFirmwareType,
         deviceWillBeWiped,
         showReconnectPrompt,
         showConfirmationPill,
         reconnectEvent,
         buttonEvent,
+        pinRequested,
         progressEvent,
-        deviceIsWaitingForConfirmationToConnectToHost,
+        deviceIsWaitingForConfirmationToInitiateConnection,
     };
 };

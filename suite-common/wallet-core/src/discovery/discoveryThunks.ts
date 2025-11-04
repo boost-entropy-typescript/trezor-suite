@@ -52,6 +52,13 @@ function assertStaticSessionId(
     }
 }
 
+const deviceStateEqualTo = (first: DeviceState) => {
+    const firstParsed = first.staticSessionId?.split(':')[0];
+
+    return (second?: DeviceState) =>
+        firstParsed ? firstParsed === second?.staticSessionId?.split(':')[0] : false;
+};
+
 /**
  * If metadata are enabled in settings but metadata master key does not exist for this device state,
  * try to generate device metadata master key
@@ -99,9 +106,6 @@ const applyDeviceStatesThunk = createThunk(
         { dispatch, getState },
     ) => {
         try {
-            const devices = selectDevices(getState());
-            const devicesByPath = devices.filter(d => d.path === devicePath);
-
             const currentDeviceByStaticSessionId = newDeviceState.staticSessionId
                 ? selectDeviceByStaticSessionId(getState(), newDeviceState.staticSessionId)
                 : null;
@@ -114,6 +118,8 @@ const applyDeviceStatesThunk = createThunk(
                 return;
             }
 
+            const devices = selectDevices(getState());
+            const devicesByPath = devices.filter(d => d.path === devicePath);
             const devicesByPathWithoutState = devicesByPath.filter(d => !d.state?.staticSessionId);
             // sanity check that there is no 2 devices sharing the same path. this shouldn't happen, the only way that comes to my mind
             // is when you would create a copy of device and store it in redux before authorizing it (this is actually the old way of doing things)
@@ -129,31 +135,7 @@ const applyDeviceStatesThunk = createThunk(
             assertStaticSessionId(newDeviceState);
             const { staticSessionId } = newDeviceState;
 
-            // user was adding a hidden wallet but he might have input empty passphrase -> this is defacto standard wallet
-            let useEmptyPassphrase = !isAddingHiddenWallet; // set to reasonable default
-            if (isAddingHiddenWallet) {
-                const emptyPassphraseDevice = devicesByPath.find(d => d.useEmptyPassphrase);
-                let emptyPassphraseDeviceState = emptyPassphraseDevice?.state;
-
-                // no cache hit, query device
-                if (!emptyPassphraseDeviceState) {
-                    const res = await TrezorConnect.getDeviceState({
-                        device,
-                        useEmptyPassphrase: true,
-                    });
-                    if (res.success) {
-                        emptyPassphraseDeviceState = res.payload._state;
-                    }
-
-                    // todo: how to handle error?
-                }
-
-                if (emptyPassphraseDeviceState) {
-                    useEmptyPassphrase =
-                        emptyPassphraseDeviceState!.staticSessionId?.split(':')[0] ===
-                        staticSessionId.split(':')[0];
-                }
-            }
+            const useEmptyPassphrase = !isAddingHiddenWallet;
 
             // now we expect that there is exactly one device without state - meaning that we want to update its state
             const isDeviceAutoEjectEnabled = selectIsDeviceAutoEjectEnabled(getState());
@@ -290,7 +272,8 @@ export const runDiscoveryThunk = createThunk(
 
             if (!isDiscoveryInProgress(discovery)) return;
 
-            const { isAddingHiddenWallet } = discovery;
+            // Can be changed later if the passphrase typed on device is identified as empty
+            let { isAddingHiddenWallet } = discovery;
 
             assertDeviceIsAcquired(device);
             if (isAddingHiddenWallet && device.features && !device.features.passphrase_protection) {
@@ -350,6 +333,42 @@ export const runDiscoveryThunk = createThunk(
 
             const { discovered } = device;
 
+            if (isAddingHiddenWallet) {
+                const duplicate = selectDevices(getState())
+                    .map(d => d.state)
+                    .find(deviceStateEqualTo(deviceState));
+
+                if (duplicate?.staticSessionId) {
+                    dispatch(
+                        discoveryActions.updateDiscovery(
+                            {
+                                status: 'passphrase-duplicate',
+                                duplicateDeviceStaticSessionId: duplicate.staticSessionId,
+                            },
+                            device.path,
+                        ),
+                    );
+
+                    return;
+                }
+
+                const standardWallet = selectDevices(getState()).find(
+                    d => d.path === passedDevice.path && d.useEmptyPassphrase,
+                );
+
+                if (!standardWallet) {
+                    // no passphrase duplicity and no standard wallet -> check that this is not in fact empty passphrase
+                    const res = await TrezorConnect.getDeviceState({
+                        device: { path: passedDevice.path },
+                        useEmptyPassphrase: true,
+                    });
+
+                    if (res.success && deviceStateEqualTo(deviceState)(res.payload._state)) {
+                        isAddingHiddenWallet = false;
+                    }
+                }
+            }
+
             if (!isAddingHiddenWallet) {
                 await dispatch(
                     applyDeviceStatesThunk({
@@ -361,28 +380,6 @@ export const runDiscoveryThunk = createThunk(
             }
 
             device = reselectDevice();
-
-            const duplicate = selectDevices(getState())
-                .filter(d => d.state?.staticSessionId)
-                .find(
-                    d =>
-                        d.state!.staticSessionId!.split(':')[0] ===
-                        deviceState.staticSessionId!.split(':')[0],
-                );
-
-            if (isAddingHiddenWallet && duplicate?.state?.staticSessionId) {
-                dispatch(
-                    discoveryActions.updateDiscovery(
-                        {
-                            status: 'passphrase-duplicate',
-                            duplicateDeviceStaticSessionId: duplicate.state.staticSessionId,
-                        },
-                        device.path,
-                    ),
-                );
-
-                return;
-            }
 
             const accountsParam = selectDiscoveryAccountsParam(
                 getState(),
@@ -528,11 +525,8 @@ export const runDiscoveryThunk = createThunk(
                 return;
             }
 
-            if (
-                // todo: not sure about instance, now it looks that there are 2 devices created in connect
-                getDeviceState2Res.payload._state.staticSessionId?.split(':')[0] !==
-                deviceState.staticSessionId?.split(':')[0]
-            ) {
+            // todo: not sure about instance, now it looks that there are 2 devices created in connect
+            if (!deviceStateEqualTo(deviceState)(getDeviceState2Res.payload._state)) {
                 dispatch(
                     discoveryActions.updateDiscovery(
                         { status: 'passphrase-mismatch' },

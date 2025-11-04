@@ -2,13 +2,11 @@ import styled, { useTheme } from 'styled-components';
 
 import { FirmwareOperationStatus } from '@suite-common/firmware';
 import { TranslationKey } from '@suite-common/intl-types';
-import { Box, Column, Icon, ProgressBar, Row, Text } from '@trezor/components';
+import { Box, Column, ProgressBar, Row, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { Translation } from 'src/components/suite/Translation';
 import { useFirmwareDesktopUpdate } from 'src/hooks/suite/useFirmwareDesktopUpdate';
-
-import { useSelector } from '../../hooks/suite';
 
 const Percentage = styled.div`
     font-variant-numeric: tabular-nums;
@@ -17,26 +15,17 @@ const Percentage = styled.div`
 
 export const FirmwareProgressBar = () => {
     const theme = useTheme();
-    const { operation, progress, uiEvent } = useFirmwareDesktopUpdate();
-    const isActiveOnboarding = useSelector(state => state.onboarding.isActive);
+    const { operation, progress } = useFirmwareDesktopUpdate();
 
     const mapOperationToTranslationId: Record<
         NonNullable<FirmwareOperationStatus['operation']>,
         TranslationKey
     > = {
         installing: 'TR_INSTALLING',
-        restarting: isActiveOnboarding
-            ? 'TR_RESTARTING_TREZOR'
-            : 'TR_RESTARTING_TREZOR_ENTER_PIN_IF_NEEDED',
+        restarting: 'TR_RESTARTING_TREZOR',
         thp: 'TR_FIRMWARE_STATUS_INSTALLATION_COMPLETED',
         completed: 'TR_FIRMWARE_STATUS_INSTALLATION_COMPLETED',
     };
-
-    if (uiEvent?.type === 'ui-firmware_reconnect') {
-        return null;
-    }
-
-    const isDone = progress === 100;
 
     return (
         <Box width="100%">
@@ -51,14 +40,10 @@ export const FirmwareProgressBar = () => {
                         backgroundColor={theme.backgroundNeutralSubtleOnElevationNegative}
                     />
                     <Percentage>
-                        {isDone ? (
-                            <Icon name="check" variant="primary" size={24} />
-                        ) : (
-                            <Text typographyStyle="highlight">
-                                {progress}
-                                {'\u00A0'}%
-                            </Text>
-                        )}
+                        <Text typographyStyle="highlight">
+                            {progress}
+                            {'\u00A0'}%
+                        </Text>
                     </Percentage>
                 </Row>
             </Column>
