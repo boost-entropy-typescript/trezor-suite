@@ -1,0 +1,163 @@
+import { TradingCountryCode } from '@suite-common/trading';
+import {
+    FeatureFlag,
+    FeatureFlagsRootState,
+    featureFlagsInitialState,
+} from '@suite-native/feature-flags';
+import { tradingInitialState } from '@suite-native/trading-consts';
+import { TradingResidenceRootState, TradingResidenceState } from '@suite-native/trading-types';
+
+import {
+    selectIsTradingCountrySet,
+    selectIsTradingEnabledForCountry,
+    selectIsTradingResidenceCheckEnabled,
+    selectShouldDisplayTradingResidenceOnboarding,
+    selectTradingResidenceCountry,
+    selectWasTradingResidenceOnboardingVisited,
+} from '../residenceSelectors';
+
+describe('residenceSelectors', () => {
+    const visitedState: TradingResidenceState = {
+        country: 'US',
+        wasOnboardingVisited: true,
+    };
+
+    const getRootResidenceState = (
+        overrides: Partial<TradingResidenceState>,
+    ): TradingResidenceRootState => ({
+        wallet: {
+            trading: {
+                residence: {
+                    ...tradingInitialState.residence,
+                    ...overrides,
+                },
+            },
+        },
+    });
+
+    const getRootFFState = (isResidenceCheckEnabled = false): FeatureFlagsRootState => ({
+        featureFlags: {
+            ...featureFlagsInitialState,
+            [FeatureFlag.IsTradingResidenceCheckEnabled]: isResidenceCheckEnabled,
+        },
+    });
+
+    describe('selectTradingResidenceCountry', () => {
+        it(' should select the country', () => {
+            expect(
+                selectTradingResidenceCountry(getRootResidenceState(tradingInitialState.residence)),
+            ).toBe(undefined);
+            expect(selectTradingResidenceCountry(getRootResidenceState(visitedState))).toBe('US');
+        });
+    });
+
+    describe('selectWasTradingResidenceOnboardingVisited', () => {
+        it('should select wasOnboardingVisited', () => {
+            expect(
+                selectWasTradingResidenceOnboardingVisited(
+                    getRootResidenceState(tradingInitialState.residence),
+                ),
+            ).toBe(false);
+            expect(
+                selectWasTradingResidenceOnboardingVisited(getRootResidenceState(visitedState)),
+            ).toBe(true);
+        });
+    });
+
+    describe('selectIsTradingResidenceCheckEnabled', () => {
+        it.each([true, false])('should return correct flag state for FF [%s]', flag => {
+            const ffState = getRootFFState(flag);
+
+            expect(selectIsTradingResidenceCheckEnabled(ffState)).toBe(flag);
+        });
+    });
+
+    describe('selectIsTradingEnabledForCountry', () => {
+        it.each<TradingCountryCode | undefined>([undefined, 'unknown', 'US', 'SK'])(
+            'should return true for country [%s] and FF disabled',
+            countryCode => {
+                const state = {
+                    ...getRootResidenceState({ country: countryCode }),
+                    ...getRootFFState(false),
+                };
+                expect(selectIsTradingEnabledForCountry(state)).toBe(true);
+            },
+        );
+
+        it.each<TradingCountryCode>(['US', 'CZ'])(
+            'should return true for whitelisted country [%s] and FF enabled',
+            countryCode => {
+                const state = {
+                    ...getRootResidenceState({ country: countryCode }),
+                    ...getRootFFState(true),
+                };
+
+                expect(selectIsTradingEnabledForCountry(state)).toBe(true);
+            },
+        );
+
+        it.each<TradingCountryCode | undefined>([undefined, 'unknown', 'SK'])(
+            'should return false for non-whitelisted country [%s] and FF enabled',
+            countryCode => {
+                const state = {
+                    ...getRootResidenceState({ country: countryCode }),
+                    ...getRootFFState(true),
+                };
+
+                expect(selectIsTradingEnabledForCountry(state)).toBe(false);
+            },
+        );
+    });
+
+    describe('selectIsTradingCountrySet', () => {
+        it('should be false when selected country is undefined', () => {
+            const state = getRootResidenceState({ country: undefined });
+
+            expect(selectIsTradingCountrySet(state)).toBe(false);
+        });
+
+        it('should be true when selected country is defined', () => {
+            const state = getRootResidenceState({ country: 'US' });
+
+            expect(selectIsTradingCountrySet(state)).toBe(true);
+        });
+    });
+
+    describe('selectShouldDisplayTradingResidenceOnboarding', () => {
+        it('should return false when residence check FF is disabled', () => {
+            const state = {
+                ...getRootResidenceState(tradingInitialState.residence),
+                ...getRootFFState(false),
+            };
+
+            expect(selectShouldDisplayTradingResidenceOnboarding(state)).toBe(false);
+        });
+
+        it('should return false when onboarding was already visited (FF enabled)', () => {
+            const state = {
+                ...getRootResidenceState(visitedState),
+                ...getRootFFState(true),
+            };
+
+            expect(selectShouldDisplayTradingResidenceOnboarding(state)).toBe(false);
+        });
+
+        it('should return false when country is already set (FF enabled)', () => {
+            const state = {
+                ...getRootResidenceState({ country: 'US' }),
+                ...getRootFFState(true),
+            };
+
+            expect(selectShouldDisplayTradingResidenceOnboarding(state)).toBe(false);
+        });
+
+        it('should return true when FF enabled, onboarding not visited and country not set', () => {
+            const state = {
+                ...getRootResidenceState(tradingInitialState.residence),
+                ...getRootFFState(true),
+            };
+
+            expect(selectShouldDisplayTradingResidenceOnboarding(state)).toBe(true);
+        });
+    });
+});

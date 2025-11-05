@@ -1,31 +1,27 @@
-import { ReactNode, createContext, useEffect, useRef, useState } from 'react';
+import { ReactNode, createContext, useRef, useState } from 'react';
 
 import styled, { useTheme } from 'styled-components';
 
 import { ElevationContext, ElevationDown, ElevationUp, Modal, variables } from '@trezor/components';
-import { useDebounce } from '@trezor/react-utils';
 
 import { GuideButton, GuideRouter } from 'src/components/guide';
 import { Metadata } from 'src/components/suite';
 import { SuiteBanners } from 'src/components/suite/banners';
 import { DiscoveryProgress } from 'src/components/wallet';
-import { MobileAccountsMenu } from 'src/components/wallet/WalletLayout/AccountsMenu/MobileAccountsMenu';
-import { useLayoutSize, useSelector } from 'src/hooks/suite';
+import { useLayoutSize } from 'src/hooks/suite';
 import { useClearAnchorHighlightOnClick } from 'src/hooks/suite/useClearAnchorHighlightOnClick';
 import { useResetScrollOnUrl } from 'src/hooks/suite/useResetScrollOnUrl';
-import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 import { LayoutContext, LayoutContextPayload } from 'src/support/suite/LayoutContext';
-import { useResponsiveContext } from 'src/support/suite/ResponsiveContext';
 
 import { AppShortcuts } from './AppShortcuts';
 import { CoinjoinBars } from './CoinjoinBars/CoinjoinBars';
 import { DebugLegend } from './DebugLegend';
-import { MobileMenu } from './MobileMenu/MobileMenu';
 import { PassphraseFlow } from './PassphraseFlow';
 import { PowerMonitorManager } from './PowerMonitor/PowerMonitor';
 import { Sidebar } from './Sidebar/Sidebar';
 import { ModalSwitcher } from '../../modals/ModalSwitcher/ModalSwitcher';
 import { ContentContainer } from '../ContentContainer';
+import { useResponsiveContextOnChange } from './useResponsiveContextOnChange';
 
 export const ScrollContext = createContext<React.RefObject<HTMLDivElement | null>>({
     current: null,
@@ -92,31 +88,8 @@ type MainContentProps = {
 
 export const MainContent = ({ children }: MainContentProps) => {
     const ref = useRef<HTMLDivElement>(null);
-    const { setContentWidth } = useResponsiveContext();
-    const debounce = useDebounce();
 
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver(entries => {
-            if (entries[0]) {
-                const newWidth = entries[0].contentRect.width;
-
-                debounce(() => {
-                    setContentWidth(newWidth);
-                });
-            }
-        });
-
-        if (ref.current) {
-            const boundingRect = ref.current.getBoundingClientRect();
-
-            setContentWidth(boundingRect.width);
-            resizeObserver.observe(ref.current);
-        }
-
-        return () => {
-            resizeObserver.disconnect();
-        };
-    }, [ref, setContentWidth, debounce]);
+    useResponsiveContextOnChange(ref);
 
     return <MainContentContainer ref={ref}>{children}</MainContentContainer>;
 };
@@ -126,7 +99,6 @@ interface SuiteLayoutProps {
 }
 
 export const SuiteLayout = ({ children }: SuiteLayoutProps) => {
-    const selectedAccount = useSelector(selectSelectedAccount);
     const theme = useTheme();
     const [{ title, layoutHeader }, setLayoutPayload] = useState<LayoutContextPayload>({});
 
@@ -134,8 +106,6 @@ export const SuiteLayout = ({ children }: SuiteLayoutProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const { scrollRef } = useResetScrollOnUrl();
     useClearAnchorHighlightOnClick(wrapperRef);
-
-    const isAccountPage = !!selectedAccount;
 
     return (
         <ScrollContext.Provider value={scrollRef}>
@@ -153,26 +123,19 @@ export const SuiteLayout = ({ children }: SuiteLayoutProps) => {
 
                             {isBelowTablet && <CoinjoinBars />}
 
-                            {isBelowTablet && <MobileMenu />}
-
                             <DiscoveryProgress />
 
                             <LayoutContext.Provider value={setLayoutPayload}>
                                 <Body data-testid="@suite-layout/body">
                                     <Columns>
-                                        {!isBelowTablet && (
-                                            <ElevationDown>
-                                                <Sidebar />
-                                            </ElevationDown>
-                                        )}
+                                        <ElevationDown>
+                                            <Sidebar />
+                                        </ElevationDown>
                                         <MainContent>
                                             {!isBelowTablet && <CoinjoinBars />}
                                             <SuiteBanners />
                                             <AppWrapper data-testid="@app" ref={scrollRef}>
                                                 <ElevationUp>
-                                                    {isBelowTablet && isAccountPage && (
-                                                        <MobileAccountsMenu />
-                                                    )}
                                                     {layoutHeader}
 
                                                     <ContentContainer>{children}</ContentContainer>

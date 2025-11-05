@@ -17,7 +17,6 @@ import { GuideButton, GuideRouter } from 'src/components/guide';
 // importing directly, otherwise unit tests fail, seems to be a styled-components issue
 import { SuiteBanners } from 'src/components/suite/banners';
 import { useSelector } from 'src/hooks/suite';
-import { ResponsiveContextProvider } from 'src/support/suite/ResponsiveContext';
 
 import { TrafficLightOffset } from '../../TrafficLightOffset';
 import { ContentContainer } from '../ContentContainer';
@@ -25,6 +24,7 @@ import { PageHeader } from '../SuiteLayout';
 import { DebugLegend } from '../SuiteLayout/DebugLegend';
 import { BasicName } from '../SuiteLayout/PageHeader/PageNames/BasicName';
 import { Sidebar } from '../SuiteLayout/Sidebar/Sidebar';
+import { MainContent } from '../SuiteLayout/SuiteLayout';
 
 const Content = styled.div<{ $elevation: Elevation; $verticalCenter?: boolean }>`
     display: flex;
@@ -78,32 +78,28 @@ const RightSideContent = ({ showPureChildren, children }: RightContentProps) => 
     if (showPureChildren) {
         return (
             <TrafficLightOffset>
-                <Column alignItems="center" width="100%" height="100%">
-                    <SuiteBanners />
-                    <Content $elevation={elevation} $verticalCenter={true}>
-                        <PureChildrenWrapper>
-                            <ElevationUp>{children}</ElevationUp>
-                        </PureChildrenWrapper>
-                    </Content>
-                </Column>
+                <SuiteBanners />
+                <Content $elevation={elevation} $verticalCenter={true}>
+                    <PureChildrenWrapper>
+                        <ElevationUp>{children}</ElevationUp>
+                    </PureChildrenWrapper>
+                </Content>
             </TrafficLightOffset>
         );
     }
 
     return (
-        <ResponsiveContextProvider>
-            <Content $elevation={elevation}>
-                <SuiteBanners />
-                <WelcomePageHeaderWrapper>
-                    <PageHeader>
-                        <BasicName nameId="TR_DASHBOARD" />
-                    </PageHeader>
-                </WelcomePageHeaderWrapper>
-                <ContentContainer>
-                    <ElevationUp>{children}</ElevationUp>
-                </ContentContainer>
-            </Content>
-        </ResponsiveContextProvider>
+        <>
+            <SuiteBanners />
+            <WelcomePageHeaderWrapper>
+                <PageHeader>
+                    <BasicName nameId="TR_DASHBOARD" />
+                </PageHeader>
+            </WelcomePageHeaderWrapper>
+            <ContentContainer>
+                <ElevationUp>{children}</ElevationUp>
+            </ContentContainer>
+        </>
     );
 };
 
@@ -132,9 +128,11 @@ export const WelcomeLayoutWithoutModalSwitcher = ({
                                 <Sidebar showAccounts={showAccounts} />
                             </ElevationDown>
                         ) : null}
-                        <RightSideContent showPureChildren={showPureChildren}>
-                            {children}
-                        </RightSideContent>
+                        <MainContent>
+                            <RightSideContent showPureChildren={showPureChildren}>
+                                {children}
+                            </RightSideContent>
+                        </MainContent>
                         <GuideButton />
                         <GuideRouter />
                     </Modal.Provider>

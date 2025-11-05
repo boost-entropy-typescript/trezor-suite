@@ -13,16 +13,17 @@ import {
     renderHook,
     renderHookWithStoreProviderAsync,
 } from '@suite-native/test-utils';
-import { selectTradingResidenceCountry } from '@suite-native/trading-residence';
+import {
+    btcAsset,
+    buyQuotes,
+    getBtcAccount,
+    getInitializedTradingState,
+    usdcAsset,
+} from '@suite-native/trading-fixtures';
+import { buyActions, selectTradingResidenceCountry } from '@suite-native/trading-state';
+import { BuyFormType, TradeableAsset } from '@suite-native/trading-types';
 import { PROTO } from '@trezor/connect';
 
-import { getBtcAccount } from '../../../__fixtures__/account';
-import quotes from '../../../__fixtures__/buyQuotes.json';
-import { btcAsset, usdcAsset } from '../../../__fixtures__/tradeableAssets';
-import { getInitializedTradingState } from '../../../__fixtures__/tradingState';
-import { buyActions } from '../../../reducers';
-import { BuyFormType } from '../../../types/buy';
-import { TradeableAsset } from '../../../types/general';
 import { clearBuyFormQuoteData, useBuyForm } from '../useBuyForm';
 
 jest.mock('@trezor/react-utils', () => {
@@ -66,7 +67,7 @@ describe('useBuyForm', () => {
         });
 
         act(() => {
-            store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+            store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
         });
     };
 
@@ -272,7 +273,7 @@ describe('useBuyForm', () => {
                 result.current.setValue('fiatValue', '10');
                 result.current.setValue('asset', btcAsset);
                 // Only provide credit card quote
-                store.dispatch(tradingBuyActions.saveQuotes([quotes[0]] as BuyTrade[]));
+                store.dispatch(tradingBuyActions.saveQuotes([buyQuotes[0]]));
             });
 
             expect(result.current.getValues('quote')).toEqual(
@@ -322,7 +323,7 @@ describe('useBuyForm', () => {
                 result.current.setValue('amountInCrypto', true);
                 result.current.setValue('asset', btcAsset);
                 result.current.setValue('cryptoValue', '1');
-                store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
             });
 
             act(() => {
@@ -340,7 +341,7 @@ describe('useBuyForm', () => {
             initFormAndQuotes(result.current, store);
 
             act(() => {
-                result.current.setValue('quote', quotes[0] as BuyTrade);
+                result.current.setValue('quote', buyQuotes[0]);
             });
 
             expect(result.current.getValues('cryptoValue')).toEqual('0.001000168');
@@ -355,11 +356,11 @@ describe('useBuyForm', () => {
                 result.current.setValue('asset', btcAsset);
                 result.current.setValue('amountInCrypto', true);
                 result.current.setValue('cryptoValue', '100');
-                store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
             });
 
             act(() => {
-                const newQuote = { ...quotes[0], fiatStringAmount: '10.123456789' } as BuyTrade;
+                const newQuote = { ...buyQuotes[0], fiatStringAmount: '10.123456789' } as BuyTrade;
                 result.current.setValue('quote', newQuote);
             });
 
@@ -385,39 +386,39 @@ describe('useBuyForm', () => {
 
             it('should select quote with same payment method and provider', () => {
                 act(() => {
-                    form.setValue('quote', { ...quotes[3], orderId: 'test1' } as BuyTrade);
+                    form.setValue('quote', { ...buyQuotes[3], orderId: 'test1' } as BuyTrade);
                 });
 
                 act(() => {
-                    store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
                 });
 
-                expect(form.getValues('quote')).toEqual(quotes[3]);
+                expect(form.getValues('quote')).toEqual(buyQuotes[3]);
             });
 
             it('should select 1st quote with same payment method if same provider is not available', () => {
                 act(() => {
                     form.setValue('quote', {
-                        ...quotes[3],
+                        ...buyQuotes[3],
                         orderId: 'test1',
                         exchange: 'unavailable',
                     } as BuyTrade);
                 });
 
                 act(() => {
-                    store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
                 });
 
-                expect(form.getValues('quote')).toEqual(quotes[1]);
+                expect(form.getValues('quote')).toEqual(buyQuotes[1]);
             });
 
             it('should select 1st quote on new quotes when payment method is not available even with different provider', () => {
                 act(() => {
-                    store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
                 });
 
                 act(() => {
-                    store.dispatch(tradingBuyActions.saveQuotes([quotes[0]] as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes([buyQuotes[0]]));
                 });
 
                 expect(form.getValues('quote')).toEqual(
@@ -633,7 +634,7 @@ describe('useBuyForm', () => {
                             wantCrypto: true,
                         }),
                     );
-                    store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
                     store.dispatch(tradingBuyActions.setAmountLimits(undefined));
                 });
 
@@ -658,7 +659,7 @@ describe('useBuyForm', () => {
                 });
 
                 act(() => {
-                    store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+                    store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
                 });
 
                 expect(result.current.getValues('generalAlert')).toBeUndefined();
@@ -687,7 +688,7 @@ describe('useBuyForm', () => {
             act(() => {
                 result.current.setValue('fiatValue', '10');
                 result.current.setValue('cryptoValue', '10');
-                result.current.setValue('quote', quotes[0] as BuyTrade);
+                result.current.setValue('quote', buyQuotes[0]);
             });
 
             act(() => {

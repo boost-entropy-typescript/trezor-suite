@@ -4,11 +4,10 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { exchangeQuotes, usdcAsset } from '@suite-native/trading-fixtures';
+import { ExchangeFormType } from '@suite-native/trading-types';
 
-import { exchangeQuotes } from '../../../../__fixtures__/exchangeQuotes';
-import { usdcAsset } from '../../../../__fixtures__/tradeableAssets';
 import { useExchangeForm } from '../../../../hooks/exchange/useExchangeForm';
-import { ExchangeFormType } from '../../../../types/exchange';
 import { ExchangeReceiveCard } from '../ExchangeReceiveCard';
 
 describe('ExchangeReceiveCard', () => {

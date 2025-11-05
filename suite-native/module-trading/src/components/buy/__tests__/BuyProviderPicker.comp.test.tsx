@@ -1,5 +1,3 @@
-import type { BuyTrade } from 'invity-api';
-
 import { EventType, analytics } from '@suite-native/analytics';
 import { Form } from '@suite-native/forms';
 import {
@@ -9,12 +7,16 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import {
+    buyCexdirect,
+    buyInvity,
+    buyMercuryo,
+    buyQuotes,
+    getInitializedTradingStateWithQuotes,
+} from '@suite-native/trading-fixtures';
+import { BuyFormType } from '@suite-native/trading-types';
 
-import { buyCexdirect, buyInvity, buyMercuryo } from '../../../__fixtures__/buyProviders';
-import quotes from '../../../__fixtures__/buyQuotes.json';
-import { getInitializedTradingStateWithQuotes } from '../../../__fixtures__/tradingState';
 import { useBuyForm } from '../../../hooks/buy/useBuyForm';
-import { BuyFormType } from '../../../types/buy';
 import { BuyProviderPicker } from '../BuyProviderPicker';
 
 describe('BuyProviderPicker', () => {
@@ -59,7 +61,7 @@ describe('BuyProviderPicker', () => {
 
         beforeEach(() => {
             act(() => {
-                form.setValue('quote', quotes[1] as BuyTrade);
+                form.setValue('quote', buyQuotes[1]);
             });
 
             preloadedState = { wallet: { trading: getInitializedTradingStateWithQuotes() } };

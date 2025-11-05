@@ -6,8 +6,8 @@ import {
     initStore,
     renderHookWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { residenceActions } from '@suite-native/trading-state';
 
-import { tradingResidenceActions } from '../../reducers/residenceSlice';
 import { useLocationForm } from '../useLocationForm';
 
 describe('useLocationForm', () => {
@@ -22,7 +22,7 @@ describe('useLocationForm', () => {
 
     it('should use default value from redux state', async () => {
         act(() => {
-            store.dispatch(tradingResidenceActions.setResidenceCountry('CZ'));
+            store.dispatch(residenceActions.setResidenceCountry('CZ'));
         });
 
         const { result } = await renderUseLocationForm();

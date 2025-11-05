@@ -1,5 +1,4 @@
 import { EnhancedStore } from '@reduxjs/toolkit';
-import type { BuyTrade } from 'invity-api';
 
 import { tradingBuyActions } from '@suite-common/trading';
 import { EventType, analytics } from '@suite-native/analytics';
@@ -12,11 +11,10 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { buyQuotes, getInitializedTradingStateWithQuotes } from '@suite-native/trading-fixtures';
+import { BuyFormType } from '@suite-native/trading-types';
 
-import quotes from '../../../__fixtures__/buyQuotes.json';
-import { getInitializedTradingStateWithQuotes } from '../../../__fixtures__/tradingState';
 import { useBuyForm } from '../../../hooks/buy/useBuyForm';
-import { BuyFormType } from '../../../types/buy';
 import { BuyPaymentMethodPicker } from '../BuyPaymentMethodPicker';
 
 describe('BuyPaymentMethodPicker', () => {
@@ -83,7 +81,7 @@ describe('BuyPaymentMethodPicker', () => {
 
         it('should display sheet even while quotes are fetched', async () => {
             const store = await initStore();
-            store.dispatch(tradingBuyActions.saveQuotes(quotes as BuyTrade[]));
+            store.dispatch(tradingBuyActions.saveQuotes(buyQuotes));
             const { getByText } = await renderPaymentMethodPicker(undefined, store);
 
             fireEvent.press(getByText('Payment method'));
@@ -125,7 +123,7 @@ describe('BuyPaymentMethodPicker', () => {
 
                 act(() => {
                     // set credit card as selected payment method
-                    form.setValue('quote', quotes[1] as BuyTrade);
+                    form.setValue('quote', buyQuotes[1]);
                 });
 
                 fireEvent.press(getByText('Payment method'));
@@ -139,7 +137,7 @@ describe('BuyPaymentMethodPicker', () => {
 
                 act(() => {
                     // set credit card as selected payment method
-                    form.setValue('quote', quotes[1] as BuyTrade);
+                    form.setValue('quote', buyQuotes[1]);
                 });
 
                 fireEvent.press(getByText('Payment method'));

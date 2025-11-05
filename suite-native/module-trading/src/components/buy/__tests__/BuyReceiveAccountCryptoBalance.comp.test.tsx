@@ -4,11 +4,10 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { btcAsset, getBtcAccount } from '@suite-native/trading-fixtures';
+import { BuyFormType } from '@suite-native/trading-types';
 
-import { getBtcAccount } from '../../../__fixtures__/account';
-import { btcAsset } from '../../../__fixtures__/tradeableAssets';
 import { useBuyForm } from '../../../hooks/buy/useBuyForm';
-import { BuyFormType } from '../../../types/buy';
 import {
     BuyReceiveAccountCryptoBalance,
     RECEIVE_ACCOUNT_BALANCE_TEST_ID,

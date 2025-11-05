@@ -7,11 +7,10 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { getWalletState, sellQuotes } from '@suite-native/trading-fixtures';
+import { SellFormType } from '@suite-native/trading-types';
 
-import { sellQuotes } from '../../../../__fixtures__/sellQuotes';
-import { getWalletState } from '../../../../__fixtures__/walletState';
 import { useSellForm } from '../../../../hooks/sell/useSellForm';
-import { SellFormType } from '../../../../types/sell';
 import { SellReceiveMethodPicker } from '../SellReceiveMethodPicker';
 
 describe('SellReceiveMethodPicker', () => {

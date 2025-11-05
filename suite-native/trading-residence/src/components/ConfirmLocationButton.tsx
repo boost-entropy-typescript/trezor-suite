@@ -2,10 +2,10 @@ import { useDispatch } from 'react-redux';
 
 import { Button } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
+import { residenceActions } from '@suite-native/trading-state';
 
 import { useCountrySelectionAnalyticsReport } from '../hooks/useCountrySelectionAnalyticsReport';
 import { useFormCountryCode } from '../hooks/useFormCountryCode';
-import { tradingResidenceActions } from '../reducers/residenceSlice';
 import { getPreferredCountryOption } from '../utils/getPreferredCountryOption';
 
 export type ConfirmLocationButtonProps = {
@@ -18,7 +18,7 @@ export const ConfirmLocationButton = ({ afterConfirm }: ConfirmLocationButtonPro
     const analyticsReport = useCountrySelectionAnalyticsReport();
 
     const confirmLocation = () => {
-        dispatch(tradingResidenceActions.setResidenceCountry(countryCode));
+        dispatch(residenceActions.setResidenceCountry(countryCode));
         analyticsReport(
             getPreferredCountryOption().value === countryCode ? 'submitDefault' : 'submitCustom',
         );

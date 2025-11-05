@@ -9,18 +9,20 @@ import {
     renderWithStoreProviderAsync,
     userEvent,
 } from '@suite-native/test-utils';
+import {
+    getBtcAccount,
+    getEthAccount,
+    getInitializedTradingState,
+} from '@suite-native/trading-fixtures';
+import { selectAccountsWithTokensToSellSectionCondensedListByTradingType } from '@suite-native/trading-state';
+import { MyAssetTradeable, SellFormType } from '@suite-native/trading-types';
 import { BigNumber } from '@trezor/utils';
 
-import { getBtcAccount, getEthAccount } from '../../../../__fixtures__/account';
-import { getInitializedTradingState } from '../../../../__fixtures__/tradingState';
 import { useSellForm } from '../../../../hooks/sell/useSellForm';
-import { selectAccountsWithTokensToSellSectionCondensedListByTradingType } from '../../../../selectors/commonSelectors';
-import { MyAssetTradeable } from '../../../../types/general';
-import { SellFormType } from '../../../../types/sell';
 import { SellSendAssetPicker } from '../SellSendAssetPicker';
 
-jest.mock('../../../../selectors/commonSelectors', () => ({
-    ...jest.requireActual('../../../../selectors/commonSelectors'),
+jest.mock('@suite-native/trading-state', () => ({
+    ...jest.requireActual('@suite-native/trading-state'),
     selectAccountsWithTokensToSellSectionCondensedListByTradingType: jest.fn(),
 }));
 const mockedSelectAccountsWithTokensToSellSectionListByTradingType =

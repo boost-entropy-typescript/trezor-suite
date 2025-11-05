@@ -7,12 +7,11 @@ import {
     renderHookWithStoreProviderAsync,
     renderWithStoreProviderAsync,
 } from '@suite-native/test-utils';
+import { btcAsset, getInitializedTradingStateWithQuotes } from '@suite-native/trading-fixtures';
+import { BuyFormType } from '@suite-native/trading-types';
 import { PROTO } from '@trezor/connect';
 
-import { btcAsset } from '../../../__fixtures__/tradeableAssets';
-import { getInitializedTradingStateWithQuotes } from '../../../__fixtures__/tradingState';
 import { useBuyForm } from '../../../hooks/buy/useBuyForm';
-import { BuyFormType } from '../../../types/buy';
 import { BuyFormFieldErrorBadge, BuyFormFieldErrorBadgeProps } from '../BuyFormFieldErrorBadge';
 
 describe('BuyFormFieldErrorBadge', () => {

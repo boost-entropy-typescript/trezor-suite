@@ -1,0 +1,100 @@
+import type { CryptoId } from 'invity-api';
+
+import { tradingInitialState } from '@suite-native/trading-consts';
+import { sellQuotes } from '@suite-native/trading-fixtures';
+import { TradingSellState } from '@suite-native/trading-types';
+
+import { sellActions, sellReducer } from '../sellSlice';
+
+describe('sellSlice', () => {
+    describe('clearState', () => {
+        it('should clear the state', () => {
+            const prevState: TradingSellState = {
+                ...tradingInitialState.sell,
+                tradingAccountKey: 'account-key',
+                quotesRequest: {
+                    fiatCurrency: 'czk',
+                    country: 'CZ',
+                    cryptoCurrency: 'bitcoin' as CryptoId,
+                    amountInCrypto: true,
+                },
+                quotes: sellQuotes,
+                selectedQuote: sellQuotes[0],
+                amountLimits: {
+                    currency: 'CZK',
+                    minFiat: '100',
+                },
+            };
+
+            const state = sellReducer(prevState, sellActions.clearState());
+
+            expect(state).toEqual(tradingInitialState.sell);
+        });
+    });
+
+    describe('clearQuotesAndQuotesRequest', () => {
+        it('should clear quotes and quotesRequest', () => {
+            const prevState: TradingSellState = {
+                ...tradingInitialState.sell,
+                quotesRequest: {
+                    fiatCurrency: 'czk',
+                    country: 'CZ',
+                    cryptoCurrency: 'bitcoin' as CryptoId,
+                    amountInCrypto: true,
+                },
+                quotes: sellQuotes,
+            };
+
+            const state = sellReducer(prevState, sellActions.clearQuotesAndQuotesRequest());
+
+            expect(state.quotes).toEqual([]);
+            expect(state.quotesRequest).toBeUndefined();
+        });
+    });
+
+    describe('sendAssetChanged', () => {
+        it('should clear amount limits and quotes request data', () => {
+            const prevState: TradingSellState = {
+                ...tradingInitialState.sell,
+                amountLimits: {
+                    currency: 'CZK',
+                    minFiat: '100',
+                },
+                quotesRequest: {
+                    fiatCurrency: 'czk',
+                    country: 'CZ',
+                    cryptoCurrency: 'bitcoin' as CryptoId,
+                    amountInCrypto: true,
+                },
+            };
+
+            const state = sellReducer(prevState, sellActions.sendAssetChanged());
+
+            expect(state.amountLimits).toBeUndefined();
+            expect(state.quotesRequest).toBeUndefined();
+        });
+    });
+
+    describe('fiatCurrencyChanged', () => {
+        it('should clear amount limits and quotes request data', () => {
+            const prevState: TradingSellState = {
+                ...tradingInitialState.sell,
+                amountLimits: {
+                    currency: 'CZK',
+                    minFiat: '100',
+                },
+                quotesRequest: {
+                    fiatCurrency: 'czk',
+                    country: 'CZ',
+                    cryptoCurrency: 'bitcoin' as CryptoId,
+                    amountInCrypto: true,
+                },
+            };
+
+            const state = sellReducer(prevState, sellActions.fiatCurrencyChanged());
+
+            expect(state.amountLimits).toBeUndefined();
+            expect(state.quotesRequest).toBeUndefined();
+        });
+    });
+});

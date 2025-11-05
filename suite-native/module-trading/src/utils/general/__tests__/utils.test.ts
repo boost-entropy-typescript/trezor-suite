@@ -1,22 +1,20 @@
-import type { BuyTradeStatus, CryptoId, ExchangeTradeStatus, SellTradeStatus } from 'invity-api';
+import type { BuyTradeStatus, ExchangeTradeStatus, SellTradeStatus } from 'invity-api';
 
 import type { TradingTransaction, TradingType } from '@suite-common/trading';
 import { FormDraftKeyPrefix } from '@suite-common/wallet-types';
 import { useTranslate } from '@suite-native/intl';
 import { renderHookWithBasicProvider } from '@suite-native/test-utils';
+import { getBuyTrade, getExchangeTrade, getSellTrade } from '@suite-native/trading-fixtures';
 
-import { getBuyTrade, getExchangeTrade, getSellTrade } from '../../../__fixtures__/trades';
 import { INVITY_CALLBACK_TREZOR_BUY_URL, TRADING_URL_DEFAULT_BACK } from '../formUtils';
 import {
     doesUrlContainCloseCallbackUrl,
     getErrorStrFromThunkRejectedValue,
-    getFormDraftKeyByTradeType,
     getFormDraftKeyPrefixFromTradingType,
     getRandomAccountDescriptor,
     getTradeOperationData,
     getTradeStatusStep,
     getTradeTitle,
-    toCaseAwareCryptoId,
 } from '../utils';
 
 describe('utils', () => {
@@ -201,39 +199,6 @@ describe('utils', () => {
             ['Unknown error', 42],
         ])('should return %s when called with %o', (expected, input) => {
             expect(getErrorStrFromThunkRejectedValue(input)).toBe(expected);
-        });
-    });
-
-    describe('toCaseAwareCryptoId', () => {
-        it.each<[string, CryptoId]>([
-            ['bitcoin', 'bitcoin' as CryptoId],
-            ['ethereum', 'ethereum' as CryptoId],
-            [
-                'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-                'ethereum--0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48' as CryptoId,
-            ],
-            [
-                'base--0x0000000000000000000000000000000000000000',
-                'base--0x0000000000000000000000000000000000000000' as CryptoId,
-            ],
-            [
-                'solana--JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
-                'solana--JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' as CryptoId,
-            ],
-        ])('should return %s for %s', (expectedValue, cryptoId) => {
-            expect(toCaseAwareCryptoId(cryptoId)).toBe(expectedValue);
-        });
-    });
-
-    describe('getFormDraftKeyByTradeType', () => {
-        it('should return correct form draft key for exchange trade type', () => {
-            const result = getFormDraftKeyByTradeType('exchange');
-            expect(result).toBe('trading-exchange/');
-        });
-
-        it('should return correct form draft key for sell trade type', () => {
-            const result = getFormDraftKeyByTradeType('sell');
-            expect(result).toBe('trading-sell/');
         });
     });
 });
