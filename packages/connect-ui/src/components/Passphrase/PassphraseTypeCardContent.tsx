@@ -193,9 +193,9 @@ export const PassphraseTypeCardContent = ({
                                             type === 'hidden' ? 'hidden' : 'standard'
                                         }/submit-button`}
                                         isDisabled={isPassphraseEmpty || isPassphraseTooLong}
-                                        variant="primary"
+                                        intent="brand"
                                         onClick={() => submit(value)}
-                                        isFullWidth
+                                        width="100%"
                                     >
                                         {submitLabel}
                                     </ActionButton>

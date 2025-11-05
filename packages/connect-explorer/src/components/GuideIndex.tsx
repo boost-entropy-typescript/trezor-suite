@@ -37,7 +37,12 @@ export default function GuideIndex(): ReactNode {
                 <H3>{page.meta?.title || page.frontMatter?.title || page.name}</H3>
                 <Paragraph>{page.frontMatter?.description}</Paragraph>
                 <BottomRow>
-                    <Button variant="primary" size="tiny" icon="arrowRight" iconAlignment="end">
+                    <Button
+                        intent="neutral"
+                        priority="secondary"
+                        size="small"
+                        iconRight="arrowUpRight"
+                    >
                         Read more
                     </Button>
                 </BottomRow>

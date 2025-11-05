@@ -3,12 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Button as ButtonComponent, ButtonProps, allowedButtonFrameProps } from './Button';
 import { variables } from '../../../config';
 import { getFramePropsStory } from '../../../utils/frameProps';
-import {
-    buttonSizes,
-    buttonVariants,
-    iconAlignments,
-    subtleButtonVariants,
-} from '../buttonStyleUtils';
+import { buttonIntents, buttonPriorities, buttonSizes } from '../types';
 
 const meta: Meta<ButtonProps> = {
     title: 'Buttons',
@@ -19,95 +14,61 @@ export default meta;
 
 export const Button: StoryObj<ButtonProps> = {
     args: {
-        children: 'Button label',
+        children: 'Placeholder',
         onClick: () => null,
         href: undefined,
         target: undefined,
-        variant: 'primary',
+        intent: 'brand',
+        priority: 'primary',
         size: 'medium',
         isDisabled: false,
         isLoading: false,
-        isFullWidth: false,
-        isSubtle: false,
-        iconAlignment: 'start',
-        title: 'Button title',
+        isInverse: false,
+        shortcut: undefined,
         ...getFramePropsStory(allowedButtonFrameProps).args,
     },
     argTypes: {
         children: {
-            table: {
-                type: {
-                    summary: 'ReactNode',
-                },
-            },
+            type: 'string',
         },
         href: {
-            description: `HTML based href. This creates also anchor from button element.`,
+            type: 'string',
         },
         target: {
-            description: `HTML based target. Related only for href attribute.`,
+            type: 'string',
         },
-        variant: {
-            control: {
-                type: 'radio',
-            },
-            options: buttonVariants,
+        intent: {
+            control: { type: 'select' },
+            options: buttonIntents,
+        },
+        priority: {
+            control: { type: 'select' },
+            options: buttonPriorities,
         },
         size: {
-            control: {
-                type: 'radio',
-            },
+            control: { type: 'select' },
             options: buttonSizes,
         },
         isDisabled: {
-            control: {
-                type: 'boolean',
-            },
-        },
-        isSubtle: {
-            control: {
-                type: 'boolean',
-            },
-            description: `Available only for variants: <strong>${subtleButtonVariants.join(', ')}</strong>`,
+            type: 'boolean',
         },
         isLoading: {
-            control: {
-                type: 'boolean',
-            },
+            type: 'boolean',
         },
-        isFullWidth: {
-            control: {
-                type: 'boolean',
-            },
+        isInverse: {
+            type: 'boolean',
         },
-        icon: {
+        iconLeft: {
             options: [null, ...variables.ICONS],
-            control: {
-                type: 'select',
-                labels: {
-                    'No icon': null,
-                    ...variables.ICONS.reduce((acc, icon) => ({ ...acc, [icon]: icon }), {}),
-                },
-            },
+            control: { type: 'select' },
         },
-        iconSize: {
-            control: {
-                type: 'number',
-            },
+        iconRight: {
+            options: [null, ...variables.ICONS],
+            control: { type: 'select' },
         },
-        iconAlignment: {
-            control: {
-                type: 'radio',
-            },
-            options: iconAlignments,
-        },
-        title: {
-            control: { type: 'text' },
+        shortcut: {
+            control: { type: 'object' },
         },
         ...getFramePropsStory(allowedButtonFrameProps).argTypes,
-    },
-
-    parameters: {
-        controls: { expanded: true },
     },
 };

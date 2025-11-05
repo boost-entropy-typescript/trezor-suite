@@ -99,8 +99,8 @@ export function CollapsibleFees({
                     <Row justifyContent="center">
                         {isCustomFee && (
                             <Button
-                                variant="tertiary"
-                                size="small"
+                                intent="neutral"
+                                priority="secondary"
                                 onClick={() => changeFeeLevel('normal')}
                                 data-testid="@wallet/fees/select-standard-fee"
                             >

@@ -1,10 +1,4 @@
-import {
-    NewButton,
-    NewButtonProps,
-    TOOLTIP_DELAY_NORMAL,
-    TextButton,
-    Tooltip,
-} from '@trezor/components';
+import { Button, ButtonProps, TOOLTIP_DELAY_NORMAL, TextButton, Tooltip } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { openModal } from 'src/actions/suite/modalActions';
@@ -25,7 +19,7 @@ const getExplanationMessage = (device: TrezorDevice | undefined, discoveryIsRunn
     return message;
 };
 
-interface AddAccountButtonProps extends Omit<NewButtonProps, 'children'> {
+interface AddAccountButtonProps extends Omit<ButtonProps, 'children'> {
     device: TrezorDevice | undefined;
     closeMenu?: () => void;
     isDisabled?: boolean;
@@ -73,6 +67,9 @@ export const AddAccountButton = ({
         if (closeMenu) closeMenu();
     };
 
+    const { size, isInverse, iconLeft, iconRight, intent, priority, shortcut, ...textButtonRest } =
+        rest;
+
     const ButtonComponent = isIconOnly ? (
         <Tooltip isActive={!tooltipMessage} content={<Translation id="TR_ADD_ACCOUNT" />}>
             <TextButton
@@ -82,11 +79,11 @@ export const AddAccountButton = ({
                 size="small"
                 variant="tertiary"
                 margin={{ right: isSidebarCollapsed ? 0 : spacings.xs }}
-                {...rest}
+                {...textButtonRest}
             />
         </Tooltip>
     ) : (
-        <NewButton
+        <Button
             onClick={device ? handleOnClick : undefined}
             iconLeft="plus"
             isDisabled={addAccountDisabled || isDisabled}
@@ -96,7 +93,7 @@ export const AddAccountButton = ({
             {...rest}
         >
             <Translation id="TR_ADD_ACCOUNT" />
-        </NewButton>
+        </Button>
     );
 
     if (tooltipMessage) {

@@ -1,8 +1,6 @@
-import { ButtonHTMLAttributes, JSX } from 'react';
+import { ButtonHTMLAttributes } from 'react';
 
 import styled, { useTheme } from 'styled-components';
-
-import { CSSColor, Elevation, borders, spacingsPx, typography } from '@trezor/theme';
 
 import {
     FrameProps,
@@ -11,99 +9,54 @@ import {
     withFrameProps,
 } from '../../../utils/frameProps';
 import { TransientProps } from '../../../utils/transientProps';
-import { focusStyleTransition, getFocusShadowStyle } from '../../../utils/utils';
-import { useElevation } from '../../ElevationContext/ElevationContext';
+import { Box } from '../../Box/Box';
+import { Row } from '../../Flex/Flex';
 import { Icon, IconName } from '../../Icon/Icon';
 import { Spinner } from '../../loaders/Spinner/Spinner';
+import { Text } from '../../typography/Text/Text';
+import { ButtonIntent, ButtonPriority, ButtonSize } from '../types';
 import {
-    ButtonSize,
-    ButtonVariant,
-    IconAlignment,
-    getIconColor,
-    getIconSize,
-    getPadding,
-    useVariantStyle,
-} from '../buttonStyleUtils';
+    addAlphaToHex,
+    commonButtonStyles,
+    mapPropsToCSS,
+    mapPropsToColor,
+    mapSizeToBorderRadius,
+    mapSizeToIconSize,
+    mapSizeToTypographyStyle,
+} from '../utils';
+import { mapSizeToGap, mapSizeToPadding } from './utils';
 
 export const allowedButtonFrameProps = [
     'margin',
     'minWidth',
     'maxWidth',
+    'width',
     'flex',
 ] as const satisfies FramePropsKeys[];
 export type AllowedButtonFrameProps = Pick<FrameProps, (typeof allowedButtonFrameProps)[number]>;
 
-export type IconOrComponent = IconName | JSX.Element;
-
 type ButtonContainerProps = TransientProps<AllowedButtonFrameProps> & {
-    $elevation: Elevation;
-    $variant: ButtonVariant;
     $size: ButtonSize;
-    $iconAlignment?: IconAlignment;
-    $hasIcon?: boolean;
-    $isFullWidth?: boolean;
-    $isSubtle: boolean;
-    $hasLabel: boolean;
-    as?: 'a' | 'button';
-    $borderRadius?: typeof borders.radii.sm | typeof borders.radii.full; // Do not allow all, we want consistency
+    $priority: ButtonPriority;
+    $intent: ButtonIntent;
+    $isInverse: boolean;
+    $isDisabled: boolean;
 };
 
-export const ButtonContainer = styled.button<ButtonContainerProps>`
-    -webkit-app-region: no-drag;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: ${({ $iconAlignment }) => $iconAlignment === 'end' && 'row-reverse'};
-    gap: ${({ $hasIcon }) => $hasIcon && spacingsPx.xs};
-    padding: ${({ $size, $hasLabel }) => getPadding($size, $hasLabel)};
-    width: ${({ $isFullWidth }) => ($isFullWidth ? '100%' : 'fit-content')};
-    border-radius: ${({ $borderRadius }) => $borderRadius ?? borders.radii.full};
-    transition:
-        ${focusStyleTransition},
-        background 0.1s ease-out;
-    outline: none;
-    cursor: pointer;
-    border: 1px solid transparent;
+const Container = styled.button<ButtonContainerProps>`
+    ${commonButtonStyles}
 
-    ${getFocusShadowStyle()}
-    ${({ $variant, $isSubtle, $elevation }) => useVariantStyle($variant, $isSubtle, $elevation)}
-    &:disabled {
-        background: ${({ theme }) => theme.backgroundNeutralDisabled};
-        color: ${({ theme }) => theme.textDisabled};
-        cursor: not-allowed;
-    }
+    border-radius: ${({ $size }) => mapSizeToBorderRadius($size)};
+
+    ${({ $intent, $priority, $isDisabled, $isInverse, theme }) =>
+        mapPropsToCSS($intent, $priority, $isDisabled, $isInverse, theme)}
 
     ${withFrameProps}
 `;
 
-interface ContentProps {
-    $size: ButtonSize;
-    $disabled: boolean;
-    $textWrap: boolean;
-}
-
-const getTypography = (size: ButtonSize) => {
-    const map: Record<ButtonSize, string> = {
-        large: typography.body,
-        medium: typography.body,
-        small: typography.hint,
-        tiny: typography.hint,
-    };
-
-    return map[size];
-};
-
-const Content = styled.div<ContentProps>`
-    white-space: ${({ $textWrap }) => ($textWrap ? 'normal' : 'nowrap')};
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    ${({ $size }) => getTypography($size)};
-`;
-
 type SelectedHTMLButtonProps = Pick<
     ButtonHTMLAttributes<HTMLButtonElement>,
-    'onClick' | 'onMouseOver' | 'onMouseLeave' | 'type' | 'tabIndex'
+    'onClick' | 'type' | 'tabIndex'
 >;
 
 type ExclusiveAProps =
@@ -116,108 +69,117 @@ type ExclusiveAProps =
 export type ButtonProps = SelectedHTMLButtonProps &
     AllowedButtonFrameProps &
     ExclusiveAProps & {
-        variant?: ButtonVariant;
-        isSubtle?: boolean;
         size?: ButtonSize;
         isDisabled?: boolean;
+        isInverse?: boolean;
         isLoading?: boolean;
-        isFullWidth?: boolean;
-        icon?: IconOrComponent;
-        iconSize?: number;
-        iconAlignment?: IconAlignment;
+        iconLeft?: IconName;
+        iconRight?: IconName;
         children: React.ReactNode;
-        title?: string;
-        className?: string;
         'data-testid'?: string;
-        textWrap?: boolean;
+        intent?: ButtonIntent;
+        priority?: ButtonPriority;
+        shortcut?: string[];
+        className?: string;
     };
-
-type GetIconProps = {
-    icon?: IconName | React.ReactElement;
-    size?: number;
-    color?: CSSColor;
-};
-
-export const getIcon = ({ icon, size, color }: GetIconProps) => {
-    if (!icon) return null;
-    if (typeof icon === 'string') {
-        return <Icon name={icon as IconName} size={size} color={color} />;
-    }
-
-    return icon;
-};
 
 export const Button = ({
     'data-testid': dataTestId,
     children,
-    className,
     href,
-    icon,
-    iconAlignment = 'start',
-    iconSize,
+    iconLeft,
+    iconRight,
+    intent = 'brand',
     isDisabled = false,
-    isFullWidth = false,
+    isInverse = false,
     isLoading = false,
-    isSubtle = false,
     onClick,
-    onMouseLeave,
-    onMouseOver,
+    shortcut,
     size = 'medium',
     tabIndex,
     target,
-    textWrap = true,
-    title,
     type = 'button',
-    variant = 'primary',
+    priority = 'primary',
+    // TODO: remove className
+    className,
     ...rest
 }: ButtonProps) => {
-    const frameProps = pickAndPrepareFrameProps(rest, allowedButtonFrameProps);
     const theme = useTheme();
-
-    const IconComponent = getIcon({
-        icon,
-        size: iconSize || getIconSize(size),
-        color: getIconColor({ variant, isDisabled, theme, isSubtle }),
-    });
-
-    const Loader = <Spinner size={getIconSize(size)} data-testid={`${dataTestId}/spinner`} />;
-
+    const frameProps = pickAndPrepareFrameProps(rest, allowedButtonFrameProps);
     const isLink = href !== undefined;
+    const color = mapPropsToColor(intent, priority, isDisabled, isInverse, theme);
 
-    const { elevation } = useElevation();
+    const iconProps = {
+        size: mapSizeToIconSize(size),
+        color,
+    };
 
     return (
-        <ButtonContainer
-            $elevation={elevation}
-            $hasIcon={!!icon || isLoading}
-            $iconAlignment={iconAlignment}
-            $isFullWidth={isFullWidth}
-            $isSubtle={isSubtle}
-            $size={size}
-            $variant={variant}
-            $hasLabel={true}
+        <Container
             as={isLink ? 'a' : 'button'}
-            className={className}
             data-testid={dataTestId}
+            $isDisabled={isDisabled}
             disabled={isDisabled || isLoading}
             href={href}
-            onClick={isDisabled ? undefined : onClick}
-            onMouseLeave={onMouseLeave}
-            onMouseOver={onMouseOver}
+            onClick={isDisabled || isLoading ? undefined : onClick}
             tabIndex={tabIndex}
-            target={isLink ? target || '_blank' : undefined}
-            title={title}
+            target={target}
             type={type}
+            $size={size}
+            $priority={priority}
+            $intent={intent}
+            $isInverse={isInverse}
+            className={className}
             {...frameProps}
         >
-            {!isLoading && icon && IconComponent}
-            {isLoading && Loader}
-
-            {children && (
-                <Content $size={size} $disabled={isDisabled || isLoading} $textWrap={textWrap}>
-                    {children}
-                </Content>
-            )}
-        </ButtonContainer>
+            <Row
+                gap={mapSizeToGap(size)}
+                padding={mapSizeToPadding(size)}
+                justifyContent="center"
+                overflow="hidden"
+                width="100%"
+            >
+                {isLoading && (
+                    <Spinner
+                        isGrey={false}
+                        bodyColor={color}
+                        size={mapSizeToIconSize(size)}
+                        data-testid={`${dataTestId}/spinner`}
+                    />
+                )}
+                {iconLeft && !isLoading && <Icon name={iconLeft} {...iconProps} />}
+                <Box padding={{ horizontal: 4 }} overflow="hidden">
+                    {/* TODO: use variant/intent instead of color after refactoring Text and Icon components */}
+                    <Text
+                        as="div"
+                        typographyStyle={mapSizeToTypographyStyle(size)}
+                        color={color}
+                        ellipsisLineCount={1}
+                    >
+                        {children}
+                    </Text>
+                </Box>
+                {iconRight && !isLoading && <Icon name={iconRight} {...iconProps} />}
+                {shortcut?.length && (
+                    <Row gap={2}>
+                        {shortcut.map((hotkey, index) => (
+                            <Box
+                                backgroundColor={addAlphaToHex(
+                                    theme.baseFillElementNeutralDark,
+                                    0.09,
+                                )}
+                                padding={{ horizontal: 4 }}
+                                borderRadius={4}
+                                key={index}
+                            >
+                                <Text typographyStyle="label" color={color} case="uppercase">
+                                    {hotkey}
+                                </Text>
+                            </Box>
+                        ))}
+                    </Row>
+                )}
+            </Row>
+        </Container>
     );
 };

@@ -5,15 +5,7 @@ import { Inspector } from 'react-inspector';
 import { CopyToClipboard } from 'nextra/components';
 import styled, { useTheme } from 'styled-components';
 
-import {
-    ButtonProps,
-    Card,
-    H3,
-    NewButton,
-    NewIconButton,
-    Row,
-    variables,
-} from '@trezor/components';
+import { Button, ButtonProps, Card, H3, IconButton, Row, variables } from '@trezor/components';
 import { spacingsPx } from '@trezor/theme';
 
 import * as methodActions from '../actions/methodActions';
@@ -232,29 +224,22 @@ export const VerifyButton = ({ name, onClick }: VerifyButtonProps) => {
     if (index < 0) return null;
 
     return (
-        <NewButton margin={{ top: 12 }} onClick={() => onClick(verifyUrls[index])}>
+        <Button margin={{ top: 12 }} onClick={() => onClick(verifyUrls[index])}>
             Verify response
-        </NewButton>
+        </Button>
     );
 };
 
 type SubmitButtonProps = {
     onClick: ButtonProps['onClick'];
-    isFullWidth?: ButtonProps['isFullWidth'];
-    isLoading: ButtonProps['isLoading'];
+    isLoading: boolean;
     text?: string;
 };
 
-const SubmitButton = ({ onClick, text, isFullWidth, isLoading }: SubmitButtonProps) => (
-    <NewButton
-        onClick={onClick}
-        data-testid="@submit-button"
-        width={isFullWidth ? '100%' : undefined}
-        isLoading={isLoading}
-        margin={{ top: 12 }}
-    >
+const SubmitButton = ({ onClick, text, isLoading }: SubmitButtonProps) => (
+    <Button onClick={onClick} data-testid="@submit-button" flex="1" isLoading={isLoading}>
         {text || 'Submit'}
-    </NewButton>
+    </Button>
 );
 
 export const Method = () => {
@@ -326,10 +311,10 @@ export const Method = () => {
                             <CopyToClipboard getValue={() => javascriptCode ?? ''} />
                         </CopyWrapper>
 
-                        <Row>
-                            <SubmitButton {...buttonProps} isFullWidth />
+                        <Row gap={4} margin={{ top: 12 }}>
+                            <SubmitButton {...buttonProps} />
                             {buttonProps.isLoading && (
-                                <NewIconButton
+                                <IconButton
                                     icon="x"
                                     intent="neutral"
                                     priority="secondary"
@@ -351,10 +336,10 @@ export const Method = () => {
                                 <CopyToClipboard getValue={() => javascriptCode ?? ''} />
                             </CopyWrapper>
                             <pre>{javascriptCode}</pre>
-                            <Row>
-                                <SubmitButton {...buttonProps} isFullWidth />
+                            <Row gap={4} margin={{ top: 12 }}>
+                                <SubmitButton {...buttonProps} />
                                 {buttonProps.isLoading && (
-                                    <NewIconButton
+                                    <IconButton
                                         icon="x"
                                         intent="neutral"
                                         priority="secondary"

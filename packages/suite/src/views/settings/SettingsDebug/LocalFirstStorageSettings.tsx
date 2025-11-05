@@ -6,7 +6,7 @@ import {
     labelingActions,
     selectLocalFirstStorageRelayUrl,
 } from '@suite-common/local-first-storage';
-import { Checkbox, Code, Column, Input, NewButton, Text } from '@trezor/components';
+import { Button, Checkbox, Code, Column, Input, Text } from '@trezor/components';
 import { initSuiteLocalFirstStorageThunk } from '@trezor/suite-local-first-storage';
 import { spacings } from '@trezor/theme';
 
@@ -20,7 +20,7 @@ export const LocalFirstStorageSettings = () => {
 
     const {
         isLocalFirstStorageDebugEnabled,
-        toggleisFeatureLocalFirstStorageAvailable,
+        toggleIsFeatureLocalFirstStorageAvailable,
         isFeatureLocalFirstStorageAvailable,
     } = useLabelingCombined({
         // In debug, there may not be any device selected and it is in fact irrelevant
@@ -35,7 +35,7 @@ export const LocalFirstStorageSettings = () => {
 
     const handleToggleLocalFirstStorageDebug = () => {
         dispatch(
-            labelingActions.updateLocaleFirstStorageDebugEnabled({
+            labelingActions.updateLocalFirstStorageDebugEnabled({
                 isEnabled: !isLocalFirstStorageDebugEnabled,
             }),
         );
@@ -66,7 +66,7 @@ export const LocalFirstStorageSettings = () => {
                 <ActionColumn>
                     <Checkbox
                         isChecked={isFeatureLocalFirstStorageAvailable}
-                        onClick={toggleisFeatureLocalFirstStorageAvailable}
+                        onClick={toggleIsFeatureLocalFirstStorageAvailable}
                     />
                 </ActionColumn>
             </SectionItem>
@@ -81,13 +81,13 @@ export const LocalFirstStorageSettings = () => {
                                     value={relayUrl}
                                     onChange={e => setRelayUrl(e.target.value)}
                                     rightContent={
-                                        <NewButton
+                                        <Button
                                             isLoading={isLoading}
                                             onClick={onRelayUrlSave}
                                             size="small"
                                         >
                                             Save
-                                        </NewButton>
+                                        </Button>
                                     }
                                 />
                                 <Text typographyStyle="hint" variant="tertiary">

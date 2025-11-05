@@ -1,67 +1,59 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { IconButton as IconButtonComponent } from './IconButton';
+import {
+    IconButton as IconButtonComponent,
+    IconButtonProps,
+    allowedIconButtonFrameProps,
+} from './IconButton';
 import { variables } from '../../../config';
-import { buttonSizes, buttonVariants, subtleButtonVariants } from '../buttonStyleUtils';
+import { getFramePropsStory } from '../../../utils/frameProps';
+import { buttonIntents, buttonPriorities, buttonSizes } from '../types';
 
-const meta: Meta<typeof IconButtonComponent> = {
+const meta: Meta<IconButtonProps> = {
     title: 'Buttons',
     component: IconButtonComponent,
 };
+
 export default meta;
 
-export const IconButton: StoryObj<typeof meta> = {
+export const IconButton: StoryObj<IconButtonProps> = {
     args: {
-        label: 'label',
-        icon: 'arrowRight',
-        variant: 'primary',
-        size: 'large',
+        onClick: () => null,
+        icon: 'addressBookFilled',
+        intent: 'brand',
+        priority: 'primary',
+        size: 'medium',
         isDisabled: false,
         isLoading: false,
-        isSubtle: false,
+        isInverse: false,
+        ...getFramePropsStory(allowedIconButtonFrameProps).args,
     },
     argTypes: {
-        label: {
-            type: 'string',
-        },
         icon: {
             options: variables.ICONS,
-            control: {
-                type: 'select',
-            },
+            control: { type: 'select' },
         },
-        variant: {
-            control: {
-                type: 'radio',
-            },
-            options: buttonVariants,
+        intent: {
+            control: { type: 'select' },
+            options: buttonIntents,
+        },
+        priority: {
+            control: { type: 'select' },
+            options: buttonPriorities,
         },
         size: {
-            control: {
-                type: 'radio',
-            },
+            control: { type: 'select' },
             options: buttonSizes,
         },
-        iconSize: {
-            control: {
-                type: 'number',
-            },
-        },
         isDisabled: {
-            control: {
-                type: 'boolean',
-            },
+            type: 'boolean',
         },
         isLoading: {
-            control: {
-                type: 'boolean',
-            },
+            type: 'boolean',
         },
-        isSubtle: {
-            control: {
-                type: 'boolean',
-            },
-            description: `Available only for variants: <strong>${subtleButtonVariants.join(', ')}</strong>`,
+        isInverse: {
+            type: 'boolean',
         },
+        ...getFramePropsStory(allowedIconButtonFrameProps).argTypes,
     },
 };

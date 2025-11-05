@@ -79,7 +79,9 @@ const Box = ({ children }: { children?: ReactNode }) => {
     return (
         <UiBox $elevation={elevation}>
             <div>Elevation: {elevation}</div>
-            <Button variant="tertiary">tertiary button</Button>
+            <Button intent="neutral" priority="secondary">
+                tertiary button
+            </Button>
             <ElevationUp>{children}</ElevationUp>
         </UiBox>
     );
