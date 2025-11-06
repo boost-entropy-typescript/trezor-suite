@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useFormatters } from '@suite-common/formatters';
 import { Context } from '@suite-common/message-system';
+import { StakingFlow } from '@suite-common/suite-types/src/staking';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import { selectHasRunningDiscovery, selectPoolStatsApyData } from '@suite-common/wallet-core';
 import {
@@ -66,8 +67,8 @@ export const EmptyStakingCard = () => {
             symbol: account?.symbol,
             isBalance: true,
             withSymbol: false,
-            maxDisplayedDecimals: 8,
             isEllipsisAppended: false,
+            maxDisplayedDecimals: 8,
         });
     }, [accountBalance, stakingBalance, apy, account, CryptoAmountFormatter]);
 
@@ -127,7 +128,7 @@ export const EmptyStakingCard = () => {
 
     const openStakeInANutshellModal = () => {
         if (!isStakingDisabled) {
-            dispatch(openModal({ type: 'stake-in-a-nutshell' }));
+            dispatch(openModal({ type: 'stake-in-a-nutshell', flow: StakingFlow.Stake }));
 
             analytics.report({
                 type: EventType.StakingStake,
