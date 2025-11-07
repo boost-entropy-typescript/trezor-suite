@@ -2632,12 +2632,6 @@ export default defineMessages({
         description: 'Main text on firmware page for devices without firmware',
         id: 'TR_FIRMWARE_SUBHEADING_NONE',
     },
-    TR_FIRMWARE_SUBHEADING_NONE_BITCOIN_ONLY_DEVICE: {
-        defaultMessage:
-            "Your device is ready for the latest firmware update to keep it secure. If you're a Bitcoin enthusiast, a Bitcoin-only firmware is also available.",
-        description: 'Main text on firmware page for Bitcoin-only devices without firmware',
-        id: 'TR_FIRMWARE_SUBHEADING_NONE_BITCOIN_ONLY_DEVICE',
-    },
     TR_FIRMWARE_SUBHEADING_UNKNOWN: {
         defaultMessage:
             'Your Trezor ships without firmware for security reasons. To start using it safely, install the latest firmware. Bitcoin-only user? We recommend the <button>{bitcoinOnly} firmware</button>.',
@@ -2645,15 +2639,16 @@ export default defineMessages({
             'Main text on firmware page for devices in bootloader mode, i.e. when Suite cannot determine current firmware type',
         id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN',
     },
+    TR_FIRMWARE_SUBHEADING_BITCOIN_ONLY_DEVICE: {
+        defaultMessage:
+            'Your Trezor ships without firmware for security reasons. To start using it safely, install the latest Bitcoin-only firmware.',
+        description: 'Main text on firmware page for Bitcoin-only devices without firmware',
+        id: 'TR_FIRMWARE_SUBHEADING_BITCOIN_ONLY_DEVICE',
+    },
     TR_FIRMWARE_SUBHEADING_BITCOIN: {
         defaultMessage: 'A lightweight firmware supporting Bitcoin-only operations.',
         description: 'Explanation of Bitcoin-only firmware in onboarding',
         id: 'TR_FIRMWARE_SUBHEADING_BITCOIN',
-    },
-    TR_FIRMWARE_SUBHEADING_UNKNOWN_BITCOIN_ONLY_DEVICE: {
-        defaultMessage: 'A lightweight firmware supporting Bitcoin-only operations.',
-        description: 'Explanation of Bitcoin-only firmware in onboarding for Bitcoin-only devices',
-        id: 'TR_FIRMWARE_SUBHEADING_UNKNOWN_BITCOIN_ONLY_DEVICE',
     },
     TR_CHANGE_FIRMWARE_TYPE_ANYTIME: {
         defaultMessage: 'You can change your firmware type in Settings anytime.',
@@ -10032,10 +10027,19 @@ export default defineMessages({
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_TITLE',
         defaultMessage: 'This Passphrase wallet is empty',
     },
+    TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_TITLE_ERROR: {
+        id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_TITLE_ERROR',
+        defaultMessage: "Passphrase wallet couldn't be loaded",
+    },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION',
         defaultMessage:
             "This Passphrase wallet is empty and hasn't been used before. Do you want to open it?",
+    },
+    TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION_ERROR: {
+        id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION_ERROR',
+        defaultMessage:
+            'Your wallet may appear empty until the internet connection is restored. Do you want to open it?',
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_BUTTON: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_BUTTON',
