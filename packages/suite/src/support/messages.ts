@@ -3035,6 +3035,10 @@ export default defineMessages({
         defaultMessage: 'Tokens',
         id: 'TR_NAV_TOKENS',
     },
+    TR_NAV_INACTIVE_TOKENS: {
+        defaultMessage: 'Inactive tokens',
+        id: 'TR_NAV_INACTIVE_TOKENS',
+    },
     TR_NAV_COLLECTIONS: {
         defaultMessage: 'Collections',
         id: 'TR_NAV_COLLECTIONS',
@@ -4544,6 +4548,23 @@ export default defineMessages({
         id: 'TR_INACTIVE_COINS',
         defaultMessage: 'Available assets to activate',
     },
+    TR_ACTIVATE: {
+        id: 'TR_ACTIVATE',
+        defaultMessage: 'Activate',
+    },
+    TR_ACTIVATE_TOKEN: {
+        id: 'TR_ACTIVATE_TOKEN',
+        defaultMessage: 'Activate {token}',
+    },
+    TR_TOKEN_ACTIVATION_DESCRIPTION: {
+        id: 'TR_TOKEN_ACTIVATION_DESCRIPTION',
+        defaultMessage:
+            'To receive {token} on the {network} network, you must first activate the asset. Doing so will increase your reserved balance by {reserve}.',
+    },
+    TR_INACTIVE_TOKENS_EMPTY: {
+        id: 'TR_INACTIVE_TOKENS_EMPTY',
+        defaultMessage: 'No inactive tokens',
+    },
     TR_COIN_SETTINGS: {
         id: 'TR_COIN_SETTINGS',
         defaultMessage: 'Activate assets',
@@ -5344,6 +5365,15 @@ export default defineMessages({
         defaultMessage:
             'Send and receive transactions on the {networkNames} {count, plural, one {network} other {networks}}.',
     },
+    TR_EXPERIMENTAL_SUITE_SYNC_TITLE: {
+        id: 'TR_EXPERIMENTAL_SUITE_SYNC_TITLE',
+        defaultMessage: 'Suite Sync',
+    },
+    TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION',
+        defaultMessage:
+            'Sync your labels across multiple devices using local-first encrypted storage.',
+    },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',
         defaultMessage: 'Early Access Program',
@@ -5617,6 +5647,14 @@ export default defineMessages({
     TR_TOKEN: {
         id: 'TR_TOKEN',
         defaultMessage: 'Token',
+    },
+    TR_ISSUER: {
+        id: 'TR_ISSUER',
+        defaultMessage: 'Issuer',
+    },
+    TR_ISSUER_ADDRESS: {
+        id: 'TR_ISSUER_ADDRESS',
+        defaultMessage: 'Issuer address',
     },
     TR_TOKENS: {
         id: 'TR_TOKENS',
@@ -6464,7 +6502,7 @@ export default defineMessages({
     },
     TR_LABELING_SECURE_SYNC: {
         id: 'TR_LABELING_SECURE_SYNC',
-        defaultMessage: 'Secure Sync (recommended)',
+        defaultMessage: 'Suite Sync (recommended)',
     },
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',
@@ -10639,11 +10677,11 @@ export default defineMessages({
     },
     TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING: {
         id: 'TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING',
-        defaultMessage: 'Turn on Secure Sync to use labels',
+        defaultMessage: 'Turn on Suite Sync to use labels',
     },
     TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_DESCRIPTION: {
         id: 'TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_DESCRIPTION',
-        defaultMessage: 'Secure Sync keeps your data up to date on all your devices.',
+        defaultMessage: 'Suite Sync keeps your data up to date on all your devices.',
     },
     TR_TURN_ON_SECURE_SYNC_DATA_STORED_LOCALLY: {
         id: 'TR_TURN_ON_SECURE_SYNC_DATA_STORED_LOCALLY',
@@ -10659,7 +10697,7 @@ export default defineMessages({
     },
     TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED: {
         id: 'TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED',
-        defaultMessage: 'Labels created with Secure Sync can’t be migrated',
+        defaultMessage: 'Labels created with Suite Sync can’t be migrated',
     },
     TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE: {
         id: 'TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE',
@@ -10933,5 +10971,9 @@ export default defineMessages({
     TR_PUBLIC_KEYS: {
         id: 'TR_PUBLIC_KEYS',
         defaultMessage: 'Public keys',
+    },
+    TR_ERROR_LOADING_TOKENS: {
+        id: 'TR_ERROR_LOADING_TOKENS',
+        defaultMessage: 'Failed to load tokens',
     },
 } as const);
