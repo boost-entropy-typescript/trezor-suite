@@ -2873,7 +2873,7 @@ export default defineMessages({
     TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING: {
         id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING',
         defaultMessage:
-            'All wallets will be automatically ejected when your Trezor is disconnected.',
+            'All wallets will be ejected. Trezor Suite will automatically restart once the process is complete',
     },
     TR_LANGUAGE: {
         defaultMessage: 'Language',
@@ -10988,5 +10988,10 @@ export default defineMessages({
     TR_ERROR_LOADING_TOKENS: {
         id: 'TR_ERROR_LOADING_TOKENS',
         defaultMessage: 'Failed to load tokens',
+    },
+    TR_LOCAL_NETWORK_ACCESS_PERMISSION_WARNING: {
+        id: 'TR_LOCAL_NETWORK_ACCESS_PERMISSION_WARNING',
+        defaultMessage:
+            'In order to use all features of Trezor Suite web version please allow local network access in your browser settings.',
     },
 } as const);
