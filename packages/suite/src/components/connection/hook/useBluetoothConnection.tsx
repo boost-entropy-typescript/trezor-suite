@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { selectKnownDevices } from '@suite-common/bluetooth';
 import { BluetoothDeviceId } from '@trezor/connect';
-import { EventType, analytics } from '@trezor/suite-analytics';
+import { EventTypeShared, analytics } from '@trezor/suite-analytics';
 
 import { DesktopBluetoothDevice } from 'src/actions/bluetooth/DesktopBluetoothDevice';
 import { bluetoothConnectDeviceThunk } from 'src/actions/bluetooth/bluetoothConnectDeviceThunk';
@@ -69,8 +69,7 @@ export const useBluetoothConnection = ({
 
             if (result.success) {
                 analytics.report({
-                    type: EventType.DeviceConnectionDevicePaired,
-                    payload: {},
+                    type: EventTypeShared.DeviceConnectionDevicePaired,
                 });
                 dispatch(setConnectionModal(false));
             } else {

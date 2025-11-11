@@ -68,4 +68,19 @@ export type SuiteSharedAnalyticsEvent =
               method: string;
               error: string;
           };
+      }
+    | {
+          type: EventType.DeviceConnectionDeviceFound;
+          payload: {
+              option: 'connect' | 'close';
+          };
+      }
+    | {
+          type: EventType.DeviceConnectionDevicePaired;
+      }
+    | {
+          type: EventType.DeviceConnectionDeviceConfirmation;
+          payload: {
+              option: 'confirmed' | 'close';
+          };
       };

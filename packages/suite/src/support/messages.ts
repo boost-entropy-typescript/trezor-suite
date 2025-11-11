@@ -782,7 +782,7 @@ export default defineMessages({
     TR_INSTALLATION_FW_SLOW_TIP_BANNER: {
         id: 'TR_INSTALLATION_FW_SLOW_TIP_BANNER',
         defaultMessage:
-            'Firmware installation is taking longer than usual. This may be cause by other connected bluetooth devices. Consider disconnecting them.',
+            'Firmware installation is taking longer than expected. Try disconnecting other Bluetooth devices to improve speed.',
     },
     TR_SELL_STATUS_ERROR: {
         defaultMessage: 'Rejected',
@@ -3203,7 +3203,7 @@ export default defineMessages({
         id: 'TR_RANDOM_SEED_WORDS_DISCLAIMER',
     },
     TR_RECEIVE: {
-        defaultMessage: 'Receive',
+        defaultMessage: 'Select an account to receive funds',
         id: 'TR_RECEIVE',
     },
     TR_RECEIVE_NETWORK: {
@@ -5325,6 +5325,15 @@ export default defineMessages({
         defaultMessage:
             'For experienced users only. Use at your own risk. These features are in testing, may be unstable, and might not have long-term support.',
     },
+    TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE: {
+        id: 'TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE',
+        defaultMessage: 'Global send & receive',
+    },
+    TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_GLOBAL_SEND_RECEIVE_DESCRIPTION',
+        defaultMessage:
+            'Send and receive transactions from your dashboard directly to any account.',
+    },
     TR_GO_TO_EXP_FEATURE: {
         id: 'TR_GO_TO_EXP_FEATURE',
         defaultMessage: 'Open',
@@ -7393,7 +7402,7 @@ export default defineMessages({
     },
     TR_INITIAL_RECONNECT_DEVICE_DESCRIPTION: {
         id: 'TR_INITIAL_RECONNECT_DEVICE_DESCRIPTION',
-        defaultMessage: 'Disconnect and connect device to continue.',
+        defaultMessage: 'Disconnect and reconnect your device to continue.',
     },
     TR_DEVICE_CONNECTED_BOOTLOADER: {
         id: 'TR_DEVICE_CONNECTED_BOOTLOADER',
@@ -7778,11 +7787,11 @@ export default defineMessages({
     },
     TR_TREZOR_NEEDS_TO_BE_IN_PAIRING_MODE: {
         id: 'TR_TREZOR_NEEDS_TO_BE_IN_PAIRING_MODE',
-        defaultMessage: 'Your Trezor needs to be in pairing mode',
+        defaultMessage: 'Your Trezor needs to be in pairing mode to continue.',
     },
     TR_WINDOW_WILL_CLOSE_WHEN_TREZOR_IS_PAIRED: {
         id: 'TR_WINDOW_WILL_CLOSE_WHEN_TREZOR_IS_PAIRED',
-        defaultMessage: 'This window will close as soon as your Trezor is paired.',
+        defaultMessage: 'This window will close automatically once your Trezor is paired.',
     },
     TR_STILL_NOT_WORKING: {
         id: 'TR_STILL_NOT_WORKING',
@@ -9388,7 +9397,7 @@ export default defineMessages({
     },
     TR_STAKING_NEW_PROVIDER_TITLE: {
         id: 'TR_STAKING_NEW_PROVIDER_TITLE',
-        defaultMessage: 'Start earning rewards with Everstake',
+        defaultMessage: 'Earn ~{apy}% APY with new provider',
     },
     TR_STAKING_NEW_PROVIDER_TEXT: {
         id: 'TR_STAKING_NEW_PROVIDER_TEXT',
@@ -9406,7 +9415,7 @@ export default defineMessages({
     TR_STAKING_REWARDS_NETWORK_FEE_WARNING: {
         id: 'TR_STAKING_REWARDS_NETWORK_FEE_WARNING',
         defaultMessage:
-            'Network fee is higher than your rewards. Consider waiting until your rewards grow before claiming.',
+            'The network fee currently exceeds your rewards. Consider waiting until your rewards increase before claiming.',
     },
     TR_STAKING_NEW_PROVIDER: {
         id: 'TR_STAKING_NEW_PROVIDER',
@@ -9522,7 +9531,7 @@ export default defineMessages({
     TR_STAKE_ALL_YOUR_FUNDS_IS_STAKED: {
         id: 'TR_STAKE_ALL_YOUR_FUNDS_IS_STAKED',
         defaultMessage:
-            'All your available {networkDisplaySymbol} is staked. Newly received {networkDisplaySymbol} activates after two epochs.',
+            'All your available {networkDisplaySymbol} is currently staked. Any new {networkDisplaySymbol} you receive will become active after two epochs.',
     },
     TR_STAKE_RETURNABLE_DEPOSIT_IS_REQUIRED: {
         id: 'TR_STAKE_RETURNABLE_DEPOSIT_IS_REQUIRED',
@@ -9535,7 +9544,7 @@ export default defineMessages({
     },
     TR_STAKE_KEEP_EARNING_REWARDS_WITH_CURRENT_PROVIDER: {
         id: 'TR_STAKE_KEEP_EARNING_REWARDS_WITH_CURRENT_PROVIDER',
-        defaultMessage: 'Keep earning rewards with your current provider for ~{days} days',
+        defaultMessage: 'Keep earning rewards with your current provider for ~{days} days.',
     },
     TR_STAKE_ACTIVATION_PERIOD: {
         id: 'TR_STAKE_ACTIVATION_PERIOD',
@@ -9548,6 +9557,10 @@ export default defineMessages({
     TR_STAKE_RECEIVE_DEPOSIT_IN_ACCOUNT: {
         id: 'TR_STAKE_RECEIVE_DEPOSIT_IN_ACCOUNT',
         defaultMessage: 'Receive deposit in account',
+    },
+    TR_STAKE_RECEIVE_DEPOSIT_IN_ACCOUNT_INSTANTLY: {
+        id: 'TR_STAKE_RECEIVE_DEPOSIT_IN_ACCOUNT_INSTANTLY',
+        defaultMessage: 'Instantly',
     },
     TR_STAKE_YOUR_DEPOSIT_IS_RETURNED: {
         id: 'TR_STAKE_YOUR_DEPOSIT_IS_RETURNED',
@@ -10085,7 +10098,7 @@ export default defineMessages({
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_WITH_FUNDS_DESCRIPTION: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_WITH_FUNDS_DESCRIPTION',
-        defaultMessage: 'Expecting a passphrase wallet with funds?',
+        defaultMessage: 'Expecting a Passphrase wallet with funds?',
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_WITH_FUNDS_BUTTON: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_WITH_FUNDS_BUTTON',
@@ -10435,7 +10448,7 @@ export default defineMessages({
     TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING_TEXT: {
         id: 'TR_BLUETOOTH_REQUIRE_MANUAL_PAIRING_TEXT',
         defaultMessage:
-            'Your system does not support automatic pairing via Trezor Suite. Please open your System Bluetooth Settings, find your Trezor device and pair it there.',
+            'Your system doesn’t support automatic pairing via Trezor Suite. To connect, open your Bluetooth settings and pair your Trezor device manually.',
     },
     TR_DONE: {
         id: 'TR_DONE',

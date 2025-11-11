@@ -528,6 +528,12 @@ export const messages = {
                     goToSettingsButton: 'Go to Bluetooth settings',
                     pairAgainButton: 'Pair again',
                 },
+                title: 'Unable to pair your Trezor?',
+                altTitle: 'We couldn’t find your Trezor',
+                hint1: 'Make sure your Trezor is turned on and unlocked.',
+                hint2: 'Try manually pairing your Trezor:\nGo to your Trezor’s Menu > Pair & Connect > Pair new device',
+                scanAgainButton: 'Scan again',
+                stillNotWorkingButton: 'It’s still not working',
             },
             pinMatrix: {
                 title: 'Enter PIN',
@@ -785,9 +791,19 @@ export const messages = {
                 removePin: 'Remove PIN',
             },
         },
+        backupAndPassphrase: {
+            title: 'Backup & passphrase',
+            description: 'Check wallet backup, passphrase',
+        },
+        passphrase: {
+            title: 'Passphrase wallets',
+            description:
+                'Passphrase wallets are separate, extra-secure wallets. Each passphrase wallet is unique and only accessible with its own passphrase.',
+        },
         checkBackup: {
             title: 'Check wallet backup',
-            subtitle: 'Check the validity of your backup',
+            subtitle:
+                'A valid backup is necessary to recover a lost, stolen, or damaged Trezor. We recommended to check your backup regularly.',
         },
         authenticity: {
             title: 'Device authenticity',
@@ -1147,7 +1163,7 @@ export const messages = {
                 },
                 '5': {
                     question:
-                        'Why is the balance displayed in Trezor Suite different from the balance displayed in Trezor Suite?',
+                        'Why does the balance in Trezor Suite on desktop differ from the balance in the mobile app?',
                     answer: 'Balances may mismatch due to improper syncing of all assets and account types, or pending transactions. Ensure you have synced all your assets correctly and check for any pending transactions to resolve the discrepancy.',
                 },
             },

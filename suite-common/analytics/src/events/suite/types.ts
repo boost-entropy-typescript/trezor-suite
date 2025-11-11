@@ -825,23 +825,7 @@ export type SuiteAnalyticsEvent =
     | {
           type: EventType.DeviceConnectionHintModal;
           payload: {
-              option: 'again' | 'notWorking' | 'close';
-          };
-      }
-    | {
-          type: EventType.DeviceConnectionDeviceFound;
-          payload: {
-              option: 'connect' | 'close';
-          };
-      }
-    | {
-          type: EventType.DeviceConnectionDevicePaired;
-          payload: {};
-      }
-    | {
-          type: EventType.DeviceConnectionDeviceConfirmation;
-          payload: {
-              option: 'confirmed' | 'close';
+              option: 'notWorking' | 'close';
           };
       }
     | {

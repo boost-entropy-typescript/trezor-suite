@@ -20,6 +20,7 @@ import {
     AddCoinAccountStackRoutes,
     AppTabsRoutes,
     AuthorizeDeviceStackRoutes,
+    BackupAndPassphraseStackRoutes,
     DevUtilsStackRoutes,
     DeviceAuthenticityStackRoutes,
     DeviceCheckBackupStackRoutes,
@@ -225,6 +226,7 @@ export type DeviceSettingsStackParamList = {
     [DeviceSettingsStackRoutes.DeviceNameStack]: NavigatorScreenParams<DeviceNameStackParamList>;
     [DeviceSettingsStackRoutes.WipeDeviceStack]: NavigatorScreenParams<WipeDeviceStackParamList>;
     [DeviceSettingsStackRoutes.PinProtection]: undefined;
+    [DeviceSettingsStackRoutes.BackupAndPassphraseStack]: NavigatorScreenParams<BackupAndPassphraseParamList>;
     [DeviceSettingsStackRoutes.AutoConnectSettings]: undefined;
     [DeviceSettingsStackRoutes.DeviceCheckBackupStack]: NavigatorScreenParams<DeviceCheckBackupStackParamList>;
     [DeviceSettingsStackRoutes.UnpairBluetoothDevice]: undefined;
@@ -255,6 +257,11 @@ export type DeviceNameStackParamList = {
     [DeviceNameStackRoutes.DeviceName]: undefined;
     [DeviceNameStackRoutes.ContinueOnTrezor]: undefined;
     [DeviceNameStackRoutes.DeviceNameLoadingScreen]: undefined;
+};
+
+export type BackupAndPassphraseParamList = {
+    [BackupAndPassphraseStackRoutes.BackupAndPassphrase]: undefined;
+    [BackupAndPassphraseStackRoutes.ContinueOnTrezor]: undefined;
 };
 
 export type DeviceCheckBackupStackParamList = {
@@ -296,7 +303,6 @@ export type AuthorizeDeviceStackParamList = {
     [AuthorizeDeviceStackRoutes.PassphraseMismatchAlert]: undefined;
     [AuthorizeDeviceStackRoutes.PassphraseVerifyEmptyWallet]: undefined;
     [AuthorizeDeviceStackRoutes.PassphraseEnterOnTrezor]: undefined;
-    [AuthorizeDeviceStackRoutes.PassphraseEnableOnDevice]: undefined;
     [AuthorizeDeviceStackRoutes.PassphraseFeatureUnlockForm]: undefined;
     [AuthorizeDeviceStackRoutes.CoinEnablingInit]: undefined;
 };
