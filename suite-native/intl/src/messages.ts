@@ -80,6 +80,18 @@ export const messages = {
     labeling: {
         label: 'Label',
         addLabel: 'Add label',
+        disableAlert: {
+            title: 'Are you sure you want to turn off Suite Sync?',
+            description:
+                'Turning off Suite Sync disables labeling. Your labels will stay safely encrypted, but they won’t be visible until you turn Suite Sync back on.',
+            cta: 'Turn off',
+        },
+        enableAlert: {
+            title: 'Turn on Suite Sync to use labels',
+            description:
+                'Suite Sync keeps your data up to date on all your devices. Your data stays local and syncs only with devices you approve.',
+            cta: 'Turn on',
+        },
     },
     moduleHome: {
         graphIgnoredNetworks:
@@ -991,6 +1003,12 @@ export const messages = {
                     subtitle:
                         'Only choosing coins that you use will shorten loading times when connecting your Trezor.',
                 },
+                labeling: {
+                    title: 'Labeling',
+                    subtitle: 'Name your wallets, accounts and more',
+                    screenSubtitle:
+                        'Name your wallets, personalize accounts, and label transactions.',
+                },
                 advanced: {
                     title: 'Advanced',
                     subtitle: 'Expert features for power users ',
@@ -1006,6 +1024,13 @@ export const messages = {
                     add: 'Add WalletConnect',
                 },
             },
+        },
+        secureSync: {
+            title: 'Secure sync (required)',
+            description:
+                'Secure sync keeps your data consistent across all of your devices. Data is stored locally and only synced with devices you authorize.',
+            enable: 'Enable',
+            disable: 'Disable',
         },
         faq: {
             title: 'Get help',
