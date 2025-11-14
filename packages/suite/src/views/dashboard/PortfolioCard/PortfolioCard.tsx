@@ -38,6 +38,9 @@ export const PortfolioCard = memo(() => {
     const failedAccounts = useMemo(() => accounts.filter(isAccountFailed), [accounts]);
     const walletBalance = useTotalFiatBalance(accounts, baseCurrencyCode, currentFiatRates);
 
+    const passphraseEntryCanceled = accounts.length === 0 && discoveryStatus === undefined;
+    const hasMultipleAccounts = accounts.length > 1;
+
     // TODO: DashboardGraph will get mounted twice (thus triggering data processing twice)
     // 1. DashboardGraph gets mounted
     // 2. Discovery starts, DashboardGraph is unmounted, Loading mounts
@@ -48,6 +51,17 @@ export const PortfolioCard = memo(() => {
         body = (
             <PortfolioCardException
                 exception={discoveryStatus}
+                discovery={discovery}
+                failed={failedAccounts}
+            />
+        );
+    } else if (passphraseEntryCanceled) {
+        body = (
+            <PortfolioCardException
+                exception={{
+                    status: 'exception',
+                    type: 'discovery-failed',
+                }}
                 discovery={discovery}
                 failed={failedAccounts}
             />
@@ -76,7 +90,14 @@ export const PortfolioCard = memo(() => {
         dashboardGraphHidden,
     });
 
-    const goToReceive = () => dispatch(goto('wallet-receive'));
+    const goToReceive = () => {
+        if (hasMultipleAccounts) {
+            dispatch(goto('suite-index', { params: { modal: 'receive' } }));
+        } else {
+            dispatch(goto('wallet-receive'));
+        }
+    };
+
     const heading = <Translation id="TR_MY_PORTFOLIO" />;
 
     const header =
@@ -90,6 +111,8 @@ export const PortfolioCard = memo(() => {
                 isWalletLoading={isWalletLoading}
                 isWalletError={isWalletError}
                 isDiscoveryRunning={isDiscoveryRunning}
+                passphraseEntryCanceled={passphraseEntryCanceled}
+                hasMultipleAccounts={hasMultipleAccounts}
                 receiveClickHandler={goToReceive}
             />
         );
