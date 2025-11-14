@@ -31,7 +31,7 @@ export const StakingDashboardAccountRow = ({ account }: { account: Account }) =>
 
     const minStakingAmount = getStakingLimitsByNetworkSymbol(
         account.symbol,
-    )?.MIN_AMOUNT_FOR_STAKING;
+    )?.MIN_AMOUNT_FOR_STAKING_DASHBOARD;
 
     const accountBalance = account.formattedBalance;
     const stakingBalance = getAccountTotalStakingBalance(account) ?? '0';
@@ -271,7 +271,12 @@ export const StakingDashboardAccountRow = ({ account }: { account: Account }) =>
                     </Table.Cell>
 
                     <Table.Cell align="end">
-                        <Button intent="brand" size="small" onClick={navigateToTradingBuy}>
+                        <Button
+                            intent="neutral"
+                            priority="secondary"
+                            size="small"
+                            onClick={navigateToTradingBuy}
+                        >
                             <Translation id="TR_BUY" />
                         </Button>
                     </Table.Cell>
