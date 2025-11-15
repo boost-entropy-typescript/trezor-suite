@@ -37,6 +37,11 @@ export type EvoluKeys = {
     ownerSecret: string; // hex
 };
 
+export type DelegatedKey = string & Branded<'DelegatedKey'>; // hex-encoded P-256 private key string
+
+export const asDelegatedKey = (privateKey: Uint8Array<ArrayBufferLike> | string): DelegatedKey =>
+    String(privateKey) as DelegatedKey;
+
 export interface ExtendedDevice {
     useEmptyPassphrase?: boolean;
     remember?: boolean; // device should be remembered
@@ -51,9 +56,11 @@ export interface ExtendedDevice {
     buttonRequests: ButtonRequest[];
     metadata: DeviceMetadata;
     localFirstStorageSecret?: {
-        isRetrieving: boolean; // To prevent consequential call of the TrezorConnect.evoluGetNode(...)
+        // To prevent consequential call of the TrezorConnect.evoluGetNode(...)
+        isRetrieving: boolean;
         evoluKeys: EvoluKeys | undefined;
     };
+    delegatedKey?: DelegatedKey | null;
     walletNumber?: number; // number of passphrase wallet intended to be used in UI
     passwords: DeviceMetadata;
     reconnectRequested?: boolean; // currently only after wipeDevice
@@ -84,6 +91,7 @@ export type AuthorizedDevice = AcquiredDevice & {
 export type DeviceWithEmptyPath = Omit<AcquiredDevice, 'path'> & { path: '' };
 
 type PersistedDeviceKey = UnionSubset<keyof AcquiredDevice, 'thp' | 'bluetoothProps'>;
+
 type PersistedFeatureKey = UnionSubset<
     keyof Features,
     | 'device_id'
@@ -94,10 +102,12 @@ type PersistedFeatureKey = UnionSubset<
     | 'label'
     | 'initialized'
 >;
+
 export type PersistentDeviceData = Pick<AcquiredDevice, PersistedDeviceKey> &
     Pick<Features, PersistedFeatureKey> & {
         firmwareVersion: VersionArray | null;
         lastConnectedVia: 'bluetooth' | 'usb' | null;
         lastEntropyCheckResult?: { success: boolean };
+        delegatedKey: DelegatedKey | null;
         // TODO move deviceAuthenticity to this object and newly introduce persistence
     };
