@@ -3,7 +3,8 @@ import { useCallback, useState } from 'react';
 import { lighten, rgba } from 'polished';
 import styled, { DefaultTheme, css, keyframes } from 'styled-components';
 
-import { Tooltip } from '@trezor/components';
+import { Tooltip, useElevation } from '@trezor/components';
+import { Elevation, mapElevationToBorder } from '@trezor/theme';
 
 import { openModal } from 'src/actions/suite/modalActions';
 import { goto } from 'src/actions/suite/routerActions';
@@ -40,7 +41,7 @@ export const DELAYED_SPIN = keyframes`
 `;
 
 const getOutlineSvg = (theme: DefaultTheme) =>
-    `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='${theme.legacy.TYPE_LIGHT_GREY.replace(
+    `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='${theme.iconSubdued.replace(
         /#/g,
         '%23',
     )}' stroke-width='5' stroke-dasharray='7' stroke-dashoffset='35' stroke-linecap='butt'/%3e%3c/svg%3e")`;
@@ -64,6 +65,7 @@ const Wheel = styled.div<{
     $isWithoutProgressOutline: boolean;
     $isStartable: boolean;
     $isGreyedOut: boolean;
+    $elevation: Elevation;
 }>`
     position: relative;
     display: flex;
@@ -72,9 +74,9 @@ const Wheel = styled.div<{
     width: 94px;
     height: 94px;
     border-radius: 50%;
-    background: ${({ theme, $progress }) =>
-        `conic-gradient(${theme.legacy.BG_GREEN} ${3.6 * $progress}deg, ${rgba(
-            theme.legacy.STROKE_GREY,
+    background: ${({ theme, $progress, $elevation }) =>
+        `conic-gradient(${theme.backgroundPrimaryDefault} ${3.6 * $progress}deg, ${rgba(
+            mapElevationToBorder({ theme, $elevation }),
             0.6,
         )} 0)`};
     transition:
@@ -98,13 +100,13 @@ const Wheel = styled.div<{
         $isWithoutProgressOutline &&
         css`
             background: none;
-            color: ${({ theme }) => theme.legacy.TYPE_GREEN};
+            color: ${({ theme }) => theme.textPrimaryDefault};
 
             ${ProgressContentContainer} {
-                background: ${({ theme }) => theme.legacy.BG_LIGHT_GREEN};
+                background: ${({ theme }) => theme.backgroundPrimaryDefault};
 
                 path {
-                    fill: ${({ theme }) => theme.legacy.TYPE_GREEN};
+                    fill: ${({ theme }) => theme.iconPrimaryDefault};
                 }
             }
         `}
@@ -127,23 +129,23 @@ const Wheel = styled.div<{
                     height: calc(100% - 12px);
 
                     span {
-                        color: ${theme.legacy.TYPE_GREEN};
+                        color: ${theme.textPrimaryDefault};
                     }
                 }
             }
         `}
 
-    ${({ $isPaused, $hasCriticalError, theme, $progress }) =>
+    ${({ $isPaused, $hasCriticalError, theme, $progress, $elevation }) =>
         $isPaused &&
         css`
             background: ${`conic-gradient(${theme.legacy.TYPE_LIGHTER_GREY} ${3.6 * $progress}deg, ${rgba(
-                theme.legacy.STROKE_GREY,
+                mapElevationToBorder({ theme, $elevation }),
                 0.6,
             )} 0)`};
 
             &:hover {
                 path {
-                    fill: ${!$hasCriticalError && theme.legacy.TYPE_GREEN};
+                    fill: ${!$hasCriticalError && theme.iconPrimaryDefault};
                 }
             }
         `}
@@ -165,6 +167,7 @@ interface CoinjoinProgressWheelProps {
 }
 
 export const CoinjoinProgressWheel = ({ accountKey }: CoinjoinProgressWheelProps) => {
+    const { elevation } = useElevation();
     const {
         isSessionActive,
         isPaused,
@@ -272,6 +275,7 @@ export const CoinjoinProgressWheel = ({ accountKey }: CoinjoinProgressWheelProps
                     onClick={handleWheelClick}
                     onMouseEnter={() => setIsWheelHovered(true)}
                     onMouseLeave={() => setIsWheelHovered(false)}
+                    $elevation={elevation}
                 >
                     <CoinjoinProgressContent
                         accountKey={accountKey}

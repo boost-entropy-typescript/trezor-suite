@@ -24,7 +24,7 @@ import { RotatingFacts } from './RotatingFacts';
 const Subheader = styled.div`
     display: flex;
     align-items: center;
-    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.textSubdued};
     font-size: ${variables.FONT_SIZE.SMALL};
     font-weight: ${variables.FONT_WEIGHT.MEDIUM};
     text-align: center;
@@ -48,7 +48,7 @@ const DiscoveryProgress = styled(ProgressBar)`
 const FactHeading = styled.div`
     display: flex;
     align-items: center;
-    color: ${({ theme }) => theme.legacy.TYPE_ORANGE};
+    color: ${({ theme }) => theme.textAlertYellow};
     font-size: ${variables.FONT_SIZE.TINY};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     text-transform: uppercase;
@@ -65,8 +65,8 @@ const StyledLottieAnimation = styled(LottieAnimation)`
     margin: -32px -8px -32px -20px;
 
     path {
-        stroke: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
-        fill: ${({ theme }) => theme.legacy.BG_WHITE};
+        stroke: ${({ theme }) => theme.iconSubdued};
+        fill: ${({ theme }) => theme.iconDefaultInverted};
     }
 `;
 
@@ -101,7 +101,7 @@ export const CoinjoinAccountDiscoveryProgress = () => {
                 <DiscoveryProgress max={1.01} value={progress} />
 
                 <FactHeading>
-                    <SparksIcon name="starFour" size={13} color={theme.legacy.TYPE_ORANGE} />
+                    <SparksIcon name="starFour" size={13} color={theme.iconAlertYellow} />
                     <Translation id="TR_LOADING_FACT_TITLE" />
                 </FactHeading>
 

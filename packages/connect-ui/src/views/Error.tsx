@@ -240,13 +240,13 @@ const InnerWrapper = styled.div`
 `;
 
 const H = styled.h1`
-    color: ${intermediaryTheme.light.legacy.TYPE_RED};
+    color: ${intermediaryTheme.light.textAlertRed};
     font-size: 28px;
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
 `;
 
 const Text = styled.div`
-    color: ${intermediaryTheme.light.legacy.TYPE_LIGHT_GREY};
+    color: ${intermediaryTheme.light.textSubdued};
     font-size: ${variables.FONT_SIZE.NORMAL};
 `;
 
@@ -281,7 +281,7 @@ const HeadingText = styled.div`
 `;
 
 const HeadingH1 = styled.div`
-    color: ${intermediaryTheme.light.legacy.TYPE_DARK_GREY};
+    color: ${intermediaryTheme.light.textDefault};
     font-size: ${variables.FONT_SIZE.NORMAL};
     font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
     margin-bottom: 4px;

@@ -1,7 +1,13 @@
 import styled from 'styled-components';
 
 import { H2 } from '@trezor/components';
-import { borders, typography } from '@trezor/theme';
+import {
+    Elevation,
+    borders,
+    mapElevationToBackground,
+    mapElevationToBorder,
+    typography,
+} from '@trezor/theme';
 
 export const Heading = styled.div`
     padding-left: 5px;
@@ -30,7 +36,7 @@ export const Column = styled.div`
 
 export const Title = styled.div`
     display: flex;
-    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.textDefault};
     ${typography.highlight}
     align-items: center;
     margin-bottom: 16px;
@@ -45,7 +51,7 @@ export const Actions = styled.div`
 `;
 
 export const Text = styled.div`
-    color: ${({ theme }) => theme.legacy.TYPE_LIGHT_GREY};
+    color: ${({ theme }) => theme.textSubdued};
     margin-bottom: 8px;
     margin-top: 8px;
     ${typography.hint}
@@ -59,13 +65,13 @@ export const Content = styled.div`
     width: 100%;
 `;
 
-export const Value = styled.div`
+export const Value = styled.div<{ $elevation: Elevation }>`
     ${typography.hint}
-    color: ${({ theme }) => theme.legacy.TYPE_DARK_GREY};
+    color: ${({ theme }) => theme.textDefault};
     font-variant-numeric: tabular-nums slashed-zero;
     width: fit-content;
-    background: ${({ theme }) => theme.legacy.BG_LIGHT_GREY};
-    border: 1px solid ${({ theme }) => theme.legacy.STROKE_GREY};
+    background: ${mapElevationToBackground};
+    border: 1px solid ${mapElevationToBorder};
     border-radius: ${borders.radii.xs};
     word-break: break-all;
     padding: 10px;
