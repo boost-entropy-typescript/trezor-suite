@@ -11,9 +11,7 @@
         "test:unit": "yarn g:jest -c ./jest.config.js"
     },
     "dependencies": {
-        "@evolu/common": "^6.0.1-preview.28",
-        "@noble/curves": "^1.9.7",
-        "@noble/hashes": "^1.6.1",
+        "@evolu/common": "^6.0.1-preview.32",
         "@reduxjs/toolkit": "2.10.1",
         "@suite-common/metadata-types": "workspace:*",
         "@suite-common/redux-utils": "workspace:*",

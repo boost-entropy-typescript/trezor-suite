@@ -29,7 +29,22 @@ export type DeviceBusyStatus =
  */
 export type DeviceStatus = 'available' | 'occupied' | 'used' | DeviceBusyStatus;
 
-export type DeviceMode = 'normal' | 'bootloader' | 'initialize' | 'seedless';
+export type DeviceMode =
+    | 'normal'
+    | 'bootloader'
+
+    /**
+     * Device has not yet been set up. It has no secret inside.
+     * It must be either recovered from seed or newly generated
+     */
+    | 'initialize'
+
+    /**
+     * Seedless setup for Multi-sig. Not supported by Suite.
+     *
+     * @see: https://trezor.io/guides/backups-recovery/advanced-wallets/seedless-setup
+     */
+    | 'seedless';
 
 export type DeviceFirmwareStatus =
     | 'valid'
@@ -46,7 +61,10 @@ export type UnavailableCapability =
     | 'trezor-connect-outdated';
 
 /**
- * `{first testnet address}@{device.features.device_id}:{device.instance}`
+ * This is ID assigned to Device object at point where it first interacts
+ * with the Wallet (passphrase or standard).
+ *
+ * Format: `{first testnet address}@{device.features.device_id}:{device.instance}`
  */
 export type StaticSessionId = `${string}@${string}:${number}`;
 
@@ -118,7 +136,17 @@ export type BluetoothDeviceProps = {
 
 export type KnownDevice = BaseDevice & {
     type: 'acquired';
+
+    /**
+     * Identifier of the PHYSICAL device. It is part of the device.features
+     * so it is known only fo `AcquiredDevice`. The `id` will change in case of Wipe Device.
+     *
+     * Example: F06CBD5EB27720C19FD01A0D
+     *
+     * Note: despite this is nullable, Acquired device shall always have it.
+     */
     id: string | null;
+
     /** @deprecated, use features.label instead */
     label: string;
     error?: typeof undefined;

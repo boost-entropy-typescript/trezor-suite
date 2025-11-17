@@ -6,6 +6,7 @@ import {
     Features,
     KnownDevice,
     PROTO,
+    StaticSessionId,
     UnknownDevice as UnknownDeviceBase,
     UnreadableDevice as UnreadableDeviceBase,
 } from '@trezor/connect';
@@ -37,10 +38,16 @@ export type EvoluKeys = {
     ownerSecret: string; // hex
 };
 
-export type DelegatedKey = string & Branded<'DelegatedKey'>; // hex-encoded P-256 private key string
-
-export const asDelegatedKey = (privateKey: Uint8Array<ArrayBufferLike> | string): DelegatedKey =>
-    String(privateKey) as DelegatedKey;
+/**
+ * Private Key that is unique to the Device. It is created when it
+ * is requested for the first time (so it is not known beforehand).
+ * It is used as a "hot" key for Suite, where device delegates
+ * some signing capabilities to the Suite (for example the Suite Sync).
+ */
+export type DelegatedIdentityKey = string & Branded<'DelegatedIdentityKey'>; // hex-encoded P-256 private key string
+export const asDelegatedIdentityKey = (
+    privateKey: Uint8Array<ArrayBufferLike> | string,
+): DelegatedIdentityKey => String(privateKey) as DelegatedIdentityKey;
 
 export interface ExtendedDevice {
     useEmptyPassphrase?: boolean;
@@ -60,7 +67,6 @@ export interface ExtendedDevice {
         isRetrieving: boolean;
         evoluKeys: EvoluKeys | undefined;
     };
-    delegatedKey?: DelegatedKey | null;
     walletNumber?: number; // number of passphrase wallet intended to be used in UI
     passwords: DeviceMetadata;
     reconnectRequested?: boolean; // currently only after wipeDevice
@@ -108,6 +114,11 @@ export type PersistentDeviceData = Pick<AcquiredDevice, PersistedDeviceKey> &
         firmwareVersion: VersionArray | null;
         lastConnectedVia: 'bluetooth' | 'usb' | null;
         lastEntropyCheckResult?: { success: boolean };
-        delegatedKey: DelegatedKey | null;
+        delegatedIdentityKey: DelegatedIdentityKey | null;
         // TODO move deviceAuthenticity to this object and newly introduce persistence
     };
+
+export type TrezorDeviceWithState = AcquiredDevice & {
+    id: string;
+    state: NonNullable<AcquiredDevice['state']> & { staticSessionId: StaticSessionId };
+};
