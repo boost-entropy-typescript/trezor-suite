@@ -59,6 +59,7 @@ react-native-safe-area-context
 react-native-screens
 react-native-svg
 react-native-webview
+react-native-worklets
 react-qr-code
 react-zxing
 react-select
@@ -66,6 +67,7 @@ react-svg
 react-toastify
 recharts
 sharp
+simple-git
 storybook
 style-loader
 styled-components

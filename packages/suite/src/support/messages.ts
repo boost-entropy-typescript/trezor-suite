@@ -8220,10 +8220,6 @@ export default defineMessages({
         id: 'TR_STAKE_DEREGISTERED',
         defaultMessage: 'Deregistration of a stake address',
     },
-    TR_STAKE_ENTIRE_BALANCE: {
-        id: 'TR_STAKE_ENTIRE_BALANCE',
-        defaultMessage: 'Entire balance',
-    },
     TR_STAKE_REGISTRATION_DEPOSIT: {
         id: 'TR_STAKE_REGISTRATION_DEPOSIT',
         defaultMessage: 'Registration deposit',
@@ -9915,6 +9911,10 @@ export default defineMessages({
     TR_STAKE_CLAIM_AFTER_UNSTAKING: {
         id: 'TR_STAKE_CLAIM_AFTER_UNSTAKING',
         defaultMessage: 'You can claim once the unstaking period is complete.',
+    },
+    TR_STAKE_UNSTAKE_WITH_REWARDS: {
+        id: 'TR_STAKE_UNSTAKE_WITH_REWARDS',
+        defaultMessage: 'Your rewards are automatically claimed when you unstake.',
     },
     TR_STAKE_UNSTAKING_APPROXIMATE: {
         id: 'TR_STAKE_UNSTAKING_APPROXIMATE',
