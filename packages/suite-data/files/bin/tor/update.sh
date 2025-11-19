@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
+
+# If you are going to make changes to the script, make sure it stays compatible with update-tor.yml
+
 set -e
 
-# !!! If you are going to change this, change update-tor workflow as well !!!
+# Ensure the script runs from its own directory so it can be invoked from repo root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || exit 1
+
 CRX_VER=1_0_39
 CRX_LINUX_ARM_VER=1_0_8
 
