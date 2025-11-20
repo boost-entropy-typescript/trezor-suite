@@ -15,6 +15,7 @@ import { useFirmwareDesktopUpdate } from 'src/hooks/suite/useFirmwareDesktopUpda
 import { getSuiteFirmwareTypeString } from 'src/utils/firmware';
 
 import { selectIsDebugModeActive } from '../../selectors/suite/suiteSelectors';
+import { DebugOnlyBadge } from '../suite/DebugOnlyBadge';
 
 type FirmwareOfferProps = {
     isCustomFirmware?: boolean;
@@ -70,7 +71,9 @@ export const FirmwareOffer = ({ isCustomFirmware, targetFirmwareType }: Firmware
                 (isDebugModeActive ? (
                     <Tooltip
                         content={
-                            <Text variant="warning">DEV: {originalDevice.features.revision}</Text>
+                            <DebugOnlyBadge>
+                                <Text>{originalDevice.features.revision}</Text>
+                            </DebugOnlyBadge>
                         }
                     >
                         <CurrentVersion />
@@ -111,7 +114,9 @@ export const FirmwareOffer = ({ isCustomFirmware, targetFirmwareType }: Firmware
                                 </MarkdownWithComponents>
                             ) : undefined}
                             {isDebugModeActive && (
-                                <Text variant="warning">DEV: {release.firmware_revision}</Text>
+                                <DebugOnlyBadge>
+                                    <Text>{release.firmware_revision}</Text>
+                                </DebugOnlyBadge>
                             )}
                         </Column>
                     }
