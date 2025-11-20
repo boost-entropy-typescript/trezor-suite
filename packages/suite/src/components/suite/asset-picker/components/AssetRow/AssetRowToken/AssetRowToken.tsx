@@ -1,0 +1,57 @@
+import { getDisplaySymbol } from '@suite-common/wallet-config';
+import { Account } from '@suite-common/wallet-types';
+import { asBaseCurrencyAmount, getAssetLogoContractAddresses } from '@suite-common/wallet-utils';
+import { AssetLogo, Row } from '@trezor/components';
+import { spacings } from '@trezor/theme';
+
+import { TokensWithRates } from 'src/utils/wallet/tokenUtils';
+
+import { ItemClickableContainer } from '../ItemClickableContainer';
+import { AssetAmount } from './AssetAmount';
+import { AssetDetails } from './AssetDetails';
+
+export const ASSET_ROW_TOKEN_HEIGHT = 68;
+
+export type AssetRowTokenProps = {
+    token: TokensWithRates;
+    account: Account;
+    onClick: (token: TokensWithRates, account: Account) => void;
+    'data-testid'?: string;
+};
+
+export function AssetRowToken({
+    token,
+    account,
+    'data-testid': dataTestId,
+    onClick,
+}: AssetRowTokenProps) {
+    return (
+        <ItemClickableContainer
+            onClick={() => {
+                onClick(token, account);
+            }}
+        >
+            <Row data-testid={dataTestId} gap={spacings.sm}>
+                <AssetLogo
+                    size={40}
+                    coingeckoId={account.networkType}
+                    contractAddress={getAssetLogoContractAddresses(account.symbol, token.contract)}
+                    placeholder={getDisplaySymbol(token.symbol!, token.contract)}
+                />
+                <AssetDetails
+                    name={token.name!}
+                    symbol={token.symbol!}
+                    networkSymbol={account.symbol}
+                />
+            </Row>
+            {token.balance && (
+                <AssetAmount
+                    symbol={token.symbol!}
+                    fiatAmount={token.fiatRate ? asBaseCurrencyAmount(token.fiatValue) : undefined}
+                    contractAddress={token.contract}
+                    amount={token.balance}
+                />
+            )}
+        </ItemClickableContainer>
+    );
+}

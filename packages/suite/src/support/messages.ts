@@ -3220,6 +3220,15 @@ export default defineMessages({
         defaultMessage: 'Select an account to receive funds',
         id: 'TR_RECEIVE_SELECT_ACCOUNT',
     },
+    TR_RECEIVE_DESCRIPTION: {
+        defaultMessage:
+            'Tokens exist on multiple networks, so be sure to select the correct one. <a>Learn more</a>',
+        id: 'TR_RECEIVE_DESCRIPTION',
+    },
+    TR_RECEIVE_SEARCH: {
+        defaultMessage: 'Search account',
+        id: 'TR_RECEIVE_SEARCH',
+    },
     TR_RECEIVE_NETWORK: {
         defaultMessage: 'Receive {networkDisplaySymbol}',
         id: 'TR_RECEIVE_NETWORK',
@@ -3227,6 +3236,10 @@ export default defineMessages({
     TR_RECEIVE_NETWORK_INCLUDING_TOKENS: {
         defaultMessage: 'Receive {networkDisplaySymbol} including tokens',
         id: 'TR_RECEIVE_NETWORK_INCLUDING_TOKENS',
+    },
+    TR_SEND_SEARCH: {
+        defaultMessage: 'Search account',
+        id: 'TR_SEND_SEARCH',
     },
     TR_BUY_NETWORK: {
         defaultMessage: 'Buy {networkDisplaySymbol}',

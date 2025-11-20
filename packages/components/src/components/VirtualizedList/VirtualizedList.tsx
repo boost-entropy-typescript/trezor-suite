@@ -20,11 +20,6 @@ function debounce<T extends (...args: unknown[]) => void>(
     };
 }
 
-const DEFAULT_VISIBLE_ITEMS_COUNT = 20;
-const BEFORE_AFTER_BUFFER_COUNT = 100;
-const LOAD_MORE_BUFFER_COUNT = 100;
-const ESTIMATED_ITEM_HEIGHT = 40;
-
 interface ContainerProps {
     $height: number | string;
     $minHeight: number | string;
@@ -41,13 +36,15 @@ const Container = styled.div<ContainerProps>`
 `;
 const Content = styled.div`
     position: relative;
+    overflow: hidden;
+    will-change: contents;
 `;
 const Item = styled.div`
     position: absolute;
     width: 100%;
 `;
 
-type BaseItemProps = {
+export type BaseItemProps = {
     height: number;
 };
 
@@ -113,6 +110,13 @@ type VirtualizedListProps<T extends BaseItemProps> = {
     listMinHeight: number | string;
     ref?: React.Ref<HTMLDivElement>;
     renderItem: (item: T, index: number) => React.ReactNode;
+
+    visibleItemsCount?: number;
+    beforeAfterBufferCount?: number;
+    loadMoreBufferCount?: number;
+    estimatedItemHeight?: number;
+
+    resetScrollOnItemsChange?: boolean;
 };
 
 export function VirtualizedListComponent<T extends BaseItemProps>({
@@ -124,13 +128,20 @@ export function VirtualizedListComponent<T extends BaseItemProps>({
     listMinHeight,
     renderItem,
     ref,
+
+    visibleItemsCount = 20,
+    beforeAfterBufferCount = 100,
+    loadMoreBufferCount = 100,
+    estimatedItemHeight = 40,
+
+    resetScrollOnItemsChange = true,
 }: VirtualizedListProps<T>) {
     const newRef = useRef<HTMLDivElement>(null);
     const containerRef = (ref as React.RefObject<HTMLDivElement>) || newRef;
     const [items, setItems] = useState(initialItems);
     const [itemsFingerprint, setItemsFingerprint] = useState(initialItemsFingerprint);
     const [startIndex, setStartIndex] = useState(0);
-    const [endIndex, setEndIndex] = useState(DEFAULT_VISIBLE_ITEMS_COUNT);
+    const [endIndex, setEndIndex] = useState(visibleItemsCount);
     const debouncedOnScrollEnd = useMemo(() => debounce(onScrollEnd, 1000), [onScrollEnd]);
 
     const resetScroll = useCallback(() => {
@@ -140,12 +151,23 @@ export function VirtualizedListComponent<T extends BaseItemProps>({
     }, [containerRef]);
 
     useEffect(() => {
-        if (itemsFingerprint !== initialItemsFingerprint) {
-            setItems(initialItems);
-            setItemsFingerprint(initialItemsFingerprint);
+        if (itemsFingerprint === initialItemsFingerprint) {
+            return;
+        }
+
+        setItems(initialItems);
+        setItemsFingerprint(initialItemsFingerprint);
+
+        if (resetScrollOnItemsChange) {
             resetScroll();
         }
-    }, [initialItems, initialItemsFingerprint, itemsFingerprint, resetScroll]);
+    }, [
+        initialItems,
+        initialItemsFingerprint,
+        itemsFingerprint,
+        resetScroll,
+        resetScrollOnItemsChange,
+    ]);
 
     const itemHeights = useMemo(() => items.map(item => calculateItemHeight(item)), [items]);
     const totalHeight = useMemo(
@@ -168,7 +190,7 @@ export function VirtualizedListComponent<T extends BaseItemProps>({
                 offset += itemHeights[i];
             }
 
-            newStartIndex = Math.max(0, newStartIndex - BEFORE_AFTER_BUFFER_COUNT);
+            newStartIndex = Math.max(0, newStartIndex - beforeAfterBufferCount);
 
             let newEndIndex = newStartIndex;
             let visibleHeight = 0;
@@ -176,28 +198,37 @@ export function VirtualizedListComponent<T extends BaseItemProps>({
 
             while (
                 newEndIndex < items.length &&
-                visibleHeight < containerHeight + BEFORE_AFTER_BUFFER_COUNT * ESTIMATED_ITEM_HEIGHT
+                visibleHeight < containerHeight + beforeAfterBufferCount * estimatedItemHeight
             ) {
                 visibleHeight += itemHeights[newEndIndex];
                 newEndIndex++;
             }
-            newEndIndex = Math.min(items.length, newEndIndex + BEFORE_AFTER_BUFFER_COUNT);
+            newEndIndex = Math.min(items.length, newEndIndex + beforeAfterBufferCount);
 
             setStartIndex(newStartIndex);
             setEndIndex(newEndIndex);
 
-            if (newEndIndex >= items.length - LOAD_MORE_BUFFER_COUNT) {
+            if (newEndIndex >= items.length - loadMoreBufferCount) {
                 debouncedOnScrollEnd();
             }
             onScroll?.(e);
         },
-        [containerRef, debouncedOnScrollEnd, itemHeights, items.length, onScroll],
+        [
+            beforeAfterBufferCount,
+            containerRef,
+            debouncedOnScrollEnd,
+            estimatedItemHeight,
+            itemHeights,
+            items.length,
+            loadMoreBufferCount,
+            onScroll,
+        ],
     );
 
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
-            container.addEventListener('scroll', handleScroll);
+            container.addEventListener('scroll', handleScroll, { passive: true });
 
             return () => container.removeEventListener('scroll', handleScroll);
         }

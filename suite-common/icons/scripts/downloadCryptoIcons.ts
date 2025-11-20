@@ -11,14 +11,14 @@ import {
     UPDATED_ICONS_LIST_FILE,
 } from './constants';
 import { CoinListData } from './types';
-import { getCoinData, getCoinList, getUpdatedIconsList } from './utils/fetchCoins';
-import { sleep } from './utils/sleep';
 import {
-    COIN_IMAGE_QUALITIES,
     COIN_IMAGE_SIZES,
+    LEGACY_COIN_IMAGE_SIZES,
     createCoinImageName,
     createCoinImageNameLegacy,
 } from '../src/coinImages';
+import { getCoinData, getCoinList, getUpdatedIconsList } from './utils/fetchCoins';
+import { sleep } from './utils/sleep';
 
 async function writeImage(fileName: string, imageBuffer: Buffer) {
     const destinationFile = join(FILES_CRYPTOICONS_PATH, fileName);
@@ -86,38 +86,38 @@ const updateIcon = async (coin: CoinListData) => {
             ([platform, contract]) => platform && contract && contract.startsWith('0x'),
         );
 
+        // Legacy naming – Make sure it's backwards compatible for older versions of the Trezor Suite
+        for (const size of LEGACY_COIN_IMAGE_SIZES) {
+            const finalImageBuffer = await resizeImage(originImageBuffer, size);
+
+            const fileNameLegacy = createCoinImageNameLegacy({ coingeckoId: coinData.id, size });
+            console.log(`[legacy] Writing image (${coin.id}):`, fileNameLegacy);
+            await writeImage(fileNameLegacy, finalImageBuffer);
+
+            for (const [coingeckoId, contractAddress] of platforms) {
+                const fileNameLegacyPlatform = createCoinImageNameLegacy({
+                    coingeckoId,
+                    contractAddress,
+                    size,
+                });
+                console.log(`[legacy] Writing image (${coin.id}):`, fileNameLegacyPlatform);
+                await writeImage(fileNameLegacyPlatform, finalImageBuffer);
+            }
+        }
+
+        // New naming
         for (const size of COIN_IMAGE_SIZES) {
             const finalImageBuffer = await resizeImage(originImageBuffer, size);
 
-            for (const quality of COIN_IMAGE_QUALITIES) {
-                for (const [platform, contract] of platforms) {
-                    const name = `${platform}--${contract}`;
-
-                    const fileName = createCoinImageName(name, { size, quality });
-                    console.log(`Writing image (${coin.id}):`, fileName);
-                    await writeImage(fileName, finalImageBuffer);
-
-                    // Make sure it's backwards compatible for older versions of the Trezor Suite
-                    if (size === 24) {
-                        const fileNameLegacy = createCoinImageNameLegacy(name, quality);
-                        console.log(`Writing image - legacy (${coin.id}):`, fileNameLegacy);
-                        await writeImage(fileNameLegacy, finalImageBuffer);
-                    }
-                }
-
-                const name = coinData.id;
-
-                const fileName = createCoinImageName(name, { size, quality });
+            for (const [coingeckoId, contractAddress] of platforms) {
+                const fileName = createCoinImageName({ coingeckoId, contractAddress, size });
                 console.log(`Writing image (${coin.id}):`, fileName);
                 await writeImage(fileName, finalImageBuffer);
-
-                // Make sure it's backwards compatible for older versions of the Trezor Suite
-                if (size === 24) {
-                    const fileNameLegacy = createCoinImageNameLegacy(name, quality);
-                    console.log(`Writing image - legacy (${coin.id}):`, fileNameLegacy);
-                    await writeImage(fileNameLegacy, finalImageBuffer);
-                }
             }
+
+            const fileName = createCoinImageName({ coingeckoId: coinData.id, size });
+            console.log(`Writing image (${coin.id}):`, fileName);
+            await writeImage(fileName, finalImageBuffer);
         }
     } catch (error) {
         console.error(`Error (${coin.id}):`, error);
