@@ -1,12 +1,12 @@
-import { expect as detoxExpect } from 'detox';
-
 import { conditionalDescribe } from '@suite-common/test-utils';
 
 import { onCoinEnabling } from '../pageObjects/coinEnablingActions';
 import { onDeviceOnboarding } from '../pageObjects/deviceOnboardingActions';
 import { onDevicePrompt } from '../pageObjects/devicePromptActions';
+import { onHome } from '../pageObjects/homeActions';
 import { onOnboarding } from '../pageObjects/onboardingActions';
 import { getModelFromEnv, openApp, prepareTrezorEmulator } from '../support/setup';
+import { waitForVisible } from '../support/utils';
 
 conditionalDescribe(
     device.getPlatform() === 'android',
@@ -27,8 +27,9 @@ conditionalDescribe(
 
             await onCoinEnabling.waitForInitScreen();
             await onCoinEnabling.handleCoinEnablingInit(['btc', 'eth']);
-            const bitcoinTextElement = element(by.text('Bitcoin'));
-            await detoxExpect(bitcoinTextElement).toBeVisible();
+            await waitForVisible(by.text('Connected'));
+            await onHome.scrollScreenToBottom();
+            await waitForVisible(by.text('Bitcoin'));
         });
     },
 );
