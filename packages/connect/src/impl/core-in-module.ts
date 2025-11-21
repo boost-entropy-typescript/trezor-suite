@@ -61,17 +61,12 @@ export class CoreInModule implements ConnectFactoryDependencies<ConnectSettingsP
 
         if (!importResult) {
             this._log.error(`importResult is empty! Cannot load "${connectCorePath}"`);
-            throw new Error(`importResult is empty! Cannot load "${connectCorePath}js/core.js"`);
+            throw new Error(`importResult is empty! Cannot load "${connectCorePath}"`);
         }
 
-        const { initCoreState, initTransport } = importResult;
+        const { initCoreState } = importResult;
 
         if (!initCoreState) return;
-
-        if (initTransport) {
-            this._log.debug('initiating transport with settings: ', this._settings);
-            await initTransport(this._settings);
-        }
 
         this._coreManager = initCoreState();
 
@@ -208,29 +203,6 @@ export class CoreInModule implements ConnectFactoryDependencies<ConnectSettingsP
             type: TRANSPORT.SET_TRANSPORTS,
             payload: { transports },
         });
-    }
-
-    private initSettings = (settings: Partial<ConnectSettings> = {}) => {
-        this._settings = parseConnectSettings({
-            ...this._settings,
-            ...settings,
-            popup: false,
-        });
-
-        if (!this._settings.manifest) {
-            throw ERRORS.TypedError('Init_ManifestMissing');
-        }
-
-        if (!this._settings.transports?.length) {
-            // default fallback for node
-            this._settings.transports = ['BridgeTransport'];
-        }
-    };
-
-    public initCore() {
-        this.initSettings({ lazyLoad: false });
-
-        return this._coreManager.getOrInit(this._settings, this.boundOnCoreEvent);
     }
 
     public async call(params: CallMethodPayload) {
