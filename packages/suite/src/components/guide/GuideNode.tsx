@@ -3,10 +3,10 @@ import { ReactNode } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 import { GuideNode as GuideNodeType } from '@suite-common/suite-types';
-import { Icon, variables } from '@trezor/components';
+import { Icon } from '@trezor/components';
 import { resolveStaticPath } from '@trezor/env-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
-import { borders, spacings } from '@trezor/theme';
+import { borders, spacings, transitions, typography } from '@trezor/theme';
 
 import { openNode } from 'src/actions/suite/guideActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -23,8 +23,7 @@ const NodeButton = styled.button`
     padding: 10px;
     cursor: pointer;
     line-height: 1.57;
-    transition: ${({ theme }) =>
-        `background ${theme.legacy.HOVER_TRANSITION_TIME} ${theme.legacy.HOVER_TRANSITION_EFFECT}`};
+    transition: background ${transitions.speed.normal} ${transitions.type};
 
     &:hover,
     &:focus {
@@ -38,12 +37,9 @@ const PageNodeButton = styled(NodeButton)`
 
 const Label = styled.div<{ $isBold: boolean }>`
     width: 100%;
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${({ $isBold }) =>
-        $isBold ? variables.FONT_WEIGHT.DEMI_BOLD : variables.FONT_WEIGHT.MEDIUM};
+    ${({ $isBold }) => ($isBold ? typography.hint : typography.callout)};
     color: ${({ theme }) => theme.textDefault};
     overflow: hidden;
-    line-height: 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;

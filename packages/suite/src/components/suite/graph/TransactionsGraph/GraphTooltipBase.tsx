@@ -3,7 +3,7 @@ import { JSX, useEffect } from 'react';
 import { TooltipProps } from 'recharts';
 import styled from 'styled-components';
 
-import { Row, variables } from '@trezor/components';
+import { Row, Text } from '@trezor/components';
 import { paletteV2, spacings } from '@trezor/theme';
 
 import { FormattedDate } from 'src/components/suite';
@@ -49,7 +49,7 @@ const CustomTooltipWrapper = styled.div<WrapperProps>`
     display: flex;
     flex-direction: column;
     color: ${paletteV2.globalWhiteAlpha1000};
-    background: ${({ theme }) => theme.legacy.BG_TOOLTIP};
+    background: ${({ theme }) => theme.backgroundSurfaceElevation3};
     padding: 8px 6px;
     border-radius: 4px;
     box-shadow: ${({ theme }) => theme.boxShadowElevated};
@@ -71,7 +71,7 @@ const CustomTooltipWrapper = styled.div<WrapperProps>`
         height: 0;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
-        border-top: 10px solid ${({ theme }) => theme.legacy.BG_TOOLTIP};
+        border-top: 10px solid ${({ theme }) => theme.backgroundNeutralSubdued};
     }
 `;
 
@@ -80,14 +80,15 @@ const Col = styled.div`
     flex-direction: column;
 `;
 
-const Title = styled.span`
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    margin-right: 20px;
-`;
+const Title = ({ children }: { children: React.ReactNode }) => (
+    <Text typographyStyle="body" margin={{ right: 20 }}>
+        {children}
+    </Text>
+);
 
-const Value = styled.span`
-    font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
-`;
+const Value = ({ children }: { children: React.ReactNode }) => (
+    <Text typographyStyle="highlight">{children}</Text>
+);
 
 const ColsWrapper = styled.div`
     display: flex;

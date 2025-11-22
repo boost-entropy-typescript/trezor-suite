@@ -91,7 +91,8 @@ const Wheel = styled.div<{
 
             &:active {
                 ${ProgressContentContainer} {
-                    background: ${({ theme }) => lighten(0.02, theme.legacy.BG_GREY)};
+                    background: ${({ theme }) =>
+                        lighten(0.02, theme.backgroundNeutralBoldInverted)};
                 }
             }
         `}
@@ -138,7 +139,7 @@ const Wheel = styled.div<{
     ${({ $isPaused, $hasCriticalError, theme, $progress, $elevation }) =>
         $isPaused &&
         css`
-            background: ${`conic-gradient(${theme.legacy.TYPE_LIGHTER_GREY} ${3.6 * $progress}deg, ${rgba(
+            background: ${`conic-gradient(${theme.backgroundSurfaceElevation0} ${3.6 * $progress}deg, ${rgba(
                 mapElevationToBorder({ theme, $elevation }),
                 0.6,
             )} 0)`};
@@ -157,7 +158,7 @@ const Wheel = styled.div<{
             color: inherit;
 
             ${ProgressContentContainer} {
-                background: ${theme.legacy.BG_GREY};
+                background: ${theme.backgroundNeutralBoldInverted};
             }
         `}
 `;

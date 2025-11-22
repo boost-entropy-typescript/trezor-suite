@@ -1,9 +1,9 @@
-import { darken } from 'polished';
 import styled from 'styled-components';
 
 import type { GuideCategory } from '@suite-common/suite-types';
-import { variables } from '@trezor/components';
+import { Text } from '@trezor/components';
 import { EventType, analytics } from '@trezor/suite-analytics';
+import { transitions } from '@trezor/theme';
 
 import { openNode, setView } from 'src/actions/suite/guideActions';
 import { Translation } from 'src/components/suite/Translation';
@@ -13,19 +13,12 @@ import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectLanguage } from 'src/selectors/suite/suiteSelectors';
 import { findAncestorNodes, getNodeTitle } from 'src/utils/suite/guide';
 
-const BreadcrumbWrapper = styled.span`
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    white-space: normal;
-`;
-
 const PreviousCategoryLink = styled(TrezorLink)`
     color: ${({ theme }) => theme.textSubdued};
-    transition: ${({ theme }) =>
-        `background ${theme.legacy.HOVER_TRANSITION_TIME} ${theme.legacy.HOVER_TRANSITION_EFFECT}`};
+    transition: background ${transitions.speed.normal} ${transitions.type};
 
     &:hover {
-        color: ${({ theme }) => darken(theme.legacy.HOVER_DARKEN_FILTER, theme.textSubdued)};
+        color: ${({ theme }) => theme.backgroundNeutralSubdued};
     }
 `;
 
@@ -36,11 +29,10 @@ const BreadcrumbDelimiter = styled.span`
 
 const CategoryLink = styled(TrezorLink)`
     color: ${({ theme }) => theme.textPrimaryDefault};
-    transition: ${({ theme }) =>
-        `background ${theme.legacy.HOVER_TRANSITION_TIME} ${theme.legacy.HOVER_TRANSITION_EFFECT}`};
+    transition: background ${transitions.speed.normal} ${transitions.type};
 
     &:hover {
-        color: ${({ theme }) => darken(theme.legacy.HOVER_DARKEN_FILTER, theme.textPrimaryDefault)};
+        color: ${({ theme }) => theme.textPrimaryPressed};
     }
 `;
 
@@ -54,11 +46,11 @@ export const HeaderBreadcrumb = () => {
 
     // if no parent available, offer navigation to guide dashboard
     const FallbackBreadcrumb = (
-        <BreadcrumbWrapper>
+        <Text typographyStyle="hint" textWrap="normal">
             <CategoryLink onClick={goToDashboard}>
                 <Translation id="TR_GUIDE_DASHBOARD" />
             </CategoryLink>
-        </BreadcrumbWrapper>
+        </Text>
     );
 
     if (!currentNode || !indexNode) return FallbackBreadcrumb;
@@ -97,7 +89,7 @@ export const HeaderBreadcrumb = () => {
     const grandParentNode = parentNodes.pop();
 
     return (
-        <BreadcrumbWrapper>
+        <Text typographyStyle="hint" textWrap="normal">
             <PreviousCategoryLink
                 onClick={() => {
                     if (grandParentNode) {
@@ -127,6 +119,6 @@ export const HeaderBreadcrumb = () => {
             >
                 {parentNode && getNodeTitle(parentNode, language)}
             </CategoryLink>
-        </BreadcrumbWrapper>
+        </Text>
     );
 };

@@ -2,11 +2,11 @@ import styled from 'styled-components';
 
 import { isDevEnv } from '@suite-common/suite-utils';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { Icon, Image, Link, variables } from '@trezor/components';
+import { Icon, Image, Link, Paragraph } from '@trezor/components';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { isDesktop } from '@trezor/env-utils';
 import { EventType, analytics } from '@trezor/suite-analytics';
-import { borders } from '@trezor/theme';
+import { borders, transitions, typography } from '@trezor/theme';
 import { TREZOR_FORUM_URL, TREZOR_SUPPORT_URL } from '@trezor/urls';
 
 import { setView } from 'src/actions/suite/guideActions';
@@ -22,8 +22,7 @@ const Section = styled.div`
 `;
 
 const SectionHeader = styled.h3`
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.DEMI_BOLD};
+    ${typography.callout}
     color: ${({ theme }) => theme.textSubdued};
     padding: 0 0 18px;
 `;
@@ -41,8 +40,7 @@ const SectionButton = styled.button<{ $hasBackground?: boolean }>`
         $hasBackground ? theme.backgroundSurfaceElevation1 : 'none'};
     border: 0;
 
-    transition: ${({ theme }) =>
-        `background ${theme.legacy.HOVER_TRANSITION_TIME} ${theme.legacy.HOVER_TRANSITION_EFFECT}`};
+    transition: background ${transitions.speed.normal} ${transitions.type};
 
     &:hover {
         background: ${({ theme }) => theme.backgroundTertiaryPressedOnElevation1};
@@ -56,8 +54,7 @@ const StyledLink = styled(Link)`
 
 const Details = styled.div`
     padding: 10px 0 0;
-    font-size: 10px;
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    ${typography.label}
     color: ${({ theme }) => theme.textSubdued};
     display: flex;
     justify-content: space-around;
@@ -80,8 +77,7 @@ const Label = styled.div`
 `;
 
 const LabelHeadline = styled.strong`
-    font-size: ${variables.FONT_SIZE.NORMAL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
+    ${typography.body}
     color: ${({ theme }) => theme.textDefault};
     display: flex;
     align-items: center;
@@ -90,12 +86,6 @@ const LabelHeadline = styled.strong`
     &:not(:only-child) {
         margin-bottom: 5px;
     }
-`;
-
-const LabelSubheadline = styled.div`
-    font-size: ${variables.FONT_SIZE.SMALL};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    color: ${({ theme }) => theme.textSubdued};
 `;
 
 export const SupportFeedbackSelection = () => {
@@ -151,9 +141,9 @@ export const SupportFeedbackSelection = () => {
                             <LabelHeadline>
                                 <Translation id="TR_BUG" />
                             </LabelHeadline>
-                            <LabelSubheadline>
+                            <Paragraph typographyStyle="hint" variant="tertiary">
                                 <Translation id="TR_GUIDE_BUG_LABEL" />
-                            </LabelSubheadline>
+                            </Paragraph>
                         </Label>
                     </SectionButton>
                     <SectionButton
@@ -166,9 +156,9 @@ export const SupportFeedbackSelection = () => {
                             <LabelHeadline>
                                 <Translation id="TR_SUGGESTION" />
                             </LabelHeadline>
-                            <LabelSubheadline>
+                            <Paragraph typographyStyle="hint" variant="tertiary">
                                 <Translation id="TR_GUIDE_SUGGESTION_LABEL" />
-                            </LabelSubheadline>
+                            </Paragraph>
                         </Label>
                     </SectionButton>
                 </Section>
@@ -185,9 +175,9 @@ export const SupportFeedbackSelection = () => {
                                     <Translation id="TR_GUIDE_FORUM" />
                                     <Icon size={20} name="arrowUpRight" />
                                 </LabelHeadline>
-                                <LabelSubheadline>
+                                <Paragraph typographyStyle="hint" variant="tertiary">
                                     <Translation id="TR_GUIDE_FORUM_LABEL" />
-                                </LabelSubheadline>
+                                </Paragraph>
                             </Label>
                         </SectionButton>
                     </StyledLink>

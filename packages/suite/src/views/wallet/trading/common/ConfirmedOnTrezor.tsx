@@ -3,18 +3,16 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { TrezorDevice } from '@suite-common/suite-types';
-import { variables } from '@trezor/components';
 import { RotateDeviceImage } from '@trezor/product-components';
-import { borders } from '@trezor/theme';
+import { borders, typography } from '@trezor/theme';
 
 import { Translation } from 'src/components/suite/Translation';
 
 const Confirmed = styled.div`
     display: flex;
     height: 60px;
-    font-size: ${variables.FONT_SIZE.BIG};
-    font-weight: ${variables.FONT_WEIGHT.MEDIUM};
-    background: ${({ theme }) => theme.legacy.BG_GREY};
+    ${typography.highlight}
+    background: ${({ theme }) => theme.backgroundNeutralBoldInverted};
     align-items: center;
     justify-content: center;
     margin-top: 27px;
