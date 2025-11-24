@@ -40,18 +40,14 @@ export const receiveThpMessage = async ({
             graceful,
             logger,
         });
-        const expectedHeaders = protocolThp.getExpectedHeaders(thpState);
-        const message = await receive(
-            () => apiReadWithExpectedHeaders(expectedHeaders),
-            protocolV2,
-        );
+        const message = await receive(() => apiReadWithExpectedHeaders(thpState), protocolV2);
         if (!message.success) {
             return message;
         }
 
         const isAckExpected = protocolThp.isAckExpected(thpState.expectedResponses || []);
         if (!skipAck && isAckExpected) {
-            const chunk = protocolThp.encodeAck(message.payload.header);
+            const chunk = protocolThp.encodeAck(thpState);
 
             logger?.debug(`receiveThpMessage send ThpAck`);
 
