@@ -73,9 +73,10 @@ export const extraDependenciesMock: ExtraDependencies = {
         initMetadata: mockThunk('initMetadata'),
         addAccountMetadata: mockThunk('addAccountMetadata'),
         forgetBluetoothDevice: mockThunk('forgetBluetoothDevice'),
-        subscribeLocalFirstStorage: mockOriginalReduxThunk('subscribeLocalFirstStorage'),
-        unsubscribeAndDisposeLocalFirstStorage: mockThunk('unsubscribeLocalFirstStorage'),
-        initLocalFirstStorage: mockThunk('initLocalFirstStorage'),
+        subscribeSuiteSync: mockOriginalReduxThunk('subscribeSuiteSync'),
+        unsubscribeAndDisposeSuiteSyncStorage: mockThunk('unsubscribeAndDisposeSuiteSyncStorage'),
+        initSuiteSync: mockOriginalReduxThunk('initSuiteSync'),
+        createSuiteSyncOwner: mockOriginalReduxThunk('createSuiteSyncOwner'),
     },
     selectors: {
         selectTokenDefinitionsEnabledNetworks: mockSelector(
@@ -104,7 +105,7 @@ export const extraDependenciesMock: ExtraDependencies = {
             account: testMocks.getWalletAccount(),
         } as SelectedAccountLoaded),
         selectSelectedAccountStatus: mockSelector('selectSelectedAccountStatus', 'loaded'),
-        selectIsLocalFirstStorageEnabled: mockSelector('selectIsLocalFirstStorageEnabled', false),
+        selectIsSuiteSyncEnabled: mockSelector('selectIsLocalFirstStorageEnabled', false),
         selectIsWindowVisible: mockSelector('selectIsWindowVisible', true),
         selectTradingEnvironment: mockSelector('selectTradingEnvironment', 'localhost'),
         selectIsViewOnlyByDefaultEnabled: mockSelector('selectIsViewOnlyByDefaultEnabled', true),
