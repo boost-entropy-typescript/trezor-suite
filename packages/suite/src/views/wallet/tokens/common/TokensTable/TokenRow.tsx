@@ -19,12 +19,10 @@ import { Explorer, Network, getCoingeckoId } from '@suite-common/wallet-config';
 import { selectExplorer, selectSelectedDevice, sendFormActions } from '@suite-common/wallet-core';
 import { Account, TokenAddress } from '@suite-common/wallet-types';
 import {
-    getAssetLogoContractAddresses,
     getContractAddressForNetworkSymbol,
     getTokenExplorerUrl,
 } from '@suite-common/wallet-utils';
 import {
-    AssetLogo,
     Button,
     ButtonGroup,
     Card,
@@ -37,6 +35,7 @@ import {
     Text,
     Tooltip,
 } from '@trezor/components';
+import { AssetLogo } from '@trezor/product-components';
 import { EventType, analytics } from '@trezor/suite-analytics';
 import { spacings } from '@trezor/theme';
 
@@ -205,10 +204,8 @@ export const TokenRow = ({
                     <AssetLogo
                         coingeckoId={coingeckoId || ''}
                         placeholder={token.name || token.symbol || 'token'}
-                        contractAddress={getAssetLogoContractAddresses(
-                            account.symbol,
-                            token.contract,
-                        )}
+                        symbol={account.symbol}
+                        contractAddress={token.contract}
                         size={24}
                         shouldTryToFetch={isTokenKnown}
                     />

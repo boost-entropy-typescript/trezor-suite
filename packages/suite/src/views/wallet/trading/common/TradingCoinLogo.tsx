@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 
 import { parseCryptoId, useTradingInfo } from '@suite-common/trading';
-import { getAssetLogoContractAddresses } from '@suite-common/wallet-utils';
-import { AssetLogo } from '@trezor/components';
+import { AssetLogo } from '@trezor/product-components';
 
 import { TradingCoinLogoProps } from 'src/types/trading/trading';
 
@@ -22,7 +21,8 @@ export const TradingCoinLogo = ({
         <Wrapper className={className}>
             <AssetLogo
                 coingeckoId={networkId}
-                contractAddress={getAssetLogoContractAddresses(networkSymbol, contractAddress)}
+                symbol={networkSymbol}
+                contractAddress={contractAddress}
                 size={size}
                 placeholder={networkId.toUpperCase()}
                 margin={margin}

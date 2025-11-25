@@ -15,13 +15,8 @@ import { Network, getExplorerUrl } from '@suite-common/wallet-config';
 import { ETH_CONTRACT_CALL_BACKUP_GAS_LIMIT } from '@suite-common/wallet-constants';
 import { selectDeviceAccounts, selectExplorer } from '@suite-common/wallet-core';
 import { FormState } from '@suite-common/wallet-types';
+import { asBaseCurrencyAmount, getConvertedOrDefaultFeeInfo } from '@suite-common/wallet-utils';
 import {
-    asBaseCurrencyAmount,
-    getAssetLogoContractAddresses,
-    getConvertedOrDefaultFeeInfo,
-} from '@suite-common/wallet-utils';
-import {
-    AssetLogo,
     Banner,
     Card,
     Checkbox,
@@ -36,7 +31,7 @@ import {
     Text,
 } from '@trezor/components';
 import { ERRORS } from '@trezor/connect';
-import { CoinLogo } from '@trezor/product-components';
+import { AssetLogo, CoinLogo } from '@trezor/product-components';
 import { isCoinSymbol } from '@trezor/product-components/src/components/CoinLogo/coins';
 import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils';
@@ -74,7 +69,8 @@ const TxSimulationAsset = ({
             return (
                 <AssetLogo
                     coingeckoId={network.coingeckoId}
-                    contractAddress={getAssetLogoContractAddresses(network.symbol, asset.address)}
+                    symbol={network.symbol}
+                    contractAddress={asset.address}
                     size={32}
                     shouldTryToFetch={true}
                     placeholder={asset.name ?? asset.symbol}

@@ -124,6 +124,11 @@ export const messages = {
                 description: 'Sync your favorite coins and track balances with portfolio tracker.',
                 syncButton: 'Sync & Track',
             },
+            demoAccountQuestionnaire: {
+                title: "Don't have a Trezor yet?",
+                description: 'Help us shape a better experience for you.',
+                button: "I don't have a Trezor",
+            },
         },
         buttons: {
             receive: 'Receive',
@@ -2896,6 +2901,46 @@ export const messages = {
             emptyTitle: 'Country not found',
             emptyDescription: 'Check the spelling or browse the list to select an option.',
             searchInputPlaceholder: 'Search country',
+        },
+    },
+    moduleDemoAccountQuestionnaire: {
+        intro: {
+            title: 'Help improve Trezor Suite',
+            subtitle:
+                'We have two questions that will help us provide you with a better experience.',
+            note: "It's anonymous and will take less than a minute.",
+            primaryCta: 'Sure, continue',
+            secondaryCta: "I'm not interested",
+        },
+        reason: {
+            title: 'Why did you download Trezor Suite?',
+            options: {
+                considering: "I'm considering a hardware wallet",
+                ad: 'I saw an ad online',
+                friend: 'A friend told me about Trezor',
+            },
+        },
+        suiteAction: {
+            title: 'What did you hope to do in Trezor Suite?',
+            options: {
+                explore: 'I wanted to explore the app, its interactions, and its design.',
+                transaction: 'I wanted to try to send and receive cryptocurrencies.',
+                hardwareWallet:
+                    'I wanted to understand how a hardware wallet works with Trezor Suite.',
+            },
+        },
+        noneOption: 'None of the above',
+        success: {
+            title: 'Thanks for your help.',
+            subtitle:
+                'Your responses will help us prepare the best mobile experience for users like you.',
+            recommendationsHeading: 'You might also be interested in:',
+            recommendations: {
+                hardwareWallet: 'What is a hardware wallet?',
+                trezorSecurity: 'Why is Trezor secure?',
+                trezorSafe7: 'Get to know the new Trezor Safe 7',
+            },
+            backCta: 'Back to dashboard',
         },
     },
 };

@@ -2,21 +2,26 @@ import { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 
-// TODO: suite-common imports in non-suite packages should not be allowed
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { getNetwork, getNetworkByCoingeckoId, isNetworkSymbol } from '@suite-common/wallet-config';
+import {
+    type NetworkSymbolExtended,
+    getNetwork,
+    getNetworkByCoingeckoId,
+    isNetworkSymbol,
+} from '@suite-common/wallet-config';
+import { getAssetLogoContractAddresses } from '@suite-common/wallet-utils';
 import { getAssetLogoUrl } from '@trezor/asset-utils';
+import {
+    ElevationUp,
+    type FrameProps,
+    type FramePropsKeys,
+    type TransientProps,
+    pickAndPrepareFrameProps,
+    useElevation,
+    withFrameProps,
+} from '@trezor/components';
 import { Elevation, borders, mapElevationToBackground, mapElevationToBorder } from '@trezor/theme';
 
 import { AssetInitials } from './AssetInitials';
-import {
-    FrameProps,
-    FramePropsKeys,
-    pickAndPrepareFrameProps,
-    withFrameProps,
-} from '../../utils/frameProps';
-import { TransientProps } from '../../utils/transientProps';
-import { ElevationUp, useElevation } from '../ElevationContext/ElevationContext';
 
 export const allowedAssetLogoSizes = [20, 24, 32, 40] as const;
 type AssetLogoSize = (typeof allowedAssetLogoSizes)[number];
@@ -27,7 +32,8 @@ type AllowedFrameProps = Pick<FrameProps, (typeof allowedAssetLogoFrameProps)[nu
 export type AssetLogoProps = AllowedFrameProps & {
     size: AssetLogoSize;
     coingeckoId: string;
-    contractAddress?: string[];
+    symbol?: NetworkSymbolExtended;
+    contractAddress?: string | null;
     shouldTryToFetch?: boolean;
     placeholderWithTooltip?: boolean;
     placeholder: string;
@@ -99,6 +105,7 @@ export const getCoingeckoIdAndContractAddressIncludesNativeTokens = (
 export const AssetLogo = ({
     size,
     coingeckoId,
+    symbol,
     contractAddress,
     shouldTryToFetch = true,
     placeholder,
@@ -106,9 +113,15 @@ export const AssetLogo = ({
     'data-testid': dataTest,
     ...rest
 }: AssetLogoProps) => {
+    const contractAddressArray = useMemo(
+        () => getAssetLogoContractAddresses(symbol, contractAddress),
+        [symbol, contractAddress],
+    );
+
     const normalizedAddresses = useMemo(
-        () => getCoingeckoIdAndContractAddressIncludesNativeTokens(coingeckoId, contractAddress),
-        [coingeckoId, contractAddress],
+        () =>
+            getCoingeckoIdAndContractAddressIncludesNativeTokens(coingeckoId, contractAddressArray),
+        [coingeckoId, contractAddressArray],
     );
     const { coingeckoId: coingeckoIdLogo, contractAddresses } = normalizedAddresses;
 

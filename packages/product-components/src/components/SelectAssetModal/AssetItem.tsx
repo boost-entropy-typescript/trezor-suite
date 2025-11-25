@@ -3,11 +3,11 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { getDisplaySymbol } from '@suite-common/wallet-config';
-import { getAssetLogoContractAddresses } from '@suite-common/wallet-utils';
-import { AssetLogo, Badge, Column, Row, Text } from '@trezor/components';
+import { Badge, Column, Row, Text } from '@trezor/components';
 import { spacings, spacingsPx } from '@trezor/theme';
 
 import { AssetOptionBaseProps } from './SelectAssetModal';
+import { AssetLogo } from '../AssetLogo/AssetLogo';
 import { CoinLogo } from '../CoinLogo/CoinLogo';
 import { isCoinSymbol } from '../CoinLogo/coins';
 
@@ -72,7 +72,8 @@ export const AssetItem = ({
                         <AssetLogo
                             size={24}
                             coingeckoId={coingeckoId}
-                            contractAddress={getAssetLogoContractAddresses(symbol, contractAddress)}
+                            symbol={symbol}
+                            contractAddress={contractAddress}
                             placeholder={displaySymbol}
                             shouldTryToFetch={shouldTryToFetch}
                         />

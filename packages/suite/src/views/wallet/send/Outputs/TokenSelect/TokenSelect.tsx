@@ -10,14 +10,13 @@ import {
 import { selectExplorer } from '@suite-common/wallet-core';
 import { TokenAddress } from '@suite-common/wallet-types';
 import {
-    getAssetLogoContractAddresses,
     getContractAddressForNetworkSymbol,
     getTokenExplorerUrl,
     hasNetworkFeatures,
     isNftToken,
 } from '@suite-common/wallet-utils';
-import { AssetLogo, Card, Column, IconButton, Row, Text } from '@trezor/components';
-import { CoinLogo } from '@trezor/product-components';
+import { Card, Column, IconButton, Row, Text } from '@trezor/components';
+import { AssetLogo, CoinLogo } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
 
 import { copyAddressToClipboard, showCopyAddressModal } from 'src/actions/suite/copyAddressActions';
@@ -122,10 +121,8 @@ export const TokenSelect = ({ outputId }: TokenSelectProps) => {
                         {selectedToken ? (
                             <AssetLogo
                                 coingeckoId={getCoingeckoId(account.symbol)!}
-                                contractAddress={getAssetLogoContractAddresses(
-                                    account.symbol,
-                                    selectedToken?.contract,
-                                )}
+                                symbol={account.symbol}
+                                contractAddress={selectedToken?.contract}
                                 size={24}
                                 placeholder={(
                                     selectedToken?.symbol || account.symbol
