@@ -6,6 +6,8 @@ export {
     selectShouldOfferSecureSync,
     selectIsSuiteSyncDebugEnabled,
 } from './suiteSyncSelectors';
+
+export type { WithSuiteSyncAndDeviceState } from './suiteSyncSelectors';
 export { useSuiteSync } from './useSuiteSync';
 export { prepareSuiteSyncReducer, initialSuiteSyncState } from './suiteSyncReducer';
 export type { SuiteSyncState, SuiteSyncSettings } from './suiteSyncReducer';
