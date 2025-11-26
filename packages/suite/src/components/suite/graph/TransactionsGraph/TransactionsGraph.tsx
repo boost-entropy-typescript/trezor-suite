@@ -29,6 +29,7 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
     ${typography.label}
     white-space: nowrap;
 
@@ -238,7 +239,7 @@ export const TransactionsGraph = memo(
                                 }}
                                 onMouseLeave={() => setHovered(-1)}
                             >
-                                <CartesianGrid vertical={false} stroke={theme.borderFocus} />
+                                <CartesianGrid vertical={false} stroke={theme.borderDashed} />
 
                                 <XAxis
                                     // xAxisId="primary"
