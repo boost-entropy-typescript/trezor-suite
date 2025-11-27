@@ -51,7 +51,7 @@ export const EmptyStakingCard = () => {
 
     const isCardano = account?.networkType === 'cardano';
 
-    const apy = useSelector(state => selectPoolStatsApyData(state, account?.symbol));
+    const apy = useSelector(state => selectPoolStatsApyData(state, account));
     const stakingData = getStakingDataForNetwork(account);
 
     const accountBalance = account?.formattedBalance ?? '0';
@@ -148,10 +148,7 @@ export const EmptyStakingCard = () => {
     };
 
     return (
-        <DashboardSection
-            data-testid="@wallet/staking/empty-card"
-            heading={<Translation id="TR_STAKE_STAKE_TOKEN" values={{ symbol: displaySymbol }} />}
-        >
+        <DashboardSection data-testid="@wallet/staking/empty-card">
             <Column gap={16}>
                 {!isDeviceConnected && <ConnectDeviceGenericPromo />}
                 {isDiscoveryRunning && <DiscoveryWarning />}
