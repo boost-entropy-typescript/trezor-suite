@@ -9389,6 +9389,19 @@ export default defineMessages({
         id: 'TR_STAKING_DASHBOARD_NOT_ACTIVE',
         defaultMessage: 'Inactive',
     },
+    TR_STAKING_DASHBOARD_OUTDATED: {
+        id: 'TR_STAKING_DASHBOARD_OUTDATED',
+        defaultMessage: 'Outdated provider',
+    },
+    TR_STAKING_MODAL_OUTDATED: {
+        id: 'TR_STAKING_MODAL_OUTDATED',
+        defaultMessage:
+            'Your ADA staking rewards will drop soon. Move to a new pool with {apy}% APY. Your funds and past rewards are safe.',
+    },
+    TR_STAKING_MODAL_OUTDATED_BUTTON: {
+        id: 'TR_STAKING_MODAL_OUTDATED_BUTTON',
+        defaultMessage: 'Update staking pool',
+    },
     TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE: {
         id: 'TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE',
         defaultMessage: 'Account',
@@ -9432,6 +9445,10 @@ export default defineMessages({
     TR_STAKING_DASHBOARD_STAKED: {
         id: 'TR_STAKING_DASHBOARD_STAKED',
         defaultMessage: '{amount} {displaySymbol} staked',
+    },
+    TR_STAKING_DASHBOARD_OUTDATED_PROVIDER: {
+        id: 'TR_STAKING_DASHBOARD_OUTDATED_PROVIDER',
+        defaultMessage: 'Update to Everstake and earn ~{apy}% APY',
     },
     TR_STAKING_BANNER_DETAIL_TITLE: {
         id: 'TR_STAKING_BANNER_DETAIL_TITLE',
@@ -9900,6 +9917,10 @@ export default defineMessages({
     TR_STAKE_NEXT_PAYOUT: {
         id: 'TR_STAKE_NEXT_PAYOUT',
         defaultMessage: 'Next reward payout',
+    },
+    TR_STAKE_NEXT_PAYOUT_FREQUENCY: {
+        id: 'TR_STAKE_NEXT_PAYOUT_FREQUENCY',
+        defaultMessage: 'Reward cycle',
     },
     TR_STAKE_STAKE_MORE: {
         id: 'TR_STAKE_STAKE_MORE',
