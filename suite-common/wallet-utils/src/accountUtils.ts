@@ -723,8 +723,8 @@ export const getAccountFiatBalance = ({
         totalBalance = totalBalance.plus(tokensBalance ?? 0);
     }
 
-    // account staking balance
-    if (shouldIncludeStaking) {
+    // account staking balance, Cardano staking should never be included as it would double the total
+    if (shouldIncludeStaking && account.networkType !== 'cardano') {
         const stakingBalance = getStakingFiatBalance(account, coinFiatRate.rate);
         totalBalance = totalBalance.plus(stakingBalance ?? 0);
     }
@@ -749,10 +749,10 @@ export const getTotalFiatBalance = ({
 }: GetTotalFiatBalanceParams) => {
     let instanceBalance = new BigNumber(0);
 
-    deviceAccounts.forEach(a => {
+    deviceAccounts.forEach(account => {
         const accountFiatBalance =
             getAccountFiatBalance({
-                account: a,
+                account,
                 baseCurrencyCode,
                 rates,
                 shouldIncludeTokens,
@@ -937,6 +937,9 @@ export const accountSearchFn = (
     const matchAddressFn = (u: NonNullable<Account['addresses']>['used'][number]) =>
         u.address.toLowerCase() === searchString;
 
+    const accountNumberMatch = `#${account.index + 1} ${account.accountType}`
+        .toLowerCase()
+        .includes(searchString);
     const symbolMatch = account.symbol.startsWith(searchString);
     const networkNameMatch = network?.name.toLowerCase().includes(searchString);
     const accountTypeMatch = account.accountType.startsWith(searchString);
@@ -961,6 +964,7 @@ export const accountSearchFn = (
     const tokenMatch = !!account.tokens && !!account.tokens.filter(filterTokens).length;
 
     return (
+        accountNumberMatch ||
         symbolMatch ||
         networkNameMatch ||
         accountTypeMatch ||

@@ -2834,6 +2834,19 @@ export default defineMessages({
         defaultMessage: 'Available on {supportedNetworks}.',
         id: 'TR_MEV_AVAILABLE_ON',
     },
+    TR_NETWORKS: {
+        defaultMessage: 'Networks',
+        id: 'TR_NETWORKS',
+    },
+    TR_NETWORK_RESERVE: {
+        defaultMessage: 'Network reserve',
+        id: 'TR_NETWORK_RESERVE',
+    },
+    TR_NETWORK_RESERVE_DESCRIPTION: {
+        defaultMessage:
+            'We reserve a small amount of native token on {supportedNetworks} to cover extra network fees when you send, swap, or sell your assets.',
+        id: 'TR_NETWORK_RESERVE_DESCRIPTION',
+    },
     TR_CONFIRM_AUTO_EJECT: {
         defaultMessage: 'Enable auto-eject',
         id: 'TR_CONFIRM_AUTO_EJECT',
@@ -3229,7 +3242,7 @@ export default defineMessages({
         id: 'TR_RANDOM_SEED_WORDS_DISCLAIMER',
     },
     TR_RECEIVE: {
-        defaultMessage: 'Receive',
+        defaultMessage: 'Select an account to receive funds',
         id: 'TR_RECEIVE',
     },
     TR_RECEIVE_SELECT_ACCOUNT: {
@@ -3237,8 +3250,7 @@ export default defineMessages({
         id: 'TR_RECEIVE_SELECT_ACCOUNT',
     },
     TR_RECEIVE_DESCRIPTION: {
-        defaultMessage:
-            'Tokens exist on multiple networks, so be sure to select the correct one. <a>Learn more</a>',
+        defaultMessage: 'How to <a>choose the right network</a> to receive your tokens',
         id: 'TR_RECEIVE_DESCRIPTION',
     },
     TR_RECEIVE_SEARCH: {
@@ -4622,6 +4634,27 @@ export default defineMessages({
         id: 'TR_ACTIVATE_TOKEN_MANUALLY',
         defaultMessage: 'Activate token manually',
     },
+    TR_DEACTIVATE_TOKEN: {
+        id: 'TR_DEACTIVATE_TOKEN',
+        defaultMessage: 'Deactivate token',
+    },
+    TR_DEACTIVATE_TOKEN_HEADING: {
+        id: 'TR_DEACTIVATE_TOKEN_HEADING',
+        defaultMessage: 'Deactivate {token}',
+    },
+    TR_TOKEN_DEACTIVATION_DESCRIPTION: {
+        id: 'TR_TOKEN_DEACTIVATION_DESCRIPTION',
+        defaultMessage:
+            "You won't be able to receive, send, or trade this token until you activate it again. Deactivation makes the 0.5 XLM reserve available for use.",
+    },
+    TR_CANT_DEACTIVATE_TOKEN_WITH_BALANCE: {
+        id: 'TR_CANT_DEACTIVATE_TOKEN_WITH_BALANCE',
+        defaultMessage: "You can't deactivate a token with a balance",
+    },
+    TR_DEACTIVATE_TOKEN_BALANCE_WARNING: {
+        id: 'TR_DEACTIVATE_TOKEN_BALANCE_WARNING',
+        defaultMessage: 'To deactivate this token, first send its balance elsewhere.',
+    },
     TR_ASSET_CODE: {
         id: 'TR_ASSET_CODE',
         defaultMessage: 'Asset code',
@@ -5797,6 +5830,14 @@ export default defineMessages({
         id: 'TR_ADD_TOKEN_TOAST_ERROR',
         defaultMessage: 'Action failed: {error}',
     },
+    TR_REMOVE_TOKEN_TOAST_SUCCESS: {
+        id: 'TR_REMOVE_TOKEN_TOAST_SUCCESS',
+        defaultMessage: 'Token removed',
+    },
+    TR_REMOVE_TOKEN_TOAST_ERROR: {
+        id: 'TR_REMOVE_TOKEN_TOAST_ERROR',
+        defaultMessage: 'Failed to remove token: {error}',
+    },
     TR_TO_ADD_NEW_ACCOUNT_WAIT_FOR_DISCOVERY: {
         id: 'TR_TO_ADD_NEW_ACCOUNT_WAIT_FOR_DISCOVERY',
         defaultMessage: 'Loading accounts. Wait before adding another one.',
@@ -5902,6 +5943,10 @@ export default defineMessages({
         defaultMessage:
             'Insufficient {networkDisplaySymbol} to cover the transaction fee ({feeAmount} {networkDisplaySymbol}).',
         id: 'AMOUNT_NOT_ENOUGH_CURRENCY_FEE_WITH_ETH_AMOUNT',
+    },
+    AMOUNT_EXCEEDS_NETWORK_RESERVE: {
+        defaultMessage: 'Not enough funds left after we reserve for network fees',
+        id: 'AMOUNT_EXCEEDS_NETWORK_RESERVE',
     },
     REMAINING_BALANCE_LESS_THAN_RENT: {
         defaultMessage:
@@ -10864,6 +10909,16 @@ export default defineMessages({
     TR_SIMULATION_NO_ASSETS: {
         id: 'TR_SIMULATION_NO_ASSETS',
         defaultMessage: 'No changes to your assets were detected.',
+    },
+    TR_NETWORK_RESERVE_BANNER: {
+        id: 'TR_NETWORK_RESERVE_BANNER',
+        defaultMessage:
+            'We reserve up to {amount} {displaySymbol} in case extra network fees apply.',
+    },
+    TR_NETWORK_RESERVE_MANAGE: {
+        defaultMessage: 'Manage',
+        description: 'Link to manage network reserve.',
+        id: 'TR_NETWORK_RESERVE_MANAGE',
     },
     TR_EXCHANGE_DETAIL_FEEDBACK_TITLE: {
         id: 'TR_EXCHANGE_DETAIL_FEEDBACK_TITLE',

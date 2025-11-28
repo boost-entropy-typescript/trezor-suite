@@ -53,6 +53,7 @@ export enum EventType {
     AccountsNewAccount = 'accounts/new-account',
     AccountsActions = 'accounts/actions',
     AddToken = 'add-token',
+    RemoveToken = 'remove-token',
     AccountsEmptyAccountReceive = 'accounts/empty-account/receive',
     AccountsTransactionsExport = 'accounts/transactions-export',
 
@@ -122,6 +123,7 @@ export enum EventType {
     SettingsGeneralAutoEject = 'settings/general/auto-eject',
     SettingsGeneralStoreDeviceData = 'settings/general/store-device-data',
     SettingsGeneralMevProtection = 'settings/general/mev-protection',
+    SettingsGeneralNetworkReserve = 'settings/general/network-reserve',
     SettingsCoinsBackend = 'settings/coins/backend',
     SettingsCoins = 'settings/coins',
     SettingsTor = 'settings/tor',
