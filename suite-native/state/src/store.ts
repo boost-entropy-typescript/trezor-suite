@@ -3,6 +3,11 @@ import devToolsEnhancer from 'redux-devtools-expo-dev-plugin';
 import { logger } from 'redux-logger';
 
 import {
+    ExtraDependencies,
+    castExtraStore,
+    createStoreWithExtraStoreMiddleware,
+} from '@suite-common/redux-utils';
+import {
     prepareFiatRatesMiddleware,
     preparePushNotificationMiddleware,
 } from '@suite-common/wallet-core';
@@ -15,7 +20,7 @@ import { thpMiddleware } from '@suite-native/thp';
 import { prepareTradingMiddleware } from '@suite-native/trading-state';
 import { DeepPartial } from '@trezor/type-utils';
 
-import { extraDependencies } from './extraDependencies';
+import { extraDependencies, nativeExtraFactory } from './extraDependencies';
 import { prepareRootReducers } from './reducers';
 
 type RootReducerShape = Awaited<ReturnType<typeof prepareRootReducers>>;
@@ -45,19 +50,32 @@ if (__DEV__) {
     }
 }
 
-export const initStore = async (preloadedState?: PreloadedState) =>
-    configureStore({
+export const initStore = async (preloadedState?: PreloadedState) => {
+    let extra: ExtraDependencies | null = null as ExtraDependencies | null;
+
+    const store = configureStore({
         preloadedState: preloadedState as FullPreloadedState,
         reducer: await prepareRootReducers(),
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware({
-                thunk: {
-                    extraArgument: extraDependencies,
-                },
                 serializableCheck: false,
                 immutableCheck: false,
             })
+                .prepend(
+                    createStoreWithExtraStoreMiddleware({
+                        extraFactory: api => ({
+                            ...extraDependencies,
+                            ...nativeExtraFactory(api),
+                        }),
+                        onExtraCreated: initializedExtra => {
+                            extra = initializedExtra;
+                        },
+                    }),
+                )
                 .prepend(deviceConnectionMiddleware.middleware)
                 .concat(middlewares),
         enhancers: getDefaultEnhancers => getDefaultEnhancers().concat(enhancers),
     });
+
+    return castExtraStore(store, extra);
+};

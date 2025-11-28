@@ -18,6 +18,11 @@ import { accountsActions } from '@suite-common/wallet-core';
 import { isCodesignBuild } from '@trezor/env-utils';
 import { mergeDeepObject } from '@trezor/utils';
 import { suiteSyncSlice } from 'src/actions/suiteSync/suiteSyncSlice';
+import {
+    ExtraDependencies,
+    castExtraStore,
+    createStoreWithExtraStoreMiddleware,
+} from '@suite-common/redux-utils';
 
 import backupMiddlewares from 'src/middlewares/backup';
 import onboardingMiddlewares from 'src/middlewares/onboarding';
@@ -32,14 +37,13 @@ import walletReducers from 'src/reducers/wallet';
 // toastMiddleware can be used only in suite-desktop and suite-web
 // it's not included into `@suite-middlewares` index
 import { geolocationReducer } from '@suite-common/geolocation';
-import { ExtraDependencies } from '@suite-common/redux-utils';
 import { prepareLabelingReducer } from '@suite-common/suite-sync';
 import { OPEN_USER_CONTEXT } from 'src/actions/suite/constants/modalConstants';
 import toastMiddleware from 'src/middlewares/suite/toastMiddleware';
 import { globalSendReceiveFilters } from 'src/slices/wallet/globalSendReceiveFilters';
 import type { PreloadStoreAction } from 'src/support/suite/preloadStore';
 import { bluetoothSlice } from '../actions/bluetooth/desktopBluetoothReducer';
-import { extraDependencies } from '../support/extraDependencies';
+import { extraDependencies, suiteExtraFactory } from '../support/extraDependencies';
 import { prepareBioAuthReducer } from './bioAuth';
 import { desktopReducer } from './desktop';
 
@@ -138,7 +142,9 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
               )
             : preloadedState;
 
-    return configureStore({
+    let extra: ExtraDependencies | null = null as ExtraDependencies | null;
+
+    const store = configureStore({
         reducer: rootReducer as Reducer<AppState, InferredAction, PreloadedState>,
         preloadedState: patchedState,
         middleware: getDefaultMiddleware =>
@@ -152,13 +158,22 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
                         'modal.payload.decision.reject',
                     ],
                 },
-                thunk: {
-                    extraArgument: {
-                        ...extraDependencies,
-                        ...(options.additionalExtraDeps ?? {}),
-                    },
-                },
-            }).concat(getCustomMiddleware()),
+            })
+                .prepend(
+                    createStoreWithExtraStoreMiddleware({
+                        extraFactory: api => ({
+                            ...extraDependencies,
+                            ...(options.additionalExtraDeps || {}),
+                            ...suiteExtraFactory(api),
+                        }),
+                        onExtraCreated: initializedExtra => {
+                            extra = initializedExtra;
+                        },
+                    }),
+                )
+                .concat(getCustomMiddleware()),
         devTools,
     } as const);
+
+    return castExtraStore(store, extra);
 };
