@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
-import type { ExchangeTrade } from 'invity-api';
+import type { SellFiatTrade } from 'invity-api';
 
 import { parseCryptoId } from '@suite-common/trading';
 import { selectSendPrecomposedTx } from '@suite-common/wallet-core';
@@ -15,28 +15,28 @@ import {
     type TradingStackParamList,
     TradingStackRoutes,
 } from '@suite-native/navigation';
-import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
+import { selectSellSelectedSendAccount } from '@suite-native/trading-state';
 
-export type ExchangePreviewContinueButtonProps = {
+export type SellPreviewContinueButtonProps = {
     isDisabled: boolean;
-    quote?: ExchangeTrade;
+    quote?: SellFiatTrade;
     onSignTransactionNavigation: () => void;
 };
 
 type NavigationProp = StackToTabCompositeNavigationProp<
     TradingStackParamList,
-    TradingStackRoutes.TradingExchangePreview,
+    TradingStackRoutes.TradingSellPreview,
     AppTabsParamList
 >;
 
-const EXCHANGE_PREVIEW_CONTINUE_BUTTON_TEST_ID = '@trading/exchange-preview/continue-button';
+const SELL_PREVIEW_CONTINUE_BUTTON_TEST_ID = '@trading/sell-preview/continue-button';
 
-export const ExchangePreviewContinueButton = memo(
-    ({ isDisabled, quote, onSignTransactionNavigation }: ExchangePreviewContinueButtonProps) => {
+export const SellPreviewContinueButton = memo(
+    ({ isDisabled, quote, onSignTransactionNavigation }: SellPreviewContinueButtonProps) => {
         const navigation = useNavigation<NavigationProp>();
 
         const precomposedTransaction = useSelector(selectSendPrecomposedTx);
-        const fromAccount = useSelector(selectExchangeSelectedSendAccount);
+        const fromAccount = useSelector(selectSellSelectedSendAccount);
 
         if (precomposedTransaction?.type !== 'final') {
             return null;
@@ -52,12 +52,12 @@ export const ExchangePreviewContinueButton = memo(
                 return;
             }
 
-            const tokenContract = quote.send
-                ? (parseCryptoId(quote.send)?.contractAddress as TokenAddress)
+            const tokenContract = quote.cryptoCurrency
+                ? (parseCryptoId(quote.cryptoCurrency)?.contractAddress as TokenAddress)
                 : undefined;
 
             navigation.navigate({
-                name: TradingStackRoutes.TradingExchangeOutputsReview,
+                name: TradingStackRoutes.TradingSellOutputsReview,
                 params: {
                     accountKey: fromAccount.key,
                     tokenContract,
@@ -71,7 +71,7 @@ export const ExchangePreviewContinueButton = memo(
             <Button
                 onPress={handleSignTransaction}
                 isDisabled={isDisabled}
-                testID={EXCHANGE_PREVIEW_CONTINUE_BUTTON_TEST_ID}
+                testID={SELL_PREVIEW_CONTINUE_BUTTON_TEST_ID}
             >
                 <Translation id="generic.buttons.continue" />
             </Button>

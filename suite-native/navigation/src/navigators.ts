@@ -351,6 +351,7 @@ export type RootStackParamList = {
     [RootStackRoutes.DeviceCompromisedModal]: undefined;
     [RootStackRoutes.TradingWebView]: {
         closeCallbackUrl: string;
+        tradingType: TradingType;
         source?: { uri?: string; html?: string };
         orderId?: string;
     };
@@ -381,8 +382,12 @@ export type TradingStackParamList = {
         accountKey: AccountKey;
         tradingType: TradingType;
     };
-    [TradingStackRoutes.TradingOutputsReview]: {
-        tradingType: TradingType;
+    [TradingStackRoutes.TradingSellOutputsReview]: {
+        accountKey: AccountKey;
+        tokenContract?: TokenAddress;
+        orderId: string;
+    };
+    [TradingStackRoutes.TradingExchangeOutputsReview]: {
         accountKey: AccountKey;
         tokenContract?: TokenAddress;
         orderId: string;
