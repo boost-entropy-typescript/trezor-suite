@@ -2,14 +2,14 @@ import { getStakingTotalRewards } from '@suite-common/staking';
 import { StakingFlow } from '@suite-common/suite-types/src/staking';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
-    selectAccountPendingStakeTypeTransactions,
     selectAccountStakeTypeTransactions,
+    selectCardanoPoolsInfo,
     selectStakingTotalRewards,
 } from '@suite-common/wallet-core';
+import { Account } from '@suite-common/wallet-types';
 import {
-    getStakingAccountCurrentStatus,
     getStakingDataForNetwork,
-    getTxStakeType,
+    isCardanoStakedWithEverstake,
     isPending,
 } from '@suite-common/wallet-utils';
 import {
@@ -34,7 +34,6 @@ import { BaseCurrencyValue, FormattedCryptoAmount } from 'src/components/suite';
 import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useLayoutSize, useSelector } from 'src/hooks/suite';
 import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking';
-import { selectSelectedAccount } from 'src/reducers/wallet/selectedAccountReducer';
 
 import { useIsTxStatusShown } from '../hooks/useIsTxStatusShown';
 import { useProgressLabelsData } from '../hooks/useProgressLabelsData';
@@ -79,25 +78,24 @@ type StakingCardProps = {
     isValidatorsQueueLoading?: boolean;
     daysToAddToPool?: number;
     daysToUnstake?: number;
+    account: Account;
 };
 
 export const StakingCard = ({
     isValidatorsQueueLoading,
     daysToAddToPool,
     daysToUnstake,
+    account,
 }: StakingCardProps) => {
-    const selectedAccount = useSelector(selectSelectedAccount);
     const { isBelowLaptop } = useLayoutSize();
 
-    const isEthereumNetworkType = selectedAccount?.networkType === 'ethereum';
-    const isCardanoNetworkType = selectedAccount?.networkType === 'cardano';
-
     const selectedStakingTotalRewards = useSelector(state =>
-        selectStakingTotalRewards(state, selectedAccount?.symbol, selectedAccount?.descriptor),
+        selectStakingTotalRewards(state, account?.symbol, account.descriptor),
     );
+    const cardanoStakingPools = useSelector(selectCardanoPoolsInfo);
 
     const { totalRewards = '0', isTotalRewardsLoading } = getStakingTotalRewards(
-        selectedAccount,
+        account,
         selectedStakingTotalRewards,
     );
 
@@ -106,7 +104,7 @@ export const StakingCard = ({
         isUnstakingDisabled,
         stakingMessageContent,
         unstakingMessageContent,
-    } = useMessageSystemStaking(selectedAccount?.symbol);
+    } = useMessageSystemStaking(account.symbol);
 
     const {
         autocompoundBalance = '0',
@@ -115,17 +113,13 @@ export const StakingCard = ({
         withdrawTotalAmount = '0',
         claimableAmount = '0',
         restakedReward = '0',
-    } = getStakingDataForNetwork(selectedAccount) ?? {};
-
-    const canUnstake = new BigNumber(autocompoundBalance).gt(0);
-    const canClaimRewards = new BigNumber(restakedReward).gt(0);
-    const isStakePending = new BigNumber(totalPendingStakeBalance).gt(0);
+    } = getStakingDataForNetwork(account) ?? {};
 
     const isUnstakePending = new BigNumber(withdrawTotalAmount).gt(0);
 
     const { isTxStatusShown } = useIsTxStatusShown(
         new BigNumber(totalPendingStakeBalance),
-        selectedAccount?.descriptor,
+        account.descriptor,
     );
 
     const isDaysToAddToPoolShown = daysToAddToPool !== undefined && !isValidatorsQueueLoading;
@@ -134,30 +128,28 @@ export const StakingCard = ({
     const isDaysToUnstakeShown = daysToUnstake !== undefined && !isValidatorsQueueLoading;
 
     const stakeTxs = useSelector(state =>
-        selectAccountStakeTypeTransactions(state, selectedAccount?.key || ''),
+        selectAccountStakeTypeTransactions(state, account.key || ''),
     );
     const isStakeConfirming = stakeTxs.some(tx => isPending(tx));
-    const hasCardanoPendingTx = isCardanoNetworkType && isStakeConfirming;
 
-    const solStakingAccountStatus = getStakingAccountCurrentStatus(selectedAccount);
+    const canUnstake = new BigNumber(autocompoundBalance).gt(0) && !isStakeConfirming;
+    const canClaimRewards = new BigNumber(restakedReward).gt(0);
+    const isStakePending = new BigNumber(totalPendingStakeBalance).gt(0);
 
-    const lastPendingStakeTypeTransaction = useSelector(state =>
-        selectAccountPendingStakeTypeTransactions(state, selectedAccount?.key || ''),
-    )[0];
-    const pendingTxStakeType = getTxStakeType(lastPendingStakeTypeTransaction);
+    const isStakedWithEverstake = isCardanoStakedWithEverstake(account, cardanoStakingPools);
 
     const progressLabelsData = useProgressLabelsData({
         daysToAddToPool,
         isDaysToAddToPoolShown,
         isStakeConfirming,
         isStakePending,
-        selectedAccount,
-        solStakingAccountStatus,
-        pendingTxStakeType,
+        account,
+        stakeTxs,
+        isStakedWithEverstake,
     });
 
     const shouldShowProgressLabels =
-        (isStakeConfirming || isTxStatusShown) && progressLabelsData.length;
+        (isStakeConfirming || isTxStatusShown) && !!progressLabelsData.length;
 
     const dispatch = useDispatch();
 
@@ -170,7 +162,7 @@ export const StakingCard = ({
                 payload: {
                     action: 'continue',
                     step: 'staking-dashboard',
-                    networkSymbol: selectedAccount?.symbol,
+                    networkSymbol: account.symbol,
                 },
             });
         }
@@ -185,7 +177,7 @@ export const StakingCard = ({
                 payload: {
                     action: 'continue',
                     step: 'staking-dashboard',
-                    networkSymbol: selectedAccount?.symbol,
+                    networkSymbol: account.symbol,
                 },
             });
         }
@@ -200,15 +192,13 @@ export const StakingCard = ({
                 payload: {
                     action: 'continue',
                     step: 'staking-dashboard',
-                    networkSymbol: selectedAccount?.symbol,
+                    networkSymbol: account.symbol,
                 },
             });
         }
     };
 
-    if (!selectedAccount?.symbol) {
-        return null;
-    }
+    const isCardanoNetworkType = account.networkType === 'cardano';
 
     return (
         <Card data-testid="@wallet/staking/card">
@@ -224,13 +214,13 @@ export const StakingCard = ({
                                 <FormattedCryptoAmount
                                     data-testid="@account/staking/pending"
                                     value={totalPendingStakeBalance}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                 />
                             }
                             description={
                                 <BaseCurrencyValue
                                     amount={totalPendingStakeBalance}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                     showApproximationIndicator
                                 />
                             }
@@ -247,7 +237,7 @@ export const StakingCard = ({
                                     id="TR_STAKE_FUNDS_FULLY_ACCESSIBLE"
                                     values={{
                                         networkDisplaySymbol: getNetworkDisplaySymbol(
-                                            selectedAccount.symbol,
+                                            account.symbol,
                                         ),
                                     }}
                                 />
@@ -262,13 +252,13 @@ export const StakingCard = ({
                                 <FormattedCryptoAmount
                                     data-testid="@account/staking/staked"
                                     value={depositedBalance || '0'}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                 />
                             }
                             description={
                                 <BaseCurrencyValue
                                     amount={depositedBalance || '0'}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                     showApproximationIndicator
                                 />
                             }
@@ -286,7 +276,7 @@ export const StakingCard = ({
                                             id="TR_STAKE_ETH_REWARDS_EARN_APY"
                                             values={{
                                                 networkDisplaySymbol: getNetworkDisplaySymbol(
-                                                    selectedAccount.symbol,
+                                                    account.symbol,
                                                 ),
                                             }}
                                         />
@@ -306,13 +296,13 @@ export const StakingCard = ({
                             <FormattedCryptoAmount
                                 data-testid="@account/staking/rewards"
                                 value={totalRewards}
-                                symbol={selectedAccount.symbol}
+                                symbol={account.symbol}
                             />
                         }
                         description={
                             <BaseCurrencyValue
                                 amount={totalRewards}
-                                symbol={selectedAccount.symbol}
+                                symbol={account.symbol}
                                 showApproximationIndicator
                             />
                         }
@@ -328,7 +318,7 @@ export const StakingCard = ({
                                             (
                                             <Translation
                                                 id={
-                                                    isEthereumNetworkType
+                                                    account.networkType === 'ethereum'
                                                         ? 'TR_STAKE_APPROXIMATE_DAYS'
                                                         : 'TR_UP_TO_DAYS'
                                                 }
@@ -344,13 +334,13 @@ export const StakingCard = ({
                                 <FormattedCryptoAmount
                                     data-testid="@account/staking/unstaking"
                                     value={withdrawTotalAmount}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                 />
                             }
                             description={
                                 <BaseCurrencyValue
                                     amount={withdrawTotalAmount}
-                                    symbol={selectedAccount.symbol}
+                                    symbol={account.symbol}
                                     showApproximationIndicator
                                 />
                             }
@@ -383,7 +373,7 @@ export const StakingCard = ({
                     )}
                     <Tooltip content={unstakingMessageContent}>
                         <Button
-                            isDisabled={!canUnstake || isUnstakingDisabled || hasCardanoPendingTx}
+                            isDisabled={!canUnstake || isUnstakingDisabled}
                             onClick={openUnstakeModal}
                             iconLeft={isUnstakingDisabled ? 'info' : undefined}
                             intent="neutral"

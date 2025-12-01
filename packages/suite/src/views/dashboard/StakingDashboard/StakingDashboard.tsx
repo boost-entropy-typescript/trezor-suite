@@ -1,16 +1,17 @@
 import { NetworkSymbol, StakingNetworkSymbol } from '@suite-common/wallet-config';
 import {
+    selectAccountIsStakingActive,
     selectBaseCurrency,
-    selectCardanoPoolsInfo,
+    selectDeviceSupportedNetworks,
     selectFiatRatesByFiatRateKey,
     selectVisibleDeviceAccounts,
 } from '@suite-common/wallet-core';
-import { Account, CardanoPoolInfo } from '@suite-common/wallet-types';
+import { Account } from '@suite-common/wallet-types';
 import {
     getAccountTotalStakingBalance,
     getFiatRateKey,
     getStakingLimitsByNetworkSymbol,
-    isCardanoStakedOutsideEverstake,
+    isCardanoStakedWithFiveBinaries,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
 import { Badge, BadgeIntent, Card, Table } from '@trezor/components';
@@ -32,7 +33,6 @@ import { StakingDashboardActivateRow } from './StakingDashboardActivateRow';
 const getBadgeState = (
     isStakingActive: boolean,
     accounts: Account[],
-    cardanoStakingPools: CardanoPoolInfo[],
 ): { intent: BadgeIntent; label: TranslationKey } => {
     if (!isStakingActive) {
         return {
@@ -41,7 +41,7 @@ const getBadgeState = (
         };
     }
 
-    if (accounts.some(account => isCardanoStakedOutsideEverstake(account, cardanoStakingPools))) {
+    if (accounts.some(account => isCardanoStakedWithFiveBinaries(account))) {
         return {
             intent: 'warning',
             label: 'TR_STAKING_DASHBOARD_OUTDATED',
@@ -66,7 +66,6 @@ export const StakingDashboard = () => {
     const dispatch = useDispatch();
 
     const collapsed = useSelector(state => state.suite.stakingDashboardCollapsed);
-    const cardanoStakingPools = useSelector(selectCardanoPoolsInfo);
 
     const { anchorRef, shouldHighlight } = useAnchor(DashboardAnchor.Staking);
 
@@ -93,14 +92,6 @@ export const StakingDashboard = () => {
 
     const accounts = useSelector(selectVisibleDeviceAccounts);
 
-    if (!accounts.some(account => account.networkType !== 'bitcoin')) {
-        return null;
-    }
-
-    if (isEthStakingDisabled && isSolStakingDisabled && isAdaStakingDisabled) {
-        return null;
-    }
-
     const stakingAccounts = accounts.filter(
         account =>
             (account.symbol === 'eth' && !isEthStakingDisabled) ||
@@ -108,11 +99,18 @@ export const StakingDashboard = () => {
             (account.symbol === 'ada' && !isAdaStakingDisabled),
     );
 
-    const isStakingActive = !!stakingAccounts.find(account => {
-        const stakedAmount = getAccountTotalStakingBalance(account) ?? '0';
+    const isStakingActive = useSelector(state =>
+        stakingAccounts.some(account => selectAccountIsStakingActive(state, account.key)),
+    );
+    const deviceSupportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
 
-        return new BigNumber(stakedAmount).gt(0);
-    });
+    if (!accounts.some(account => account.networkType !== 'bitcoin')) {
+        return null;
+    }
+
+    if (isEthStakingDisabled && isSolStakingDisabled && isAdaStakingDisabled) {
+        return null;
+    }
 
     const [accountsStakingActive, accountsStakingNotActive] = arrayPartition(
         stakingAccounts,
@@ -178,16 +176,22 @@ export const StakingDashboard = () => {
         ...accountsInsufficientFunds.toSorted(sortAccountsByBalance),
     ];
 
-    const ethNotActivated = !stakingAccounts.find(account => account.symbol === 'eth');
-    const solNotActivated = !stakingAccounts.find(account => account.symbol === 'sol');
-    const adaNotActivated = !stakingAccounts.find(account => account.symbol === 'ada');
+    const ethNotActivated =
+        deviceSupportedNetworkSymbols.includes('eth') &&
+        !stakingAccounts.find(account => account.symbol === 'eth');
+    const solNotActivated =
+        deviceSupportedNetworkSymbols.includes('sol') &&
+        !stakingAccounts.find(account => account.symbol === 'sol');
+    const adaNotActivated =
+        deviceSupportedNetworkSymbols.includes('ada') &&
+        !stakingAccounts.find(account => account.symbol === 'ada');
     const stakingAccountsNotActivated = ethNotActivated && solNotActivated && adaNotActivated;
 
     const onCollapseChange = (collapsed: boolean) => {
         dispatch(setStakingDashboardCollapsed(collapsed));
     };
 
-    const badge = getBadgeState(isStakingActive, stakingAccounts, cardanoStakingPools);
+    const badge = getBadgeState(isStakingActive, stakingAccounts);
 
     return (
         <OutlineHighlight shouldHighlight={shouldHighlight}>

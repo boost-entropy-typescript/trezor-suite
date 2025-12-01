@@ -5,7 +5,12 @@ import {
     CARDANO_EPOCH_DAYS,
     SOLANA_EPOCH_DAYS,
 } from '@suite-common/wallet-constants';
-import { Account, StakeType } from '@suite-common/wallet-types';
+import { Account, WalletAccountTransaction } from '@suite-common/wallet-types';
+import {
+    getStakingAccountCurrentStatus,
+    getTxStakeType,
+    isPending,
+} from '@suite-common/wallet-utils';
 import { Column, Paragraph } from '@trezor/components';
 
 import { Translation } from 'src/components/suite/Translation';
@@ -17,9 +22,9 @@ type UseProgressLabelsData = {
     isDaysToAddToPoolShown: boolean;
     isStakeConfirming: boolean;
     isStakePending: boolean;
-    selectedAccount?: Account;
-    solStakingAccountStatus?: string | null;
-    pendingTxStakeType?: StakeType;
+    account: Account;
+    stakeTxs: WalletAccountTransaction[];
+    isStakedWithEverstake: boolean;
 };
 
 export const useProgressLabelsData = ({
@@ -27,11 +32,15 @@ export const useProgressLabelsData = ({
     isDaysToAddToPoolShown,
     isStakeConfirming,
     isStakePending,
-    selectedAccount,
-    solStakingAccountStatus,
-    pendingTxStakeType,
+    account,
+    stakeTxs,
+    isStakedWithEverstake,
 }: UseProgressLabelsData) => {
-    const isUnstake = pendingTxStakeType === 'unstake';
+    const lastPendingStakeTx = stakeTxs.find(tx => isPending(tx));
+    const pendingTxStakeType = lastPendingStakeTx ? getTxStakeType(lastPendingStakeTx) : undefined;
+
+    const lastStakeTx = stakeTxs.find(tx => !isPending(tx));
+    const lastTxStakeType = lastStakeTx ? getTxStakeType(lastStakeTx) : '';
 
     const ethereumProgressLabelsData: ProgressLabelData[] = useMemo(
         () => [
@@ -89,6 +98,8 @@ export const useProgressLabelsData = ({
         ],
         [daysToAddToPool, isDaysToAddToPoolShown, isStakeConfirming, isStakePending],
     );
+
+    const solStakingAccountStatus = getStakingAccountCurrentStatus(account);
 
     const solanaProgressLabelsData: ProgressLabelData[] = useMemo(
         () => [
@@ -158,6 +169,8 @@ export const useProgressLabelsData = ({
         ],
         [solStakingAccountStatus, isStakeConfirming],
     );
+
+    const isUnstake = pendingTxStakeType === 'unstake';
 
     const cardanoProgressLabelsData: ProgressLabelData[] = useMemo(
         () =>
@@ -234,9 +247,19 @@ export const useProgressLabelsData = ({
         [isStakeConfirming, isStakePending, isUnstake],
     );
 
-    if (pendingTxStakeType === 'claim') return [];
+    if (
+        account.networkType === 'cardano' &&
+        // progress bar not ready for claim (cardano)
+        (pendingTxStakeType === 'claim' ||
+            // progress bar should not be visible when staking active and last tx was claim (cardano)
+            lastTxStakeType === 'claim' ||
+            // no progress bar when not staking with us, but show it when pending tx as it can be update provider
+            (!isStakedWithEverstake && !pendingTxStakeType))
+    ) {
+        return [];
+    }
 
-    switch (selectedAccount?.networkType) {
+    switch (account.networkType) {
         case 'ethereum':
             return ethereumProgressLabelsData;
         case 'solana':

@@ -65,7 +65,7 @@ export const EthStakingDashboard = ({ selectedAccount }: EthStakingDashboardProp
                 }),
             );
         }
-    }, [account, accountKey, dispatch]);
+    }, [accountKey, dispatch]);
 
     const txs = useMemo(() => [...stakeTxs, ...unstakeTxs], [stakeTxs, unstakeTxs]);
 
@@ -107,6 +107,7 @@ export const EthStakingDashboard = ({ selectedAccount }: EthStakingDashboardProp
                                     </Flex>
                                 </Grid>
                                 <StakingCard
+                                    account={account}
                                     isValidatorsQueueLoading={isLoading}
                                     daysToAddToPool={daysToAddToPool}
                                     daysToUnstake={daysToUnstake}

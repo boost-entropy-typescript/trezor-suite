@@ -1,11 +1,14 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { SupportedLanguage, isOfficiallySupportedLanguage, isSupportedLanguage } from './types';
+import { DEFAULT_LOCALE, LocaleCode } from './languages';
+import { SupportedLocaleCode, isOfficiallySupportedLanguage } from './types';
+import { findClosestOfficiallySupportedLanguageLocale } from './utils';
 
-export type LocaleTag = SupportedLanguage | 'system';
+export type AppLocaleOption = SupportedLocaleCode | 'system';
 
 export type LocaleState = {
-    localeTag: LocaleTag;
+    appLocaleCode: AppLocaleOption;
+    systemLocaleCode: LocaleCode;
 };
 
 export type LocaleSliceRootState = {
@@ -13,35 +16,48 @@ export type LocaleSliceRootState = {
 };
 
 export const localeInitialState: LocaleState = {
-    localeTag: 'system',
+    appLocaleCode: 'system',
+    systemLocaleCode: DEFAULT_LOCALE,
 };
 
-export const localePersistWhitelist: Array<keyof LocaleState> = ['localeTag'];
+export const localePersistWhitelist: Array<keyof LocaleState> = [
+    'appLocaleCode',
+    'systemLocaleCode',
+];
 
 export const localeSlice = createSlice({
     name: 'locale',
     initialState: localeInitialState,
     reducers: {
-        setLocale: (state, { payload }: PayloadAction<LocaleTag>) => {
-            state.localeTag = payload;
+        setAppLocaleCode: (state, { payload }: PayloadAction<AppLocaleOption>) => {
+            state.appLocaleCode = payload;
+        },
+        setSystemLocaleCode: (state, { payload }: PayloadAction<LocaleCode>) => {
+            state.systemLocaleCode = payload;
         },
     },
 });
 
-export const { setLocale } = localeSlice.actions;
+export const { setAppLocaleCode, setSystemLocaleCode } = localeSlice.actions;
 export const localeReducer = localeSlice.reducer;
 
-export const selectUserSelectedLocaleTag = (state: LocaleSliceRootState) => state.locale.localeTag;
+export const selectAppLocaleCode = (state: LocaleSliceRootState) => state.locale.appLocaleCode;
 
-export const selectIsLanguageLocaleSupported = (
-    state: LocaleSliceRootState,
-    systemLocaleTag: string,
-) => {
-    const userSelectedLocaleTag = selectUserSelectedLocaleTag(state);
+export const selectSystemLocaleCode = (state: LocaleSliceRootState) =>
+    state.locale.systemLocaleCode;
 
-    if (userSelectedLocaleTag === 'system') {
-        return isOfficiallySupportedLanguage(systemLocaleTag);
+export const selectLocale = (state: LocaleSliceRootState) => {
+    const userSelectedLocaleCode = selectAppLocaleCode(state);
+    const systemLocaleCode = selectSystemLocaleCode(state);
+
+    return userSelectedLocaleCode === 'system' ? systemLocaleCode : userSelectedLocaleCode;
+};
+
+export const selectSupportedLanguageLocale = (state: LocaleSliceRootState): SupportedLocaleCode => {
+    const locale = selectLocale(state);
+    if (isOfficiallySupportedLanguage(locale)) {
+        return locale;
     }
 
-    return isSupportedLanguage(userSelectedLocaleTag);
+    return findClosestOfficiallySupportedLanguageLocale(locale);
 };

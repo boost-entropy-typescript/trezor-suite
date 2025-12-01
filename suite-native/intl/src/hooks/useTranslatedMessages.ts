@@ -1,35 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { LocaleSliceRootState, selectIsLanguageLocaleSupported } from '../localeSlice';
+import { selectSupportedLanguageLocale } from '../localeSlice';
 import { messages as defaultMessages } from '../messages';
-import { SupportedLanguage } from '../types';
+import { SupportedLocaleCode } from '../types';
 import { flatten } from '../utils';
-import { useLocale } from './useLocale';
 
 const LANGUAGE_TRANSLATIONS_MAP = {
     'en-US': require('../../translations/en-US.json'),
     'cs-CZ': require('../../translations/cs-CZ.json'),
-} as const satisfies Record<SupportedLanguage, any>;
+    'de-DE': require('../../translations/de-DE.json'),
+    'pt-BR': require('../../translations/pt-BR.json'),
+    'ja-JP': require('../../translations/ja-JP.json'),
+} as const satisfies Record<SupportedLocaleCode, any>;
 
 // default values defined during the development.
 const englishFallback = flatten(defaultMessages);
 
 export const useTranslatedMessages = () => {
     const [messages, setMessages] = useState<{ [key: string]: string }>({});
-    const locale = useLocale();
-
-    const isLanguageLocaleSupported = useSelector((state: LocaleSliceRootState) =>
-        selectIsLanguageLocaleSupported(state, locale),
-    );
+    const supportedLanguageLocale = useSelector(selectSupportedLanguageLocale);
 
     useEffect(() => {
-        const localizedMessages = isLanguageLocaleSupported
-            ? LANGUAGE_TRANSLATIONS_MAP[locale as SupportedLanguage]
-            : {};
+        const localizedMessages = LANGUAGE_TRANSLATIONS_MAP[supportedLanguageLocale];
 
         setMessages({ ...englishFallback, ...localizedMessages });
-    }, [locale, isLanguageLocaleSupported]);
+    }, [supportedLanguageLocale]);
 
     return messages;
 };
