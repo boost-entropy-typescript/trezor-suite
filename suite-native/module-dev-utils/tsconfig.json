@@ -7,6 +7,9 @@
             "path": "../../suite-common/message-system"
         },
         {
+            "path": "../../suite-common/redux-utils"
+        },
+        {
             "path": "../../suite-common/suite-sync"
         },
         { "path": "../../suite-common/trading" },
@@ -15,11 +18,11 @@
         },
         { "path": "../alerts" },
         { "path": "../atoms" },
+        { "path": "../clipboard" },
         { "path": "../config" },
         { "path": "../feature-flags" },
         { "path": "../firmware" },
         { "path": "../forms" },
-        { "path": "../helpers" },
         { "path": "../icons" },
         { "path": "../intl" },
         { "path": "../link" },
@@ -27,7 +30,6 @@
         { "path": "../sentry" },
         { "path": "../settings" },
         { "path": "../storage" },
-        { "path": "../suite-sync" },
         { "path": "../toasts" },
         { "path": "../trading-state" },
         { "path": "../../packages/connect" },

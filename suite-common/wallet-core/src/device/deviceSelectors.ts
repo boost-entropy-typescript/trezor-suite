@@ -1,7 +1,7 @@
 import { A, pipe } from '@mobily/ts-belt';
 
 import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
-import { BackupType, TrezorDevice } from '@suite-common/suite-types';
+import { BackupType, SuiteSyncOwner, TrezorDevice } from '@suite-common/suite-types';
 import * as deviceUtils from '@suite-common/suite-utils';
 import {
     getDeviceInstances,
@@ -610,4 +610,14 @@ export const selectFirmwareHashCheckError = (state: DeviceRootState) => {
 export const selectIsDevicePinLocked = createMemoizedSelector(
     [selectSelectedDevice],
     selectedDevice => selectedDevice && getStatus(selectedDevice) === 'device-pin-locked',
+);
+
+export const selectAllDeviceOwners = createMemoizedSelector([selectDevices], devices =>
+    devices.reduce((acc, it) => {
+        if (it.suiteSyncOwner !== undefined) {
+            acc.push(it.suiteSyncOwner);
+        }
+
+        return acc;
+    }, [] as SuiteSyncOwner[]),
 );

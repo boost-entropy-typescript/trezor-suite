@@ -10843,7 +10843,6 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:^"
     "@trezor/env-utils": "workspace:*"
-    "@trezor/protocol": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -11235,6 +11234,7 @@ __metadata:
     "@suite-native/connection-status": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-authorization": "workspace:*"
+    "@suite-native/device-bootloader-mode": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/formatters-config": "workspace:*"
     "@suite-native/icons": "workspace:*"
@@ -11389,8 +11389,8 @@ __metadata:
     "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:^"
+    "@suite-native/scrollview": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
-    "@suite-native/theme": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/react-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -11476,6 +11476,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/clipboard@workspace:*, @suite-native/clipboard@workspace:suite-native/clipboard":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/clipboard@workspace:suite-native/clipboard"
+  dependencies:
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/toasts": "workspace:*"
+    expo-clipboard: "npm:~8.0.7"
+    react: "npm:19.1.0"
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/coin-enabling@workspace:*, @suite-native/coin-enabling@workspace:suite-native/coin-enabling":
   version: 0.0.0-use.local
   resolution: "@suite-native/coin-enabling@workspace:suite-native/coin-enabling"
@@ -11545,6 +11556,23 @@ __metadata:
     "@suite-native/navigation": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
+    "@trezor/styles": "workspace:*"
+    react: "npm:19.1.0"
+    react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/device-bootloader-mode@workspace:*, @suite-native/device-bootloader-mode@workspace:suite-native/device-bootloader-mode":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/device-bootloader-mode@workspace:suite-native/device-bootloader-mode"
+  dependencies:
+    "@react-navigation/native": "npm:7.1.18"
+    "@react-navigation/native-stack": "npm:7.5.1"
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/device": "workspace:*"
+    "@suite-native/device-manager": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
     "@trezor/styles": "workspace:*"
     react: "npm:19.1.0"
     react-redux: "npm:9.2.0"
@@ -11839,7 +11867,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-native/helpers@workspace:*, @suite-native/helpers@workspace:^, @suite-native/helpers@workspace:suite-native/helpers":
+"@suite-native/helpers@workspace:*, @suite-native/helpers@workspace:suite-native/helpers":
   version: 0.0.0-use.local
   resolution: "@suite-native/helpers@workspace:suite-native/helpers"
   dependencies:
@@ -11852,7 +11880,6 @@ __metadata:
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/type-utils": "workspace:*"
-    expo-clipboard: "npm:~8.0.7"
     react: "npm:19.1.0"
     react-native: "npm:0.81.4"
     react-redux: "npm:9.2.0"
@@ -12181,6 +12208,7 @@ __metadata:
     "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/swipeable-walkthrough": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -12208,10 +12236,10 @@ __metadata:
     "@suite-common/walletconnect": "workspace:*"
     "@suite-native/accounts": "workspace:^"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
-    "@suite-native/helpers": "workspace:^"
     "@suite-native/icons": "workspace:^"
     "@suite-native/intl": "workspace:^"
     "@suite-native/navigation": "workspace:*"
@@ -12262,16 +12290,17 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.10.1"
     "@suite-common/firmware": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/trading": "workspace:*"
     "@suite-common/validators": "workspace:*"
     "@suite-native/alerts": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/firmware": "workspace:*"
     "@suite-native/forms": "workspace:*"
-    "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
@@ -12279,7 +12308,6 @@ __metadata:
     "@suite-native/sentry": "workspace:*"
     "@suite-native/settings": "workspace:*"
     "@suite-native/storage": "workspace:*"
-    "@suite-native/suite-sync": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@suite-native/trading-state": "workspace:*"
     "@trezor/connect": "workspace:*"
@@ -12325,6 +12353,7 @@ __metadata:
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/settings": "workspace:*"
+    "@suite-native/swipeable-walkthrough": "workspace:*"
     "@suite-native/thp": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
@@ -12617,6 +12646,7 @@ __metadata:
     "@suite-native/alerts": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
     "@suite-native/device-mutex": "workspace:*"
@@ -12682,6 +12712,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
+    "@suite-native/scrollview": "workspace:*"
     "@suite-native/sentry": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
@@ -12709,7 +12740,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/helpers": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/labeling": "workspace:*"
@@ -12756,6 +12787,7 @@ __metadata:
     "@suite-native/alerts": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-mutex": "workspace:*"
     "@suite-native/helpers": "workspace:*"
@@ -12780,6 +12812,17 @@ __metadata:
     react-native-reanimated: "npm:~4.1.3"
     react-redux: "npm:9.2.0"
     type-fest: "npm:4.24.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/scrollview@workspace:*, @suite-native/scrollview@workspace:suite-native/scrollview":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/scrollview@workspace:suite-native/scrollview"
+  dependencies:
+    "@trezor/styles": "workspace:*"
+    react: "npm:19.1.0"
+    react-native: "npm:0.81.4"
+    react-native-reanimated: "npm:~4.1.3"
   languageName: unknown
   linkType: soft
 
@@ -12930,6 +12973,7 @@ __metadata:
   resolution: "@suite-native/suite-sync@workspace:suite-native/suite-sync"
   dependencies:
     "@evolu/react-native": "npm:^14.2.0"
+    "@reduxjs/toolkit": "npm:2.10.1"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-evolu": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
@@ -12939,6 +12983,23 @@ __metadata:
     expo: "npm:~54.0.20"
     expo-sqlite: "npm:^16.0.8"
     react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/swipeable-walkthrough@workspace:*, @suite-native/swipeable-walkthrough@workspace:suite-native/swipeable-walkthrough":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/swipeable-walkthrough@workspace:suite-native/swipeable-walkthrough"
+  dependencies:
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
+    "@suite-native/theme": "workspace:*"
+    "@trezor/styles": "workspace:*"
+    jotai: "npm:2.15.0"
+    react: "npm:19.1.0"
+    react-native: "npm:0.81.4"
+    react-native-gesture-handler: "npm:2.29.0"
+    react-native-reanimated: "npm:~4.1.3"
+    react-native-safe-area-context: "npm:5.6.1"
   languageName: unknown
   linkType: soft
 
@@ -13185,6 +13246,7 @@ __metadata:
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/scrollview": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/tokens": "workspace:*"
     "@trezor/connect": "workspace:*"
@@ -13220,16 +13282,17 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/formatters": "workspace:*"
-    "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/in-app-rating": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/labeling": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/scrollview": "workspace:*"
     "@suite-native/tokens": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect": "workspace:*"
@@ -13274,6 +13337,7 @@ __metadata:
   resolution: "@suite/suite-sync@workspace:suite/suite-sync"
   dependencies:
     "@evolu/web": "npm:^2.3.0"
+    "@reduxjs/toolkit": "npm:2.10.1"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-evolu": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
