@@ -77,27 +77,14 @@ const mergeDeviceState = (
     const currentState = device.state;
     const upcomingState = typeof upcoming.state === 'string' ? upcoming._state : upcoming.state;
 
-    if (currentState && upcomingState) {
-        if (
-            currentState.staticSessionId === upcomingState.staticSessionId &&
-            currentState.sessionId !== upcomingState.sessionId
-        ) {
-            // update sessionId for the same staticSessionId
-            return { ...currentState, sessionId: upcomingState.sessionId };
-        }
-
-        if (
-            currentState.staticSessionId !== upcomingState.staticSessionId &&
-            currentState.sessionId === upcomingState.sessionId
-        ) {
-            // special THP case: new sessionId was assigned to a wallet but there already was another remembered wallet with the same sessionId.
-            // In that case, remove the sessionId from the existing wallet as it can't be valid anymore.
-            return { ...currentState, sessionId: undefined };
-        }
-    }
-
-    // ignore device state updates. we set device state explicitly using addAuthorizedDevice or setDeviceState
-    return currentState;
+    return currentState &&
+        upcomingState &&
+        currentState.staticSessionId === upcomingState.staticSessionId &&
+        currentState.sessionId !== upcomingState.sessionId
+        ? // update sessionId for the same staticSessionId
+          { ...currentState, sessionId: upcomingState.sessionId }
+        : // ignore device state updates. we set device state explicitly using addAuthorizedDevice or setDeviceState
+          currentState;
 };
 
 /**
@@ -114,7 +101,7 @@ const merge = (
     >,
 ): TrezorDevice => ({
     ...device,
-    ...upcoming,
+    ...(({ _state, ...rest }) => rest)(upcoming),
     id: upcoming.id ?? device.id,
     state: mergeDeviceState(device, upcoming),
     instance: device.instance,
@@ -139,7 +126,7 @@ const merge = (
  */
 const connectDevice = (
     draft: DeviceReducerState,
-    device: Device,
+    { _state, ...device }: Device,
     { isAutoEjectEnabled }: { isAutoEjectEnabled: boolean },
 ) => {
     const currentTime = new Date().getTime();
@@ -217,7 +204,7 @@ const connectDevice = (
     const newDevice: TrezorDevice = {
         ...device,
         ...deviceCommonFields,
-        state: device._state,
+        state: _state,
         useEmptyPassphrase: undefined,
         remember: shouldDeviceBeRemembered({ isAutoEjectEnabled, device }),
         temporaryRemember: false,

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
     TradingSellType,
+    isFinalStatus,
     selectTradingSellSelectedQuote,
     useTradingDetailData,
 } from '@suite-common/trading';
@@ -24,12 +25,12 @@ export const TradingSellPreviewScreen = () => {
     const selectedQuote = useSelector(selectTradingSellSelectedQuote);
 
     const currentQuote = trade?.data ? trade.data : selectedQuote;
-    const currentStatus = useRef(currentQuote?.status);
+    const isFinalized = isFinalStatus('sell', currentQuote?.status);
 
     useWatchTrade({
         accountKey: trade?.sendAccountKey,
         orderId: currentQuote?.orderId,
-        isInProgress: false,
+        isInProgress: true,
     });
 
     useEffect(() => {
@@ -37,17 +38,12 @@ export const TradingSellPreviewScreen = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Fetch fees and compose when status is SEND_CRYPTO
     useEffect(() => {
-        // only fetch fees and compose if the form step has changed to SEND_TRANSACTION
-        // dependencies are not stable, so we use useRef to store the previous form step
-        if (
-            currentStatus.current !== currentQuote?.status &&
-            currentQuote?.status === 'SEND_CRYPTO'
-        ) {
-            currentStatus.current = currentQuote?.status;
+        if (currentQuote?.status === 'SEND_CRYPTO') {
             fetchFeesAndCompose();
         }
-    }, [fetchFeesAndCompose, currentQuote]);
+    }, [currentQuote?.status, currentQuote?.orderId, fetchFeesAndCompose]);
 
     // clear trading state on unmount
     useEffect(
@@ -66,11 +62,13 @@ export const TradingSellPreviewScreen = () => {
     return (
         <Screen header={<SellPreviewScreenHeader />}>
             <SellPreviewView quote={currentQuote} txnErrorString={errorString} />
-            <SellPreviewContinueButton
-                quote={currentQuote}
-                isDisabled={!!errorString}
-                onSignTransactionNavigation={onSignTransactionNavigation}
-            />
+            {!isFinalized && (
+                <SellPreviewContinueButton
+                    quote={currentQuote}
+                    isDisabled={!!errorString}
+                    onSignTransactionNavigation={onSignTransactionNavigation}
+                />
+            )}
         </Screen>
     );
 };

@@ -29,6 +29,10 @@ const preauthorizeState = ({ device, method }: WorkflowContext) => {
     }
 };
 
+const isUnexpectedState = (expected?: StaticSessionId, current?: StaticSessionId) =>
+    // Ignore instance ID, it doesn't necessarily need to match the current instance
+    expected && current && expected.split(':')[0] !== current.split(':')[0];
+
 const getState = async (context: WorkflowContext) => {
     const { device } = context;
     if (!device.features) return;
@@ -45,8 +49,8 @@ const getState = async (context: WorkflowContext) => {
     if (device.features.session_id) {
         device.setState({ sessionId: device.features.session_id });
     }
-    // Ignore instance ID, it doesn't necessarily need to match the current instance
-    if (expectedState && expectedState.split(':')[0] !== uniqueState.split(':')[0]) {
+
+    if (isUnexpectedState(expectedState, uniqueState)) {
         return uniqueState;
     }
     if (!expectedState || expectedState !== uniqueState) {
@@ -105,21 +109,27 @@ const getInvalidThpDeviceState = async (context: WorkflowContext) => {
         // validate that expected ThpSession still exists
         thpState.setSessionId(expectedSessionId);
         uniqueState = await getStaticSessionId(device).catch(e => {
-            if (e.code === 'Failure_InvalidSession') {
-                // requested sessionId is not valid, reset setSessionId
-                device.setState({
-                    sessionId: undefined,
-                    deriveCardano: undefined,
-                });
-                thpState?.setSessionId(Buffer.alloc(1));
-
-                return undefined;
-            }
-            // user cancelled pin on device
-            if (e.code === 'Failure_PinCancelled') {
-                throw e;
+            switch (e.code) {
+                case 'Failure_PinCancelled':
+                    // user cancelled pin on device
+                    throw e;
+                case 'Failure_InvalidSession':
+                default:
+                    // TODO why not to throw?
+                    return undefined;
             }
         });
+
+        if (isUnexpectedState(expectedState, uniqueState)) {
+            // there is unexpected passphrase on given sessionId, ignore returned state
+            uniqueState = undefined;
+        }
+
+        if (!uniqueState) {
+            // requested sessionId is unknown or there was another passphrase, reset sessionId
+            device.setState({ sessionId: undefined, deriveCardano: undefined });
+            thpState?.setSessionId(Buffer.alloc(1));
+        }
     }
 
     if (!uniqueState || (!currentState?.deriveCardano && method.useCardanoDerivation)) {
@@ -133,7 +143,7 @@ const getInvalidThpDeviceState = async (context: WorkflowContext) => {
         });
     }
 
-    if (expectedState && expectedState !== uniqueState) {
+    if (isUnexpectedState(expectedState, uniqueState)) {
         return uniqueState;
     }
 
