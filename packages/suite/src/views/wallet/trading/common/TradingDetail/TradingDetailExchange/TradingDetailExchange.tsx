@@ -10,14 +10,12 @@ import {
     selectTradingComposedTransactionInfo,
 } from '@suite-common/trading';
 import { selectAccounts } from '@suite-common/wallet-core';
-import { Card, Column, InfoItem } from '@trezor/components';
+import { Box, BulletList, Card, Column, H3, Paragraph } from '@trezor/components';
 import { EventType, analytics } from '@trezor/suite-analytics';
-import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
 import { Translation } from 'src/components/suite/Translation';
-import { TxAddress } from 'src/components/suite/copy/TxAddress';
-import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import { useTradingDetailContext } from 'src/hooks/wallet/trading/useTradingDetail';
 import { tradeFinalStatuses } from 'src/hooks/wallet/trading/useTradingWatchTrade';
 import { TradingGetCryptoQuoteAmountProps } from 'src/types/trading/trading';
@@ -30,6 +28,7 @@ import { TradingDetailFeedback } from 'src/views/wallet/trading/common/TradingDe
 import { TradingSelectedOfferInfo } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingSelectedOfferInfo';
 import { TradingWrapper } from 'src/views/wallet/trading/common/TradingWrapper';
 
+import { TradingDetailStepList } from '../TradingDetailStepList';
 import { TradingDetailSurvey } from '../TradingDetailSurvey';
 
 const Wrapper = styled.div`
@@ -63,6 +62,7 @@ export const TradingDetailExchange = () => {
         selectFeatureConfig(state, Feature.trading.survey),
     );
     const dispatch = useDispatch();
+    const { translationString } = useTranslation();
 
     const tradeStatus = trade?.data?.status || 'CONFIRMING';
     const previousTradeStatus = usePrevious(tradeStatus);
@@ -110,40 +110,75 @@ export const TradingDetailExchange = () => {
     const sendAccount = accounts.find(account => account.key === trade.sendAccountKey);
     const receiveAccount = accounts.find(account => account.key === trade.receiveAccountKey);
 
-    return (
-        <Wrapper>
-            <Column gap={spacings.lg} flex="1">
-                <Card>
-                    {trade.data.receiveTxHash && (
-                        <InfoItem label={<Translation id="TR_TXID" />}>
-                            <TxAddress
-                                txAddress={trade.data.receiveTxHash}
-                                account={sendAccount}
-                                shouldAllowCopy={false}
+    const getContent = () => {
+        switch (tradeStatusStep) {
+            case 'success':
+                return (
+                    <TradingDetailExchangePaymentSuccessful
+                        trade={trade.data}
+                        account={sendAccount}
+                        provider={provider}
+                    />
+                );
+            case 'error':
+                return (
+                    <TradingDetailExchangePaymentFailed
+                        trade={trade.data}
+                        account={sendAccount}
+                        provider={provider}
+                    />
+                );
+            case 'kyc':
+                return (
+                    <TradingDetailExchangePaymentKYC
+                        trade={trade.data}
+                        account={sendAccount}
+                        provider={provider}
+                        supportUrl={supportUrl}
+                    />
+                );
+            default:
+                return (
+                    <>
+                        <H3>
+                            <Translation id="TR_EXCHANGE_HEADER_TITLE" />
+                        </H3>
+                        <Paragraph typographyStyle="hint" variant="tertiary">
+                            <Translation
+                                id="TR_TRADING_HEADER_DESCRIPTION"
+                                values={{
+                                    type: translationString('TR_TRADING_SWAP').toLowerCase(),
+                                }}
                             />
-                        </InfoItem>
-                    )}
-                    {tradeStatusStep === 'success' && <TradingDetailExchangePaymentSuccessful />}
-                    {tradeStatusStep === 'kyc' && (
-                        <TradingDetailExchangePaymentKYC
-                            provider={provider}
-                            supportUrl={supportUrl}
-                        />
-                    )}
-                    {tradeStatusStep === 'error' && sendAccount && (
-                        <TradingDetailExchangePaymentFailed
-                            transactionId={trade.key}
-                            supportUrl={supportUrl}
-                        />
-                    )}
-                    {tradeStatusStep === 'converting' && (
-                        <TradingDetailExchangePaymentConverting supportUrl={supportUrl} />
-                    )}
-                    {tradeStatusStep === 'sending' && (
-                        <TradingDetailExchangePaymentSending supportUrl={supportUrl} />
-                    )}
-                </Card>
+                        </Paragraph>
+                        <Box margin={{ top: 32, bottom: 12 }}>
+                            <TradingDetailStepList>
+                                <TradingDetailExchangePaymentSending
+                                    trade={trade.data}
+                                    account={sendAccount}
+                                    composedTransaction={composedTransaction}
+                                />
+                                <TradingDetailExchangePaymentConverting
+                                    trade={trade.data}
+                                    provider={provider}
+                                />
+                                <BulletList.Item
+                                    state="pending"
+                                    title={<Translation id="TR_EXCHANGE_COMPLETE" />}
+                                />
+                            </TradingDetailStepList>
+                        </Box>
+                    </>
+                );
+        }
+    };
 
+    return (
+        <Wrapper data-testid="@trading/transaction/detail">
+            <Column gap={20}>
+                <Card paddingType="large" data-testid="@trading/transaction/detail/status-card">
+                    {getContent()}
+                </Card>
                 {tradingSurveyFeature ? (
                     <TradingDetailSurvey />
                 ) : (
@@ -161,7 +196,6 @@ export const TradingDetailExchange = () => {
                     account={sendAccount}
                     selectedAccount={receiveAccount}
                     selectedQuote={trade.data}
-                    transactionId={trade.key}
                     providers={info?.providerInfos}
                     type="exchange"
                     quoteAmounts={quoteAmounts}

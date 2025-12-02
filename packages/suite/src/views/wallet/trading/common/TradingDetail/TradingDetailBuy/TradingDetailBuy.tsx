@@ -6,21 +6,23 @@ import styled from 'styled-components';
 
 import { type TradingBuyType, selectTradingComposedTransactionInfo } from '@suite-common/trading';
 import { selectAccounts } from '@suite-common/wallet-core';
-import { Card, Column } from '@trezor/components';
+import { Box, BulletList, Card, Column, H3, Paragraph } from '@trezor/components';
 import { EventType, analytics } from '@trezor/suite-analytics';
-import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { useDispatch, useSelector } from 'src/hooks/suite';
+import { Translation } from 'src/components/suite/Translation';
+import { useDispatch, useSelector, useTranslation } from 'src/hooks/suite';
 import { useTradingDetailContext } from 'src/hooks/wallet/trading/useTradingDetail';
 import { TradingGetCryptoQuoteAmountProps } from 'src/types/trading/trading';
 import { TradingDetailBuyPaymentFailed } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentFailed';
-import { TradingDetailBuyPaymentProcessing } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentProcessing';
+import { TradingDetailBuyPaymentProcessingStep } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentProcessingStep';
 import { TradingDetailBuyPaymentPaymentSuccessful } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentSuccessful';
-import { TradingDetailBuyPaymentWaitingForUser } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentWaitingForUser';
+import { TradingDetailBuyPaymentWaitingForUserStep } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailBuy/TradingDetailBuyPaymentWaitingForUserStep';
 import { TradingDetailFeedback } from 'src/views/wallet/trading/common/TradingDetail/TradingDetailFeedback';
 import { TradingSelectedOfferInfo } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingSelectedOfferInfo';
 import { TradingWrapper } from 'src/views/wallet/trading/common/TradingWrapper';
+
+import { TradingDetailStepList } from '../TradingDetailStepList';
 
 const Wrapper = styled.div`
     ${TradingWrapper}
@@ -47,6 +49,7 @@ export const TradingDetailBuy = () => {
     const accounts = useSelector(selectAccounts);
     const { trade, info, account } = useTradingDetailContext<TradingBuyType>();
     const dispatch = useDispatch();
+    const { translationString } = useTranslation();
 
     const tradeStatus = trade?.data?.status;
     const previousTradeStatus = usePrevious(tradeStatus);
@@ -56,8 +59,6 @@ export const TradingDetailBuy = () => {
     const exchange = trade?.data?.exchange;
     const provider =
         info && info.providerInfos && exchange ? info.providerInfos[exchange] : undefined;
-    const supportUrlTemplate = provider?.statusUrl || provider?.supportUrl;
-    const supportUrl = supportUrlTemplate?.replace('{{paymentId}}', trade?.data?.paymentId || '');
 
     const country = trade?.data?.country;
 
@@ -104,24 +105,63 @@ export const TradingDetailBuy = () => {
         return null;
     }
 
+    const getContent = () => {
+        switch (tradeStatusStep) {
+            case 'success':
+                return (
+                    <TradingDetailBuyPaymentPaymentSuccessful
+                        account={account}
+                        trade={trade.data}
+                        provider={provider}
+                    />
+                );
+            case 'error':
+                return (
+                    <TradingDetailBuyPaymentFailed
+                        account={account}
+                        trade={trade.data}
+                        provider={provider}
+                    />
+                );
+            default:
+                return (
+                    <>
+                        <H3>
+                            <Translation id="TR_BUY_HEADER_TITLE" />
+                        </H3>
+                        <Paragraph typographyStyle="hint" variant="tertiary">
+                            <Translation
+                                id="TR_TRADING_HEADER_DESCRIPTION"
+                                values={{ type: translationString('TR_BUY').toLowerCase() }}
+                            />
+                        </Paragraph>
+                        <Box margin={{ top: 32, bottom: 12 }}>
+                            <TradingDetailStepList>
+                                <TradingDetailBuyPaymentWaitingForUserStep
+                                    trade={trade.data}
+                                    account={account}
+                                    providerName={provider?.brandName || provider?.companyName}
+                                />
+                                <TradingDetailBuyPaymentProcessingStep
+                                    trade={trade.data}
+                                    provider={provider}
+                                />
+                                <BulletList.Item
+                                    state="pending"
+                                    title={<Translation id="TR_BUY_COMPLETE" />}
+                                />
+                            </TradingDetailStepList>
+                        </Box>
+                    </>
+                );
+        }
+    };
+
     return (
         <Wrapper data-testid="@trading/transaction/detail">
-            <Column gap={spacings.lg}>
-                <Card data-testid="@trading/transaction/detail/status-card">
-                    {tradeStatusStep === 'error' && (
-                        <TradingDetailBuyPaymentFailed account={account} supportUrl={supportUrl} />
-                    )}
-                    {tradeStatusStep === 'processing' && <TradingDetailBuyPaymentProcessing />}
-                    {tradeStatusStep === 'waiting' && (
-                        <TradingDetailBuyPaymentWaitingForUser
-                            trade={trade.data}
-                            account={account}
-                            providerName={provider?.brandName || provider?.companyName}
-                        />
-                    )}
-                    {tradeStatusStep === 'success' && (
-                        <TradingDetailBuyPaymentPaymentSuccessful account={account} />
-                    )}
+            <Column gap={20}>
+                <Card paddingType="large" data-testid="@trading/transaction/detail/status-card">
+                    {getContent()}
                 </Card>
                 <TradingDetailFeedback
                     status={tradeStatus}
@@ -137,7 +177,6 @@ export const TradingDetailBuy = () => {
                     account={account}
                     selectedAccount={receiveAccount}
                     selectedQuote={trade.data}
-                    transactionId={trade.key}
                     providers={info?.providerInfos}
                     quoteAmounts={quoteAmounts}
                     type="buy"

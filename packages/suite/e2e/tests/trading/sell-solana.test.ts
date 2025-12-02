@@ -79,7 +79,6 @@ test.describe('Trading - Sell Solana', { tag: ['@group=trading', '@webOnly'] }, 
 
         await test.step('Confirm sell', async () => {
             await tradingPage.sellBestOfferButton.click();
-            await tradingPage.termsConfirmButton.click();
         });
 
         await tradingPage.waitForRedirectCompletion();
@@ -108,11 +107,8 @@ test.describe('Trading - Sell Solana', { tag: ['@group=trading', '@webOnly'] }, 
             await page.clock.install();
             await devicePrompt.sendButton.click();
             await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                'TR_SELL_DETAIL_PENDING_TITLE',
+                'TR_SELL_DETAIL_SENDING_TRANSACTION',
             );
-            await expect(
-                page.getByRole('link', { name: "Open partner's support site" }),
-            ).toBeVisible();
             await expect(page.getByTestId('@toast/tx-sent')).toContainTranslation('TOAST_TX_SENT', {
                 values: { amount: formattedCryptoAmount, account: 'Solana #1' },
             });
@@ -124,16 +120,14 @@ test.describe('Trading - Sell Solana', { tag: ['@group=trading', '@webOnly'] }, 
             });
             await page.clock.fastForward(tradingMock.watchPeriod);
             await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                'TR_SELL_DETAIL_SUCCESS_TITLE',
+                'TR_TRADING_DETAIL_PROCESSING',
+                { values: { providerName: provider, type: 'sell' } },
             );
             await expect(tradingPage.confirmationFiatAmount).toHaveText(formattedFiatAmount);
             await expect(tradingPage.confirmationCryptoAmount).toHaveText(formattedCryptoAmount);
             await expect(tradingPage.confirmationProvider).toHaveText(provider);
-        });
-
-        await test.step('Return to account sell form', async () => {
-            await tradingPage.backToAccountButton('Sell').click();
-            await expect(page).toHaveURL(/\/accounts\/coinmarket\/sell#\/sol\/0\/normal$/);
+            const supportLink = page.locator('a[href*="support.moonpay.com"]');
+            await expect(supportLink).toBeVisible({ timeout: 10000 });
         });
     });
 
@@ -165,9 +159,8 @@ test.describe('Trading - Sell Solana', { tag: ['@group=trading', '@webOnly'] }, 
         });
 
         await test.step('Select second offer and check correct values are sent in trade request', async () => {
-            await tradingPage.selectThisQuoteButton.nth(1).click();
             const sellTradePromise = page.waitForRequest(invityEndpoint.sellTrade);
-            await tradingPage.termsConfirmButton.click();
+            await tradingPage.selectThisQuoteButton.nth(1).click();
             await expect.soft(sellTradePromise).toHavePayload(
                 {
                     // the second chosen offer via Bank Transfer that matches input criteria has index 3

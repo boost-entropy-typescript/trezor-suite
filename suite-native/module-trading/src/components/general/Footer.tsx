@@ -1,24 +1,111 @@
-import { useMemo } from 'react';
-import { TouchableOpacity } from 'react-native';
 import { FadeInDown, FadeOutDown, LinearTransition } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 
-import { AnimatedBox, Button, HStack, Image, Text } from '@suite-native/atoms';
+import type { BuyProviderInfo, ExchangeProviderInfo, SellProviderInfo } from 'invity-api';
+
+import {
+    TradingRootState,
+    TradingType,
+    selectTradingBuyInfo,
+    selectTradingBuySelectedQuote,
+    selectTradingExchangeInfo,
+    selectTradingExchangeSelectedQuote,
+    selectTradingSellInfo,
+    selectTradingSellSelectedQuote,
+} from '@suite-common/trading';
+import { AnimatedBox, Divider, HStack, Text, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
-import { useOpenLink } from '@suite-native/link';
+import { Link } from '@suite-native/link';
 import { selectIsAmountInputActive } from '@suite-native/trading-state';
-import { INVITY_URL } from '@trezor/urls';
+import { DATA_TOS_INVITY_URL, INVITY_URL } from '@trezor/urls';
 
 export type FooterProps = {
+    type?: TradingType;
     isFormMountedRecently?: boolean;
 };
 
-export const Footer = ({ isFormMountedRecently }: FooterProps) => {
-    const openLink = useOpenLink();
-    const shouldHideFooter = useSelector(selectIsAmountInputActive);
+interface FooterProviderContentProps {
+    provider: BuyProviderInfo | SellProviderInfo | ExchangeProviderInfo | undefined;
+}
 
-    const imageSource = useMemo(() => require('../../../assets/InvityLogo.png'), []);
-    const openLinkToInvity = () => openLink(INVITY_URL);
+const FooterProviderContent = ({ provider }: FooterProviderContentProps) => {
+    if (!provider || !provider.termsUrl) {
+        return (
+            <Text variant="hint" color="textSubdued" textAlign="center">
+                <Translation id="moduleTrading.tradingScreen.footer.termsAndConditionsGeneral" />
+            </Text>
+        );
+    }
+
+    const { companyName, termsUrl } = provider;
+
+    return (
+        <Text variant="hint" color="textSubdued" textAlign="center">
+            <Translation
+                id="moduleTrading.tradingScreen.footer.termsAndConditionsProvider"
+                values={{
+                    companyName,
+                    link: parts => (
+                        <Link
+                            textVariant="hint"
+                            textColor="textSubdued"
+                            textPressedColor="textDisabled"
+                            href={termsUrl}
+                            label={parts}
+                            isUnderlined
+                        />
+                    ),
+                }}
+            />
+        </Text>
+    );
+};
+
+const BuyFooterProviderContent = () => {
+    const quote = useSelector(selectTradingBuySelectedQuote);
+    const providerInfos = useSelector(
+        (state: TradingRootState) => selectTradingBuyInfo(state)?.providerInfos,
+    );
+    const provider = quote?.exchange ? providerInfos?.[quote?.exchange] : undefined;
+
+    return <FooterProviderContent provider={provider} />;
+};
+
+const SellFooterProviderContent = () => {
+    const quote = useSelector(selectTradingSellSelectedQuote);
+    const providerInfos = useSelector(
+        (state: TradingRootState) => selectTradingSellInfo(state)?.providerInfos,
+    );
+    const provider = quote?.exchange ? providerInfos?.[quote?.exchange] : undefined;
+
+    return <FooterProviderContent provider={provider} />;
+};
+
+const ExchangeFooterProviderContent = () => {
+    const quote = useSelector(selectTradingExchangeSelectedQuote);
+    const providerInfos = useSelector(
+        (state: TradingRootState) => selectTradingExchangeInfo(state)?.providerInfos,
+    );
+    const provider = quote?.exchange ? providerInfos?.[quote?.exchange] : undefined;
+
+    return <FooterProviderContent provider={provider} />;
+};
+
+const ProviderContent = ({ type }: Pick<FooterProps, 'type'>) => {
+    switch (type) {
+        case 'buy':
+            return <BuyFooterProviderContent />;
+        case 'sell':
+            return <SellFooterProviderContent />;
+        case 'exchange':
+            return <ExchangeFooterProviderContent />;
+        default:
+            return null;
+    }
+};
+
+export const Footer = ({ type, isFormMountedRecently }: FooterProps) => {
+    const shouldHideFooter = useSelector(selectIsAmountInputActive);
 
     if (shouldHideFooter) {
         return null;
@@ -30,30 +117,33 @@ export const Footer = ({ isFormMountedRecently }: FooterProps) => {
             exiting={FadeOutDown}
             layout={isFormMountedRecently ? undefined : LinearTransition}
         >
-            <HStack justifyContent="space-between" alignItems="center">
+            <Divider marginTop="sp16" marginBottom="sp16" />
+
+            <VStack alignItems="center">
+                <ProviderContent type={type} />
+
                 <HStack alignItems="center" spacing="sp4">
-                    <Text variant="label" color="textSubdued">
-                        <Translation id="moduleTrading.tradingScreen.footer.poweredBy" />
+                    <Link
+                        textVariant="hint"
+                        textColor="textSubdued"
+                        textPressedColor="textDisabled"
+                        href={DATA_TOS_INVITY_URL}
+                        label={<Translation id="moduleTrading.tradingScreen.footer.termsOfUse" />}
+                    />
+
+                    <Text variant="hint" color="textSubdued">
+                        |
                     </Text>
-                    <TouchableOpacity onPress={openLinkToInvity}>
-                        <Image
-                            source={imageSource}
-                            contentFit="contain"
-                            width={44}
-                            height={18}
-                            accessibilityLabel="Invity"
-                        />
-                    </TouchableOpacity>
+
+                    <Link
+                        textVariant="hint"
+                        textColor="textSubdued"
+                        textPressedColor="textDisabled"
+                        href={INVITY_URL}
+                        label={<Translation id="moduleTrading.tradingScreen.footer.learnMore" />}
+                    />
                 </HStack>
-                <Button
-                    colorScheme="tertiaryElevation0"
-                    size="tiny"
-                    onPress={openLinkToInvity}
-                    viewRight="arrowUpRight"
-                >
-                    <Translation id="moduleTrading.tradingScreen.footer.learnMore" />
-                </Button>
-            </HStack>
+            </VStack>
         </AnimatedBox>
     );
 };

@@ -232,130 +232,22 @@ export default defineMessages({
         defaultMessage: '{type} is currently disabled.',
         id: 'TR_TRADING_DISABLED_DEFAULT',
     },
-    TR_TRADING_TERMS_DONT_SHOW_AGAIN: {
-        defaultMessage: 'Don’t show this again',
-        id: 'TR_TRADING_TERMS_DONT_SHOW_AGAIN',
+    TR_TRADING_HEADER_DESCRIPTION: {
+        defaultMessage: 'View and track your {type} in trade history.',
+        id: 'TR_TRADING_HEADER_DESCRIPTION',
     },
-    TR_TRADING_SWAP_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Swap {fromCrypto} to {toCrypto} with {provider}',
-        id: 'TR_TRADING_SWAP_MODAL_FOR_YOUR_SAFETY',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to swap',
-        id: 'TR_TRADING_SWAP_MODAL_CONFIRM',
-        dynamic: true,
+    TR_TRADING_DETAIL_PROCESSING: {
+        defaultMessage: '{providerName} is processing your {type}',
+        id: 'TR_TRADING_DETAIL_PROCESSING',
     },
     TR_TRADING_SWAP_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
         id: 'TR_TRADING_SWAP_MODAL_SECURITY_HEADER',
         dynamic: true,
     },
-    TR_TRADING_SWAP_MODAL_TERMS_1: {
-        defaultMessage:
-            "You're here to swap cryptocurrencies. If you were directed to this site for any other reason, contact Trezor Support before proceeding.",
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_1',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_TERMS_2: {
-        defaultMessage:
-            "You're swapping cryptocurrencies for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_2',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_TERMS_3: {
-        defaultMessage:
-            "You understand that cryptocurrency transactions are final and can't be reversed or refunded. Losses due to fraud or mistakes may not be recoverable.",
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_3',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_VERIFIED_PARTNERS_HEADER: {
-        defaultMessage: 'Verified partners by Invity',
-        id: 'TR_TRADING_SWAP_MODAL_VERIFIED_PARTNERS_HEADER',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_TERMS_4: {
-        defaultMessage:
-            "You understand that Invity doesn't provide this service. It's governed by {provider}’s Terms & Conditions.",
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_4',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_LEGAL_HEADER: {
-        defaultMessage: 'Legal notice',
-        id: 'TR_TRADING_SWAP_MODAL_LEGAL_HEADER',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_TERMS_5: {
-        defaultMessage:
-            "You're not using this feature for gambling, fraud, or any activity that violates Invity’s or the provider's Terms of Service, or any applicable laws.",
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_5',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_MODAL_TERMS_6: {
-        defaultMessage:
-            'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_TRADING_SWAP_MODAL_TERMS_6',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Swap {fromCrypto} to {toCrypto} with {provider}',
-        id: 'TR_TRADING_SWAP_DEX_MODAL_FOR_YOUR_SAFETY',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to swap',
-        id: 'TR_TRADING_SWAP_DEX_MODAL_CONFIRM',
-        dynamic: true,
-    },
     TR_TRADING_SWAP_DEX_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
         id: 'TR_TRADING_SWAP_DEX_MODAL_SECURITY_HEADER',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_1: {
-        defaultMessage:
-            "You're here to swap cryptocurrencies with a DEX (decentralized exchange) by using {provider}'s contract.",
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_1',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_2: {
-        defaultMessage:
-            "You're swapping cryptocurrencies for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_2',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_3: {
-        defaultMessage:
-            "You understand that cryptocurrency transactions are final and can't be reversed or refunded. Losses due to fraud or mistakes may not be recoverable.",
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_3',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_VERIFIED_PARTNERS_HEADER: {
-        defaultMessage: 'Verified partners by Invity',
-        id: 'TR_TRADING_SWAP_DEX_MODAL_VERIFIED_PARTNERS_HEADER',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_4: {
-        defaultMessage:
-            "You understand that Invity doesn't provide this service. It's governed by {provider}’s Terms & Conditions.",
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_4',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_LEGAL_HEADER: {
-        defaultMessage: 'Legal notice',
-        id: 'TR_TRADING_SWAP_DEX_MODAL_LEGAL_HEADER',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_5: {
-        defaultMessage:
-            "You're not using this feature for gambling, fraud, or any activity that violates Invity’s or the provider's Terms of Service, or any applicable laws.",
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_5',
-        dynamic: true,
-    },
-    TR_TRADING_SWAP_DEX_MODAL_TERMS_6: {
-        defaultMessage:
-            'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_TRADING_SWAP_DEX_MODAL_TERMS_6',
         dynamic: true,
     },
     TR_TRADING_MISSING_COMPOSED_DATA: {
@@ -526,6 +418,14 @@ export default defineMessages({
         defaultMessage: 'Pending',
         id: 'TR_EXCHANGE_DETAIL_SENDING_TITLE',
     },
+    TR_EXCHANGE_DETAIL_SENDING_TRANSACTION: {
+        defaultMessage: 'Sending transaction',
+        id: 'TR_EXCHANGE_DETAIL_SENDING_TRANSACTION',
+    },
+    TR_EXCHANGE_DETAIL_TRANSACTION_SENT: {
+        defaultMessage: 'Transaction sent',
+        id: 'TR_EXCHANGE_DETAIL_TRANSACTION_SENT',
+    },
     TR_EXCHANGE_DETAIL_SENDING_SUPPORT: {
         defaultMessage: 'Go to provider support',
         id: 'TR_EXCHANGE_DETAIL_SENDING_SUPPORT',
@@ -537,6 +437,14 @@ export default defineMessages({
     TR_EXCHANGE_DETAIL_CONVERTING_SUPPORT: {
         defaultMessage: 'Go to provider support',
         id: 'TR_EXCHANGE_DETAIL_CONVERTING_SUPPORT',
+    },
+    TR_EXCHANGE_HEADER_TITLE: {
+        defaultMessage: 'Your swap',
+        id: 'TR_EXCHANGE_HEADER_TITLE',
+    },
+    TR_EXCHANGE_COMPLETE: {
+        defaultMessage: 'Swap complete',
+        id: 'TR_EXCHANGE_COMPLETE',
     },
     TR_EXCHANGE_SEND_TO: {
         defaultMessage: '{providerName}’s address',
@@ -825,65 +733,9 @@ export default defineMessages({
         defaultMessage: 'Required',
         id: 'TR_REQUIRED_FIELD',
     },
-    TR_SELL_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Sell {cryptocurrency} with {provider}',
-        id: 'TR_SELL_MODAL_FOR_YOUR_SAFETY',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to sell',
-        id: 'TR_SELL_MODAL_CONFIRM',
-        dynamic: true,
-    },
     TR_SELL_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
         id: 'TR_SELL_MODAL_SECURITY_HEADER',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_1: {
-        defaultMessage:
-            "You're here to sell cryptocurrencies. If you were directed to this site for any other reason, contact Trezor Support before proceeding.",
-        id: 'TR_SELL_MODAL_TERMS_1',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_2: {
-        defaultMessage:
-            "You're selling cryptocurrency for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_SELL_MODAL_TERMS_2',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_3: {
-        defaultMessage:
-            "You understand that cryptocurrency transactions are final and can't be reversed or refunded. Losses due to fraud or mistakes may not be recoverable.",
-        id: 'TR_SELL_MODAL_TERMS_3',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_VERIFIED_PARTNERS_HEADER: {
-        defaultMessage: 'Verified partners by Invity',
-        id: 'TR_SELL_MODAL_VERIFIED_PARTNERS_HEADER',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_4: {
-        defaultMessage:
-            "You understand that Invity doesn't provide this service. It's governed by {provider}’s Terms & Conditions.",
-        id: 'TR_SELL_MODAL_TERMS_4',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_LEGAL_HEADER: {
-        defaultMessage: 'Legal notice',
-        id: 'TR_SELL_MODAL_LEGAL_HEADER',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_5: {
-        defaultMessage:
-            "You're not using this feature for gambling, fraud, or any activity that violates Invity’s or the provider's Terms of Service, or any applicable laws.",
-        id: 'TR_SELL_MODAL_TERMS_5',
-        dynamic: true,
-    },
-    TR_SELL_MODAL_TERMS_6: {
-        defaultMessage:
-            'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_SELL_MODAL_TERMS_6',
         dynamic: true,
     },
     TR_SELL_REGISTER: {
@@ -990,6 +842,23 @@ export default defineMessages({
         defaultMessage: "Open partner's support site",
         id: 'TR_SELL_DETAIL_PENDING_SUPPORT',
     },
+    TR_SELL_HEADER_TITLE: {
+        defaultMessage: 'Your sell',
+        id: 'TR_SELL_HEADER_TITLE',
+    },
+    TR_SELL_DETAIL_SENDING_TRANSACTION: {
+        defaultMessage: 'Sending transaction',
+        id: 'TR_SELL_DETAIL_SENDING_TRANSACTION',
+    },
+    TR_SELL_DETAIL_TRANSACTION_SENT: {
+        defaultMessage: 'Transaction sent',
+        id: 'TR_SELL_DETAIL_TRANSACTION_SENT',
+    },
+    TR_SELL_DETAIL_PROCESSING_TEXT: {
+        defaultMessage:
+            "Your rate is locked—you'll get exactly what you see. Once your sell is processed, {providerName} will send the funds to your account. You can check your account to see if they've arrived.",
+        id: 'TR_SELL_DETAIL_PROCESSING_TEXT',
+    },
     TR_BUY_STATUS_PENDING: {
         defaultMessage: 'Pending',
         id: 'TR_BUY_STATUS_PENDING',
@@ -1004,65 +873,21 @@ export default defineMessages({
             "Invity doesn't see any of your payment or KYC information. You share this only with the exchange provider if you choose to complete the transaction.",
         id: 'TR_BUY_FOOTER_TEXT_2',
     },
-    TR_BUY_MODAL_FOR_YOUR_SAFETY: {
-        defaultMessage: 'Buy {cryptocurrency} with {provider}',
-        id: 'TR_BUY_MODAL_FOR_YOUR_SAFETY',
-        dynamic: true,
+    TR_TRADING_TERMS_1: {
+        id: 'TR_TRADING_TERMS_1',
+        defaultMessage: "Invity doesn't provide this service. It's governed by ",
     },
-    TR_BUY_MODAL_CONFIRM: {
-        defaultMessage: 'I’m ready to buy',
-        id: 'TR_BUY_MODAL_CONFIRM',
-        dynamic: true,
+    TR_TRADING_TERMS_2: {
+        id: 'TR_TRADING_TERMS_2',
+        defaultMessage: "provider's Terms & Conditions.",
+    },
+    TR_TRADING_TERMS_PROVIDER: {
+        id: 'TR_TRADING_TERMS_PROVIDER',
+        defaultMessage: "{companyName}'s Terms & Conditions.",
     },
     TR_BUY_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
         id: 'TR_BUY_MODAL_SECURITY_HEADER',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_1: {
-        defaultMessage:
-            "You're here to buy cryptocurrencies. If you were directed to this site for any other reason, contact {provider}  support before proceeding.",
-        id: 'TR_BUY_MODAL_TERMS_1',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_2: {
-        defaultMessage:
-            "You're buying cryptocurrencies for your own account. You acknowledge that the provider's policies may require identity verification.",
-        id: 'TR_BUY_MODAL_TERMS_2',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_3: {
-        defaultMessage:
-            "You understand that cryptocurrency transactions are final and can't be reversed or refunded. Losses due to fraud or mistakes may not be recoverable.",
-        id: 'TR_BUY_MODAL_TERMS_3',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_VERIFIED_PARTNERS_HEADER: {
-        defaultMessage: 'Verified partners by Invity',
-        id: 'TR_BUY_MODAL_VERIFIED_PARTNERS_HEADER',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_4: {
-        defaultMessage:
-            "You understand that Invity doesn't provide this service. It's governed by {provider}’s Terms & Conditions.",
-        id: 'TR_BUY_MODAL_TERMS_4',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_LEGAL_HEADER: {
-        defaultMessage: 'Legal notice',
-        id: 'TR_BUY_MODAL_LEGAL_HEADER',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_5: {
-        defaultMessage:
-            "You're not using this feature for gambling, fraud, or any activity that violates Invity’s or the provider's Terms of Service, or any applicable laws.",
-        id: 'TR_BUY_MODAL_TERMS_5',
-        dynamic: true,
-    },
-    TR_BUY_MODAL_TERMS_6: {
-        defaultMessage:
-            'You understand that cryptocurrencies are an emerging financial tool and that regulations may vary in different jurisdictions. This may put you at a higher risk of fraud, theft, or market instability.',
-        id: 'TR_BUY_MODAL_TERMS_6',
         dynamic: true,
     },
     TR_BUY_VALIDATION_ERROR_MINIMUM_CRYPTO: {
@@ -1083,12 +908,12 @@ export default defineMessages({
     },
     TR_STAKING_VALIDATION_ERROR_NOT_ENOUGH_FOR_FEES_CRYPTO: {
         defaultMessage:
-            'Balance is enough for the minimum, but not enough to cover network fees. Missing {missingAmount}',
+            'Your balance meets the minimum requirement, but it’s not enough to cover network fees. You’re short by {missingAmount}.',
         id: 'TR_STAKING_VALIDATION_ERROR_NOT_ENOUGH_FOR_FEES_CRYPTO',
     },
     TR_STAKING_VALIDATION_ERROR_NOT_ENOUGH_FOR_FEES_FIAT: {
         defaultMessage:
-            'Balance is enough for the minimum, but not enough to cover network fees. Missing {missingAmount} {currency}',
+            'Your balance meets the minimum requirement, but it’s not enough to cover network fees. You’re short by {missingAmount} {currency}.',
         id: 'TR_STAKING_VALIDATION_ERROR_NOT_ENOUGH_FOR_FEES_FIAT',
     },
     TR_BUY_STATUS_PENDING_GO_TO_GATEWAY: {
@@ -1130,6 +955,26 @@ export default defineMessages({
     TR_BUY_PROVIDER: {
         defaultMessage: 'Provider',
         id: 'TR_BUY_PROVIDER',
+    },
+    TR_ESTIMATED_TIME: {
+        defaultMessage: 'Estimated time',
+        id: 'TR_ESTIMATED_TIME',
+    },
+    TR_TRADE_ID: {
+        defaultMessage: 'Trade ID',
+        id: 'TR_TRADE_ID',
+    },
+    TR_TRADING_PROCESSING_SUPPORT: {
+        defaultMessage: 'Need help? Reach out to <link>{providerName}’s support</link>.',
+        id: 'TR_TRADING_PROCESSING_SUPPORT',
+    },
+    TR_BUY_COMPLETE: {
+        defaultMessage: 'Buy complete',
+        id: 'TR_BUY_COMPLETE',
+    },
+    TR_BUY_HEADER_TITLE: {
+        defaultMessage: 'Your buy',
+        id: 'TR_BUY_HEADER_TITLE',
     },
     TR_BUY_RECEIVING_ADDRESS: {
         defaultMessage: 'Receive address',
@@ -1199,6 +1044,10 @@ export default defineMessages({
     TR_BUY_DETAIL_WAITING_FOR_USER_TITLE: {
         defaultMessage: 'Complete your transaction',
         id: 'TR_BUY_DETAIL_WAITING_FOR_USER_TITLE',
+    },
+    TR_BUY_DETAIL_PAYMENT_SUCCESSFUL_TITLE: {
+        defaultMessage: 'Payment successful',
+        id: 'TR_BUY_DETAIL_PAYMENT_SUCCESSFUL_TITLE',
     },
     TR_BUY_DETAIL_WAITING_FOR_USER_TEXT: {
         defaultMessage:
@@ -2865,7 +2714,7 @@ export default defineMessages({
     },
     TR_NETWORK_RESERVE_DESCRIPTION: {
         defaultMessage:
-            'We reserve a small amount of native token on {supportedNetworks} to cover extra network fees when you send, swap, or sell your assets.',
+            'We’ve reserved a small amount of the native token on {supportedNetworks} to cover any extra network fees when you send, swap, or sell your assets.',
         id: 'TR_NETWORK_RESERVE_DESCRIPTION',
     },
     TR_CONFIRM_AUTO_EJECT: {
@@ -2933,7 +2782,7 @@ export default defineMessages({
     TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING: {
         id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING',
         defaultMessage:
-            'All wallets will be automatically ejected when your Trezor is disconnected.',
+            'All wallets will be safely ejected. Trezor Suite will restart automatically when the process is finished.',
     },
     TR_LANGUAGE: {
         defaultMessage: 'Language',
@@ -3072,10 +2921,6 @@ export default defineMessages({
     TR_MINED_TIME: {
         defaultMessage: 'Mined Time',
         id: 'TR_MINED_TIME',
-    },
-    TR_NAV_SOON_BADGE: {
-        defaultMessage: 'Soon',
-        id: 'TR_NAV_SOON_BADGE',
     },
     TR_NAV_RECEIVE: {
         defaultMessage: 'Receive',
@@ -3263,15 +3108,11 @@ export default defineMessages({
         id: 'TR_RANDOM_SEED_WORDS_DISCLAIMER',
     },
     TR_RECEIVE: {
-        defaultMessage: 'Select an account to receive funds',
+        defaultMessage: 'Receive',
         id: 'TR_RECEIVE',
     },
-    TR_RECEIVE_SELECT_ACCOUNT: {
-        defaultMessage: 'Select an account to receive funds',
-        id: 'TR_RECEIVE_SELECT_ACCOUNT',
-    },
     TR_RECEIVE_DESCRIPTION: {
-        defaultMessage: 'How to <a>choose the right network</a> to receive your tokens',
+        defaultMessage: 'Learn how to <a>choose the right network</a> to receive your tokens',
         id: 'TR_RECEIVE_DESCRIPTION',
     },
     TR_RECEIVE_SEARCH: {
@@ -3327,7 +3168,7 @@ export default defineMessages({
     },
     TR_RECOVER_SUBHEADING_BUTTONS: {
         defaultMessage:
-            "The entire recovery process is completed on your Trezor's screen using the two-button pad.",
+            "The entire wallet recovery process is completed on your Trezor's screen using the two-button pad.",
         description: 'Subheading in recover page. Basic info about recovery',
         id: 'TR_RECOVER_SUBHEADING_BUTTONS',
     },
@@ -3589,10 +3430,6 @@ export default defineMessages({
     TR_SUITE_VERSION: {
         defaultMessage: 'Trezor Suite version',
         id: 'TR_SUITE_VERSION',
-    },
-    TR_SWITCH_DEVICE: {
-        defaultMessage: 'Switch device',
-        id: 'TR_SWITCH_DEVICE',
     },
     TR_TAKE_ME_BACK_TO_WALLET: {
         defaultMessage: 'Take me back to Suite',
@@ -3937,7 +3774,7 @@ export default defineMessages({
     TR_ACCOUNT_TYPE_LEDGER_DESC: {
         id: 'TR_ACCOUNT_TYPE_LEDGER_DESC',
         defaultMessage:
-            'Ledger accounts are compatible with Ledger Live derivation paths, enabling smooth migration from Ledger to Trezor.',
+            'Ledger accounts are compatible with Ledger Wallet derivation paths, enabling smooth migration from Ledger to Trezor.',
     },
     TR_ACCOUNT_TYPE_LEGACY_DESC: {
         id: 'TR_ACCOUNT_TYPE_LEGACY_DESC',
@@ -3957,7 +3794,7 @@ export default defineMessages({
     TR_ACCOUNT_TYPE_NORMAL_CARDANO_DESC: {
         id: 'TR_ACCOUNT_TYPE_NORMAL_CARDANO_DESC',
         defaultMessage:
-            'Shelley era addresses have introduced a new type of wallet that can support stake delegation and earning rewards.',
+            'Shelley-era addresses have introduced a new type of wallet that can support stake delegation and earning rewards.',
     },
     TR_ACCOUNT_TYPE_CARDANO_LEGACY_DESC: {
         id: 'TR_ACCOUNT_TYPE_CARDANO_LEGACY_DESC',
@@ -3969,7 +3806,6 @@ export default defineMessages({
         defaultMessage:
             'Legacy Cardano account detected—migrate to a default account, as legacy accounts won’t be automatically discovered in future.',
     },
-
     TR_ACCOUNT_TYPE_XRP_DESC: {
         id: 'TR_ACCOUNT_TYPE_XRP_DESC',
         defaultMessage:
@@ -3983,6 +3819,18 @@ export default defineMessages({
     TR_ACCOUNT_DETAILS_XPUB_HEADER: {
         id: 'TR_ACCOUNT_DETAILS_XPUB_HEADER',
         defaultMessage: 'Public key (XPUB)',
+    },
+    TR_ACCOUNT_DETAILS_EXPORT_LABELS_HEADER: {
+        id: 'TR_ACCOUNT_DETAILS_EXPORT_LABELS_HEADER',
+        defaultMessage: 'Export Labels (BIP 329)',
+    },
+    TR_ACCOUNT_DETAILS_EXPORT_LABELS_BUTTON: {
+        id: 'TR_ACCOUNT_DETAILS_EXPORT_LABELS_BUTTON',
+        defaultMessage: 'Export',
+    },
+    TR_ACCOUNT_DETAILS_EXPORT_LABELS_DESCRIPTION: {
+        id: 'TR_ACCOUNT_DETAILS_EXPORT_LABELS_DESCRIPTION',
+        defaultMessage: 'Export label files to your computer using the standard BIP 329',
     },
     TR_ACCOUNT_DETAILS_XPUB: {
         id: 'TR_ACCOUNT_DETAILS_XPUB',
@@ -4075,20 +3923,20 @@ export default defineMessages({
     },
     SUITE_SYNC_KEY_RETRIEVAL_FAILED: {
         id: 'SUITE_SYNC_KEY_RETRIEVAL_FAILED',
-        defaultMessage: 'Trezor Sync key retrieval failed, reconnect the device and try again.',
+        defaultMessage: 'Suite Sync key retrieval failed. Reconnect your Trezor and try again.',
     },
     TOAST_COIN_SCHEME_PROTOCOL: {
         id: 'TOAST_COIN_SCHEME_PROTOCOL',
         description: 'Required for current notifications. Do not change.',
         defaultMessage: '{header}{body}',
     },
-    TOAST_COIN_SCHEME_PROTOCOL_ACTION: {
-        id: 'TOAST_COIN_SCHEME_PROTOCOL_ACTION',
-        defaultMessage: 'Autofill send form',
-    },
     TOAST_COIN_SCHEME_PROTOCOL_HEADER: {
         id: 'TOAST_COIN_SCHEME_PROTOCOL_HEADER',
         defaultMessage: 'Go to an account to send',
+    },
+    TOAST_COIN_SCHEME_PROTOCOL_AMOUNT: {
+        id: 'TOAST_COIN_SCHEME_PROTOCOL_AMOUNT',
+        defaultMessage: 'Amount:',
     },
     TOAST_ACQUIRE_ERROR: {
         id: 'TOAST_ACQUIRE_ERROR',
@@ -4645,7 +4493,7 @@ export default defineMessages({
     TR_TOKEN_ACTIVATION_DESCRIPTION: {
         id: 'TR_TOKEN_ACTIVATION_DESCRIPTION',
         defaultMessage:
-            'To receive {token} on the {network} network, you must first activate the asset. Doing so will increase your reserved balance by {reserve}.',
+            'To receive {token} on the {network} network, you need to activate this asset first. This will increase your reserved balance by {reserve}.',
     },
     TR_ACTIVATE_MANUALLY: {
         id: 'TR_ACTIVATE_MANUALLY',
@@ -4666,15 +4514,15 @@ export default defineMessages({
     TR_TOKEN_DEACTIVATION_DESCRIPTION: {
         id: 'TR_TOKEN_DEACTIVATION_DESCRIPTION',
         defaultMessage:
-            "You won't be able to receive, send, or trade this token until you activate it again. Deactivation makes the 0.5 XLM reserve available for use.",
+            'After deactivation, you can’t receive, send, or trade this token until you activate it again. The 0.5 XLM reserve will be returned to your available balance.',
     },
     TR_CANT_DEACTIVATE_TOKEN_WITH_BALANCE: {
         id: 'TR_CANT_DEACTIVATE_TOKEN_WITH_BALANCE',
-        defaultMessage: "You can't deactivate a token with a balance",
+        defaultMessage: 'Tokens with a balance can’t be deactivated.',
     },
     TR_DEACTIVATE_TOKEN_BALANCE_WARNING: {
         id: 'TR_DEACTIVATE_TOKEN_BALANCE_WARNING',
-        defaultMessage: 'To deactivate this token, first send its balance elsewhere.',
+        defaultMessage: 'To deactivate this token, transfer its remaining balance.',
     },
     TR_ASSET_CODE: {
         id: 'TR_ASSET_CODE',
@@ -4744,7 +4592,7 @@ export default defineMessages({
     },
     TR_SUITE_STORAGE: {
         id: 'TR_SUITE_STORAGE',
-        defaultMessage: 'App storage',
+        defaultMessage: 'Reset app to default',
     },
     TR_CLEAR_STORAGE: {
         id: 'TR_CLEAR_STORAGE',
@@ -4756,8 +4604,7 @@ export default defineMessages({
     },
     TR_CLEAR_STORAGE_DESCRIPTION: {
         id: 'TR_CLEAR_STORAGE_DESCRIPTION',
-        defaultMessage:
-            'Reset the app to its default settings as a recommended first step for troubleshooting. Trezor Suite will automatically restart once the process is complete.',
+        defaultMessage: 'Erase all current app data and restore the original settings.',
     },
     TR_TO_ACCESS_OTHER_WALLETS: {
         id: 'TR_TO_ACCESS_OTHER_WALLETS',
@@ -5120,10 +4967,6 @@ export default defineMessages({
         id: 'TR_WIPE_AND_REINSTALL',
         defaultMessage: 'Wipe device & reinstall',
     },
-    TR_DISCREET: {
-        id: 'TR_DISCREET',
-        defaultMessage: 'Discreet',
-    },
     TR_TOR: {
         id: 'TR_TOR',
         defaultMessage: 'Tor',
@@ -5241,7 +5084,7 @@ export default defineMessages({
     },
     TR_MANUAL_TOKEN_ACTIVATION_DESCRIPTION: {
         id: 'TR_MANUAL_TOKEN_ACTIVATION_DESCRIPTION',
-        defaultMessage: 'You can activate any token if you know its asset code and issuer address.',
+        defaultMessage: 'To activate a token, enter its asset code and issuer address.',
     },
     TR_MAKE_SURE_NO_ONE_CAN_PEEK: {
         id: 'TR_MAKE_SURE_NO_ONE_CAN_PEEK',
@@ -5499,7 +5342,7 @@ export default defineMessages({
     TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION',
         defaultMessage:
-            'Sync your labels across multiple devices using local-first encrypted storage.',
+            'Keep your wallet, account, and transaction labels updated in Trezor Suite on all your devices. Your data stays safe—only your Trezor can decrypt it.',
     },
     TR_EARLY_ACCESS: {
         id: 'TR_EARLY_ACCESS',
@@ -5509,11 +5352,6 @@ export default defineMessages({
         id: 'TR_EARLY_ACCESS_ENABLED',
         defaultMessage: 'Early Access Program opted in',
         description: 'Title in settings if Early Access is active.',
-    },
-    TR_EARLY_ACCESS_MENU: {
-        id: 'TR_EARLY_ACCESS_MENU',
-        defaultMessage: 'Early Access Program',
-        description: 'Shown on small screen only next to the icon in menu.',
     },
     TR_EARLY_ACCESS_DESCRIPTION: {
         id: 'TR_EARLY_ACCESS_DESCRIPTION',
@@ -5666,10 +5504,6 @@ export default defineMessages({
     DISCONNECT_DEVICE_DESCRIPTION: {
         id: 'DISCONNECT_DEVICE_DESCRIPTION',
         defaultMessage: 'Your device was wiped and no longer holds any private keys.',
-    },
-    TR_MY_ACCOUNTS: {
-        id: 'TR_MY_ACCOUNTS',
-        defaultMessage: 'My accounts',
     },
     TR_CHANGE_HOMESCREEN: {
         id: 'TR_CHANGE_HOMESCREEN',
@@ -5974,7 +5808,7 @@ export default defineMessages({
         id: 'AMOUNT_NOT_ENOUGH_CURRENCY_FEE_WITH_ETH_AMOUNT',
     },
     AMOUNT_EXCEEDS_NETWORK_RESERVE: {
-        defaultMessage: 'Not enough funds left after we reserve for network fees',
+        defaultMessage: 'Not enough funds remaining after reserving network fees',
         id: 'AMOUNT_EXCEEDS_NETWORK_RESERVE',
     },
     REMAINING_BALANCE_LESS_THAN_RENT: {
@@ -6114,7 +5948,7 @@ export default defineMessages({
     },
     DATA_ETH_ADD: {
         id: 'DATA_ETH_ADD',
-        defaultMessage: 'Add Data',
+        defaultMessage: 'Add data',
     },
     DATA_ETH_ADD_TOOLTIP: {
         id: 'DATA_ETH_ADD_TOOLTIP',
@@ -6466,7 +6300,7 @@ export default defineMessages({
     },
     FIRMWARE_NEEDS_UPGRADE_FOR_SUITE_SYNC: {
         id: 'FIRMWARE_NEEDS_UPGRADE_FOR_SUITE_SYNC',
-        defaultMessage: "Upgrade your Trezor's firmware for Suite Sync.",
+        defaultMessage: "Upgrade your Trezor's firmware to use Suite Sync.",
     },
     TR_DISABLED_SWITCH_TOOLTIP: {
         id: 'TR_DISABLED_SWITCH_TOOLTIP',
@@ -6841,7 +6675,7 @@ export default defineMessages({
     },
     TR_UPDATE_MODAL_YOUR_VERSION: {
         id: 'TR_UPDATE_MODAL_YOUR_VERSION',
-        defaultMessage: 'Your version: {version}',
+        defaultMessage: 'Current version: {version}',
     },
     TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES: {
         id: 'TR_UPDATE_MODAL_ENABLE_AUTO_UPDATES',
@@ -6877,7 +6711,8 @@ export default defineMessages({
     },
     TR_WERE_CONSTANTLY_WORKING_TO_IMPROVE: {
         id: 'TR_WERE_CONSTANTLY_WORKING_TO_IMPROVE',
-        defaultMessage: 'We’re always striving to enhance your Trezor experience.',
+        defaultMessage:
+            'Download the latest version of Trezor Suite for improved performance and features.',
     },
     TR_UPDATE_MODAL_UPDATE_DOWNLOADED: {
         id: 'TR_UPDATE_MODAL_UPDATE_DOWNLOADED',
@@ -6967,6 +6802,18 @@ export default defineMessages({
     TR_RECOVERY_FAILED: {
         id: 'TR_RECOVERY_FAILED',
         defaultMessage: 'Wallet recovery failed',
+    },
+    TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_TITLE: {
+        id: 'TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_TITLE',
+        defaultMessage: 'No {network} account found',
+    },
+    TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_DESC: {
+        id: 'TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_DESC',
+        defaultMessage: 'Activate an account to continue with this transaction.',
+    },
+    TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_CTA: {
+        id: 'TR_ACCOUNT_SEARCH_ACTIVATE_NETWORK_CTA',
+        defaultMessage: 'Activate {network}',
     },
     TR_ACCOUNT_SEARCH_NO_RESULTS: {
         id: 'TR_ACCOUNT_SEARCH_NO_RESULTS',
@@ -7951,19 +7798,6 @@ export default defineMessages({
         id: 'TR_ONBOARDING_ADVANCED',
         defaultMessage: 'Advanced',
     },
-    TR_TROUBLESHOOTING_DEVICE_NOT_DETECTED: {
-        defaultMessage: 'Try these steps to solve this issue.',
-        id: 'TR_TROUBLESHOOTING_DEVICE_NOT_DETECTED',
-    },
-    TR_TROUBLESHOOTING_TIP_TRANSPORT_STATUS_TITLE: {
-        defaultMessage: 'Check connection status',
-        id: 'TR_TROUBLESHOOTING_TIP_TRANSPORT_STATUS_TITLE',
-    },
-    TR_TROUBLESHOOTING_TIP_TRANSPORT_STATUS_DESCRIPTION: {
-        defaultMessage:
-            'Visit the <a>connection status page</a> to get useful information that you can share with Trezor Support to help resolve your issue.',
-        id: 'TR_TROUBLESHOOTING_TIP_TRANSPORT_STATUS_DESCRIPTION',
-    },
     TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_TITLE: {
         defaultMessage: 'Use a Chromium-based browser',
         id: 'TR_TROUBLESHOOTING_TIP_BROWSER_WEBUSB_TITLE',
@@ -7981,10 +7815,6 @@ export default defineMessages({
         defaultMessage:
             'If you last updated your device firmware in 2019 or earlier, follow the instructions in <a>the Knowledge Base</a>',
         id: 'TR_TROUBLESHOOTING_TIP_UNREADABLE_HID_DESCRIPTION',
-    },
-    TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_TITLE: {
-        id: 'TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_TITLE',
-        defaultMessage: 'Use the Trezor Suite desktop app',
     },
     TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_DESCRIPTION: {
         id: 'TR_TROUBLESHOOTING_TIP_SUITE_DESKTOP_DESCRIPTION',
@@ -8019,33 +7849,11 @@ export default defineMessages({
     },
     TR_TROUBLESHOOTING_TIP_CABLE_TITLE: {
         id: 'TR_TROUBLESHOOTING_TIP_CABLE_TITLE',
-        defaultMessage: 'Try using a different USB cable or port.',
-    },
-    TR_TROUBLESHOOTING_TIP_CABLE_DESCRIPTION: {
-        id: 'TR_TROUBLESHOOTING_TIP_CABLE_DESCRIPTION',
-        defaultMessage:
-            'The cable must be fully inserted. For USB-C devices, ensure the cable clicks securely into place.',
+        defaultMessage: 'Use a different USB cable',
     },
     TR_TROUBLESHOOTING_TIP_DIFFERENT_COMPUTER_TITLE: {
         id: 'TR_TROUBLESHOOTING_TIP_DIFFERENT_COMPUTER_TITLE',
         defaultMessage: 'Connect your Trezor to a different computer or phone.',
-    },
-    TR_TROUBLESHOOTING_TIP_USB_PORT_TITLE: {
-        id: 'TR_TROUBLESHOOTING_TIP_USB_PORT_TITLE',
-        defaultMessage: 'Use a different USB port',
-    },
-    TR_TROUBLESHOOTING_TIP_USB_PORT_DESCRIPTION: {
-        id: 'TR_TROUBLESHOOTING_TIP_USB_PORT_DESCRIPTION',
-        defaultMessage: 'Connect your device directly to your computer, without using a USB hub.',
-    },
-    TR_TROUBLESHOOTING_TIP_PIN_LOST_TITLE: {
-        id: 'TR_TROUBLESHOOTING_TIP_PIN_LOST_TITLE',
-        defaultMessage: 'Forgot your PIN?',
-    },
-    TR_TROUBLESHOOTING_TIP_PIN_LOST_DESCRIPTION: {
-        id: 'TR_TROUBLESHOOTING_TIP_PIN_LOST_DESCRIPTION',
-        defaultMessage:
-            'Follow our <a>support article</a> step by step. Enter your wallet backup only on your Trezor.',
     },
     TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_TITLE: {
         id: 'TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_TITLE',
@@ -8216,7 +8024,7 @@ export default defineMessages({
     },
     TR_STAKING_TREZOR_POOL_FAIL: {
         id: 'TR_STAKING_TREZOR_POOL_FAIL',
-        defaultMessage: "Couldn't reach Trezor stake pool to delegate on.",
+        defaultMessage: "Couldn't reach Trezor staking pool to delegate on.",
     },
     TR_STAKING_TX_PENDING: {
         id: 'TR_STAKING_TX_PENDING',
@@ -8234,12 +8042,12 @@ export default defineMessages({
     },
     TR_STAKING_POOL_OVERSATURATED_TITLE: {
         id: 'TR_STAKING_POOL_OVERSATURATED_TITLE',
-        defaultMessage: 'Stake pool is oversaturated',
+        defaultMessage: 'Staking pool is oversaturated',
     },
     TR_STAKING_POOL_OVERSATURATED_DESCRIPTION: {
         id: 'TR_STAKING_POOL_OVERSATURATED_DESCRIPTION',
         defaultMessage:
-            "The stake pool you're delegating on is oversaturated. Redelegate your stake to maximize your staking rewards.",
+            "The staking pool you're delegating on is oversaturated. Redelegate your stake to maximize your staking rewards.",
     },
     TR_STAKING_IS_NOT_SUPPORTED: {
         id: 'TR_STAKING_IS_NOT_SUPPORTED',
@@ -8344,7 +8152,7 @@ export default defineMessages({
     TR_STAKE_FUNDS_WARNING: {
         id: 'TR_STAKE_FUNDS_WARNING',
         defaultMessage:
-            'Your {networkDisplaySymbol} stays in your account while staked—you can send, swap, or spend it anytime.',
+            'Your {networkDisplaySymbol} stays in your account while staked. You can send, swap, or spend it anytime.',
     },
     TR_STAKE_NOT_ENOUGH_FUNDS_WARNING: {
         id: 'TR_STAKE_NOT_ENOUGH_FUNDS_WARNING',
@@ -9188,7 +8996,7 @@ export default defineMessages({
     },
     TR_COINJOIN_RECEIVE_WARNING_TITLE: {
         id: 'TR_COINJOIN_RECEIVE_WARNING_TITLE',
-        defaultMessage: 'You should know',
+        defaultMessage: 'Good to know',
     },
     TR_UNECO_COINJOIN_RECEIVE_WARNING: {
         id: 'TR_UNECO_COINJOIN_RECEIVE_WARNING',
@@ -9470,11 +9278,11 @@ export default defineMessages({
     TR_STAKING_MODAL_OUTDATED: {
         id: 'TR_STAKING_MODAL_OUTDATED',
         defaultMessage:
-            'Your ADA staking rewards will drop soon. Move to a new pool with {apy}% APY. Your funds and past rewards are safe.',
+            'Your current provider is reducing its ADA rewards. Update to Everstake for {apy}% APY and keep maximizing earnings. Your funds and past rewards stay safe.',
     },
     TR_STAKING_MODAL_OUTDATED_BUTTON: {
         id: 'TR_STAKING_MODAL_OUTDATED_BUTTON',
-        defaultMessage: 'Update staking pool',
+        defaultMessage: 'Update provider',
     },
     TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE: {
         id: 'TR_STAKING_DASHBOARD_TABLE_ACCOUNT_BALANCE',
@@ -9556,7 +9364,7 @@ export default defineMessages({
     },
     TR_STAKING_NEW_PROVIDER_OUTDATED_TITLE: {
         id: 'TR_STAKING_NEW_PROVIDER_OUTDATED_TITLE',
-        defaultMessage: 'Move to new staking provider to avoid losing future rewards',
+        defaultMessage: 'Update your provider now to keep your rewards growing',
     },
     TR_STAKING_NEW_PROVIDER_TEXT: {
         id: 'TR_STAKING_NEW_PROVIDER_TEXT',
@@ -9566,7 +9374,7 @@ export default defineMessages({
     TR_STAKING_NEW_PROVIDER_OUTDATED_TEXT: {
         id: 'TR_STAKING_NEW_PROVIDER_OUTDATED_TEXT',
         defaultMessage:
-            'Your current staking pool will soon reduce rewards. To earn ~{apy}% APY, move to a new pool. Your {displaySymbol} and past rewards stay intact.',
+            'Your current provider is reducing its rewards. Update to Everstake for {apy}% APY and keep maximizing earnings. Your {displaySymbol} and past rewards stay safe.',
     },
     TR_STAKING_UPDATE_PROVIDER: {
         id: 'TR_STAKING_UPDATE_PROVIDER',
@@ -9700,7 +9508,7 @@ export default defineMessages({
     TR_STAKE_ALL_YOUR_FUNDS_IS_STAKED: {
         id: 'TR_STAKE_ALL_YOUR_FUNDS_IS_STAKED',
         defaultMessage:
-            'All your available {networkDisplaySymbol} is currently staked. Any new {networkDisplaySymbol} you receive will become active after ~{days} days.',
+            'All your available {networkDisplaySymbol} is currently staked. Any new {networkDisplaySymbol} you receive will become active after two epochs.',
     },
     TR_STAKE_RETURNABLE_DEPOSIT_IS_REQUIRED: {
         id: 'TR_STAKE_RETURNABLE_DEPOSIT_IS_REQUIRED',
@@ -9927,10 +9735,6 @@ export default defineMessages({
         id: 'TR_STAKE_STAKE',
         defaultMessage: 'Stake',
     },
-    TR_STAKE_ACTIVE_STAKE: {
-        id: 'TR_STAKE_ACTIVE_STAKE',
-        defaultMessage: 'Active stake',
-    },
     TR_STAKE_STAKED_AUTOMATICALLY: {
         id: 'TR_STAKE_STAKED_AUTOMATICALLY',
         defaultMessage: 'Staked automatically',
@@ -10062,7 +9866,7 @@ export default defineMessages({
     },
     TR_STAKE_UNSTAKE_WITH_REWARDS: {
         id: 'TR_STAKE_UNSTAKE_WITH_REWARDS',
-        defaultMessage: 'Your rewards are automatically claimed when you unstake.',
+        defaultMessage: 'Rewards are automatically claimed when you unstake.',
     },
     TR_STAKE_UNSTAKING_APPROXIMATE: {
         id: 'TR_STAKE_UNSTAKING_APPROXIMATE',
@@ -10271,7 +10075,7 @@ export default defineMessages({
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION_ERROR: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_DESCRIPTION_ERROR',
         defaultMessage:
-            'Your wallet may appear empty until the internet connection is restored. Do you want to open it?',
+            'Your wallet may appear empty until your internet connection is restored. Do you want to open it?',
     },
     TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_BUTTON: {
         id: 'TR_PASSPHRASE_WALLET_CONFIRMATION_STEP1_OPEN_UNUSED_WALLET_BUTTON',
@@ -10532,10 +10336,6 @@ export default defineMessages({
     TR_DONE_REMOVING_TREZOR_FROM_SETTINGS: {
         id: 'TR_DONE_REMOVING_TREZOR_FROM_SETTINGS',
         defaultMessage: 'I’ve removed it',
-    },
-    TR_PAIR_NEW_BLUETOOTH_DEVICE: {
-        id: 'TR_PAIR_NEW_BLUETOOTH_DEVICE',
-        defaultMessage: 'Connect via Bluetooth',
     },
     TR_SCAN_TREZORS_NEARBY: {
         id: 'TR_SCAN_TREZORS_NEARBY',
@@ -10886,11 +10686,11 @@ export default defineMessages({
     },
     TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED: {
         id: 'TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED',
-        defaultMessage: 'Labels created with Suite Sync can’t be migrated',
+        defaultMessage: 'Labels created with Suite Sync can’t be migrated.',
     },
     TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE: {
         id: 'TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE',
-        defaultMessage: 'Legacy labeling doesn’t sync labels to mobile devices',
+        defaultMessage: 'Legacy labeling doesn’t sync labels to mobile devices.',
     },
     TR_SWITCH_ACCOUNT: {
         id: 'TR_SWITCH_ACCOUNT',
@@ -10952,8 +10752,7 @@ export default defineMessages({
     },
     TR_NETWORK_RESERVE_BANNER: {
         id: 'TR_NETWORK_RESERVE_BANNER',
-        defaultMessage:
-            'We reserve up to {amount} {displaySymbol} in case extra network fees apply.',
+        defaultMessage: 'We’ve reserved {amount} {displaySymbol} to cover any extra network fees.',
     },
     TR_NETWORK_RESERVE_MANAGE: {
         defaultMessage: 'Manage',
@@ -11039,7 +10838,7 @@ export default defineMessages({
     TR_CONNECT_EXPORT_ACCOUNTS_DESCRIPTION: {
         id: 'TR_CONNECT_EXPORT_ACCOUNTS_DESCRIPTION',
         defaultMessage:
-            'The following addresses from {passphraseWalletLabel} on {deviceLabel} will be shared with {thirdParty}. Your private keys stay secure and are never exposed.',
+            'The following accounts from {passphraseWalletLabel} on {deviceLabel} will be shared with {thirdParty}. Your private keys stay secure and are never exposed.',
     },
     TR_DYK_TITLE: {
         id: 'TR_DYK_TITLE',
@@ -11178,7 +10977,7 @@ export default defineMessages({
     TR_LOCAL_NETWORK_ACCESS_PERMISSION_WARNING: {
         id: 'TR_LOCAL_NETWORK_ACCESS_PERMISSION_WARNING',
         defaultMessage:
-            'In order to use all features of Trezor Suite web version please allow local network access in your browser settings.',
+            'To use all features of Trezor Suite for web, enable local network access in your browser settings.',
     },
     TR_REINSTALL: {
         id: 'TR_REINSTALL',

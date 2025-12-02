@@ -15,11 +15,12 @@ import { transformAddress } from '../../support/testExtends/customMatchers';
 const transactionStates = [
     {
         transactionStatus: 'CONFIRMING',
-        displayedText: 'TR_EXCHANGE_STATUS_CONFIRMING',
+        displayedText: 'TR_EXCHANGE_DETAIL_SENDING_TRANSACTION',
     },
     {
         transactionStatus: 'CONVERTING',
-        displayedText: 'TR_EXCHANGE_DETAIL_CONVERTING_TITLE',
+        displayedText: 'TR_TRADING_DETAIL_PROCESSING',
+        translationValues: (providerName: string) => ({ providerName, type: 'swap' }),
     },
     {
         transactionStatus: 'SUCCESS',
@@ -80,7 +81,6 @@ test.describe('Trading - Swap coins', { tag: ['@group=trading', '@webOnly'] }, (
         await test.step('Confirm the Swap trade', async () => {
             await expect(tradingPage.bestOfferAmount).toHaveText(formattedReceiveAmount);
             await tradingPage.swapBestOfferButton.click();
-            await tradingPage.termsConfirmButton.click();
         });
 
         await test.step('Initiate send', async () => {
@@ -131,9 +131,6 @@ test.describe('Trading - Swap coins', { tag: ['@group=trading', '@webOnly'] }, (
         await test.step('Send crypto to provider', async () => {
             await page.clock.install();
             await devicePrompt.sendButton.click();
-            await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                'TR_EXCHANGE_STATUS_CONFIRMING',
-            );
             await expect(page.getByTestId('@toast/tx-exchange')).toHaveTranslation(
                 'TOAST_TX_EXCHANGE_BROADCASTED',
                 {
@@ -149,17 +146,7 @@ test.describe('Trading - Swap coins', { tag: ['@group=trading', '@webOnly'] }, (
             );
         });
 
-        await test.step('Verify button opens provider support page in new tab', async () => {
-            const partnerPagePromise = page.context().waitForEvent('page');
-            await page.getByRole('link', { name: 'Go to provider support' }).click();
-            const partnerTab = await partnerPagePromise;
-            // Mocked data have URL changed to https://mocked.partner.site/orders/{{orderId}} for stability reasons
-            await expect(partnerTab).toHaveURL(/https:\/\/mocked\.partner\.site\/orders\//);
-            await partnerTab.close();
-        });
-
-        // Statuses: SENDING -> CONVERTING -> CONFIRMING -> SUCCESS
-        for (const { transactionStatus, displayedText } of transactionStates) {
+        for (const { transactionStatus, displayedText, translationValues } of transactionStates) {
             await test.step(`Wait 30s for status change to ${displayedText}`, async () => {
                 await tradingMock.routeAndWaitForWatchResponse(invityEndpoint.swapWatch, {
                     status: transactionStatus,
@@ -167,8 +154,25 @@ test.describe('Trading - Swap coins', { tag: ['@group=trading', '@webOnly'] }, (
                 });
                 await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
                     displayedText as TranslationKey,
+                    translationValues ? { values: translationValues(provider) } : undefined,
                 );
             });
+
+            // Support banner is only visible when status is CONVERTING, check it right after CONVERTING status is reached
+            if (transactionStatus === 'CONVERTING') {
+                await test.step('Verify button opens provider support page in new tab', async () => {
+                    const supportLink = page.locator('a[href*="mocked.partner.site"]');
+                    // eslint-disable-next-line playwright/no-conditional-expect
+                    await expect(supportLink).toBeVisible({ timeout: 10000 });
+                    const partnerPagePromise = page.context().waitForEvent('page');
+                    await supportLink.click();
+                    const partnerTab = await partnerPagePromise;
+                    // Mocked data have URL changed to https://mocked.partner.site/orders/{{orderId}} for stability reasons
+                    // eslint-disable-next-line playwright/no-conditional-expect
+                    await expect(partnerTab).toHaveURL(/https:\/\/mocked\.partner\.site\/orders\//);
+                    await partnerTab.close();
+                });
+            }
         }
 
         await test.step('Verify all transaction values', async () => {

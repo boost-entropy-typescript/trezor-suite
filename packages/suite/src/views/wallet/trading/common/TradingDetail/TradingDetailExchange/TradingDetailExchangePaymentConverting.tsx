@@ -1,38 +1,64 @@
-import styled from 'styled-components';
+import { ExchangeProviderInfo, ExchangeTrade } from 'invity-api';
 
-import { Button, H4, Spinner } from '@trezor/components';
-import { spacings } from '@trezor/theme';
+import { BulletListItemState, Card, Column } from '@trezor/components';
 
 import { Translation } from 'src/components/suite/Translation';
+import { useTranslation } from 'src/hooks/suite';
 
-const Wrapper = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    flex-direction: column;
-`;
+import { TradingDetailProviderInfo } from '../TradingDetailProviderInfo';
+import { TradingDetailStep } from '../TradingDetailStep';
+import { TradingDetailSupportBanner } from '../TradingDetailSupportBanner';
 
-interface PaymentConvertingProps {
-    supportUrl?: string;
-}
+const getState = (trade: ExchangeTrade): BulletListItemState => {
+    switch (trade.status) {
+        case 'SUCCESS':
+            return 'done';
+        case 'CONVERTING':
+            return 'active';
+        default:
+            return 'pending';
+    }
+};
 
-export const TradingDetailExchangePaymentConverting = ({ supportUrl }: PaymentConvertingProps) => (
-    <Wrapper>
-        <Spinner />
-        <H4 data-testid="@trading/transaction/detail/status" margin={{ top: spacings.xl }}>
-            <Translation id="TR_EXCHANGE_DETAIL_CONVERTING_TITLE" />
-        </H4>
-        {supportUrl && (
-            <Button
-                intent="neutral"
-                priority="secondary"
-                href={supportUrl}
-                target="_blank"
-                margin={{ top: spacings.xxxxl }}
-            >
-                <Translation id="TR_EXCHANGE_DETAIL_CONVERTING_SUPPORT" />
-            </Button>
-        )}
-    </Wrapper>
-);
+type TradingDetailExchangePaymentConvertingProps = {
+    trade: ExchangeTrade;
+    provider?: ExchangeProviderInfo;
+};
+
+export const TradingDetailExchangePaymentConverting = ({
+    trade,
+    provider,
+}: TradingDetailExchangePaymentConvertingProps) => {
+    const { translationString } = useTranslation();
+
+    const providerName = provider?.companyName ?? provider?.name ?? '';
+
+    return (
+        <TradingDetailStep
+            state={getState(trade)}
+            title={
+                <Translation
+                    id="TR_TRADING_DETAIL_PROCESSING"
+                    values={{
+                        providerName,
+                        type: translationString('TR_TRADING_SWAP').toLowerCase(),
+                    }}
+                />
+            }
+        >
+            <Card>
+                <Column gap={24}>
+                    {provider && (
+                        <TradingDetailProviderInfo
+                            orderId={trade.orderId}
+                            provider={provider}
+                            trade={trade}
+                            txAddress={trade.receiveTxHash}
+                        />
+                    )}
+                    <TradingDetailSupportBanner provider={provider} orderId={trade.orderId} />
+                </Column>
+            </Card>
+        </TradingDetailStep>
+    );
+};

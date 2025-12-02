@@ -81,7 +81,6 @@ export class TradingPage {
         this.page.getByRole('button', { name: `Make another ${type}` });
     // Confirmation modal
     readonly modal: Locator;
-    readonly termsConfirmButton: Locator;
     readonly confirmOnTrezorButton: Locator;
     readonly confirmationSection: Locator;
     readonly confirmationAccount: Locator;
@@ -183,9 +182,6 @@ export class TradingPage {
         this.selectThisQuoteButton = this.page.getByTestId('@trading/offers/get-this-deal-button');
         // Confirmation modal
         this.modal = this.page.getByTestId('@modal');
-        this.termsConfirmButton = this.page.getByTestId(
-            '@trading/offers/trade-terms-confirm-button',
-        );
         this.confirmOnTrezorButton = this.page.getByTestId(
             '@trading/offer/confirm-on-trezor-button',
         );
@@ -400,8 +396,7 @@ export class TradingPage {
             fiatCurrency: fiatCurrencyCode.toUpperCase(),
             receiveCurrency: cryptoCurrency,
             country,
-            fiatStringAmount: wantCrypto ? '' : amount,
-            ...(wantCrypto && { cryptoStringAmount: amount }),
+            ...(wantCrypto ? { cryptoStringAmount: amount } : { fiatStringAmount: amount }),
         });
         await quotesResponsePromise;
         await this.waitForOffersSync();

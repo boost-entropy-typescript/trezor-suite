@@ -200,6 +200,14 @@ export type SuiteAnalyticsEvent =
           };
       }
     | {
+          type: EventType.SendQrScan;
+          payload: {
+              scheme: string;
+              isAmountPresent: boolean;
+              networkSymbol: string;
+          };
+      }
+    | {
           type: EventType.AccountsStatus;
           payload: Record<string, number>;
       }
@@ -283,7 +291,6 @@ export type SuiteAnalyticsEvent =
               step:
                   | 'exchange-form'
                   | 'offers-form'
-                  | 'exchange-terms-modal'
                   | 'receive-address'
                   | 'create-approval'
                   | 'already-approved'
@@ -311,7 +318,7 @@ export type SuiteAnalyticsEvent =
           type: EventType.TradingBuy;
           payload: {
               action: 'continue' | 'cancel';
-              step: 'buy-form' | 'offers-form' | 'buy-terms-modal';
+              step: 'buy-form' | 'offers-form';
 
               cryptoLabel?: string;
               cryptoNetworkSymbol?: string;
@@ -327,11 +334,7 @@ export type SuiteAnalyticsEvent =
           type: EventType.TradingSell;
           payload: {
               action: 'continue' | 'cancel';
-              step:
-                  | 'sell-form'
-                  | 'offers-form'
-                  | 'sell-terms-modal'
-                  | 'confirm-and-send-transaction';
+              step: 'sell-form' | 'offers-form' | 'confirm-and-send-transaction';
 
               cryptoLabel?: string;
               cryptoNetworkSymbol?: string;

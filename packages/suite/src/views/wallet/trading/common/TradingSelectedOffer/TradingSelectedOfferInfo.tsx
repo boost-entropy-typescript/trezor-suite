@@ -2,8 +2,7 @@ import { type CryptoId } from 'invity-api';
 
 import { TradingTradeType, isBuyTrade, isExchangeTrade } from '@suite-common/trading';
 import { asBaseCurrencyAmount } from '@suite-common/wallet-utils';
-import { Button, Column, InfoItem, Row, Text } from '@trezor/components';
-import { copyToClipboard } from '@trezor/dom-utils';
+import { Column, InfoItem, Row } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils';
 
@@ -13,11 +12,11 @@ import { TradingSelectedOfferInfoProps } from 'src/types/trading/tradingForm';
 import { tradingGetAmountLabels } from 'src/utils/wallet/trading/tradingUtils';
 import { TradingInfoExchangeType } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingInfo/TradingInfoExchangeType';
 import { TradingInfoPaymentMethod } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingInfo/TradingInfoPaymentMethod';
-import { TradingInfoProvider } from 'src/views/wallet/trading/common/TradingSelectedOffer/TradingInfo/TradingInfoProvider';
 import { TradingUtilsKyc } from 'src/views/wallet/trading/common/TradingUtils/TradingUtilsKyc';
 
 import { TradingFiatAmount } from '../TradingFiatAmount';
 import { TradingInfoItem } from './TradingInfo/TradingInfoItem';
+import { TradingInfoProvider } from './TradingInfo/TradingInfoProvider';
 import { TradingInfoRateType } from './TradingInfo/TradingInfoRateType';
 
 function getReceiveAddress(selectedQuote: TradingTradeType) {
@@ -35,15 +34,16 @@ export const TradingSelectedOfferInfo = ({
     quoteAmounts,
     type,
     selectedAccount,
-    transactionId,
     paymentMethod,
     paymentMethodName,
 }: TradingSelectedOfferInfoProps) => {
     const { exchange } = selectedQuote;
 
     const amountInCrypto = quoteAmounts?.amountInCrypto ?? true;
-
     const amountLabels = tradingGetAmountLabels({ type, amountInCrypto });
+    // Check if we're in detail view (completed trade) vs form view (quote)
+    // Completed trades have a txid property (transaction ID) after transaction is sent
+    const isDetailView = 'txid' in selectedQuote && selectedQuote.txid !== undefined;
 
     return (
         <Column gap={spacings.lg} data-testid="@trading/form/info">
@@ -139,7 +139,9 @@ export const TradingSelectedOfferInfo = ({
                     />
                 )}
 
-                <TradingInfoProvider providers={providers} exchange={exchange} />
+                {type === 'sell' && !isDetailView && (
+                    <TradingInfoProvider providers={providers} exchange={exchange} />
+                )}
 
                 {type === 'exchange' && (
                     <TradingInfoExchangeType
@@ -159,20 +161,6 @@ export const TradingSelectedOfferInfo = ({
                         exchange={exchange}
                         providers={providers as TradingExchangeProvidersInfoProps}
                     />
-                )}
-
-                {type === 'exchange' && transactionId && (
-                    <InfoItem label={<Translation id="TR_TRADING_TRANS_ID" />} direction="column">
-                        <Text typographyStyle="hint">{transactionId}</Text>
-                        <Button
-                            size="small"
-                            intent="neutral"
-                            priority="secondary"
-                            onClick={() => copyToClipboard(transactionId)}
-                        >
-                            <Translation id="TR_COPY_TO_CLIPBOARD" />
-                        </Button>
-                    </InfoItem>
                 )}
             </Column>
         </Column>
