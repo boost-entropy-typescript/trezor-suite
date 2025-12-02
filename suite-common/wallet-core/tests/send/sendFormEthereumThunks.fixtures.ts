@@ -52,8 +52,7 @@ export const calculate = [
             output: { type: 'payment' as const, address: 'A', amount: '1' },
             feeLevel: { label: 'normal' as const, feePerUnit: '10', feeLimit: '21000', blocks: -1 },
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,
@@ -78,8 +77,7 @@ export const calculate = [
             ],
             outputsPermutation: [0],
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,
@@ -96,8 +94,7 @@ export const calculate = [
             output: { type: 'payment' as const, address: 'A', amount: '101' },
             feeLevel: { label: 'normal' as const, feePerUnit: '10', feeLimit: '21000', blocks: -1 },
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,
@@ -187,8 +184,7 @@ export const calculate = [
                 blocks: -1,
             },
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,
@@ -213,8 +209,7 @@ export const calculate = [
             ],
             outputsPermutation: [0],
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,
@@ -238,8 +233,7 @@ export const calculate = [
                 blocks: -1,
             },
             token: {
-                type: 'ERC20',
-                standard: 'ERC20',
+                standard: 'ERC20' as const,
                 contract: '0x123',
                 symbol: 'test',
                 decimals: 18,

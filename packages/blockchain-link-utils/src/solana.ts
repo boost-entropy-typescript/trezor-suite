@@ -93,7 +93,7 @@ export const getTokenNameAndSymbol = (mint: string, tokenDetailByMint: TokenDeta
 const isTokenProgramName = (programName: string): programName is TokenProgramName =>
     tokenProgramNames.some(name => name === programName);
 
-export const tokenStandardToTokenProgramName = (standard: string): TokenProgramName => {
+export const tokenStandardToTokenProgramName = (standard: TokenStandard): TokenProgramName => {
     const tokenProgram = Object.entries(tokenProgramsInfo).find(
         ([_, programInfo]) => programInfo.tokenStandard === standard,
     );
@@ -181,9 +181,8 @@ export const transformTokenInfo = (
                             balance: token.balance || '0',
                         });
                     } else {
-                        const { type, standard, contract, balance, decimals, name, symbol } = token;
+                        const { standard, contract, balance, decimals, name, symbol } = token;
                         acc[token.contract] = {
-                            type,
                             standard,
                             contract,
                             balance,
