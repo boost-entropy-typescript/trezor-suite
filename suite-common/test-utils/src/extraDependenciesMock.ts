@@ -6,6 +6,12 @@ import {
     type To,
     createThunk,
 } from '@suite-common/redux-utils';
+import {
+    EncryptableBranded,
+    EncryptedHex,
+    SecureStorage,
+    asEncryptedHex,
+} from '@suite-common/secure-storage';
 import type { SuiteSync, SuiteSyncStorage } from '@suite-common/suite-sync-storage';
 import {
     ReportSecurityCheckProps,
@@ -92,6 +98,17 @@ const suiteSyncMock: SuiteSync = {
             ownerSecret: asSuiteSyncOwnerSecretHex('test-2'),
         }),
     changeRelayUrl: () => Promise.resolve(),
+    subscribeSuiteSyncStorage: () => Promise.resolve(),
+    unsubscribeSuiteSyncStorage: () => Promise.resolve(),
+    turnOffSuiteSync: () => Promise.resolve(),
+};
+
+const secureStorageMock: SecureStorage = {
+    encrypt: <T extends EncryptableBranded>({ value }: { value: T }) =>
+        Promise.resolve(ok(asEncryptedHex(value as T))),
+
+    decrypt: <T extends EncryptableBranded>({ value }: { value: EncryptedHex<T> }) =>
+        Promise.resolve(ok(value as unknown as T)),
 };
 
 export const extraDependenciesMock: ExtraDependencies = {
@@ -101,11 +118,10 @@ export const extraDependenciesMock: ExtraDependencies = {
         initMetadata: mockThunk('initMetadata'),
         addAccountMetadata: mockThunk('addAccountMetadata'),
         forgetBluetoothDevice: mockThunk('forgetBluetoothDevice'),
-        subscribeSuiteSync: mockOriginalReduxThunk('subscribeSuiteSync'),
-        unsubscribeAndDisposeSuiteSyncStorage: mockThunk('unsubscribeAndDisposeSuiteSyncStorage'),
     },
     services: {
         suiteSync: suiteSyncMock,
+        secureStorage: secureStorageMock,
     },
     selectors: {
         selectTokenDefinitionsEnabledNetworks: mockSelector(
