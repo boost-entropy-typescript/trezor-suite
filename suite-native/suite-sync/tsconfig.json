@@ -3,6 +3,9 @@
     "compilerOptions": { "outDir": "libDev" },
     "references": [
         {
+            "path": "../../suite-common/secure-storage"
+        },
+        {
             "path": "../../suite-common/suite-sync"
         },
         {
@@ -11,10 +14,6 @@
         {
             "path": "../../suite-common/suite-sync-storage"
         },
-        {
-            "path": "../../suite-common/wallet-core"
-        },
-        { "path": "../alerts" },
-        { "path": "../intl" }
+        { "path": "../../packages/connect" }
     ]
 }

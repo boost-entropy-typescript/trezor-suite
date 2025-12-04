@@ -1,4 +1,4 @@
-import { evoluWebDeps } from '@evolu/web';
+import { evoluReactNativeDeps } from '@evolu/react-native/expo-sqlite';
 import { Dispatch } from '@reduxjs/toolkit';
 
 import { SecureStorage } from '@suite-common/secure-storage';
@@ -11,16 +11,15 @@ import {
 import { SuiteSync } from '@suite-common/suite-sync-storage';
 import { TrezorConnect } from '@trezor/connect';
 
-type InitSuiteSyncDesktopDeps = {
+type InitSuiteSyncNativeDeps = {
     getState: () => any;
     dispatch: Dispatch;
     secureStorage: SecureStorage;
     trezorConnect: TrezorConnect;
 };
 
-export const createSuiteSyncDesktop = (deps: InitSuiteSyncDesktopDeps): SuiteSync => {
-    // This is the place where we set Evolu as a SuiteSync Storage.
-    const createEvoluInstance = createEvoluInstanceFactory(evoluWebDeps);
+export const initSuiteSyncNative = (deps: InitSuiteSyncNativeDeps): SuiteSync => {
+    const createEvoluInstance = createEvoluInstanceFactory(evoluReactNativeDeps);
     const createEvoluStorage = createEvoluStorageFactory({ createEvoluInstance });
 
     return createSuiteSyncCompositionRoot({
