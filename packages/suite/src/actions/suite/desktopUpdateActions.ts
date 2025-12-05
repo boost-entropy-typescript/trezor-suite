@@ -3,7 +3,7 @@ import { AppUpdateEventStatus, EventType, analytics } from '@trezor/suite-analyt
 import { UpdateInfo, UpdateProgress, desktopApi } from '@trezor/suite-desktop-api';
 
 import { DESKTOP_UPDATE } from 'src/actions/suite/constants';
-import { UpdateModalVisibility, UpdateState } from 'src/reducers/suite/desktopUpdateReducer';
+import { UpdateState } from 'src/reducers/suite/desktopUpdateReducer';
 import { Dispatch, GetState } from 'src/types/suite';
 import { getAppUpdatePayload } from 'src/utils/suite/analytics';
 
@@ -14,12 +14,13 @@ export type DesktopUpdateAction =
     | { type: typeof DESKTOP_UPDATE.DOWNLOAD }
     | { type: typeof DESKTOP_UPDATE.DOWNLOADING; payload: UpdateProgress }
     | { type: typeof DESKTOP_UPDATE.READY; payload: UpdateInfo }
-    | { type: typeof DESKTOP_UPDATE.MODAL_VISIBILITY; payload: UpdateModalVisibility }
+    | { type: typeof DESKTOP_UPDATE.MODAL_VISIBILITY; payload: boolean }
+    | { type: typeof DESKTOP_UPDATE.VERSION_INFO_MODAL_VISIBILITY; payload: boolean }
     | { type: typeof DESKTOP_UPDATE.OPEN_EARLY_ACCESS_ENABLE }
     | { type: typeof DESKTOP_UPDATE.OPEN_EARLY_ACCESS_DISABLE }
     | { type: typeof DESKTOP_UPDATE.ALLOW_PRERELEASE; payload: boolean }
     | { type: typeof DESKTOP_UPDATE.SET_AUTOMATIC_UPDATES; payload: { isEnabled: boolean } }
-    | { type: typeof DESKTOP_UPDATE.OPEN_JUST_UPDATED_CHANGELOG };
+    | { type: typeof DESKTOP_UPDATE.JUST_UPDATED };
 
 export const checking = (): DesktopUpdateAction => ({ type: DESKTOP_UPDATE.CHECKING });
 
@@ -73,8 +74,8 @@ export const downloading = (progress: UpdateProgress): DesktopUpdateAction => ({
     payload: progress,
 });
 
-export const openJustUpdatedChangelog = (): DesktopUpdateAction => ({
-    type: DESKTOP_UPDATE.OPEN_JUST_UPDATED_CHANGELOG,
+export const justUpdated = (): DesktopUpdateAction => ({
+    type: DESKTOP_UPDATE.JUST_UPDATED,
 });
 
 export const ready = (info: UpdateInfo) => (dispatch: Dispatch, getState: GetState) => {
@@ -149,11 +150,14 @@ export const error = () => (dispatch: Dispatch, getState: GetState) => {
     });
 };
 
-export const setUpdateModalVisibility = (
-    modalVisibility: UpdateModalVisibility,
-): DesktopUpdateAction => ({
+export const setIsUpdateModalVisible = (isModalVisible: boolean): DesktopUpdateAction => ({
     type: DESKTOP_UPDATE.MODAL_VISIBILITY,
-    payload: modalVisibility,
+    payload: isModalVisible,
+});
+
+export const setIsVersionInfoModalVisible = (isModalVisible: boolean): DesktopUpdateAction => ({
+    type: DESKTOP_UPDATE.VERSION_INFO_MODAL_VISIBILITY,
+    payload: isModalVisible,
 });
 
 export const openEarlyAccessSetup = (earlyAccessEnabled: boolean): DesktopUpdateAction => ({

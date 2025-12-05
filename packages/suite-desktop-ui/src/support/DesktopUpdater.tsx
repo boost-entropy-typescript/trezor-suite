@@ -1,7 +1,8 @@
-import { JSX, ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { JSX, useCallback, useEffect } from 'react';
 
 import { AppUpdateEventStatus, EventType, analytics } from '@trezor/suite-analytics';
 import { desktopApi } from '@trezor/suite-desktop-api';
+import { isArrayMember } from '@trezor/utils';
 
 import {
     allowPrerelease,
@@ -12,11 +13,11 @@ import {
     notAvailable,
     ready,
     setAutomaticUpdates,
-    setUpdateModalVisibility,
+    setIsUpdateModalVisible,
+    setIsVersionInfoModalVisible,
 } from 'src/actions/suite/desktopUpdateActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { UpdateState, selectDesktopUpdate } from 'src/reducers/suite/desktopUpdateReducer';
-import { ModalContextProvider } from 'src/support/suite/ModalContext';
 import { getAppUpdatePayload } from 'src/utils/suite/analytics';
 
 import { Available } from './DesktopUpdater/Available';
@@ -26,11 +27,18 @@ import { EarlyAccessEnable } from './DesktopUpdater/EarlyAccessEnable';
 import { JustUpdated } from './DesktopUpdater/JustUpdated';
 import { Ready } from './DesktopUpdater/Ready';
 
-interface DesktopUpdaterProps {
-    children: ReactNode;
-}
+// incidentally the same UI is used, but if they diverge in the future, we can change it here
+const VersionInfoModal = JustUpdated;
 
-export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
+const alwaysOpenStates = [
+    // Allow to open Early Access model even after updater error (when desktopUpdate.latest is undefined).
+    UpdateState.EarlyAccessDisable,
+    UpdateState.EarlyAccessEnable,
+    // JustUpdatd is also always open, because closing it advances the state
+    UpdateState.JustUpdated,
+] satisfies UpdateState[];
+
+export const DesktopUpdater = () => {
     const dispatch = useDispatch();
     const desktopUpdate = useSelector(selectDesktopUpdate);
 
@@ -67,7 +75,7 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
     }, [desktopUpdate.enabled, dispatch]);
 
     const hideWindow = useCallback(() => {
-        dispatch(setUpdateModalVisibility('hidden'));
+        dispatch(setIsUpdateModalVisible(false));
 
         const payload = getAppUpdatePayload({
             status: AppUpdateEventStatus.Closed,
@@ -80,26 +88,17 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
         });
     }, [dispatch, desktopUpdate.allowPrerelease, desktopUpdate.latest]);
 
-    const isVisible = useMemo(() => {
-        // Not displayed as a modal
-        if (desktopUpdate.modalVisibility !== 'maximized') {
-            return false;
-        }
+    const hideVersionInfoModal = () => {
+        dispatch(setIsVersionInfoModalVisible(false));
+    };
 
-        // Non visible states
-        if ([UpdateState.Checking, UpdateState.NotAvailable].includes(desktopUpdateState)) {
-            return false;
-        }
+    if (desktopUpdate.isVersionInfoModalVisible) {
+        return <VersionInfoModal onCancel={hideVersionInfoModal} />;
+    }
 
-        const isHackyModalOpen = [
-            UpdateState.EarlyAccessDisable,
-            UpdateState.EarlyAccessEnable,
-            UpdateState.JustUpdated,
-        ].includes(desktopUpdateState);
-
-        // Enable to setup Early Access even after updater error (when desktopUpdate.latest is undefined).
-        return isHackyModalOpen || desktopUpdate.latest !== undefined;
-    }, [desktopUpdate.modalVisibility, desktopUpdateState, desktopUpdate.latest]);
+    const isUpdateInfoAvailable = desktopUpdate.latest !== undefined;
+    const isAlwaysOpenState = isArrayMember(desktopUpdateState, alwaysOpenStates);
+    const isVisible = desktopUpdate.isModalVisible && (isAlwaysOpenState || isUpdateInfoAvailable);
 
     const updateModalMap: Record<UpdateState, JSX.Element | null> = {
         'early-access-disable': <EarlyAccessDisable hideWindow={hideWindow} />,
@@ -112,10 +111,7 @@ export const DesktopUpdater = ({ children }: DesktopUpdaterProps) => {
         ready: <Ready hideWindow={hideWindow} />,
     };
 
-    return (
-        <>
-            {isVisible && updateModalMap[desktopUpdateState]}
-            <ModalContextProvider isDisabled={isVisible}>{children}</ModalContextProvider>
-        </>
-    );
+    if (!isVisible) return null;
+
+    return updateModalMap[desktopUpdateState];
 };

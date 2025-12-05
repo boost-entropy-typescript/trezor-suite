@@ -5,8 +5,8 @@ import { desktopApi } from '@trezor/suite-desktop-api';
 
 import {
     installUpdate,
-    openJustUpdatedChangelog,
-    setUpdateModalVisibility,
+    setIsUpdateModalVisible,
+    setIsVersionInfoModalVisible,
 } from 'src/actions/suite/desktopUpdateActions';
 import { SettingsSectionItem } from 'src/components/settings/SettingsSectionItem';
 import { ActionButton, ActionColumn, TextColumn, TrezorLink } from 'src/components/suite';
@@ -31,7 +31,7 @@ const getUpdateStateMessage = (state: UpdateState) => {
 const Description = ({ desktopUpdateState }: { desktopUpdateState: DesktopUpdateState }) => {
     const appVersion = process.env.VERSION || '';
     const dispatch = useDispatch();
-    const openChangelog = () => dispatch(openJustUpdatedChangelog());
+    const openChangelog = () => dispatch(setIsVersionInfoModalVisible(true));
     const url = useExternalLink(getReleaseUrl(appVersion));
     const commonButtonProps: Partial<ButtonProps> = {
         'data-testid': '@settings/suite-version',
@@ -109,7 +109,7 @@ export const VersionWithUpdate = () => {
     const dispatch = useDispatch();
 
     const checkForUpdates = () => desktopApi.checkForUpdates({ isManual: true });
-    const maximizeUpdateModal = () => dispatch(setUpdateModalVisibility('maximized'));
+    const maximizeUpdateModal = () => dispatch(setIsUpdateModalVisible(true));
     const installAndRestart = () => dispatch(installUpdate({ installNow: true }));
 
     return (
