@@ -13,20 +13,13 @@ export type LoginChallenge = Static<typeof LoginChallenge>;
 export const LoginChallenge = Type.Object({
     challengeHidden: Type.String(),
     challengeVisual: Type.String(),
+    origin: Type.Optional(Type.String()),
     asyncChallenge: Type.Optional(Type.Undefined()),
     callback: Type.Optional(Type.Undefined()),
 });
 
-export type RequestLoginAsync = Static<typeof RequestLoginAsync>;
-export const RequestLoginAsync = Type.Object({
-    challengeHidden: Type.Optional(Type.Undefined()),
-    challengeVisual: Type.Optional(Type.Undefined()),
-    asyncChallenge: Type.Optional(Type.Boolean()),
-    callback: Type.Function([], LoginChallenge),
-});
-
 export type RequestLoginSchema = Static<typeof RequestLoginSchema>;
-export const RequestLoginSchema = Type.Union([RequestLoginAsync, LoginChallenge]);
+export const RequestLoginSchema = Type.Union([LoginChallenge]);
 
 export interface Login {
     address: string;
