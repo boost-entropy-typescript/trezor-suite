@@ -1,58 +1,15 @@
-import { Dispatch } from '@reduxjs/toolkit';
-
-import { CreateSuiteSyncOwnerError } from '@suite-common/suite-sync-storage';
-import { TrezorDevice } from '@suite-common/suite-types';
 import {
-    DeviceCancelledErr,
-    DeviceError,
-    EnsureDelegatedIdentityKeyDep,
-    ProofOfDelegatedSignFailed,
-    deviceActions,
-    selectDevices,
-} from '@suite-common/wallet-core';
+    RefreshSuiteKeysUnavailable,
+    RefreshSuiteSyncKeys,
+    RefreshSuiteSyncKeysDeps,
+} from '@suite-common/suite-sync-types';
+import { deviceActions } from '@suite-common/wallet-core';
 import { isTrezorDeviceWithState } from '@suite-common/wallet-utils';
-import { Result, err, ok } from '@trezor/type-utils';
-
-import { EnsureSuiteSyncOwnerDep } from './device/ensureSuiteSyncOwnerKeys';
-
-export type RefreshSuiteSyncKeysDeps = {
-    getState: () => any;
-    dispatch: Dispatch;
-} & EnsureSuiteSyncOwnerDep &
-    EnsureDelegatedIdentityKeyDep;
-
-type RefreshSuiteSyncKeysParams = {
-    device: TrezorDevice;
-};
-
-export type DeviceDoesNotSupportSuiteSyncErr = {
-    type: 'DeviceDoesNotSupportSuiteSyncErr';
-};
-
-export const DeviceDoesNotSupportSuiteSyncErr = (): DeviceDoesNotSupportSuiteSyncErr => ({
-    type: 'DeviceDoesNotSupportSuiteSyncErr',
-});
-
-export type RefreshSuiteSyncKeys = (
-    params: RefreshSuiteSyncKeysParams,
-) => Promise<
-    Result<
-        void,
-        | DeviceError
-        | DeviceCancelledErr
-        | DeviceDoesNotSupportSuiteSyncErr
-        | ProofOfDelegatedSignFailed
-        | CreateSuiteSyncOwnerError
-    >
->;
+import { err, ok } from '@trezor/type-utils';
 
 export const createRefreshSuiteSyncKeys =
     (deps: RefreshSuiteSyncKeysDeps): RefreshSuiteSyncKeys =>
-    async ({ device: originalDevice }) => {
-        const device = selectDevices(deps.getState())?.find(
-            it => it.state?.staticSessionId === originalDevice.state?.staticSessionId,
-        );
-
+    async ({ device }) => {
         if (device?.suiteSyncOwner !== undefined) {
             return ok();
         }
@@ -63,7 +20,7 @@ export const createRefreshSuiteSyncKeys =
             device.mode !== 'normal' || // bootloader,
             !isTrezorDeviceWithState(device)
         ) {
-            return err(DeviceDoesNotSupportSuiteSyncErr());
+            return err(RefreshSuiteKeysUnavailable());
         }
 
         const delegatedKeyResult = await deps.ensureDelegatedIdentityKey({ device });

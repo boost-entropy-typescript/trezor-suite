@@ -1,33 +1,33 @@
 import { evoluReactNativeDeps } from '@evolu/react-native/expo-sqlite';
 import { Dispatch } from '@reduxjs/toolkit';
 
-import { SecureStorage } from '@suite-common/secure-storage';
+import { SecureStorageDep } from '@suite-common/secure-storage';
 import { createSuiteSyncCompositionRoot } from '@suite-common/suite-sync';
 import {
     createEvoluInstanceFactory,
     createEvoluStorageFactory,
     evoluCreateSuiteSyncOwner,
 } from '@suite-common/suite-sync-evolu';
-import { SuiteSync } from '@suite-common/suite-sync-storage';
+import { SuiteSync } from '@suite-common/suite-sync-types';
+import { EnsureDelegatedIdentityKeyDep } from '@suite-common/wallet-core';
 import { TrezorConnect } from '@trezor/connect';
 
-type InitSuiteSyncNativeDeps = {
+type SuiteSyncNativeCompositionRootDeps = {
     getState: () => any;
     dispatch: Dispatch;
-    secureStorage: SecureStorage;
     trezorConnect: TrezorConnect;
-};
+} & SecureStorageDep &
+    EnsureDelegatedIdentityKeyDep;
 
-export const initSuiteSyncNative = (deps: InitSuiteSyncNativeDeps): SuiteSync => {
+export const createSuiteSyncNativeCompositionRoot = (
+    deps: SuiteSyncNativeCompositionRootDeps,
+): SuiteSync => {
     const createEvoluInstance = createEvoluInstanceFactory(evoluReactNativeDeps);
     const createEvoluStorage = createEvoluStorageFactory({ createEvoluInstance });
 
     return createSuiteSyncCompositionRoot({
-        getState: deps.getState,
-        dispatch: deps.dispatch,
+        ...deps,
         createSuiteStorage: createEvoluStorage,
         createSuiteSyncOwner: evoluCreateSuiteSyncOwner,
-        secureStorage: deps.secureStorage,
-        trezorConnect: deps.trezorConnect,
     });
 };

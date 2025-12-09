@@ -1,29 +1,16 @@
-import { Dispatch } from '@reduxjs/toolkit';
-
-import { SubscribeSuiteSyncStorage } from '@suite-common/suite-sync-storage';
+import {
+    TurnOnSuiteSyncForWallet,
+    TurnOnSuiteSyncForWalletDeps,
+} from '@suite-common/suite-sync-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { selectDevices } from '@suite-common/wallet-core';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { exhaustive } from '@trezor/type-utils';
 
-import { SubscribeLabeling } from '../labeling/createSubscribeLabeling';
-import { RefreshSuiteSyncKeys } from '../refreshSuiteSyncKeys';
 import { isSuiteSyncSupportedByDevice } from '../suiteSyncUtils';
 
-type CreateSubscribeSuiteSyncDeps = {
-    dispatch: Dispatch;
-    getState: () => any;
-    subscribeLabeling: SubscribeLabeling;
-    refreshSuiteSyncKeys: RefreshSuiteSyncKeys;
-};
-
-/**
- * Intentionally no `createThunk`, it is unnecessarily complicated, all we need is `Result` type.
- *
- * This is part of the experiment here: https://github.com/trezor/trezor-suite/issues/23202
- */
-export const createSubscribeSuiteSyncStorage =
-    (deps: CreateSubscribeSuiteSyncDeps): SubscribeSuiteSyncStorage =>
+export const createTurnOnSuiteSyncForWallet =
+    (deps: TurnOnSuiteSyncForWalletDeps): TurnOnSuiteSyncForWallet =>
     async ({ device }) => {
         if (!isSuiteSyncSupportedByDevice(device)) {
             return;
@@ -40,8 +27,9 @@ export const createSubscribeSuiteSyncStorage =
                 const errType = result.error.type;
 
                 switch (errType) {
-                    case 'DeviceDoesNotSupportSuiteSyncErr':
+                    case 'RefreshSuiteKeysUnavailable':
                         // This may happen for multiple reasons (disconnected device, ...)
+                        // and its ok. We just do nothing.
                         return;
 
                     case 'DeviceError':

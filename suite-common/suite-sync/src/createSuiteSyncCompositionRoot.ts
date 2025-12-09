@@ -1,39 +1,38 @@
 import { Dispatch } from '@reduxjs/toolkit';
 
 import { SecureStorageDep } from '@suite-common/secure-storage';
+import { CreateSuiteStorageDep, CreateSuiteSyncOwnerDep } from '@suite-common/suite-sync-storage';
+import { EnsureSuiteSyncOwnerDeps, SuiteSync } from '@suite-common/suite-sync-types';
 import {
-    CreateSuiteStorageDep,
-    CreateSuiteSyncOwnerDep,
-    SuiteSync,
-    createSuiteSyncStorageRepositoryFactory,
-} from '@suite-common/suite-sync-storage';
-import {
-    createEnsureDelegatedIdentityKey,
-    createLoadDelegatedIdentityKeyFromState,
-    createSaveDelegatedIdentityKey,
+    EnsureDelegatedIdentityKeyDep,
     selectAllDeviceOwners,
-    selectDeviceDelegatedIdentityKey,
+    selectSuiteSyncOwnerForDeviceStaticId,
 } from '@suite-common/wallet-core';
+import { StaticSessionId } from '@trezor/connect';
 
-import {
-    EnsureSuiteSyncOwnerDeps,
-    createEnsureSuiteSyncOwnerKeys,
-} from './device/ensureSuiteSyncOwnerKeys';
-import { createSubscribeLabeling } from './labeling/createSubscribeLabeling';
+import { createSuiteSyncStorageRepositoryFactory } from './SuiteSyncStorageRepository';
+import { createEnsureSuiteSyncOwnerKeys } from './device/ensureSuiteSyncOwnerKeys';
+import { createSubscribeLabeling } from './labeling/subscribeLabeling';
+import { createUpdateAccountLabel } from './labeling/updateAccountLabel';
+import { createUpdateAddressLabel } from './labeling/updateAddressLabel';
+import { createUpdateOutputLabel } from './labeling/updateOutputLabel';
+import { createUpdateWalletLabel } from './labeling/updateWalletLabel';
 import { createRefreshSuiteSyncKeys } from './refreshSuiteSyncKeys';
 import { createChangeRelayUrl } from './relay/changeRelayUrl';
 import { DEFAULT_SUITE_SYNC_RELAY_URL } from './relay/relayUrl';
-import { createSubscribeSuiteSyncStorage } from './storage/subscribeSuiteSyncStorage';
 import { createSubscriptionStorage } from './storage/subscriptionStorage';
-import { createUnsubscribeSuiteSyncStorage } from './storage/unsubscribeSuiteSync';
+import { createTurnOffSuiteSyncForWallet } from './storage/turnOffSuiteSyncForWallet';
+import { createTurnOnSuiteSyncForWallet } from './storage/turnOnSuiteSyncForWallet';
 import { selectSuiteSyncRelayUrl } from './suiteSyncSelectors';
 import { createTurnOffSuiteSync } from './turnOffSuiteSync';
+import { createTurnOnSuiteSync } from './turnOnSuteSync';
 
 type CreateSuiteSyncCompositionRootDeps = {
     getState: () => any;
     dispatch: Dispatch;
     trezorConnect: EnsureSuiteSyncOwnerDeps['trezorConnect'];
-} & CreateSuiteStorageDep &
+} & EnsureDelegatedIdentityKeyDep &
+    CreateSuiteStorageDep &
     CreateSuiteSyncOwnerDep &
     SecureStorageDep;
 
@@ -59,54 +58,66 @@ export const createSuiteSyncCompositionRoot = (
         trezorConnect: deps.trezorConnect,
     });
 
-    // Todo: this shall be extracted upstream in the composition root
-    const ensureDelegatedIdentityKey = createEnsureDelegatedIdentityKey({
-        loadDelegatedIdentityKeyFromState: createLoadDelegatedIdentityKeyFromState({
-            dispatch: deps.dispatch,
-            secureStorage: deps.secureStorage,
-            getDeviceDelegatedIdentityKey: deviceId =>
-                selectDeviceDelegatedIdentityKey(deps.getState(), deviceId),
-        }),
-        saveDelegatedIdentityKey: createSaveDelegatedIdentityKey({
-            dispatch: deps.dispatch,
-            secureStorage: deps.secureStorage,
-        }),
-        getState: deps.getState,
-    });
-    // Todo: ------------------------------------------------------------
-
     const refreshSuiteSyncKeys = createRefreshSuiteSyncKeys({
         dispatch: deps.dispatch,
-        getState: deps.getState,
-        ensureDelegatedIdentityKey,
+        ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         ensureSuiteSyncOwnerKeys,
     });
 
-    const subscribeSuiteSyncStorage = createSubscribeSuiteSyncStorage({
+    const turnOnSuiteSyncForWallet = createTurnOnSuiteSyncForWallet({
         dispatch: deps.dispatch,
         getState: deps.getState,
         subscribeLabeling,
         refreshSuiteSyncKeys,
     });
 
-    const unsubscribeSuiteSyncStorage = createUnsubscribeSuiteSyncStorage({
+    const turnOffSuiteSyncForWallet = createTurnOffSuiteSyncForWallet({
         suiteSyncStorageRepository,
         subscriptionStorage,
     });
 
+    const findSuiteSyncOwnerForDeviceStaticId = (deviceStaticId: StaticSessionId) =>
+        selectSuiteSyncOwnerForDeviceStaticId(deps.getState(), deviceStaticId);
+
+    const getAllDevicesOwners = () => selectAllDeviceOwners(deps.getState());
+
     return {
         changeRelayUrl: createChangeRelayUrl({
             suiteSyncStorageRepository,
-            getAllDevicesOwners: () => selectAllDeviceOwners(deps.getState()),
+            getAllDevicesOwners,
             dispatch: deps.dispatch,
         }),
         suiteSyncStorageRepository,
         createSuiteSyncOwner: deps.createSuiteSyncOwner,
-        subscribeSuiteSyncStorage,
-        unsubscribeSuiteSyncStorage,
+        turnOnSuiteSyncForWallet,
+        turnOffSuiteSyncForWallet,
         turnOffSuiteSync: createTurnOffSuiteSync({
+            getAllDevicesOwners,
+            dispatch: deps.dispatch,
             getState: deps.getState,
-            unsubscribeSuiteSyncStorage,
+            turnOffSuiteSyncForWallet,
         }),
+        turnOnSuiteSync: createTurnOnSuiteSync({
+            getState: deps.getState,
+            dispatch: deps.dispatch,
+        }),
+        labeling: {
+            updateWalletLabel: createUpdateWalletLabel({
+                findSuiteSyncOwnerForDeviceStaticId,
+                suiteSyncStorageRepository,
+            }),
+            updateAccountLabel: createUpdateAccountLabel({
+                findSuiteSyncOwnerForDeviceStaticId,
+                suiteSyncStorageRepository,
+            }),
+            updateOutputLabel: createUpdateOutputLabel({
+                findSuiteSyncOwnerForDeviceStaticId,
+                suiteSyncStorageRepository,
+            }),
+            updateAddressLabel: createUpdateAddressLabel({
+                findSuiteSyncOwnerForDeviceStaticId,
+                suiteSyncStorageRepository,
+            }),
+        },
     };
 };

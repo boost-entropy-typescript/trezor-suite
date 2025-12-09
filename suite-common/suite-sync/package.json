@@ -13,9 +13,9 @@
     "dependencies": {
         "@reduxjs/toolkit": "2.10.1",
         "@suite-common/metadata-types": "workspace:*",
-        "@suite-common/redux-utils": "workspace:*",
         "@suite-common/secure-storage": "workspace:*",
         "@suite-common/suite-sync-storage": "workspace:*",
+        "@suite-common/suite-sync-types": "workspace:*",
         "@suite-common/suite-types": "workspace:*",
         "@suite-common/suite-utils": "workspace:*",
         "@suite-common/test-utils": "workspace:*",
@@ -26,7 +26,6 @@
         "@suite-common/wallet-utils": "workspace:*",
         "@trezor/connect": "workspace:*",
         "@trezor/type-utils": "workspace:*",
-        "@trezor/utils": "workspace:*",
-        "react-redux": "9.2.0"
+        "@trezor/utils": "workspace:*"
     }
 }

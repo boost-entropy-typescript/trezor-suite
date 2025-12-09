@@ -37,13 +37,13 @@ import walletReducers from 'src/reducers/wallet';
 // toastMiddleware can be used only in suite-desktop and suite-web
 // it's not included into `@suite-middlewares` index
 import { geolocationReducer } from '@suite-common/geolocation';
-import { prepareLabelingReducer } from '@suite-common/suite-sync';
+import { labelingReducer } from '@suite-common/suite-sync';
 import { OPEN_USER_CONTEXT } from 'src/actions/suite/constants/modalConstants';
 import toastMiddleware from 'src/middlewares/suite/toastMiddleware';
 import { globalSendReceiveFilters } from 'src/slices/wallet/globalSendReceiveFilters';
 import type { PreloadStoreAction } from 'src/support/suite/preloadStore';
 import { bluetoothSlice } from '../actions/bluetooth/desktopBluetoothReducer';
-import { extraDependencies, suiteExtraFactory } from '../support/extraDependencies';
+import { createSuiteCompositionRoot, extraDependencies } from '../support/extraDependencies';
 import { prepareBioAuthReducer } from './bioAuth';
 import { desktopReducer } from './desktop';
 
@@ -51,7 +51,6 @@ const firmwareReducer = prepareFirmwareReducer(extraDependencies);
 const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);
 const bluetoothReducer = bluetoothSlice.prepareReducer(extraDependencies);
 const thpReducer = prepareThpReducer(extraDependencies);
-const labelingReducer = prepareLabelingReducer(extraDependencies);
 const suiteSyncReducer = suiteSyncSlice.prepareReducer(extraDependencies);
 
 const rootReducer = combineReducers({
@@ -164,7 +163,7 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
                         extraFactory: api => ({
                             ...extraDependencies,
                             ...(options.additionalExtraDeps || {}),
-                            ...suiteExtraFactory(api),
+                            ...createSuiteCompositionRoot(api),
                         }),
                         onExtraCreated: initializedExtra => {
                             extra = initializedExtra;
