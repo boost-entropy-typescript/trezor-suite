@@ -1,7 +1,7 @@
 {
     "version": 1,
-    "timestamp": "2025-12-09T00:00:00+00:00",
-    "sequence": 124,
+    "timestamp": "2025-12-11T00:00:00+00:00",
+    "sequence": 126,
     "actions": [
         {
             "conditions": [
@@ -1605,7 +1605,7 @@
         },
         {
             "message": {
-                "id": "1e8ddfec-df56-43a1-ac69-dddd5d0c7c5b",
+                "id": "eb223dc5-b64d-4d29-b51e-b7bab6048c38",
                 "priority": 91,
                 "dismissible": true,
                 "variant": "info",
@@ -1637,7 +1637,7 @@
                     },
                     "environment": {
                         "desktop": "*",
-                        "mobile": "*",
+                        "mobile": "!",
                         "web": "*"
                     }
                 }
