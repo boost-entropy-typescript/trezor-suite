@@ -1807,6 +1807,8 @@ export const messages = {
             exploreButton: 'Explore in blockchain',
             feeLabel: 'Fee',
             dateLabel: 'Date',
+            transactionOverviewTitle: 'Transaction overview',
+            showDetails: 'Show details',
             showMoreButton: 'and {amount} more',
             sheet: {
                 parameters: 'Parameters',
@@ -1875,6 +1877,17 @@ export const messages = {
                 copied: 'Address copied to clipboard',
             },
             unknownTarget: 'Target or Origin of transaction is unknown.',
+        },
+        transactionOverviewScreen: {
+            title: 'Received transaction',
+            fromCard: {
+                title: 'From',
+            },
+            toCard: {
+                title: 'To',
+                meTitle: 'Me',
+                otherRecipients: 'Other recipients',
+            },
         },
     },
     device: {

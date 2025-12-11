@@ -53,7 +53,8 @@ export const prepareDeviceMiddleware = createMiddlewareWithExtraDeps(
 
         if (deviceActions.forgetDevice.match(action)) {
             const { device } = action.payload;
-            dispatch(handleDeviceDisconnect(action.payload.device));
+
+            dispatch(handleDeviceDisconnect(device));
 
             if (isTrezorDeviceWithState(device)) {
                 const accountsToRemove = selectAccountsByDeviceState(getState(), device.state);

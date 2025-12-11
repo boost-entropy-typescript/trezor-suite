@@ -20,7 +20,7 @@
         "build:e2e": "npx detox build --configuration",
         "test:e2e": "node ./scripts/cleanArtifacts.js && npx detox test --configuration ",
         "start:e2e": "NODE_ENV=test RN_SRC_EXT=e2e.ts,e2e.tsx expo start --dev-client",
-        "reverse-ports": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:21325 tcp:21325 && adb reverse tcp:19121 tcp:19121",
+        "reverse-ports": "adb reverse tcp:8081 tcp:8081 && adb reverse tcp:21328 tcp:21328 && adb reverse tcp:19121 tcp:19121",
         "github:report:manual": "npx jest --config=./e2e/jest.config.reporter.js"
     },
     "dependencies": {
@@ -79,6 +79,7 @@
         "@suite-native/module-settings": "workspace:*",
         "@suite-native/module-staking-management": "workspace:*",
         "@suite-native/module-trading": "workspace:*",
+        "@suite-native/module-transactions": "workspace:*",
         "@suite-native/navigation": "workspace:*",
         "@suite-native/receive": "workspace:*",
         "@suite-native/sentry": "workspace:*",
@@ -89,7 +90,6 @@
         "@suite-native/toasts": "workspace:*",
         "@suite-native/trading-residence": "workspace:*",
         "@suite-native/trading-state": "workspace:*",
-        "@suite-native/transactions": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/bundler-security": "workspace:*",
         "@trezor/connect": "workspace:*",

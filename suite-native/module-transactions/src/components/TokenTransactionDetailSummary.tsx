@@ -1,0 +1,44 @@
+import { VStack } from '@suite-native/atoms';
+import { TypedTokenTransfer, WalletAccountTransaction } from '@suite-native/tokens';
+import { VinVoutAddress } from '@suite-native/transactions';
+
+import { VerticalSeparator } from './NetworkTransactionDetailSummary';
+import { TransactionDetailAddressesSection } from './TransactionDetailAddressesSection';
+
+type TokenTransactionDetailSummaryProps = {
+    transaction: WalletAccountTransaction;
+    tokenTransfer: TypedTokenTransfer;
+    onShowMore: () => void;
+};
+
+export const TokenTransactionDetailSummary = ({
+    transaction,
+    tokenTransfer,
+    onShowMore,
+}: TokenTransactionDetailSummaryProps) => {
+    // Token transfer has always only one address, so we need to wrap it to an array.
+    const inputAddresses: VinVoutAddress[] = [
+        { address: tokenTransfer.from, isChangeAddress: false, outputIndex: 0 },
+    ];
+    const outputAddresses: VinVoutAddress[] = [
+        { address: tokenTransfer.to, isChangeAddress: false, outputIndex: 0 },
+    ];
+
+    return (
+        <VStack>
+            <TransactionDetailAddressesSection
+                transaction={transaction}
+                addressesType="inputs"
+                addresses={inputAddresses}
+                onShowMore={onShowMore}
+            />
+            <TransactionDetailAddressesSection
+                transaction={transaction}
+                addressesType="outputs"
+                addresses={outputAddresses}
+                onShowMore={onShowMore}
+            />
+            <VerticalSeparator inputsCount={inputAddresses.length} />
+        </VStack>
+    );
+};

@@ -8,7 +8,7 @@ export enum RootStackRoutes {
     StakingDetail = 'StakingDetail',
     DevUtilsStack = 'DevUtilsStack',
     AccountSettings = 'AccountSettings',
-    TransactionDetail = 'TransactionDetail',
+    TransactionDetailStack = 'TransactionDetailStack',
     ReceiveStack = 'ReceiveStack',
     SendStack = 'SendStack',
     DeviceSettingsStack = 'DeviceSettingsStack',
@@ -236,4 +236,9 @@ export enum TradingStackRoutes {
     TradingFees = 'TradingFees',
     TradingSellOutputsReview = 'TradingSellOutputsReview',
     TradingExchangeOutputsReview = 'TradingExchangeOutputsReview',
+}
+
+export enum TransactionDetailStackRoutes {
+    TransactionDetail = 'TransactionDetail',
+    TransactionDetailOverview = 'TransactionDetailOverview',
 }

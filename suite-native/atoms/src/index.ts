@@ -49,7 +49,6 @@ export * from './ErrorMessage';
 export * from './Table';
 export * from './Loader';
 export * from './LottieAnimation';
-export * from './Toggle';
 export * from './Pictogram/Pictogram';
 export * from './TitleHeader/PictogramTitleHeader';
 export * from './TitleHeader/TitleHeader';
@@ -75,6 +74,7 @@ export * from './Sheet/BottomSheetModal';
 export * from './Sheet/hooks/useBottomSheetModal';
 export * from './AnimatedDoubleView/AnimatedDoubleView';
 export * from './AnimatedDoubleView/AnimatedDoubleInput';
+export * from './PressableOpacity';
 
 export { useDebugView } from './DebugView';
 export { TouchableSwitchRow, TouchableSwitchRowDescription } from './TouchableSwitchRow';
