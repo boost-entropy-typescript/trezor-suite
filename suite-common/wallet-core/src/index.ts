@@ -9,8 +9,6 @@ export * from './blockchain/blockchainMiddleware';
 export * from './blockchain/blockchainReducer';
 export * from './blockchain/blockchainSelectors';
 export * from './blockchain/blockchainThunks';
-export { delegatedIdentityKeyCompositionRoot } from './device/delegatedIdentityKey/delegatedIdentityKeyCompositionRoot';
-export type { EnsureDelegatedIdentityKeyDep } from './device/delegatedIdentityKey/ensureDelegatedIdentityKey';
 export * from './device/deviceActions';
 export * from './device/deviceConstants';
 export * from './device/deviceReducer';

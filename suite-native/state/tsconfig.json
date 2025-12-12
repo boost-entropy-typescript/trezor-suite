@@ -8,6 +8,9 @@
         {
             "path": "../../suite-common/connect-popup"
         },
+        {
+            "path": "../../suite-common/delegated-identity-key"
+        },
         { "path": "../../suite-common/firmware" },
         {
             "path": "../../suite-common/geolocation"
@@ -17,9 +20,11 @@
             "path": "../../suite-common/message-system"
         },
         {
+            "path": "../platform-encryption-native"
+        },
+        {
             "path": "../../suite-common/redux-utils"
         },
-        { "path": "../secure-storage-native" },
         {
             "path": "../../suite-common/suite-sync"
         },
