@@ -83,9 +83,9 @@ export const DeviceItem = ({ device, instances, onCancel }: DeviceItemProps) => 
             device={device}
             actions={null} // Do not show close button
         >
-            <Column gap={spacings.sm}>
+            <Column gap={8}>
                 {instancesWithState.length > 0 && (
-                    <Column gap={spacings.xs}>
+                    <Column gap={8}>
                         {instancesWithState.map((instance, index) => (
                             <Tooltip
                                 content={
@@ -139,7 +139,7 @@ export const DeviceItem = ({ device, instances, onCancel }: DeviceItemProps) => 
                                 }
                                 key={`${instance.id}-${instance.instance}-${instance.state}`}
                                 isOpen={showTooltip && index === 0}
-                                isFullWidth
+                                width="100%"
                                 placement="right-start"
                                 hasArrow
                                 offset={30}

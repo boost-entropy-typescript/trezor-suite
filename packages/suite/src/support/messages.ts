@@ -4845,6 +4845,18 @@ export default defineMessages({
         id: 'TR_WALLET',
         defaultMessage: 'Accounts',
     },
+    TR_LABELING_WALLET_LABEL: {
+        id: 'TR_LABELING_WALLET_LABEL',
+        defaultMessage: 'Wallet label',
+    },
+    TR_LABELING_ACCOUNT_LABEL: {
+        id: 'TR_LABELING_ACCOUNT_LABEL',
+        defaultMessage: 'Account label',
+    },
+    TR_LABELING_ADDRESS_LABEL: {
+        id: 'TR_LABELING_ADDRESS_LABEL',
+        defaultMessage: 'Address label',
+    },
     TR_NOTIFICATIONS: {
         id: 'TR_NOTIFICATIONS',
         defaultMessage: 'Activity',
@@ -6497,6 +6509,10 @@ export default defineMessages({
     TR_LABELING_SECURE_SYNC: {
         id: 'TR_LABELING_SECURE_SYNC',
         defaultMessage: 'Suite Sync (recommended)',
+    },
+    TR_LABELING_ERROR: {
+        id: 'TR_LABELING_ERROR',
+        defaultMessage: 'There was an error saving the label. Please try again.',
     },
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',

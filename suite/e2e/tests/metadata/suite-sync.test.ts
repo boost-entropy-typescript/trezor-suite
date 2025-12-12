@@ -27,12 +27,14 @@ test.describe('Suite Sync - Labelling', { tag: ['@webOnly', '@specificFirmware']
         const newLabel = 'my synced btc account label';
         await test.step('Change BTC account label in first session', async () => {
             await walletPage.accountLabel({ symbol: 'btc', type: 'normal', atIndex: 0 }).click();
-            await metadataPage.account.clickAddLabelButton(AccountLabelId.BitcoinDefault1);
+            await metadataPage.account.clickEditLabelButton(AccountLabelId.BitcoinDefault1);
             await metadataPage.account.metadataInput.fill(newLabel);
             await page.keyboard.press('Enter');
             await expect(
                 walletPage.accountLabel({ symbol: 'btc', type: 'normal', atIndex: 0 }),
             ).toHaveText(newLabel);
+
+            await page.waitForTimeout(5_000); // wait for sync to complete
         });
 
         await test.step('Wipe Suite to simulate new session', async () => {
