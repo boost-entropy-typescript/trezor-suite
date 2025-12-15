@@ -1,14 +1,14 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { getPackagesAndDependenciesRequireUpdate, gettingNpmDistributionTags } from './helpers';
 
 const readFile = promisify(fs.readFile);
 const existsDirectory = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
 
-const { checkPackageDependencies, exec, commit, comment } = require('./helpers');
+import { checkPackageDependencies, exec, commit, comment } from './helpers';
 
 const args = process.argv.slice(2);
 
@@ -35,7 +35,7 @@ const deploymentType = ['prepatch', 'preminor', 'prerelease'].includes(semver)
     ? 'canary'
     : 'stable';
 
-const ROOT = path.join(__dirname, '..', '..');
+const ROOT = path.join(import.meta.dirname, '..', '..');
 
 const getGitCommitByPackageName = (packageName: string, maxCount = 10) =>
     exec('git', [
@@ -232,7 +232,7 @@ const bumpConnect = async () => {
         const branchName = `bump-versions/connect-${version}`;
 
         // Check if branch exists and if so, delete it.
-        const branchExists = await exec('git', ['branch', '--list', branchName]).stdout;
+        const branchExists = (await exec('git', ['branch', '--list', branchName])).stdout;
         if (branchExists) {
             throw new Error(
                 `Branch ${branchName} already exists, delete it and call script again.`,

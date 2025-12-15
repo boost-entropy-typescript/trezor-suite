@@ -1,15 +1,15 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import semver from 'semver';
 import fetch from 'cross-fetch';
-import { promisify } from 'util';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { promisify } from 'node:util';
+import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 
 import { getLocalAndRemoteChecksums } from './check-npm-and-local';
 
 const readFile = promisify(fs.readFile);
 
-const ROOT = path.join(__dirname, '..', '..');
+const ROOT = path.join(import.meta.dirname, '..', '..');
 
 const updateNeeded: string[] = [];
 const errors: string[] = [];

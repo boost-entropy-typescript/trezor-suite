@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 
-const path = require('path');
-const fs = require('fs');
+import path from 'node:path';
+import fs from 'node:fs';
 
-const ROOT = path.join(__dirname, '..', '..');
+const ROOT = path.join(import.meta.dirname, '..', '..');
 
 const PACKAGE_PATH = path.join(ROOT, 'packages', 'connect');
 const PACKAGE_JSON_PATH = path.join(PACKAGE_PATH, 'package.json');

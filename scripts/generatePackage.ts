@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import fs from 'fs';
 import fsExtra from 'fs-extra';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import prettier from 'prettier';
 import sortPackageJson from 'sort-package-json';
 
@@ -42,7 +42,7 @@ const isValidScope = (scope: string): scope is keyof typeof scopes =>
     Object.keys(scopes).includes(scope);
 
 // Get the directory of the current file
-const currentDir = path.dirname(__filename);
+const currentDir = import.meta.dirname;
 const rootDir = path.resolve(currentDir, '..');
 
 (async () => {
