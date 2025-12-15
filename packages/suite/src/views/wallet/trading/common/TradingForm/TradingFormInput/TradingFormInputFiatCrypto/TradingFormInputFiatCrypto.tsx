@@ -1,42 +1,40 @@
-import {
-    type TradingBuyFormProps,
-    type TradingExchangeFormProps,
-    type TradingSellFormProps,
-    useTradingInfo,
-} from '@suite-common/trading';
+import { memo } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+
+import { TRADING_FORM_AMOUNT_IN_CRYPTO, useTradingUtils } from '@suite-common/trading';
 import { getDisplaySymbol } from '@suite-common/wallet-config';
 
 import { Translation } from 'src/components/suite/Translation';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
-import { TradingFormInputFiatCryptoWrapProps } from 'src/types/trading/tradingForm';
+import {
+    TradingAllFormProps,
+    TradingFormInputFiatCryptoProps,
+    TradingFormInputFiatCryptoWrapProps,
+} from 'src/types/trading/tradingForm';
 import { tradingGetAmountLabels } from 'src/utils/wallet/trading/tradingUtils';
 import { TradingFormInputCryptoAmount } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputCryptoAmount';
 import { TradingFormInputFiat } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputFiat';
 import { TradingFormSwitcherCryptoFiat } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormSwitcherCryptoFiat';
 
-export const TradingFormInputFiatCrypto = <
-    TFieldValues extends TradingSellFormProps | TradingBuyFormProps | TradingExchangeFormProps,
->({
+export const TradingFormInputFiatCrypto = memo(function TradingFormInputFiatCryptoInner({
     showLabel = true,
-    ...formProps
-}: TradingFormInputFiatCryptoWrapProps<TFieldValues>) => {
+    cryptoCurrencyLabel,
+    cryptoInputName,
+    currencySelectLabel,
+    cryptoSelectName,
+    fiatInputName,
+}: TradingFormInputFiatCryptoWrapProps) {
     const {
         type,
         form: {
             state: { toggleAmountInCrypto },
         },
+        ...context
     } = useTradingFormContext();
-    const { cryptoIdToSymbolAndContractAddress } = useTradingInfo();
+    const { cryptoIdToSymbolAndContractAddress } = useTradingUtils();
+    const getValues = context.getValues as UseFormReturn<TradingAllFormProps>['getValues'];
 
-    const {
-        cryptoCurrencyLabel,
-        cryptoInputName,
-        currencySelectLabel,
-        cryptoSelectName,
-        methods,
-        fiatInputName,
-    } = formProps;
-    const { amountInCrypto } = methods.getValues();
+    const amountInCrypto = getValues(TRADING_FORM_AMOUNT_IN_CRYPTO);
     const amountLabels = tradingGetAmountLabels({ type, amountInCrypto });
     const { coinSymbol, contractAddress } = cryptoIdToSymbolAndContractAddress(cryptoCurrencyLabel);
     const displaySymbol = coinSymbol && getDisplaySymbol(coinSymbol, contractAddress);
@@ -45,7 +43,6 @@ export const TradingFormInputFiatCrypto = <
         cryptoInputName,
         fiatInputName,
         cryptoSelectName,
-        methods,
         labelLeft: showLabel ? <Translation id={amountLabels.inputLabel} /> : undefined,
         labelRight: showLabel ? (
             <TradingFormSwitcherCryptoFiat
@@ -53,11 +50,11 @@ export const TradingFormInputFiatCrypto = <
                 toggleAmountInCrypto={toggleAmountInCrypto}
             />
         ) : undefined,
-    };
+    } satisfies TradingFormInputFiatCryptoProps;
 
     return amountInCrypto ? (
         <TradingFormInputCryptoAmount {...inputProps} />
     ) : (
         <TradingFormInputFiat {...inputProps} />
     );
-};
+});

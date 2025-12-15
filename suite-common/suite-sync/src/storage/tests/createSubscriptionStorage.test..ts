@@ -1,0 +1,55 @@
+import { createSubscriptionStorage } from '../subscriptionStorage';
+import { asStorageId } from '../suiteSyncStorageRepository';
+
+const storageId1 = asStorageId('1');
+const storageId2 = asStorageId('2');
+
+describe(createSubscriptionStorage.name, () => {
+    it('subscribes multiple owners and dispose just one', () => {
+        const storage = createSubscriptionStorage();
+
+        let isOwnerID1Unsubscribed = false;
+        let isOwnerID2Unsubscribed = false;
+
+        storage.add({
+            storageId: storageId1,
+            name: 'labeling',
+            unsubscribe: () => {
+                isOwnerID1Unsubscribed = true;
+            },
+        });
+        storage.add({
+            storageId: storageId2,
+            name: 'labeling',
+            unsubscribe: () => {
+                isOwnerID2Unsubscribed = true;
+            },
+        });
+
+        storage.disposeAll(storageId1);
+        expect(isOwnerID1Unsubscribed).toBe(true);
+        expect(isOwnerID2Unsubscribed).toBe(false);
+    });
+
+    it('unsubscribes previously subscribed handler', () => {
+        const storage = createSubscriptionStorage();
+
+        let isUnsubscribed = false;
+
+        storage.add({
+            storageId: storageId1,
+            name: 'labeling',
+            unsubscribe: () => {
+                isUnsubscribed = true;
+            },
+        });
+        expect(isUnsubscribed).toBe(false);
+
+        storage.add({
+            storageId: storageId1,
+            name: 'labeling',
+            unsubscribe: () => {},
+        });
+        expect(isUnsubscribed).toBe(true);
+    });
+});

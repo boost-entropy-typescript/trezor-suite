@@ -283,8 +283,16 @@ export default defineMessages({
         id: 'TR_TRADING_NO_OFFER_BUY_OR_SELL',
     },
     TR_TRADING_NO_OFFER_SWAP: {
-        defaultMessage: 'No offers found, try different assets or amounts.',
+        defaultMessage: 'No {offers} found. Try different rate, assets or amounts.',
         id: 'TR_TRADING_NO_OFFER_SWAP',
+    },
+    TR_TRADING_SWAP_FIXED_RATE_OFFER: {
+        defaultMessage: 'fixed-rate offers',
+        id: 'TR_TRADING_SWAP_FIXED_RATE_OFFER',
+    },
+    TR_TRADING_SWAP_FLOATING_RATE_OFFER: {
+        defaultMessage: 'floating-rate offers',
+        id: 'TR_TRADING_SWAP_FLOATING_RATE_OFFER',
     },
     TR_TRADING_NO_OFFER_BUY_OR_SELL_TOR: {
         defaultMessage:
@@ -11007,5 +11015,25 @@ export default defineMessages({
     TR_REINSTALL: {
         id: 'TR_REINSTALL',
         defaultMessage: 'Reinstall',
+    },
+    TR_SWAP_ASSET_PICKER_HEADING: {
+        id: 'TR_SWAP_ASSET_PICKER_HEADING',
+        defaultMessage: 'To',
+    },
+    TR_ASSET_PICKER_SEARCH_PLACEHOLDER: {
+        id: 'TR_ASSET_PICKER_SEARCH_PLACEHOLDER',
+        defaultMessage: 'Search coin or token',
+    },
+    TR_ASSET_PICKER_YOUR_ASSETS: {
+        id: 'TR_ASSET_PICKER_YOUR_ASSETS',
+        defaultMessage: 'Your assets',
+    },
+    TR_ASSET_PICKER_ALL_ASSETS: {
+        id: 'TR_ASSET_PICKER_ALL_ASSETS',
+        defaultMessage: 'All assets',
+    },
+    TR_ASSET_PICKER_SEARCH_NO_RESULTS: {
+        id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS',
+        defaultMessage: 'No coin or token found',
     },
 } as const);

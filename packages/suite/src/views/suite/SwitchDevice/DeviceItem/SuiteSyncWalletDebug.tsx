@@ -25,9 +25,16 @@ export const SuiteSyncWalletDebug = ({ device }: { device: AcquiredDevice }) => 
     const { walletDescriptor, deviceId } = parseDeviceStaticSessionId(device.state.staticSessionId);
 
     const handleResetKeysRequest = () => {
-        if (!device?.id) return;
+        if (!device?.id || device.state?.staticSessionId === undefined) {
+            return;
+        }
 
-        dispatch(deviceActions.setSuiteSyncOwner({ device, owner: undefined }));
+        dispatch(
+            deviceActions.setSuiteSyncOwner({
+                deviceStaticId: device.state.staticSessionId,
+                owner: null,
+            }),
+        );
         dispatch(
             deviceActions.setDelegatedIdentityKey({
                 deviceId: device.id,
@@ -54,7 +61,7 @@ export const SuiteSyncWalletDebug = ({ device }: { device: AcquiredDevice }) => 
                     >
                         <Text typographyStyle="hint" variant="purple">
                             E:
-                            <Code>{device.suiteSyncOwner?.ownerId.slice(-8)}</Code>
+                            <Code>{device.suiteSyncOwner?.slice(-8)}</Code>
                         </Text>
                     </Tooltip>
                 </>

@@ -76,7 +76,7 @@ const SuiteSyncWalletDebug = ({ device }: { device?: TrezorDevice }) => {
         ' @ ' +
         deviceId.slice(-8) +
         ' E: ' +
-        device.suiteSyncOwner?.ownerId.slice(-8);
+        device.suiteSyncOwner?.slice(-8);
 
     return <Text>{evoluDebug}</Text>;
 };

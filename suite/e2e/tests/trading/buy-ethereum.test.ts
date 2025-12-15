@@ -1,3 +1,5 @@
+import { CryptoId } from 'invity-api';
+
 import { localizeNumber } from '@suite-common/wallet-utils';
 import { capitalizeFirstLetter } from '@trezor/utils';
 
@@ -11,18 +13,26 @@ const formattedCryptoAmount = `${localizeNumber(buyQuotesEthereum[3].receiveStri
 const formattedFiatAmount = `CZK ${localizeNumber(fiatAmount, 'en-US', 2)}`;
 
 test.describe('Trading - Buy Ethereum', { tag: ['@group=trading', '@webOnly'] }, () => {
-    test.beforeEach(async ({ page, tradingMock, onboardingPage }) => {
+    test.beforeEach(async ({ page, onboardingPage }) => {
         await page.route(invityEndpoint.buyQuotes, async route => {
             await route.fulfill({ json: buyQuotesEthereum });
         });
-        await tradingMock.routeTrade(invityEndpoint.buyTrade, buyTradeEthereum);
         await onboardingPage.completeOnboarding();
     });
 
-    test('Enable Ethereum on account by buying it', async ({ page, walletPage, tradingPage }) => {
+    test('Enable Ethereum on account by buying it', async ({
+        page,
+        walletPage,
+        tradingPage,
+        tradingMock,
+    }) => {
         await test.step('Request to buy Ethereum', async () => {
             await walletPage.openTradingGlobalButton.click();
-            await tradingPage.selectAccount('Ethereum', 'eth');
+            await tradingPage.selectReceiveAssetInAssetPicker({
+                searchFilter: 'Ethereum',
+                networkFilter: 'eth',
+                receiveAsset: 'ethereum' as CryptoId,
+            });
             await tradingPage.fillBuyForm({
                 amount: fiatAmount,
                 cryptoCurrency: 'ethereum',
@@ -34,6 +44,8 @@ test.describe('Trading - Buy Ethereum', { tag: ['@group=trading', '@webOnly'] },
         });
 
         await test.step('Confirm Trade', async () => {
+            await tradingMock.routeTrade(invityEndpoint.buyTrade, buyTradeEthereum);
+
             await tradingPage.buyBestOfferButton.click();
         });
 
