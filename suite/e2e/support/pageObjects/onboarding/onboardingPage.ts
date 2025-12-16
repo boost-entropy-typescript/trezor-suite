@@ -1,10 +1,10 @@
-import { Locator, Page, TestInfo, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
-import { SUITE as SuiteActions } from '@trezor/suite/src//actions/suite/constants';
+import { BackupType } from '@suite-common/suite-types';
+import { SUITE as SuiteActions } from '@trezor/suite/src/actions/suite/constants';
 import { StartEmu } from '@trezor/trezor-user-env-link';
 
-import { TrezorUserEnvLinkProxy, isWebProject, step } from '../../common';
-import { SeedType } from '../../enums/seedType';
+import { TrezorUserEnvLinkProxy, step } from '../../common';
 import { AnalyticsSection } from '../analyticsSection';
 import { DevicePrompt } from '../devicePrompt';
 import { BackupSection } from './backupSection';
@@ -33,18 +33,18 @@ export class OnboardingPage {
     readonly retryRecoveryButton: Locator;
     readonly suiteLoadedIndicator: Locator;
     readonly createWalletButton: Locator;
-    readonly selectSeedTypeCheckbox = (seedType: SeedType): Locator =>
-        this.page.getByTestId(`@onboarding/select-seed-type-${seedType}`);
+    readonly selectSeedTypeCheckbox = (backupType: BackupType): Locator =>
+        this.page.getByTestId(`@onboarding/select-seed-type-${backupType}`);
     readonly selectSeedTypeOpenButton: Locator;
     readonly selectSeedConfirmButton: Locator;
     readonly continueAtYourOwnRiskButton: Locator;
+    readonly deviceCompromisedModal: Locator;
     readonly pairingInputAtIndex = (index: number) =>
         this.page.getByTestId('@modal/thp-paring').locator('input').nth(index);
 
     constructor(
         public page: Page,
         private readonly model: ModelFixture,
-        private readonly testInfo: TestInfo,
         private readonly devicePrompt: DevicePrompt,
         private readonly analyticsSection: AnalyticsSection,
         private readonly settingsPage: SettingsPage,
@@ -78,6 +78,7 @@ export class OnboardingPage {
             '@onboarding/select-seed-type-confirm',
         );
         this.continueAtYourOwnRiskButton = this.page.getByTestId('@continue-to-suite');
+        this.deviceCompromisedModal = this.page.getByTestId('@device-compromised');
     }
 
     @step()
@@ -168,88 +169,61 @@ export class OnboardingPage {
 
     @step()
     async disableFirmwareHashCheck(options?: { skipSuiteLoadedCheck?: boolean }) {
-        // Desktop starts with already disabled firmware hash check. Web needs to disable it.
-        if (!isWebProject(this.testInfo)) {
-            return;
-        }
-
         if (!options?.skipSuiteLoadedCheck) {
             await this.verifySuiteIsLoaded();
         }
 
-        /* eslint-disable-next-line @typescript-eslint/no-shadow */
-        await this.page.evaluate(SuiteActions => {
-            // WARNING: If this dispatch is changed as part of refactoring. You need to change also:
-            // suite/e2e/support/electron.ts variable disableHashCheckArgument
-            window.store.dispatch({
-                type: SuiteActions.TOGGLE_FIRMWARE_HASH_CHECK,
-                payload: false,
-            });
-            window.store.dispatch({
-                type: SuiteActions.SET_DEBUG_MODE,
-                payload: { showDebugMenu: true },
-            });
-        }, SuiteActions);
+        await this.page.ensureStoreOnDesktop();
+        await this.page.evaluate(
+            actions => actions.forEach(window.store.dispatch),
+            [
+                {
+                    type: SuiteActions.TOGGLE_FIRMWARE_HASH_CHECK,
+                    payload: false,
+                },
+                {
+                    type: SuiteActions.SET_DEBUG_MODE,
+                    payload: { showDebugMenu: true },
+                },
+            ],
+        );
     }
 
     @step()
     async disableDebugMode() {
-        /* eslint-disable-next-line @typescript-eslint/no-shadow */
-        await this.page.evaluate(SuiteActions => {
-            window.store.dispatch({
-                type: SuiteActions.SET_DEBUG_MODE,
-                payload: { showDebugMenu: false },
-            });
-        }, SuiteActions);
+        await this.page.ensureStoreOnDesktop();
+        await this.page.evaluate(action => window.store.dispatch(action), {
+            type: SuiteActions.SET_DEBUG_MODE,
+            payload: { showDebugMenu: false },
+        });
     }
 
     @step()
     async disableFirmwareRevisionCheck() {
-        // Desktop starts with already disabled firmware revision check. Web needs to disable it.
-        if (!isWebProject(this.testInfo)) {
-            return;
-        }
-
-        /* eslint-disable-next-line @typescript-eslint/no-shadow */
-        await this.page.evaluate(SuiteActions => {
-            window.store.dispatch({
-                type: SuiteActions.TOGGLE_FIRMWARE_REVISION_CHECK,
-                payload: false,
-            });
-        }, SuiteActions);
+        await this.page.ensureStoreOnDesktop();
+        await this.page.evaluate(action => window.store.dispatch(action), {
+            type: SuiteActions.TOGGLE_FIRMWARE_REVISION_CHECK,
+            payload: false,
+        });
     }
 
     @step()
     async disableAuthenticityCheck() {
-        // Desktop starts with already disabled authenticity check. Web needs to disable it.
-        if (!isWebProject(this.testInfo)) {
-            return;
-        }
-
-        /* eslint-disable-next-line @typescript-eslint/no-shadow */
-        await this.page.evaluate(SuiteActions => {
-            window.store.dispatch({
-                type: SuiteActions.TOGGLE_DEVICE_AUTHENTICITY_CHECK,
-                payload: false,
-            });
-        }, SuiteActions);
+        await this.page.ensureStoreOnDesktop();
+        await this.page.evaluate(action => window.store.dispatch(action), {
+            type: SuiteActions.TOGGLE_DEVICE_AUTHENTICITY_CHECK,
+            payload: false,
+        });
     }
 
     @step()
     async disableDisconnectPrompt() {
-        // Desktop starts with already disabled disconnect prompt. Web needs to disable it.
-        if (!isWebProject(this.testInfo)) {
-            return;
-        }
-
-        /* eslint-disable-next-line @typescript-eslint/no-shadow */
-        await this.page.evaluate(SuiteActions => {
-            window.store.dispatch({
-                type: SuiteActions.SET_FLAG,
-                key: 'hasSeenDisconnectTooltip',
-                value: true,
-            });
-        }, SuiteActions);
+        await this.page.ensureStoreOnDesktop();
+        await this.page.evaluate(action => window.store.dispatch(action), {
+            type: SuiteActions.SET_FLAG,
+            key: 'hasSeenDisconnectTooltip',
+            value: true,
+        });
     }
 
     @step()
@@ -273,9 +247,9 @@ export class OnboardingPage {
     }
 
     @step()
-    async selectSeedType(seedType: SeedType) {
+    async selectSeedType(backupType: BackupType) {
         await this.selectSeedTypeOpenButton.click();
-        await this.selectSeedTypeCheckbox(seedType).click();
+        await this.selectSeedTypeCheckbox(backupType).click();
         await this.selectSeedConfirmButton.click();
     }
 }

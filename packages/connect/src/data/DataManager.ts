@@ -29,7 +29,9 @@ export class DataManager {
     static assets: AssetCollection = {};
 
     private static settings: ConnectSettings;
-    private static messages: Record<string, any> = messages;
+    // at the moment, messages is readonly but it might make sense to modify this in the future, when
+    // we implement additive protobufs handling as a part of modularization effort
+    private static readonly messages: Record<string, any> = messages;
     private static localFirmwares: LocalFirmwares = { firmwareDir: '', firmwareList: [] };
     private static firmwareReleasesConfig: Partial<
         Record<keyof typeof DeviceModelInternal, Record<FirmwareType, ConditionalRelease>>
@@ -39,7 +41,7 @@ export class DataManager {
         | undefined;
     private static localFirmwareReleaseConfig: FirmwareReleaseConfig;
 
-    static async load(
+    public static async load(
         settings: ConnectSettings,
         withAssets = true,
         onlyLocalFirmwareConfig = false,
@@ -61,15 +63,15 @@ export class DataManager {
         });
 
         this.prepareLocalFirmwareReleaseData();
-        await this.loadFirmwareRelaseConfig(onlyLocalFirmwareConfig);
+        await this.loadFirmwareReleaseConfig(onlyLocalFirmwareConfig);
     }
 
-    static prepareLocalFirmwareReleaseData() {
+    private static prepareLocalFirmwareReleaseData() {
         const { config } = getOnlyLocalFirmwareReleaseConfig();
         this.setLocalFirmwareReleaseConfig(config);
     }
 
-    static async loadFirmwareRelaseConfig(onlyLocal: boolean): Promise<void> {
+    private static async loadFirmwareReleaseConfig(onlyLocal: boolean): Promise<void> {
         let firmwareRelaseConfig;
         if (onlyLocal) {
             firmwareRelaseConfig = {
@@ -85,13 +87,13 @@ export class DataManager {
         this.setFirmwareIntermediaryReleaseConfig(firmwareconfig.intermediaries);
     }
 
-    static getProtobufMessages() {
+    public static getProtobufMessages() {
         return this.messages;
     }
 
-    static getSettings(key?: undefined): ConnectSettings;
-    static getSettings<T extends keyof ConnectSettings>(key: T): ConnectSettings[T];
-    static getSettings(key?: keyof ConnectSettings) {
+    public static getSettings(key?: undefined): ConnectSettings;
+    public static getSettings<T extends keyof ConnectSettings>(key: T): ConnectSettings[T];
+    public static getSettings(key?: keyof ConnectSettings) {
         if (!this.settings) return null;
         if (typeof key === 'string') {
             return this.settings[key];
@@ -100,32 +102,34 @@ export class DataManager {
         return this.settings;
     }
 
-    static setLocalFirmwares(firmwares: LocalFirmwares): void {
+    public static setLocalFirmwares(firmwares: LocalFirmwares): void {
         this.localFirmwares = firmwares;
     }
-    static getLocalFirmwares(): LocalFirmwares {
+    public static getLocalFirmwares(): LocalFirmwares {
         return this.localFirmwares;
     }
 
-    static setLocalFirmwareReleaseConfig(localFirmwareReleaseConfig: FirmwareReleaseConfig) {
+    private static setLocalFirmwareReleaseConfig(
+        localFirmwareReleaseConfig: FirmwareReleaseConfig,
+    ) {
         this.localFirmwareReleaseConfig = localFirmwareReleaseConfig;
     }
-    static getLocalFirmwareReleaseConfig(): FirmwareReleaseConfig {
+    public static getLocalFirmwareReleaseConfig(): FirmwareReleaseConfig {
         return this.localFirmwareReleaseConfig;
     }
 
-    static setFirmwareReleaseConfig(releaseConfig: ReleasesConfig): void {
+    private static setFirmwareReleaseConfig(releaseConfig: ReleasesConfig): void {
         this.firmwareReleasesConfig = releaseConfig;
     }
-    static getFirmwareReleaseConfig() {
+    public static getFirmwareReleaseConfig() {
         return this.firmwareReleasesConfig;
     }
-    static setFirmwareIntermediaryReleaseConfig(
+    private static setFirmwareIntermediaryReleaseConfig(
         intermediariesConfig: Record<DeviceModelInternal, IntermediaryReleaseConfig[]>,
     ) {
         this.firmwareIntermediaryReleasesConfig = intermediariesConfig;
     }
-    static getFirmwareIntermediaryReleaseConfig() {
+    public static getFirmwareIntermediaryReleaseConfig() {
         return this.firmwareIntermediaryReleasesConfig;
     }
 }
