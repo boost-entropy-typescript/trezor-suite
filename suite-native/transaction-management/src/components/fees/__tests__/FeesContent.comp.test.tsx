@@ -1,12 +1,10 @@
 import { yup } from '@suite-common/validators';
-import { NetworkSymbol } from '@suite-common/wallet-config';
 import { AccountKey, FormState } from '@suite-common/wallet-types';
 import { Form, useForm } from '@suite-native/forms';
 import { renderWithStoreProviderAsync } from '@suite-native/test-utils';
 
 import { getWalletState } from '../../../__fixtures__/walletState';
-import { NativeSupportedFeeLevel } from '../../../types/fees';
-import { FeesContent } from '../FeesContent';
+import { FeesContent, FeesContentProps } from '../FeesContent';
 
 // Create a simple validation schema for testing
 const testValidationSchema = yup.object({
@@ -49,22 +47,23 @@ describe('FeesContent', () => {
         high: { ...createMockFeeLevel(), feePerByte: '30', fee: '3000', bytes: 250 },
     });
 
-    const defaultProps = {
-        selectedFeeLevel: 'normal' as NativeSupportedFeeLevel,
+    const defaultProps: FeesContentProps = {
+        selectedFeeLevel: 'normal',
         feeLevels: createMockFeeLevels(),
-        symbol: 'btc' as NetworkSymbol,
+        symbol: 'btc',
+        networkType: 'bitcoin',
         accountKey: mockAccountKey,
         areFeesLoading: false,
         onSelectedFeeLevel: mockOnSelectedFeeLevel,
         onCustomFeeSet: mockOnCustomFeeSet,
-        formDraft: null as FormState | null,
+        formDraft: null,
     };
 
     const getPreloadedState = () => ({
         wallet: getWalletState(),
     });
 
-    const renderFeesContent = (props = {}) => {
+    const renderFeesContent = (props: Partial<FeesContentProps> = {}) => {
         const finalProps = { ...defaultProps, ...props };
 
         return renderWithStoreProviderAsync(
@@ -92,7 +91,7 @@ describe('FeesContent', () => {
 
     it('should render fee options list when selected fee level is not custom', async () => {
         const { getByTestId } = await renderFeesContent({
-            selectedFeeLevel: 'normal' as NativeSupportedFeeLevel,
+            selectedFeeLevel: 'normal',
         });
 
         expect(getByTestId('@transactionManagement/fees-level-container-normal')).toBeTruthy();
@@ -100,7 +99,7 @@ describe('FeesContent', () => {
 
     it('should not render fee options list when selected fee level is custom', async () => {
         const { queryByTestId } = await renderFeesContent({
-            selectedFeeLevel: 'custom' as NativeSupportedFeeLevel,
+            selectedFeeLevel: 'custom',
         });
 
         expect(queryByTestId('@transactionManagement/fees-level-container-normal')).toBeNull();
@@ -130,7 +129,7 @@ describe('FeesContent', () => {
 
     it('should work with different network symbols', async () => {
         const { getByText } = await renderFeesContent({
-            symbol: 'eth' as NetworkSymbol,
+            symbol: 'eth',
         });
 
         expect(getByText('Transaction fee')).toBeTruthy();
@@ -138,12 +137,12 @@ describe('FeesContent', () => {
 
     it('should render with form draft data', async () => {
         const mockFormDraft = {
-            selectedFee: 'high' as NativeSupportedFeeLevel,
+            selectedFee: 'high',
             feePerUnit: '10',
         } as FormState;
 
         const { getByTestId } = await renderFeesContent({
-            selectedFeeLevel: 'high' as NativeSupportedFeeLevel,
+            selectedFeeLevel: 'high',
             formDraft: mockFormDraft,
         });
 

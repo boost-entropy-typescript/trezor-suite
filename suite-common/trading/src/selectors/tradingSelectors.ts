@@ -17,20 +17,8 @@ import { BuyInfo, TradingBuyState } from '../reducers/buyReducer';
 import { ExchangeInfo, TradingExchangeState } from '../reducers/exchangeReducer';
 import { SellInfo, TradingSellState } from '../reducers/sellReducer';
 import type { TradingRootState, TradingState } from '../reducers/tradingCommonReducer';
-import {
-    TradingFiatCurrenciesProps,
-    TradingPaymentMethodProps,
-    TradingTransaction,
-    TradingType,
-} from '../types';
-import {
-    cryptoIdToNetwork,
-    getBestRatedQuote,
-    getTradingQuotesByPaymentMethod,
-    isBuyTrade,
-    isExchangeProvider,
-    testnetToProdCryptoId,
-} from '../utils';
+import { TradingFiatCurrenciesProps, TradingTransaction, TradingType } from '../types';
+import { cryptoIdToNetwork, isBuyTrade, isExchangeProvider, testnetToProdCryptoId } from '../utils';
 import {
     getTradingCoinInfoByCryptoId,
     getTradingCoinSymbolByCryptoId,
@@ -510,25 +498,6 @@ export const selectTradingBuyQuoteByOrderId = (
     state: TradingRootState,
     orderId: string | undefined,
 ) => (orderId ? state.wallet.trading.buy.quotes.find(q => q.orderId === orderId) : undefined);
-
-export const selectBuyQuotesByPaymentMethod = createMemoizedSelector(
-    [
-        selectTradingBuyQuotes,
-        (_: TradingRootState, paymentMethod: TradingPaymentMethodProps | undefined) =>
-            paymentMethod,
-    ],
-    (quotes, paymentMethod) =>
-        paymentMethod
-            ? getTradingQuotesByPaymentMethod<'buy'>(quotes, paymentMethod)?.sort(
-                  (a, b) => (a.rate ?? 0) - (b.rate ?? 0),
-              )
-            : undefined,
-);
-
-export const selectBestBuyQuoteByPaymentMethod = createMemoizedSelector(
-    [selectBuyQuotesByPaymentMethod],
-    quotes => getBestRatedQuote(quotes, 'buy'),
-);
 
 export const selectTradingExchangeIsLoading = (state: TradingRootState) =>
     state.wallet.trading.exchange.isLoading;

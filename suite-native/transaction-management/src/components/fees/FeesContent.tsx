@@ -1,21 +1,31 @@
-import { NetworkSymbol } from '@suite-common/wallet-config';
-import { AccountKey, FormState } from '@suite-common/wallet-types';
+import { NetworkSymbol, NetworkType } from '@suite-common/wallet-config';
+import { AccountKey, FeeLevelLabel, FormState } from '@suite-common/wallet-types';
 import { Text, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 
 import { CustomFee } from './CustomFee/CustomFee';
 import { FeeOptionsList, FeeOptionsListProps } from './FeeOptionList/FeeOptionsList';
-import { NativeSupportedFeeLevel } from '../../types/fees';
+import { CustomFeeParams } from '../../hooks';
 
-type FeesContentProps = {
-    selectedFeeLevel: NativeSupportedFeeLevel;
+export type FeesContentProps = {
+    selectedFeeLevel: FeeLevelLabel;
     feeLevels: FeeOptionsListProps['feeLevels'];
     symbol: NetworkSymbol;
     accountKey: AccountKey;
     areFeesLoading: boolean;
     onSelectedFeeLevel: FeeOptionsListProps['onSelectedFeeLevel'];
-    onCustomFeeSet: (feePerUnit: string, feeLimit?: string) => void;
+    onCustomFeeSet: (customFeeParams: CustomFeeParams) => void;
     formDraft: FormState | null | undefined;
+    networkType: NetworkType;
+};
+
+const getFeeLabelTranslationId = (networkType: NetworkType) => {
+    switch (networkType) {
+        case 'ethereum':
+            return 'transactionManagement.fees.description.title.ethereum';
+        default:
+            return 'transactionManagement.fees.description.title.general';
+    }
 };
 
 export const FeesContent = ({
@@ -27,11 +37,12 @@ export const FeesContent = ({
     onSelectedFeeLevel,
     onCustomFeeSet,
     formDraft,
+    networkType,
 }: FeesContentProps) => (
     <VStack spacing="sp16">
         <VStack spacing="sp4">
             <Text variant="titleSmall">
-                <Translation id="transactionManagement.fees.description.title" />
+                <Translation id={getFeeLabelTranslationId(networkType)} />
             </Text>
             <Text>
                 <Translation id="transactionManagement.fees.description.body" />

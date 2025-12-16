@@ -26,6 +26,8 @@ test.describe('Account metadata', { tag: ['@group=metadata', '@webOnly'] }, () =
                 walletPage.accountLabel({ symbol: 'btc', type: 'normal', atIndex: 0 }),
             ).toHaveText('Bitcoin #1');
 
+            // wait until account page is fully loaded
+            await expect(walletPage.fiatAmount).toBeVisible();
             await metadataPage.account.clickEditLabelButton(AccountLabelId.BitcoinDefault1);
             await metadataPage.passThroughInitMetadata(MetadataProvider.DROPBOX);
         });

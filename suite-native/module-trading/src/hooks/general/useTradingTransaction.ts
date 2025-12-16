@@ -30,11 +30,10 @@ import {
     selectSendSerializedTx,
     updateFeeInfoThunk,
 } from '@suite-common/wallet-core';
-import { TokenAddress } from '@suite-common/wallet-types';
+import { FeeLevelLabel, TokenAddress } from '@suite-common/wallet-types';
 import { TokensRootState, selectAccountTokenDecimals } from '@suite-native/tokens';
 import { TradingRootState, getFormDraftKeyByTradeType } from '@suite-native/trading-state';
 import {
-    NativeSupportedFeeLevel,
     selectFeeLevels,
     useFeesFetching,
     usePrecomposedTransactionError,
@@ -50,9 +49,11 @@ export type TradingTransactionSignAndSendProps = {
 };
 
 export type TradingTransactionComposeProps = {
-    selectedFeeLevel?: NativeSupportedFeeLevel;
+    selectedFeeLevel?: FeeLevelLabel;
     feePerUnit?: string;
     feeLimit?: string;
+    maxFeePerGas?: string;
+    maxPriorityFeePerGas?: string;
 };
 
 export type UseTradingTransactionProps = {
@@ -105,7 +106,13 @@ export const useTradingTransaction = ({
         selectDeepCopyOfFormDraft(state, getFormDraftKeyByTradeType(tradeType)),
     );
 
-    const { selectedFee, feePerUnit: feePerUnitDraft, feeLimit: feeLimitDraft } = draft ?? {};
+    const {
+        selectedFee,
+        feePerUnit: feePerUnitDraft,
+        feeLimit: feeLimitDraft,
+        maxFeePerGas: maxFeePerGasDraft,
+        maxPriorityFeePerGas: maxPriorityFeePerGasDraft,
+    } = draft ?? {};
 
     const { contractAddress } = cryptoIdToNetworkAndContractAddress(
         tradeType === 'exchange'
@@ -129,7 +136,7 @@ export const useTradingTransaction = ({
 
     const feeLevels = useSelector(selectFeeLevels);
 
-    const selectedLevel = feeLevels[(selectedFee as NativeSupportedFeeLevel) ?? 'normal'];
+    const selectedLevel = feeLevels[(selectedFee as FeeLevelLabel) ?? 'normal'];
     const feeError = selectedLevel?.type === 'error' ? selectedLevel.error : null;
 
     const txnErrorString = usePrecomposedTransactionError({
@@ -156,7 +163,13 @@ export const useTradingTransaction = ({
 
     // this is called when we want to compose a transaction
     const composeRequest = useCallback(
-        async ({ selectedFeeLevel, feePerUnit, feeLimit }: TradingTransactionComposeProps) => {
+        async ({
+            selectedFeeLevel,
+            feePerUnit,
+            feeLimit,
+            maxPriorityFeePerGas,
+            maxFeePerGas,
+        }: TradingTransactionComposeProps) => {
             if (!sendAccount || !networkFeeInfo) {
                 console.error(
                     'Send account and networkFeeInfo are required for composing transaction',
@@ -175,6 +188,8 @@ export const useTradingTransaction = ({
                         selectedFeeLevel,
                         feePerUnit,
                         feeLimit,
+                        maxPriorityFeePerGas,
+                        maxFeePerGas,
                     }),
                 ).unwrap();
 
@@ -202,11 +217,22 @@ export const useTradingTransaction = ({
         }
 
         await composeRequest({
-            selectedFeeLevel: selectedFee as NativeSupportedFeeLevel,
+            selectedFeeLevel: selectedFee as FeeLevelLabel,
             feePerUnit: feePerUnitDraft,
             feeLimit: feeLimitDraft,
+            maxFeePerGas: maxFeePerGasDraft,
+            maxPriorityFeePerGas: maxPriorityFeePerGasDraft,
         });
-    }, [dispatch, sendAccount, composeRequest, selectedFee, feePerUnitDraft, feeLimitDraft]);
+    }, [
+        sendAccount,
+        dispatch,
+        composeRequest,
+        selectedFee,
+        feePerUnitDraft,
+        feeLimitDraft,
+        maxFeePerGasDraft,
+        maxPriorityFeePerGasDraft,
+    ]);
 
     // this is the reusable signAndPushSendFormTransaction function
     // waitForPushApproval is used so that we can wait for the user to approve the transaction before sending it
@@ -311,9 +337,11 @@ export const useTradingTransaction = ({
     useEffect(() => {
         if (selectedFee && networkFeeInfo) {
             composeRequest({
-                selectedFeeLevel: selectedFee as NativeSupportedFeeLevel,
+                selectedFeeLevel: selectedFee as FeeLevelLabel,
                 feePerUnit: feePerUnitDraft,
                 feeLimit: feeLimitDraft,
+                maxFeePerGas: maxFeePerGasDraft,
+                maxPriorityFeePerGas: maxPriorityFeePerGasDraft,
             });
         }
     }, [
@@ -323,6 +351,8 @@ export const useTradingTransaction = ({
         feeLimitDraft,
         networkFeeInfo,
         selectedQuote,
+        maxFeePerGasDraft,
+        maxPriorityFeePerGasDraft,
     ]);
 
     return {

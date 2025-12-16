@@ -2786,12 +2786,13 @@ export const messages = {
                 high: 'High',
             },
             description: {
-                title: 'Transaction fee',
+                title: { general: 'Transaction fee', ethereum: 'Maximum fee' },
                 body: 'Fees are paid directly to validators for processing your transactions.',
             },
             custom: {
                 addButton: 'Add custom fee',
                 bottomSheet: {
+                    currentBaseFeeEthereum: 'Current base fee: {baseFee}',
                     title: 'Custom fee',
                     minimumLabel: 'The minimum fee rate is {feePerUnit}',
                     label: {
@@ -2800,6 +2801,24 @@ export const messages = {
                         gasPrice: 'Gas price',
                         maxFeePerGas: 'Max fee per gas',
                         maxPriorityFeePerGas: 'Max priority fee per gas',
+                    },
+                    errors: {
+                        feeLimit: {
+                            low: 'Gas limit must be at least {minGasLimit}',
+                        },
+                        decimals: 'Too many decimals.',
+                        feePerUnit: {
+                            low: 'Fee is too low.',
+                            high: 'Fee is too high.',
+                        },
+                        maxFeePerGas: {
+                            lessThanPriority: 'This fee can’t be lower than Max priority fee.',
+                            outOfRange: 'Enter a max fee per gas between {minFee} and {maxFee}',
+                        },
+                        maxPriorityFee: {
+                            min: 'Max priority fee must be at least {minPriorityFee}',
+                            higherThanMaxFee: 'This fee can’t be higher than Max fee per gas',
+                        },
                     },
                     total: 'Total fee',
                     confirmButton: 'Confirm custom fee',

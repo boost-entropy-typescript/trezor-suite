@@ -1,16 +1,23 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { AccountKey, TokenAddress } from '@suite-common/wallet-types';
+import { AccountKey, FeeLevelLabel, TokenAddress } from '@suite-common/wallet-types';
 import { EventType, analytics } from '@suite-native/analytics';
 
-import { NativeSupportedFeeLevel, UpdateSelectedFeeLevelThunkParams } from '../../types';
+import { UpdateSelectedFeeLevelThunkParams } from '../../types';
 
 type UseFeeSelectionParams = {
     accountKey: AccountKey;
     tokenContract?: TokenAddress;
     updateThunk: (params: UpdateSelectedFeeLevelThunkParams) => any;
     formDraftKey?: string;
+};
+
+export type CustomFeeParams = {
+    customFeePerUnit?: string;
+    customFeeLimit?: string;
+    customMaxFeePerGas?: string;
+    customMaxPriorityFeePerGas?: string;
 };
 
 export const useFeeSelection = ({
@@ -22,7 +29,15 @@ export const useFeeSelection = ({
     const dispatch = useDispatch();
 
     const handleFeeLevelChange = useCallback(
-        (feeLevel: NativeSupportedFeeLevel, customFeePerUnit?: string, customFeeLimit?: string) => {
+        (
+            feeLevel: FeeLevelLabel,
+            {
+                customFeePerUnit,
+                customFeeLimit,
+                customMaxFeePerGas,
+                customMaxPriorityFeePerGas,
+            }: CustomFeeParams = {},
+        ) => {
             analytics.report({ type: EventType.SendFeeLevelChanged, payload: { value: feeLevel } });
 
             let thunkParams: UpdateSelectedFeeLevelThunkParams;
@@ -33,6 +48,8 @@ export const useFeeSelection = ({
                     feeLevelLabel: 'custom',
                     feePerUnit: customFeePerUnit!,
                     feeLimit: customFeeLimit,
+                    maxFeePerGas: customMaxFeePerGas,
+                    maxPriorityFeePerGas: customMaxPriorityFeePerGas,
                     formDraftKey,
                 };
             } else {
@@ -50,8 +67,18 @@ export const useFeeSelection = ({
     );
 
     const handleCustomFeeSet = useCallback(
-        (customFeePerUnit: string, customFeeLimit?: string) => {
-            handleFeeLevelChange('custom', customFeePerUnit, customFeeLimit);
+        ({
+            customFeePerUnit,
+            customFeeLimit,
+            customMaxFeePerGas,
+            customMaxPriorityFeePerGas,
+        }: CustomFeeParams) => {
+            handleFeeLevelChange('custom', {
+                customFeePerUnit,
+                customFeeLimit,
+                customMaxFeePerGas,
+                customMaxPriorityFeePerGas,
+            });
         },
         [handleFeeLevelChange],
     );

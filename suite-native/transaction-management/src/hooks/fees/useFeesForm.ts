@@ -8,19 +8,20 @@ import {
 } from '@suite-common/wallet-core';
 import {
     AccountKey,
+    FeeLevelLabel,
     PrecomposedTransactionFinal,
     isFinalPrecomposedTransaction,
 } from '@suite-common/wallet-types';
 import { useForm } from '@suite-native/forms';
+import { useTranslate } from '@suite-native/intl';
 
 import { FeesFormValues, feesFormValidationSchema } from '../../feesFormSchema';
 import { selectFeeLevels } from '../../selectors';
-import { NativeSupportedFeeLevel } from '../../types/fees';
 import { getFeeValue } from '../../utils';
 
 export type UseFeesFormProps = {
     accountKey: AccountKey;
-    defaultFeeLevel?: NativeSupportedFeeLevel;
+    defaultFeeLevel?: FeeLevelLabel;
     defaultFeePerUnit?: string;
 };
 
@@ -32,6 +33,8 @@ export const useFeesForm = ({
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
+
+    const { translate } = useTranslate();
 
     const feeLevels = useSelector(selectFeeLevels);
 
@@ -57,11 +60,14 @@ export const useFeesForm = ({
             feeLevel: defaultFeeLevel,
             customFeePerUnit: trimmedFeePerUnit,
             customFeeLimit: normalFee?.feeLimit,
+            customMaxFeePerGas: normalFee?.maxFeePerGas,
+            customMaxPriorityFeePerGas: normalFee?.maxPriorityFeePerGas,
         },
         context: {
             networkFeeInfo,
             symbol: account?.symbol,
             minimalFeeLimit,
+            translate,
         },
     });
 };

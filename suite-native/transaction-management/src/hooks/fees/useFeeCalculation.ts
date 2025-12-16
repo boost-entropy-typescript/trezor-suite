@@ -10,6 +10,7 @@ import {
 } from '@suite-common/wallet-core';
 import {
     AccountKey,
+    FeeLevelLabel,
     GeneralPrecomposedTransactionFinal,
     PrecomposedTransactionFinal,
     isFinalPrecomposedTransaction,
@@ -19,11 +20,10 @@ import { BigNumber } from '@trezor/utils';
 import { useFeesFetching } from './useFeesFetching';
 import { useFeesForm } from './useFeesForm';
 import { selectFeeLevels } from '../../selectors';
-import { NativeSupportedFeeLevel } from '../../types';
 
 type UseFeeCalculationParams = {
     accountKey: AccountKey;
-    selectedFee?: NativeSupportedFeeLevel;
+    selectedFee?: FeeLevelLabel;
     selectedFeePerUnit?: string;
     selectedSetMaxOutputId?: number;
 };
@@ -40,6 +40,10 @@ export const useFeeCalculation = ({
     const feeLevels = useSelector(selectFeeLevels);
     const { symbol } = account ?? {};
 
+    const normalFee = isFinalPrecomposedTransaction(feeLevels.normal)
+        ? (feeLevels.normal as PrecomposedTransactionFinal)
+        : null;
+
     const form = useFeesForm({
         accountKey,
         defaultFeeLevel: selectedFee,
@@ -54,10 +58,6 @@ export const useFeeCalculation = ({
     const feePerUnit = useSelector((state: FeesRootState) =>
         selectConvertedNetworkFeeLevelFeePerUnit(state, symbol, selectedFeeLevel),
     );
-
-    const normalFee = isFinalPrecomposedTransaction(feeLevels.normal)
-        ? (feeLevels.normal as PrecomposedTransactionFinal)
-        : null;
 
     const { areFeesLoading } = useFeesFetching({
         networkSymbol: symbol,
