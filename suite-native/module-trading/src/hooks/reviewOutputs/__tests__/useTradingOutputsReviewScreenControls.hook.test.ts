@@ -1,5 +1,4 @@
 import { sendFormActions } from '@suite-common/wallet-core';
-import { EventType, analytics } from '@suite-native/analytics';
 import {
     TestStore,
     act,
@@ -11,6 +10,8 @@ import { transactionManagementActions } from '@suite-native/transaction-manageme
 
 import { TradingExchangeSignAndSendTransactionProps } from '../../exchange/useExchangeFlow';
 import { useTradingOutputsReviewScreenControls } from '../useTradingOutputsReviewScreenControls';
+
+const mockReportToAnalytics = jest.fn();
 
 const mockSignAndSendTransaction = jest.fn(() => Promise.resolve(true));
 
@@ -51,7 +52,6 @@ jest.mock('@suite-native/alerts', () => ({
 
 describe('useTradingOutputsReviewScreenControls', () => {
     let store: TestStore;
-    const analyticsSpy: jest.SpyInstance = jest.spyOn(analytics, 'report');
 
     const renderUseTradingOutputsReviewScreenControls = () =>
         renderHookWithStoreProviderAsync(
@@ -60,6 +60,7 @@ describe('useTradingOutputsReviewScreenControls', () => {
                     orderId: 'orderId',
                     accountKey: 'btc-account-1',
                     signAndSendTransaction: mockSignAndSendTransaction,
+                    reportToAnalytics: mockReportToAnalytics,
                 }),
             {
                 store,
@@ -112,13 +113,31 @@ describe('useTradingOutputsReviewScreenControls', () => {
             });
             expect(mockPopToTop).toHaveBeenCalledTimes(1);
             expect(store.getState().wallet.trading.tradeOrderIdToBeOpened).toBe('orderId');
-            expect(analyticsSpy).toHaveBeenCalledWith({
-                type: EventType.TradingExchange,
-                payload: expect.objectContaining({
-                    step: 'sign-and-send',
-                    action: 'continue',
+            expect(mockReportToAnalytics).toHaveBeenCalledWith('sign-and-send', 'continue');
+        });
+
+        it('should navigate to trade detail and report sell analytics', async () => {
+            store = (await initStore({ wallet: getWalletState({ tradeType: 'sell' }) })).store;
+            await renderUseTradingOutputsReviewScreenControls();
+
+            expect(mockSignAndSendTransaction).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    nextStep: expect.any(Function),
                 }),
+            );
+
+            // call the nextStep callback to simulate thunk behavior
+            act(() => {
+                const { nextStep } = (
+                    mockSignAndSendTransaction.mock.lastCall as unknown as [
+                        TradingExchangeSignAndSendTransactionProps,
+                    ]
+                )[0];
+                nextStep();
             });
+            expect(mockPopToTop).toHaveBeenCalledTimes(1);
+            expect(store.getState().wallet.trading.tradeOrderIdToBeOpened).toBe('orderId');
+            expect(mockReportToAnalytics).toHaveBeenLastCalledWith('sign-and-send', 'continue');
         });
 
         it('should display alert on thunk error', async () => {
@@ -182,24 +201,12 @@ describe('useTradingOutputsReviewScreenControls', () => {
             expect(mockPop).toHaveBeenCalledTimes(1);
             expect(dispatchSpy).toHaveBeenCalledWith(sendFormActions.dispose());
             expect(dispatchSpy).toHaveBeenCalledWith(transactionManagementActions.clearFeeLevels());
-            expect(analyticsSpy).toHaveBeenCalledWith({
-                type: EventType.TradingExchange,
-                payload: expect.objectContaining({
-                    step: 'sign-and-send',
-                    action: 'retry',
-                }),
-            });
+            expect(mockReportToAnalytics).toHaveBeenCalledWith('sign-and-send', 'retry');
 
             act(() => {
                 mockShowAlert.mock.calls[0][0].onPressSecondaryButton();
-                expect(analyticsSpy).toHaveBeenCalledWith({
-                    type: EventType.TradingExchange,
-                    payload: expect.objectContaining({
-                        step: 'sign-and-send',
-                        action: 'cancel',
-                    }),
-                });
             });
+            expect(mockReportToAnalytics).toHaveBeenCalledWith('sign-and-send', 'cancel');
 
             expect(mockPopToTop).toHaveBeenCalledTimes(1);
         });
@@ -233,7 +240,7 @@ describe('useTradingOutputsReviewScreenControls', () => {
     });
 
     describe('useOutputsReviewBackInterceptor', () => {
-        it('should be initialized with popToTop navigation callback', async () => {
+        it('should be initialized with popToTop navigation callback and report cancel for exchange', async () => {
             await renderUseTradingOutputsReviewScreenControls();
 
             act(() => {
@@ -242,18 +249,26 @@ describe('useTradingOutputsReviewScreenControls', () => {
             });
 
             expect(mockPopToTop).toHaveBeenCalledTimes(1);
+            expect(mockReportToAnalytics).toHaveBeenCalledWith('sign-and-send', 'cancel');
+        });
+
+        it('should report cancel for sell', async () => {
+            store = (await initStore({ wallet: getWalletState({ tradeType: 'sell' }) })).store;
+            await renderUseTradingOutputsReviewScreenControls();
+
+            act(() => {
+                const onReviewCanceled = mockUseOutputsReviewBackInterceptor.mock.lastCall?.[0];
+                onReviewCanceled();
+            });
+
+            expect(mockPopToTop).toHaveBeenCalledTimes(1);
+            expect(mockReportToAnalytics).toHaveBeenLastCalledWith('sign-and-send', 'cancel');
         });
     });
 
-    it('should report visit to analytics on mount', async () => {
+    it('should report visit to analytics on mount for exchange', async () => {
         await renderUseTradingOutputsReviewScreenControls();
 
-        expect(analyticsSpy).toHaveBeenCalledWith({
-            type: EventType.TradingExchange,
-            payload: {
-                step: 'sign-and-send',
-                action: 'visit',
-            },
-        });
+        expect(mockReportToAnalytics).toHaveBeenCalledWith('sign-and-send', 'visit');
     });
 });

@@ -11,30 +11,30 @@ import {
 } from '@suite-common/wallet-core';
 import { StaticSessionId } from '@trezor/connect';
 
+import { createRefreshSuiteSync } from './createRefreshSuiteSyncKeys';
+import { createTurnOffSuiteSync } from './createTurnOffSuiteSync';
+import { createTurnOnSuiteSync } from './createTurnOnSuiteSync';
 import { GetDeviceForStaticSessionId } from './getDeviceForStaticSessionId';
-import { createSubscribeLabeling } from './labeling/subscribeLabeling';
-import { createUpdateAccountLabel } from './labeling/updateAccountLabel';
-import { createUpdateAddressLabel } from './labeling/updateAddressLabel';
-import { createUpdateOutputLabel } from './labeling/updateOutputLabel';
-import { createUpdateWalletLabel } from './labeling/updateWalletLabel';
-import { createEnsureSuiteSyncOwner } from './owner/ensureSuiteSyncOwner';
-import { createLoadSuiteSyncOwnerFromState } from './owner/loadSuiteSyncOwnerFromState';
+import { createSubscribeLabeling } from './labeling/createSubscribeLabeling';
+import { createUpdateAccountLabel } from './labeling/createUpdateAccountLabel';
+import { createUpdateAddressLabel } from './labeling/createUpdateAddressLabel';
+import { createUpdateOutputLabel } from './labeling/createUpdateOutputLabel';
+import { createUpdateWalletLabel } from './labeling/createUpdateWalletLabel';
+import { createEnsureSuiteSyncOwner } from './owner/createEnsureSuiteSyncOwner';
+import { createLoadSuiteSyncOwnerFromState } from './owner/createLoadSuiteSyncOwnerFromState';
 import {
     RetrieveSuiteSyncOwnerDeps,
     createRetrieveSuiteSyncOwner,
-} from './owner/retrieveSuiteSyncOwner';
-import { createSaveSuiteSyncOwner } from './owner/saveSuiteSyncOwner';
-import { createRefreshSuiteSync } from './refreshSuiteSyncKeys';
-import { createChangeRelayUrl } from './relay/changeRelayUrl';
+} from './owner/createRetrieveSuiteSyncOwner';
+import { createSaveSuiteSyncOwner } from './owner/createSaveSuiteSyncOwner';
+import { createChangeRelayUrl } from './relay/createChangeRelayUrl';
 import { DEFAULT_SUITE_SYNC_RELAY_URL } from './relay/relayUrl';
-import { createEnsureStorage } from './storage/ensureStorage';
-import { createSubscriptionStorage } from './storage/subscriptionStorage';
-import { createSuiteSyncStorageRepository } from './storage/suiteSyncStorageRepository';
-import { createTurnOffSuiteSyncForWallet } from './storage/turnOffSuiteSyncForWallet';
-import { createTurnOnSuiteSyncForWallet } from './storage/turnOnSuiteSyncForWallet';
+import { createEnsureStorage } from './storage/createEnsureStorage';
+import { createSubscriptionStorage } from './storage/createSubscriptionStorage';
+import { createSuiteSyncStorageRepository } from './storage/createSuiteSyncStorageRepository';
+import { createTurnOffSuiteSyncForWallet } from './storage/createTurnOffSuiteSyncForWallet';
+import { createTurnOnSuiteSyncForWallet } from './storage/createTurnOnSuiteSyncForWallet';
 import { selectSuiteSyncRelayUrl } from './suiteSyncSelectors';
-import { createTurnOffSuiteSync } from './turnOffSuiteSync';
-import { createTurnOnSuiteSync } from './turnOnSuiteSync';
 
 type CreateSuiteSyncCompositionRootDeps = {
     getState: () => any;
@@ -55,6 +55,12 @@ export const createSuiteSyncCompositionRoot = (
     const findSuiteSyncOwnerForDeviceStaticId = (deviceStaticId: StaticSessionId) =>
         selectSuiteSyncOwnerForDeviceStaticId(deps.getState(), deviceStaticId);
 
+    const loadSuiteSyncOwnerFromState = createLoadSuiteSyncOwnerFromState({
+        dispatch: deps.dispatch,
+        platformEncryption: deps.platformEncryption,
+        getDeviceSuiteSyncOwner: findSuiteSyncOwnerForDeviceStaticId,
+    });
+
     const ensureSuiteSyncOwner = createEnsureSuiteSyncOwner({
         saveSuiteSyncOwner: createSaveSuiteSyncOwner({
             dispatch: deps.dispatch,
@@ -64,17 +70,14 @@ export const createSuiteSyncCompositionRoot = (
             trezorConnect: deps.trezorConnect,
             createSuiteSyncOwner: deps.createSuiteSyncOwner,
         }),
-        loadSuiteSyncOwnerFromState: createLoadSuiteSyncOwnerFromState({
-            dispatch: deps.dispatch,
-            platformEncryption: deps.platformEncryption,
-            getDeviceSuiteSyncOwner: findSuiteSyncOwnerForDeviceStaticId,
-        }),
+        loadSuiteSyncOwnerFromState,
     });
 
     const refreshSuiteSyncKeys = createRefreshSuiteSync({
         dispatch: deps.dispatch,
         ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         ensureSuiteSyncOwner,
+        loadSuiteSyncOwnerFromState,
     });
 
     const getDeviceForStaticSessionId: GetDeviceForStaticSessionId = deviceStaticId =>
