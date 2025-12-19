@@ -50,3 +50,36 @@ export const findClosestOfficiallySupportedLanguageLocale = (
 
     return matchingOfficialLanguageLocale ?? DEFAULT_LOCALE;
 };
+
+export const deleteNestedTranslationKey = (obj: Record<string, any>, path: string) => {
+    const keys = path.split('.');
+    let currentNode: Record<string, any> = obj;
+    const parents: Array<{ node: Record<string, any>; key: string }> = [];
+
+    for (let i = 0; i < keys.length - 1; i++) {
+        const nextNode = currentNode[keys[i]];
+        parents.push({ node: currentNode, key: keys[i] });
+        currentNode = nextNode;
+        if (!currentNode) return;
+    }
+
+    const lastKey = keys[keys.length - 1];
+    if (!(lastKey in currentNode)) return;
+
+    delete currentNode[lastKey];
+
+    if (Object.keys(currentNode).length > 0) {
+        return;
+    }
+
+    while (parents.length) {
+        const { node, key } = parents.pop()!;
+        delete node[key];
+
+        if (Object.keys(node).length > 0) {
+            break;
+        }
+
+        currentNode = node;
+    }
+};
