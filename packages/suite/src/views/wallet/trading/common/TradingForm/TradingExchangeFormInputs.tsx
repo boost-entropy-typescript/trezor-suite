@@ -26,16 +26,16 @@ import { getTradingNetworkDecimals } from 'src/utils/wallet/trading/tradingUtils
 import { TradingBalance } from 'src/views/wallet/trading/common/TradingBalance';
 import { TradingFormInputAccount } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputAccount';
 import { TradingFormInputFiatCrypto } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputFiatCrypto';
-import { TradingFormSwitcherExchangeRates } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormSwitcherExchangeRates';
 
 import { TradingFormFeesDisclamer } from './TradingFormFeeDisclamer';
-import { TradingNetworkReserveBanner } from './TradingNetworkReserveBanner';
-import { generateFractionButtons } from './tradingFormInputsUtils';
-import { TradingReceiveAddress } from '../TradingSelectedOffer/TradingReceiveAddress/TradingReceiveAddress';
 import {
     TradingFormInputAssetPicker,
     TradingFormInputAssetPickerProps,
 } from './TradingFormInput/TradingFormInputAssetPicker/TradingFormInputAssetPicker';
+import { TradingNetworkReserveBanner } from './TradingNetworkReserveBanner';
+import { generateFractionButtons } from './tradingFormInputsUtils';
+import { TradingReceiveAddress } from '../TradingSelectedOffer/TradingReceiveAddress/TradingReceiveAddress';
+import { TradingSelectedOfferProvider } from '../TradingSelectedOffer/TradingSelectedOfferProvider';
 
 export const TradingExchangeFormInputs = () => {
     const context = useTradingFormContext<TradingExchangeType>();
@@ -55,8 +55,7 @@ export const TradingExchangeFormInputs = () => {
         setAmountLimits,
     } = context;
     const { getValues, setValue } = useFormContext<TradingExchangeFormProps>();
-    const { rateType, sendCryptoSelect, receiveCryptoSelect, outputs, amountInCrypto } =
-        getValues();
+    const { sendCryptoSelect, receiveCryptoSelect, outputs, amountInCrypto } = getValues();
 
     const output = outputs[0];
     const currencySelect = output.currency;
@@ -171,10 +170,10 @@ export const TradingExchangeFormInputs = () => {
                 changeFeeLevel={changeFeeLevel}
                 padding={{ vertical: spacings.sm, horizontal: spacings.lg }}
             />
+            <TradingSelectedOfferProvider />
             <Divider margin={0} />
 
             <Column gap={spacings.lg} padding={{ vertical: spacings.lg, horizontal: spacings.lg }}>
-                <TradingFormSwitcherExchangeRates rateType={rateType} setValue={setValue} />
                 <TradingFormFeesDisclamer />
             </Column>
         </Card>

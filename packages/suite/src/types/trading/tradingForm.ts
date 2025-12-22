@@ -135,6 +135,7 @@ export interface TradingBuyFormContextProps
     quotesRequest: BuyTradeQuoteRequest | undefined;
     quotes: BuyTrade[];
     selectedQuote: BuyTrade | undefined;
+    preselectedQuote: BuyTrade | undefined;
     trade?: TradingTransactionBuy;
     verifiedAddress: TradingVerifiedAddress;
     // form - additional helpers for form
@@ -142,6 +143,7 @@ export interface TradingBuyFormContextProps
         state: TradingFormStateProps;
     };
     tradingReceiveAddress: ReturnType<typeof useTradingReceiveAddress>;
+    isAmountEmpty: boolean;
 
     selectQuote: (quote: BuyTrade) => Promise<void>;
     confirmTrade: ({
@@ -167,6 +169,7 @@ export interface TradingSellFormContextProps
     feeInfo: FeeInfo;
     quotes: SellFiatTrade[];
     selectedQuote?: SellFiatTrade;
+    preselectedQuote: SellFiatTrade | undefined;
     trade?: TradingTransactionSell;
     suiteReceiveAccounts?: AppState['wallet']['accounts'];
     // form - additional helpers for form
@@ -174,6 +177,7 @@ export interface TradingSellFormContextProps
         state: TradingFormStateProps;
         helpers: TradingUseFormActionsReturnProps;
     };
+    isAmountEmpty: boolean;
     shouldSendInSats: boolean | undefined;
     changeFeeLevel: (level: FeeLevel['label']) => void;
     composeRequest: SendContextValues<TradingSellExchangeFormProps>['composeTransaction'];
@@ -223,6 +227,7 @@ export interface TradingExchangeFormContextProps
     receiveAccount?: Account;
     verifiedAddress: TradingVerifiedAddress;
     shouldSendInSats: boolean | undefined;
+    isAmountEmpty: boolean;
     setReceiveAccount: (account?: Account) => void;
     setAmountLimits: (limits?: CryptoAmountLimitProps) => void;
     composeRequest: SendContextValues<TradingSellExchangeFormProps>['composeTransaction'];

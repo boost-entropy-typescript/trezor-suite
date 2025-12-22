@@ -60,6 +60,7 @@ export const useTradingBuyForm = ({
         isFromRedirect,
         quotes,
         quotesRequest,
+        preselectedQuote,
         selectedQuote,
         amountLimits,
         isLoading,
@@ -121,6 +122,8 @@ export const useTradingBuyForm = ({
     const previousValues = useRef<TradingBuyFormProps | null>(
         !isFromRedirect && isNotFormPage ? draftUpdated : null,
     );
+
+    const isAmountEmpty = !values.fiatInput && !values.cryptoInput;
 
     const tradingReceiveAddress = useTradingReceiveAddress({
         type: 'buy',
@@ -443,8 +446,10 @@ export const useTradingBuyForm = ({
         timer,
         quotes: quotesByPaymentMethod,
         quotesRequest,
+        preselectedQuote,
         selectedQuote,
         tradingReceiveAddress,
+        isAmountEmpty,
         selectQuote,
         confirmTrade,
         goToOffers,

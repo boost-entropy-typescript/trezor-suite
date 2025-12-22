@@ -74,6 +74,7 @@ export const useTradingSellForm = ({
         quotes,
         transactionId,
         tradingAccountKey,
+        preselectedQuote,
         selectedQuote,
         sellInfo,
         amountLimits,
@@ -158,6 +159,7 @@ export const useTradingSellForm = ({
     const formIsValid = Object.keys(formState.errors).length === 0;
     const output = values.outputs?.[0];
     const hasValues = !!output?.amount;
+    const isAmountEmpty = output?.amount === '';
     const noProviders = Object.keys(sellInfo?.providerInfos ?? {}).length === 0;
     const isInitialDataLoading = !sellInfo?.providerInfos;
     const isFormLoading = isInitialDataLoading || formState.isSubmitting || isLoading;
@@ -573,9 +575,11 @@ export const useTradingSellForm = ({
         network,
         device,
         timer,
+        preselectedQuote,
         selectedQuote,
         shouldSendInSats,
         trade,
+        isAmountEmpty,
         changeFeeLevel,
         composeRequest,
         setAmountLimits,
