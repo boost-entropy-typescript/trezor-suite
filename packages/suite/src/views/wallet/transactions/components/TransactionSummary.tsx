@@ -2,7 +2,6 @@ import { getUnixTime } from 'date-fns';
 import styled from 'styled-components';
 
 import { calcTicks, calcTicksFromData } from '@suite-common/suite-utils';
-import { getNetworkFeatures } from '@suite-common/wallet-config';
 import { selectBaseCurrency } from '@suite-common/wallet-core';
 import { Button, Card, Column, Row } from '@trezor/components';
 import { typography } from '@trezor/theme';
@@ -17,6 +16,7 @@ import {
     aggregateBalanceHistory,
     getGraphDataForInterval,
     getMinMaxValueFromData,
+    isNetworkWithGraphFeature,
 } from 'src/utils/wallet/graph';
 
 import { SummaryCards } from './SummaryCards';
@@ -94,7 +94,7 @@ export const TransactionSummary = ({ account }: TransactionSummaryProps) => {
             }),
         );
 
-    const isGraphSupported = getNetworkFeatures(account.symbol).includes('graph');
+    const isGraphSupported = isNetworkWithGraphFeature(account.symbol, account.backendType);
     const isContentBelowBreakpoint = useIsContentBelowBreakpoint();
 
     return (

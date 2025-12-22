@@ -1,17 +1,17 @@
-|             Package              | Stable |    Canary    |
-| :------------------------------: | :----: | :----------: |
-|       npm @trezor/connect        | 9.7.0  | 9.7.1-beta.1 |
-|     npm @trezor/connect-web      | 9.7.0  | 9.7.1-beta.1 |
-| npm @trezor/connect-webextension | 9.7.0  | 9.7.1-beta.1 |
-|    npm @trezor/connect-mobile    | 9.7.0  | 9.7.1-beta.1 |
+|             Package              | Stable | Canary |
+| :------------------------------: | :----: | :----: |
+|       npm @trezor/connect        | 9.7.1  |   -    |
+|     npm @trezor/connect-web      | 9.7.1  |   -    |
+| npm @trezor/connect-webextension | 9.7.1  |   -    |
+|    npm @trezor/connect-mobile    | 9.7.1  |   -    |
 
-|     Deployment     | Stable |    Canary    |
-| :----------------: | :----: | :----------: |
-| connect.trezor.io/ | 9.7.0  | 9.7.1-beta.1 |
+|     Deployment     | Stable | Canary |
+| :----------------: | :----: | :----: |
+| connect.trezor.io/ | 9.7.1  |   -    |
 
 Use the persistent link [connect.trezor.io/9](https://connect.trezor.io/9/) to access the latest stable version of Connect Explorer.
 
-# 9.7.1-beta.2
+# 9.7.1
 
 We are deprecating `coreMode: 'iframe'` for connect-web, which is now limited due to [Local Network Access](https://developer.chrome.com/blog/local-network-access) permission. If you are using it explicitly, we recommend moving to `coreMode: 'auto'` for a better user experience.
 

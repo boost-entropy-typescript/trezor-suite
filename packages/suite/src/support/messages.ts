@@ -313,7 +313,7 @@ export default defineMessages({
         id: 'TR_CHECKED_BALANCES_ON',
     },
     TR_ALL_NETWORKS: {
-        defaultMessage: 'All networks ({networkCount})',
+        defaultMessage: 'All networks',
         id: 'TR_ALL_NETWORKS',
     },
     TR_ALL_NETWORKS_TOOLTIP: {
@@ -4533,6 +4533,11 @@ export default defineMessages({
         id: 'TR_DEACTIVATE_TOKEN_BALANCE_WARNING',
         defaultMessage: 'To deactivate this token, transfer its remaining balance.',
     },
+    TR_TOKEN_ACTIVATION_INSUFFICIENT_FUNDS: {
+        id: 'TR_TOKEN_ACTIVATION_INSUFFICIENT_FUNDS',
+        defaultMessage:
+            'Insufficient funds. You need {required} to cover the reserve and network fee, but only {available} is available.',
+    },
     TR_ASSET_CODE: {
         id: 'TR_ASSET_CODE',
         defaultMessage: 'Asset code',
@@ -6385,6 +6390,10 @@ export default defineMessages({
         id: 'TR_BACKEND_DEFAULT_SERVERS',
         defaultMessage: 'Trezor servers (default)',
     },
+    TR_BACKEND_CUSTOM_RPC: {
+        id: 'TR_BACKEND_CUSTOM_RPC',
+        defaultMessage: 'Custom RPC',
+    },
     TR_BACKEND_CUSTOM_SERVERS: {
         id: 'TR_BACKEND_CUSTOM_SERVERS',
         defaultMessage: 'Custom {type} server',
@@ -6400,6 +6409,26 @@ export default defineMessages({
     TR_CUSTOM_BACKEND_BACKEND_ALREADY_ADDED: {
         id: 'TR_CUSTOM_BACKEND_BACKEND_ALREADY_ADDED',
         defaultMessage: 'The backend is already added',
+    },
+    TR_CUSTOM_BACKEND_CONNECTION_ERROR: {
+        id: 'TR_CUSTOM_BACKEND_CONNECTION_ERROR',
+        defaultMessage: 'Could not connect to {url}',
+    },
+    TR_CUSTOM_BACKEND_CHAIN_MISMATCH: {
+        id: 'TR_CUSTOM_BACKEND_CHAIN_MISMATCH',
+        defaultMessage: 'Chain ID mismatch for {url}: expected {expected}, but got {actual}',
+    },
+    TR_CUSTOM_BACKEND_VALIDATION_ERROR: {
+        id: 'TR_CUSTOM_BACKEND_VALIDATION_ERROR',
+        defaultMessage: 'Failed to validate {url}',
+    },
+    TR_CUSTOM_BACKEND_NETWORK_MISSING_CHAIN_ID: {
+        id: 'TR_CUSTOM_BACKEND_NETWORK_MISSING_CHAIN_ID',
+        defaultMessage: 'Network does not have a chain ID configured',
+    },
+    TR_VALIDATING: {
+        id: 'TR_VALIDATING',
+        defaultMessage: 'Validating...',
     },
     TR_OTHER_COINS_USE_DEFAULT_BACKEND: {
         id: 'TR_OTHER_COINS_USE_DEFAULT_BACKEND',
@@ -11038,5 +11067,9 @@ export default defineMessages({
     TR_ASSET_PICKER_SEARCH_NO_RESULTS: {
         id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS',
         defaultMessage: 'No coin or token found',
+    },
+    TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION: {
+        id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION',
+        defaultMessage: 'Check the spelling or browse the list to select an option.',
     },
 } as const);
