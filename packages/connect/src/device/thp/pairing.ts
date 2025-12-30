@@ -222,13 +222,16 @@ export const getThpCredentials = async (device: Device, autoconnect = false) => 
         credential: thpState.pairingCredentials[0]?.credential,
     });
 
-    return { ...credentials.message, autoconnect };
+    const host_static_key = thpState.handshakeCredentials.staticKey.toString('hex');
+
+    return { ...credentials.message, autoconnect, host_static_key };
 };
 
-export const thpPairingEnd = (device: Device) => {
+export const thpPairingEnd = async (device: Device) => {
+    const result = await thpCall(device, 'ThpEndRequest', {});
     device.getThpState()?.setPhase('paired');
 
-    return thpCall(device, 'ThpEndRequest', {});
+    return result;
 };
 
 // State HH2/HH3 -> HP0 -> HP1 -> HP2 -> HP3 -> HP4
@@ -319,12 +322,10 @@ export const thpPairing = async (device: Device) => {
     const credentials = await getThpCredentials(device, false);
     device.emit(DEVICE.THP_CREDENTIALS_CHANGED, {
         credentials,
-        staticKey: thpState.handshakeCredentials.staticKey.toString('hex'),
     });
     const settings1 = DataManager.getSettings('thp');
     if (settings1) {
         settings1.knownCredentials?.push(credentials);
-        settings1.staticKey = thpState.handshakeCredentials.staticKey.toString('hex');
     }
 
     thpState.setPairingCredentials([credentials]);
