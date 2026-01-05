@@ -164,7 +164,7 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
                         extraFactory: api => ({
                             ...extraDependencies,
                             ...(options.additionalExtraDeps || {}),
-                            ...createSuiteCompositionRoot(api),
+                            services: createSuiteCompositionRoot(api),
                         }),
                         onExtraCreated: initializedExtra => {
                             extra = initializedExtra;
@@ -175,5 +175,10 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
         devTools,
     } as const);
 
-    return castExtraStore(store, extra);
+    const castedStore = castExtraStore(store, extra);
+
+    return {
+        ...castedStore,
+        services: castedStore.extra.services,
+    };
 };

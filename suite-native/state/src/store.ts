@@ -49,8 +49,8 @@ const getMiddlewares = (getExtra: () => ExtraDependencies | null) => {
         enhancers.push(rozeniteDevToolsEnhancer());
 
         if (ENABLE_REDUX_LOGGER) {
-            const logger = require('redux-logger');
-            middlewares.push(logger);
+            const { createLogger } = require('redux-logger');
+            middlewares.push(createLogger());
         }
     }
 
@@ -72,7 +72,7 @@ export const initStore = async (preloadedState?: PreloadedState) => {
                     createStoreWithExtraStoreMiddleware({
                         extraFactory: api => ({
                             ...extraDependencies,
-                            ...createNativeCompositionRoot(api),
+                            services: createNativeCompositionRoot(api),
                         }),
                         onExtraCreated: initializedExtra => {
                             extra = initializedExtra;
@@ -85,7 +85,12 @@ export const initStore = async (preloadedState?: PreloadedState) => {
         enhancers: getDefaultEnhancers => getDefaultEnhancers().concat(enhancers),
     });
 
-    return castExtraStore(store, extra);
+    const castedStore = castExtraStore(store, extra);
+
+    return {
+        ...castedStore,
+        services: castedStore.extra.services,
+    };
 };
 
 export type StoreWithExtra = Awaited<ReturnType<typeof initStore>>;
