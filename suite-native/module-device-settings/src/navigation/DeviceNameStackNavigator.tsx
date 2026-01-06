@@ -1,6 +1,9 @@
+import { useSelector } from 'react-redux';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { useDeviceConnectionGuard } from '@suite-native/device-authorization';
+import { selectIsDeviceConnected } from '@suite-common/wallet-core';
+import { DeviceConnectionGuardScreen } from '@suite-native/device-authorization';
 import {
     DeviceNameStackParamList,
     DeviceNameStackRoutes,
@@ -14,19 +17,22 @@ import { DeviceNameScreen } from '../screens/DeviceNameScreen';
 const DeviceNameStack = createNativeStackNavigator<DeviceNameStackParamList>();
 
 export const DeviceNameStackNavigator = () => {
-    const { isDeviceConnected } = useDeviceConnectionGuard();
-
-    if (!isDeviceConnected) return null;
+    const isDeviceConnected = useSelector(selectIsDeviceConnected);
 
     return (
-        <DeviceNameStack.Navigator
-            initialRouteName={DeviceNameStackRoutes.DeviceName}
-            screenOptions={stackNavigationOptionsConfig}
-        >
-            <DeviceNameStack.Screen
-                name={DeviceNameStackRoutes.DeviceName}
-                component={DeviceNameScreen}
-            />
+        <DeviceNameStack.Navigator screenOptions={stackNavigationOptionsConfig}>
+            {!isDeviceConnected && (
+                <DeviceNameStack.Screen
+                    name={DeviceNameStackRoutes.DeviceConnectionGuard}
+                    component={DeviceConnectionGuardScreen}
+                />
+            )}
+            {isDeviceConnected && (
+                <DeviceNameStack.Screen
+                    name={DeviceNameStackRoutes.DeviceName}
+                    component={DeviceNameScreen}
+                />
+            )}
             <DeviceNameStack.Screen
                 name={DeviceNameStackRoutes.ContinueOnTrezor}
                 component={ContinueOnTrezorScreen}
