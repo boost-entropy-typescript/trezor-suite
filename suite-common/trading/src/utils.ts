@@ -21,6 +21,8 @@ import {
     networksCollection,
 } from '@suite-common/wallet-config';
 import type { Account, FormStateTrading } from '@suite-common/wallet-types';
+import { getContractAddressForNetworkSymbol } from '@suite-common/wallet-utils';
+import { TokenInfo } from '@trezor/connect';
 import { exhaustive } from '@trezor/type-utils';
 import { BigNumber } from '@trezor/utils';
 
@@ -64,6 +66,22 @@ export function composeCryptoId(coingeckoId: string, contractAddress?: string | 
             ? `${coingeckoId}${CRYPTO_PLATFORM_SEPARATOR}${contractAddress}`
             : coingeckoId
     ) as CryptoId;
+}
+
+/**
+ * Get the crypto id for an account or token of non-testnet network
+ */
+export function getCryptoId(account: Account, token?: TokenInfo): CryptoId {
+    const network = getNetwork(account.symbol);
+
+    if (token) {
+        return composeCryptoId(
+            network.coingeckoId!,
+            getContractAddressForNetworkSymbol(account.symbol, token.contract),
+        );
+    }
+
+    return network.tradeCryptoId as CryptoId;
 }
 
 export const isCryptoIdForNativeToken = (cryptoId: CryptoId) => {

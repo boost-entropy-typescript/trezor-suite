@@ -7,10 +7,12 @@ import { NetworkSymbol } from '@suite-common/wallet-config';
 
 const AssetOptionsContext = createContext<{
     networks: NetworkSymbol[];
-    assetsByTradingVolume: TradingAssetOption[];
+    assets: TradingAssetOption[];
+    disabledCryptoIds: Set<CryptoId> | undefined;
 }>({
     networks: [],
-    assetsByTradingVolume: [],
+    assets: [],
+    disabledCryptoIds: undefined,
 });
 
 export interface AssetOptionsContextProps {
@@ -25,7 +27,7 @@ export function AssetOptionsProvider({
     children,
 }: AssetOptionsContextProps) {
     const { buildAssetOptions } = useTradingAssets();
-    const { assets: assetsByTradingVolume, networks } = useMemo(
+    const { assets, networks } = useMemo(
         () => buildAssetOptions({ enabledCryptoIds, disabledCryptoIds }),
         [buildAssetOptions, enabledCryptoIds, disabledCryptoIds],
     );
@@ -33,9 +35,10 @@ export function AssetOptionsProvider({
     const contextValue = useMemo(
         () => ({
             networks,
-            assetsByTradingVolume,
+            assets,
+            disabledCryptoIds,
         }),
-        [networks, assetsByTradingVolume],
+        [networks, assets, disabledCryptoIds],
     );
 
     return (
