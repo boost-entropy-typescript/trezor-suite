@@ -11145,6 +11145,7 @@ __metadata:
   resolution: "@suite-common/platform-encryption-native@workspace:suite-native/platform-encryption-native"
   dependencies:
     "@suite-common/platform-encryption": "workspace:*"
+    "@suite-native/storage": "workspace:*"
     "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -11773,9 +11774,9 @@ __metadata:
     "@suite-native/navigation": "workspace:*"
     "@suite-native/receive": "workspace:*"
     "@suite-native/sentry": "workspace:*"
+    "@suite-native/services": "workspace:*"
     "@suite-native/settings": "workspace:*"
     "@suite-native/state": "workspace:*"
-    "@suite-native/storage": "workspace:*"
     "@suite-native/storybook": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/theme": "workspace:*"
@@ -12097,7 +12098,6 @@ __metadata:
   resolution: "@suite-native/device-bootloader-mode@workspace:suite-native/device-bootloader-mode"
   dependencies:
     "@react-navigation/native": "npm:7.1.18"
-    "@react-navigation/native-stack": "npm:7.5.1"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
@@ -12165,7 +12165,6 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@react-navigation/native": "npm:7.1.18"
-    "@react-navigation/native-stack": "npm:7.5.1"
     "@reduxjs/toolkit": "npm:2.11.0"
     "@suite-common/bluetooth": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
@@ -13437,6 +13436,7 @@ __metadata:
   dependencies:
     "@suite-common/redux-utils": "workspace:*"
     react: "npm:19.1.0"
+    react-native-mmkv: "npm:~4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -13544,6 +13544,7 @@ __metadata:
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/transport-native-bluetooth": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     bs58: "npm:^6.0.0"
     expo-crypto: "npm:~15.0.7"
     expo-secure-store: "npm:~15.0.7"
