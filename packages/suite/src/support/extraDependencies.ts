@@ -7,12 +7,7 @@ import { createWebauthnPlatformEncryption } from '@suite/platform-encryption-web
 import { createSuiteSyncDesktopCompositionRoot } from '@suite/suite-sync';
 import { delegatedIdentityKeyCompositionRoot } from '@suite-common/delegated-identity-key';
 import { FW_HASH_CHECK_DEFAULT_TIMEOUTS } from '@suite-common/firmware-authenticity';
-import {
-    CommonServices,
-    ExtraDependenciesStatic,
-    LocationPushState,
-    To,
-} from '@suite-common/redux-utils';
+import { CommonServices, ExtraDependenciesStatic, RouterServices } from '@suite-common/redux-utils';
 import {
     TokenDefinitionsState,
     buildTokenDefinitionsFromStorage,
@@ -38,6 +33,7 @@ import * as modalActions from 'src/actions/suite/modalActions';
 import { StorageLoadAction } from 'src/actions/suite/storageActions';
 import * as cardanoStakingActions from 'src/actions/wallet/cardanoStakingActions';
 import { selectIsWindowVisible } from 'src/reducers/suite/windowReducer';
+import { ensureRouterPath, getPrefixedURL, stripPrefixedURL } from 'src/utils/suite/router';
 import { reportSecurityCheck } from 'src/utils/suite/sentry';
 import { fixLoadedCoinjoinAccount } from 'src/utils/wallet/coinjoinUtils';
 
@@ -65,9 +61,21 @@ const connectInitSettings = {
     firmwareHashCheckTimeouts: FW_HASH_CHECK_DEFAULT_TIMEOUTS,
 };
 
-export const createRouterServices = (history: History) => ({
-    getLocation: () => history.location,
-    navigate: (to: To, state?: LocationPushState) => history.push(to, state),
+export const createRouterServices = (history: History): RouterServices => ({
+    getLocation: () => {
+        const { location } = history;
+
+        return ensureRouterPath({ ...location, pathname: stripPrefixedURL(location.pathname) });
+    },
+    navigate: (to, state) =>
+        history.push(
+            { ...to, pathname: to.pathname ? getPrefixedURL(to.pathname) : undefined },
+            state,
+        ),
+    listen: listener =>
+        history.listen(({ location, action }) =>
+            listener({ location: ensureRouterPath(location), action }),
+        ),
 });
 
 type SuiteAppDeps = {

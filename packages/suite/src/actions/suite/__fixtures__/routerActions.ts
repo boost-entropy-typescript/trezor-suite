@@ -1,8 +1,9 @@
-import { findRouteByName } from 'src/utils/suite/router';
+import { getRoute } from 'src/utils/suite/router';
 
 export const init = [
     {
         description: `success`,
+        state: undefined,
         result: {
             app: 'dashboard',
             hash: '',
@@ -11,11 +12,8 @@ export const init = [
             loaded: true,
             anchor: undefined,
             search: '',
-            url: '/',
-            route: findRouteByName('suite-index'),
-            settingsBackRoute: {
-                name: 'suite-index',
-            },
+            route: getRoute('suite-index'),
+            settingsBackRoute: { name: 'suite-index' },
         },
     },
     {
@@ -33,7 +31,7 @@ export const init = [
         },
         result: undefined,
     },
-];
+] as const;
 
 export const onBeforePopState = [
     {
@@ -108,7 +106,7 @@ export const initialRedirection = [
     },
     {
         description: `redirect to modal app`,
-        pathname: '/bridge',
+        pathname: '/bridge' as const,
         app: 'bridge',
     },
     {

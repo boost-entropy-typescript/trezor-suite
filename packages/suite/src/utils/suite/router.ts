@@ -1,4 +1,4 @@
-import { ExtraDependencies } from '@suite-common/redux-utils';
+import { HashString, PathString, RouterPath, SearchString } from '@suite-common/redux-utils';
 import { modalAppParams } from '@suite-common/suite-config';
 import { Route } from '@suite-common/suite-types';
 import { yup } from '@suite-common/validators';
@@ -8,7 +8,7 @@ import {
     GlobalSendReceiveType,
 } from '@suite-common/wallet-types';
 
-import routes, { RouterAppWithParams } from 'src/constants/suite/routes';
+import routes, { type RouterAppWithParams } from 'src/constants/suite/routes';
 
 // Prefix a url with ASSET_PREFIX (eg. name of the branch in CI)
 // Useful with next.js Router.push() that accepts `as` prop as second arg
@@ -30,31 +30,51 @@ export const stripPrefixedURL = (url: string) => {
     return url;
 };
 
-// Strips params delimited by a hashtag from the URL
-export const stripPrefixedPathname = (url: string) => {
-    const [pathname] = stripPrefixedURL(url).split('#');
+// https://github.com/remix-run/history/blob/main/docs/api-reference.md#locationpathname
+const ensurePathString = (s: string = ''): PathString =>
+    (s.startsWith('/') ? s : `/${s}`) as PathString;
 
-    return pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
+// https://github.com/remix-run/history/blob/main/docs/api-reference.md#locationsearch
+const ensureSearchString = (s: string = ''): SearchString =>
+    (!s || s.startsWith('?') ? s : `?${s}`) as SearchString;
+
+// https://github.com/remix-run/history/blob/main/docs/api-reference.md#locationhash
+const ensureHashString = (s: string = ''): HashString =>
+    (!s || s.startsWith('#') ? s : `#${s}`) as HashString;
+
+export const ensureRouterPath = (path: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+}): RouterPath => ({
+    pathname: ensurePathString(path.pathname),
+    search: ensureSearchString(path.search),
+    hash: ensureHashString(path.hash),
+});
+
+export { type RouterPath };
+
+export type RouterPathOptional = {
+    pathname: RouterPath['pathname'];
+    search?: RouterPath['search'];
+    hash?: RouterPath['hash'];
 };
 
-export const findRoute = (url: string) => {
-    const clean = stripPrefixedPathname(url);
+export const isEqualLocation = (loc1: RouterPathOptional, loc2: RouterPathOptional) =>
+    loc1.pathname === loc2.pathname &&
+    (loc1.search ?? '') === (loc2.search ?? '') &&
+    (loc1.hash ?? '') === (loc2.hash ?? '');
+
+export const findRoute = (pathname: PathString) => {
+    const clean = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
 
     return routes.find(r => r.pattern === clean);
 };
 
-export const findRouteByName = (name: Route['name']) => routes.find(r => r.name === name);
+const parseHash = (hash: HashString) => hash.replace(/^#/, '').split('/').filter(Boolean);
 
-export const getApp = (url: string) => {
-    const route = findRoute(url);
-
-    return route ? route.app : 'unknown';
-};
-
-const validateWalletParams = (url: string): CommonWalletParams => {
-    const [, hash] = stripPrefixedURL(url).split('#');
-    if (!hash) return;
-    const [symbol, index, rawAccountType] = hash.split('/').filter(p => p.length > 0);
+const validateWalletParams = (hash: HashString): CommonWalletParams => {
+    const [symbol, index, rawAccountType] = parseHash(hash);
     if (!index) return;
 
     const network = getNetworkOptional(symbol);
@@ -89,9 +109,8 @@ const modalAppParamsDefaultValues: ModalAppParams = {
     variant: undefined,
 };
 
-const validateModalAppParams = (url: string, params?: Route['params']): ModalAppParams => {
-    const [, hash] = stripPrefixedURL(url).split('#');
-    const splitted = hash?.split('/').filter(p => p.length > 0);
+const validateModalAppParams = (hash: HashString, params?: Route['params']): ModalAppParams => {
+    const splitted = parseHash(hash);
     if (!splitted || splitted.length === 0) return modalAppParamsDefaultValues;
 
     return {
@@ -123,12 +142,8 @@ export function parseDashboardParams(params: unknown): DashboardParams | undefin
     }
 }
 
-const validateDashboardParams = (url: string): DashboardParams | undefined => {
-    const stripped = stripPrefixedURL(url);
-    const hashIndex = stripped.indexOf('#');
-
-    const hash = hashIndex >= 0 ? stripped.slice(hashIndex + 1) : '';
-    const [modal, networkSymbol] = hash.split('/').filter(Boolean);
+const validateDashboardParams = (hash: HashString): DashboardParams | undefined => {
+    const [modal, networkSymbol] = parseHash(hash);
 
     if (modal === undefined) {
         return undefined;
@@ -145,47 +160,23 @@ const validateDashboardParams = (url: string): DashboardParams | undefined => {
     return params;
 };
 
-// Used in routerReducer
-export const getAppWithParams = (url: string): RouterAppWithParams => {
-    const route = findRoute(url);
-
-    if (!route) {
-        return {
-            app: 'unknown',
-            route: undefined,
-            params: undefined,
-        };
+const getAppParams = (route: Route, hash: HashString = '') => {
+    switch (route.app) {
+        case 'dashboard':
+            return validateDashboardParams(hash);
+        case 'wallet':
+            return validateWalletParams(hash);
+        default:
+            return route.params ? validateModalAppParams(hash, route.params) : undefined;
     }
+};
 
-    if (route.app === 'dashboard') {
-        return {
-            app: route.app,
-            params: validateDashboardParams(url),
-            route,
-        } as RouterAppWithParams;
-    }
+export const getAppWithParams = (path: { pathname: PathString; hash?: HashString }) => {
+    const route = findRoute(path.pathname);
+    const app = route?.app ?? 'unknown';
+    const params = route && getAppParams(route, path.hash);
 
-    if (route.app === 'wallet') {
-        return {
-            app: route.app,
-            params: validateWalletParams(url),
-            route,
-        };
-    }
-
-    if (route.params) {
-        return {
-            app: route.app,
-            params: validateModalAppParams(url, route.params),
-            route,
-        } as RouterAppWithParams;
-    }
-
-    return {
-        app: route.app,
-        route,
-        params: undefined,
-    } as RouterAppWithParams;
+    return { app, params, route } as RouterAppWithParams;
 };
 
 export type WalletParams = CommonWalletParams;
@@ -195,49 +186,16 @@ export type RouteParams = {
         DashboardParams)[K];
 };
 
-export const getRoute = (name: Route['name'], params?: RouteParams) => {
-    const route = findRouteByName(name);
-    if (!route) return '/';
-    const order = route.params;
-    if (params && order) {
-        const paramsString = Object.entries(params)
-            // sort by order defined in routes
-            .sort((a, b) => {
-                const aIndex = order.findIndex((o: string) => o === a[0]);
-                const bIndex = order.findIndex((o: string) => o === b[0]);
+export const getRoute = (name: Route['name']) => routes.find(r => r.name === name);
 
-                return aIndex - bIndex;
-            })
-            .reduce((val, curr) => {
-                const exists = order.findIndex((o: string) => o === curr[0]);
-                if (exists < 0) return val;
-
-                return `${val}/${curr[1]}`;
-            }, '');
-
-        return paramsString.length > 0 ? `${route.pattern}#${paramsString}` : route.pattern;
-    }
-
-    return route.pattern;
-};
-
-// Used in @suite-native routerActions
-export const getTopLevelRoute = (url: string) => {
-    if (typeof url !== 'string') return;
-    const clean = stripPrefixedPathname(url);
-    const split = clean.split('/');
-    split.splice(0, 1);
-    if (split.length > 1) {
-        return getPrefixedURL(`/${split[0]}`);
-    }
-};
-
-/**
- * Used only in application modal.
- * Returns Route of application beneath the application modal. (real Router value)
- */
-export const getBackgroundRoute = (extra: ExtraDependencies) => {
-    const location = extra.routerServices.getLocation();
-
-    return findRoute(location.pathname + location.hash);
-};
+export const getRouteHash = (route?: Route, params?: RouteParams) =>
+    ensureHashString(
+        params &&
+            route?.params &&
+            [
+                '',
+                ...route.params
+                    .filter(p => Object.prototype.hasOwnProperty.call(params, p))
+                    .map(p => params[p]),
+            ].join('/'),
+    );

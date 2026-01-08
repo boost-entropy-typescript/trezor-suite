@@ -794,17 +794,17 @@ export default defineMessages({
     },
     TR_BUY_FOOTER_TEXT_1: {
         defaultMessage:
-            'Invity is a comparison tool that connects you to the best exchange providers. They only use location in order to show the most relevant offers.',
+            'Trezor Suite helps you compare trusted exchange providers to find the best offers. Your location is used only to show options that are relevant to you.',
         id: 'TR_BUY_FOOTER_TEXT_1',
     },
     TR_BUY_FOOTER_TEXT_2: {
         defaultMessage:
-            "Invity doesn't see any of your payment or KYC information. You share this only with the exchange provider if you choose to complete the transaction.",
+            "Trezor doesn't see any of your payment or KYC information. You share this only with the exchange provider if you choose to complete the transaction.",
         id: 'TR_BUY_FOOTER_TEXT_2',
     },
     TR_TRADING_TERMS_1: {
         id: 'TR_TRADING_TERMS_1',
-        defaultMessage: "Invity doesn't provide this service. It's governed by ",
+        defaultMessage: "Trezor doesn't provide this service. It's governed by ",
     },
     TR_TRADING_TERMS_2: {
         id: 'TR_TRADING_TERMS_2',
@@ -865,13 +865,9 @@ export default defineMessages({
         id: 'TR_LOGIN_PROCEED',
         defaultMessage: 'Proceed',
     },
-    TR_TERMS_OF_USE_INVITY: {
+    TR_TERMS_OF_USE_TREZOR: {
         defaultMessage: 'Terms of Use',
-        id: 'TR_TERMS_OF_USE_INVITY',
-    },
-    TR_BUY_PROVIDED_BY_INVITY: {
-        defaultMessage: 'Powered by',
-        id: 'TR_BUY_PROVIDED_BY_INVITY',
+        id: 'TR_TERMS_OF_USE_TREZOR',
     },
     TR_BUY_LEARN_MORE: {
         defaultMessage: 'Learn more',
@@ -3222,7 +3218,7 @@ export default defineMessages({
     TR_THP_SETTINGS_AUTO_CONNECT_DESCRIPTION: {
         id: 'TR_THP_SETTINGS_AUTO_CONNECT_DESCRIPTION',
         defaultMessage:
-            'Trezor will connect automatically without having to confirm every connection.',
+            'Trezor will connect automatically, so you don’t need to approve each connection.',
     },
     TR_THP_AUTO_CONNECT_INFO_MODAL_HEADER: {
         id: 'TR_THP_AUTO_CONNECT_INFO_MODAL_HEADER',
@@ -4462,7 +4458,7 @@ export default defineMessages({
     TR_FORGET_DEVICE_DESCRIPTION: {
         id: 'TR_FORGET_DEVICE_DESCRIPTION',
         defaultMessage:
-            'Permanently deletes all data related to your Trezor from this computer, including Bluetooth pairing and connection settings.',
+            'Permanently delete all data related to your Trezor from this computer, including Bluetooth pairing and connection settings.',
     },
     TR_DEVICE_CONNECTION: {
         id: 'TR_DEVICE_CONNECTION',

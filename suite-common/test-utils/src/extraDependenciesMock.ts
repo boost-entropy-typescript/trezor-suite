@@ -6,12 +6,7 @@ import {
     PlatformEncryption,
     asEncryptedHex,
 } from '@suite-common/platform-encryption';
-import {
-    type ExtraDependencies,
-    type LocationPushState,
-    type To,
-    createThunk,
-} from '@suite-common/redux-utils';
+import { type ExtraDependencies, createThunk } from '@suite-common/redux-utils';
 import type { SuiteSync } from '@suite-common/suite-sync-types';
 import { ReportSecurityCheckProps, Route } from '@suite-common/suite-types';
 import { AddressDisplayOptions, SelectedAccountLoaded } from '@suite-common/wallet-types';
@@ -184,11 +179,11 @@ export const extraDependenciesMock: ExtraDependencies = {
     },
     routerServices: {
         getLocation: () => ({
-            pathname: 'mocked_path',
-            hash: 'mocked_hash',
-            search: 'mocked_search',
+            pathname: '/mocked_path',
+            hash: '#mocked_hash',
+            search: '?mocked_search',
         }),
-        navigate: (to: To, state?: LocationPushState) =>
-            console.warn(`Mock navigating to ${to} with state`, state),
+        navigate: (to, state) => console.warn(`Mock navigating to ${to} with state`, state),
+        listen: (_: {}) => () => {},
     },
 };
