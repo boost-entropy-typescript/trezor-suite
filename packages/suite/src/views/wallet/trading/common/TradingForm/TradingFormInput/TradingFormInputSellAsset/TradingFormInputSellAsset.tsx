@@ -1,14 +1,11 @@
-import { memo, useMemo } from 'react';
-
-import { CryptoId } from 'invity-api';
+import { memo } from 'react';
 
 import { useModal } from 'src/components/suite/asset-picker/hooks';
 
-import { AssetOptionsProvider } from './AssetOptionsContext';
-import { AssetPickerInput, AssetPickerInputProps } from './AssetPickerInput';
+import { AssetPickerInput, AssetPickerInputProps } from '../TradingFormInputAssetPicker';
 import { AssetPickerModal, AssetPickerModalProps } from './AssetPickerModal/AssetPickerModal';
 
-export interface TradingFormInputAssetPickerProps {
+export interface TradingFormInputSellAssetProps {
     inputPlaceholder?: AssetPickerInputProps['placeholder'];
     inputLabel: AssetPickerInputProps['label'];
     inputName: AssetPickerInputProps['name'];
@@ -19,32 +16,21 @@ export interface TradingFormInputAssetPickerProps {
      */
     onAssetSelect: AssetPickerModalProps['onAssetSelect'];
 
-    enabledCryptoIds?: Set<CryptoId> | undefined;
-    disabledCryptoId?: CryptoId | undefined;
     dataTestId?: string;
 }
 
-export const TradingFormInputAssetPicker = memo(function TradingFormInputAssetPickerInner({
+export const TradingFormInputSellAsset = memo(function TradingFormInputSellAssetInner({
     inputPlaceholder,
     inputLabel,
     inputName,
     inputDisabled,
     dataTestId,
-    enabledCryptoIds,
-    disabledCryptoId,
     onAssetSelect,
-}: TradingFormInputAssetPickerProps) {
+}: TradingFormInputSellAssetProps) {
     const modal = useModal();
-    const disabledCryptoIds = useMemo(
-        () => (disabledCryptoId ? new Set([disabledCryptoId]) : undefined),
-        [disabledCryptoId],
-    );
 
     return (
-        <AssetOptionsProvider
-            enabledCryptoIds={enabledCryptoIds}
-            disabledCryptoIds={disabledCryptoIds}
-        >
+        <>
             <AssetPickerInput
                 name={inputName}
                 label={inputLabel}
@@ -61,6 +47,6 @@ export const TradingFormInputAssetPicker = memo(function TradingFormInputAssetPi
                     onAssetSelect={onAssetSelect}
                 />
             )}
-        </AssetOptionsProvider>
+        </>
     );
 });

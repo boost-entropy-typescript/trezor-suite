@@ -77,7 +77,7 @@ export const messages = {
             cta: 'Download latest version',
         },
     },
-    labeling: {
+    suiteSync: {
         label: 'Label',
         addLabel: 'Add label',
         disableAlert: {
@@ -1044,11 +1044,13 @@ export const messages = {
                     subtitle:
                         'Only choosing coins that you use will shorten loading times when connecting your Trezor.',
                 },
-                labeling: {
-                    title: 'Labeling',
-                    subtitle: 'Name your wallets, accounts and more',
+                suiteSync: {
+                    title: 'Suite Sync',
+                    subtitle: 'Sync data across your devices',
                     screenSubtitle:
-                        'Name your wallets, personalize accounts, and label transactions.',
+                        'Name your wallets, personalize accounts, and label transactions. Labels are stored locally and synced across your devices.',
+                    toggleDescription:
+                        'Keeps your data up to date on all your devices. Your data stays local and syncs only with devices you approve.',
                 },
                 advanced: {
                     title: 'Advanced',
@@ -1065,13 +1067,6 @@ export const messages = {
                     add: 'Add WalletConnect',
                 },
             },
-        },
-        secureSync: {
-            title: 'Secure sync (required)',
-            description:
-                'Secure sync keeps your data consistent across all of your devices. Data is stored locally and only synced with devices you authorize.',
-            enable: 'Enable',
-            disable: 'Disable',
         },
         faq: {
             title: 'Get help',

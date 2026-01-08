@@ -1,39 +1,25 @@
-import { ReactNode, memo, useEffect, useRef } from 'react';
-
-import { NetworkSymbol } from '@suite-common/wallet-config';
+import { ReactNode, memo, useRef } from 'react';
 
 import { AssetsList, AssetsListEmpty } from 'src/components/suite/asset-picker/components';
-import { useDataFingerprint } from 'src/components/suite/asset-picker/hooks';
+import { useDataFingerprint, useListScrollReset } from 'src/components/suite/asset-picker/hooks';
 
-import {
-    TradingAssetListItem,
-    useBuildTradingAssetOptions,
-} from './hooks/useBuildTradingAssetOptions';
+import { TradingAssetListItem } from './hooks/useBuildTradingAssetOptions';
 
 const LIST_HEIGHT = 530;
 
 export interface AssetListWrapperProps {
-    search: string;
-    networkSymbol: NetworkSymbol | undefined;
     renderItem: (item: TradingAssetListItem) => ReactNode;
+    listItems: TradingAssetListItem[];
 }
 
 export const AssetListWrapper = memo(function AssetListWrapperInner({
-    search,
-    networkSymbol,
+    listItems,
     renderItem,
 }: AssetListWrapperProps) {
     const listRef = useRef<HTMLDivElement>(null);
-
-    const { listItems } = useBuildTradingAssetOptions({
-        search,
-        networkSymbol,
-    });
     const listItemsFingerprint = useDataFingerprint(listItems);
 
-    useEffect(() => {
-        listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [listRef, listItemsFingerprint]);
+    useListScrollReset(listRef, listItemsFingerprint);
 
     return (
         <AssetsListEmpty

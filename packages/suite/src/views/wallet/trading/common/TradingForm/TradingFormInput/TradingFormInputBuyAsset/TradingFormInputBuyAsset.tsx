@@ -1,0 +1,66 @@
+import { memo, useMemo } from 'react';
+
+import { CryptoId } from 'invity-api';
+
+import { useModal } from 'src/components/suite/asset-picker/hooks';
+
+import { AssetOptionsProvider } from './AssetOptionsContext';
+import { AssetPickerInput, AssetPickerInputProps } from '../TradingFormInputAssetPicker';
+import { AssetPickerModal, AssetPickerModalProps } from './AssetPickerModal/AssetPickerModal';
+
+export interface TradingFormInputBuyAssetProps {
+    inputPlaceholder?: AssetPickerInputProps['placeholder'];
+    inputLabel: AssetPickerInputProps['label'];
+    inputName: AssetPickerInputProps['name'];
+    inputDisabled?: AssetPickerInputProps['isDisabled'];
+
+    /**
+     * Make to sure to use `useCallback` to avoid breaking the `memo`
+     */
+    onAssetSelect: AssetPickerModalProps['onAssetSelect'];
+
+    enabledCryptoIds?: Set<CryptoId> | undefined;
+    disabledCryptoId?: CryptoId | undefined;
+    dataTestId?: string;
+}
+
+export const TradingFormInputBuyAsset = memo(function TradingFormInputBuyAssetInner({
+    inputPlaceholder,
+    inputLabel,
+    inputName,
+    inputDisabled,
+    dataTestId,
+    enabledCryptoIds,
+    disabledCryptoId,
+    onAssetSelect,
+}: TradingFormInputBuyAssetProps) {
+    const modal = useModal();
+    const disabledCryptoIds = useMemo(
+        () => (disabledCryptoId ? new Set([disabledCryptoId]) : undefined),
+        [disabledCryptoId],
+    );
+
+    return (
+        <AssetOptionsProvider
+            enabledCryptoIds={enabledCryptoIds}
+            disabledCryptoIds={disabledCryptoIds}
+        >
+            <AssetPickerInput
+                name={inputName}
+                label={inputLabel}
+                placeholder={inputPlaceholder}
+                isDisabled={inputDisabled}
+                onClick={modal.openModal}
+                dataTestId={dataTestId}
+            />
+            {modal.open && (
+                <AssetPickerModal
+                    heading={inputLabel}
+                    closeModal={modal.closeModal}
+                    dataTestId={dataTestId}
+                    onAssetSelect={onAssetSelect}
+                />
+            )}
+        </AssetOptionsProvider>
+    );
+});

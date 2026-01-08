@@ -3,12 +3,14 @@ import { DynamicScreenHeader, Screen } from '@suite-native/navigation';
 
 import { ToggleLabelingCard } from '../components/ToggleLabelingCard';
 
-export const SettingsLabelingScreen = () => (
+export const SettingsSuiteSyncScreen = () => (
     <Screen
         header={
             <DynamicScreenHeader
-                title={<Translation id="moduleSettings.items.features.labeling.title" />}
-                subtitle={<Translation id="moduleSettings.items.features.labeling.subtitle" />}
+                title={<Translation id="moduleSettings.items.features.suiteSync.title" />}
+                subtitle={
+                    <Translation id="moduleSettings.items.features.suiteSync.screenSubtitle" />
+                }
             />
         }
     >

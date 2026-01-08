@@ -3,8 +3,13 @@ import { useMemo } from 'react';
 import { CryptoId } from 'invity-api';
 
 import { TranslationKey } from '@suite-common/intl-types';
-import { TradingAssetOption, createDefaultAssetOption, getCryptoId } from '@suite-common/trading';
-import { NetworkSymbol } from '@suite-common/wallet-config';
+import {
+    TradingAssetOption,
+    createAssetNativeTokenOption,
+    createAssetTokenOption,
+    getCryptoId,
+} from '@suite-common/trading';
+import { NetworkSymbol, networkSymbolCollection } from '@suite-common/wallet-config';
 import { Account } from '@suite-common/wallet-types';
 import { accountSearchFn, isTokenMatchesSearch } from '@suite-common/wallet-utils';
 
@@ -45,10 +50,10 @@ function excludeDisabledCryptoIds(disabledCryptoIds: Set<CryptoId> = new Set()) 
     return function disabledCryptoIdsFilter(accountOrToken: AggregatedAccountWithTokens) {
         switch (accountOrToken.type) {
             case 'account':
-                return !disabledCryptoIds.has(getCryptoId(accountOrToken.account));
+                return !disabledCryptoIds.has(getCryptoId(accountOrToken.account.symbol));
             case 'token':
                 return !disabledCryptoIds.has(
-                    getCryptoId(accountOrToken.account, accountOrToken.token),
+                    getCryptoId(accountOrToken.account.symbol, accountOrToken.token.contract),
                 );
             default:
                 return false;
@@ -59,34 +64,44 @@ function excludeDisabledCryptoIds(disabledCryptoIds: Set<CryptoId> = new Set()) 
 /**
  * Note this is going to be replaced soon with more sophisticated top assets logic.
  */
-function createTopFiveAssets() {
-    return [
-        createDefaultAssetOption('btc'),
-        createDefaultAssetOption('eth'),
-        {
-            isNativeToken: false,
-            id: 'ethereum--0xdac17f958d2ee523a2206206994597c13d831ec7' as CryptoId,
-            name: 'Tether',
-            symbol: 'usdt',
-            coingeckoId: 'ethereum',
-            displaySymbol: 'USDT',
-            contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-            networkName: 'Ethereum',
-            networkSymbol: 'eth',
-        },
-        {
-            isNativeToken: false,
-            id: 'ethereum--0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' as CryptoId,
-            name: 'USDC',
-            symbol: 'usdc',
-            coingeckoId: 'ethereum',
-            displaySymbol: 'USDC',
-            contractAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            networkName: 'Ethereum',
-            networkSymbol: 'eth',
-        },
-        createDefaultAssetOption('sol'),
-    ] satisfies TradingAssetOption[];
+function createTopFiveAssets(disabledCryptoIds: Set<CryptoId> = new Set()) {
+    return (
+        (
+            [
+                createAssetNativeTokenOption('btc'),
+                createAssetNativeTokenOption('eth'),
+                createAssetTokenOption('eth', {
+                    contract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+                    symbol: 'usdt',
+                    name: 'Tether',
+                }),
+                createAssetTokenOption('eth', {
+                    contract: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                    symbol: 'usdc',
+                    name: 'USDC',
+                }),
+                createAssetNativeTokenOption('sol'),
+            ] satisfies TradingAssetOption[]
+        )
+            // E.g. filter out "from" field value
+            .filter(asset => !disabledCryptoIds.has(asset.id))
+    );
+}
+
+type GetOrderNetworksProps = {
+    topFiveAssets: TradingAssetOption[];
+    assets: TradingAssetOption[];
+    accountsWithTokens: AggregatedAccountWithTokens[];
+};
+
+function getOrderNetworks({ topFiveAssets, assets, accountsWithTokens }: GetOrderNetworksProps) {
+    const networks: Set<NetworkSymbol> = new Set();
+
+    topFiveAssets.forEach(asset => networks.add(asset.networkSymbol));
+    assets.forEach(asset => networks.add(asset.networkSymbol));
+    accountsWithTokens.forEach(item => networks.add(item.account.symbol));
+
+    return networkSymbolCollection.filter(networkSymbol => networks.has(networkSymbol));
 }
 
 export type TradingAssetListItem =
@@ -136,7 +151,8 @@ export function useBuildTradingAssetOptions({
     return useMemo(() => {
         const listItems: TradingAssetListItem[] = [];
 
-        const topFiveAssets = search.length === 0 && !networkSymbol ? createTopFiveAssets() : [];
+        const topFiveAssets =
+            search.length === 0 && !networkSymbol ? createTopFiveAssets(disabledCryptoIds) : [];
         const topFiveAssetIds = new Set(topFiveAssets.map(asset => asset.id));
 
         if (topFiveAssets.length > 0) {
@@ -153,8 +169,11 @@ export function useBuildTradingAssetOptions({
             );
         }
 
-        const filteredAccounts = accountsWithTokens
-            .filter(excludeDisabledCryptoIds(disabledCryptoIds))
+        const allAccountsWithTokens = accountsWithTokens.filter(
+            excludeDisabledCryptoIds(disabledCryptoIds),
+        );
+
+        const filteredAccounts = allAccountsWithTokens
             .filter(accountOrToken => {
                 switch (accountOrToken.type) {
                     case 'account':
@@ -169,7 +188,9 @@ export function useBuildTradingAssetOptions({
             .filter(accountOrToken => {
                 switch (accountOrToken.type) {
                     case 'account':
-                        return accountSearchFn(accountOrToken.account, search);
+                        return accountSearchFn(accountOrToken.account, search, {
+                            tokensMatch: false,
+                        });
                     case 'token':
                         return isTokenMatchesSearch(accountOrToken.token, search);
                     default:
@@ -206,8 +227,11 @@ export function useBuildTradingAssetOptions({
             }
         }
 
-        const filteredAssets = assets
-            .filter(asset => !topFiveAssetIds.has(asset.id))
+        const allAssets = assets.filter(
+            asset => !topFiveAssetIds.has(asset.id) && !disabledCryptoIds?.has(asset.id),
+        );
+
+        const filteredAssets = allAssets
             .filter(asset => (networkSymbol ? asset.networkSymbol === networkSymbol : true))
             .filter(asset => assetSearchFilter(asset, search));
 
@@ -232,6 +256,12 @@ export function useBuildTradingAssetOptions({
             });
         }
 
-        return { listItems };
+        const orderedNetworks = getOrderNetworks({
+            topFiveAssets,
+            assets: allAssets,
+            accountsWithTokens: allAccountsWithTokens,
+        });
+
+        return { listItems, networks: orderedNetworks };
     }, [accountsWithTokens, assets, disabledCryptoIds, networkSymbol, search]);
 }

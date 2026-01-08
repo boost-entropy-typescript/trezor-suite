@@ -13,12 +13,15 @@ import {
     AssetsModal,
 } from 'src/components/suite/asset-picker/components';
 import { ASSET_ROW_HEIGHT } from 'src/components/suite/asset-picker/constants';
+import { useSearchFilter } from 'src/components/suite/asset-picker/hooks';
 
 import { AssetListWrapper } from './AssetListWrapper';
-import { AssetSearchWithNetworkFilter } from './AssetSearchWithNetworkFilter/AssetSearchWithNetworkFilter';
-import { TradingAssetListItem } from './hooks/useBuildTradingAssetOptions';
-import { useSearchFilter } from './hooks/useSearchFilter';
+import {
+    TradingAssetListItem,
+    useBuildTradingAssetOptions,
+} from './hooks/useBuildTradingAssetOptions';
 import { UseUpdateFormInputProps, useUpdateFormInput } from './hooks/useUpdateFormInput';
+import { AssetSearchWithNetworkFilter } from '../../TradingFormInputAssetPicker';
 
 export type AssetPickerModalProps = {
     closeModal: () => void;
@@ -34,7 +37,12 @@ export const AssetPickerModal = memo(function AssetPickerModalInner({
     dataTestId,
 }: AssetPickerModalProps) {
     const { search, throttledSearch, setSearch } = useSearchFilter();
-    const [networkFilter, setNetworkFilter] = useState<NetworkSymbol | undefined>(undefined);
+    const [networkSymbol, setNetworkSymbol] = useState<NetworkSymbol | undefined>(undefined);
+
+    const { listItems, networks } = useBuildTradingAssetOptions({
+        search: throttledSearch,
+        networkSymbol,
+    });
 
     const handleAssetClick = useUpdateFormInput({ closeModal, onAssetSelect });
 
@@ -99,17 +107,14 @@ export const AssetPickerModal = memo(function AssetPickerModalInner({
                 placeholder="TR_ASSET_PICKER_SEARCH_PLACEHOLDER"
                 search={search}
                 setSearch={setSearch}
-                networkFilter={networkFilter}
-                setNetworkFilter={setNetworkFilter}
+                networkFilter={networkSymbol}
+                setNetworkFilter={setNetworkSymbol}
+                networks={networks}
             />
 
             <Divider margin={{ top: 16 }} />
 
-            <AssetListWrapper
-                search={throttledSearch}
-                networkSymbol={networkFilter}
-                renderItem={renderItem}
-            />
+            <AssetListWrapper renderItem={renderItem} listItems={listItems} />
         </AssetsModal>
     );
 });

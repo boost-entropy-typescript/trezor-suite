@@ -1,6 +1,6 @@
 import { testMocks } from '@suite-common/test-utils';
 import { NetworkFeature } from '@suite-common/wallet-config';
-import { Account } from '@suite-common/wallet-types';
+import { Account, asAccountDescriptor } from '@suite-common/wallet-types';
 
 import * as fixtures from '../__fixtures__/accountUtils';
 import {
@@ -124,8 +124,9 @@ describe('account utils', () => {
             findAccountDevice(
                 getWalletAccount({
                     deviceState: '1stTestnet@device_id:0',
-                    descriptor:
+                    descriptor: asAccountDescriptor(
                         'zpub6rszzdAK6RuafeRwyN8z1cgWcXCuKbLmjjfnrW4fWKtcoXQ8787214pNJjnBG5UATyghuNzjn6Lfp5k5xymrLFJnCy46bMYJPyZsbpFGagT',
+                    ),
                     symbol: 'btc',
                 }),
                 [
@@ -145,9 +146,13 @@ describe('account utils', () => {
     });
 
     it('getAccountKey', () => {
-        expect(getAccountKey('descriptor', 'symbol', '1stTestnetAddress@device_id:0')).toEqual(
-            'descriptor-symbol-1stTestnetAddress@device_id:0',
-        );
+        expect(
+            getAccountKey(
+                asAccountDescriptor('descriptor'),
+                'btc',
+                '1stTestnetAddress@device_id:0',
+            ),
+        ).toEqual('descriptor-btc-1stTestnetAddress@device_id:0');
     });
 
     it('isTestnet', () => {
@@ -166,8 +171,9 @@ describe('account utils', () => {
             getAccountIdentifier(
                 getWalletAccount({
                     deviceState: '1stTestnet@device_id:0',
-                    descriptor:
+                    descriptor: asAccountDescriptor(
                         'zpub6rszzdAK6RuafeRwyN8z1cgWcXCuKbLmjjfnrW4fWKtcoXQ8787214pNJjnBG5UATyghuNzjn6Lfp5k5xymrLFJnCy46bMYJPyZsbpFGagT',
+                    ),
                     symbol: 'btc',
                 }),
             ),
@@ -182,8 +188,9 @@ describe('account utils', () => {
     it('accountSearchFn', () => {
         const btcAcc = getWalletAccount({
             deviceState: '1stTestnet@device_id:0',
-            descriptor:
+            descriptor: asAccountDescriptor(
                 'zpub6rszzdAK6RuafeRwyN8z1cgWcXCuKbLmjjfnrW4fWKtcoXQ8787214pNJjnBG5UATyghuNzjn6Lfp5k5xymrLFJnCy46bMYJPyZsbpFGagT',
+            ),
             symbol: 'btc',
             accountType: 'legacy',
             metadata: {
@@ -197,22 +204,26 @@ describe('account utils', () => {
         });
 
         expect(accountSearchFn(btcAcc, 'btc')).toBe(true);
-        expect(accountSearchFn(btcAcc, '', 'btc')).toBe(true);
+        expect(accountSearchFn(btcAcc, '', { coinsFilter: 'btc' })).toBe(true);
         expect(
             accountSearchFn(
                 btcAcc,
                 'zpub6rszzdAK6RuafeRwyN8z1cgWcXCuKbLmjjfnrW4fWKtcoXQ8787214pNJjnBG5UATyghuNzjn6Lfp5k5xymrLFJnCy46bMYJPyZsbpFGagT',
-                'btc',
+                { coinsFilter: 'btc' },
             ),
         ).toBe(true);
-        expect(accountSearchFn(btcAcc, '', 'ltc')).toBe(false);
+        expect(accountSearchFn(btcAcc, '', { coinsFilter: 'ltc' })).toBe(false);
         expect(accountSearchFn(btcAcc, 'bitcoin')).toBe(true);
         expect(accountSearchFn(btcAcc, 'legacy')).toBe(true);
         expect(accountSearchFn(btcAcc, 'bitco')).toBe(true);
         expect(accountSearchFn(btcAcc, 'ltc')).toBe(false);
         expect(accountSearchFn(btcAcc, 'litecoin')).toBe(false);
         expect(accountSearchFn(btcAcc, 'meow')).toBe(true);
-        expect(accountSearchFn(btcAcc, 'wuff', undefined, 'wuff')).toBe(true);
+        expect(
+            accountSearchFn(btcAcc, 'wuff', {
+                metadataAccountLabel: 'wuff',
+            }),
+        ).toBe(true);
         expect(accountSearchFn(btcAcc, 'meo')).toBe(true);
         expect(accountSearchFn(btcAcc, 'eow')).toBe(true);
         expect(accountSearchFn(btcAcc, 'MEOW')).toBe(true);
@@ -223,7 +234,7 @@ describe('account utils', () => {
                 'zpub6rszzdAK6RuafeRwyN8z1cgWcXCuKbLmjjfnrW4fWKtcoXQ8787214pNJjnBG5UATyghuNzjn6Lfp5k5xymrLFJnCy46bMYJPyZsbpFGagT',
             ),
         ).toBe(true);
-        expect(accountSearchFn(btcAcc, '#1', undefined, 'Bitcoin #1')).toBe(true);
+        expect(accountSearchFn(btcAcc, '#1', { metadataAccountLabel: 'Bitcoin #1' })).toBe(true);
     });
 
     it('getNetworkAccountFeatures', () => {

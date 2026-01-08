@@ -310,13 +310,8 @@ export default defineMessages({
         id: 'TR_CHECKED_BALANCES_ON',
     },
     TR_ALL_NETWORKS: {
-        defaultMessage: 'All networks ({networkCount})',
+        defaultMessage: 'All networks',
         id: 'TR_ALL_NETWORKS',
-    },
-    TR_ALL_NETWORKS_TOOLTIP: {
-        defaultMessage:
-            'View tokens from all {networkCount} networks. Filter by the most popular networks.',
-        id: 'TR_ALL_NETWORKS_TOOLTIP',
     },
     TR_SELECT_TOKEN: {
         defaultMessage: 'Select asset',
@@ -2625,51 +2620,6 @@ export default defineMessages({
         defaultMessage: 'Enable auto-eject?',
         id: 'TR_AUTO_EJECT_CONFIRMATION_TITLE',
     },
-    TR_AUTO_EJECT_FORCED_TOOLTIP: {
-        id: 'TR_AUTO_EJECT_FORCED_TOOLTIP',
-        defaultMessage:
-            'All wallets will be automatically ejected as storing device-related data is disabled.',
-    },
-    TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_TITLE: {
-        id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_TITLE',
-        defaultMessage: 'Store device-related data',
-    },
-    TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_DESCRIPTION: {
-        id: 'TR_DEVICE_SETTINGS_STORE_DEVICE_DATA_DESCRIPTION',
-        defaultMessage:
-            'Store essential device info locally to power features like anti-counterfeit checks and secure device pairing.',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_TITLE: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_TITLE',
-        defaultMessage: 'Store device-related data',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_ENABLED: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_ENABLED',
-        defaultMessage: 'Enabled',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_ENABLED_DESCRIPTION: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_ENABLED_DESCRIPTION',
-        defaultMessage:
-            'Trezor Suite stores firmware, pairing credentials, and other device data locally to provide advanced security.',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_DISABLED: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED',
-        defaultMessage: 'Disabled',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_DISABLED_DESCRIPTION: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_DESCRIPTION',
-        defaultMessage:
-            'No data is stored, and advanced security features are disabled. A secure pairing connection must be reestablished every time. Recommended for experienced users only. Use at your own risk.',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_DISABLED_BADGE: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_BADGE',
-        defaultMessage: 'Advanced',
-    },
-    TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING: {
-        id: 'TR_STORE_DEVICE_DATA_MODAL_DISABLED_WARNING',
-        defaultMessage:
-            'All wallets will be safely ejected. Trezor Suite will restart automatically when the process is finished.',
-    },
     TR_LANGUAGE: {
         defaultMessage: 'Language',
         id: 'TR_LANGUAGE',
@@ -3272,7 +3222,7 @@ export default defineMessages({
     TR_THP_SETTINGS_AUTO_CONNECT_DESCRIPTION: {
         id: 'TR_THP_SETTINGS_AUTO_CONNECT_DESCRIPTION',
         defaultMessage:
-            'Use this computer regularly with your Trezor? Let Trezor Suite connect automatically—no need to approve it each time.',
+            'Trezor will connect automatically without having to confirm every connection.',
     },
     TR_THP_AUTO_CONNECT_INFO_MODAL_HEADER: {
         id: 'TR_THP_AUTO_CONNECT_INFO_MODAL_HEADER',
@@ -4507,11 +4457,12 @@ export default defineMessages({
     },
     TR_FORGET_DEVICE_HEADING: {
         id: 'TR_FORGET_DEVICE_HEADING',
-        defaultMessage: 'Forget this device',
+        defaultMessage: 'Forget device',
     },
     TR_FORGET_DEVICE_DESCRIPTION: {
         id: 'TR_FORGET_DEVICE_DESCRIPTION',
-        defaultMessage: 'Remove all device-related data from Trezor Suite.',
+        defaultMessage:
+            'Permanently deletes all data related to your Trezor from this computer, including Bluetooth pairing and connection settings.',
     },
     TR_DEVICE_CONNECTION: {
         id: 'TR_DEVICE_CONNECTION',
@@ -5247,7 +5198,7 @@ export default defineMessages({
     },
     TR_EXPERIMENTAL_TESTNET_NETWORKS_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_TESTNET_NETWORKS_DESCRIPTION',
-        defaultMessage: 'Send and receive transactions on the testnet networks.',
+        defaultMessage: 'Send and receive transactions on testnet networks.',
     },
     TR_EXPERIMENTAL_SUITE_SYNC_TITLE: {
         id: 'TR_EXPERIMENTAL_SUITE_SYNC_TITLE',
@@ -6284,7 +6235,7 @@ export default defineMessages({
     },
     TR_CUSTOM_BACKEND_CONNECTION_ERROR: {
         id: 'TR_CUSTOM_BACKEND_CONNECTION_ERROR',
-        defaultMessage: 'Could not connect to {url}',
+        defaultMessage: "Couldn't connect to {url}",
     },
     TR_CUSTOM_BACKEND_CHAIN_MISMATCH: {
         id: 'TR_CUSTOM_BACKEND_CHAIN_MISMATCH',
@@ -6296,7 +6247,7 @@ export default defineMessages({
     },
     TR_CUSTOM_BACKEND_NETWORK_MISSING_CHAIN_ID: {
         id: 'TR_CUSTOM_BACKEND_NETWORK_MISSING_CHAIN_ID',
-        defaultMessage: 'Network does not have a chain ID configured',
+        defaultMessage: "Network doesn't have a chain ID configured",
     },
     TR_VALIDATING: {
         id: 'TR_VALIDATING',
@@ -6433,7 +6384,7 @@ export default defineMessages({
     },
     TR_LABELING_ERROR: {
         id: 'TR_LABELING_ERROR',
-        defaultMessage: 'There was an error saving the label. Please try again.',
+        defaultMessage: 'There was an error saving your label. Try again.',
     },
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',
@@ -9296,7 +9247,8 @@ export default defineMessages({
     },
     TR_STAKING_CARD_KEEP_EARNING_TEXT: {
         id: 'TR_STAKING_CARD_KEEP_EARNING_TEXT',
-        defaultMessage: '<t>APY</t> is your yearly return on staked funds, with compounding.',
+        defaultMessage:
+            '<t>APY</t> is your yearly return on staked funds, with compounding (excludes the 2 ADA deposit).',
     },
     TR_STAKING_CARD_KEEP_EARNING_CARDANO_TEXT: {
         id: 'TR_STAKING_CARD_KEEP_EARNING_CARDANO_TEXT',
@@ -10220,11 +10172,11 @@ export default defineMessages({
             "To unpair completely, make sure you remove your Trezor from your computer's Bluetooth settings. If not, your Trezor won't appear in Trezor Suite when you try to pair it again.",
     },
     TR_BLUETOOTH_ERASE_BONDS_SETTINGS: {
-        defaultMessage: 'Manage Bluetooth pairing',
+        defaultMessage: 'Unpair Bluetooth connection',
         id: 'TR_BLUETOOTH_ERASE_BONDS_SETTINGS',
     },
     TR_BLUETOOTH_ERASE_BONDS_SETTINGS_DESCRIPTION: {
-        defaultMessage: '{deviceName} is paired via Bluetooth',
+        defaultMessage: 'This removes your Trezor from the list of paired devices in Trezor Suite.',
         id: 'TR_BLUETOOTH_ERASE_BONDS_SETTINGS_DESCRIPTION',
     },
     TR_BLUETOOTH_ERASE_BONDS_SETTINGS_UNPAIR: {
@@ -10849,6 +10801,6 @@ export default defineMessages({
     },
     TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION: {
         id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION',
-        defaultMessage: 'Check the spelling or browse the list to select an option.',
+        defaultMessage: 'Check the spelling or browse the list to select an asset.',
     },
 } as const);
