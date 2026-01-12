@@ -168,6 +168,7 @@ export const messages = {
         numberOfTokens: '+{numberOfTokens, plural, one{1 Token} other{# Tokens}}',
         tokens: 'Tokens',
         staking: 'Staking',
+        rewardsReduced: 'Rewards reduced',
         stakingDisabled: 'Staking is not available in this context.',
     },
     assets: {
@@ -635,6 +636,7 @@ export const messages = {
             discoveryRunning: 'Discovery running, please wait...',
         },
         errors: {
+            requestFailed: 'Request failed',
             deviceNotConnected: 'Device not connected.',
             invalidCallback: 'Invalid callback URL',
             invalidParams: 'Invalid parameters from calling app',
@@ -649,6 +651,7 @@ export const messages = {
         trezorConnect: {
             title: 'Trezor Connect',
             forget: 'Forget',
+            retry: 'Retry',
         },
         walletConnect: {
             title: 'WalletConnect',
@@ -2244,6 +2247,7 @@ export const messages = {
             providerReducingRewards:
                 'Your current provider is reducing ADA rewards. Update your provider on desktop and earn {apy}% APY.',
             updateToNewProvider: `Update to our new provider, Everstake, and earn ~{apy}% APY. Your ADA with our previous provider is safe, and your rewards stay intact, though rates aren’t guaranteed.`,
+            rewardsReduced: 'Cardano staking rewards reduced',
         },
         notAvailable: 'Not available',
         notAvailableShort: 'N/A',

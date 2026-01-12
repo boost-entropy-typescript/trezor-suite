@@ -95,7 +95,13 @@ export const AccountsListItem = ({
     );
 
     const accountLabel = useSelector((state: CombinedLabelingState) =>
-        selectAccountLabel(state, account.key, account.deviceState),
+        selectAccountLabel(
+            state,
+            account.deviceState,
+            account.descriptor,
+            account.symbol,
+            account.key,
+        ),
     );
 
     const doesCoinSupportTokens = isCoinWithTokens(account.symbol);
@@ -124,7 +130,9 @@ export const AccountsListItem = ({
                     {formattedAccountType && (
                         <Badge label={formattedAccountType} size="small" elevation="1" />
                     )}
-                    {shouldShowStakingBadge && <StakingBadge />}
+                    {shouldShowStakingBadge && (
+                        <StakingBadge networkSymbol={account.symbol} account={account} />
+                    )}
                     {shouldShowTokenBadge && <TokenBadge accountKey={account.key} />}
                 </>
             }
