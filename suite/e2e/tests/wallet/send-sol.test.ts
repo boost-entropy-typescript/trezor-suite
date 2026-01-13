@@ -1,4 +1,5 @@
 import { getNetwork } from '@suite-common/wallet-config';
+import { localizeNumber } from '@suite-common/wallet-utils';
 import { TestCategory, TestPriority, TestStream } from '@trezor/e2e-utils';
 import { BigNumber } from '@trezor/utils';
 
@@ -51,6 +52,7 @@ test.describe('Send - Solana', { tag: ['@group=wallet'] }, () => {
                 await expect(walletPage.sendForm).toBeVisible();
                 await expect(tradingPage.sendButton).toBeDisabled();
             });
+
             await test.step('Fill recipient address, toggle Send Max & verify calculation', async () => {
                 await tradingPage.sendAddressInput.fill(RECIPIENT_ADDRESS);
                 await tradingPage.setMax.click();
@@ -60,36 +62,49 @@ test.describe('Send - Solana', { tag: ['@group=wallet'] }, () => {
                 const balance = Number(await tradingPage.sendBalance.textContent());
                 maxFee = Number(await tradingPage.fees.maxFee.textContent());
                 const reservedAmount = await tradingPage.fees.getNetworkReserveAmount();
-                sendMaxAmountWithReserve = new BigNumber(balance - maxFee - reservedAmount)
-                    .decimalPlaces(SOL_DECIMALS)
-                    .toString();
-
-                await expect(tradingPage.sendAmountInput).toHaveValue(sendMaxAmountWithReserve);
-                await expect(walletPage.totalSent).toHaveText(
-                    new BigNumber(balance - reservedAmount).decimalPlaces(SOL_DECIMALS).toString(),
+                sendMaxAmountWithReserve = localizeNumber(
+                    new BigNumber(balance - maxFee - reservedAmount),
+                    'en-US',
+                    0,
+                    SOL_DECIMALS,
                 );
+                await expect(tradingPage.sendAmountInput).toHaveValue(sendMaxAmountWithReserve);
+                const expectedTotalSent = localizeNumber(
+                    new BigNumber(balance - reservedAmount),
+                    'en-US',
+                    0,
+                    SOL_DECIMALS,
+                );
+                await expect(walletPage.totalSent).toHaveText(expectedTotalSent);
                 await expect(tradingPage.sendButton).toBeEnabled();
             });
+
             await test.step('Trigger Review & Send Modal', async () => {
                 await tradingPage.sendButton.click();
 
                 await expect(tradingPage.modal).toBeVisible();
                 await expect(devicePrompt.sendButton).toBeDisabled();
             });
+
             await test.step('Verify Recipient Address', async () => {
                 await expect(devicePrompt.headerParagraph).toContainText('Solana #1');
                 await expect(devicePrompt.outputValueOf('address')).toHaveText(FORMATTED_ADDRESS);
 
                 // verify recipient address on device
                 await expect(devicePrompt).toDisplayOnEmulator({
-                    header: { title: 'Recipient' },
-                    body: [model.model !== 'T3W1' ? TRANSFORMED_ADDRESS : RECIPIENT_ADDRESS],
-                    footer: 'Tap to continue',
+                    T3W1: {
+                        header: { title: 'Recipient' },
+                        body: [TRANSFORMED_ADDRESS],
+                        actions: {
+                            right_button: 'Continue',
+                        },
+                    },
                 });
 
                 // confirm address
-                await devicePrompt.waitForPromptAndClick(model.model);
+                await devicePrompt.waitForPromptAndClick();
             });
+
             await test.step('Verify Amount & Transaction Fee', async () => {
                 await expect(devicePrompt.cryptoAmountOf('total')).toHaveText(
                     `${sendMaxAmountWithReserve}`,
@@ -97,25 +112,33 @@ test.describe('Send - Solana', { tag: ['@group=wallet'] }, () => {
                 await expect(devicePrompt.cryptoAmountOf('fee')).toHaveText(`${maxFee}`);
 
                 // verify amount & fee
+                const amountWrapped = devicePrompt.wrapText(`${sendMaxAmountWithReserve} SOL`, {
+                    isAmount: true,
+                });
                 await expect(devicePrompt).toDisplayOnEmulator({
-                    header: { title: 'Summary' },
-                    body: [
-                        ['Amount:'],
-                        [`${sendMaxAmountWithReserve} SOL`],
-                        [' '],
-                        ['Transaction fee:'],
-                        [`${maxFee} SOL`],
-                    ],
-                    footer: 'Tap to continue',
+                    T3W1: {
+                        header: { title: 'Send' },
+                        body: [
+                            ['Amount:'],
+                            amountWrapped,
+                            ['Transaction fee:'],
+                            devicePrompt.wrapText(`${maxFee} SOL`, { isAmount: true }),
+                        ],
+                        actions: { right_button: 'Hold to sign' },
+                    },
+                    T3T1: {
+                        header: { title: 'Summary' },
+                    },
                 });
 
                 // confirm amount & fee
-                await devicePrompt.waitForPromptAndClick(model.model);
+                await devicePrompt.waitForPromptAndClick();
             });
+
             await test.step('Approve and Verify Send readiness', async () => {
                 // hold & sign
                 if (model.model !== 'T3W1') {
-                    await devicePrompt.waitForPromptAndClick(model.model);
+                    await devicePrompt.waitForPromptAndClick();
                 }
 
                 await expect(devicePrompt.sendButton).toBeEnabled();
