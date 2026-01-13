@@ -1,4 +1,10 @@
-import type { SuiteSyncOwnerId } from '@suite-common/suite-types';
+import { WalletDescriptor } from '@suite-common/wallet-types';
+import { Branded } from '@trezor/type-utils';
+
+export type SuiteSyncOwnerIdHashed = string & Branded<'SuiteSyncOwnerIdHashed'>;
+
+export const asSuiteSyncOwnerIdHashed = (value: string): SuiteSyncOwnerIdHashed =>
+    value as SuiteSyncOwnerIdHashed;
 
 export type RegisteredDevice = {
     deviceId: string;
@@ -7,7 +13,7 @@ export type RegisteredDevice = {
     unspentStorageSize: number;
 };
 
-export type AssignedOwnerId = {
-    ownerId: SuiteSyncOwnerId;
+export type OwnerAllowance = {
+    walletDescriptor: WalletDescriptor;
     totalSpace: number;
 };

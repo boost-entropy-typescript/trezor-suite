@@ -1,0 +1,186 @@
+import { TrezorDeviceWithState, asDelegatedIdentityKey } from '@suite-common/suite-types';
+import { getSuiteDevice } from '@suite-common/test-utils';
+import TrezorConnect from '@trezor/connect';
+import { DeviceModelInternal } from '@trezor/device-utils';
+import { err, ok } from '@trezor/type-utils';
+
+import { prepareChallengeSession } from '../challenge/prepareChallengeSession';
+import { DEFAULT_DEVICE_SIZE_QUOTA } from '../constants';
+import { ensureDeviceHasQuotaThunk } from '../ensureDeviceHasQuotaThunk';
+import { SuiteSyncQuotaManagerState, quotaManagerInitialState } from '../quotaManagerReducer';
+import { checkStorageByPublicKey } from '../storage/checkStorage';
+import { registerStorageThunk } from '../storage/registerStorageThunk';
+
+jest.mock('../challenge/prepareChallengeSession', () => ({
+    prepareChallengeSession: jest.fn(),
+}));
+
+jest.mock('../storage/checkStorage', () => ({
+    checkStorageByPublicKey: jest.fn(),
+}));
+
+jest.mock('../storage/registerStorageThunk', () => ({
+    registerStorageThunk: jest.fn(),
+}));
+
+const createGetState = (statePatch?: Partial<SuiteSyncQuotaManagerState>) => () => ({
+    suiteSyncQuotaManager: {
+        ...quotaManagerInitialState,
+        baseUrl: 'https://quota-manager.test',
+        ...statePatch,
+    },
+});
+
+const delegatedKey = asDelegatedIdentityKey(
+    '0c9d40cd155e7ddb93e7b3c7b2acd8d75e7a3ebd543a3504c8f8164fb692772b',
+);
+
+const device = getSuiteDevice(
+    { id: 'device-id' },
+    { internal_model: DeviceModelInternal.T2T1 },
+) as TrezorDeviceWithState;
+
+const prepareChallengeSessionMock = prepareChallengeSession as jest.MockedFunction<
+    typeof prepareChallengeSession
+>;
+const checkStorageByPublicKeyMock = checkStorageByPublicKey as jest.MockedFunction<
+    typeof checkStorageByPublicKey
+>;
+
+const registerStorageThunkMock = registerStorageThunk as jest.MockedFunction<
+    typeof registerStorageThunk
+>;
+let evoluSignRegistrationRequestSpy: jest.SpyInstance;
+
+describe(ensureDeviceHasQuotaThunk.name, () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        if (!evoluSignRegistrationRequestSpy) {
+            evoluSignRegistrationRequestSpy = jest.spyOn(
+                TrezorConnect,
+                'evoluSignRegistrationRequest',
+            );
+        }
+
+        evoluSignRegistrationRequestSpy.mockReset();
+        registerStorageThunkMock.mockReturnValue(jest.fn());
+    });
+
+    afterAll(() => {
+        if (evoluSignRegistrationRequestSpy) {
+            evoluSignRegistrationRequestSpy.mockRestore();
+        }
+    });
+
+    it('returns early when quota manager is disabled', async () => {
+        const getState = createGetState({ enabled: false });
+        const dispatch = jest.fn();
+
+        await ensureDeviceHasQuotaThunk({ delegatedKey, device })(dispatch, getState);
+
+        expect(checkStorageByPublicKeyMock).not.toHaveBeenCalled();
+        expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('dispatches device fetched when storage already exists', async () => {
+        const getState = createGetState({ enabled: true });
+        const dispatch = jest.fn();
+
+        checkStorageByPublicKeyMock.mockResolvedValue(ok({ totalSpace: 5000, unspentSpace: 1200 }));
+
+        await ensureDeviceHasQuotaThunk({ delegatedKey, device })(dispatch, getState);
+
+        expect(checkStorageByPublicKeyMock).toHaveBeenCalledWith({
+            baseUrl: 'https://quota-manager.test',
+            publicKey:
+                '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
+        });
+        expect(dispatch).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: '@suite/quota-manager/deviceFetched',
+                payload: {
+                    deviceId: 'device-id',
+                    publicKey:
+                        '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
+                    totalStorageSize: 5000,
+                    unspentStorageSize: 1200,
+                },
+            }),
+        );
+        expect(prepareChallengeSessionMock).not.toHaveBeenCalled();
+        expect(registerStorageThunkMock).not.toHaveBeenCalled();
+    });
+
+    it('dispatches quota manager error for non-404 failures', async () => {
+        const getState = createGetState({ enabled: true });
+        const dispatch = jest.fn();
+
+        checkStorageByPublicKeyMock.mockResolvedValue(
+            err({ code: 500, message: 'Internal error' }),
+        );
+
+        await ensureDeviceHasQuotaThunk({ delegatedKey, device })(dispatch, getState);
+        expect(dispatch).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: '@suite/quota-manager/fetchError',
+                payload: {
+                    error: 'Internal error',
+                },
+            }),
+        );
+        expect(prepareChallengeSessionMock).not.toHaveBeenCalled();
+    });
+
+    it('requests registration when storage is missing', async () => {
+        const getState = createGetState({ enabled: true });
+        const dispatch: ReturnType<typeof jest.fn> = jest.fn((action: unknown) => {
+            if (typeof action === 'function')
+                return (action as (...args: any[]) => any)(dispatch, getState);
+
+            return action;
+        });
+
+        checkStorageByPublicKeyMock.mockResolvedValue(err({ code: 404, message: 'Not Found' }));
+        prepareChallengeSessionMock.mockResolvedValue(
+            ok({ sessionId: 'session-123', challenge: 'aa55' }),
+        );
+
+        const registerThunkInner = jest.fn();
+        registerStorageThunkMock.mockReturnValue(registerThunkInner);
+
+        evoluSignRegistrationRequestSpy.mockResolvedValue({
+            success: true,
+            payload: {
+                certificate_chain: ['device-cert', 'ca-cert'],
+                signature: 'device-signature',
+            },
+        });
+
+        await ensureDeviceHasQuotaThunk({ delegatedKey, device })(dispatch, getState);
+
+        expect(prepareChallengeSessionMock).toHaveBeenCalledWith({
+            baseUrl: 'https://quota-manager.test',
+        });
+        expect(evoluSignRegistrationRequestSpy).toHaveBeenCalledWith({
+            challenge_from_server: 'aa55',
+            size_to_acquire: DEFAULT_DEVICE_SIZE_QUOTA,
+            proof_of_delegated_identity:
+                'a526cae01826e660a9a2580ccbeb008c768cea6039f3a00f894b8c9a619bbdc21caa7acb1e7648e6af3174dfb4df84e04862f88f9188a215882694fb447ce937',
+        });
+        expect(registerStorageThunkMock).toHaveBeenCalledWith({
+            size: DEFAULT_DEVICE_SIZE_QUOTA,
+            certificateChain: {
+                deviceCert: 'device-cert',
+                caCert: 'ca-cert',
+            },
+            challenge: 'aa55',
+            proof: 'device-signature',
+            sessionId: 'session-123',
+            deviceModel: 'T2T1',
+            publicKey:
+                '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
+        });
+        expect(registerThunkInner).toHaveBeenCalled();
+    });
+});
