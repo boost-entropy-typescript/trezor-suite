@@ -1,4 +1,5 @@
 import { selectSelectedDevice } from '@suite-common/wallet-core';
+import { ok } from '@trezor/type-utils';
 
 import { quotaManagerDeviceFetched, quotaManagerFetchError } from '../../quotaManagerActions';
 import { quotaManagerFetch } from '../../quotaManagerFetch';
@@ -37,13 +38,12 @@ describe(registerStorageThunk.name, () => {
         const device = { id: 'device-id' };
         (selectSelectedDevice as jest.Mock).mockReturnValue(device);
 
-        (quotaManagerFetch as jest.Mock).mockResolvedValue({
-            ok: true,
-            value: {
+        (quotaManagerFetch as jest.Mock).mockResolvedValue(
+            ok({
                 totalStorageSize: 1000,
                 unspentStorageSize: 800,
-            },
-        });
+            }),
+        );
 
         const thunk = registerStorageThunk(params);
         const result = await thunk(mockDispatch, mockGetState);
@@ -63,11 +63,11 @@ describe(registerStorageThunk.name, () => {
                 unspentStorageSize: 800,
             }),
         );
-        expect(result.ok).toBe(true);
+        expect(result.success).toBe(true);
 
         // hack
-        if (result.ok) {
-            expect(result.value).toEqual({
+        if (result.success) {
+            expect(result.payload).toEqual({
                 totalStorageSize: 1000,
                 unspentStorageSize: 800,
             });
@@ -88,10 +88,10 @@ describe(registerStorageThunk.name, () => {
         expect(mockDispatch).toHaveBeenCalledWith(
             quotaManagerFetchError({ error: 'Network error' }),
         );
-        expect(result.ok).toBe(false);
+        expect(result.success).toBe(false);
 
         // hack
-        if (!result.ok) {
+        if (!result.success) {
             expect(result.error).toEqual({ message: 'Network error' });
         }
     });
@@ -99,13 +99,12 @@ describe(registerStorageThunk.name, () => {
     it('does not dispatch quotaManagerDeviceFetched if device is missing', async () => {
         (selectSelectedDevice as jest.Mock).mockReturnValue(undefined);
 
-        (quotaManagerFetch as jest.Mock).mockResolvedValue({
-            ok: true,
-            value: {
+        (quotaManagerFetch as jest.Mock).mockResolvedValue(
+            ok({
                 totalStorageSize: 1000,
                 unspentStorageSize: 800,
-            },
-        });
+            }),
+        );
 
         const thunk = registerStorageThunk(params);
         await thunk(mockDispatch, mockGetState);

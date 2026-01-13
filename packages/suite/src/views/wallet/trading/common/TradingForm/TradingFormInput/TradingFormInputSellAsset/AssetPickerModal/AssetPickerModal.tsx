@@ -35,7 +35,7 @@ export const AssetPickerModal = memo(function AssetPickerModalInner({
 
     const [networkFilter, setNetworkFilter] = useState<NetworkSymbol | undefined>(undefined);
 
-    const { listItems, listItemsFingerprint, networks } = useBuildTradingAssetOptions({
+    const { listItems, networks } = useBuildTradingAssetOptions({
         search: throttledSearch,
         networkSymbol: networkFilter,
     });
@@ -87,11 +87,7 @@ export const AssetPickerModal = memo(function AssetPickerModalInner({
 
             <Divider margin={{ top: 16 }} />
 
-            <AssetListWrapper
-                listItems={listItems}
-                listItemsFingerprint={listItemsFingerprint}
-                renderItem={renderItem}
-            />
+            <AssetListWrapper listItems={listItems} renderItem={renderItem} />
         </AssetsModal>
     );
 });

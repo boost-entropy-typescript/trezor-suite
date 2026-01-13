@@ -11,6 +11,7 @@ import { notificationsActions } from '@suite-common/toast-notifications';
 import { isTrezorDeviceWithState } from '@suite-common/wallet-utils';
 import { err, exhaustive, ok } from '@trezor/type-utils';
 
+import { GetDeviceForStaticSessionIdDep } from './getDeviceForStaticSessionId';
 import { LoadSuiteSyncOwnerFromStateDep } from './owner/createLoadSuiteSyncOwnerFromState';
 
 /**
@@ -25,7 +26,8 @@ export type RefreshSuiteSyncKeysDeps = {
     dispatch: Dispatch;
 } & EnsureSuiteSyncOwnerDep &
     LoadSuiteSyncOwnerFromStateDep &
-    EnsureDelegatedIdentityKeyDep;
+    EnsureDelegatedIdentityKeyDep &
+    GetDeviceForStaticSessionIdDep;
 
 export const createRefreshSuiteSync =
     (deps: RefreshSuiteSyncKeysDeps): RefreshSuiteSyncKeys =>
@@ -34,9 +36,9 @@ export const createRefreshSuiteSync =
             return err(RefreshSuiteKeysUnavailable());
         }
 
-        const owner = await deps.loadSuiteSyncOwnerFromState({
-            deviceStaticId: device.state.staticSessionId,
-        });
+        const deviceStaticId = device.state.staticSessionId;
+
+        const owner = await deps.loadSuiteSyncOwnerFromState({ deviceStaticId });
 
         if (owner !== null) {
             return ok(owner);
@@ -52,32 +54,39 @@ export const createRefreshSuiteSync =
         const getKeys = async () => {
             const delegatedKeyResult = await deps.ensureDelegatedIdentityKey({ device });
 
-            if (!delegatedKeyResult.ok) {
+            if (!delegatedKeyResult.success) {
                 return delegatedKeyResult;
+            }
+
+            // Device's sessionId may have changed, so let's get the current one
+            const refreshedDevice = deps.getDeviceForStaticSessionId(deviceStaticId);
+            if (!refreshedDevice || !isTrezorDeviceWithState(refreshedDevice)) {
+                // This shall not happen, if it does, it's probably a Suite/Connect bug.
+                return err({ type: 'RefreshDeviceFailed' as const });
             }
 
             await deps.dispatch(
                 ensureDeviceHasQuotaThunk({
-                    device,
-                    delegatedKey: delegatedKeyResult.value,
+                    device: refreshedDevice,
+                    delegatedKey: delegatedKeyResult.payload,
                 }),
             );
 
             const ownerResult = await deps.ensureSuiteSyncOwner({
-                device,
-                delegatedKey: delegatedKeyResult.value,
+                device: refreshedDevice,
+                delegatedKey: delegatedKeyResult.payload,
             });
 
-            if (!ownerResult.ok) {
+            if (!ownerResult.success) {
                 return ownerResult;
             }
 
-            return ok(ownerResult.value);
+            return ok(ownerResult.payload);
         };
 
         const result = await getKeys();
 
-        if (!result.ok) {
+        if (!result.success) {
             const errType = result.error.type;
 
             switch (errType) {
@@ -88,6 +97,7 @@ export const createRefreshSuiteSync =
                 // Those errors are most likely due to Bug in the code or data corruption
                 case 'CreateSuiteSyncOwnerError':
                 case 'ProofOfDelegatedSignFailed':
+                case 'RefreshDeviceFailed':
                     console.error(result.error);
                     // Todo: dispatch better notification
                     deps.dispatch(notificationsActions.addToast({ type: 'suite-sync-keys-error' }));
@@ -98,5 +108,5 @@ export const createRefreshSuiteSync =
             }
         }
 
-        return ok(result.value);
+        return ok(result.payload);
     };

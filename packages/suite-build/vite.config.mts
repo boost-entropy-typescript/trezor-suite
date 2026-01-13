@@ -27,6 +27,31 @@ const staticAliasPlugin = (): Plugin => ({
     },
 });
 
+const trezorLogosRequirePlugin = (): Plugin => ({
+    name: 'trezor-logos-require',
+    enforce: 'pre',
+    transform(code, id) {
+        const cleanId = id.split('?')[0];
+        if (
+            !cleanId.includes(
+                'packages/product-components/src/components/TrezorLogo/trezorLogos.ts',
+            )
+        ) {
+            return null;
+        }
+
+        const transformed = code.replace(
+            /require\((['"`])([^'"`]+\.svg)\1\)/g,
+            'new URL($1$2$1, import.meta.url).href',
+        );
+
+        return {
+            code: transformed,
+            map: null,
+        };
+    },
+});
+
 // Function to process the HTML template with template variables
 const processTemplate = (template: string): string =>
     template
@@ -236,18 +261,14 @@ const workerPlugin = (): Plugin => ({
 const serveCorePlugin = () => ({
     name: 'serve-core',
     configureServer(server: ViteDevServer) {
-        server.middlewares.use(async (req, res, next) => {
-            if (req.url?.endsWith('/js/core.js')) {
-                const code = await server.transformRequest(
-                    resolve(__dirname, '../connect/src/core/index.ts'),
-                    { ssr: false },
-                );
-                if (code?.code) {
-                    res.setHeader('Content-Type', 'application/javascript');
-                    res.end(code.code);
+        server.middlewares.use((req, res, next) => {
+            if (req.url?.includes('/js/core.js')) {
+                const coreEntryPath = resolve(__dirname, '../connect/src/core/index.ts');
+                const moduleSpecifier = `/@fs/${coreEntryPath}`;
+                res.setHeader('Content-Type', 'application/javascript');
+                res.end(`export { initCoreState } from ${JSON.stringify(moduleSpecifier)};\n`);
 
-                    return;
-                }
+                return;
             }
             next();
         });
@@ -285,6 +306,47 @@ const bufferPolyfillPlugin = (): Plugin => {
 // Ensure Buffer is available globally
 import { Buffer as ImportedBuffer } from 'buffer';
 
+const base64UrlToBase64 = (input) => {
+    const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = base64.length % 4;
+    if (pad === 0) return base64;
+    return base64 + '='.repeat(4 - pad);
+};
+
+const base64ToBase64Url = (input) => input.replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/g, '');
+
+const patchBase64Url = (BufferCtor) => {
+    if (!BufferCtor?.prototype?.toString) return;
+
+    const originalToString = BufferCtor.prototype.toString;
+    if (!BufferCtor.prototype.__trezorPatchedBase64UrlToString) {
+        Object.defineProperty(BufferCtor.prototype, '__trezorPatchedBase64UrlToString', {
+            value: true,
+            enumerable: false,
+        });
+        BufferCtor.prototype.toString = function (encoding, start, end) {
+            if (encoding === 'base64url') {
+                return base64ToBase64Url(originalToString.call(this, 'base64', start, end));
+            }
+            return originalToString.call(this, encoding, start, end);
+        };
+    }
+
+    const originalFrom = BufferCtor.from;
+    if (!BufferCtor.__trezorPatchedBase64UrlFrom) {
+        Object.defineProperty(BufferCtor, '__trezorPatchedBase64UrlFrom', {
+            value: true,
+            enumerable: false,
+        });
+        BufferCtor.from = function (value, encodingOrOffset, length) {
+            if (encodingOrOffset === 'base64url' && typeof value === 'string') {
+                return originalFrom.call(this, base64UrlToBase64(value), 'base64');
+            }
+            return originalFrom.call(this, value, encodingOrOffset, length);
+        };
+    }
+};
+
 // Define Buffer in all possible global scopes
 if (typeof window !== 'undefined') {
     window.Buffer = window.Buffer || ImportedBuffer;
@@ -297,6 +359,11 @@ if (typeof global !== 'undefined') {
 if (typeof globalThis !== 'undefined') {
     globalThis.Buffer = globalThis.Buffer || ImportedBuffer;
 };
+
+patchBase64Url(ImportedBuffer);
+if (typeof window !== 'undefined' && window.Buffer) patchBase64Url(window.Buffer);
+if (typeof global !== 'undefined' && global.Buffer) patchBase64Url(global.Buffer);
+if (typeof globalThis !== 'undefined' && globalThis.Buffer) patchBase64Url(globalThis.Buffer);
 
 // Make sure global is defined
 if (typeof window !== 'undefined' && typeof global === 'undefined') {
@@ -387,6 +454,7 @@ export default defineConfig({
         bufferPolyfillPlugin(),
         noopCoreJsPlugin(),
         guideMarkdownPlugin(),
+        trezorLogosRequirePlugin(),
         staticAliasPlugin(),
         serveCorePlugin(),
         sessionsSharedWorkerPlugin(),

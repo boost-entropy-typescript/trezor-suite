@@ -12,6 +12,7 @@ import { ok } from '@trezor/type-utils';
 
 import { mockNotExpected } from '../../tests/utils';
 import { RefreshSuiteSyncKeysDeps, createRefreshSuiteSync } from '../createRefreshSuiteSyncKeys';
+import { GetDeviceForStaticSessionId } from '../getDeviceForStaticSessionId';
 import { LoadSuiteSyncOwnerFromState } from '../owner/createLoadSuiteSyncOwnerFromState';
 
 const createMockDeps = () =>
@@ -23,6 +24,9 @@ const createMockDeps = () =>
         ),
         ensureDelegatedIdentityKey: mockNotExpected<EnsureDelegatedIdentityKey>(
             'ensureDelegatedIdentityKey',
+        ),
+        getDeviceForStaticSessionId: mockNotExpected<GetDeviceForStaticSessionId>(
+            'getDeviceForStaticSessionId',
         ),
     }) satisfies RefreshSuiteSyncKeysDeps;
 
@@ -62,8 +66,8 @@ describe(createRefreshSuiteSync.name, () => {
             device: createDevice({}, null),
         });
 
-        expect(result.ok).toEqual(false);
-        expect(!result.ok && result.error.type).toBe('RefreshSuiteKeysUnavailable');
+        expect(result.success).toEqual(false);
+        expect(!result.success && result.error.type).toBe('RefreshSuiteKeysUnavailable');
     });
 
     it('returns an suite sync owner when device has state and is available', async () => {
@@ -75,8 +79,8 @@ describe(createRefreshSuiteSync.name, () => {
             device: createDevice(),
         });
 
-        expect(result.ok).toEqual(true);
-        expect(result.ok && result.value).toEqual(OWNER_1);
+        expect(result.success).toEqual(true);
+        expect(result.success && result.payload).toEqual(OWNER_1);
     });
 
     it('fails to get keys, when device is disconnected', async () => {
@@ -88,8 +92,8 @@ describe(createRefreshSuiteSync.name, () => {
             device: createDevice({ connected: false }),
         });
 
-        expect(result.ok).toEqual(false);
-        expect(!result.ok && result.error.type).toEqual('RefreshSuiteKeysUnavailable');
+        expect(result.success).toEqual(false);
+        expect(!result.success && result.error.type).toEqual('RefreshSuiteKeysUnavailable');
     });
 
     it('ensures that the delegated identity key is available when owner is not in state', async () => {
@@ -102,6 +106,8 @@ describe(createRefreshSuiteSync.name, () => {
         );
 
         const mockDevice = createDevice();
+        deps.getDeviceForStaticSessionId.mockImplementation(() => mockDevice);
+
         const refreshSuiteSyncKeys = createRefreshSuiteSync(deps);
         await refreshSuiteSyncKeys({
             device: mockDevice,
@@ -122,6 +128,8 @@ describe(createRefreshSuiteSync.name, () => {
         );
 
         const mockDevice = createDevice();
+        deps.getDeviceForStaticSessionId.mockImplementation(() => mockDevice);
+
         const refreshSuiteSyncKeys = createRefreshSuiteSync(deps);
         await refreshSuiteSyncKeys({
             device: mockDevice,
@@ -147,13 +155,16 @@ describe(createRefreshSuiteSync.name, () => {
             }),
         );
 
+        const mockDevice = createDevice();
+        deps.getDeviceForStaticSessionId.mockImplementation(() => mockDevice);
+
         const refreshSuiteSyncKeys = createRefreshSuiteSync(deps);
         const result = await refreshSuiteSyncKeys({
-            device: createDevice(),
+            device: mockDevice,
         });
 
-        expect(result.ok).toBe(true);
-        expect(result.ok && result.value.ownerId).toEqual('new-owner-id');
-        expect(result.ok && result.value.ownerSecret).toEqual('new-secret-public-key');
+        expect(result.success).toBe(true);
+        expect(result.success && result.payload.ownerId).toEqual('new-owner-id');
+        expect(result.success && result.payload.ownerSecret).toEqual('new-secret-public-key');
     });
 });
