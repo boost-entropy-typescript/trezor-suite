@@ -100,6 +100,8 @@ export const connectCallableMethods = [
     'tezosSignTransaction',
     'thpGetCredentials',
     'thpRemoveCredentials',
+    'tronGetAddress',
+    'tronSignTransaction',
     'unlockPath',
     'verifyMessage',
     'wipeDevice',

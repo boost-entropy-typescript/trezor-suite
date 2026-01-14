@@ -89,6 +89,8 @@ import { tezosGetPublicKey } from './tezosGetPublicKey';
 import { tezosSignTransaction } from './tezosSignTransaction';
 import { thpGetCredentials } from './thpGetCredentials';
 import { thpRemoveCredentials } from './thpRemoveCredentials';
+import { tronGetAddress } from './tronGetAddress';
+import { tronSignTransaction } from './tronSignTransaction';
 import { uiResponse } from './uiResponse';
 import { unlockPath } from './unlockPath';
 import { verifyMessage } from './verifyMessage';
@@ -363,6 +365,12 @@ export interface TrezorConnect {
 
     // https://connect.trezor.io/9/methods/tezos/tezosSignTransaction/
     tezosSignTransaction: typeof tezosSignTransaction;
+
+    // https://connect.trezor.io/9/methods/tron/tronGetAddress/
+    tronGetAddress: typeof tronGetAddress;
+
+    // https://connect.trezor.io/9/methods/tron/tronSignTransaction/
+    tronSignTransaction: typeof tronSignTransaction;
 
     // todo: link docs
     uiResponse: typeof uiResponse;
