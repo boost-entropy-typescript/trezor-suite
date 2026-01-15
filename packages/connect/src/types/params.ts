@@ -12,15 +12,9 @@ export interface DeviceIdentity {
 }
 
 export interface CommonParams {
-    device?: DeviceIdentity & { state?: DeviceState | string }; // Note: state as string should be removed https://github.com/trezor/trezor-suite/issues/12710
-    useEmptyPassphrase?: boolean;
-    useEventListener?: boolean; // this param is set automatically in factory
-    allowSeedlessDevice?: boolean;
+    device?: DeviceIdentity & { useEmptyPassphrase?: boolean } & { state?: DeviceState | string }; // Note: state as string should be removed https://github.com/trezor/trezor-suite/issues/12710
     keepSession?: boolean;
-    override?: boolean;
-    skipFinalReload?: boolean;
     useCardanoDerivation?: boolean;
-    chunkify?: boolean;
     /**
      * internal flag. if set to true, call will only return info about the method, not execute it.
      * todo: this should be moved to another argument instead of mixing this with params
@@ -92,7 +86,6 @@ export const GetAddress = Type.Object({
     address: Type.Optional(Type.String()),
     showOnTrezor: Type.Optional(Type.Boolean({ default: true })),
     chunkify: Type.Optional(Type.Boolean()),
-    useEventListener: Type.Optional(Type.Boolean()),
 });
 
 export interface Address {

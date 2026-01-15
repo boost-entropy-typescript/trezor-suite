@@ -2,53 +2,54 @@ import { useMemo } from 'react';
 import { useThrottle } from 'react-use';
 
 import { selectTokenDefinitions } from '@suite-common/token-definitions';
-import { NetworkSymbol, getMainnets } from '@suite-common/wallet-config';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import {
-    selectAllAccountsToList,
     selectBaseCurrency,
     selectCurrentFiatRates,
+    selectVisibleDeviceAccounts,
 } from '@suite-common/wallet-core';
-import { Account } from '@suite-common/wallet-types';
+import { AccountKey } from '@suite-common/wallet-types';
 import {
     accountsFiatBalanceInDescOrderComparator,
-    findAccountsByNetwork,
+    filterAccountsByNetworkSymbol,
 } from '@suite-common/wallet-utils';
 import { useCurrentRef } from '@trezor/react-utils';
 
-import { ASSET_ROW_HEIGHT } from 'src/components/suite/asset-picker/constants';
-import { AccountWithTokensOption } from 'src/components/suite/asset-picker/hooks';
+import { AccountWithTokensOption } from 'src/components/suite/asset-picker/types';
+import {
+    createAccountOption,
+    createHiddenTokensOption,
+    createTokenOption,
+} from 'src/components/suite/asset-picker/utils';
 import { useSelector } from 'src/hooks/suite';
 import {
     enhanceTokensWithRates,
     getTokens,
     sortTokensWithRates,
 } from 'src/utils/wallet/tokenUtils';
-
-function filterAccountsByNetworkSymbol(
-    accounts: Account[],
-    networkSymbol: NetworkSymbol | undefined,
-): Account[] {
-    return networkSymbol ? findAccountsByNetwork(networkSymbol, accounts) : accounts;
-}
 export interface UseAccountWithTokensOptionsProps {
     networkSymbolFilter: NetworkSymbol | undefined;
-    includeTestnets?: boolean;
+
+    /**
+     * Each account might have expandable hidden token group.
+     */
+    expandedHiddenTokensGroups: AccountKey[];
 }
 
 export function useAccountWithTokensOptions({
     networkSymbolFilter,
-    includeTestnets = true,
+    expandedHiddenTokensGroups,
 }: UseAccountWithTokensOptionsProps): AccountWithTokensOption[] {
-    const accounts = useSelector(selectAllAccountsToList);
+    const accounts = useSelector(selectVisibleDeviceAccounts);
     const fiatRates = useSelector(selectCurrentFiatRates);
     const baseCurrencyCode = useSelector(selectBaseCurrency);
     const tokenDefinitions = useSelector(selectTokenDefinitions);
 
     // Accounts are constantly being updated in Redux. So throttle them to significantly reduce re-renders
-    const throttledAccounts = useThrottle(accounts, 500);
+    const throttledAccounts = useThrottle(accounts, 1000);
     const fiatRatesRef = useCurrentRef(fiatRates);
 
-    return useMemo(() => {
+    const accountsAndTokensSortedByFiatBalance = useMemo(() => {
         const fiatRates = fiatRatesRef.current;
 
         if (!fiatRates) {
@@ -60,10 +61,7 @@ export function useAccountWithTokensOptions({
             networkSymbolFilter,
         );
 
-        const mainnets = new Set(getMainnets().map(network => network.symbol));
-
-        const accountsAndTokensSortedByFiatBalance = networkAccounts
-            .filter(account => (includeTestnets ? true : mainnets.has(account.symbol)))
+        return networkAccounts
             .toSorted(function sortByFiatBalanceInDescOrder(accountA, accountB) {
                 return accountsFiatBalanceInDescOrderComparator({
                     accountA,
@@ -73,52 +71,51 @@ export function useAccountWithTokensOptions({
                 });
             })
             .map(account => {
-                const { shownWithBalance } = getTokens({
+                const { shownWithBalance, hiddenWithBalance } = getTokens({
                     tokens: account.tokens ?? [],
                     symbol: account.symbol,
                     tokenDefinitions: tokenDefinitions?.[account.symbol]?.coin,
                 });
 
-                const tokensWithRates = enhanceTokensWithRates(
+                const sortedTokensByFiatBalance = enhanceTokensWithRates(
                     shownWithBalance,
                     baseCurrencyCode,
                     account.symbol,
                     fiatRates,
-                );
+                ).sort(sortTokensWithRates);
 
-                const sortedTokensByFiatBalance = tokensWithRates.sort(sortTokensWithRates);
+                const sortedHiddenTokensByFiatBalance = enhanceTokensWithRates(
+                    hiddenWithBalance,
+                    baseCurrencyCode,
+                    account.symbol,
+                    fiatRates,
+                ).sort(sortTokensWithRates);
 
                 return {
-                    ...account,
+                    account,
                     tokens: sortedTokensByFiatBalance,
+                    hiddenTokens: sortedHiddenTokensByFiatBalance,
                 };
             });
+    }, [fiatRatesRef, throttledAccounts, networkSymbolFilter, baseCurrencyCode, tokenDefinitions]);
 
-        const accountsWithTokensOptions: AccountWithTokensOption[] =
-            accountsAndTokensSortedByFiatBalance.flatMap(account => [
-                {
-                    type: 'account',
-                    account,
-                    height: ASSET_ROW_HEIGHT,
-                },
-                ...(account.tokens ?? []).map(
-                    token =>
-                        ({
-                            type: 'token',
-                            account,
-                            token,
-                            height: ASSET_ROW_HEIGHT,
-                        }) satisfies AccountWithTokensOption,
-                ),
-            ]);
+    return useMemo(() => {
+        const accountsWithTokens: AccountWithTokensOption[] = [];
 
-        return accountsWithTokensOptions;
-    }, [
-        fiatRatesRef,
-        throttledAccounts,
-        networkSymbolFilter,
-        includeTestnets,
-        baseCurrencyCode,
-        tokenDefinitions,
-    ]);
+        for (const { account, tokens, hiddenTokens } of accountsAndTokensSortedByFiatBalance) {
+            accountsWithTokens.push(createAccountOption(account));
+
+            tokens.forEach(token => {
+                accountsWithTokens.push(createTokenOption(account, token));
+            });
+
+            if (hiddenTokens.length > 0) {
+                accountsWithTokens.push(
+                    createHiddenTokensOption({ account, hiddenTokens, expandedHiddenTokensGroups }),
+                );
+            }
+        }
+
+        return accountsWithTokens;
+    }, [accountsAndTokensSortedByFiatBalance, expandedHiddenTokensGroups]);
 }

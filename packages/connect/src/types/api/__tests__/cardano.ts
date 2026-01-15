@@ -125,11 +125,9 @@ export const cardanoGetAddress = async (api: TrezorConnect) => {
             path: asDeviceUniquePath('1'),
             instance: 1,
             state: 'state@device-id:1',
+            useEmptyPassphrase: true,
         },
-        useEmptyPassphrase: true,
-        allowSeedlessDevice: false,
         keepSession: false,
-        skipFinalReload: false,
         addressParameters: {
             addressType: CardanoAddressType.BASE,
             path: 'm/44',

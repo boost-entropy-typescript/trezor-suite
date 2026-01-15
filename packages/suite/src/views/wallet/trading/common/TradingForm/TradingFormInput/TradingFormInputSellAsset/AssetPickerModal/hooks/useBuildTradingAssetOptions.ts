@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { union } from '@trezor/utils';
 
 import {
-    useAccountWithTokensOptions,
     useFilterAccountsWithTokens,
     useInsertGroupLabelsAndSpaces,
 } from 'src/components/suite/asset-picker/hooks';
+
+import { useAccountWithTokensOptions } from './useAccountWithTokensOptions';
+import { useAssetsContext } from '../../AssetOptionsContext';
 
 export interface UseBuildTradingAssetOptionsProps {
     search: string;
@@ -18,21 +19,24 @@ export function useBuildTradingAssetOptions({
     search,
     networkSymbol,
 }: UseBuildTradingAssetOptionsProps) {
-    const accountsWithTokens = useAccountWithTokensOptions({
+    const { includedCryptoIds, excludedCryptoIds } = useAssetsContext();
+    const supportedCryptoIds = useMemo(() => {
+        const supportedCryptoIds = new Set(includedCryptoIds);
+
+        excludedCryptoIds.forEach(cryptoId => {
+            supportedCryptoIds.delete(cryptoId);
+        });
+
+        return supportedCryptoIds;
+    }, [includedCryptoIds, excludedCryptoIds]);
+
+    const { networks, accountsWithTokens } = useAccountWithTokensOptions({
         networkSymbolFilter: networkSymbol,
-        includeTestnets: false,
+        supportedCryptoIds,
     });
+
     const filteredAccountsWithTokens = useFilterAccountsWithTokens(accountsWithTokens, search);
     const listItems = useInsertGroupLabelsAndSpaces(filteredAccountsWithTokens);
-    const networks = useMemo(
-        () =>
-            union(
-                accountsWithTokens
-                    .filter(item => item.type === 'account')
-                    .map(item => item.account.symbol),
-            ),
-        [accountsWithTokens],
-    );
 
     return { listItems, networks };
 }

@@ -2,22 +2,21 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { CryptoId } from 'invity-api';
 
+import { TradingType } from '@suite-common/suite-types';
 import { selectTokenDefinitions } from '@suite-common/token-definitions';
 import {
     CONTRACT_ADDRESS_FOR_NATIVE_TOKEN,
     parseCryptoId,
-    selectTradingExchangeAccountKey,
+    selectTradingAccountKeyByTradeType,
     selectTradingPrefilledFromAccount,
     toTokenCryptoId,
     tradingActions,
+    tradingBuyActions,
     tradingExchangeActions,
+    tradingSellActions,
 } from '@suite-common/trading';
 import { getNetwork } from '@suite-common/wallet-config';
-import {
-    selectAccountByKey,
-    selectAllAccountsToList,
-    selectSelectedDevice,
-} from '@suite-common/wallet-core';
+import { selectAccountByKey, selectVisibleDeviceAccounts } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
 import { getContractAddressForNetworkSymbol } from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils';
@@ -43,14 +42,13 @@ import { getTokens } from 'src/utils/wallet/tokenUtils';
  * 2) Otherwise derive from the selected account's network (getNetwork(symbol).tradeCryptoId).
  * 3) Fallback to 'bitcoin' if unavailable.
  */
-export const useTradingFormAccount = () => {
+export const useTradingFormAccount = (tradingType: TradingType) => {
     const dispatch = useDispatch();
-    const accounts = useSelector(selectAllAccountsToList);
-    const device = useSelector(selectSelectedDevice);
+    const visibileDeviceAccounts = useSelector(selectVisibleDeviceAccounts);
     const tokenDefinitions = useSelector(selectTokenDefinitions);
 
     const prefilled = useSelector(selectTradingPrefilledFromAccount);
-    const accountKey = useSelector(selectTradingExchangeAccountKey);
+    const accountKey = useSelector(state => selectTradingAccountKeyByTradeType(state, tradingType));
 
     const preferredKey = accountKey ?? prefilled.key;
     const preferredAccount = useSelector(state => selectAccountByKey(state, preferredKey));
@@ -91,12 +89,8 @@ export const useTradingFormAccount = () => {
 
     const pickFallbackAccount = useCallback(
         (accounts: Account[]) =>
-            accounts.find(
-                acc =>
-                    isAccountEligibleForTrade(acc) &&
-                    acc.deviceState === device?.state?.staticSessionId,
-            ) ?? accounts[0],
-        [device?.state?.staticSessionId, isAccountEligibleForTrade],
+            accounts.find(acc => isAccountEligibleForTrade(acc)) ?? accounts[0],
+        [isAccountEligibleForTrade],
     );
 
     const account = useMemo(() => {
@@ -104,21 +98,19 @@ export const useTradingFormAccount = () => {
             return preferredAccount;
         }
 
-        const sameSymbolAccount = accounts.find(
+        const sameSymbolAccount = visibileDeviceAccounts.find(
             acc =>
                 acc.symbol === preferredAccount?.symbol &&
-                isAccountEligibleForTrade(acc, prefilled.cryptoId) &&
-                acc.deviceState === device?.state?.staticSessionId,
+                isAccountEligibleForTrade(acc, prefilled.cryptoId),
         );
 
         if (sameSymbolAccount) {
             return sameSymbolAccount;
         }
 
-        return pickFallbackAccount(accounts);
+        return pickFallbackAccount(visibileDeviceAccounts);
     }, [
-        accounts,
-        device?.state?.staticSessionId,
+        visibileDeviceAccounts,
         isAccountEligibleForTrade,
         pickFallbackAccount,
         preferredAccount,
@@ -135,9 +127,19 @@ export const useTradingFormAccount = () => {
 
     useEffect(() => {
         if (!accountKey && account.key) {
-            dispatch(tradingExchangeActions.setTradingAccountKey(account.key));
+            switch (tradingType) {
+                case 'exchange':
+                    dispatch(tradingExchangeActions.setTradingAccountKey(account.key));
+                    break;
+                case 'sell':
+                    dispatch(tradingSellActions.setTradingAccountKey(account.key));
+                    break;
+                case 'buy':
+                    dispatch(tradingBuyActions.setTradingAccountKey(account.key));
+                    break;
+            }
         }
-    }, [account.key, accountKey, dispatch]);
+    }, [account.key, accountKey, dispatch, tradingType]);
 
     useEffect(() => {
         if (prefilled.key && accountKey) {

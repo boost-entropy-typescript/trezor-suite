@@ -61,9 +61,7 @@ export interface ConnectSettingsPublic {
 export interface ConnectSettingsInternal {
     origin?: string;
     configSrc: string;
-    iframeSrc: string;
     popupSrc: string;
-    webusbSrc: string;
     version: string;
     npmVersion?: string;
     priority: number;

@@ -168,11 +168,7 @@ export const acquireDevice = createThunk(
 
         if (!device) return;
 
-        const response = await TrezorConnect.getFeatures({
-            device,
-            // todo: it shouldn't be needed I think - getFeatures is not touching device.state, is it?
-            useEmptyPassphrase: true,
-        });
+        const response = await TrezorConnect.getFeatures({ device });
 
         if (!response.success) {
             if (response.payload.code === 'Device_ThpPairingTagInvalid') {
@@ -256,7 +252,6 @@ export const confirmAddressOnDeviceThunk = createThunk(
             device,
             path: addressPath,
             unlockPath: account.unlockPath,
-            useEmptyPassphrase: device.useEmptyPassphrase,
             coin: account.symbol,
             chunkify,
             showOnTrezor,
@@ -273,7 +268,6 @@ export const confirmAddressOnDeviceThunk = createThunk(
             case 'cardano':
                 response = TrezorConnect.cardanoGetAddress({
                     device,
-                    useEmptyPassphrase: device.useEmptyPassphrase,
                     addressParameters: {
                         stakingPath: getStakingPath(account),
                         addressType: getAddressType(),
@@ -498,18 +492,13 @@ export const wipeDeviceThunk = createThunk(
     async (_, { dispatch, getState, rejectWithValue }) => {
         const device = selectSelectedDevice(getState());
         if (!device) return;
-        const isBootloaderMode = device.mode === 'bootloader';
+
         const devices = selectDevices(getState());
         // collect devices with old "device.id" to be removed (see description below)
         const deviceInstances = getDeviceInstances(device, devices);
 
         const result = await TrezorConnect.wipeDevice({
-            device: {
-                path: device.path,
-            },
-            // In bootloader mode we need the skip the final reload, otherwise we never get the resolution
-            // THP device will require pairing. THP state is cleared, credentials are invalid
-            skipFinalReload: isBootloaderMode || !!device.thp,
+            device: { path: device.path },
         });
 
         if (

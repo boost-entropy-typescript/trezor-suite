@@ -1167,11 +1167,11 @@ export const prepareNewAccountPayload = async ({
     const res = await TrezorConnect.getAccountInfo({
         path: newPath,
         coin: networkSymbol,
-        useEmptyPassphrase: device.useEmptyPassphrase,
         device: {
             path: device.path,
             instance: device.instance,
             state: device.state,
+            useEmptyPassphrase: device.useEmptyPassphrase,
         },
         details: 'txs',
     });
@@ -1234,3 +1234,10 @@ export function accountsFiatBalanceInDescOrderComparator({
 
 export const isProgramDerivedAccount = (data: AccountInfo) =>
     !(data?.misc?.owner === SYSTEM_PROGRAM_PUBLIC_KEY || data?.misc?.owner === undefined);
+
+export function filterAccountsByNetworkSymbol(
+    accounts: Account[],
+    networkSymbol: NetworkSymbol | undefined,
+): Account[] {
+    return networkSymbol ? findAccountsByNetwork(networkSymbol, accounts) : accounts;
+}

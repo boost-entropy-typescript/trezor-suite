@@ -18,10 +18,8 @@ const initialSettings: ConnectSettings = {
     priority: DEFAULT_PRIORITY,
     trustedHost: true,
     connectSrc: DEFAULT_DOMAIN,
-    iframeSrc: `${DEFAULT_DOMAIN}iframe.html`,
     popup: false,
     popupSrc: `${DEFAULT_DOMAIN}popup.html`,
-    webusbSrc: `${DEFAULT_DOMAIN}webusb.html`,
     transports: undefined,
     pendingTransportEvent: true,
     env: 'node',
@@ -100,9 +98,7 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
     }
 
     const src = settings.connectSrc || DEFAULT_DOMAIN;
-    settings.iframeSrc = `${src}iframe.html`;
     settings.popupSrc = `${src}popup.html`;
-    settings.webusbSrc = `${src}webusb.html`;
 
     if (typeof input.transportReconnect === 'boolean') {
         settings.transportReconnect = input.transportReconnect;
@@ -156,7 +152,7 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
 
     if (
         typeof input.coreMode === 'string' &&
-        ['auto', 'iframe', 'suite-desktop', 'suite-web'].includes(input.coreMode)
+        ['auto', 'suite-desktop', 'suite-web'].includes(input.coreMode)
     ) {
         settings.coreMode = input.coreMode;
     }

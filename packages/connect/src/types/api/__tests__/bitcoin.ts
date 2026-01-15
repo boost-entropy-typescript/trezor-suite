@@ -32,11 +32,9 @@ export const getAddress = async (api: TrezorConnect) => {
             path: asDeviceUniquePath('1'),
             instance: 1,
             state: 'state@device-id:1',
+            useEmptyPassphrase: true,
         },
-        useEmptyPassphrase: true,
-        allowSeedlessDevice: false,
         keepSession: false,
-        skipFinalReload: false,
         path: 'm/44',
         address: 'a',
         showOnTrezor: true,
@@ -403,10 +401,7 @@ export const signTransaction = async (api: TrezorConnect) => {
         branchId: 1,
         push: true,
         // common:
-        useEmptyPassphrase: true,
-        allowSeedlessDevice: false,
         keepSession: false,
-        skipFinalReload: false,
     });
 
     if (sign.success) {

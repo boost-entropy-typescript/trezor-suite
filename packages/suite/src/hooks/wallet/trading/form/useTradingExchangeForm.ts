@@ -65,11 +65,8 @@ import {
     TradingExchangeFormContextProps,
 } from 'src/types/trading/tradingForm';
 import { createQuoteLink } from 'src/utils/wallet/trading/exchangeUtils';
-import {
-    getTradingCryptoInfo,
-    getTradingNetworkDecimals,
-} from 'src/utils/wallet/trading/tradingUtils';
 
+import { useTradingAssetDecimals } from './common/useTradingAssetDecimals';
 import { useTradingInitializer } from './common/useTradingInitializer';
 import { useTradingPreviousRoute } from './common/useTradingPreviousRoute';
 import { useTradingFormAccount } from './useTradingFormAccount';
@@ -96,7 +93,7 @@ export const useTradingExchangeForm = ({
     const exchangeInfo = useSelector(selectTradingExchangeInfo);
     const composedTransactionInfo = useSelector(selectTradingComposedTransactionInfo);
     const { selectedFee, composed } = composedTransactionInfo;
-    const { account } = useTradingFormAccount();
+    const { account } = useTradingFormAccount(type);
 
     const isPreviousRouteFromTradeSection = useTradingPreviousRoute(type);
 
@@ -200,7 +197,15 @@ export const useTradingExchangeForm = ({
     const isFormLoading = isInitialDataLoading || formState.isSubmitting || isLoading;
     const isFormInvalid = !(formIsValid && hasValues) || !isReceiveAddressFormValid;
     const isLoadingOrInvalid = noProviders || isFormLoading || isFormInvalid;
-    const decimals = getTradingNetworkDecimals({ sendCryptoSelect, network });
+    const { getAssetDecimals } = useTradingAssetDecimals();
+    const decimals = useMemo(
+        () =>
+            getAssetDecimals({
+                accountKey: sendCryptoSelect?.accountKey,
+                cryptoId: sendCryptoSelect?.id,
+            }),
+        [getAssetDecimals, sendCryptoSelect?.accountKey, sendCryptoSelect?.id],
+    );
 
     const setAmountLimits = useCallback(
         (limits: TradingExchangeAmountLimitProps | undefined) => {
@@ -235,7 +240,6 @@ export const useTradingExchangeForm = ({
     const { toggleAmountInCrypto } = useTradingCurrencySwitcher({
         account,
         methods,
-        network,
         inputNames: {
             cryptoInput: TRADING_FORM_OUTPUT_AMOUNT,
             fiatInput: TRADING_FORM_OUTPUT_FIAT,
@@ -273,12 +277,6 @@ export const useTradingExchangeForm = ({
     });
 
     const selectQuote = async (quote: ExchangeTrade) => {
-        const {
-            label: sendCryptoLabel,
-            networkSymbol: sendCryptoNetworkSymbol,
-            contractAddress: sendCryptoContractAddress,
-        } = getTradingCryptoInfo(sendCryptoSelect);
-
         const provider =
             exchangeInfo?.providerInfos && quote.exchange
                 ? exchangeInfo?.providerInfos[quote.exchange]
@@ -291,9 +289,9 @@ export const useTradingExchangeForm = ({
                     payload: {
                         action: 'continue',
                         step: 'exchange-form',
-                        sendCryptoLabel,
-                        sendCryptoNetworkSymbol,
-                        sendCryptoContractAddress,
+                        sendCryptoLabel: sendCryptoSelect?.displaySymbol,
+                        sendCryptoNetworkSymbol: sendCryptoSelect?.networkSymbol,
+                        sendCryptoContractAddress: sendCryptoSelect?.contractAddress ?? undefined,
                         receiveCryptoLabel: receiveCryptoSelect?.displaySymbol,
                         receiveCryptoNetworkSymbol: receiveCryptoSelect?.networkSymbol,
                         receiveCryptoContractAddress:
@@ -717,7 +715,7 @@ export const useTradingExchangeForm = ({
     // set transactionData from DEX quote for correct fees fetching
     useEffect(() => {
         if (pageType !== 'form') return;
-        if (!sendCryptoSelect?.value) return;
+        if (!sendCryptoSelect?.id) return;
         if (isFormLoading || isLoadingQuote) return;
 
         if (exchangeType !== TRADING_EXCHANGE_FORM_DEX) {
@@ -727,8 +725,8 @@ export const useTradingExchangeForm = ({
             return;
         }
 
-        const network = cryptoIdToNetwork(sendCryptoSelect.value);
-        const isEvmNativeToken = isSendingEvmNativeToken(sendCryptoSelect.value);
+        const network = cryptoIdToNetwork(sendCryptoSelect.id);
+        const isEvmNativeToken = isSendingEvmNativeToken(sendCryptoSelect.id);
         const requiresApproval = network?.networkType === 'ethereum' && !isEvmNativeToken;
 
         const quote = preselectedQuote ?? (requiresApproval ? selectedQuote : dexQuotes[0]);

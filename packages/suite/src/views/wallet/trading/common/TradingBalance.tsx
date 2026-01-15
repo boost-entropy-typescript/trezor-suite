@@ -1,4 +1,5 @@
-import { NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
+import { getNetworkDecimalsWithFallback } from '@suite-common/trading';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import { TokenAddress } from '@suite-common/wallet-types';
 import { convertAmountUnitsToSubunits } from '@suite-common/wallet-utils';
 import { Text } from '@trezor/components';
@@ -7,11 +8,7 @@ import { BaseCurrencyValue, HiddenPlaceholder } from 'src/components/suite';
 import { Translation } from 'src/components/suite/Translation';
 import { useFiatFromCryptoValue } from 'src/hooks/suite/useFiatFromCryptoValue';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
-import { TradingAccountOptionsGroupOptionProps } from 'src/types/trading/trading';
-import {
-    getTradingNetworkDecimals,
-    tradingGetAccountLabel,
-} from 'src/utils/wallet/trading/tradingUtils';
+import { tradingGetAccountLabel } from 'src/utils/wallet/trading/tradingUtils';
 
 interface TradingBalanceProps {
     balance: string | undefined;
@@ -20,7 +17,7 @@ interface TradingBalanceProps {
     tokenAddress?: TokenAddress | undefined;
     showOnlyAmount?: boolean;
     amountInCrypto?: boolean;
-    sendCryptoSelect?: TradingAccountOptionsGroupOptionProps;
+    decimals?: number;
 }
 
 export const TradingBalance = ({
@@ -30,14 +27,10 @@ export const TradingBalance = ({
     tokenAddress,
     showOnlyAmount,
     amountInCrypto,
-    sendCryptoSelect,
+    decimals: networkDecimals = getNetworkDecimalsWithFallback(symbol),
 }: TradingBalanceProps) => {
     const { shouldSendInSats } = useBitcoinAmountUnit(symbol);
     const balanceCurrency = tradingGetAccountLabel(displaySymbol ?? '', shouldSendInSats);
-    const networkDecimals = getTradingNetworkDecimals({
-        sendCryptoSelect,
-        network: getNetwork(symbol),
-    });
     const stringBalance = !isNaN(Number(balance)) ? balance : '0';
     const formattedBalance =
         stringBalance && shouldSendInSats

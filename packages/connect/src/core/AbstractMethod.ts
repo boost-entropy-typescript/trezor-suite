@@ -75,7 +75,11 @@ function validateStaticSessionId(input: unknown): StaticSessionId {
 
 // validate expected state from method parameter.
 // it could be undefined
-function validateDeviceState(input: unknown): DeviceState | undefined {
+function validateDeviceState(device: CallMethodPayload['device']): DeviceState | undefined {
+    if (!device || !('state' in device)) return {}; // no change in device state
+
+    const input = device.state;
+
     if (typeof input === 'string') {
         return { staticSessionId: validateStaticSessionId(input) };
     }
@@ -94,7 +98,7 @@ function validateDeviceState(input: unknown): DeviceState | undefined {
         return state;
     }
 
-    return undefined;
+    return undefined; // reset device state
 }
 
 export abstract class AbstractMethod<Name extends CallMethodPayload['method'], Params = undefined> {
@@ -107,13 +111,9 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     deviceState?: DeviceState;
 
-    hasExpectedDeviceState: boolean;
-
     keepSession: boolean;
 
     skipFinalReload: boolean;
-
-    skipFirmwareCheck: boolean;
 
     overridePreviousCall: boolean;
 
@@ -141,15 +141,11 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     useEmptyPassphrase: boolean;
 
-    allowSeedlessDevice: boolean;
-
     firmwareRange: FirmwareRange;
 
     requiredPermissions: MethodPermission[];
 
     allowDeviceMode: DeviceMode[]; // used in device management (like ResetDevice allow !UI.INITIALIZED)
-
-    requireDeviceMode: DeviceMode[];
 
     requiredDeviceCapabilities: Capability[] = [];
 
@@ -174,26 +170,17 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
         this.name = payload.method;
         this.payload = payload;
         this.responseID = message.id || 0;
-        this.deviceState = validateDeviceState(payload.device?.state);
-        this.hasExpectedDeviceState = payload.device
-            ? Object.prototype.hasOwnProperty.call(payload.device, 'state')
-            : false;
+        this.deviceState = validateDeviceState(payload.device);
         this.keepSession = typeof payload.keepSession === 'boolean' ? payload.keepSession : false;
-        this.skipFinalReload =
-            typeof payload.skipFinalReload === 'boolean' ? payload.skipFinalReload : true;
-        this.skipFirmwareCheck = false;
-        this.overridePreviousCall =
-            typeof payload.override === 'boolean' ? payload.override : false;
+        this.skipFinalReload = true;
+        this.overridePreviousCall = false;
         this.overridden = false;
         this.useEmptyPassphrase =
-            typeof payload.useEmptyPassphrase === 'boolean' ? payload.useEmptyPassphrase : false;
-        this.allowSeedlessDevice =
-            typeof payload.allowSeedlessDevice === 'boolean' ? payload.allowSeedlessDevice : false;
-        this.allowDeviceMode = [];
-        this.requireDeviceMode = [];
-        if (this.allowSeedlessDevice) {
-            this.allowDeviceMode = [UI.SEEDLESS];
-        }
+            typeof payload.device?.useEmptyPassphrase === 'boolean'
+                ? payload.device.useEmptyPassphrase
+                : false;
+        this.allowDeviceMode = [UI.SEEDLESS]; // Allow seedless by default
+
         // Determine the type based on the method name
         this.network = 'bitcoin';
         typedObjectKeys(NETWORK.TYPES).forEach(key => {
@@ -213,6 +200,17 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
                 ? payload.useCardanoDerivation
                 : payload.method.startsWith('cardano');
         this.noBackupConfirmationMode = 'never';
+    }
+
+    // Used in *getAddress methods
+    protected getUseUi(params: { address?: string; show_display?: boolean }[]) {
+        const useEventListener =
+            this.payload.useEventListener &&
+            params.length === 1 &&
+            typeof params[0].address === 'string' &&
+            params[0].show_display;
+
+        return !useEventListener;
     }
 
     setDevice(device: Device) {
@@ -291,9 +289,6 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
     }
 
     checkFirmwareRange() {
-        if (this.skipFirmwareCheck) {
-            return;
-        }
         const { device } = this;
 
         // do not do fw range check for devices in BL mode as fw version of T1B1 in BL mode is not defined

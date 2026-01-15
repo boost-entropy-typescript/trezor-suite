@@ -6,36 +6,29 @@ import { TradingAssetOption, useTradingAssets } from '@suite-common/trading';
 
 const AssetOptionsContext = createContext<{
     assets: TradingAssetOption[];
-    disabledCryptoIds: Set<CryptoId> | undefined;
+    excludedCryptoIds: Set<CryptoId>;
 }>({
     assets: [],
-    disabledCryptoIds: new Set(),
+    excludedCryptoIds: new Set(),
 });
 
 export interface AssetOptionsContextProps {
-    enabledCryptoIds: Set<CryptoId> | undefined;
-    disabledCryptoIds: Set<CryptoId> | undefined;
+    includedCryptoIds: Set<CryptoId>;
+    excludedCryptoIds: Set<CryptoId>;
     children: ReactNode;
 }
 
 export function AssetOptionsProvider({
-    enabledCryptoIds,
-    disabledCryptoIds,
+    includedCryptoIds,
+    excludedCryptoIds,
     children,
 }: AssetOptionsContextProps) {
     const { buildAssetOptions } = useTradingAssets();
-    const { assets } = useMemo(
-        () => buildAssetOptions({ enabledCryptoIds }),
-        [buildAssetOptions, enabledCryptoIds],
-    );
+    const contextValue = useMemo(() => {
+        const { assets } = buildAssetOptions({ includedCryptoIds });
 
-    const contextValue = useMemo(
-        () => ({
-            assets,
-            disabledCryptoIds: disabledCryptoIds ?? new Set(),
-        }),
-        [assets, disabledCryptoIds],
-    );
+        return { assets, excludedCryptoIds };
+    }, [buildAssetOptions, excludedCryptoIds, includedCryptoIds]);
 
     return (
         <AssetOptionsContext.Provider value={contextValue}>{children}</AssetOptionsContext.Provider>
