@@ -1,12 +1,12 @@
 import { FormProvider } from 'react-hook-form';
 
+import { Translation } from '@suite/intl';
 import { getDisplaySymbol } from '@suite-common/wallet-config';
 import { getStakingDataForNetwork } from '@suite-common/wallet-utils';
 import { Banner, Card, Column, InfoItem, Tooltip } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
-import { Translation } from 'src/components/suite/Translation';
 import { Fees } from 'src/components/wallet/Fees/Fees';
 import { useSelector } from 'src/hooks/suite';
 import { useUnstakeFormContext } from 'src/hooks/wallet/useUnstakeForm';
@@ -54,16 +54,19 @@ export const UnstakeForm = () => {
                 <Column gap={spacings.xxl} margin={{ bottom: spacings.lg }}>
                     <Column gap={spacings.md}>
                         {canClaim && (
-                            <Banner intent="info">
-                                <Translation
-                                    id="TR_STAKE_CAN_CLAIM_WARNING"
-                                    values={{
-                                        amount: claimableAmount,
-                                        symbol: getDisplaySymbol(account.symbol),
-                                        br: <br />,
-                                    }}
-                                />
-                            </Banner>
+                            <Banner
+                                intent="info"
+                                description={
+                                    <Translation
+                                        id="TR_STAKE_CAN_CLAIM_WARNING"
+                                        values={{
+                                            amount: claimableAmount,
+                                            symbol: getDisplaySymbol(account.symbol),
+                                            br: <br />,
+                                        }}
+                                    />
+                                }
+                            />
                         )}
                         <SolanaStakingLimitBanner
                             account={account}
@@ -81,7 +84,7 @@ export const UnstakeForm = () => {
                             <Column gap={spacings.lg}>
                                 <UnstakeInputs />
                                 {showError && (
-                                    <Banner intent="critical">{inputError?.message}</Banner>
+                                    <Banner intent="critical" description={inputError?.message} />
                                 )}
                             </Column>
                         </>

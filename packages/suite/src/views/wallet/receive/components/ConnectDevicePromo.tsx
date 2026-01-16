@@ -1,11 +1,10 @@
 import { JSX } from 'react';
 
+import { Translation } from '@suite/intl';
 import { DEFAULT_FLAGSHIP_MODEL } from '@suite-common/suite-constants';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { Banner, H4, Paragraph } from '@trezor/components';
+import { Banner } from '@trezor/components';
 import { mapTrezorModelToIcon } from '@trezor/product-components';
-
-import { Translation } from 'src/components/suite/Translation';
 
 import { useSelector } from '../../../../hooks/suite';
 
@@ -24,10 +23,9 @@ const ConnectDevicePromo = ({ title, description }: ConnectDevicePromoProps) => 
             intent="warning"
             data-testid="@warning/trezorNotConnected"
             icon={mapTrezorModelToIcon[selectedDeviceModelInternal]}
-        >
-            <H4>{title}</H4>
-            <Paragraph>{description}</Paragraph>
-        </Banner>
+            title={title}
+            description={description}
+        />
     );
 };
 

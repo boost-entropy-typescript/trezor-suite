@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 
+import { Translation } from '@suite/intl';
 import {
     selectIsDeviceBackedUp,
     selectSelectedDevice,
@@ -9,7 +10,6 @@ import { Banner, Card, Checkbox, Column, H4, Modal, Paragraph } from '@trezor/co
 import { spacings } from '@trezor/theme';
 
 import { PrerequisitesGuide } from 'src/components/suite';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
 import { goto } from '../../../actions/suite/routerActions';
@@ -138,9 +138,11 @@ export const StepCheckSeed = ({
                     {description}
                 </Column>
                 {deviceWillBeWiped && (
-                    <Banner intent="critical" icon="warning">
-                        <Translation id="TR_FIRMWARE_SWITCH_WARNING_3" />
-                    </Banner>
+                    <Banner
+                        intent="critical"
+                        icon="warning"
+                        description={<Translation id="TR_FIRMWARE_SWITCH_WARNING_3" />}
+                    />
                 )}
                 <Card>
                     <Checkbox

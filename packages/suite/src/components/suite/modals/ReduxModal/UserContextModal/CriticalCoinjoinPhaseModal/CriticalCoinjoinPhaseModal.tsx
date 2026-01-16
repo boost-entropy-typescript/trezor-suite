@@ -1,7 +1,7 @@
+import { Translation } from '@suite/intl';
 import { Banner, Card, Column, Divider, LoadingContent, Modal } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
-import { Translation } from 'src/components/suite/Translation';
 import { SESSION_PHASE_MESSAGES } from 'src/constants/suite/coinjoin';
 import { useCoinjoinSessionPhase } from 'src/hooks/coinjoin';
 import { useSelector } from 'src/hooks/suite';
@@ -40,9 +40,11 @@ export const CriticalCoinjoinPhaseModal = ({
             }
         >
             <Column gap={spacings.md} margin={{ top: spacings.xs }}>
-                <Banner intent="warning" icon="warning">
-                    <Translation id="TR_DO_NOT_DISCONNECT_DEVICE" />
-                </Banner>
+                <Banner
+                    intent="warning"
+                    icon="warning"
+                    description={<Translation id="TR_DO_NOT_DISCONNECT_DEVICE" />}
+                />
                 <Card>
                     <CoinjoinPhaseProgress
                         roundPhase={roundPhase}

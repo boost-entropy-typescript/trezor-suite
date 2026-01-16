@@ -1,8 +1,7 @@
+import { Translation } from '@suite/intl';
 import { UserContextPayload } from '@suite-common/suite-types';
 import { Banner, Column, Modal, Paragraph } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-
-import { Translation } from 'src/components/suite/Translation';
 
 type DisableTorStopCoinjoinModalProps = {
     decision: Extract<UserContextPayload, { type: 'disable-tor-stop-coinjoin' }>['decision'];
@@ -41,16 +40,20 @@ export const DisableTorStopCoinjoinModal = ({
             }
         >
             <Column gap={spacings.xl}>
-                <Banner intent="warning" icon="torBrowser">
-                    <Paragraph typographyStyle="body">
-                        <Translation
-                            id="TR_TOR_REQUEST_ENABLE_FOR_COIN_JOIN_TITLE"
-                            values={{
-                                b: chunks => <strong>{chunks}</strong>,
-                            }}
-                        />
-                    </Paragraph>
-                </Banner>
+                <Banner
+                    intent="warning"
+                    icon="torBrowser"
+                    description={
+                        <Paragraph typographyStyle="body">
+                            <Translation
+                                id="TR_TOR_REQUEST_ENABLE_FOR_COIN_JOIN_TITLE"
+                                values={{
+                                    b: chunks => <strong>{chunks}</strong>,
+                                }}
+                            />
+                        </Paragraph>
+                    }
+                />
                 <Paragraph variant="tertiary" typographyStyle="hint">
                     <Translation id="TR_TOR_KEEP_RUNNING_FOR_COIN_JOIN_SUBTITLE" />
                 </Paragraph>

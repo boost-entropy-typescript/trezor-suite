@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import { isFeatureFlagEnabled } from '@suite-common/suite-utils';
 import { Banner, Column, H3, Modal, Paragraph } from '@trezor/components';
 import type { Deferred } from '@trezor/utils';
 
 import { connectProvider } from 'src/actions/suite/metadataProviderThunks';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch } from 'src/hooks/suite';
 import { MetadataProviderType } from 'src/types/suite/metadata';
 
@@ -102,11 +102,7 @@ export const MetadataProviderModal = ({ onCancel, decision }: MetadataProviderMo
                 <Paragraph typographyStyle="hint" variant="tertiary">
                     <Translation id="METADATA_MODAL_DESCRIPTION" />
                 </Paragraph>
-                {error && (
-                    <Banner intent="critical" icon>
-                        {error}
-                    </Banner>
-                )}
+                {error && <Banner intent="critical" icon description={error} />}
             </Column>
         </Modal>
     );

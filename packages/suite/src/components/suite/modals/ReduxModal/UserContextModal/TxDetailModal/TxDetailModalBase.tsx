@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 
+import { Translation } from '@suite/intl';
 import { Explorer, getNetwork } from '@suite-common/wallet-config';
 import { getExplorerUrl } from '@suite-common/wallet-config/src/getExplorerUrls';
 import {
@@ -13,7 +14,6 @@ import { Banner, Column, Modal } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 import { HELP_CENTER_ZERO_VALUE_ATTACKS } from '@trezor/urls';
 
-import { Translation } from 'src/components/suite/Translation';
 import { TrezorLink } from 'src/components/suite/TrezorLink';
 import { useSelector } from 'src/hooks/suite';
 import { Account, WalletAccountTransaction } from 'src/types/wallet';
@@ -69,18 +69,21 @@ export const TxDetailModalBase = ({
                 />
 
                 {isPhishingTransaction && (
-                    <Banner icon>
-                        <Translation
-                            id="TR_ZERO_PHISHING_BANNER"
-                            values={{
-                                a: chunks => (
-                                    <TrezorLink href={HELP_CENTER_ZERO_VALUE_ATTACKS}>
-                                        {chunks}
-                                    </TrezorLink>
-                                ),
-                            }}
-                        />
-                    </Banner>
+                    <Banner
+                        icon
+                        description={
+                            <Translation
+                                id="TR_ZERO_PHISHING_BANNER"
+                                values={{
+                                    a: chunks => (
+                                        <TrezorLink href={HELP_CENTER_ZERO_VALUE_ATTACKS}>
+                                            {chunks}
+                                        </TrezorLink>
+                                    ),
+                                }}
+                            />
+                        }
+                    />
                 )}
 
                 {children}

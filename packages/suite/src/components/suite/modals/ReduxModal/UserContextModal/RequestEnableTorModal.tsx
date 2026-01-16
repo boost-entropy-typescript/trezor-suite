@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
+import { Translation } from '@suite/intl';
 import { RequestEnableTorResponse } from '@suite-common/suite-config';
 import { UserContextPayload } from '@suite-common/suite-types';
 import { Banner, Modal } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
-import { Translation } from 'src/components/suite/Translation';
 import { useSelector } from 'src/hooks/suite';
 import { selectTorState } from 'src/selectors/suite/suiteSelectors';
 
@@ -59,14 +59,19 @@ export const RequestEnableTorModal = ({ onCancel, decision }: RequestEnableTorMo
                 </>
             }
         >
-            <Banner icon="torBrowser" intent="brand" margin={{ top: spacings.md }}>
-                <Translation
-                    id="TR_TOR_REQUEST_ENABLE_FOR_COIN_JOIN_TITLE"
-                    values={{
-                        b: chunks => <strong>{chunks}</strong>,
-                    }}
-                />
-            </Banner>
+            <Banner
+                icon="torBrowser"
+                intent="brand"
+                margin={{ top: spacings.md }}
+                description={
+                    <Translation
+                        id="TR_TOR_REQUEST_ENABLE_FOR_COIN_JOIN_TITLE"
+                        values={{
+                            b: chunks => <strong>{chunks}</strong>,
+                        }}
+                    />
+                }
+            />
         </Modal>
     );
 };

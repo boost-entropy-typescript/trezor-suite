@@ -1,3 +1,4 @@
+import { Translation } from '@suite/intl';
 import { TrezorDevice } from '@suite-common/suite-types';
 import { selectDeviceModel } from '@suite-common/wallet-core';
 import { Banner, Column, H3 } from '@trezor/components';
@@ -8,7 +9,6 @@ import { SwitchDeviceModal } from 'src/views/suite/SwitchDevice/SwitchDeviceModa
 
 import { PassphraseInputCard } from './PassphraseInputCard';
 import { useSelector } from '../../../../../hooks/suite';
-import { Translation } from '../../../Translation';
 
 type PassphraseWalletConfirmationProps = {
     onSubmit: (value: string, passphraseOnDevice?: boolean) => void;
@@ -36,9 +36,12 @@ export const PassphraseWalletConfirmation = ({
                     <H3>
                         <Translation id="TR_PASSPHRASE_WALLET_CONFIRMATION_STEP3_TITLE" />
                     </H3>
-                    <Banner icon="info">
-                        <Translation id="TR_PASSPHRASE_WALLET_CONFIRMATION_STEP3_WARNING" />
-                    </Banner>
+                    <Banner
+                        icon="info"
+                        description={
+                            <Translation id="TR_PASSPHRASE_WALLET_CONFIRMATION_STEP3_WARNING" />
+                        }
+                    />
                     <PassphraseInputCard
                         deviceModel={deviceModel ?? undefined}
                         onSubmit={onSubmit}

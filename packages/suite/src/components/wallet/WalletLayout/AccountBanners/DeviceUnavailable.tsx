@@ -1,7 +1,7 @@
+import { Translation } from '@suite/intl';
 import { Banner } from '@trezor/components';
 
 import { applySettings } from 'src/actions/settings/deviceSettingsActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useDevice, useDispatch } from 'src/hooks/suite';
 
 export const DeviceUnavailable = () => {
@@ -23,8 +23,7 @@ export const DeviceUnavailable = () => {
                     <Translation id="TR_ACCOUNT_ENABLE_PASSPHRASE" />
                 </Banner.Button>
             }
-        >
-            <Translation id="TR_ACCOUNT_PASSPHRASE_DISABLED" />
-        </Banner>
+            description={<Translation id="TR_ACCOUNT_PASSPHRASE_DISABLED" />}
+        />
     );
 };

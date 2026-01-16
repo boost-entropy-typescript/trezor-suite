@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+import { Translation } from '@suite/intl';
 import { MAX_DEACTIVATE_ACCOUNTS_WITH_SPLIT, claim, unstake } from '@suite-common/staking-solana';
 import { getDisplaySymbol } from '@suite-common/wallet-config';
 import { WALLET_SDK_SOURCE } from '@suite-common/wallet-constants';
@@ -14,8 +15,6 @@ import {
 import { StakeState } from '@trezor/blockchain-link-types/src/solana';
 import { Banner } from '@trezor/components';
 import { BigNumber } from '@trezor/utils';
-
-import { Translation } from 'src/components/suite/Translation';
 
 interface SolanaStakingLimitBannerProps {
     account: Account;
@@ -91,19 +90,22 @@ export const SolanaStakingLimitBanner = ({
     if (!isAccountLimitExeeded) return null;
 
     return (
-        <Banner intent="info">
-            <Translation
-                id={
-                    type === 'claim'
-                        ? 'TR_STAKE_CAN_CLAIM_FROM_ACCOUNTS'
-                        : 'TR_STAKE_CAN_UNSTAKE_FROM_ACCOUNTS'
-                }
-                values={{
-                    limit: MAX_DEACTIVATE_ACCOUNTS_WITH_SPLIT,
-                    amount: formatNetworkAmount(estimatedAmount, account.symbol),
-                    symbol: getDisplaySymbol(account.symbol),
-                }}
-            />
-        </Banner>
+        <Banner
+            intent="info"
+            description={
+                <Translation
+                    id={
+                        type === 'claim'
+                            ? 'TR_STAKE_CAN_CLAIM_FROM_ACCOUNTS'
+                            : 'TR_STAKE_CAN_UNSTAKE_FROM_ACCOUNTS'
+                    }
+                    values={{
+                        limit: MAX_DEACTIVATE_ACCOUNTS_WITH_SPLIT,
+                        amount: formatNetworkAmount(estimatedAmount, account.symbol),
+                        symbol: getDisplaySymbol(account.symbol),
+                    }}
+                />
+            }
+        />
     );
 };

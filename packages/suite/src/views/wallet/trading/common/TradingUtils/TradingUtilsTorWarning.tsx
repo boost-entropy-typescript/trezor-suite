@@ -1,9 +1,9 @@
+import { Translation, TranslationKey } from '@suite/intl';
 import { TradingType } from '@suite-common/trading';
 import { Banner, Column } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { Translation, TranslationKey } from 'src/components/suite/Translation';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectTorState } from 'src/selectors/suite/suiteSelectors';
@@ -56,10 +56,11 @@ export const TradingUtilsTorWarning = ({
                     </Banner.Button>
                 )
             }
-        >
-            <Column gap={spacings.sm}>
-                <Translation id={translationId} />
-            </Column>
-        </Banner>
+            description={
+                <Column gap={spacings.sm}>
+                    <Translation id={translationId} />
+                </Column>
+            }
+        />
     );
 };

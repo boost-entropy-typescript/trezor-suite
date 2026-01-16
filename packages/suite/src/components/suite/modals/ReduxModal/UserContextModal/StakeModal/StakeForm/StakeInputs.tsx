@@ -1,3 +1,4 @@
+import { Translation, useTranslation } from '@suite/intl';
 import { useFormatters } from '@suite-common/formatters';
 import { formInputsMaxLength } from '@suite-common/validators';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
@@ -9,8 +10,7 @@ import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils';
 
 import { BaseCurrencyValue } from 'src/components/suite/BaseCurrencyValue';
-import { Translation } from 'src/components/suite/Translation';
-import { useSelector, useTranslation } from 'src/hooks/suite';
+import { useSelector } from 'src/hooks/suite';
 import { useStakeFormContext } from 'src/hooks/wallet/useStakeForm';
 import { selectLanguage } from 'src/selectors/suite/suiteSelectors';
 import { CRYPTO_INPUT, FIAT_INPUT } from 'src/types/wallet/stakeForms';
@@ -237,30 +237,40 @@ export const StakeInputs = () => {
                 ]}
             />
             {shouldShowAmountForWithdrawalWarning && (
-                <Banner data-testid="@staking/form/withdrawal-warning" intent="info" width="100%">
-                    <Translation
-                        id={
-                            isLessAmountForWithdrawalWarningShown
-                                ? 'TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL'
-                                : 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL'
-                        }
-                        values={{
-                            amount: stakingLimits.MIN_FOR_WITHDRAWALS.toString(),
-                            networkDisplaySymbol,
-                        }}
-                    />
-                </Banner>
+                <Banner
+                    data-testid="@staking/form/withdrawal-warning"
+                    intent="info"
+                    width="100%"
+                    description={
+                        <Translation
+                            id={
+                                isLessAmountForWithdrawalWarningShown
+                                    ? 'TR_STAKE_LEFT_SMALL_AMOUNT_FOR_WITHDRAWAL'
+                                    : 'TR_STAKE_LEFT_AMOUNT_FOR_WITHDRAWAL'
+                            }
+                            values={{
+                                amount: stakingLimits.MIN_FOR_WITHDRAWALS.toString(),
+                                networkDisplaySymbol,
+                            }}
+                        />
+                    }
+                />
             )}
             {showAdviceBanner && !isAmountForWithdrawalWarningShown && (
-                <Banner data-testid="@staking/form/withdrawal-warning" intent="info" width="100%">
-                    <Translation
-                        id="TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS"
-                        values={{
-                            amount: stakingLimits.MIN_FOR_WITHDRAWALS.toString(),
-                            networkDisplaySymbol,
-                        }}
-                    />
-                </Banner>
+                <Banner
+                    data-testid="@staking/form/withdrawal-warning"
+                    intent="info"
+                    width="100%"
+                    description={
+                        <Translation
+                            id="TR_STAKE_RECOMMENDED_AMOUNT_FOR_WITHDRAWALS"
+                            values={{
+                                amount: stakingLimits.MIN_FOR_WITHDRAWALS.toString(),
+                                networkDisplaySymbol,
+                            }}
+                        />
+                    }
+                />
             )}
         </Column>
     );

@@ -1,9 +1,9 @@
 import { ExchangeKYCType } from 'invity-api';
 import { useTheme } from 'styled-components';
 
+import { Translation } from '@suite/intl';
 import { Banner, Icon, Tooltip } from '@trezor/components';
 
-import { Translation } from 'src/components/suite/Translation';
 import {
     KYC_DEX,
     KYC_NO_KYC,
@@ -68,5 +68,5 @@ export const TradingUtilsKyc = ({
         );
     }
 
-    return <Banner icon>{kycPolicyTranslation}</Banner>;
+    return <Banner icon description={kycPolicyTranslation} />;
 };

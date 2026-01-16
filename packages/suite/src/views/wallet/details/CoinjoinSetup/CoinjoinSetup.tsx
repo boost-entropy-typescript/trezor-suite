@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
 
+import { Translation } from '@suite/intl';
 import {
     Banner,
     Card,
@@ -14,7 +15,6 @@ import {
 import { Elevation, mapElevationToBorder } from '@trezor/theme';
 
 import { coinjoinAccountUpdateSetupOption } from 'src/actions/wallet/coinjoinAccountActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useSelector } from 'src/hooks/suite/useSelector';
 import { selectCoinjoinAccountByKey } from 'src/reducers/wallet/coinjoinReducer';
 
@@ -68,9 +68,10 @@ export const CoinjoinSetup = ({ accountKey }: CoinjoinSetupProps) => {
     return (
         <Card>
             {hasSession && (
-                <Banner intent="info">
-                    <Translation id="TR_DISABLED_ANONYMITY_CHANGE_MESSAGE" />
-                </Banner>
+                <Banner
+                    intent="info"
+                    description={<Translation id="TR_DISABLED_ANONYMITY_CHANGE_MESSAGE" />}
+                />
             )}
             <SetupContainer>
                 <SetupOptions>

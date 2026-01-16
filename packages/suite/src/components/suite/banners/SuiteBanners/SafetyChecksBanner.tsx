@@ -1,7 +1,7 @@
+import { Translation } from '@suite/intl';
 import { Banner } from '@trezor/components';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { Translation } from 'src/components/suite/Translation';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch } from 'src/hooks/suite';
 
@@ -41,8 +41,7 @@ export const SafetyChecksBanner = ({ onDismiss }: SafetyChecksBannerProps) => {
                     )}
                 </>
             }
-        >
-            <Translation id="TR_SAFETY_CHECKS_DISABLED_WARNING" />
-        </Banner>
+            description={<Translation id="TR_SAFETY_CHECKS_DISABLED_WARNING" />}
+        />
     );
 };

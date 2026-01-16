@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
+import { Translation, TranslationKey } from '@suite/intl';
 import { selectAdapterStatus } from '@suite-common/bluetooth';
-import { TranslationKey } from '@suite-common/intl-types';
 import { Banner, Modal, Paragraph } from '@trezor/components';
 
 import { openSystemSettingsThunk } from 'src/actions/bluetooth/openSystemSettingsThunk';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
 type BluetoothAdapterStatusModalProps = {
@@ -82,9 +81,11 @@ export const BluetoothAdapterStatusModal = ({ onCancel }: BluetoothAdapterStatus
             }
         >
             {hasDeeplinkFailed && status.deeplinkFailed ? (
-                <Banner intent="warning" icon>
-                    <Translation id={status.deeplinkFailed} />
-                </Banner>
+                <Banner
+                    intent="warning"
+                    icon
+                    description={<Translation id={status.deeplinkFailed} />}
+                />
             ) : (
                 <Paragraph>
                     <Translation id={status.description}></Translation>

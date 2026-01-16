@@ -1,10 +1,10 @@
+import { Translation } from '@suite/intl';
 import { getFwUpdateVersion } from '@suite-common/suite-utils';
 import { Banner, Card, Column } from '@trezor/components';
 import { FirmwareType } from '@trezor/connect';
 import { getFirmwareVersion } from '@trezor/device-utils';
 
 import { FirmwareOffer, FirmwareWarningsList, FirmwareWipeWarning } from 'src/components/firmware';
-import { Translation } from 'src/components/suite/Translation';
 import { useDevice } from 'src/hooks/suite';
 import { useFirmwareDesktopUpdate } from 'src/hooks/suite/useFirmwareDesktopUpdate';
 
@@ -62,29 +62,33 @@ export const FirmwareInitial = () => {
 
     return (
         <Column gap={16}>
-            <Banner intent="info" icon="info">
-                <Translation
-                    id={getDescription({
-                        /**
-                         * `device.firmware` is status of the firmware currently installed on the device.
-                         *  available values: 'valid' | 'outdated' | 'required' | 'unknown' | 'none'
-                         *
-                         *  `device.firmwareReleaseConfigInfo` on the other hand contains latest available firmware to update to
-                         *   (it is whatever returns getInfo() method from connect)
-                         *   so it should not be used here.
-                         */
-                        required: device.firmware === 'required',
-                        reinstall: device.firmware === 'valid' || hasLatestAvailableFw,
-                        targetType: targetFirmwareType,
-                        switchFirmwareType,
-                        isBitcoinOnlyAvailable,
-                    })}
-                    values={{
-                        bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
-                        regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
-                    }}
-                />
-            </Banner>
+            <Banner
+                intent="info"
+                icon="info"
+                description={
+                    <Translation
+                        id={getDescription({
+                            /**
+                             * `device.firmware` is status of the firmware currently installed on the device.
+                             *  available values: 'valid' | 'outdated' | 'required' | 'unknown' | 'none'
+                             *
+                             *  `device.firmwareReleaseConfigInfo` on the other hand contains latest available firmware to update to
+                             *   (it is whatever returns getInfo() method from connect)
+                             *   so it should not be used here.
+                             */
+                            required: device.firmware === 'required',
+                            reinstall: device.firmware === 'valid' || hasLatestAvailableFw,
+                            targetType: targetFirmwareType,
+                            switchFirmwareType,
+                            isBitcoinOnlyAvailable,
+                        })}
+                        values={{
+                            bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                            regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
+                        }}
+                    />
+                }
+            />
             {deviceWillBeWiped && <FirmwareWipeWarning />}
             <Card>
                 <FirmwareOffer targetFirmwareType={targetFirmwareType} />

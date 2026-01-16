@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import {
     ComposeCancelTransactionPartialAccount,
     composeCancelTransactionThunk,
@@ -19,7 +20,6 @@ import { CancelTransaction } from './CancelTransaction';
 import { CancelTransactionButton } from './CancelTransactionButton';
 import { useDispatch, useSelector } from '../../../../../../../hooks/suite';
 import { CancelTxContext } from '../../../../../../../hooks/wallet/useCancelTxContext';
-import { Translation } from '../../../../../Translation';
 import { AffectedTransactions } from '../AffectedTransactions/AffectedTransactions';
 import { ReplaceByFeeFailedOriginalTxConfirmed } from '../ReplaceByFeeFailedOriginalTxConfirmed';
 import { TxDetailModalBase } from '../TxDetailModalBase';
@@ -93,9 +93,12 @@ export const CancelTransactionModal = ({
                             {error !== null ? (
                                 // This shall never happen, error like this always signal big in the code,
                                 // this is here just to make easier to detect and fix
-                                <Banner intent="critical">
-                                    Error: transaction cannot be canceled ({error})
-                                </Banner>
+                                <Banner
+                                    intent="critical"
+                                    description={
+                                        <>Error: transaction cannot be canceled ({error})</>
+                                    }
+                                />
                             ) : null}
                         </>
                     )

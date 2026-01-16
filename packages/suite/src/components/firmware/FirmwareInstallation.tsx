@@ -1,3 +1,4 @@
+import { Translation } from '@suite/intl';
 import { Banner, Card, Column } from '@trezor/components';
 import TrezorConnect from '@trezor/connect';
 import type TrezorConnectWeb from '@trezor/connect-web';
@@ -8,7 +9,6 @@ import {
     ReconnectDevicePrompt,
     RotatingPhrases,
 } from 'src/components/firmware';
-import { Translation } from 'src/components/suite/Translation';
 import { useFirmwareDesktopUpdate } from 'src/hooks/suite/useFirmwareDesktopUpdate';
 import { useSelector } from 'src/hooks/suite/useSelector';
 import { selectHasTransportOfType } from 'src/selectors/suite/suiteSelectors';
@@ -65,14 +65,15 @@ export const FirmwareInstallation = ({
                                 <Translation id="TR_SELECT_TREZOR" />
                             </Banner.Button>
                         }
-                    >
-                        <Translation id="TR_SELECT_TREZOR_TO_CONTINUE" />
-                    </Banner>
+                        description={<Translation id="TR_SELECT_TREZOR_TO_CONTINUE" />}
+                    />
                 )}
                 {displayIsSlow && (
-                    <Banner intent="info" icon="bluetooth">
-                        <Translation id="TR_INSTALLATION_FW_SLOW_TIP_BANNER" />
-                    </Banner>
+                    <Banner
+                        intent="info"
+                        icon="bluetooth"
+                        description={<Translation id="TR_INSTALLATION_FW_SLOW_TIP_BANNER" />}
+                    />
                 )}
                 <Card>
                     <Column gap={8}>

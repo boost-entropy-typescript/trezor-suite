@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import {
     Banner,
     Card,
@@ -13,7 +14,6 @@ import {
 import { spacings } from '@trezor/theme';
 
 import { applySettings } from 'src/actions/settings/deviceSettingsActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useDevice, useDispatch } from 'src/hooks/suite';
 
 /**
@@ -51,9 +51,7 @@ export const SafetyChecksModal = ({ onCancel }: ModalProps) => {
                 </>
             }
         >
-            <Banner icon>
-                <Translation id="TR_SAFETY_CHECKS_PROMPT_LEVEL_WARNING" />
-            </Banner>
+            <Banner icon description={<Translation id="TR_SAFETY_CHECKS_PROMPT_LEVEL_WARNING" />} />
             <Card margin={{ top: spacings.md }}>
                 <Column gap={spacings.xl} alignItems="flex-start">
                     <Radio

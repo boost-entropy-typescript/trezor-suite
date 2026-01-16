@@ -1,8 +1,7 @@
 import { BuyProviderInfo, ExchangeProviderInfo, SellProviderInfo } from 'invity-api';
 
+import { Translation } from '@suite/intl';
 import { Banner, Link, Paragraph } from '@trezor/components';
-
-import { Translation } from 'src/components/suite/Translation';
 
 type TradingDetailSupportBannerProps = {
     provider?: BuyProviderInfo | SellProviderInfo | ExchangeProviderInfo;
@@ -35,16 +34,20 @@ export const TradingDetailSupportBanner = ({
     }
 
     return (
-        <Banner intent="neutral" icon="question">
-            <Paragraph typographyStyle="hint">
-                <Translation
-                    id="TR_TRADING_PROCESSING_SUPPORT"
-                    values={{
-                        providerName,
-                        link: chunks => <Link href={supportUrl}>{chunks}</Link>,
-                    }}
-                />
-            </Paragraph>
-        </Banner>
+        <Banner
+            intent="neutral"
+            icon="question"
+            description={
+                <Paragraph typographyStyle="hint">
+                    <Translation
+                        id="TR_TRADING_PROCESSING_SUPPORT"
+                        values={{
+                            providerName,
+                            link: chunks => <Link href={supportUrl}>{chunks}</Link>,
+                        }}
+                    />
+                </Paragraph>
+            }
+        />
     );
 };

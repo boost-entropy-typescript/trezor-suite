@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import { bluetoothActions } from '@suite-common/bluetooth';
 import { Banner, Column, H3, Modal, Paragraph, Spinner } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { openSystemSettingsThunk } from 'src/actions/bluetooth/openSystemSettingsThunk';
 import { toggleConnectionModal } from 'src/actions/device/deviceSlice';
-import { Translation } from 'src/components/suite/Translation';
 
 import { selectIsUnpairingDevice } from '../../../actions/bluetooth/desktopBluetoothSelectors';
 import { useDispatch, useSelector } from '../../../hooks/suite';
@@ -75,9 +75,10 @@ export const UnpairBluetoothDeviceFromOsModal = ({
                 <Translation id="TR_BLUETOOTH_REMOVE_FROM_BLUETOOTH_SETTINGS_DESCRIPTION" />
             </Paragraph>
             {hasDeeplinkFailed && (
-                <Banner intent="warning">
-                    <Translation id="TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS" />
-                </Banner>
+                <Banner
+                    intent="warning"
+                    description={<Translation id="TR_BLUETOOTH_CANNOT_OPEN_BLUETOOTH_SETTINGS" />}
+                />
             )}
         </Modal>
     );

@@ -1,7 +1,7 @@
+import { Translation } from '@suite/intl';
 import { Banner } from '@trezor/components';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch } from 'src/hooks/suite';
 
 export const BridgeDeprecated = () => {
@@ -19,8 +19,7 @@ export const BridgeDeprecated = () => {
                     <Translation id="TR_LEARN_MORE" />
                 </Banner.Button>
             }
-        >
-            <Translation id="TR_STANDALONE_BRIDGE_DEPRECATED" />
-        </Banner>
+            description={<Translation id="TR_STANDALONE_BRIDGE_DEPRECATED" />}
+        />
     );
 };

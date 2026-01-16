@@ -1,3 +1,4 @@
+import { Translation } from '@suite/intl';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import { CARDANO_STAKING_REGISTRATION_DEPOSIT } from '@suite-common/wallet-constants';
 import {
@@ -9,7 +10,6 @@ import { Banner, Card, Paragraph, Row } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { BaseCurrencyValue } from 'src/components/suite/BaseCurrencyValue';
-import { Translation } from 'src/components/suite/Translation';
 import { useSelector } from 'src/hooks/suite';
 
 type StakeRegistrationDepositCardProps = {
@@ -83,18 +83,23 @@ export const StakeRegistrationDepositCard = ({ account }: StakeRegistrationDepos
                     </Row>
                 </>
             )}
-            <Banner intent="info" icon="info" margin={{ top: spacings.md }}>
-                <Translation
-                    id={
-                        isUpdateProviderFlow
-                            ? 'TR_STAKING_REWARDS_REMAIN_INTACT'
-                            : 'TR_STAKE_FUNDS_WARNING'
-                    }
-                    values={{
-                        networkDisplaySymbol: getNetworkDisplaySymbol(symbol),
-                    }}
-                />
-            </Banner>
+            <Banner
+                intent="info"
+                icon="info"
+                margin={{ top: spacings.md }}
+                description={
+                    <Translation
+                        id={
+                            isUpdateProviderFlow
+                                ? 'TR_STAKING_REWARDS_REMAIN_INTACT'
+                                : 'TR_STAKE_FUNDS_WARNING'
+                        }
+                        values={{
+                            networkDisplaySymbol: getNetworkDisplaySymbol(symbol),
+                        }}
+                    />
+                }
+            />
         </Card>
     );
 };

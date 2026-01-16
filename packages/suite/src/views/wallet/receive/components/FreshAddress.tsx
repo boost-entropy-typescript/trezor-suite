@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { Translation } from '@suite/intl';
 import { getNetwork } from '@suite-common/wallet-config';
 import { AccountsRootState, selectIsAccountUtxoBased } from '@suite-common/wallet-core';
 import { getFirstFreshAddress } from '@suite-common/wallet-utils';
@@ -10,7 +11,6 @@ import {
     Card,
     H4,
     InfoItem,
-    Paragraph,
     Row,
     Text,
     Tooltip,
@@ -19,7 +19,6 @@ import { spacings } from '@trezor/theme';
 
 import { showAddress } from 'src/actions/wallet/receiveActions';
 import { Address, ReadMoreLink } from 'src/components/suite';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite/';
 import { useReceiveDisabled } from 'src/hooks/suite/useReceiveDisabled';
 import { AppState } from 'src/types/suite';
@@ -168,24 +167,27 @@ export const FreshAddress = ({
                 </Tooltip>
             </Row>
             {account.networkType === 'ethereum' && account.symbol !== 'eth' && (
-                <Banner icon intent="info" margin={{ top: spacings.xxl }}>
-                    <H4>
+                <Banner
+                    icon
+                    intent="info"
+                    margin={{ top: spacings.xxl }}
+                    title={
                         <Translation
                             id="TR_EVM_EXPLANATION_TITLE"
                             values={{
                                 network: getNetwork(account.symbol).name,
                             }}
                         />
-                    </H4>
-                    <Paragraph>
+                    }
+                    description={
                         <Translation
                             id="TR_EVM_EXPLANATION_RECEIVE_DESCRIPTION"
                             values={{
                                 network: getNetwork(account.symbol).name,
                             }}
                         />
-                    </Paragraph>
-                </Banner>
+                    }
+                />
             )}
         </Card>
     );

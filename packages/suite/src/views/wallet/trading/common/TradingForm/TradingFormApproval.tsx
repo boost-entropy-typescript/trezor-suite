@@ -3,6 +3,7 @@ import { usePrevious } from 'react-use';
 
 import styled, { DefaultTheme, keyframes } from 'styled-components';
 
+import { Translation } from '@suite/intl';
 import {
     TradingExchangeType,
     tokenSupportsIncreasingAllowance,
@@ -15,7 +16,6 @@ import { spacings } from '@trezor/theme';
 
 import { openModal } from 'src/actions/suite/modalActions';
 import { Address } from 'src/components/suite/Address';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { useTradingExchangeCryptoAndProviderInfo } from 'src/hooks/wallet/trading/form/useTradingExchangeCryptoAndProviderInfo';
@@ -332,9 +332,13 @@ export const TradingFormApproval = ({
                                         <Translation id="TR_EXCHANGE_APPROVAL_FORM_REVOKE_BUTTON" />
                                     </Button>
 
-                                    <Banner intent="warning" icon="warning">
-                                        <Translation id="TR_EXCHANGE_APPROVAL_FORM_REVOKE_BANNER" />
-                                    </Banner>
+                                    <Banner
+                                        intent="warning"
+                                        icon="warning"
+                                        description={
+                                            <Translation id="TR_EXCHANGE_APPROVAL_FORM_REVOKE_BANNER" />
+                                        }
+                                    />
                                 </>
                             ) : (
                                 <>

@@ -3,6 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { numberToHex, toWei } from 'web3-utils';
 
+import { Translation } from '@suite/intl';
 import { connectPopupActions, selectConnectPopupCall } from '@suite-common/connect-popup';
 import { useFormatters } from '@suite-common/formatters';
 import {
@@ -39,7 +40,6 @@ import { AccountLabel } from 'src/components/suite/AccountLabel';
 import { Address } from 'src/components/suite/Address';
 import { ConnectCallSource } from 'src/components/suite/ConnectCallSource';
 import { ConnectModalBackdrop } from 'src/components/suite/ConnectModalBackdrop';
-import { Translation } from 'src/components/suite/Translation';
 import { Fees } from 'src/components/wallet/Fees/Fees';
 import { useDispatch, useExternalLink, useSelector } from 'src/hooks/suite';
 import { useFees } from 'src/hooks/wallet/form/useFees';
@@ -179,25 +179,26 @@ export const TxSimulationBanner = ({
     <Banner
         intent={type === 'warning' ? 'warning' : 'critical'}
         data-testid="@tx-simulation-modal/error-banner"
-    >
-        <Column width="100%" padding={{ vertical: spacings.xxs }}>
-            <Text typographyStyle="callout">{title}</Text>
-            <Text>{description}</Text>
+        description={
+            <Column width="100%" padding={{ vertical: spacings.xxs }}>
+                <Text typographyStyle="callout">{title}</Text>
+                <Text>{description}</Text>
 
-            <Card margin={{ top: spacings.sm }} paddingType="small">
-                <Checkbox
-                    data-testid="@tx-simulation-modal/disclaimer-checkbox"
-                    isChecked={disclaimerAccepted}
-                    onClick={() => setDisclaimerAccepted(!disclaimerAccepted)}
-                    verticalAlignment="center"
-                >
-                    <Text variant="default" typographyStyle="hint">
-                        <Translation id="TR_SIMULATION_DISCLAIMER_OVERRIDE" />
-                    </Text>
-                </Checkbox>
-            </Card>
-        </Column>
-    </Banner>
+                <Card margin={{ top: spacings.sm }} paddingType="small">
+                    <Checkbox
+                        data-testid="@tx-simulation-modal/disclaimer-checkbox"
+                        isChecked={disclaimerAccepted}
+                        onClick={() => setDisclaimerAccepted(!disclaimerAccepted)}
+                        verticalAlignment="center"
+                    >
+                        <Text variant="default" typographyStyle="hint">
+                            <Translation id="TR_SIMULATION_DISCLAIMER_OVERRIDE" />
+                        </Text>
+                    </Checkbox>
+                </Card>
+            </Column>
+        }
+    />
 );
 
 export const TxSimulationModal = () => {

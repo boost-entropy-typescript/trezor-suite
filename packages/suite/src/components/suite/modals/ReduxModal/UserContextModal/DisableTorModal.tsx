@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import { UserContextPayload } from '@suite-common/suite-types';
 import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
 import { blockchainActions } from '@suite-common/wallet-core';
@@ -7,7 +8,6 @@ import { Banner, Button, Card, Column, H3, Modal, Paragraph, Row } from '@trezor
 import { CoinLogo } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
 
-import { Translation } from 'src/components/suite/Translation';
 import { useCustomBackends } from 'src/hooks/settings/backends';
 import { useDispatch } from 'src/hooks/suite';
 import { isOnionUrl } from 'src/utils/suite/tor';
@@ -67,10 +67,16 @@ export const DisableTorModal = ({ onCancel, decision }: DisableTorModalProps) =>
         >
             {onionBackends.length ? (
                 <Column gap={spacings.md}>
-                    <Banner intent="warning" icon="torBrowser">
-                        <Translation id="TR_TOR_DISABLE_ONIONS_ONLY_TITLE" />{' '}
-                        <Translation id="TR_TOR_DISABLE_ONIONS_ONLY_DESCRIPTION" />
-                    </Banner>
+                    <Banner
+                        intent="warning"
+                        icon="torBrowser"
+                        description={
+                            <>
+                                <Translation id="TR_TOR_DISABLE_ONIONS_ONLY_TITLE" />{' '}
+                                <Translation id="TR_TOR_DISABLE_ONIONS_ONLY_DESCRIPTION" />
+                            </>
+                        }
+                    />
                     <Card>
                         <Column gap={spacings.xxl} hasDivider>
                             {onionBackends.map(({ symbol, urls }) => (

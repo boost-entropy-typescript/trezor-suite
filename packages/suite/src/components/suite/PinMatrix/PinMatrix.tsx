@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
+import { Translation } from '@suite/intl';
 import { formInputsMaxLength } from '@suite-common/validators';
 import {
     Banner,
@@ -15,7 +16,6 @@ import {
 } from '@trezor/components';
 import { HELP_CENTER_PIN_URL } from '@trezor/urls';
 
-import { Translation } from 'src/components/suite/Translation';
 import { useExternalLink } from 'src/hooks/suite';
 
 type PinMatrixProps = {
@@ -121,11 +121,12 @@ export const PinMatrix = ({
                             <Translation id="TR_LEARN_MORE" />
                         </Banner.Button>
                     }
-                >
-                    <Paragraph typographyStyle="hint">
-                        <Translation id="TR_MAXIMUM_PIN_LENGTH" />
-                    </Paragraph>
-                </Banner>
+                    description={
+                        <Paragraph typographyStyle="hint">
+                            <Translation id="TR_MAXIMUM_PIN_LENGTH" />
+                        </Paragraph>
+                    }
+                />
             )}
             <Card label={showLabel ? <Translation id="TR_ENTER_PIN" /> : undefined}>
                 <Column gap={40} padding={16} data-testid="@pin" alignItems="center">

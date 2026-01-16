@@ -1,5 +1,6 @@
 import { ComponentType, ReactNode, useEffect, useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import {
     Banner,
     Card,
@@ -14,7 +15,6 @@ import {
 import { spacings } from '@trezor/theme';
 
 import { toggleTor, updateTorStatus } from 'src/actions/suite/suiteActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectModalType } from 'src/reducers/suite/modalReducer';
 import { selectTorState } from 'src/selectors/suite/suiteSelectors';
@@ -148,9 +148,13 @@ export const TorLoader = ({ callback }: TorLoadingScreenProps) => {
                     </Row>
                 </Card>
                 {!!torBootstrap?.isSlow && (
-                    <Banner intent="info" icon="clockClockwise">
-                        <Translation id="TR_TOR_IS_SLOW_MESSAGE" values={{ br: () => ' ' }} />
-                    </Banner>
+                    <Banner
+                        intent="info"
+                        icon="clockClockwise"
+                        description={
+                            <Translation id="TR_TOR_IS_SLOW_MESSAGE" values={{ br: () => ' ' }} />
+                        }
+                    />
                 )}
             </Column>
         </Modal>

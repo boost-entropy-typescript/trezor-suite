@@ -1,9 +1,9 @@
+import { Translation } from '@suite/intl';
 import { Banner, Paragraph } from '@trezor/components';
 import { hasBitcoinOnlyFirmware } from '@trezor/device-utils';
 
 import { goto } from 'src/actions/suite/routerActions';
 import { setFlag } from 'src/actions/suite/suiteActions';
-import { Translation } from 'src/components/suite/Translation';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDevice, useDispatch } from 'src/hooks/suite';
 
@@ -29,26 +29,27 @@ export const FirmwareTypeSuggestion = () => {
                     <Translation id="TR_GOT_IT" />
                 </Banner.Button>
             }
-        >
-            <Paragraph>
-                <Translation
-                    id={translationId}
-                    values={{
-                        button: chunks => (
-                            <Banner.Button
-                                margin={{ horizontal: 2 }}
-                                intent="info"
-                                size="small"
-                                onClick={goToFirmwareType}
-                            >
-                                {chunks}
-                            </Banner.Button>
-                        ),
-                        bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
-                        regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
-                    }}
-                />
-            </Paragraph>
-        </Banner>
+            description={
+                <Paragraph>
+                    <Translation
+                        id={translationId}
+                        values={{
+                            button: chunks => (
+                                <Banner.Button
+                                    margin={{ horizontal: 2 }}
+                                    intent="info"
+                                    size="small"
+                                    onClick={goToFirmwareType}
+                                >
+                                    {chunks}
+                                </Banner.Button>
+                            ),
+                            bitcoinOnly: <Translation id="TR_FIRMWARE_TYPE_BITCOIN_ONLY" />,
+                            regular: <Translation id="TR_FIRMWARE_TYPE_REGULAR" />,
+                        }}
+                    />
+                </Paragraph>
+            }
+        />
     );
 };

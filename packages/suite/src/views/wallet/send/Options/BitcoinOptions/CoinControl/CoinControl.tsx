@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import styled, { useTheme } from 'styled-components';
 
+import { Translation } from '@suite/intl';
 import { getTxsPerPage } from '@suite-common/suite-utils';
 import { COMPOSE_ERROR_TYPES } from '@suite-common/wallet-constants';
 import { fetchUtxoTransactionsForAccountThunk } from '@suite-common/wallet-core';
@@ -25,7 +26,6 @@ import {
 import { spacings, spacingsPx } from '@trezor/theme';
 
 import { FormattedCryptoAmount } from 'src/components/suite';
-import { Translation } from 'src/components/suite/Translation';
 import { Pagination } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useSendFormContext } from 'src/hooks/wallet';
@@ -195,11 +195,14 @@ export const CoinControl = ({ close }: CoinControlProps) => {
                 </Row>
 
                 {isMissingVisible && (
-                    <Banner icon>
-                        <Paragraph>
-                            <Translation id={missingToInputId} values={missingToInputValues} />
-                        </Paragraph>
-                    </Banner>
+                    <Banner
+                        icon
+                        description={
+                            <Paragraph>
+                                <Translation id={missingToInputId} values={missingToInputValues} />
+                            </Paragraph>
+                        }
+                    />
                 )}
 
                 <Divider margin={0} />

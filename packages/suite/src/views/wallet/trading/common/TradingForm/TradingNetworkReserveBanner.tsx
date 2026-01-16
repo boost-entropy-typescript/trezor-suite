@@ -1,10 +1,10 @@
+import { Translation } from '@suite/intl';
 import { NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
 import { selectIsNetworkReserveEnabled } from '@suite-common/wallet-core';
 import { getNetworkReserve } from '@suite-common/wallet-utils';
 import { Banner } from '@trezor/components';
 
 import { goto } from 'src/actions/suite/routerActions';
-import { Translation } from 'src/components/suite/Translation';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
@@ -49,14 +49,15 @@ export const TradingNetworkReserveBanner = ({
                     <Translation id="TR_NETWORK_RESERVE_MANAGE" />
                 </Banner.Button>
             }
-        >
-            <Translation
-                id="TR_NETWORK_RESERVE_BANNER"
-                values={{
-                    amount: networkReserve,
-                    displaySymbol: network.displaySymbol,
-                }}
-            />
-        </Banner>
+            description={
+                <Translation
+                    id="TR_NETWORK_RESERVE_BANNER"
+                    values={{
+                        amount: networkReserve,
+                        displaySymbol: network.displaySymbol,
+                    }}
+                />
+            }
+        />
     );
 };

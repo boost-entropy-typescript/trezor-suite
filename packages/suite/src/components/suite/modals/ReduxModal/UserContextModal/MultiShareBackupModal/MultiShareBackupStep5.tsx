@@ -1,4 +1,4 @@
-import { TranslationKey } from '@suite-common/intl-types';
+import { Translation, TranslationKey } from '@suite/intl';
 import {
     Banner,
     Card,
@@ -11,8 +11,6 @@ import {
     Paragraph,
 } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-
-import { Translation } from 'src/components/suite/Translation';
 
 type CalloutProps = {
     title: TranslationKey;
@@ -70,26 +68,22 @@ export const MultiShareBackupStep5 = () => (
             </H4>
 
             <Grid columns={2} gap={spacings.md}>
-                <Banner intent="brand" icon="trezorDevicesFilled">
-                    <Column>
-                        <H4>
-                            <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_TREZOR" />
-                        </H4>
-                        <Paragraph>
-                            <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_TREZOR_INFO_TEXT" />
-                        </Paragraph>
-                    </Column>
-                </Banner>
-                <Banner intent="warning" icon="recoverySeed">
-                    <Column>
-                        <H4>
-                            <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_BACKUP" />
-                        </H4>
-                        <Paragraph>
-                            <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_BACKUP_INFO_TEXT" />
-                        </Paragraph>
-                    </Column>
-                </Banner>
+                <Banner
+                    intent="brand"
+                    icon="trezorDevicesFilled"
+                    title={<Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_TREZOR" />}
+                    description={
+                        <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_TREZOR_INFO_TEXT" />
+                    }
+                />
+                <Banner
+                    intent="warning"
+                    icon="recoverySeed"
+                    title={<Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_BACKUP" />}
+                    description={
+                        <Translation id="TR_MULTI_SHARE_BACKUP_LOST_YOUR_BACKUP_INFO_TEXT" />
+                    }
+                />
             </Grid>
         </Column>
     </Column>

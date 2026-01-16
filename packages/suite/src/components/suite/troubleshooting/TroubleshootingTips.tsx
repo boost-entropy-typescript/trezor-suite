@@ -1,10 +1,10 @@
 import { ReactNode, useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import { Banner, BannerIntent, Box, Button, Column, IconName, Modal } from '@trezor/components';
 
-import { TroubleshootingTipsList } from './TroubleshootingTipsList';
-import { Translation } from '../Translation';
 import { TroubleshootingTipsFooter } from './TroubleshootingTipsFooter';
+import { TroubleshootingTipsList } from './TroubleshootingTipsList';
 
 export type TroubleshootingTipsItem = {
     key: string;
@@ -80,9 +80,12 @@ export const TroubleshootingTips = ({
 
     return cta ? (
         <Column gap={80} alignItems="center">
-            <Banner rightContent={cta} intent={intent} maxWidth={600}>
-                {ctaLabel ?? label}
-            </Banner>
+            <Banner
+                rightContent={cta}
+                intent={intent}
+                maxWidth={600}
+                description={ctaLabel ?? label}
+            />
             {visibleTips.length > 0 && <TroubleshootingButton />}
         </Column>
     ) : (

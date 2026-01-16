@@ -1,3 +1,4 @@
+import { Translation, TranslationKey } from '@suite/intl';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import { Account, FormState } from '@suite-common/wallet-types';
 import { formatNetworkAmount } from '@suite-common/wallet-utils';
@@ -18,7 +19,6 @@ import { HELP_CENTER_REPLACE_BY_FEE_BITCOIN } from '@trezor/urls';
 import { Address } from 'src/components/suite/Address';
 import { FormattedCryptoAmount } from 'src/components/suite/FormattedCryptoAmount';
 import { HiddenPlaceholder } from 'src/components/suite/HiddenPlaceholder';
-import { Translation, TranslationKey } from 'src/components/suite/Translation';
 import { RbfContextValues, useRbfContext } from 'src/hooks/wallet/useRbfForm';
 
 type AmountRowProps = {
@@ -117,9 +117,12 @@ export const DecreasedOutputs = () => {
 
             <Divider margin={spacings.zero} />
             <Column margin={spacings.md} gap={spacings.md}>
-                <Banner intent="warning" data-testid="@send/decreased-outputs" icon="warning">
-                    <Translation id={getDecreaseWarring()} />
-                </Banner>
+                <Banner
+                    intent="warning"
+                    data-testid="@send/decreased-outputs"
+                    icon="warning"
+                    description={<Translation id={getDecreaseWarring()} />}
+                />
                 {useRadio && (
                     <Text>
                         <Translation id="TR_DECREASED_AMOUNT_SELECTION_EXPLANATION" />

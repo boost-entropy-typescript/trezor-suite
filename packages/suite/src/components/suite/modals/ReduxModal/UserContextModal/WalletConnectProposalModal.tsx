@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 
+import { Translation } from '@suite/intl';
 import { useDappScan } from '@suite-common/tx-simulation';
 import { selectAllAccountsToList } from '@suite-common/wallet-core';
 import { Account } from '@suite-common/wallet-types';
@@ -31,7 +32,6 @@ import { onCancel } from 'src/actions/suite/modalActions';
 import { goto } from 'src/actions/suite/routerActions';
 import { AccountLabel } from 'src/components/suite/AccountLabel';
 import { ConnectAppIcon } from 'src/components/suite/ConnectAppIcon';
-import { Translation } from 'src/components/suite/Translation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectAccountLabels } from 'src/reducers/suite/metadataReducer';
 
@@ -263,15 +263,16 @@ export const WalletConnectProposalModal = ({ eventId }: WalletConnectProposalMod
                                 <Translation id="TR_COIN_SETTINGS" />
                             </Banner.Button>
                         }
-                    >
-                        <Translation
-                            id={
-                                requiredNetworksNotActivated
-                                    ? 'TR_WALLETCONNECT_REQUIRED_NETWORKS_NOT_ACTIVATED'
-                                    : 'TR_WALLETCONNECT_NO_NETWORKS_ACTIVATED'
-                            }
-                        />
-                    </Banner>
+                        description={
+                            <Translation
+                                id={
+                                    requiredNetworksNotActivated
+                                        ? 'TR_WALLETCONNECT_REQUIRED_NETWORKS_NOT_ACTIVATED'
+                                        : 'TR_WALLETCONNECT_NO_NETWORKS_ACTIVATED'
+                                }
+                            />
+                        }
+                    />
                 )}
 
                 {(isMalicious || pendingProposal.isScam) && (
@@ -284,15 +285,17 @@ export const WalletConnectProposalModal = ({ eventId }: WalletConnectProposalMod
                     />
                 )}
                 {pendingProposal.validation === 'INVALID' && (
-                    <Banner intent="critical">
-                        <Translation id="TR_WALLETCONNECT_UNABLE_TO_VERIFY" />
-                    </Banner>
+                    <Banner
+                        intent="critical"
+                        description={<Translation id="TR_WALLETCONNECT_UNABLE_TO_VERIFY" />}
+                    />
                 )}
 
                 {pendingProposal.expired && (
-                    <Banner intent="warning">
-                        <Translation id="TR_WALLETCONNECT_REQUEST_EXPIRED" />
-                    </Banner>
+                    <Banner
+                        intent="warning"
+                        description={<Translation id="TR_WALLETCONNECT_REQUEST_EXPIRED" />}
+                    />
                 )}
             </Column>
         </Modal>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
+import { Translation } from '@suite/intl';
 import {
     Banner,
     Button,
@@ -14,7 +15,6 @@ import TrezorConnect, { UI } from '@trezor/connect';
 import { HELP_CENTER_ADVANCED_RECOVERY_URL } from '@trezor/urls';
 import { resolveAfter } from '@trezor/utils';
 
-import { Translation } from 'src/components/suite/Translation';
 import { useExternalLink } from 'src/hooks/suite';
 
 type WordInputAdvancedProps = {
@@ -104,11 +104,12 @@ export const WordInputAdvanced = ({ count }: WordInputAdvancedProps) => {
                         <Translation id="TR_LEARN_MORE" />
                     </Banner.Button>
                 }
-            >
-                <Paragraph typographyStyle="label">
-                    <Translation id="TR_ADVANCED_RECOVERY_NOT_SURE" />
-                </Paragraph>
-            </Banner>
+                description={
+                    <Paragraph typographyStyle="label">
+                        <Translation id="TR_ADVANCED_RECOVERY_NOT_SURE" />
+                    </Paragraph>
+                }
+            />
             <Card paddingType="none">
                 <Column gap={40} padding={16} alignItems="center">
                     <Grid columns={count === 9 ? 3 : 2} gap={20}>

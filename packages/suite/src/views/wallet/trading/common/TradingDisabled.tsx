@@ -1,11 +1,8 @@
 import React from 'react';
 
-import { ExtendedMessageDescriptor } from '@suite-common/intl-types';
+import { ExtendedMessageDescriptor, Translation, useTranslation } from '@suite/intl';
 import { TradingType } from '@suite-common/trading';
 import { Banner } from '@trezor/components';
-
-import { Translation } from 'src/components/suite/Translation';
-import { useTranslation } from 'src/hooks/suite';
 
 const typeLabels: Record<TradingDisabledProps['type'], ExtendedMessageDescriptor['id']> = {
     buy: 'TR_BUY',
@@ -22,13 +19,17 @@ export const TradingDisabled = ({ type, content }: TradingDisabledProps) => {
     const { translationString } = useTranslation();
 
     return (
-        <Banner icon="warning" intent="warning">
-            {content ?? (
-                <Translation
-                    id="TR_TRADING_DISABLED_DEFAULT"
-                    values={{ type: translationString(typeLabels[type]) }}
-                />
-            )}
-        </Banner>
+        <Banner
+            icon="warning"
+            intent="warning"
+            description={
+                content ?? (
+                    <Translation
+                        id="TR_TRADING_DISABLED_DEFAULT"
+                        values={{ type: translationString(typeLabels[type]) }}
+                    />
+                )
+            }
+        />
     );
 };

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
+import { Translation } from '@suite/intl';
 import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
 import { Badge, Banner, Card, CollapsibleBox, Column, Modal, Row, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
 import { toggleTor } from 'src/actions/suite/suiteActions';
-import { Translation } from 'src/components/suite/Translation';
 import { useBackendsForm } from 'src/hooks/settings/backends';
 import { useExplorerForm } from 'src/hooks/settings/useExplorerForm';
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -130,9 +130,10 @@ export const AdvancedCoinSettingsModal = ({ symbol, onCancel }: AdvancedCoinSett
                 </Card>
 
                 {backendsForm.validationError && (
-                    <Banner intent="critical">
-                        <Text>{backendsForm.validationError}</Text>
-                    </Banner>
+                    <Banner
+                        intent="critical"
+                        description={<Text>{backendsForm.validationError}</Text>}
+                    />
                 )}
 
                 <CollapsibleBox
