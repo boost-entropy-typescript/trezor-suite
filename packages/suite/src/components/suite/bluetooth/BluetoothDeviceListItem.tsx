@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { Translation, TranslationKey } from '@suite/intl';
+import { EventType } from '@suite-common/analytics-types';
 import {
     DeviceBluetoothConnectionStatusType,
     bluetoothActions,
@@ -9,7 +10,8 @@ import {
 } from '@suite-common/bluetooth';
 import { Button, Row } from '@trezor/components';
 import { BluetoothDeviceId } from '@trezor/connect';
-import { EventTypeShared, analytics } from '@trezor/suite-analytics';
+
+import { useAnalytics } from 'src/support/useAnalytics';
 
 import { BluetoothDeviceComponent } from './BluetoothDeviceComponent';
 import { PairingState } from './PairingState';
@@ -76,7 +78,7 @@ const ActionButton = ({
 }: ActionButtonProps) => {
     const connectingDevicesIds = useSelector(selectConnectingDevices);
     const { onConnect } = useConnectionGlobalModalContext();
-
+    const analytics = useAnalytics();
     const isSuiteTryingToConnectToDevice = connectingDevicesIds.includes(device.id);
     const connectionStatus = connectionStatusMap[device.connectionStatus.type];
     const isClickable = connectionStatus?.component === 'button';
@@ -84,7 +86,7 @@ const ActionButton = ({
 
     const handleOnClick = () => {
         analytics.report({
-            type: EventTypeShared.DeviceConnectionDeviceFound,
+            type: EventType.DeviceConnectionDeviceFound,
             payload: {
                 option: 'connect',
             },

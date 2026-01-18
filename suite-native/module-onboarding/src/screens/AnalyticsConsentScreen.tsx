@@ -1,6 +1,14 @@
 import { useState } from 'react';
 
-import { EventType, analytics } from '@suite-native/analytics';
+import {
+    AnalyticsSharedEvents,
+    SuiteSharedLegacyAnalyticsEvents,
+} from '@suite-common/analytics-types';
+import {
+    AnalyticsNativeEvents,
+    EventType,
+    SuiteNativeLegacyAnalyticsEvents,
+} from '@suite-native/analytics';
 import {
     Box,
     Button,
@@ -19,6 +27,8 @@ import {
     Screen,
     StackProps,
 } from '@suite-native/navigation';
+import { useAnalytics, useLegacyAnalytics } from '@suite-native/services';
+import { Analytics } from '@trezor/analytics';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 import { DATA_PRIVACY_URL } from '@trezor/urls';
 
@@ -30,20 +40,33 @@ const consentWrapperStyle = prepareNativeStyle(utils => ({
     backgroundColor: utils.colors.backgroundTertiaryDefaultOnElevation1,
 }));
 
-const reportAnalyticsOnboardingCompleted = (isTrackingAllowed: boolean) => {
+const reportAnalyticsOnboardingCompleted = (
+    isTrackingAllowed: boolean,
+    legacyAnalytics: Analytics<SuiteSharedLegacyAnalyticsEvents> &
+        Analytics<SuiteNativeLegacyAnalyticsEvents>,
+    analytics: Analytics<AnalyticsSharedEvents> & Analytics<AnalyticsNativeEvents>,
+) => {
     // For users who have not allowed tracking, enable analytics just for reporting
     // the OnboardingCompleted event and then disable it again.
-    if (!isTrackingAllowed) analytics.enable();
-    analytics.report({
+    if (!isTrackingAllowed) {
+        analytics.enable();
+        legacyAnalytics.enable();
+    }
+    legacyAnalytics.report({
         type: EventType.OnboardingCompleted,
         payload: { analyticsPermission: isTrackingAllowed },
     });
-    if (!isTrackingAllowed) analytics.disable();
+    if (!isTrackingAllowed) {
+        analytics.disable();
+        legacyAnalytics.disable();
+    }
 };
 
 export const AnalyticsConsentScreen = ({
     navigation,
 }: StackProps<OnboardingStackParamList, OnboardingStackRoutes.AnalyticsConsent>) => {
+    const analytics = useAnalytics();
+    const legacyAnalytics = useLegacyAnalytics();
     const [isEnabled, setIsEnabled] = useState(true);
 
     const { applyStyle } = useNativeStyles();
@@ -51,12 +74,13 @@ export const AnalyticsConsentScreen = ({
     const handleOpenLink = useOpenLink();
 
     const handleRedirect = () => {
-        reportAnalyticsOnboardingCompleted(isEnabled);
+        reportAnalyticsOnboardingCompleted(isEnabled, legacyAnalytics, analytics);
 
         navigation.navigate(OnboardingStackRoutes.Biometrics);
     };
 
     const handleAnalyticsConsent = () => {
+        legacyAnalytics.enable();
         analytics.enable();
         handleRedirect();
     };

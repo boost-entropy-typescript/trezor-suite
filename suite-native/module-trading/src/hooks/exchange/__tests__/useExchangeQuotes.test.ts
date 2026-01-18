@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { CryptoId } from 'invity-api';
 
 import {
@@ -5,7 +7,8 @@ import {
     MinimalExchangeFormProps,
     tradingExchangeActions,
 } from '@suite-common/trading';
-import { EventType, analytics } from '@suite-native/analytics';
+import { EventType } from '@suite-native/analytics';
+import { useLegacyAnalytics } from '@suite-native/services';
 import {
     PreloadedState,
     TestStore,
@@ -29,6 +32,8 @@ import { useExchangeForm } from '../useExchangeForm';
 import { useExchangeQuotes } from '../useExchangeQuotes';
 
 let mockTimeSpent: number;
+
+type ReportSpy = jest.SpyInstance;
 
 jest.mock('@trezor/react-utils', () => {
     const originalModule = jest.requireActual('@trezor/react-utils');
@@ -55,6 +60,20 @@ jest.mock('@suite-common/trading', () => ({
     },
 }));
 
+const useExchangeQuotesWithReportSpy = () => {
+    const analytics = useLegacyAnalytics();
+    const spyRef = React.useRef<ReportSpy | null>(null);
+
+    if (!spyRef.current) {
+        spyRef.current = jest.spyOn(analytics, 'report');
+    }
+
+    const form = useExchangeForm();
+    const quotes = useExchangeQuotes(form);
+
+    return { form, quotes, reportSpy: spyRef.current! };
+};
+
 describe('useExchangeQuotes', () => {
     const getInitializedStore = (bitcoinAmountUnit = PROTO.AmountUnit.BITCOIN): TestStore => {
         const preloadedState: PreloadedState = {
@@ -70,26 +89,24 @@ describe('useExchangeQuotes', () => {
         return initStore(preloadedState).store;
     };
 
-    const renderUseExchangeQuotes = (store: TestStore) =>
-        renderHookWithStoreProviderAsync(
-            () => {
-                const form = useExchangeForm();
-                const quotes = useExchangeQuotes(form);
-
-                return { form, quotes };
+    const renderUseExchangeQuotes = async (store: TestStore) => {
+        const hook = await renderHookWithStoreProviderAsync(
+            () => useExchangeQuotesWithReportSpy(),
+            {
+                store,
             },
-            { store },
         );
 
-    beforeEach(() => {
-        mockTimeSpent = 0;
-    });
+        const spy = hook.result.current.reportSpy;
+
+        return { hook, reportMock: spy };
+    };
 
     it('should query quotes once all required data is selected', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -115,15 +132,15 @@ describe('useExchangeQuotes', () => {
         });
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
     it('should respect sats setting', async () => {
         const store = await getInitializedStore(PROTO.AmountUnit.SATOSHI);
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -137,7 +154,7 @@ describe('useExchangeQuotes', () => {
         });
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
@@ -146,14 +163,13 @@ describe('useExchangeQuotes', () => {
         async amount => {
             const store = await getInitializedStore();
             const dispatchSpy = jest.spyOn(store, 'dispatch');
-            const { result } = await renderUseExchangeQuotes(store);
-            const { form } = result.current;
+            const { hook } = await renderUseExchangeQuotes(store);
+            const { form } = hook.result.current;
 
             await act(async () => {
                 form.setValue('sendAsset', btcAsset);
                 form.setValue('receiveAsset', ethAsset);
                 form.setValue('sendCryptoAmount', amount);
-                // allow validations to run
                 await Promise.resolve();
             });
 
@@ -168,8 +184,8 @@ describe('useExchangeQuotes', () => {
     it('should not query quotes when form contains error', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -187,7 +203,6 @@ describe('useExchangeQuotes', () => {
             }),
         );
 
-        // clean up form flush async validations
         await act(async () => {
             form.clearErrors();
             await form.trigger();
@@ -197,8 +212,8 @@ describe('useExchangeQuotes', () => {
     it('should query quotes as soon as form contains no errors', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -222,7 +237,7 @@ describe('useExchangeQuotes', () => {
         );
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
@@ -230,9 +245,9 @@ describe('useExchangeQuotes', () => {
         const store = await getInitializedStore();
         store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { unmount } = await renderUseExchangeQuotes(store);
+        const { hook } = await renderUseExchangeQuotes(store);
 
-        unmount();
+        hook.unmount();
 
         expect(dispatchSpy).toHaveBeenCalledWith({
             payload: undefined,
@@ -247,8 +262,8 @@ describe('useExchangeQuotes', () => {
     ])('should refetch quotes on %s value change', async (field, value) => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -269,15 +284,15 @@ describe('useExchangeQuotes', () => {
         );
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
     it('should re-fetch quotes when re-fetch time elapsed', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result, rerender } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -288,7 +303,7 @@ describe('useExchangeQuotes', () => {
         dispatchSpy.mockClear();
 
         mockTimeSpent = INVITY_API_RELOAD_QUOTES_AFTER_SECONDS;
-        rerender({});
+        hook.rerender({});
 
         expect(dispatchSpy).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -296,7 +311,6 @@ describe('useExchangeQuotes', () => {
             }),
         );
 
-        // clean up form flush async validations
         await act(async () => {
             form.clearErrors();
             await form.trigger();
@@ -306,8 +320,8 @@ describe('useExchangeQuotes', () => {
     it('should not re-fetch quotes when re-fetch time elapsed but not all required data are available', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result, rerender } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
@@ -316,33 +330,33 @@ describe('useExchangeQuotes', () => {
         dispatchSpy.mockClear();
 
         mockTimeSpent = INVITY_API_RELOAD_QUOTES_AFTER_SECONDS;
-        rerender({});
+        hook.rerender({});
 
         expect(dispatchSpy).not.toHaveBeenCalled();
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
     it('should clear quotes when data in form becomes invalid', async () => {
         const store = await getInitializedStore();
         const dispatchSpy = jest.spyOn(store, 'dispatch');
-        const { result } = await renderUseExchangeQuotes(store);
-        const { form } = result.current;
+        const { hook } = await renderUseExchangeQuotes(store);
+        const { form } = hook.result.current;
 
         act(() => {
             form.setValue('sendAsset', btcAsset);
             form.setValue('receiveAsset', ethAsset);
             form.setValue('sendCryptoAmount', '1');
         });
-        // handleRequestThunk is mocked, add quotes manually
+
         act(() => {
             store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
         });
 
         dispatchSpy.mockClear();
-        // clear some value to make form invalid
+
         act(() => {
             form.setValue('sendCryptoAmount', undefined);
         });
@@ -355,16 +369,14 @@ describe('useExchangeQuotes', () => {
         expect(store.getState().wallet.trading.exchange.quotes).toEqual([]);
 
         await act(async () => {
-            await result.current.quotes.quotesRequest;
+            await hook.result.current.quotes.quotesRequest;
         });
     });
 
     describe('analytics', () => {
-        let analyticsReportSpy: jest.SpyInstance;
-
         const renderUseExchangeQuotesWithFilledForm = async (store: TestStore) => {
-            const { result } = await renderUseExchangeQuotes(store);
-            const { form } = result.current;
+            const { hook, reportMock } = await renderUseExchangeQuotes(store);
+            const { form } = hook.result.current;
 
             act(() => {
                 form.setValue('sendAsset', btcAsset);
@@ -372,36 +384,30 @@ describe('useExchangeQuotes', () => {
                 form.setValue('sendCryptoAmount', '1');
             });
 
-            analyticsReportSpy.mockClear();
-            await act(async () => {
-                await result.current.quotes.quotesRequest;
-            });
-        };
+            reportMock.mockClear();
 
-        beforeAll(() => {
-            analyticsReportSpy = jest.spyOn(analytics, 'report').mockImplementation();
-        });
+            await act(async () => {
+                await hook.result.current.quotes.quotesRequest;
+            });
+
+            return { reportMock };
+        };
 
         it('should report when quotes are fetched', async () => {
             const store = await getInitializedStore();
             jest.spyOn(store, 'dispatch').mockImplementation(() =>
                 Promise.resolve({
-                    meta: {
-                        requestStatus: 'fulfilled',
-                        requestId: 'test-request-id',
-                    },
+                    meta: { requestStatus: 'fulfilled', requestId: 'test-request-id' },
                     payload: exchangeQuotes,
                     type: '@trading-exchange/thunk/handleRequest/fulfilled',
                 }),
             );
 
-            await renderUseExchangeQuotesWithFilledForm(store);
+            const { reportMock } = await renderUseExchangeQuotesWithFilledForm(store);
 
-            expect(analyticsReportSpy).toHaveBeenCalledWith({
+            expect(reportMock).toHaveBeenCalledWith({
                 type: EventType.TradingQuoteReceived,
-                payload: {
-                    type: 'exchange',
-                },
+                payload: { type: 'exchange' },
             });
         });
 
@@ -409,36 +415,30 @@ describe('useExchangeQuotes', () => {
             const store = await getInitializedStore();
             jest.spyOn(store, 'dispatch').mockImplementation(() =>
                 Promise.resolve({
-                    meta: {
-                        requestStatus: 'fulfilled',
-                        requestId: 'test-request-id',
-                    },
+                    meta: { requestStatus: 'fulfilled', requestId: 'test-request-id' },
                     payload: [],
                     type: '@trading-exchange/thunk/handleRequest/fulfilled',
                 }),
             );
 
-            await renderUseExchangeQuotesWithFilledForm(store);
+            const { reportMock } = await renderUseExchangeQuotesWithFilledForm(store);
 
-            expect(analyticsReportSpy).not.toHaveBeenCalled();
+            expect(reportMock).not.toHaveBeenCalled();
         });
 
         it('should not report when handleRequestThunk rejected', async () => {
             const store = await getInitializedStore();
             jest.spyOn(store, 'dispatch').mockImplementation(() =>
                 Promise.resolve({
-                    meta: {
-                        requestStatus: 'rejected',
-                        requestId: 'test-request-id',
-                    },
+                    meta: { requestStatus: 'rejected', requestId: 'test-request-id' },
                     payload: exchangeQuotes,
                     type: '@trading-exchange/thunk/handleRequest/rejected',
                 }),
             );
 
-            await renderUseExchangeQuotesWithFilledForm(store);
+            const { reportMock } = await renderUseExchangeQuotesWithFilledForm(store);
 
-            expect(analyticsReportSpy).not.toHaveBeenCalled();
+            expect(reportMock).not.toHaveBeenCalled();
         });
     });
 });

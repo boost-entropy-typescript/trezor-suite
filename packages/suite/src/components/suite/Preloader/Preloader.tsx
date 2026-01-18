@@ -50,6 +50,7 @@ export const Preloader = ({ children }: PropsWithChildren) => {
     const shouldDisplayDeviceCompromisedOnRoute = useSelector(
         selectShouldDisplayDeviceCompromisedOnRoute,
     );
+
     const isAnalyticsConsentConfirmed = useSelector(selectIsAnalyticsConfirmed);
 
     const { device } = useDevice();

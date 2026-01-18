@@ -1,2 +1,29 @@
 export * from './analyticsThunks';
-export * from '@suite-common/analytics/src/events/suite-native';
+export { EventType } from './constants';
+export type {
+    AnalyticsSendFlowStep,
+    DemoAccountQuestionnaireLinkKey,
+    DemoAccountQuestionnaireQuestion,
+    DemoAccountQuestionnaireQuestionOption,
+    DeviceAuthenticityCheckResult,
+    FirmwareUpdatePayload,
+    FirmwareUpdateStartType,
+    FirmwareUpdateStuckedState,
+    TradingExchangeAction,
+    TradingExchangeStep,
+    TradingNavigateFrom,
+    TradingSellAction,
+    TradingSellStep,
+} from './definitions';
+export type {
+    CountryChangeContextCheck,
+    CountryChangeContext,
+    CountryChangeAction,
+    SuiteNativeLegacyAnalyticsEvents,
+} from './types';
+export { createAnalytics, type NativeAnalyticsDep } from './createAnalytics';
+export { createLegacyAnalytics, type NativeLegacyAnalyticsDep } from './createLegacyAnalytics';
+export { getTypedNativeLegacyAnalytics } from './getTypedNativeLegacyAnalytics';
+export type { AnalyticsNativeEvents } from './analyticsEvents';
+
+export * as events from './events';

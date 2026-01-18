@@ -1,8 +1,9 @@
 import type { ExchangeTrade } from 'invity-api';
 
 import { tradingExchangeActions } from '@suite-common/trading';
-import { EventType, analytics } from '@suite-native/analytics';
+import { EventType } from '@suite-native/analytics';
 import { FeatureFlag, FeatureFlagsRootState } from '@suite-native/feature-flags';
+import { useLegacyAnalytics } from '@suite-native/services';
 import {
     PreloadedState,
     TestStore,
@@ -23,11 +24,31 @@ import { PROTO } from '@trezor/connect';
 
 import { clearExchangeFormQuoteData, useExchangeForm } from '../useExchangeForm';
 
+jest.mock('@suite-native/services', () => {
+    const original = jest.requireActual('@suite-native/services');
+
+    return {
+        ...original,
+        useLegacyAnalytics: jest.fn(),
+    };
+});
+
 describe('useExchangeForm', () => {
     let store: TestStore;
 
-    const renderUseExchangeForm = () =>
-        renderHookWithStoreProviderAsync(() => useExchangeForm(), { store });
+    const renderUseExchangeForm = async () => {
+        jest.clearAllMocks();
+        const reportMock = jest.fn();
+        (useLegacyAnalytics as jest.Mock).mockReturnValue({
+            report: reportMock,
+        });
+
+        return {
+            reportMock,
+            result: (await renderHookWithStoreProviderAsync(() => useExchangeForm(), { store }))
+                .result,
+        };
+    };
 
     const getInitializedStore = (bitcoinAmountUnit = PROTO.AmountUnit.BITCOIN) => {
         const preloadedState: PreloadedState = {
@@ -228,14 +249,13 @@ describe('useExchangeForm', () => {
         });
 
         it('should report change to analytics', async () => {
-            const reportSpy = jest.spyOn(analytics, 'report');
-            const { result } = await renderUseExchangeForm();
+            const { result, reportMock } = await renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
             });
 
-            expect(reportSpy).toHaveBeenCalledWith({
+            expect(reportMock).toHaveBeenCalledWith({
                 type: EventType.TradingParameterChanged,
                 payload: {
                     type: 'exchange',
@@ -280,14 +300,13 @@ describe('useExchangeForm', () => {
 
     describe('receiveAsset', () => {
         it('should report change to analytics', async () => {
-            const reportSpy = jest.spyOn(analytics, 'report');
-            const { result } = await renderUseExchangeForm();
+            const { result, reportMock } = await renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('receiveAsset', btcAsset);
             });
 
-            expect(reportSpy).toHaveBeenCalledWith({
+            expect(reportMock).toHaveBeenCalledWith({
                 type: EventType.TradingParameterChanged,
                 payload: {
                     type: 'exchange',

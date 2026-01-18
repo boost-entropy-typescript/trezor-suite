@@ -3,6 +3,9 @@
     "compilerOptions": { "outDir": "libDev" },
     "references": [
         {
+            "path": "../../suite-common/analytics-types"
+        },
+        {
             "path": "../../suite-common/suite-constants"
         },
         { "path": "../../suite-common/thp" },
@@ -13,7 +16,6 @@
             "path": "../../suite-common/wallet-core"
         },
         { "path": "../alerts" },
-        { "path": "../analytics" },
         { "path": "../atoms" },
         { "path": "../bluetooth" },
         { "path": "../device" },
@@ -24,6 +26,7 @@
         { "path": "../intl" },
         { "path": "../module-check-backup" },
         { "path": "../navigation" },
+        { "path": "../services" },
         { "path": "../thp" },
         { "path": "../toasts" },
         { "path": "../../packages/connect" },

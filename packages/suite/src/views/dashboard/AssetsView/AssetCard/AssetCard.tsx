@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { EventType } from '@suite/analytics';
 import { Translation } from '@suite/intl';
 import { AssetFiatBalance } from '@suite-common/assets';
 import { selectCoinDefinitions } from '@suite-common/token-definitions';
@@ -20,7 +21,6 @@ import {
     Text,
 } from '@trezor/components';
 import { TokenInfo } from '@trezor/connect';
-import { EventType, analytics } from '@trezor/suite-analytics';
 
 import { goto } from 'src/actions/suite/routerActions';
 import {
@@ -31,6 +31,7 @@ import {
 } from 'src/components/suite';
 import { FiatHeader } from 'src/components/wallet/FiatHeader';
 import { useLoadingSkeleton, useSelector } from 'src/hooks/suite';
+import { useAnalytics, useLegacyAnalytics } from 'src/support/useAnalytics';
 
 import { AssetCardInfo, AssetCardInfoSkeleton } from './AssetCardInfo';
 import { AssetCardTokensAndStakingInfo } from './AssetCardTokensAndStakingInfo';
@@ -97,6 +98,8 @@ export const AssetCard = ({
 }: AssetCardProps) => {
     const { symbol } = network;
     const dispatch = useDispatch();
+    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const { shallDisplayBaseCurrency } = useDisplayBaseCurrency(symbol);
 
     const handleCardClick = () => {
@@ -141,7 +144,7 @@ export const AssetCard = ({
     };
 
     const onBuyButtonClick = () => {
-        analytics.report({
+        legacyAnalytics.report({
             type: EventType.TradingNavigate,
             payload: {
                 action: 'navigate',

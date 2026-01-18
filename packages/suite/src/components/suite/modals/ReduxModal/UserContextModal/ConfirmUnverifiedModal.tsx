@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { Translation, TranslationKey } from '@suite/intl';
+import { ExtraDependencies } from '@suite-common/redux-utils';
 import { selectSelectedDeviceLabelOrName } from '@suite-common/wallet-core';
 import { H3, Modal, Paragraph, Tooltip } from '@trezor/components';
 
@@ -15,7 +16,11 @@ interface ConfirmUnverifiedModalProps {
         title: TranslationKey;
         closeAfterEventTriggered?: boolean;
     };
-    verifyProcess?: () => (dispatch: Dispatch, getState: GetState) => Promise<void>;
+    verifyProcess?: () => (
+        dispatch: Dispatch,
+        getState: GetState,
+        extra: ExtraDependencies,
+    ) => Promise<void>;
     warningText: TranslationKey;
 }
 
