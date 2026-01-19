@@ -69,14 +69,6 @@ export type TransactionCreatedEvent = {
 export type SuiteDesktopLegacyAnalyticsEvents =
     | SuiteSharedLegacyAnalyticsEvents
     | SuiteAnalyticsEventSuiteReady
-    | {
-          type: EventType.RouterLocationChange;
-          payload: {
-              prevRouterUrl: string;
-              nextRouterUrl: string;
-              anchor?: string;
-          };
-      }
     | { type: EventType.TransportType; payload: { type: string; version: string } }
     | {
           type: EventType.AppUpdate;
@@ -444,36 +436,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: {
               type: 'buy' | 'sell' | 'exchange';
               count: number;
-          };
-      }
-    | {
-          type: EventType.StakingStake;
-          payload: {
-              action: 'continue' | 'cancel';
-              step:
-                  | 'staking-dashboard'
-                  | 'stake-in-a-nutshell-modal'
-                  | 'funds-maintained-modal'
-                  | 'stake-form-modal'
-                  | 'entry-period-stake-modal';
-              networkSymbol?: string;
-              currency?: 'crypto' | 'fiat';
-              votingDelegation?: 'everstake' | 'another_drep';
-          };
-      }
-    | {
-          type: EventType.StakingUpdateProvider;
-          payload: {
-              action: 'continue' | 'cancel';
-              step:
-                  | 'staking-dashboard'
-                  | 'stake-in-a-nutshell-modal'
-                  | 'funds-maintained-modal'
-                  | 'stake-form-modal'
-                  | 'entry-period-stake-modal';
-              networkSymbol?: string;
-              currency?: 'crypto' | 'fiat';
-              votingDelegation?: 'everstake' | 'another_drep';
           };
       }
     | {
