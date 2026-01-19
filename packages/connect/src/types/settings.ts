@@ -42,12 +42,10 @@ export interface ConnectSettingsPublic {
     manifest?: Manifest;
     connectSrc?: string;
     debug?: boolean;
-    popup?: boolean;
     transportReconnect?: boolean;
     transports?: ConnectSettingsTransport[];
     pendingTransportEvent?: boolean;
     lazyLoad?: boolean;
-    interactionTimeout?: number;
     trustedHost: boolean;
     // URL for binary files such as firmware, may be local or remote
     binFilesBaseUrl?: string;
@@ -70,7 +68,6 @@ export interface ConnectSettingsInternal {
     timestamp: number;
     proxy?: Proxy;
     sharedLogger?: boolean;
-    useCoreInPopup?: boolean;
     localFirmwares?: LocalFirmwares;
     firmwareUpdateSource?: FirmwareUpdateSource;
 }

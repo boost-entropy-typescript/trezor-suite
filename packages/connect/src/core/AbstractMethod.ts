@@ -3,7 +3,6 @@ import { Capability } from '@trezor/protobuf/src/messages';
 import { typedObjectKeys, versionUtils } from '@trezor/utils';
 
 import { ERRORS, NETWORK } from '../constants';
-import { config } from '../data/config';
 import type { Device } from '../device/Device';
 import {
     CallMethodPayload,
@@ -20,7 +19,6 @@ import type { PrecomposeResultFinal } from '../types/api/composeTransaction';
 import type { DeviceState, StaticSessionId } from '../types/device';
 import type { FirmwareRange } from '../types/firmware';
 import type { ConnectSettings } from '../types/settings';
-import { getHost } from '../utils/urlUtils';
 
 export type Payload<M> = Extract<CallMethodPayload, { method: M }> & { override?: boolean };
 export type MethodReturnType<M extends CallMethodPayload['method']> = CallMethodResponse<M>;
@@ -153,7 +151,7 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     useCardanoDerivation: boolean;
 
-    noBackupConfirmationMode: 'never' | 'always' | 'popup-only';
+    confirmMissingBackup: boolean;
 
     getButtonRequestData?(code: string, name?: string): UiRequestButtonData | undefined;
 
@@ -199,7 +197,7 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
             typeof payload.useCardanoDerivation === 'boolean'
                 ? payload.useCardanoDerivation
                 : payload.method.startsWith('cardano');
-        this.noBackupConfirmationMode = 'never';
+        this.confirmMissingBackup = false;
     }
 
     // Used in *getAddress methods
@@ -215,9 +213,6 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
     setDevice(device: Device) {
         this.device = device;
-        // NOTE: every method should always send "device" parameter
-        const originalFn = this.createUiPromise;
-        this.createUiPromise = (t, d) => originalFn(t, d || device);
     }
 
     private getOriginPermissions({ origin }: Pick<ConnectSettings, 'origin'>) {
@@ -324,17 +319,6 @@ export abstract class AbstractMethod<Name extends CallMethodPayload['method'], P
 
         if (range.max !== '0' && versionUtils.isNewer(version, range.max)) {
             return UI.FIRMWARE_NOT_COMPATIBLE;
-        }
-    }
-
-    isManagementRestricted({ popup, origin }: Pick<ConnectSettings, 'popup' | 'origin'>) {
-        if (popup && this.requiredPermissions.includes('management')) {
-            const host = getHost(origin);
-            const allowed = config.management.find(
-                item => item.origin === host || item.origin === origin,
-            );
-
-            return !allowed;
         }
     }
 

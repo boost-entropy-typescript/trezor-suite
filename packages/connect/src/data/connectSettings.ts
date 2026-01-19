@@ -18,14 +18,12 @@ const initialSettings: ConnectSettings = {
     priority: DEFAULT_PRIORITY,
     trustedHost: true,
     connectSrc: DEFAULT_DOMAIN,
-    popup: false,
     popupSrc: `${DEFAULT_DOMAIN}popup.html`,
     transports: undefined,
     pendingTransportEvent: true,
     env: 'node',
     lazyLoad: false,
     timestamp: new Date().getTime(),
-    interactionTimeout: 1200, // 20 minutes
     sharedLogger: true,
     deeplinkUrl: `${DEFAULT_DOMAIN}deeplink/${DEEPLINK_VERSION}/`,
     transportReconnect: true,
@@ -116,8 +114,6 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
         settings.transports = input.transports;
     }
 
-    settings.popup = false;
-
     if (typeof input.lazyLoad === 'boolean') {
         settings.lazyLoad = input.lazyLoad;
     }
@@ -136,10 +132,6 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
 
     if (typeof input.timestamp === 'number') {
         settings.timestamp = input.timestamp;
-    }
-
-    if (typeof input.interactionTimeout === 'number') {
-        settings.interactionTimeout = input.interactionTimeout;
     }
 
     if (typeof input.manifest === 'object') {

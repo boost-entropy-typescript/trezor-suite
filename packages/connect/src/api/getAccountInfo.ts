@@ -95,10 +95,7 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
         this.useDevice = willUseDevice;
         this.useDeviceState = willUseDevice;
         this.useUi = willUseDevice;
-
-        this.noBackupConfirmationMode = this.params.every(batch => batch.suppressBackupWarning)
-            ? 'popup-only'
-            : 'always';
+        this.confirmMissingBackup = !this.params.every(batch => batch.suppressBackupWarning);
     }
 
     get info() {
@@ -314,7 +311,7 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
     async discover(request: Request) {
         const { coinInfo, identity, defaultAccountType, derivationType } = request;
         const blockchain = await initBlockchain(coinInfo, this.postMessage, identity);
-        const dfd = this.createUiPromise(UI.RECEIVE_ACCOUNT);
+        const dfd = this.createUiPromise(UI.RECEIVE_ACCOUNT, this.device);
 
         const discovery = new Discovery({
             blockchain,

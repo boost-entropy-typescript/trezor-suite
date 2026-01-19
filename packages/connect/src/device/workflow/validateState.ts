@@ -1,5 +1,4 @@
 import { ERRORS } from '../../constants';
-import { DataManager } from '../../data/DataManager';
 import { DEVICE, UI, createDeviceMessage, createUiMessage } from '../../events';
 import { StaticSessionId } from '../../types';
 import { WorkflowContext } from '../../types/workflow';
@@ -33,7 +32,7 @@ const isUnexpectedState = (expected?: StaticSessionId, current?: StaticSessionId
     // Ignore instance ID, it doesn't necessarily need to match the current instance
     expected && current && expected.split(':')[0] !== current.split(':')[0];
 
-const getState = async (context: WorkflowContext) => {
+const validate = async (context: WorkflowContext) => {
     const { device } = context;
     if (!device.features) return;
 
@@ -51,7 +50,7 @@ const getState = async (context: WorkflowContext) => {
     }
 
     if (isUnexpectedState(expectedState, uniqueState)) {
-        return uniqueState;
+        throw ERRORS.TypedError('Device_InvalidState');
     }
     if (!expectedState || expectedState !== uniqueState) {
         device.setState({ staticSessionId: uniqueState });
@@ -61,12 +60,10 @@ const getState = async (context: WorkflowContext) => {
 const MAX_PIN_TRIES = 3;
 
 /** Including up to 3 pin tries **/
-const getInvalidDeviceState = async (
-    context: WorkflowContext,
-): Promise<StaticSessionId | undefined> => {
+const validateDeviceState = async (context: WorkflowContext) => {
     for (let i = 0; i < MAX_PIN_TRIES - 1; ++i) {
         try {
-            return await getState(context);
+            return await validate(context);
         } catch (error) {
             if (error.message.includes('PIN invalid')) {
                 context.method.postMessage(
@@ -78,8 +75,7 @@ const getInvalidDeviceState = async (
         }
     }
 
-    // eslint-disable-next-line no-restricted-syntax
-    return getState(context).catch(error => {
+    return validate(context).catch(error => {
         if (error.message.includes('PIN invalid')) {
             context.method.postMessage(
                 createUiMessage(UI.INVALID_PIN_ATTEMPTS_DEPLETED, {
@@ -91,7 +87,7 @@ const getInvalidDeviceState = async (
     });
 };
 
-const getInvalidThpDeviceState = async (context: WorkflowContext) => {
+const validateThpDeviceState = async (context: WorkflowContext) => {
     const { device, method } = context;
     const currentState = device.getState();
     const expectedState = currentState?.staticSessionId;
@@ -144,7 +140,7 @@ const getInvalidThpDeviceState = async (context: WorkflowContext) => {
     }
 
     if (isUnexpectedState(expectedState, uniqueState)) {
-        return uniqueState;
+        throw ERRORS.TypedError('Device_InvalidState');
     }
 
     if (!expectedState) {
@@ -154,44 +150,15 @@ const getInvalidThpDeviceState = async (context: WorkflowContext) => {
 
 export const validateState = async (context: WorkflowContext) => {
     const { device, method } = context;
-    if (!method.useDeviceState) {
-        return;
-    }
-
-    const validate =
-        device.protocol.name === 'v2' ? getInvalidThpDeviceState : getInvalidDeviceState;
 
     // Make sure that device will display pin/passphrase
     const isDeviceUnlocked = device.features.unlocked;
-    const isUsingPopup = DataManager.getSettings('popup');
+
     try {
-        let invalidDeviceState = await validate(context);
-        if (isUsingPopup) {
-            while (invalidDeviceState) {
-                const uiPromise = method.createUiPromise(UI.INVALID_PASSPHRASE_ACTION, device);
-                // request action view
-                method.postMessage(
-                    createUiMessage(UI.INVALID_PASSPHRASE, {
-                        device: device.toMessageObject(),
-                    }),
-                );
-
-                // wait for user response
-                const uiResp = await uiPromise.promise;
-                if (uiResp.payload) {
-                    // reset sessionId and try again
-                    device.setState({ sessionId: undefined });
-                    await device.initialize(method.useCardanoDerivation);
-
-                    invalidDeviceState = await validate(context);
-                } else {
-                    // set new state as requested
-                    device.setState({ staticSessionId: invalidDeviceState });
-                    break;
-                }
-            }
-        } else if (invalidDeviceState) {
-            throw ERRORS.TypedError('Device_InvalidState');
+        if (device.protocol.name === 'v2') {
+            await validateThpDeviceState(context);
+        } else {
+            await validateDeviceState(context);
         }
     } catch (error) {
         // other error
