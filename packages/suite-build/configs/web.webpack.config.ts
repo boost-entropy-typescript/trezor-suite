@@ -15,6 +15,10 @@ const config: webpack.Configuration = {
     target: 'browserslist',
     entry: {
         main: path.join(baseDir, 'src', 'index.ts'),
+        favicon: {
+            filename: 'static/favicon.js',
+            import: path.join(baseDir, 'src', 'favicon.ts'),
+        },
         ['sessions-background-sharedworker']: {
             filename: 'workers/[name].js',
             import: path.resolve(
@@ -75,7 +79,6 @@ const config: webpack.Configuration = {
                     templateParameters: {
                         assetPrefix,
                         isOnionLocation: FLAGS.ONION_LOCATION_META,
-                        isCrowdinEnabled: FLAGS.CROWDIN_IN_ENABLED,
                     },
                     inject: 'body' as const,
                     scriptLoading: 'blocking' as const,
