@@ -157,10 +157,15 @@ export const connectPopupCallThunkInner = createThunk<
                 );
             }
 
-            extra.services.legacyAnalytics.report({
+            extra.services.analytics.report({
                 type: EventType.ConnectPopupCall,
                 payload: {
                     method,
+                    appName: source.manifest.appName,
+                    appUrl: source.manifest.appUrl,
+                    appEmail: source.manifest.email,
+                    npmVersion: source.manifest.npmVersion,
+                    connectionType: source.type,
                     origin: source.origin,
                 },
             });
@@ -189,12 +194,17 @@ export const connectPopupCallThunkInner = createThunk<
                     return;
             }
 
-            extra.services.legacyAnalytics.report({
+            extra.services.analytics.report({
                 type: EventType.ConnectPopupError,
                 payload: {
                     method,
                     origin: source.origin,
                     error: error?.code,
+                    appName: source.manifest.appName,
+                    appUrl: source.manifest.appUrl,
+                    appEmail: source.manifest.email,
+                    npmVersion: source.manifest.npmVersion,
+                    connectionType: source.type,
                 },
             });
 
