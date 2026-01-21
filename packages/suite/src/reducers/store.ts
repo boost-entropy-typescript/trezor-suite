@@ -41,11 +41,15 @@ import suiteReducers from 'src/reducers/suite';
 import walletReducers from 'src/reducers/wallet';
 import { globalSendReceiveFilters } from 'src/slices/wallet/globalSendReceiveFilters';
 import type { PreloadStoreAction } from 'src/support/suite/preloadStore';
+import { HistoryDep } from 'src/support/suite/suiteRouterHistory';
 
 import { prepareBioAuthReducer } from './bioAuth';
 import { desktopReducer } from './desktop';
 import { bluetoothSlice } from '../actions/bluetooth/desktopBluetoothReducer';
-import { createSuiteCompositionRoot, extraDependencies } from '../support/extraDependencies';
+import {
+    createSuiteServicesCompositionRoot,
+    extraDependencies,
+} from '../support/extraDependencies';
 
 const firmwareReducer = prepareFirmwareReducer(extraDependencies);
 const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);
@@ -124,9 +128,12 @@ type RootReducerShape = typeof rootReducer;
 type PreloadedState = Partial<AppState>;
 type InferredAction = Parameters<RootReducerShape>[1];
 
-export const initStore = <E extends Partial<ExtraDependencies>>(
+type SuiteStoreDeps = HistoryDep;
+
+export const initStore = (
+    deps: SuiteStoreDeps,
     preloadStoreAction?: PreloadStoreAction,
-    options: { statePatch?: Record<string, any>; additionalExtraDeps?: E } = {},
+    options: { statePatch?: Record<string, any> } = {},
 ) => {
     // get initial state by calling STORAGE.LOAD action with optional payload
     // payload will be processed in each reducer explicitly
@@ -145,8 +152,11 @@ export const initStore = <E extends Partial<ExtraDependencies>>(
 
     const extraFactory = (api: MiddlewareAPI) => ({
         ...extraDependencies,
-        ...(options.additionalExtraDeps || {}),
-        services: createSuiteCompositionRoot(api),
+        services: createSuiteServicesCompositionRoot({
+            history: deps.history,
+            getState: api.getState,
+            dispatch: api.dispatch,
+        }),
     });
 
     let extra: ReturnType<typeof extraFactory> | null = null as ReturnType<

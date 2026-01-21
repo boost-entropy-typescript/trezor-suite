@@ -1,6 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { saveAs } from 'file-saver';
-import { type History, createMemoryHistory } from 'history';
 
 import {
     DesktopAnalyticsDep,
@@ -16,7 +15,7 @@ import {
 } from '@suite/suite-sync';
 import { delegatedIdentityKeyCompositionRoot } from '@suite-common/delegated-identity-key';
 import { FW_HASH_CHECK_DEFAULT_TIMEOUTS } from '@suite-common/firmware-authenticity';
-import { CommonServices, ExtraDependenciesStatic, RouterServices } from '@suite-common/redux-utils';
+import { CommonServices, ExtraDependenciesStatic } from '@suite-common/redux-utils';
 import {
     TokenDefinitionsState,
     buildTokenDefinitionsFromStorage,
@@ -51,6 +50,12 @@ import { createDisableLegacyMetadataIfNeeded } from '../actions/suite/metadata/d
 import * as suiteActions from '../actions/suite/suiteActions';
 import type { BioAuthState } from '../reducers/bioAuth';
 import { AppState, TrezorDevice } from '../types/suite';
+import {
+    HistoryDep,
+    SuiteRouterHistory,
+    SuiteRouterHistoryDep,
+    SuiteRouterHistoryDeps,
+} from './suite/suiteRouterHistory';
 
 const connectSrc = '../';
 // 'https://localhost:8088/';
@@ -70,7 +75,9 @@ const connectInitSettings = {
     firmwareHashCheckTimeouts: FW_HASH_CHECK_DEFAULT_TIMEOUTS,
 };
 
-export const createRouterServices = (history: History): RouterServices => ({
+export const createSuiteRouterHistory = ({
+    history,
+}: SuiteRouterHistoryDeps): SuiteRouterHistory => ({
     getLocation: () => {
         const { location } = history;
 
@@ -90,14 +97,15 @@ export const createRouterServices = (history: History): RouterServices => ({
 type SuiteAppDeps = {
     getState: () => any;
     dispatch: any;
-};
+} & HistoryDep;
 
 export type SuiteServices = CommonServices &
     DesktopAnalyticsDep &
     DesktopLegacyAnalyticsDep &
-    DisableLegacyMetadataIfNeededDep;
+    DisableLegacyMetadataIfNeededDep &
+    SuiteRouterHistoryDep;
 
-export const createSuiteCompositionRoot = (deps: SuiteAppDeps): SuiteServices => {
+export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteServices => {
     const platformEncryption = isDesktop()
         ? createElectronPlatformEncryption({ desktopApi })
         : createWebauthnPlatformEncryption();
@@ -131,6 +139,9 @@ export const createSuiteCompositionRoot = (deps: SuiteAppDeps): SuiteServices =>
         legacyAnalytics,
         analytics: createAnalytics(),
         disableLegacyMetadataIfNeeded,
+        suiteRouterHistory: createSuiteRouterHistory({
+            history: deps.history,
+        }),
     };
 };
 
@@ -307,5 +318,10 @@ export const extraDependencies: ExtraDependenciesStatic = {
         connectInitSettings,
         reportSecurityCheck,
     },
-    routerServices: createRouterServices(createMemoryHistory()),
 };
+
+// NOTE: We need to typecast the common services in extra argument in thunks to this proper type
+// extra.services do contain all the needed services, but in order to make the typing work properly,
+// we'd need to define dispatch() for each platform separately
+export const asSuiteServices = (services: CommonServices): SuiteServices =>
+    services as SuiteServices;

@@ -6,8 +6,6 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { createBrowserHistory } from 'history';
 import { createRoot } from 'react-dom/client';
 
-import { RouterServices } from '@suite-common/redux-utils';
-
 import {
     AppRouter,
     BundleLoader,
@@ -18,7 +16,6 @@ import {
 import { useDebugLanguageShortcut } from 'src/hooks/suite';
 import { initStore } from 'src/reducers/store';
 import { SuiteServicesProvider } from 'src/support/SuiteServicesProvider';
-import { createRouterServices } from 'src/support/extraDependencies';
 import { Main } from 'src/support/suite/Main';
 import { preloadStore } from 'src/support/suite/preloadStore';
 import { LoadingScreen } from 'src/support/suite/screens/LoadingScreen';
@@ -29,14 +26,14 @@ import { initSentry } from './sentry';
 import { usePlaywright } from './support/usePlaywright';
 import { webComponents } from './support/webComponents';
 
-const MainWeb = ({ routerServices }: { routerServices: RouterServices }) => {
+const MainWeb = () => {
     usePlaywright();
     useTor();
     useDebugLanguageShortcut();
     useConnectPopupWeb();
 
     return (
-        <Main routerServices={routerServices}>
+        <Main>
             <Metadata />
             <ToasterProvider />
             <Preloader>
@@ -53,22 +50,17 @@ export const init = async (container: HTMLElement) => {
         initSentry();
     }
 
-    const browserHistory = createBrowserHistory();
-
     // render simple loader with theme provider without redux, wait for indexedDB
     const root = createRoot(container);
     root.render(<LoadingScreen />);
 
     const preloadAction = await preloadStore();
-    const routerServices = createRouterServices(browserHistory);
-    const { store, services } = initStore(preloadAction, {
-        additionalExtraDeps: { routerServices },
-    });
+    const { store, services } = initStore({ history: createBrowserHistory() }, preloadAction);
 
     root.render(
         <SuiteServicesProvider services={services}>
             <ReduxProvider store={store}>
-                <MainWeb routerServices={routerServices} />
+                <MainWeb />
             </ReduxProvider>
         </SuiteServicesProvider>,
     );

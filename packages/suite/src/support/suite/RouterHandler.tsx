@@ -2,19 +2,20 @@ import { useEffect } from 'react';
 
 import { Action } from 'history';
 
-import type { RouterServices } from '@suite-common/redux-utils';
-
 import { onBeforePopState, onLocationChange } from 'src/actions/suite/routerActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
-export const RouterHandler = ({ routerServices }: { routerServices: RouterServices }) => {
+import { useSuiteServices } from '../SuiteServicesProvider';
+
+export const RouterHandler = () => {
     const dispatch = useDispatch();
     const routerLoaded = useSelector(state => state.router.loaded);
+    const { suiteRouterHistory } = useSuiteServices();
 
     useEffect(() => {
         const emitLocation = () => {
             if (routerLoaded) {
-                const location = routerServices.getLocation();
+                const location = suiteRouterHistory.getLocation();
                 dispatch(onLocationChange(location));
             }
         };
@@ -22,7 +23,7 @@ export const RouterHandler = ({ routerServices }: { routerServices: RouterServic
         // initial sync
         emitLocation();
 
-        const unlisten = routerServices.listen(update => {
+        const unlisten = suiteRouterHistory.listen(update => {
             // If back navigation is blocked, re-go forward by 1 to cancel it
             if (update.action === Action.Pop) {
                 const canGoBack = dispatch(onBeforePopState());
@@ -36,7 +37,7 @@ export const RouterHandler = ({ routerServices }: { routerServices: RouterServic
         });
 
         return unlisten;
-    }, [dispatch, routerLoaded, routerServices]);
+    }, [dispatch, routerLoaded, suiteRouterHistory]);
 
     return null;
 };

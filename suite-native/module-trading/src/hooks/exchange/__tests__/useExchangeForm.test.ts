@@ -3,52 +3,45 @@ import type { ExchangeTrade } from 'invity-api';
 import { tradingExchangeActions } from '@suite-common/trading';
 import { EventType } from '@suite-native/analytics';
 import { FeatureFlag, FeatureFlagsRootState } from '@suite-native/feature-flags';
-import { useLegacyAnalytics } from '@suite-native/services';
 import {
     PreloadedState,
     TestStore,
     act,
     initStore,
-    renderHookWithStoreProviderAsync,
+    renderHookWithStoreProvider,
 } from '@suite-native/test-utils';
 import {
     btcAsset,
+    exchangeMercuryo,
     exchangeQuotes,
     getBtcAccount,
     getWalletState,
     usdcAsset,
 } from '@suite-native/trading-fixtures';
-import { exchangeActions } from '@suite-native/trading-state';
+import { exchangeActions, selectTradingProviderMetadata } from '@suite-native/trading-state';
 import { ExchangeFormType } from '@suite-native/trading-types';
 import { PROTO } from '@trezor/connect';
 
 import { clearExchangeFormQuoteData, useExchangeForm } from '../useExchangeForm';
+
+const mockReport = jest.fn();
 
 jest.mock('@suite-native/services', () => {
     const original = jest.requireActual('@suite-native/services');
 
     return {
         ...original,
-        useLegacyAnalytics: jest.fn(),
+        useLegacyAnalytics: () => ({
+            report: mockReport,
+        }),
     };
 });
 
 describe('useExchangeForm', () => {
     let store: TestStore;
 
-    const renderUseExchangeForm = async () => {
-        jest.clearAllMocks();
-        const reportMock = jest.fn();
-        (useLegacyAnalytics as jest.Mock).mockReturnValue({
-            report: reportMock,
-        });
-
-        return {
-            reportMock,
-            result: (await renderHookWithStoreProviderAsync(() => useExchangeForm(), { store }))
-                .result,
-        };
-    };
+    const renderUseExchangeForm = () =>
+        renderHookWithStoreProvider(() => useExchangeForm(), { store });
 
     const getInitializedStore = (bitcoinAmountUnit = PROTO.AmountUnit.BITCOIN) => {
         const preloadedState: PreloadedState = {
@@ -64,13 +57,14 @@ describe('useExchangeForm', () => {
         return initStore(preloadedState).store;
     };
 
-    beforeEach(async () => {
-        store = await getInitializedStore();
+    beforeEach(() => {
+        jest.clearAllMocks();
+        store = getInitializedStore();
     });
 
     describe('on quotes change', () => {
-        it('should select first fixed quote', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should select first fixed quote', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
             });
@@ -82,8 +76,8 @@ describe('useExchangeForm', () => {
             );
         });
 
-        it('should select floating quote when fixed is not available', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should select floating quote when fixed is not available', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 store.dispatch(
                     tradingExchangeActions.saveQuotes([exchangeQuotes[2], exchangeQuotes[3]]),
@@ -97,8 +91,8 @@ describe('useExchangeForm', () => {
             );
         });
 
-        it('should select dex quote when no other quotes are available', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should select dex quote when no other quotes are available', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 store.dispatch(tradingExchangeActions.saveQuotes([exchangeQuotes[3]]));
             });
@@ -110,8 +104,8 @@ describe('useExchangeForm', () => {
             );
         });
 
-        it('should set quote to undefined when no quotes are available', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should set quote to undefined when no quotes are available', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
             });
@@ -122,8 +116,8 @@ describe('useExchangeForm', () => {
             expect(result.current.getValues('quote')).toBeUndefined();
         });
 
-        it('should set receiveCryptoAmount based on selected quote', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should set receiveCryptoAmount based on selected quote', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
             });
@@ -131,9 +125,9 @@ describe('useExchangeForm', () => {
             expect(result.current.getValues('receiveCryptoAmount')).toBe('0.00083554');
         });
 
-        it('should set receiveCryptoAmount in sats when using BTC and amount in sats', async () => {
-            store = await getInitializedStore(PROTO.AmountUnit.SATOSHI);
-            const { result } = await renderUseExchangeForm();
+        it('should set receiveCryptoAmount in sats when using BTC and amount in sats', () => {
+            store = getInitializedStore(PROTO.AmountUnit.SATOSHI);
+            const { result } = renderUseExchangeForm();
             act(() => {
                 result.current.setValue('receiveAsset', btcAsset);
                 store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
@@ -142,11 +136,20 @@ describe('useExchangeForm', () => {
             expect(result.current.getValues('receiveCryptoAmount')).toBe('83554');
         });
 
+        it('should persist provider metadata to redux', () => {
+            renderUseExchangeForm();
+            act(() => {
+                store.dispatch(tradingExchangeActions.saveQuotes(exchangeQuotes));
+            });
+
+            expect(selectTradingProviderMetadata(store.getState())).toBe(exchangeMercuryo);
+        });
+
         describe('when quote is selected and new quotes are fetched', () => {
             let form: ExchangeFormType;
 
-            beforeEach(async () => {
-                const { result } = await renderUseExchangeForm();
+            beforeEach(() => {
+                const { result } = renderUseExchangeForm();
                 form = result.current;
 
                 act(() => {
@@ -216,14 +219,14 @@ describe('useExchangeForm', () => {
     });
 
     describe('sendAccount', () => {
-        it('should be undefined by default', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should be undefined by default', () => {
+            const { result } = renderUseExchangeForm();
 
             expect(result.current.getValues('sendAccount')).toBeUndefined();
         });
 
-        it('should update sendAccount value when account in redux store is changed', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should update sendAccount value when account in redux store is changed', () => {
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 store.dispatch(tradingExchangeActions.setTradingAccountKey('btc-account-1'));
@@ -234,8 +237,8 @@ describe('useExchangeForm', () => {
     });
 
     describe('sendAsset', () => {
-        it('should clear crypto amount on change', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should clear crypto amount on change', () => {
+            const { result } = renderUseExchangeForm();
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
                 result.current.setValue('sendCryptoAmount', '100');
@@ -248,14 +251,14 @@ describe('useExchangeForm', () => {
             expect(result.current.getValues('sendCryptoAmount')).toBeUndefined();
         });
 
-        it('should report change to analytics', async () => {
-            const { result, reportMock } = await renderUseExchangeForm();
+        it('should report change to analytics', () => {
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
             });
 
-            expect(reportMock).toHaveBeenCalledWith({
+            expect(mockReport).toHaveBeenCalledWith({
                 type: EventType.TradingParameterChanged,
                 payload: {
                     type: 'exchange',
@@ -264,9 +267,9 @@ describe('useExchangeForm', () => {
             });
         });
 
-        it('should dispatch sendAssetChanged action', async () => {
+        it('should dispatch sendAssetChanged action', () => {
             const dispatchSpy = jest.spyOn(store, 'dispatch');
-            const { result } = await renderUseExchangeForm();
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
@@ -277,14 +280,14 @@ describe('useExchangeForm', () => {
     });
 
     describe('receiveAccount', () => {
-        it('should be undefined by default', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should be undefined by default', () => {
+            const { result } = renderUseExchangeForm();
 
             expect(result.current.getValues('receiveAccount')).toBeUndefined();
         });
 
-        it('should update receiveAccount value when account in redux store is changed', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should update receiveAccount value when account in redux store is changed', () => {
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 store.dispatch(tradingExchangeActions.setReceiveAccountKey('btc-account-1'));
@@ -299,14 +302,14 @@ describe('useExchangeForm', () => {
     });
 
     describe('receiveAsset', () => {
-        it('should report change to analytics', async () => {
-            const { result, reportMock } = await renderUseExchangeForm();
+        it('should report change to analytics', () => {
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('receiveAsset', btcAsset);
             });
 
-            expect(reportMock).toHaveBeenCalledWith({
+            expect(mockReport).toHaveBeenCalledWith({
                 type: EventType.TradingParameterChanged,
                 payload: {
                     type: 'exchange',
@@ -315,9 +318,9 @@ describe('useExchangeForm', () => {
             });
         });
 
-        it('should dispatch receiveAssetChanged action', async () => {
+        it('should dispatch receiveAssetChanged action', () => {
             const dispatchSpy = jest.spyOn(store, 'dispatch');
-            const { result } = await renderUseExchangeForm();
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('receiveAsset', btcAsset);
@@ -333,7 +336,7 @@ describe('useExchangeForm', () => {
             ['100', 'Maximum is 50 BTC'],
             ['1', 'Insufficient balance'],
         ])('should display error for crypto amount %s BTC', async (amount, expectedValue) => {
-            const { result } = await renderUseExchangeForm();
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
@@ -361,8 +364,8 @@ describe('useExchangeForm', () => {
             ['10000000000', 'Maximum is 5,000,000,000 sat'],
             ['10000000', 'Insufficient balance'],
         ])('should display error for crypto amount %s SATS', async (amount, expectedValue) => {
-            store = await getInitializedStore(PROTO.AmountUnit.SATOSHI);
-            const { result } = await renderUseExchangeForm();
+            store = getInitializedStore(PROTO.AmountUnit.SATOSHI);
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
@@ -386,8 +389,8 @@ describe('useExchangeForm', () => {
         });
 
         it('should correctly compute balance with SATS', async () => {
-            store = await getInitializedStore(PROTO.AmountUnit.SATOSHI);
-            const { result } = await renderUseExchangeForm();
+            store = getInitializedStore(PROTO.AmountUnit.SATOSHI);
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 store.dispatch(tradingExchangeActions.setTradingAccountKey('btc-account-1'));
@@ -406,7 +409,7 @@ describe('useExchangeForm', () => {
             ['1', false],
             ['2', true],
         ])('should use correct balance for USDC and amount %s', async (amount, expectedInvalid) => {
-            const { result } = await renderUseExchangeForm();
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 store.dispatch(tradingExchangeActions.setTradingAccountKey('eth-account-1'));
@@ -427,7 +430,7 @@ describe('useExchangeForm', () => {
                 store.dispatch(tradingExchangeActions.setTradingAccountKey('btc-account-1'));
             });
 
-            const { result } = await renderUseExchangeForm();
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('sendAsset', btcAsset);
@@ -451,8 +454,8 @@ describe('useExchangeForm', () => {
         });
 
         describe('generalAlert', () => {
-            it('should be undefined by default', async () => {
-                const { result } = await renderUseExchangeForm();
+            it('should be undefined by default', () => {
+                const { result } = renderUseExchangeForm();
 
                 act(() => {
                     store.dispatch(tradingExchangeActions.saveQuotes([] as ExchangeTrade[]));
@@ -462,8 +465,8 @@ describe('useExchangeForm', () => {
                 expect(result.current.getValues('generalAlert')).toBeUndefined();
             });
 
-            it('should be set when empty quotes are fetched and no limits are set', async () => {
-                const { result } = await renderUseExchangeForm();
+            it('should be set when empty quotes are fetched and no limits are set', () => {
+                const { result } = renderUseExchangeForm();
 
                 act(() => {
                     store.dispatch(
@@ -482,8 +485,8 @@ describe('useExchangeForm', () => {
                 );
             });
 
-            it('should be undefined when empty quotes are fetched and limits are set', async () => {
-                const { result } = await renderUseExchangeForm();
+            it('should be undefined when empty quotes are fetched and limits are set', () => {
+                const { result } = renderUseExchangeForm();
 
                 act(() => {
                     store.dispatch(
@@ -505,8 +508,8 @@ describe('useExchangeForm', () => {
                 expect(result.current.getValues('generalAlert')).toBeUndefined();
             });
 
-            it('should be undefined once quotes are fetched', async () => {
-                const { result } = await renderUseExchangeForm();
+            it('should be undefined once quotes are fetched', () => {
+                const { result } = renderUseExchangeForm();
 
                 act(() => {
                     store.dispatch(
@@ -523,8 +526,8 @@ describe('useExchangeForm', () => {
                 expect(result.current.getValues('generalAlert')).toBeUndefined();
             });
 
-            it('should be cleared once quotes are fetched', async () => {
-                const { result } = await renderUseExchangeForm();
+            it('should be cleared once quotes are fetched', () => {
+                const { result } = renderUseExchangeForm();
 
                 act(() => {
                     store.dispatch(
@@ -548,8 +551,8 @@ describe('useExchangeForm', () => {
     });
 
     describe('clearExchangeFormQuoteData', () => {
-        it('should clear quote, sendCryptoAmount, receiveCryptoAmount and generalAlert data', async () => {
-            const { result } = await renderUseExchangeForm();
+        it('should clear quote, sendCryptoAmount, receiveCryptoAmount and generalAlert data', () => {
+            const { result } = renderUseExchangeForm();
 
             act(() => {
                 result.current.setValue('quote', exchangeQuotes[0] as ExchangeTrade);

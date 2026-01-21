@@ -3,7 +3,6 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { createRoot } from 'react-dom/client';
 
-import { RouterServices } from '@suite-common/redux-utils';
 import TrezorConnect from '@trezor/connect';
 import { createIpcProxy } from '@trezor/ipc-proxy';
 import { desktopApi } from '@trezor/suite-desktop-api';
@@ -23,7 +22,6 @@ import { Metadata } from 'src/components/suite/Metadata';
 import { useDebugLanguageShortcut } from 'src/hooks/suite';
 import { initStore } from 'src/reducers/store';
 import { SuiteServicesProvider } from 'src/support/SuiteServicesProvider';
-import { createRouterServices } from 'src/support/extraDependencies';
 import { ConnectedIntlProvider } from 'src/support/suite/ConnectedIntlProvider';
 import { Main } from 'src/support/suite/Main';
 import { preloadStore } from 'src/support/suite/preloadStore';
@@ -38,16 +36,13 @@ import { DesktopUpdater } from './support/DesktopUpdater';
 import { desktopComponents } from './support/desktopComponents';
 import { TorLoadingScreen } from './support/screens/TorLoadingScreen';
 
-const MainDesktop = ({ routerServices }: { routerServices: RouterServices }) => {
+const MainDesktop = () => {
     useTor();
     useDebugLanguageShortcut();
     useConnectPopupDesktop();
 
     return (
-        <Main
-            routerServices={routerServices}
-            trafficLightOffset={<TrafficLightDraggableWindowHeader />}
-        >
+        <Main trafficLightOffset={<TrafficLightDraggableWindowHeader />}>
             <GlobalStyle />
             <DesktopUpdater />
             <Metadata />
@@ -71,14 +66,17 @@ export const init = async (container: HTMLElement) => {
     const root = createRoot(container);
     root.render(<LoadingScreen />);
 
-    const memoryHistory = createMemoryHistory();
     const preloadAction = await preloadStore();
     const { statePatch } = await desktopApi.handshake();
-    const routerServices = createRouterServices(memoryHistory);
-    const { store, services } = initStore(preloadAction, {
-        statePatch,
-        additionalExtraDeps: { routerServices },
-    });
+    const { store, services } = initStore(
+        {
+            history: createMemoryHistory(),
+        },
+        preloadAction,
+        {
+            statePatch,
+        },
+    );
 
     // Expose Redux store for Playwright/e2e tests
     if (typeof window !== 'undefined' && window.desktopFlags?.exposeStore) {
@@ -146,7 +144,7 @@ export const init = async (container: HTMLElement) => {
     root.render(
         <SuiteServicesProvider services={services}>
             <ReduxProvider store={store}>
-                <MainDesktop routerServices={routerServices} />
+                <MainDesktop />
             </ReduxProvider>
         </SuiteServicesProvider>,
     );

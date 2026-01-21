@@ -38,30 +38,6 @@ type ConnectInitSettings = {
     manifest: Manifest;
 } & Partial<ConnectSettings>;
 
-export type PathString = `/${string}`; // in format `/alpha/beta/gamma`
-export type SearchString = '' | `?${string}`; // in format `?alpha=beta&gamma=delta`
-export type HashString = '' | `#${string}`; // in format `#/alpha/beta/gamma`
-
-// NOTE: this is basically a bit stricter Path from history package (file://./../../../node_modules/history/index.d.ts),
-// but it is satisfied by window.location as well
-export type RouterPath = {
-    pathname: PathString;
-    search: SearchString;
-    hash: HashString;
-};
-
-// This is a Listener from history package
-type Listener = (_: { location: RouterPath; action: 'PUSH' | 'POP' | 'REPLACE' }) => void;
-
-export type RouterServices = {
-    getLocation: () => RouterPath;
-    navigate: (to: Partial<RouterPath>, state?: LocationPushState) => void;
-    // calling .listen(listener) returns a cleanup function
-    listen: (listener: Listener) => () => void;
-};
-
-export type LocationPushState = Record<string, unknown>;
-
 export type CommonServices = SuiteSyncDep &
     PlatformEncryptionDep & {
         analytics: Analytics<AnalyticsSharedEvents>;
@@ -143,7 +119,6 @@ export type ExtraDependenciesStatic = {
         connectInitSettings: ConnectInitSettings;
         reportSecurityCheck: (props: ReportSecurityCheckProps) => void;
     };
-    routerServices: RouterServices;
 };
 
 export type ExtraDependencies = ExtraDependenciesStatic & { services: CommonServices };

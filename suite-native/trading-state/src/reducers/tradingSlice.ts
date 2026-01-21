@@ -1,5 +1,5 @@
 import { type PayloadAction, isAnyOf } from '@reduxjs/toolkit';
-import type { CryptoId } from 'invity-api';
+import type { CryptoId, ProviderMetadata } from 'invity-api';
 
 import { createSliceWithExtraDeps } from '@suite-common/redux-utils';
 import { InvityServerEnvironment, TradingType, prepareTradingReducer } from '@suite-common/trading';
@@ -16,7 +16,7 @@ const providerConfirmationStatusTransitions: Record<
     ProviderConfirmationStatus,
     ProviderConfirmationStatus[]
 > = {
-    // inactive is the initial state, providerConfirmationStatus becomes inactive when transaction prview is closed
+    // inactive is the initial state, providerConfirmationStatus becomes inactive when transaction preview is closed
     inactive: ['window_opened'],
     // window_opened is set when the webview is opened
     window_opened: [
@@ -86,6 +86,12 @@ export const tradingSlice = createSliceWithExtraDeps({
             ) {
                 state.providerConfirmationStatus = newStatus;
             }
+        },
+        setCurrentProviderMetadata: (
+            state,
+            { payload }: PayloadAction<ProviderMetadata | undefined>,
+        ) => {
+            state.currentProviderMetadata = payload;
         },
     },
     extraReducers: (builder, extra) => {
