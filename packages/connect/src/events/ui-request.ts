@@ -10,7 +10,6 @@ import {
 import { MessagesSchema as PROTO } from '@trezor/protobuf';
 
 import type { DeviceButtonRequest, DeviceThpPairingPayload } from './device';
-import type { MethodPermission } from '../core/AbstractMethod';
 import type { DiscoveryAccount, DiscoveryAccountType } from '../types/account';
 import type { BitcoinNetworkInfo, CoinInfo } from '../types/coinInfo';
 import type { Device } from '../types/device';
@@ -41,10 +40,8 @@ export const UI_REQUEST = {
 
     DEVICE_NEEDS_BACKUP: 'ui-device_needs_backup',
 
-    REQUEST_UI_WINDOW: 'ui-request_window',
     CLOSE_UI_WINDOW: 'ui-close_window',
 
-    REQUEST_PERMISSION: 'ui-request_permission',
     REQUEST_CONFIRMATION: 'ui-request_confirmation',
     REQUEST_PIN: 'ui-request_pin',
     INVALID_PIN: 'ui-invalid_pin',
@@ -56,7 +53,6 @@ export const UI_REQUEST = {
     CONNECT: 'ui-connect',
     LOADING: 'ui-loading',
     SET_OPERATION: 'ui-set_operation',
-    SELECT_DEVICE: 'ui-select_device',
     SELECT_ACCOUNT: 'ui-select_account',
     SELECT_FEE: 'ui-select_fee',
     UPDATE_CUSTOM_FEE: 'ui-update_custom_fee',
@@ -72,10 +68,6 @@ export const UI_REQUEST = {
 export type UiRequestWithoutPayload =
     | {
           type: typeof UI_REQUEST.LOADING;
-          payload?: typeof undefined;
-      }
-    | {
-          type: typeof UI_REQUEST.REQUEST_UI_WINDOW;
           payload?: typeof undefined;
       }
     | {
@@ -186,14 +178,6 @@ export interface UiRequestSetOperation {
     payload: string;
 }
 
-export interface UiRequestPermission {
-    type: typeof UI_REQUEST.REQUEST_PERMISSION;
-    payload: {
-        permissions: MethodPermission[];
-        device: Device;
-    };
-}
-
 export interface UiRequestConfirmation {
     type: typeof UI_REQUEST.REQUEST_CONFIRMATION;
     payload: {
@@ -214,14 +198,6 @@ export interface UiRequestConfirmation {
             className: string;
             label: string;
         };
-    };
-}
-
-export interface UiRequestSelectDevice {
-    type: typeof UI_REQUEST.SELECT_DEVICE;
-    payload: {
-        devices: Device[];
-        webusb: boolean;
     };
 }
 
@@ -337,9 +313,7 @@ export type UiEvent =
     | UiRequestWithoutPayload
     | UiRequestDeviceAction
     | UiRequestButton
-    | UiRequestPermission
     | UiRequestConfirmation
-    | UiRequestSelectDevice
     | UiRequestUnexpectedDeviceMode
     | UiRequestSelectAccount
     | UiRequestSelectFee
