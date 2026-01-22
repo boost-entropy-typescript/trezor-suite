@@ -10,13 +10,14 @@ import {
     selectSelectedDevice,
 } from '@suite-common/wallet-core';
 import { EventType } from '@suite-native/analytics';
+import { useNavigateToInitialScreen } from '@suite-native/navigation';
+import { useLegacyAnalytics } from '@suite-native/services';
+
 import {
     selectHasPassphraseError,
     selectHasVerificationCancelledError,
     selectPassphraseDiscoveryCompleted,
-} from '@suite-native/device-authorization';
-import { useNavigateToInitialScreen } from '@suite-native/navigation';
-import { useLegacyAnalytics } from '@suite-native/services';
+} from './passphraseSelectors';
 
 export const useRedirectOnPassphraseCompletion = () => {
     const device = useSelector(selectSelectedDevice);

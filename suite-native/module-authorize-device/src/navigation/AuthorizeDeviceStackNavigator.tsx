@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { selectIsDeviceThpRequired } from '@suite-common/wallet-core';
 import { CoinEnablingInitScreen } from '@suite-native/coin-enabling';
 import { selectDeviceRequestedPin } from '@suite-native/device-authorization';
 import {
@@ -11,7 +10,7 @@ import {
     stackNavigationOptionsConfig,
 } from '@suite-native/navigation';
 
-import { PassphraseStackNavigator } from './PassphraseStackNavigator';
+import { ContinueOnTrezorScreen } from '../screens/ContinueOnTrezorScreen';
 import { ConnectAndUnlockDeviceScreen } from '../screens/connect/ConnectAndUnlockDeviceScreen';
 import { ConnectBluetoothDeviceScreen } from '../screens/connect/ConnectBluetoothDeviceScreen';
 import { ConnectDeviceCrossroadsScreen } from '../screens/connect/ConnectDeviceCrossroadsScreen';
@@ -20,9 +19,9 @@ import { DeviceConnectionGuardScreen } from '../screens/connect/DeviceConnection
 import { PinScreen } from '../screens/connect/PinScreen';
 import { RemoveBluetoothDeviceScreen } from '../screens/connect/RemoveBluetoothDeviceScreen';
 import { TurnOnAndUnlockDeviceScreen } from '../screens/connect/TurnOnAndUnlockDeviceScreen';
-import { PassphraseConfirmFeatureUnlockEnterOnTrezorScreen } from '../screens/passphrase/PassphraseConfirmFeatureUnlockEnterOnTrezorScreen';
-import { PassphraseConfirmFeatureUnlockOnTrezorScreen } from '../screens/passphrase/PassphraseConfirmFeatureUnlockOnTrezorScreen';
-import { PassphraseFeatureUnlockFormScreen } from '../screens/passphrase/PassphraseFeatureUnlockFormScreen';
+import { PassphraseConfirmOnTrezorScreen } from '../screens/passphrase/PassphraseConfirmOnTrezorScreen';
+import { PassphraseEnterOnTrezorScreen } from '../screens/passphrase/PassphraseEnterOnTrezorScreen';
+import { PassphraseFormScreen } from '../screens/passphrase/PassphraseFormScreen';
 import { ThpCodeEntryScreen } from '../screens/thp/ThpCodeEntryScreen';
 import { ThpConfirmationScreen } from '../screens/thp/ThpConfirmationScreen';
 
@@ -30,19 +29,11 @@ export const AuthorizeDeviceStack = createNativeStackNavigator<AuthorizeDeviceSt
 
 export const AuthorizeDeviceStackNavigator = () => {
     const hasDeviceRequestedPin = useSelector(selectDeviceRequestedPin);
-    const isDeviceThpRequired = useSelector(selectIsDeviceThpRequired);
 
     return (
         <AuthorizeDeviceStack.Navigator
             screenOptions={{ ...stackNavigationOptionsConfig, gestureEnabled: false }}
         >
-            {
-                // NOTE: render this first as it handles states that should be on top - passphrase on device enable
-            }
-            <AuthorizeDeviceStack.Screen
-                name={AuthorizeDeviceStackRoutes.PassphraseForm}
-                component={PassphraseStackNavigator}
-            />
             {
                 // For proper screen transitions on both cancel and success PIN entry
                 // we need to remove those screens from the stack so we can navigate
@@ -72,12 +63,10 @@ export const AuthorizeDeviceStackNavigator = () => {
                     </AuthorizeDeviceStack.Group>
                 )
             }
-            {!isDeviceThpRequired && hasDeviceRequestedPin && (
-                <AuthorizeDeviceStack.Screen
-                    name={AuthorizeDeviceStackRoutes.PinMatrix}
-                    component={PinScreen}
-                />
-            )}
+            <AuthorizeDeviceStack.Screen
+                name={AuthorizeDeviceStackRoutes.PinMatrix}
+                component={PinScreen}
+            />
             <AuthorizeDeviceStack.Screen
                 name={AuthorizeDeviceStackRoutes.ConnectBluetoothDevice}
                 component={ConnectBluetoothDeviceScreen}
@@ -95,20 +84,24 @@ export const AuthorizeDeviceStackNavigator = () => {
                 component={ThpCodeEntryScreen}
             />
             <AuthorizeDeviceStack.Screen
-                name={AuthorizeDeviceStackRoutes.PassphraseFeatureUnlockForm}
-                component={PassphraseFeatureUnlockFormScreen}
+                name={AuthorizeDeviceStackRoutes.PassphraseForm}
+                component={PassphraseFormScreen}
             />
             <AuthorizeDeviceStack.Screen
                 name={AuthorizeDeviceStackRoutes.PassphraseEnterOnTrezor}
-                component={PassphraseConfirmFeatureUnlockEnterOnTrezorScreen}
+                component={PassphraseEnterOnTrezorScreen}
             />
             <AuthorizeDeviceStack.Screen
-                name={AuthorizeDeviceStackRoutes.PassphraseConfirmFeatureUnlockOnTrezor}
-                component={PassphraseConfirmFeatureUnlockOnTrezorScreen}
+                name={AuthorizeDeviceStackRoutes.PassphraseConfirmOnTrezor}
+                component={PassphraseConfirmOnTrezorScreen}
             />
             <AuthorizeDeviceStack.Screen
                 name={AuthorizeDeviceStackRoutes.CoinEnablingInit}
                 component={CoinEnablingInitScreen}
+            />
+            <AuthorizeDeviceStack.Screen
+                name={AuthorizeDeviceStackRoutes.ContinueOnTrezor}
+                component={ContinueOnTrezorScreen}
             />
         </AuthorizeDeviceStack.Navigator>
     );

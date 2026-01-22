@@ -3,12 +3,10 @@ import { useSelector } from 'react-redux';
 
 import { EventType } from '@suite-native/analytics';
 import { Spinner, SpinnerLoadingState, Text, VStack } from '@suite-native/atoms';
-import { selectPassphraseDeviceNotEmpty } from '@suite-native/device-authorization';
 import { Translation } from '@suite-native/intl';
 import { Screen, useNavigateToInitialScreen } from '@suite-native/navigation';
+import { PassphraseScreenHeader, selectPassphraseDeviceNotEmpty } from '@suite-native/passphrase';
 import { useLegacyAnalytics } from '@suite-native/services';
-
-import { PassphraseScreenHeader } from '../../components/passphrase/PassphraseScreenHeader';
 
 export const PassphraseLoadingScreen = () => {
     const isDeviceNotEmpty = useSelector(selectPassphraseDeviceNotEmpty);
