@@ -11549,12 +11549,12 @@ __metadata:
     "@suite-native/module-dev-utils": "workspace:*"
     "@suite-native/module-device-onboarding": "workspace:*"
     "@suite-native/module-device-settings": "workspace:*"
+    "@suite-native/module-earn": "workspace:*"
     "@suite-native/module-home": "workspace:*"
     "@suite-native/module-onboarding": "workspace:*"
     "@suite-native/module-passphrase": "workspace:*"
     "@suite-native/module-send": "workspace:*"
     "@suite-native/module-settings": "workspace:*"
-    "@suite-native/module-staking-management": "workspace:*"
     "@suite-native/module-trading": "workspace:*"
     "@suite-native/module-transactions": "workspace:*"
     "@suite-native/navigation": "workspace:*"
@@ -11679,7 +11679,7 @@ __metadata:
     "@suite-native/formatters": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
-    "@suite-native/module-staking-management": "workspace:*"
+    "@suite-native/module-earn": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/staking": "workspace:*"
     "@suite-native/tokens": "workspace:*"
@@ -12431,6 +12431,7 @@ __metadata:
     "@suite-native/labeling": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/module-device-onboarding": "workspace:*"
+    "@suite-native/module-earn": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
     "@suite-native/services": "workspace:*"
@@ -12765,6 +12766,40 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/module-earn@workspace:*, @suite-native/module-earn@workspace:suite-native/module-earn":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/module-earn@workspace:suite-native/module-earn"
+  dependencies:
+    "@react-navigation/native": "npm:7.1.18"
+    "@react-navigation/native-stack": "npm:7.5.1"
+    "@reduxjs/toolkit": "npm:2.11.0"
+    "@shopify/flash-list": "npm:2.2.0"
+    "@suite-common/formatters": "workspace:*"
+    "@suite-common/wallet-config": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/clipboard": "workspace:*"
+    "@suite-native/device-manager": "workspace:*"
+    "@suite-native/feature-flags": "workspace:*"
+    "@suite-native/formatters": "workspace:*"
+    "@suite-native/icons": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/link": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
+    "@suite-native/services": "workspace:*"
+    "@suite-native/staking": "workspace:*"
+    "@trezor/styles": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    "@trezor/urls": "workspace:*"
+    react: "npm:19.1.0"
+    react-native: "npm:0.81.5"
+    react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/module-home@workspace:*, @suite-native/module-home@workspace:suite-native/module-home":
   version: 0.0.0-use.local
   resolution: "@suite-native/module-home@workspace:suite-native/module-home"
@@ -12982,30 +13017,6 @@ __metadata:
     react: "npm:19.1.0"
     react-native: "npm:0.81.5"
     react-native-reanimated: "npm:~4.1.5"
-    react-redux: "npm:9.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@suite-native/module-staking-management@workspace:*, @suite-native/module-staking-management@workspace:suite-native/module-staking-management":
-  version: 0.0.0-use.local
-  resolution: "@suite-native/module-staking-management@workspace:suite-native/module-staking-management"
-  dependencies:
-    "@react-navigation/native": "npm:7.1.18"
-    "@reduxjs/toolkit": "npm:2.11.0"
-    "@suite-common/formatters": "workspace:*"
-    "@suite-common/wallet-config": "workspace:*"
-    "@suite-common/wallet-core": "workspace:*"
-    "@suite-native/atoms": "workspace:*"
-    "@suite-native/formatters": "workspace:*"
-    "@suite-native/icons": "workspace:*"
-    "@suite-native/intl": "workspace:*"
-    "@suite-native/link": "workspace:*"
-    "@suite-native/navigation": "workspace:*"
-    "@suite-native/staking": "workspace:*"
-    "@trezor/styles": "workspace:*"
-    "@trezor/urls": "workspace:*"
-    react: "npm:19.1.0"
-    react-native: "npm:0.81.5"
     react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
@@ -13353,6 +13364,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
+    react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
 
@@ -13491,7 +13503,6 @@ __metadata:
     "@trezor/connect": "workspace:*"
     expo: "npm:~54.0.30"
     expo-sqlite: "npm:^16.0.8"
-    react-native-restart: "npm:0.0.27"
     react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
