@@ -8,7 +8,7 @@ import { Plugin, ViteDevServer, build, defineConfig } from 'vite';
 import wasm from 'vite-plugin-wasm';
 
 import { suiteVersion } from '../suite/package.json';
-import { assetPrefix, project } from './utils/env';
+import { assetPrefix, isTanstackReactQueryDevTools, project } from './utils/env';
 
 const require = createRequire(import.meta.url);
 
@@ -242,10 +242,14 @@ const workerPlugin = (): Plugin => ({
     transform(_code, id) {
         if (/\/workers\/[^/]+\/index\.ts$/.test(id) || /pinger\/pingWorker.ts$/.test(id)) {
             // Return a virtual module that creates a web worker
+            console.log('[VITE] Transforming worker:', id);
 
             return {
                 code: `
-                    const worker = () => new Worker(new URL('${id}', import.meta.url), { type: 'module' });
+                    const worker = () => {
+                        console.log('[VITE] Creating worker from:', '${id}');
+                        return new Worker(new URL('${id}', import.meta.url), { type: 'module' });
+                    };
                     export default worker;
                 `,
                 // Use an empty source map to preserve the original file's mapping
@@ -468,6 +472,7 @@ export default defineConfig({
         'process.env.SUITE_TYPE': JSON.stringify(project ?? 'web'),
         'process.env.NODE_ENV': JSON.stringify('development'),
         'process.env.ASSET_PREFIX': JSON.stringify(assetPrefix),
+        'process.env.TANSTACK_REACT_QUERY_DEV_TOOLS': JSON.stringify(isTanstackReactQueryDevTools),
         global: 'globalThis',
         __DEV__: true,
         ENABLE_REDUX_LOGGER: true,
@@ -478,11 +483,16 @@ export default defineConfig({
             // Exclude WebAssembly modules
             '@trezor/crypto-utils',
             '@trezor/utxo-lib',
+            // Exclude transport to prevent pre-bundling issues with bridge URL construction
+            '@trezor/transport',
         ],
     },
     server: {
         port: 8000,
         open: false,
         host: true,
+        watch: {
+            ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**', '**/.git/**'],
+        },
     },
 });

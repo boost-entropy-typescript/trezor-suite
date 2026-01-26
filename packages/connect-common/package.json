@@ -21,8 +21,6 @@
     "files": [
         "lib/",
         "libESM/",
-        "files/**/*.json",
-        "files/**/*.txt",
         "CHANGELOG.md"
     ],
     "publishConfig": {
@@ -35,7 +33,6 @@
                 "types": "./lib/index.d.ts"
             },
             "./lib/*": "./lib/*.js",
-            "./files/*": "./files/*",
             "./libESM/*.js": "./libESM/*.js"
         }
     },
@@ -45,7 +42,6 @@
         "build:lib:esm": "yarn g:rimraf ./libESM && yarn g:tsc --build tsconfig.libESM.json && ../../scripts/publish/replace-imports.sh ./libESM esm",
         "type-check": "yarn g:tsc --build tsconfig.json",
         "prepublishOnly": "yarn tsx ../../scripts/publish/prepublishNPM.js",
-        "validate-releases.json": "./scripts/check-all-firmware-revisions.sh",
         "depcheck": "yarn g:depcheck"
     },
     "dependencies": {

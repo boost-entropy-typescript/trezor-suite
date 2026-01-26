@@ -1,5 +1,5 @@
-import coinsJSONEth from '@trezor/connect-common/files/coins-eth.json';
-import coinsJSON from '@trezor/connect-common/files/coins.json';
+import coinsJSONEth from '@trezor/connect-data/files/coins-eth.json';
+import coinsJSON from '@trezor/connect-data/files/coins.json';
 import { DeviceModelInternal } from '@trezor/device-utils';
 
 import { getAllNetworks, parseCoinsJson } from '../../data/coinInfo';
@@ -64,6 +64,7 @@ describe('utils/deviceFeaturesUtils', () => {
             'Capability_Monero',
             'Capability_NEM',
             'Capability_Ripple',
+            'Capability_Solana',
             'Capability_Stellar',
             'Capability_Tezos',
             'Capability_U2F',
@@ -86,6 +87,7 @@ describe('utils/deviceFeaturesUtils', () => {
             'Capability_Monero',
             'Capability_NEM',
             'Capability_Ripple',
+            'Capability_Solana',
             'Capability_Stellar',
             'Capability_Tezos',
             'Capability_U2F',
@@ -162,6 +164,7 @@ describe('utils/deviceFeaturesUtils', () => {
                 thod: 'update-required',
                 tppc: 'update-required',
                 trvn: 'update-required',
+                trx: 'no-support',
                 tsep: 'update-required',
                 txrp: 'no-support',
                 uno: 'update-required',
@@ -196,12 +199,13 @@ describe('utils/deviceFeaturesUtils', () => {
                 tsep: 'update-required',
                 thod: 'update-required',
                 trvn: 'update-required',
+                trx: 'no-capability',
                 usdt: 'no-capability',
-                sol: 'no-capability',
-                dsol: 'no-capability',
+                sol: 'update-required',
+                dsol: 'update-required',
                 chunkify: 'update-required',
                 evmApproval: 'update-required',
-                evolu: 'update-required',
+                evolu: 'no-support',
                 slip24: 'update-required',
                 tutorial: 'no-support',
                 ...T1B1_UPDATE_REQUIRED,
@@ -223,10 +227,11 @@ describe('utils/deviceFeaturesUtils', () => {
                 maid: 'no-capability',
                 nmc: 'no-support',
                 omni: 'no-capability',
-                sol: 'no-capability',
-                dsol: 'no-capability',
+                sol: 'update-required',
+                dsol: 'update-required',
                 thod: 'update-required',
                 tropicDeviceAuthentication: 'no-support',
+                trx: 'no-capability',
                 tsep: 'update-required',
                 usdt: 'no-capability',
                 vtc: 'no-support',
@@ -311,7 +316,7 @@ describe('utils/deviceFeaturesUtils', () => {
                 bsc: 'update-required',
                 chunkify: 'update-required',
                 evmApproval: 'update-required',
-                evolu: 'update-required',
+                evolu: 'no-support',
                 slip24: 'update-required',
                 tutorial: 'no-support',
                 monero: 'update-required',
