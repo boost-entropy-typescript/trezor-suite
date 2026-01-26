@@ -1,5 +1,6 @@
 import { expect as detoxExpect } from 'detox';
 
+import { onTabBar } from '../tabBarActions';
 import { TradingActions } from './TradingActions';
 import { wait, waitForVisible } from '../../support/utils';
 
@@ -41,7 +42,11 @@ export abstract class TradingFormActions extends TradingActions {
     async selectFiatCurrency(fiatCurrency: string) {
         await this.getElementById('fiat-button').tap();
         await this.expectSheetHeaderTitle('Currency');
-        await this.getSearchFiatElement().replaceText(fiatCurrency.slice(0, -1));
+
+        const searchFiatInput = this.getSearchFiatElement();
+        await searchFiatInput.tap();
+        await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
+        await searchFiatInput.replaceText(fiatCurrency.slice(0, -1));
         await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
         await waitForVisible(by.text(fiatCurrency));
         await element(by.text(fiatCurrency)).tap();
@@ -57,7 +62,10 @@ export abstract class TradingFormActions extends TradingActions {
         await countryPicker.tap();
 
         await this.expectSheetHeaderTitle('Country of residence');
-        await this.getSearchCountryElement().replaceText(countrySearch);
+        const countrySearchInput = this.getSearchCountryElement();
+        await countrySearchInput.tap();
+        await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
+        await countrySearchInput.replaceText(countrySearch);
         await waitForVisible(by.text(country));
         await element(by.text(country)).tap();
 
@@ -103,6 +111,7 @@ export abstract class TradingFormActions extends TradingActions {
         await wait(100);
         await getElement().tapReturnKey();
         await this.waitForQuotesToLoad();
+        await wait(300);
     }
 
     setFiatAmount(amount: string) {
@@ -118,6 +127,7 @@ export abstract class TradingFormActions extends TradingActions {
         await waitForVisible(providersPicker, { timeout: this.SHORT_TIMEOUT });
         await providersPicker.tap();
 
+        await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
         await this.expectSheetHeaderTitle('Providers');
         await element(by.label('Close')).tap();
         await waitForVisible(providersPicker);
@@ -129,8 +139,11 @@ export abstract class TradingFormActions extends TradingActions {
         await receiveAssetButton.tap();
 
         await this.expectSheetHeaderTitle('Assets');
-        await this.getSearchReceiveCryptoElement().tap();
-        await this.getSearchReceiveCryptoElement().replaceText(asset.slice(0, -1));
+
+        const searchReceiveCryptoInput = this.getSearchReceiveCryptoElement();
+        await searchReceiveCryptoInput.tap();
+        await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
+        await searchReceiveCryptoInput.replaceText(asset.slice(0, -1));
 
         if (network) {
             const networkFilterTab = element(
@@ -167,5 +180,11 @@ export abstract class TradingFormActions extends TradingActions {
 
     async expectPortfolioTrackerInfoCard() {
         await detoxExpect(this.getElementById('portfolio-tracker-info')).toBeVisible();
+    }
+
+    async openForm() {
+        await onTabBar.navigateToTrade();
+        await this.tapTradingSectionHeaderTab();
+        await this.waitForTradeDataToLoad();
     }
 }
