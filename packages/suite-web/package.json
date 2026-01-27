@@ -27,12 +27,12 @@
     "devDependencies": {
         "@trezor/connect": "workspace:*",
         "@trezor/eslint": "workspace:*",
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
+        "@types/react": "19.1.6",
+        "@types/react-dom": "19.1.6",
         "postcss-styled-syntax": "^0.7.1",
         "rimraf": "^6.0.1",
         "stylelint": "^16.17.0",
         "stylelint-config-standard": "^38.0.0",
-        "tsx": "^4.20.3"
+        "tsx": "^4.21.0"
     }
 }

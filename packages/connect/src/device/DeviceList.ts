@@ -1,5 +1,6 @@
 // original file https://github.com/trezor/connect/blob/develop/src/js/device/DeviceList.js
 
+import { ERRORS } from '@trezor/connect-common/src/constants';
 import { TRANSPORT, Transport } from '@trezor/transport';
 import type { ApiType as TransportApiType } from '@trezor/transport/src/types';
 import { Descriptor } from '@trezor/transport/src/types';
@@ -13,7 +14,6 @@ import {
     typedObjectKeys,
 } from '@trezor/utils';
 
-import { ERRORS } from '../constants';
 import { DEVICE, DecodedTrezorPushNotification, TransportError, TransportInfo } from '../events';
 import { Device } from './Device';
 import { ConnectSettings, DeviceUniquePath, StaticSessionId, asDeviceUniquePath } from '../types';
@@ -143,17 +143,41 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         });
     }
 
+    private getSimilarDevices(device: Device) {
+        return this.devices.filter(d => {
+            // ignore devices from the same transport
+            if (d.descriptor.apiType === device.transport.apiType) {
+                return false;
+            }
+            // in firmware mode usb.serialNumber === Features.device_id
+            // in bootloader mode usb.serialNumber is unknown (string of zeroes)
+            if (device.descriptor.id && d.features?.device_id === device.descriptor.id) {
+                return true;
+            }
+            if (device.descriptor.model && d.descriptor.model === device.descriptor.model) {
+                return true;
+            }
+
+            return false;
+        });
+    }
+
     private async onDeviceConnected(descriptor: Descriptor, transport: Transport) {
         const id = (this.deviceCounter++).toString(16).slice(-8);
         const device = new Device({ id: asDeviceUniquePath(id), transport, descriptor });
 
-        const penalty = this.authPenaltyManager.get();
-        const stillConnected = await this.handshakeLock(() =>
-            resolveAfter(penalty && penalty + 501).then(() => device.handshake()),
+        const similarUsedDevices = this.getSimilarDevices(device).some(
+            d => d.isUsed() || d.getBusy() === 'rebooting',
         );
+        if (!similarUsedDevices) {
+            const penalty = this.authPenaltyManager.get();
+            const stillConnected = await this.handshakeLock(() =>
+                resolveAfter(penalty && penalty + 501).then(() => device.handshake()),
+            );
 
-        if (!stillConnected) {
-            return;
+            if (!stillConnected) {
+                return;
+            }
         }
 
         if (descriptor.id && descriptor.apiType === 'bluetooth') {
@@ -319,8 +343,12 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
         return this.getPrioritizedDevices() as readonly Device[];
     }
 
-    getOnlyDevice(): Device | undefined {
-        return this.devices.length === 1 ? this.devices[0] : undefined;
+    getOnlyDevice(apiType?: Descriptor['apiType']): Device | undefined {
+        const devices = apiType
+            ? this.devices.filter(d => d.descriptor.apiType === apiType)
+            : this.devices;
+
+        return devices.length === 1 ? devices[0] : undefined;
     }
 
     getDeviceByPath(path: DeviceUniquePath): Device | undefined {

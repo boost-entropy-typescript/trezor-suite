@@ -1,4 +1,5 @@
 // original file https://github.com/trezor/connect/blob/develop/src/js/device/Device.js
+import { ERRORS } from '@trezor/connect-common/src/constants';
 import {
     DeviceModelInternal,
     FirmwareRelease,
@@ -19,7 +20,7 @@ import { TransportDeviceEvent } from '@trezor/transport/src/transports/abstract'
 import { Deferred, TypedEmitter, createDeferred, isArrayMember, versionUtils } from '@trezor/utils';
 
 import { DeviceCommands } from './DeviceCommands';
-import { ERRORS, FIRMWARE, PROTO } from '../constants';
+import { FIRMWARE, PROTO } from '../constants';
 import { DeviceCurrentSession, TypedCallProvider } from './DeviceCurrentSession';
 import { checkFirmwareRevision } from './checkFirmwareRevision';
 import { abortThpWorkflow, getThpChannel } from './thp';
@@ -130,7 +131,7 @@ type DeviceParams = {
 export class Device extends TypedEmitter<DeviceEvents> {
     public readonly transport: Transport;
     private thp: protocolThp.ThpState | undefined;
-    public readonly descriptor: Pick<Descriptor, 'apiType' | 'id' | 'type' | 'path'>;
+    public readonly descriptor: Pick<Descriptor, 'apiType' | 'id' | 'type' | 'path' | 'model'>;
     private sessionAcquired: Session | null;
 
     // protocol related
@@ -238,6 +239,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             apiType: descriptor.apiType,
             type: descriptor.type,
             path: descriptor.path,
+            model: descriptor.model,
             // session, sessionOwner are handled separately
             // debug, debugSession are not relevant here
         };
@@ -1043,6 +1045,10 @@ export class Device extends TypedEmitter<DeviceEvents> {
 
     isUsedHere() {
         return !!this.sessionAcquired;
+    }
+
+    getBusy() {
+        return this.busy;
     }
 
     isUsedElsewhere() {

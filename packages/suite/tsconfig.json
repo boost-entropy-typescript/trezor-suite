@@ -13,7 +13,7 @@
     "include": [".", "e2e", "**/*.json"],
     "references": [
         {
-            "path": "../../suite-common/analytics"
+            "path": "../../suite-common/analytics-redux"
         },
         {
             "path": "../../suite-common/analytics-types"
@@ -149,6 +149,7 @@
         { "path": "../coinjoin" },
         { "path": "../components" },
         { "path": "../connect" },
+        { "path": "../connect-common" },
         { "path": "../connect-web" },
         { "path": "../crypto-utils" },
         { "path": "../device-utils" },

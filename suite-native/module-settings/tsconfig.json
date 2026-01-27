@@ -3,7 +3,7 @@
     "compilerOptions": { "outDir": "libDev" },
     "references": [
         {
-            "path": "../../suite-common/analytics"
+            "path": "../../suite-common/analytics-redux"
         },
         { "path": "../../suite-common/mev" },
         {
@@ -39,6 +39,7 @@
         { "path": "../device" },
         { "path": "../device-manager" },
         { "path": "../discovery" },
+        { "path": "../experimental-features" },
         { "path": "../forms" },
         { "path": "../icons" },
         { "path": "../intl" },

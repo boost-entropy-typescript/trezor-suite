@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { selectIsMevProtectionSettingsVisible } from '@suite-common/mev';
 import { VStack } from '@suite-native/atoms';
+import { ExperimentalFeaturesSettingsCard } from '@suite-native/experimental-features';
 import { Translation } from '@suite-native/intl';
 import { DynamicScreenHeader, Screen } from '@suite-native/navigation';
 
@@ -22,10 +23,11 @@ export const SettingsAdvancedScreen = () => {
             }
         >
             <VStack spacing="sp16">
+                {isBitcoinBackendsConfigVisible && <BitcoinBackendsCard />}
+                <ExperimentalFeaturesSettingsCard />
+                {isMevProtectionSettingsVisible && <TurnOffMevProtectionCard />}
                 <TurnOffFirmwareAuthenticityCheckCard />
                 <TurnOffDeviceAuthenticityCheckCard />
-                {isMevProtectionSettingsVisible && <TurnOffMevProtectionCard />}
-                {isBitcoinBackendsConfigVisible && <BitcoinBackendsCard />}
             </VStack>
         </Screen>
     );
