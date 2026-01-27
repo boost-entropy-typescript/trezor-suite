@@ -76,13 +76,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: AppUpdateEvent;
       }
     | {
-          type: EventType.AppUriHandler;
-          payload: {
-              scheme: string;
-              isAmountPresent: boolean;
-          };
-      }
-    | {
           type: EventType.DashboardActions;
           payload: {
               type: string;
@@ -195,14 +188,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.SendDetailOpened;
           payload: {
               assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
-          type: EventType.SendQrScan;
-          payload: {
-              scheme: string;
-              isAmountPresent: boolean;
-              networkSymbol: string;
           };
       }
     | {
