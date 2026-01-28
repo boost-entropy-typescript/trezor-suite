@@ -29,12 +29,8 @@ export enum EventType {
     DeviceSetupStarted = 'device-setup-started',
 
     DeviceConnectionConnectButton = 'device-connection/connect-button',
-    DeviceConnectionConnectModal = 'device-connection/connect-modal',
     DeviceConnectionHintModal = 'device-connection/hint-modal',
     // The rest of device-connection events are in shared constants.
-
-    FirmwareValidateHashError = 'firmware-validate-hash-error',
-    FirmwareValidateHashMismatch = 'firmware-validate-hash-mismatch',
 
     CreateBackup = 'create-backup',
 

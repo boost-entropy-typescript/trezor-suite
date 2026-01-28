@@ -9,7 +9,7 @@ import { MetadataAddPayload } from '@suite-common/metadata-types';
 import { PlatformEncryptionDep } from '@suite-common/platform-encryption'; // also only types
 import { SuiteSyncDep } from '@suite-common/suite-sync-types';
 import {
-    ReportSecurityCheckProps,
+    ReportSecurityCheckDep,
     Route,
     TrezorDevice,
     UserContextPayload,
@@ -31,7 +31,7 @@ type BaseReducer = (state: any, action: { type: any; payload: any }) => void;
 type StorageLoadReducer = (state: any, action: { type: any; payload: any }) => void;
 type StorageLoadTransactionsReducer = (state: any, action: { type: any; payload: any }) => void;
 
-type ConnectInitSettings = {
+export type ConnectInitSettings = {
     manifest: Manifest;
 } & Partial<ConnectSettings>;
 
@@ -39,9 +39,12 @@ export type CommonServices = SuiteSyncDep &
     PlatformEncryptionDep & {
         analytics: Analytics<AnalyticsSharedEvents>;
         legacyAnalytics: Analytics<any>;
-    };
+        saveAs: (data: Blob, fileName: string) => void;
+        connectInitSettings: ConnectInitSettings;
+    } & ReportSecurityCheckDep;
 
 export type ExtraDependenciesStatic = {
+    /** @deprecated Do not add any thunks here, this is antipattern. */
     thunks: {
         cardanoValidatePendingTxOnBlock: SuiteCompatibleThunk<{
             block: BlockchainBlock;
@@ -110,11 +113,6 @@ export type ExtraDependenciesStatic = {
         storageLoadTokenManagement: StorageLoadReducer;
         storageLoadWalletSettings: StorageLoadReducer;
         storageLoadBioAuth: StorageLoadReducer;
-    };
-    utils: {
-        saveAs: (data: Blob, fileName: string) => void;
-        connectInitSettings: ConnectInitSettings;
-        reportSecurityCheck: (props: ReportSecurityCheckProps) => void;
     };
 };
 

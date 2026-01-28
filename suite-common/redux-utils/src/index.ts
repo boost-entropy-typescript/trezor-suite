@@ -10,3 +10,4 @@ export * from './hooks/useSelectorDeepComparison';
 export * from './selectorsUtils';
 export * from './extraWithStoreThunkMiddleware';
 export * from './notImplemented';
+export { toGetter } from './toGetter';

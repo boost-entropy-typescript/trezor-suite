@@ -5,6 +5,7 @@ import {
     asEncryptedHex,
 } from '@suite-common/platform-encryption';
 import {
+    ConnectInitSettings,
     type ExtraDependencies,
     notImplementedAction,
     notImplementedActionType,
@@ -13,7 +14,7 @@ import {
     notImplementedThunk,
 } from '@suite-common/redux-utils';
 import type { SuiteSync } from '@suite-common/suite-sync-types';
-import { ReportSecurityCheckProps, Route } from '@suite-common/suite-types';
+import { ReportSecurityCheckParams, Route } from '@suite-common/suite-types';
 import { AddressDisplayOptions, SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { Analytics } from '@trezor/analytics';
 import { err, ok } from '@trezor/type-utils';
@@ -59,6 +60,15 @@ export const legacyAnalyticsMock: Analytics<any> = {
     init: () => {},
 };
 
+const connectInitSettings: ConnectInitSettings = {
+    debug: false,
+    manifest: {
+        email: 'info@trezor.io',
+        appName: 'Trezor Suite',
+        appUrl: '@suite-native/app',
+    },
+};
+
 export const extraDependenciesCommonMock: ExtraDependencies = {
     thunks: {
         cardanoValidatePendingTxOnBlock: notImplementedThunk('validatePendingTxOnBlock'),
@@ -72,6 +82,13 @@ export const extraDependenciesCommonMock: ExtraDependencies = {
         platformEncryption: platformEncryptionMock,
         legacyAnalytics: legacyAnalyticsMock,
         analytics: analyticsMock,
+        reportSecurityCheck: ({ level, checkType }: ReportSecurityCheckParams) =>
+            console.warn(`Mock reporting ${checkType} check ${level} to Sentry.`),
+        saveAs: (data, fileName) =>
+            console.warn(
+                `Save data: ${data} into file: ${fileName}. Implementation on phone not ready.`,
+            ),
+        connectInitSettings,
     },
     selectors: {
         selectTokenDefinitionsEnabledNetworks: notImplementedSelector(
@@ -140,21 +157,5 @@ export const extraDependenciesCommonMock: ExtraDependencies = {
         storageLoadTokenManagement: notImplementedReducer('storageLoadTokenManagement'),
         storageLoadWalletSettings: notImplementedReducer('storageLoadWalletSettings'),
         storageLoadBioAuth: notImplementedReducer('storageLoadBioAuth'),
-    },
-    utils: {
-        saveAs: (data, fileName) =>
-            console.warn(
-                `Save data: ${data} into file: ${fileName}. Implementation on phone not ready.`,
-            ),
-        connectInitSettings: {
-            debug: false,
-            manifest: {
-                email: 'info@trezor.io',
-                appName: 'Trezor Suite',
-                appUrl: '@suite-native/app',
-            },
-        },
-        reportSecurityCheck: ({ level, checkType }: ReportSecurityCheckProps) =>
-            console.warn(`Mock reporting ${checkType} check ${level} to Sentry.`),
     },
 };

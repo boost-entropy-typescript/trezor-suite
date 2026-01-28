@@ -1,6 +1,5 @@
 import { MetadataProviderType } from '@suite-common/metadata-types';
 import { NetworkSymbol } from '@suite-common/wallet-config';
-import { DeviceModelInternal } from '@trezor/device-utils';
 
 import { EventType } from './constants';
 import type { AppUpdateEvent, FirmwareSource, OnboardingAnalytics } from './definitions';
@@ -72,12 +71,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
     | {
           type: EventType.AppUpdate;
           payload: AppUpdateEvent;
-      }
-    | {
-          type: EventType.DashboardActions;
-          payload: {
-              type: string;
-          };
       }
     | {
           type: EventType.DashboardSendModal;
@@ -152,25 +145,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.CreateReceiveAddressShowAddress;
-          payload: {
-              assetSymbol: NetworkSymbol;
-              type: 'verified' | 'unverified';
-          };
-      }
-    | {
-          type: EventType.CreateReceiveAddressCopyAddress;
-          payload: {
-              assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
-          type: EventType.CreateReceiveAddressConfirmOnTrezor;
-          payload: {
-              assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
           type: EventType.SendInitialised;
           payload: {
               assetSymbol: NetworkSymbol;
@@ -178,12 +152,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
       }
     | {
           type: EventType.SendConfirmerOnDevice;
-          payload: {
-              assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
-          type: EventType.SendDetailOpened;
           payload: {
               assetSymbol: NetworkSymbol;
           };
@@ -423,36 +391,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.StakingUnstake;
-          payload: {
-              action: 'continue' | 'cancel';
-              step: 'staking-dashboard' | 'unstake-form-modal';
-              networkSymbol?: string;
-              currency?: 'crypto' | 'fiat';
-          };
-      }
-    | {
-          type: EventType.StakingClaim;
-          payload: {
-              action: 'continue' | 'cancel';
-              step: 'staking-dashboard' | 'claim-form-modal';
-              networkSymbol?: string;
-          };
-      }
-    | {
-          type: EventType.StakingConfirm;
-          payload: {
-              action: 'stake' | 'unstake' | 'claim';
-              networkSymbol?: string;
-          };
-      }
-    | {
-          type: EventType.TransactionRetry;
-          payload: {
-              url: string;
-          };
-      }
-    | {
           type: EventType.TransactionCancel;
           payload: {
               txType?: 'trade' | 'stake';
@@ -520,15 +458,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
               id: string;
           };
       }
-    | { type: EventType.SwitchDeviceForget }
-    | { type: EventType.SwitchDeviceRemember }
-    | { type: EventType.SwitchDeviceEject }
-    | {
-          type: EventType.SettingsDeviceChangePinProtection;
-          payload: {
-              remove: boolean | null;
-          };
-      }
     | {
           type: EventType.SettingsDeviceChangeThpAutoconnect;
           payload: {
@@ -540,12 +469,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           status: 'finished' | 'error';
           error?: string;
       }
-    | {
-          type: EventType.SettingsDeviceChangePin;
-      }
-    | { type: EventType.SettingsDeviceSetupWipeCode }
-    | { type: EventType.SettingsDeviceChangeWipeCode }
-    | { type: EventType.SettingsDeviceDisableWipeCode }
     | {
           type: EventType.SettingsDeviceUpdateAutoLock;
           payload: {
@@ -673,24 +596,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.SettingsCoinsBackend;
-          payload: {
-              symbol: string;
-              type:
-                  | 'blockbook'
-                  | 'electrum'
-                  | 'ripple'
-                  | 'blockfrost'
-                  | 'coinjoin'
-                  | 'default'
-                  | 'solana'
-                  | 'stellar'
-                  | 'evm-rpc';
-              totalRegular: number;
-              totalOnion: number;
-          };
-      }
-    | {
           type: EventType.SettingsTor;
           payload: {
               value: boolean;
@@ -716,15 +621,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
               type: 'hidden' | 'standard';
           };
       }
-    | {
-          type: EventType.FirmwareValidateHashError;
-          payload: {
-              error: string;
-          };
-      }
-    | {
-          type: EventType.FirmwareValidateHashMismatch;
-      }
     | { type: EventType.GetDesktopApp }
     | {
           type: EventType.GetMobileApp;
@@ -748,33 +644,5 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.ViewOnlyPromo;
           payload: {
               wasAccepted: boolean;
-          };
-      }
-    | {
-          type: EventType.AutostartModal;
-          payload: {
-              action: 'background-always' | 'background-now' | 'quit-always' | 'quit-now';
-          };
-      }
-    | {
-          type: EventType.DeviceConnectionConnectButton;
-          payload: {
-              option: 'dashboard' | 'dropdown';
-          };
-      }
-    | {
-          type: EventType.DeviceConnectionConnectModal;
-          payload: {};
-      }
-    | {
-          type: EventType.DeviceConnectionHintModal;
-          payload: {
-              option: 'notWorking' | 'close';
-          };
-      }
-    | {
-          type: EventType.DeviceSetupStarted;
-          payload: {
-              deviceModel: DeviceModelInternal;
           };
       };

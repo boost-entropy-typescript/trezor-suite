@@ -10,7 +10,7 @@ import { SettingsSectionItem } from 'src/components/settings/SettingsSectionItem
 import { ActionButton, ActionColumn, TextColumn } from 'src/components/suite';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch } from 'src/hooks/suite';
-import { useLegacyAnalytics } from 'src/support/useAnalytics';
+import { useAnalytics } from 'src/support/useAnalytics';
 
 interface Props {
     isDeviceLocked: boolean;
@@ -18,12 +18,12 @@ interface Props {
 
 export const WipeCode = ({ isDeviceLocked }: Props) => {
     const dispatch = useDispatch();
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const isDeviceProtectedByWipeCode = useSelector(selectIsDeviceProtectedByWipeCode);
 
     const enableWipeCode = () => {
         dispatch(changeWipeCode({ remove: false }));
-        legacyAnalytics.report({
+        analytics.report({
             type: isDeviceProtectedByWipeCode
                 ? EventType.SettingsDeviceChangeWipeCode
                 : EventType.SettingsDeviceSetupWipeCode,
@@ -32,7 +32,7 @@ export const WipeCode = ({ isDeviceLocked }: Props) => {
 
     const disableWipeCode = () => {
         dispatch(changeWipeCode({ remove: true }));
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.SettingsDeviceDisableWipeCode,
         });
     };
