@@ -20,6 +20,7 @@ import {
     ConnectInitSettings,
     ExtraDependenciesStatic,
 } from '@suite-common/redux-utils';
+import { createMigrateSuiteSyncLabelsForRbfTransactionCompositionRoot } from '@suite-common/suite-rbf-labels-migrations';
 import { SuiteSyncAppReloaderDep } from '@suite-common/suite-sync-types';
 import {
     TokenDefinitionsState,
@@ -131,18 +132,21 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
     });
 
     const legacyAnalytics = createLegacyAnalytics();
+    const analytics = createAnalytics();
+
+    const suiteSync = createSuiteSyncDesktopCompositionRoot({
+        dispatch: deps.dispatch,
+        getState: deps.getState,
+        reloadApp: deps.reloadApp,
+        platformEncryption,
+        trezorConnect: TrezorConnect,
+        ensureDelegatedIdentityKey,
+        disableLegacyMetadataIfNeeded,
+        analytics,
+    });
 
     return {
-        suiteSync: createSuiteSyncDesktopCompositionRoot({
-            dispatch: deps.dispatch,
-            getState: deps.getState,
-            reloadApp: deps.reloadApp,
-            platformEncryption,
-            trezorConnect: TrezorConnect,
-            ensureDelegatedIdentityKey,
-            disableLegacyMetadataIfNeeded,
-            legacyAnalytics,
-        }),
+        suiteSync,
         platformEncryption,
         legacyAnalytics,
         analytics: createAnalytics(),
@@ -153,6 +157,12 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
         reportSecurityCheck,
         saveAs: (data, fileName) => saveAs(data, fileName),
         connectInitSettings,
+        migrateSuiteSyncLabelsForRbfTransaction:
+            createMigrateSuiteSyncLabelsForRbfTransactionCompositionRoot({
+                dispatch: deps.dispatch,
+                getState: deps.getState,
+                updateOutputLabel: suiteSync.labeling.updateOutputLabel,
+            }),
     };
 };
 

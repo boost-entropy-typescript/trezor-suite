@@ -7,6 +7,7 @@ import {
 import type { AnalyticsSharedEvents } from '@suite-common/analytics-types';
 import { MetadataAddPayload } from '@suite-common/metadata-types';
 import { PlatformEncryptionDep } from '@suite-common/platform-encryption'; // also only types
+import { MigrateSuiteSyncLabelsForRbfTransactionDep } from '@suite-common/suite-rbf-labels-migrations-types';
 import { SuiteSyncDep } from '@suite-common/suite-sync-types';
 import {
     ReportSecurityCheckDep,
@@ -41,7 +42,8 @@ export type CommonServices = SuiteSyncDep &
         legacyAnalytics: Analytics<any>;
         saveAs: (data: Blob, fileName: string) => void;
         connectInitSettings: ConnectInitSettings;
-    } & ReportSecurityCheckDep;
+    } & ReportSecurityCheckDep &
+    MigrateSuiteSyncLabelsForRbfTransactionDep;
 
 export type ExtraDependenciesStatic = {
     /** @deprecated Do not add any thunks here, this is antipattern. */

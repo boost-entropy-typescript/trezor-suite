@@ -1,0 +1,19 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "libDev",
+        "exactOptionalPropertyTypes": true
+    },
+    "references": [
+        { "path": "../dependency-injection" },
+        {
+            "path": "../suite-rbf-labels-migrations-types"
+        },
+        { "path": "../suite-sync" },
+        { "path": "../suite-sync-types" },
+        { "path": "../wallet-types" },
+        { "path": "../wallet-utils" },
+        { "path": "../../packages/connect" },
+        { "path": "../../packages/utils" }
+    ]
+}

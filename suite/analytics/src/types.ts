@@ -73,7 +73,10 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: AppUpdateEvent;
       }
     | {
-          type: EventType.DashboardSendModal;
+          type: EventType.DashboardActions;
+          payload: {
+              type: string;
+          };
       }
     | {
           type: EventType.DashboardSendModalOptions;
@@ -81,9 +84,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
               option: 'account' | 'close';
               filledSearch: boolean;
           };
-      }
-    | {
-          type: EventType.DashboardReceiveModal;
       }
     | {
           type: EventType.DashboardReceiveModalOptions;
@@ -219,7 +219,7 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.TradingNavigate;
           payload: {
               action: 'navigate' | 'cancel';
-              type: 'exchange' | 'buy' | 'sell' | 'buy/sell' | 'dca';
+              type: 'exchange' | 'buy' | 'sell' | 'buy/sell';
               from:
                   | 'dashboard/header'
                   | 'dashboard/assets'
@@ -228,7 +228,7 @@ export type SuiteDesktopLegacyAnalyticsEvents =
                   | 'account/tokens'
                   | 'account/tradebox'
                   | 'account/empty'
-                  | 'buy/sell/dca-form';
+                  | 'buy/sell';
               networkSymbol?: string;
               contractAddress?: string;
           };
@@ -424,9 +424,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.MenuGuide;
-      }
-    | {
           type: EventType.GuideHeaderNavigation;
           payload: {
               type: 'back' | 'close' | 'category';
@@ -544,12 +541,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.SettingsGeneralLabeling;
-          payload: {
-              value: string;
-          };
-      }
-    | {
           type: EventType.SettingsGeneralAutoEject;
           payload: {
               value: boolean;
@@ -559,21 +550,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.SettingsGeneralBioAuth;
           payload: {
               value: boolean;
-          };
-      }
-    | {
-          type: EventType.SettingsGeneralLabelingProvider;
-          payload: {
-              provider:
-                  | 'dropbox'
-                  | 'google'
-                  | 'fileSystem'
-                  | 'missing-provider'
-                  | 'inMemoryTest'
-                  | 'closed'
-                  | 'evolu'
-                  | 'legacy'
-                  | ''; // Todo: 'sdCard' not implemented yet
           };
       }
     | {
@@ -619,19 +595,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.SelectWalletType;
           payload: {
               type: 'hidden' | 'standard';
-          };
-      }
-    | { type: EventType.GetDesktopApp }
-    | {
-          type: EventType.GetMobileApp;
-          payload: {
-              platform: 'ios' | 'android';
-          };
-      }
-    | {
-          type: EventType.ReferralButton;
-          payload: {
-              hasAtLeastOneRememberedWallet: boolean;
           };
       }
     | {

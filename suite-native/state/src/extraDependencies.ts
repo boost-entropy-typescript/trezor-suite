@@ -12,6 +12,7 @@ import {
     notImplementedSelector,
     notImplementedThunk,
 } from '@suite-common/redux-utils';
+import { createMigrateSuiteSyncLabelsForRbfTransactionCompositionRoot } from '@suite-common/suite-rbf-labels-migrations';
 import { selectIsSuiteSyncEnabled } from '@suite-common/suite-sync';
 import { Route } from '@suite-common/suite-types';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
@@ -61,14 +62,16 @@ export const createNativeCompositionRoot = (deps: NativeAppDeps): NativeServices
         trezorConnect: TrezorConnect,
     });
 
+    const suiteSync = createSuiteSyncNativeCompositionRoot({
+        dispatch: deps.dispatch,
+        getState: deps.getState,
+        platformEncryption,
+        trezorConnect: TrezorConnect,
+        ensureDelegatedIdentityKey,
+    });
+
     return {
-        suiteSync: createSuiteSyncNativeCompositionRoot({
-            dispatch: deps.dispatch,
-            getState: deps.getState,
-            platformEncryption,
-            trezorConnect: TrezorConnect,
-            ensureDelegatedIdentityKey,
-        }),
+        suiteSync,
         platformEncryption,
         getMMKVStorage: () => deps.mmkvStorage.getMMKV(),
         legacyAnalytics: createLegacyAnalytics(),
@@ -89,6 +92,12 @@ export const createNativeCompositionRoot = (deps: NativeAppDeps): NativeServices
                 appUrl: '@trezor/suite',
             },
         },
+        migrateSuiteSyncLabelsForRbfTransaction:
+            createMigrateSuiteSyncLabelsForRbfTransactionCompositionRoot({
+                dispatch: deps.dispatch,
+                getState: deps.getState,
+                updateOutputLabel: suiteSync.labeling.updateOutputLabel,
+            }),
     };
 };
 
