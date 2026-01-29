@@ -1,3 +1,5 @@
+import { mocked } from 'jest-mock';
+
 import { asDelegatedIdentityKey, asSuiteSyncOwnerId } from '@suite-common/suite-types';
 import { WalletDescriptor, asWalletDescriptor } from '@suite-common/wallet-types';
 import { err, ok } from '@trezor/type-utils';
@@ -35,15 +37,9 @@ const delegatedKey = asDelegatedIdentityKey(
 const ownerId = asSuiteSyncOwnerId('owner-id');
 const walletDescriptor: WalletDescriptor = asWalletDescriptor('descriptor');
 
-const prepareChallengeSessionMock = prepareChallengeSession as jest.MockedFunction<
-    typeof prepareChallengeSession
->;
-const checkStorageByOwnerIdMock = checkStorageByOwnerId as jest.MockedFunction<
-    typeof checkStorageByOwnerId
->;
-const transferStorageThunkMock = transferStorageThunk as jest.MockedFunction<
-    typeof transferStorageThunk
->;
+const prepareChallengeSessionMock = mocked(prepareChallengeSession);
+const checkStorageByOwnerIdMock = mocked(checkStorageByOwnerId);
+const transferStorageThunkMock = mocked(transferStorageThunk);
 
 describe(ensureOwnerHasAllocatedQuotaThunk.name, () => {
     beforeEach(() => {
@@ -146,7 +142,7 @@ describe(ensureOwnerHasAllocatedQuotaThunk.name, () => {
                 ownerId,
                 publicKey:
                     '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
-                proof: '106fb51f7945d6bd6fac019eb7953f43400746884f1e4f69c3cbfe13ec6539604039baa2c6b5ada1e395957908fe9777991910d4bee05c124161597cef814e3e',
+                proof: '2944ed0b226eb961750433b65639366871cf05a10dfd598a0651a39e18e5ada578f76fda26478316ac93115b1538bbad11044b83a59259efa8c2f9feaba1675b',
                 size: DEFAULT_ACCOUNT_SIZE_QUOTA,
                 challenge: 'aa55',
                 sessionId: 'session-123',

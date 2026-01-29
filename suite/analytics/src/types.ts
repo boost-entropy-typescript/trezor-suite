@@ -145,12 +145,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.SendInitialised;
-          payload: {
-              assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
           type: EventType.SendConfirmerOnDevice;
           payload: {
               assetSymbol: NetworkSymbol;
@@ -165,10 +159,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: Record<string, number>;
       }
     | {
-          type: EventType.AccountsActiveStaking;
-          payload: Record<string, number>;
-      }
-    | {
           type: EventType.AccountsTokensStatus;
           payload: Record<string, number>;
       }
@@ -177,13 +167,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: {
               type: string;
               path: string;
-              symbol: string;
-          };
-      }
-    | {
-          type: EventType.AccountsActions;
-          payload: {
-              action: string;
               symbol: string;
           };
       }
@@ -203,64 +186,10 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.AccountsEmptyAccountReceive;
-          payload: {
-              symbol: string;
-          };
-      }
-    | {
           type: EventType.CoinjoinAnonymityGain;
           payload: {
               networkSymbol: string;
               value: number;
-          };
-      }
-    | {
-          type: EventType.TradingNavigate;
-          payload: {
-              action: 'navigate' | 'cancel';
-              type: 'exchange' | 'buy' | 'sell' | 'buy/sell';
-              from:
-                  | 'dashboard/header'
-                  | 'dashboard/assets'
-                  | 'dashboard/staking-dashboard'
-                  | 'account/header'
-                  | 'account/tokens'
-                  | 'account/tradebox'
-                  | 'account/empty'
-                  | 'buy/sell';
-              networkSymbol?: string;
-              contractAddress?: string;
-          };
-      }
-    | {
-          type: EventType.TradingExchange;
-          payload: {
-              action: 'continue' | 'cancel';
-              step:
-                  | 'exchange-form'
-                  | 'offers-form'
-                  | 'receive-address'
-                  | 'create-approval'
-                  | 'already-approved'
-                  | 'confirm-and-send';
-
-              sendCryptoLabel?: string;
-              sendCryptoNetworkSymbol?: string;
-              sendCryptoContractAddress?: string;
-
-              receiveCryptoLabel?: string;
-              receiveCryptoNetworkSymbol?: string;
-              receiveCryptoContractAddress?: string;
-
-              exchangeName?: string;
-              exchangeType?: string;
-
-              fractionButton?: string;
-              accountType?: string;
-              approvalType?: string;
-              slippage?: string;
-              rateType?: string;
           };
       }
     | {
@@ -315,12 +244,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: {
               type: 'sell';
               status: 'pending' | 'success' | 'error';
-          };
-      }
-    | {
-          type: EventType.TradingConfirmTrade;
-          payload: {
-              action: 'exchange' | 'buy' | 'sell';
           };
       }
     | {
@@ -523,12 +446,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
               value: boolean;
               location: string;
               modal?: string;
-          };
-      }
-    | {
-          type: EventType.SettingsTorOnionLinks;
-          payload: {
-              value: boolean;
           };
       }
     | {
