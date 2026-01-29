@@ -1,16 +1,22 @@
 export {
     selectIsSuiteSyncEnabled,
-    selectIsFeatureSuiteSyncAvailable,
     selectSuiteSyncRelayUrl,
-    selectIsTurnOnSuiteSyncInteractionNeeded,
+    selectSuiteSyncInteraction,
     selectIsSuiteSyncDebugEnabled,
+    selectSuiteSyncError,
 } from './suiteSyncSelectors';
+export type { WithSuiteSyncAndDeviceState, WithSuiteSyncState } from './suiteSyncSelectors';
 export type { SuiteSyncInteraction } from './suiteSyncSelectors';
-export type { WithSuiteSyncAndDeviceState } from './suiteSyncSelectors';
 export { createSuiteSyncCompositionRoot } from './createSuiteSyncCompositionRoot';
-export { suiteSyncReducer, initialSuiteSyncState } from './suiteSyncReducer';
-export type { SuiteSyncState, SuiteSyncSettings } from './suiteSyncReducer';
-export { suiteSyncActions } from './suiteSyncActions';
+export {
+    suiteSyncSlice,
+    suiteSyncReducer,
+    initialSuiteSyncState,
+    updateSuiteSyncDebugEnabled,
+    updateSuiteSyncEnabled,
+    setSuiteSyncRelayUrl,
+} from './suiteSyncSlice';
+export type { SuiteSyncState, SuiteSyncSettings } from './suiteSyncSlice';
 export { DEFAULT_SUITE_SYNC_RELAY_URL } from './relay/relayUrl';
 export { prepareSuiteSyncMiddleware } from './suiteSyncMiddleware';
 export {

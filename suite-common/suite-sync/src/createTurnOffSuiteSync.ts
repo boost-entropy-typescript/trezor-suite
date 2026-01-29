@@ -8,7 +8,7 @@ import {
 import { StaticSessionId } from '@trezor/connect';
 
 import { clearAll } from './data/suiteSyncDataReducer';
-import { suiteSyncActions } from './suiteSyncActions';
+import { updateSuiteSyncEnabled } from './suiteSyncSlice';
 
 export type CreateTurnOffSuiteSyncDeps = {
     getIsSuiteSyncEnabled: () => boolean;
@@ -19,14 +19,14 @@ export type CreateTurnOffSuiteSyncDeps = {
 
 export const createTurnOffSuiteSync =
     (deps: CreateTurnOffSuiteSyncDeps): TurnOffSuiteSync =>
-    async () => {
+    async (params: { ensureSettingsPersisted?: () => Promise<void> } = {}) => {
         const isSuiteSyncEnabled = deps.getIsSuiteSyncEnabled();
 
         if (!isSuiteSyncEnabled) {
             return;
         }
 
-        deps.dispatch(suiteSyncActions.updateSuiteSyncEnabled({ isEnabled: false }));
+        deps.dispatch(updateSuiteSyncEnabled({ isEnabled: false }));
 
         const deviceStaticSessionIds = deps.getAllDeviceSessionIds();
 
@@ -36,6 +36,10 @@ export const createTurnOffSuiteSync =
 
         // NOTE: enforce clearing all data from the suite sync
         deps.dispatch(clearAll());
+        if (params.ensureSettingsPersisted) {
+            await params.ensureSettingsPersisted();
+        }
+
         // NOTE: this is TEMPORARY solution until https://github.com/trezor/trezor-suite/issues/23641 is resolved
         deps.reloadApp();
     };

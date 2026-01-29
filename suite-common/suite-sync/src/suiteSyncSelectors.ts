@@ -1,7 +1,7 @@
 import { DeviceRootState, selectDeviceByStaticSessionId } from '@suite-common/wallet-core';
 import { StaticSessionId } from '@trezor/connect';
 
-import { SuiteSyncState } from './suiteSyncReducer';
+import { SuiteSyncState } from './suiteSyncSlice';
 import { isFwUpgradeNeededForSuiteSync, isSuiteSyncSupportedByDevice } from './suiteSyncUtils';
 
 export type WithSuiteSyncState = {
@@ -16,9 +16,6 @@ export const selectIsSuiteSyncEnabled = (state: WithSuiteSyncAndDeviceState): bo
 export const selectIsSuiteSyncDebugEnabled = (state: WithSuiteSyncAndDeviceState): boolean =>
     state.suiteSync.settings.isSuiteSyncDebugEnabled;
 
-export const selectIsFeatureSuiteSyncAvailable = (state: WithSuiteSyncAndDeviceState): boolean =>
-    state.suiteSync.settings.isFeatureSuiteSyncAvailable;
-
 export const selectSuiteSyncRelayUrl = (state: WithSuiteSyncAndDeviceState) =>
     state.suiteSync.settings.suiteSyncRelayUrl;
 
@@ -28,7 +25,7 @@ export type SuiteSyncInteraction =
     | 'unsupported'
     | 'keys-needed';
 
-export const selectIsTurnOnSuiteSyncInteractionNeeded = (
+export const selectSuiteSyncInteraction = (
     state: WithSuiteSyncAndDeviceState,
     deviceStaticSessionId: StaticSessionId | null,
 ): SuiteSyncInteraction | null => {
@@ -39,10 +36,6 @@ export const selectIsTurnOnSuiteSyncInteractionNeeded = (
     const device = selectDeviceByStaticSessionId(state, deviceStaticSessionId);
 
     if (device === undefined) {
-        return null;
-    }
-
-    if (!selectIsFeatureSuiteSyncAvailable(state)) {
         return null;
     }
 
@@ -64,3 +57,6 @@ export const selectIsTurnOnSuiteSyncInteractionNeeded = (
 
     return null;
 };
+
+export const selectSuiteSyncError = (state: WithSuiteSyncAndDeviceState) =>
+    !!state.suiteSync.suiteSyncError;

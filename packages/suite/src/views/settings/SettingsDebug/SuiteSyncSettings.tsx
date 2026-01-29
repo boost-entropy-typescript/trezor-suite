@@ -2,19 +2,22 @@ import { useState } from 'react';
 
 import {
     DEFAULT_SUITE_SYNC_RELAY_URL,
-    selectIsFeatureSuiteSyncAvailable,
     selectIsSuiteSyncDebugEnabled,
     selectSuiteSyncRelayUrl,
-    suiteSyncActions,
+    updateSuiteSyncDebugEnabled,
 } from '@suite-common/suite-sync';
 import { Button, Checkbox, Code, Column, Input, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
+import * as storageActions from 'src/actions/suite/storageActions';
+import {
+    selectIsFeatureSuiteSyncAvailable,
+    updateIsFeatureSuiteSyncAvailable,
+} from 'src/actions/suiteSync/suiteSyncSlice';
 import { SettingsSection } from 'src/components/settings/SettingsSection';
 import { ActionColumn, SectionItem, TextColumn } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
-
-import { useSuiteServices } from '../../../support/SuiteServicesProvider';
+import { useSuiteServices } from 'src/support/SuiteServicesProvider';
 
 export const SuiteSyncSettings = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -27,13 +30,15 @@ export const SuiteSyncSettings = () => {
 
     const toggleIsFeatureSuiteSyncAvailable = () => {
         dispatch(
-            suiteSyncActions.updateIsFeatureSuiteSyncAvailable({
+            updateIsFeatureSuiteSyncAvailable({
                 isShownInSettings: !isFeatureSuiteSyncAvailable,
             }),
         );
 
         if (isFeatureSuiteSyncAvailable) {
-            suiteSync.turnOffSuiteSync();
+            suiteSync.turnOffSuiteSync({
+                ensureSettingsPersisted: () => dispatch(storageActions.saveSuiteSettings()),
+            });
         }
     };
 
@@ -43,7 +48,7 @@ export const SuiteSyncSettings = () => {
 
     const handleToggleSuiteSyncDebug = () => {
         dispatch(
-            suiteSyncActions.updateSuiteSyncDebugEnabled({
+            updateSuiteSyncDebugEnabled({
                 isEnabled: !isSuiteSyncDebugEnabled,
             }),
         );

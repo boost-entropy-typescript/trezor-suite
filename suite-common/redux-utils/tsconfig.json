@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": { "outDir": "libDev" },
     "references": [
-        { "path": "../analytics-types" },
+        { "path": "../analytics" },
         { "path": "../metadata-types" },
         { "path": "../platform-encryption" },
         {
@@ -12,7 +12,9 @@
         { "path": "../suite-types" },
         { "path": "../wallet-config" },
         { "path": "../wallet-types" },
-        { "path": "../../packages/analytics" },
+        {
+            "path": "../../packages/analytics-uploader"
+        },
         { "path": "../../packages/connect" }
     ]
 }

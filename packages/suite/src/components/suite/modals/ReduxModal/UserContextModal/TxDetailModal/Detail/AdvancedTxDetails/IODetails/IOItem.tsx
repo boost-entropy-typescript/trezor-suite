@@ -41,18 +41,20 @@ export const IOItem = ({
     const isOpReturn = value?.startsWith('OP_RETURN ');
 
     return (
-        <Text as="div" typographyStyle="label">
+        <Text as="div" typographyStyle="hint">
             <Column alignItems="flex-start" overflow="hidden">
                 {!isOpReturn ? (
                     <>
-                        <Link href={explorerLink}>
-                            <Address
-                                value={value ?? ''}
-                                isTruncated
-                                data-testid="@tx-detail/txid-value"
-                                isCopyAllowed={!isPhishingTransaction}
-                            />
-                        </Link>
+                        {value && (
+                            <Link href={explorerLink}>
+                                <Address
+                                    value={value}
+                                    isTruncated
+                                    data-testid="@tx-detail/txid-value"
+                                    isCopyAllowed={!isPhishingTransaction}
+                                />
+                            </Link>
+                        )}
                         <Row gap={8}>
                             {anonymity && <UtxoAnonymity anonymity={anonymity} />}
                             {amount &&
@@ -76,7 +78,7 @@ export const IOItem = ({
                 ) : (
                     <Column>
                         <Text>OP_RETURN</Text>
-                        <Address value={value?.replace(OP_RETURN_REGEX, '$1') ?? ''} isTruncated />
+                        {value?.replace(OP_RETURN_REGEX, '$1') ?? ''}
                     </Column>
                 )}
             </Column>

@@ -6,7 +6,11 @@ import { bluetoothActions } from '@suite-common/bluetooth';
 import { connectPopupActions } from '@suite-common/connect-popup';
 import { firmwareActions } from '@suite-common/firmware';
 import { messageSystemActions } from '@suite-common/message-system';
-import { suiteSyncActions } from '@suite-common/suite-sync';
+import {
+    setSuiteSyncRelayUrl,
+    updateSuiteSyncDebugEnabled,
+    updateSuiteSyncEnabled,
+} from '@suite-common/suite-sync';
 import { suiteSyncQuotaManagerActions } from '@suite-common/suite-sync-quota-manager';
 import { isDeviceRemembered } from '@suite-common/suite-utils';
 import { thpActions } from '@suite-common/thp';
@@ -44,6 +48,8 @@ import * as COINJOIN from 'src/actions/wallet/constants/coinjoinConstants';
 import { db } from 'src/storage';
 import type { AppState, Dispatch, Action as SuiteAction } from 'src/types/suite';
 import type { WalletAction } from 'src/types/wallet';
+
+import { updateIsFeatureSuiteSyncAvailable } from '../../actions/suiteSync/suiteSyncSlice';
 
 const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
     db.onBlocking = () => api.dispatch({ type: STORAGE.ERROR, payload: 'blocking' });
@@ -179,10 +185,10 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
 
             if (
                 isAnyOf(
-                    suiteSyncActions.updateSuiteSyncDebugEnabled,
-                    suiteSyncActions.updateSuiteSyncEnabled,
-                    suiteSyncActions.updateIsFeatureSuiteSyncAvailable,
-                    suiteSyncActions.setSuiteSyncRelayUrl,
+                    updateSuiteSyncDebugEnabled,
+                    updateSuiteSyncEnabled,
+                    updateIsFeatureSuiteSyncAvailable,
+                    setSuiteSyncRelayUrl,
                 )(action)
             ) {
                 api.dispatch(storageActions.saveSuiteSyncSettings());

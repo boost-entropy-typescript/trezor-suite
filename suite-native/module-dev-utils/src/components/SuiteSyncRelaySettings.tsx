@@ -4,7 +4,7 @@ import {
     DEFAULT_SUITE_SYNC_RELAY_URL,
     selectIsSuiteSyncDebugEnabled,
     selectSuiteSyncRelayUrl,
-    suiteSyncActions,
+    updateSuiteSyncDebugEnabled,
 } from '@suite-common/suite-sync';
 import { yup } from '@suite-common/validators';
 import { Button, Card, CheckBox, HStack, Text, VStack } from '@suite-native/atoms';
@@ -40,7 +40,7 @@ export const SuiteSyncRelaySettings = () => {
 
     const handleSuiteSyncDebugToggle = () => {
         dispatch(
-            suiteSyncActions.updateSuiteSyncDebugEnabled({
+            updateSuiteSyncDebugEnabled({
                 isEnabled: !isSuiteSyncDebugEnabled,
             }),
         );

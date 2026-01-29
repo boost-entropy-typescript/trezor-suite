@@ -10,8 +10,8 @@
         "type-check": "yarn g:tsc --build"
     },
     "dependencies": {
+        "@suite-common/analytics": "workspace:*",
         "@suite-common/analytics-redux": "workspace:*",
-        "@suite-common/analytics-types": "workspace:*",
         "@suite-common/redux-utils": "workspace:*",
         "@suite-common/suite-constants": "workspace:*",
         "@suite-common/trading": "workspace:*",
@@ -19,7 +19,7 @@
         "@suite-common/wallet-types": "workspace:*",
         "@suite-native/config": "workspace:*",
         "@suite-native/sentry": "workspace:*",
-        "@trezor/analytics": "workspace:*",
+        "@trezor/analytics-uploader": "workspace:*",
         "@trezor/blockchain-link-types": "workspace:*",
         "@trezor/connect": "workspace:*",
         "@trezor/device-utils": "workspace:*",

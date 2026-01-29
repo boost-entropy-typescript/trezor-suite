@@ -5,9 +5,9 @@ import { deviceReducerInitialState } from '@suite-common/wallet-core';
 import type { UnavailableCapabilities } from '@trezor/connect';
 import { StaticSessionId } from '@trezor/connect';
 
-import { initialSuiteSyncState } from '../suiteSyncReducer';
-import { selectIsTurnOnSuiteSyncInteractionNeeded } from '../suiteSyncSelectors';
+import { selectSuiteSyncInteraction } from '../suiteSyncSelectors';
 import type { WithSuiteSyncAndDeviceState } from '../suiteSyncSelectors';
+import { initialSuiteSyncState } from '../suiteSyncSlice';
 
 const DEVICE_STATIC_SESSION_ID_123: StaticSessionId = '1@2:3';
 
@@ -25,34 +25,12 @@ const createMockState = (
     },
 });
 
-describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
+describe(selectSuiteSyncInteraction.name, () => {
     it('no interaction needed if device is not found', () => {
         const state = createMockState();
         state.device.devices = [];
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
-
-        expect(result).toBeNull();
-    });
-
-    it('no interaction, if suite-sync it not enabled in debug/experimental features', () => {
-        const state = createMockState(
-            {},
-            {
-                settings: {
-                    ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: false,
-                },
-            },
-        );
-
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBeNull();
     });
@@ -63,16 +41,12 @@ describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
             {
                 settings: {
                     ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: true,
                     isSuiteSyncEnabled: false,
                 },
             },
         );
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBe('suite-sync-off');
     });
@@ -84,16 +58,12 @@ describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
             {
                 settings: {
                     ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: true,
                     isSuiteSyncEnabled: true,
                 },
             },
         );
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBe('unsupported');
     });
@@ -105,16 +75,12 @@ describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
             {
                 settings: {
                     ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: true,
                     isSuiteSyncEnabled: true,
                 },
             },
         );
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBe('firmware-upgrade-needed');
     });
@@ -125,16 +91,12 @@ describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
             {
                 settings: {
                     ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: true,
                     isSuiteSyncEnabled: true,
                 },
             },
         );
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBe('keys-needed');
     });
@@ -145,16 +107,12 @@ describe(selectIsTurnOnSuiteSyncInteractionNeeded.name, () => {
             {
                 settings: {
                     ...initialSuiteSyncState.settings,
-                    isFeatureSuiteSyncAvailable: true,
                     isSuiteSyncEnabled: true,
                 },
             },
         );
 
-        const result = selectIsTurnOnSuiteSyncInteractionNeeded(
-            state,
-            DEVICE_STATIC_SESSION_ID_123,
-        );
+        const result = selectSuiteSyncInteraction(state, DEVICE_STATIC_SESSION_ID_123);
 
         expect(result).toBeNull();
     });
