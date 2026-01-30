@@ -226,17 +226,17 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                     )
                     .reduce(accumulateAccountCountBySymbolAndType, {});
 
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.AccountsStatus,
                     payload: accountsWithTransactions,
                 });
 
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.AccountsNonZeroBalance,
                     payload: accountsWithNonZeroBalance,
                 });
 
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.AccountsTokensStatus,
                     payload: accountsWithTokens,
                 });
@@ -291,7 +291,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 );
 
                 if (coinjoinAccount && anonymityGainToReport !== null) {
-                    getTypedDesktopLegacyAnalytics(legacyAnalytics).report(
+                    getTypedDesktopAnalytics(analytics).report(
                         {
                             type: EventType.CoinjoinAnonymityGain,
                             payload: {
@@ -335,7 +335,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 break;
 
             case WALLET_SETTINGS.SET_BITCOIN_AMOUNT_UNITS:
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.SettingsGeneralChangeBitcoinUnit,
                     payload: {
                         unit: UNIT_ABBREVIATIONS[action.payload],

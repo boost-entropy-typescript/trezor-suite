@@ -1,5 +1,4 @@
 import { MetadataProviderType } from '@suite-common/metadata-types';
-import { NetworkSymbol } from '@suite-common/wallet-config';
 
 import { EventType } from './constants';
 import type { AppUpdateEvent, FirmwareSource, OnboardingAnalytics } from './definitions';
@@ -41,26 +40,6 @@ export type SuiteAnalyticsEventSuiteReady = {
         experimentVariants: string[];
         mevProtection: boolean;
         networkReserve: boolean;
-    };
-};
-
-/** @deprecated */
-export type TransactionCreatedEvent = {
-    type: EventType.TransactionCreated;
-    payload: {
-        action: 'sent' | 'copied' | 'downloaded' | 'replaced' | 'canceled';
-        symbol: string;
-        tokens: string;
-        outputsCount: number;
-        broadcast: boolean;
-        bitcoinLocktime: boolean;
-        transactionData: boolean;
-        ethereumNonce: boolean;
-        destinationTag: boolean;
-        selectedFee: string;
-        isCoinControlEnabled: boolean;
-        hasCoinControlBeenOpened: boolean;
-        txType?: 'trade' | 'stake';
     };
 };
 
@@ -145,24 +124,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.SendConfirmerOnDevice;
-          payload: {
-              assetSymbol: NetworkSymbol;
-          };
-      }
-    | {
-          type: EventType.AccountsStatus;
-          payload: Record<string, number>;
-      }
-    | {
-          type: EventType.AccountsNonZeroBalance;
-          payload: Record<string, number>;
-      }
-    | {
-          type: EventType.AccountsTokensStatus;
-          payload: Record<string, number>;
-      }
-    | {
           type: EventType.AccountsNewAccount;
           payload: {
               type: string;
@@ -186,67 +147,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.CoinjoinAnonymityGain;
-          payload: {
-              networkSymbol: string;
-              value: number;
-          };
-      }
-    | {
-          type: EventType.TradingBuy;
-          payload: {
-              action: 'continue' | 'cancel';
-              step: 'buy-form' | 'offers-form';
-
-              cryptoLabel?: string;
-              cryptoNetworkSymbol?: string;
-              cryptoContractAddress?: string;
-
-              paymentMethod?: string;
-              countryOfResidence?: string;
-
-              exchangeName?: string;
-          };
-      }
-    | {
-          type: EventType.TradingSell;
-          payload: {
-              action: 'continue' | 'cancel';
-              step: 'sell-form' | 'offers-form' | 'confirm-and-send-transaction';
-
-              cryptoLabel?: string;
-              cryptoNetworkSymbol?: string;
-              cryptoContractAddress?: string;
-
-              receiveMethod?: string;
-              countryOfResidence?: string;
-
-              exchangeName?: string;
-              fractionButton?: string;
-          };
-      }
-    | {
-          type: EventType.TradingStatus;
-          payload: {
-              type: 'exchange';
-              status: 'converting' | 'sending' | 'success' | 'kyc' | 'error';
-          };
-      }
-    | {
-          type: EventType.TradingStatus;
-          payload: {
-              type: 'buy';
-              status: 'waiting' | 'processing' | 'success' | 'error';
-          };
-      }
-    | {
-          type: EventType.TradingStatus;
-          payload: {
-              type: 'sell';
-              status: 'pending' | 'success' | 'error';
-          };
-      }
-    | {
           type: EventType.TradingCompareOffers;
           payload: {
               type: 'exchange' | 'buy' | 'sell';
@@ -260,30 +160,9 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.TransactionCancel;
-          payload: {
-              txType?: 'trade' | 'stake';
-              networkSymbol: string;
-          };
-      }
-    | {
-          type: EventType.AccountsTransactionsExport;
-          payload: {
-              symbol: string;
-              format: 'pdf' | 'csv' | 'json';
-          };
-      }
-    | TransactionCreatedEvent
-    | {
           type: EventType.SendRawTransaction;
           payload: {
               networkSymbol: string;
-          };
-      }
-    | {
-          type: EventType.MenuNotificationsToggle;
-          payload: {
-              value: boolean;
           };
       }
     | {
@@ -329,11 +208,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           payload: {
               action: 'disable-autoconnect' | 'enable-autoconnect';
           };
-      }
-    | {
-          type: EventType.SettingsDeviceCheckSeed;
-          status: 'finished' | 'error';
-          error?: string;
       }
     | {
           type: EventType.SettingsDeviceUpdateAutoLock;
@@ -398,12 +272,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.SettingsGeneralChangeBitcoinUnit;
-          payload: {
-              unit: string;
-          };
-      }
-    | {
           type: EventType.SettingsGeneralEarlyAccess;
           payload: {
               allowPrerelease: boolean;
@@ -458,12 +326,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.SelectWalletType;
           payload: {
               type: 'hidden' | 'standard';
-          };
-      }
-    | {
-          type: EventType.SettingsMultiShareBackup;
-          payload: {
-              action: 'start' | 'done' | 'learn-more' | 'close-modal';
           };
       }
     | {

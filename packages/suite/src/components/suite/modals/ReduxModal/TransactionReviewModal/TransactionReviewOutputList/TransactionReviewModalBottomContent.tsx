@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { EventType, TransactionCreatedEvent } from '@suite/analytics';
+import { EventType, type TransactionCreatedEventAction } from '@suite/analytics';
 import { ExtendedMessageDescriptor, Translation } from '@suite/intl';
 import { selectConnectPopupCall } from '@suite-common/connect-popup';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -12,14 +12,14 @@ import { Modal } from '@trezor/components';
 import { copyToClipboard, download } from '@trezor/dom-utils';
 import { Deferred } from '@trezor/utils';
 
-import { useAnalytics, useLegacyAnalytics } from 'src/support/useAnalytics';
+import { useAnalytics } from 'src/support/useAnalytics';
 
 import { getTxType } from '../utils';
 
-const mapRbfTypeToReporting: Record<
-    RbfTransactionType,
-    TransactionCreatedEvent['payload']['action']
-> = { 'bump-fee': 'replaced', cancel: 'canceled' };
+const mapRbfTypeToReporting: Record<RbfTransactionType, TransactionCreatedEventAction> = {
+    'bump-fee': 'replaced',
+    cancel: 'canceled',
+};
 
 type TransactionReviewModalBottomContentProps = {
     decision: Deferred<boolean, string | number | undefined> | undefined;
@@ -54,7 +54,6 @@ export const TransactionReviewModalBottomContent = ({
     precomposedForm,
     outputs,
 }: TransactionReviewModalBottomContentProps) => {
-    const legacyAnalytics = useLegacyAnalytics();
     const analytics = useAnalytics();
     const dispatch = useDispatch();
     const connectPopupCall = useSelector(selectConnectPopupCall);
@@ -71,8 +70,8 @@ export const TransactionReviewModalBottomContent = ({
     const createdTxTimestamp = txInfoState?.precomposedTx?.createdTimestamp ?? 0;
     const shouldCheckTxTimeValidity = account?.networkType === 'solana' && createdTxTimestamp !== 0;
 
-    const reportTransactionCreatedEvent = (action: TransactionCreatedEvent['payload']['action']) =>
-        legacyAnalytics.report({
+    const reportTransactionCreatedEvent = (action: TransactionCreatedEventAction) =>
+        analytics.report({
             type: EventType.TransactionCreated,
             payload: {
                 action,
