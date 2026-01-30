@@ -1,56 +1,8 @@
-import { MetadataProviderType } from '@suite-common/metadata-types';
-
 import { EventType } from './constants';
-import type { AppUpdateEvent, FirmwareSource, OnboardingAnalytics } from './definitions';
-
-/** @deprecated */
-export type SuiteAnalyticsEventSuiteReady = {
-    type: EventType.SuiteReady;
-    payload: {
-        language: string;
-        enabledNetworks: string[];
-        customBackends: string[];
-        localCurrency: string;
-        bitcoinUnit: string;
-        discreetMode: boolean;
-        screenWidth: number;
-        screenHeight: number;
-        tor: boolean;
-        labeling: MetadataProviderType | 'missing-provider' | 'suite-sync' | 'off';
-        rememberedStandardWallets: number;
-        rememberedHiddenWallets: number;
-        theme: string;
-        suiteVersion: string;
-        earlyAccessProgram: boolean;
-        experimentalFeatures?: string[];
-        browserName: string;
-        browserVersion: string;
-        osName: string;
-        osVersion: string;
-        osCpuArch: string;
-        windowWidth: number;
-        windowHeight: number;
-        platformLanguages: string;
-        autodetectLanguage: boolean;
-        autodetectTheme: boolean;
-        desktopOsVersion?: string;
-        desktopOsName?: string;
-        desktopOsArchitecture?: string;
-        isAutomaticUpdateEnabled: boolean;
-        experimentVariants: string[];
-        mevProtection: boolean;
-        networkReserve: boolean;
-    };
-};
 
 /** @deprecated use `AnalyticsDesktopEvents` */
 export type SuiteDesktopLegacyAnalyticsEvents =
-    | SuiteAnalyticsEventSuiteReady
     | { type: EventType.TransportType; payload: { type: string; version: string } }
-    | {
-          type: EventType.AppUpdate;
-          payload: AppUpdateEvent;
-      }
     | {
           type: EventType.DashboardActions;
           payload: {
@@ -72,56 +24,7 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           };
       }
     | {
-          type: EventType.DeviceConnect;
-          payload: {
-              mode: 'normal' | 'bootloader' | 'initialize' | 'seedless';
-              firmware: string;
-              firmwareSource: FirmwareSource;
-              bootloader?: string;
-              pin_protection?: boolean | null;
-              passphrase_protection?: boolean | null;
-              totalInstances?: number | null;
-              backup_type?: string;
-              isBitcoinOnly?: boolean;
-              isBitcoinOnlyDevice?: boolean;
-              totalDevices?: number;
-              language?: string | null;
-              model?: string;
-              firmwareRevision?: string;
-              bootloaderHash?: string;
-              optiga_sec?: number;
-              connectionType?: 'cable' | 'bluetooth';
-          };
-      }
-    | {
           type: EventType.DeviceDisconnect;
-      }
-    | {
-          type: EventType.DeviceUpdateFirmware;
-          payload: {
-              model: string;
-              fromBlVersion: string;
-              fromFwVersion: string;
-              toFwVersion?: string;
-              toBtcOnly?: boolean;
-              firmwareSource: FirmwareSource;
-              error: string;
-          };
-      }
-    | {
-          type: EventType.DeviceSetupCompleted;
-          payload: Partial<Omit<OnboardingAnalytics, 'startTime'>> & {
-              duration: number;
-              device: string;
-              unitPackaging: number;
-          };
-      }
-    | {
-          type: EventType.CreateBackup;
-          payload: {
-              status: 'finished' | 'error';
-              error: string;
-          };
       }
     | {
           type: EventType.AccountsNewAccount;
@@ -299,21 +202,6 @@ export type SuiteDesktopLegacyAnalyticsEvents =
           type: EventType.SettingsGeneralNetworkReserve;
           payload: {
               value: boolean;
-          };
-      }
-    | {
-          type: EventType.SettingsCoins;
-          payload: {
-              symbol: string;
-              value: boolean;
-          };
-      }
-    | {
-          type: EventType.SettingsTor;
-          payload: {
-              value: boolean;
-              location: string;
-              modal?: string;
           };
       }
     | {

@@ -1,11 +1,11 @@
 import { Page } from '@playwright/test';
 
-import { EventType, SuiteDesktopLegacyAnalyticsEvents } from '@suite/analytics';
+import { EventType } from '@suite/analytics';
 import { urlSearchParams } from '@trezor/suite/src//utils/suite/metadata';
 
 import { step } from './common';
 import { expect } from './testExtends/customMatchers';
-import { EventPayload, Requests } from './types';
+import { EventPayload, Requests, SuiteDesktopAnalyticsEventsForE2e } from './types';
 
 export class AnalyticsFixture {
     private page: Page;
@@ -16,7 +16,11 @@ export class AnalyticsFixture {
         this.page = page;
     }
 
-    findAnalyticsEventByType<T extends SuiteDesktopLegacyAnalyticsEvents>(eventType: T['type']) {
+    /**
+     * Finds analytics event by type. Works for both legacy events and events
+     * migrated from legacyAnalytics (e.g. DeviceConnect, TransportType when migrated).
+     */
+    findAnalyticsEventByType<T extends SuiteDesktopAnalyticsEventsForE2e>(eventType: T['type']) {
         const event = this.requests.find(req => req.c_type === eventType) as EventPayload<T>;
 
         if (!event) {
@@ -26,8 +30,8 @@ export class AnalyticsFixture {
         return event;
     }
 
-    // @deprecated use findLatestRequestByType
-    findLatestRequestByLegacyType(eventType: SuiteDesktopLegacyAnalyticsEvents['type']) {
+    // @deprecated use findLatestRequestByType for migrated events, or findAnalyticsEventByType where payload is needed
+    findLatestRequestByLegacyType(eventType: SuiteDesktopAnalyticsEventsForE2e['type']) {
         return [...this.requests].reverse().find(req => req.c_type === eventType);
     }
 

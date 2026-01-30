@@ -73,7 +73,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
             const { device, toBtcOnly, toFwVersion, error = '' } = action.payload ?? {};
 
             if (device?.features) {
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.DeviceUpdateFirmware,
                     payload: {
                         model: device.features.internal_model,
@@ -108,7 +108,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
 
             case SUITE.READY:
                 getSuiteReadyPayload(state).then(payload => {
-                    getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                    getTypedDesktopAnalytics(analytics).report({
                         type: EventType.SuiteReady,
                         payload,
                     });
@@ -132,7 +132,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 if (!features || !mode) return result;
 
                 if (!isDeviceInBootloaderMode(device)) {
-                    getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                    getTypedDesktopAnalytics(analytics).report({
                         type: EventType.DeviceConnect,
                         payload: {
                             mode,
@@ -156,7 +156,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                         },
                     });
                 } else {
-                    getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                    getTypedDesktopAnalytics(analytics).report({
                         type: EventType.DeviceConnect,
                         payload: {
                             mode: 'bootloader',
@@ -325,7 +325,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 break;
 
             case WALLET_SETTINGS.CHANGE_COIN_VISIBILITY:
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.SettingsCoins,
                     payload: {
                         symbol: action.payload.symbol,
