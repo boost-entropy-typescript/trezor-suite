@@ -42,20 +42,20 @@ export const Labeling = () => {
 
     const legacyMetadataState = useSelector(state => state.metadata);
 
-    const legacyEnableIfNeeded = () => {
-        if (!legacyMetadataState.enabled) {
-            suiteSync.turnOffSuiteSync(); // Enabling Legacy Labeling implicitly disables Evolu
-            dispatch(metadataLabelingActions.init(true));
-        }
-    };
-
     const translatedOptions: LabelingOption<string>[] = LABELING_SELECT_OPTIONS.map(option => ({
         ...option,
         label:
             !showSuiteSync && option.value === 'legacy'
                 ? translationString(LABELING_LEGACY_OPTION_LABEL)
                 : translationString(option.label),
-    }));
+    })).filter(option => option.value !== 'suite-sync' || showSuiteSync);
+
+    const handleLegacyOptionSelect = async () => {
+        await suiteSync.turnOffSuiteSync();
+        if (legacyMetadataState.enabled === false) {
+            dispatch(metadataLabelingActions.init(true));
+        }
+    };
 
     const handleOnChange = async (selected: LabelingOptionTranslated) => {
         const { value } = selected;
@@ -83,8 +83,7 @@ export const Labeling = () => {
             }
 
             case 'legacy':
-                await suiteSync.turnOffSuiteSync();
-                legacyEnableIfNeeded();
+                await handleLegacyOptionSelect();
                 break;
 
             default:
@@ -129,9 +128,8 @@ export const Labeling = () => {
             {legacyModalWarningVisible && (
                 <LabelingSwitchToLegacyModal
                     onClose={() => setLegacyModalWarningVisible(false)}
-                    onSwitch={() => {
-                        suiteSync.turnOffSuiteSync();
-                        legacyEnableIfNeeded();
+                    onSwitch={async () => {
+                        await handleLegacyOptionSelect();
                         setLegacyModalWarningVisible(false);
                     }}
                 />
