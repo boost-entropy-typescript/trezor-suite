@@ -1,10 +1,6 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 
-import {
-    EventType,
-    getTypedDesktopAnalytics,
-    getTypedDesktopLegacyAnalytics,
-} from '@suite/analytics';
+import { EventType, getTypedDesktopAnalytics } from '@suite/analytics';
 import { EventType as EventTypeShared } from '@suite-common/analytics';
 import { firmwareUpdate } from '@suite-common/firmware';
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
@@ -98,7 +94,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 break;
 
             case deviceActions.addAuthorizedDevice.type:
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.SelectWalletType,
                     payload: {
                         type: action.payload.device.walletNumber ? 'hidden' : 'standard',
@@ -116,7 +112,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 break;
 
             case TRANSPORT.START:
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.TransportType,
                     payload: {
                         type: action.payload.type,
@@ -170,7 +166,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
             }
 
             case DEVICE.DISCONNECT:
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.DeviceDisconnect,
                 });
                 break;
@@ -318,7 +314,7 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                 if (!state.suite.flags.discreetModeCompleted) {
                     dispatch(setFlag('discreetModeCompleted', true));
                 }
-                getTypedDesktopLegacyAnalytics(legacyAnalytics).report({
+                getTypedDesktopAnalytics(analytics).report({
                     type: EventType.MenuToggleDiscreet,
                     payload: { value: action.toggled },
                 });

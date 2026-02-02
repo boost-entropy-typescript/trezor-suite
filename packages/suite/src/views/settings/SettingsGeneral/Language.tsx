@@ -14,7 +14,7 @@ import { ActionColumn, ActionSelect, TextColumn } from 'src/components/suite';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { selectLanguage } from 'src/selectors/suite/suiteSelectors';
-import { useLegacyAnalytics } from 'src/support/useAnalytics';
+import { useAnalytics } from 'src/support/useAnalytics';
 import { getOsLocale } from 'src/utils/suite/l10n';
 
 const onlyOfficial = (locale: [string, LocaleInfo]): locale is [Locale, LocaleInfo] =>
@@ -62,7 +62,7 @@ const useLanguageOptions = () => {
 };
 
 export const Language = () => {
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const language = useSelector(selectLanguage);
     const autodetectLanguage = useSelector(state => state.suite.settings.autodetect.language);
     const dispatch = useDispatch();
@@ -78,7 +78,7 @@ export const Language = () => {
           };
 
     const onChange = ({ value }: { value: Locale | 'system' }) => {
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.SettingsGeneralChangeLanguage,
             payload: {
                 platformLanguages: getPlatformLanguages().join(','),

@@ -1,4 +1,3 @@
-import { AnyAction } from '@suite-common/redux-utils';
 import { AcquiredDevice, TrezorDevice } from '@suite-common/suite-types';
 import {
     DEVICE,
@@ -12,7 +11,7 @@ import {
 import { DeviceModelInternal, getNarrowedDeviceModelInternal } from '@trezor/device-utils';
 import { exhaustive } from '@trezor/type-utils';
 import * as URLS from '@trezor/urls';
-import { isArrayMember } from '@trezor/utils';
+import { hasProp, isArrayMember } from '@trezor/utils';
 
 export const deviceStatuses = [
     'acquired',
@@ -490,8 +489,13 @@ export const isDeviceWithButtonOnlyNoTouchscreen = (deviceModel: DeviceModelInte
     return map[deviceModel];
 };
 
-export const isAnyDeviceEventAction = (action: AnyAction): action is DeviceEvent =>
-    isArrayMember(action.type, Object.values(DEVICE));
+export const isAnyDeviceEventAction = (action: unknown): action is DeviceEvent => {
+    if (!hasProp(action, 'type') || typeof action.type !== 'string') {
+        return false;
+    }
+
+    return isArrayMember(action.type, Object.values(DEVICE));
+};
 
 export const getDeviceInternalModel = (
     device?: Pick<Device, 'features' | 'thp'> | undefined,

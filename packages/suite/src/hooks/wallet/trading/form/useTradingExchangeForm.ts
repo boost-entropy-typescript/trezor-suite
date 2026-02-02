@@ -6,6 +6,7 @@ import type { DexApprovalType, ExchangeTrade, FiatCurrencyCode } from 'invity-ap
 
 import { EventType } from '@suite/analytics';
 import { useTranslation } from '@suite/intl';
+import { Feature, selectIsFeatureEnabled } from '@suite-common/message-system';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     TRADING_EXCHANGE_FORM,
@@ -61,7 +62,7 @@ import { useTradingFormActions } from 'src/hooks/wallet/trading/form/common/useT
 import { useTradingExchangeFormDefaultValues } from 'src/hooks/wallet/trading/form/useTradingExchangeFormDefaultValues';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { useTradingNavigation } from 'src/hooks/wallet/useTradingNavigation';
-import { selectIsDebugModeActive } from 'src/selectors/suite/suiteSelectors';
+import { selectHasExperimentalFeature } from 'src/selectors/suite/suiteSelectors';
 import { useAnalytics, useLegacyAnalytics } from 'src/support/useAnalytics';
 import { Dispatch } from 'src/types/suite';
 import { UseTradingFormCommonProps } from 'src/types/trading/trading';
@@ -126,9 +127,17 @@ export const useTradingExchangeForm = ({
         navigateToExchangeConfirm,
     } = useTradingNavigation(account);
 
-    const isDebug = useSelector(selectIsDebugModeActive);
+    // we consider this feature enabled unless disabled by message system
+    const isSlip24FeatureEnabled = useSelector(state =>
+        selectIsFeatureEnabled(state, Feature.trading.slip24, true),
+    );
+    const isSlip24ExperimentalFeatureEnabled = useSelector(selectHasExperimentalFeature('slip24'));
     const isSlip24Active = useSelector(state =>
-        selectTradingIsSlip24Allowed(state, account, isDebug),
+        selectTradingIsSlip24Allowed(
+            state,
+            account,
+            isSlip24FeatureEnabled && isSlip24ExperimentalFeatureEnabled,
+        ),
     );
 
     const { symbol } = account;

@@ -1,5 +1,6 @@
 import { messageSystemInitialState } from '@suite-common/message-system';
-import type { StoredAuthenticateDeviceResult, TrezorDevice } from '@suite-common/suite-types';
+import { StoredAuthenticateDeviceResult, TrezorDevice } from '@suite-common/suite-types';
+import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { configureMockStore, testMocks } from '@suite-common/test-utils';
 import { ToastPayload, notificationsActions } from '@suite-common/toast-notifications';
 import { deviceActions } from '@suite-common/wallet-core';
@@ -25,7 +26,7 @@ const initStore = (device?: TrezorDevice) =>
     });
 
 const getDevice = (isLocked: boolean) => ({
-    ...testMocks.getSuiteDevice(undefined, { bootloader_locked: isLocked }),
+    ...mockSuiteDevice(undefined, { bootloader_locked: isLocked }),
 });
 
 const connectCallFailResponse: Unsuccessful = {

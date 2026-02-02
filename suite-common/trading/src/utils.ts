@@ -108,10 +108,10 @@ export const cryptoIdToNetworkAndContractAddress = (
     return { network, contractAddress };
 };
 
-export const cryptoIdToNetwork = (cryptoId: CryptoId): Network | undefined =>
+export const cryptoIdToNetwork = (cryptoId: CryptoId | undefined): Network | undefined =>
     cryptoIdToNetworkAndContractAddress(cryptoId)?.network;
 
-export const cryptoIdToSymbol = (cryptoId: CryptoId): NetworkSymbol | undefined =>
+export const cryptoIdToSymbol = (cryptoId: CryptoId | undefined): NetworkSymbol | undefined =>
     cryptoIdToNetwork(cryptoId)?.symbol;
 
 export const cryptoIdToNetworkSymbolAndContractAddress = (cryptoId: CryptoId | undefined) => {
@@ -368,9 +368,9 @@ export const getTradingFormState = ({
             }
 
             return {
-                isSlip24Active,
                 activeSection,
                 recipientName: provider.companyName,
+                isSlip24Active: isSlip24Active && !!receiveAccountKey,
                 send: {
                     cryptoId: trade.cryptoCurrency,
                     accountKey: sendAccountKey,
@@ -410,7 +410,7 @@ export const getTradingFormState = ({
             return {
                 activeSection,
                 recipientName: provider.companyName,
-                isSlip24Active,
+                isSlip24Active: isSlip24Active && !!receiveAccountKey,
                 send: {
                     cryptoId: trade.send,
                     accountKey: sendAccountKey,

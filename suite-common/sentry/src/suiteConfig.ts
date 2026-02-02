@@ -4,8 +4,8 @@ import { isDevEnv } from '@suite-common/suite-utils';
 import { isCodesignBuild } from '@trezor/env-utils';
 import { redactUserPathFromString } from '@trezor/utils';
 
-import { coinjoinNetworkTag, coinjoinReportTag } from './constants';
-import { ignoreErrors } from './ignoreErrors';
+import { COINJOIN_NETWORK_TAG, COINJOIN_REPORT_TAG } from './constants';
+import { ignoreErrorsSuite } from './ignoreErrors';
 import { redactSentryEvent } from './redactSentryEvent';
 
 /**
@@ -38,7 +38,7 @@ const redactUserPath = (event: ErrorEvent): ErrorEvent => {
 
 // Leaves only what is really necessary on a coinjoin error event
 const redactCoinjoinData = (event: ErrorEvent): ErrorEvent => {
-    if (event.tags?.[coinjoinReportTag]) {
+    if (event.tags?.[COINJOIN_REPORT_TAG]) {
         return {
             type: event.type,
             message: event.message,
@@ -46,7 +46,7 @@ const redactCoinjoinData = (event: ErrorEvent): ErrorEvent => {
             level: event.level,
             tags: {
                 coinjoinReport: true,
-                coinjoinNetworkTag: event.tags?.[coinjoinNetworkTag],
+                coinjoinNetworkTag: event.tags?.[COINJOIN_NETWORK_TAG],
             },
         };
     }
@@ -84,7 +84,7 @@ export const SENTRY_CONFIG = {
     normalizeDepth: 4,
     maxBreadcrumbs: 40,
     beforeBreadcrumb,
-    ignoreErrors,
+    ignoreErrors: ignoreErrorsSuite,
     initialScope: {
         tags: {
             version: process.env.VERSION || 'undefined',

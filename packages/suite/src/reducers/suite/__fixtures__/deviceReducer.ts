@@ -1,5 +1,5 @@
 import { TrezorDevice } from '@suite-common/suite-types';
-import { testMocks } from '@suite-common/test-utils';
+import { mockConnectDevice, mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import {
     DeviceReducerState,
     deviceActions,
@@ -8,11 +8,9 @@ import {
 import { DEVICE } from '@trezor/connect';
 import { DeepPartial } from '@trezor/type-utils';
 
-const { getConnectDevice, getSuiteDevice } = testMocks;
-
 // Default devices
-const CONNECT_DEVICE = getConnectDevice();
-const SUITE_DEVICE = getSuiteDevice();
+const CONNECT_DEVICE = mockConnectDevice();
+const SUITE_DEVICE = mockSuiteDevice();
 
 type Fixture<TAction> = {
     description: string;
@@ -32,7 +30,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -51,7 +49,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
             ],
@@ -60,7 +58,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -94,7 +92,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -113,7 +111,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     instance: 1,
                 }),
                 SUITE_DEVICE,
@@ -123,7 +121,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -148,7 +146,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
                 SUITE_DEVICE,
@@ -158,7 +156,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -186,7 +184,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     type: 'unacquired',
                     path: '1',
                 }),
@@ -196,7 +194,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         path: '1',
                     }),
                     isAutoEjectEnabled: false,
@@ -218,7 +216,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT_UNACQUIRED,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         type: 'unacquired',
                         path: '1',
                     }),
@@ -238,7 +236,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     type: 'unacquired',
                     path: '1',
                 }),
@@ -248,7 +246,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT_UNACQUIRED,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         type: 'unacquired',
                         path: '1',
                     }),
@@ -268,7 +266,7 @@ const connect: Fixture<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     type: 'acquired',
                     path: '1',
                     remember: true,
@@ -279,7 +277,7 @@ const connect: Fixture<
             {
                 type: DEVICE.CONNECT_UNACQUIRED,
                 payload: {
-                    device: getConnectDevice({
+                    device: mockConnectDevice({
                         type: 'unacquired',
                         status: 'thp-locked',
                         path: '1',
@@ -305,7 +303,7 @@ const disconnect = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     path: '1',
                 }),
             ],
@@ -313,7 +311,7 @@ const disconnect = [
         actions: [
             {
                 type: DEVICE.DISCONNECT,
-                payload: getSuiteDevice({
+                payload: mockSuiteDevice({
                     path: '1',
                 }),
             } satisfies ReturnType<typeof deviceActions.deviceDisconnect>,
@@ -339,7 +337,7 @@ const disconnect = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     path: '1',
                     remember: true,
                     state: '1stTestnet@device_id:0',
@@ -349,7 +347,7 @@ const disconnect = [
         actions: [
             {
                 type: DEVICE.DISCONNECT,
-                payload: getSuiteDevice({
+                payload: mockSuiteDevice({
                     path: '1',
                 }),
             } satisfies ReturnType<typeof deviceActions.deviceDisconnect>,
@@ -370,12 +368,12 @@ const disconnect = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     path: '1',
                     remember: true,
                     state: '1stTestnet@device_id:0',
                 }),
-                getSuiteDevice({
+                mockSuiteDevice({
                     path: '1',
                     remember: true,
                     instance: 1,
@@ -386,7 +384,7 @@ const disconnect = [
         actions: [
             {
                 type: DEVICE.DISCONNECT,
-                payload: getSuiteDevice({
+                payload: mockSuiteDevice({
                     path: '1',
                 }),
             } satisfies ReturnType<typeof deviceActions.deviceDisconnect>,
@@ -413,7 +411,7 @@ const disconnect = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(
+                mockSuiteDevice(
                     {
                         path: '2',
                         connected: true,
@@ -422,7 +420,7 @@ const disconnect = [
                         device_id: 'ignored-device-id',
                     },
                 ),
-                getSuiteDevice({
+                mockSuiteDevice({
                     path: '1',
                 }),
             ],
@@ -430,7 +428,7 @@ const disconnect = [
         actions: [
             {
                 type: DEVICE.DISCONNECT,
-                payload: getSuiteDevice({
+                payload: mockSuiteDevice({
                     path: '1',
                 }),
             } satisfies ReturnType<typeof deviceActions.deviceDisconnect>,
@@ -450,7 +448,7 @@ const disconnect = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     type: 'unacquired',
                     path: '1',
                 }),
@@ -459,7 +457,7 @@ const disconnect = [
         actions: [
             {
                 type: DEVICE.DISCONNECT,
-                payload: getSuiteDevice({
+                payload: mockSuiteDevice({
                     type: 'unacquired',
                     path: '1',
                 }),
@@ -486,7 +484,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(
+                mockSuiteDevice(
                     {
                         path: '1',
                         connected: true,
@@ -500,7 +498,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice(
+                payload: mockConnectDevice(
                     {
                         path: '1',
                         status: 'occupied',
@@ -525,12 +523,12 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     type: 'unacquired',
                     path: '2',
                     status: 'busy',
                 }),
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
             ],
@@ -538,7 +536,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice({
+                payload: mockConnectDevice({
                     type: 'unacquired',
                     path: '2',
                     thp: {
@@ -570,7 +568,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice({
+                payload: mockConnectDevice({
                     type: 'unacquired',
                     path: '1',
                 }),
@@ -583,16 +581,16 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
-                getSuiteDevice({ connected: true }),
+                mockSuiteDevice({ connected: true }),
             ],
         },
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice({
+                payload: mockConnectDevice({
                     status: 'occupied',
                 }),
             },
@@ -621,7 +619,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice(
+                payload: mockConnectDevice(
                     {
                         status: 'occupied',
                     },
@@ -656,7 +654,7 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(
+                mockSuiteDevice(
                     // Reducer doesn't try to merge non-connected devices.
                     // Set `connected` to `true` to overcome that.
                     { connected: true },
@@ -667,14 +665,14 @@ const changed: Fixture<ReturnType<typeof deviceActions.deviceChanged>>[] = [
         actions: [
             {
                 type: DEVICE.CHANGED,
-                payload: getConnectDevice(undefined, {
+                payload: mockConnectDevice(undefined, {
                     unlocked: false,
                     safety_checks: null,
                 }),
             },
         ],
         result: [
-            getSuiteDevice(
+            mockSuiteDevice(
                 // Account for the reducer marking device as available when it's locked (or isn't passphrase protected).
                 { connected: true, available: true },
                 { safety_checks: 'Strict', unlocked: false },
@@ -714,7 +712,7 @@ const selectDevice: Array<
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
                 SUITE_DEVICE,
@@ -744,12 +742,12 @@ const selectDevice: Array<
         description: `Select device instance (2 instances, 1 affected)`,
         initialState: {
             ...deviceReducerInitialState,
-            devices: [SUITE_DEVICE, getSuiteDevice({ instance: 1 })],
+            devices: [SUITE_DEVICE, mockSuiteDevice({ instance: 1 })],
         },
         actions: [
             {
                 type: deviceActions.selectDevice.type,
-                payload: getSuiteDevice({ instance: 1 }),
+                payload: mockSuiteDevice({ instance: 1 }),
             },
         ],
         result: [
@@ -772,7 +770,7 @@ const selectDevice: Array<
         description: `Select first then second instance (2 instances, 2 affected)`,
         initialState: {
             ...deviceReducerInitialState,
-            devices: [SUITE_DEVICE, getSuiteDevice({ instance: 1 })],
+            devices: [SUITE_DEVICE, mockSuiteDevice({ instance: 1 })],
         },
         actions: [
             {
@@ -781,7 +779,7 @@ const selectDevice: Array<
             },
             {
                 type: deviceActions.selectDevice.type,
-                payload: getSuiteDevice({ instance: 1 }),
+                payload: mockSuiteDevice({ instance: 1 }),
             },
         ],
         result: [
@@ -832,29 +830,29 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
-                getSuiteDevice(
+                mockSuiteDevice(
                     { instance: 1 },
                     {
                         device_id: 'ignored-device-id',
                     },
                 ),
-                getSuiteDevice({
+                mockSuiteDevice({
                     state: '1stTestnetAddress@device_id:3',
                     connected: true,
                     instance: 3,
                 }),
                 SUITE_DEVICE,
-                getSuiteDevice({ instance: 1 }),
+                mockSuiteDevice({ instance: 1 }),
             ],
         },
         actions: [
             {
                 type: deviceActions.forgetDevice.type,
                 payload: {
-                    device: getSuiteDevice({ instance: 1 }),
+                    device: mockSuiteDevice({ instance: 1 }),
                 },
             },
             {
@@ -864,7 +862,7 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
             {
                 type: deviceActions.forgetDevice.type,
                 payload: {
-                    device: getSuiteDevice({ connected: true, instance: 3 }),
+                    device: mockSuiteDevice({ connected: true, instance: 3 }),
                 },
             },
         ],
@@ -884,7 +882,7 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
                 useEmptyPassphrase: undefined,
             },
             {
-                ...getSuiteDevice({ connected: true, instance: 3 }),
+                ...mockSuiteDevice({ connected: true, instance: 3 }),
                 state: undefined,
             },
         ],
@@ -894,29 +892,29 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice(undefined, {
+                mockSuiteDevice(undefined, {
                     device_id: 'ignored-device-id',
                 }),
-                getSuiteDevice(
+                mockSuiteDevice(
                     { instance: 1 },
                     {
                         device_id: 'ignored-device-id',
                     },
                 ),
                 SUITE_DEVICE,
-                getSuiteDevice({ instance: 1 }),
-                getSuiteDevice({ instance: 3 }),
+                mockSuiteDevice({ instance: 1 }),
+                mockSuiteDevice({ instance: 3 }),
             ],
         },
         actions: [
             {
                 type: deviceActions.forgetDevice.type,
-                payload: { device: getSuiteDevice({ instance: 3 }) },
+                payload: { device: mockSuiteDevice({ instance: 3 }) },
             },
             {
                 type: deviceActions.forgetDevice.type,
                 payload: {
-                    device: getSuiteDevice(undefined, {
+                    device: mockSuiteDevice(undefined, {
                         device_id: 'ignored-device-id',
                     }),
                 },
@@ -951,7 +949,7 @@ const forget: Fixture<ReturnType<typeof deviceActions.forgetDevice>>[] = [
             {
                 type: deviceActions.forgetDevice.type,
                 payload: {
-                    device: getSuiteDevice({
+                    device: mockSuiteDevice({
                         type: 'unacquired',
                     }),
                 },
@@ -987,7 +985,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             {
                 type: deviceActions.setRememberDevice.type,
                 payload: {
-                    device: getSuiteDevice({ type: 'unacquired' }),
+                    device: mockSuiteDevice({ type: 'unacquired' }),
                     remember: false,
                 },
             },
@@ -1016,7 +1014,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     state: '1stTestnet@device_id:0',
                 }),
             ],
@@ -1025,7 +1023,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             {
                 type: deviceActions.setRememberDevice.type,
                 payload: {
-                    device: getSuiteDevice({
+                    device: mockSuiteDevice({
                         state: '1stTestnet@device_id:0',
                     }),
                     remember: true,
@@ -1033,7 +1031,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             },
         ],
         result: [
-            getSuiteDevice({
+            mockSuiteDevice({
                 state: '1stTestnet@device_id:0',
                 remember: true,
             }),
@@ -1044,21 +1042,21 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
         initialState: {
             ...deviceReducerInitialState,
             devices: [
-                getSuiteDevice({
+                mockSuiteDevice({
                     state: '1stTestnet@device_id:0',
                 }),
-                getSuiteDevice({
+                mockSuiteDevice({
                     state: '1stTestnet@device_id:0',
                     instance: 1,
                 }),
-                getSuiteDevice({
+                mockSuiteDevice({
                     instance: 2,
                 }),
-                getSuiteDevice({
+                mockSuiteDevice({
                     state: '1stTestnet@device_id:0',
                     instance: 3,
                 }),
-                getSuiteDevice(
+                mockSuiteDevice(
                     {
                         state: '1stTestnet@device_id:0',
                         path: '2',
@@ -1073,7 +1071,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             {
                 type: deviceActions.setRememberDevice.type,
                 payload: {
-                    device: getSuiteDevice({
+                    device: mockSuiteDevice({
                         state: '1stTestnet@device_id:0',
                     }),
                     remember: true,
@@ -1082,7 +1080,7 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             {
                 type: deviceActions.setRememberDevice.type,
                 payload: {
-                    device: getSuiteDevice({
+                    device: mockSuiteDevice({
                         state: '1stTestnet@device_id:0',
                         instance: 3,
                     }),
@@ -1091,24 +1089,24 @@ const remember: Fixture<ReturnType<typeof deviceActions.setRememberDevice>>[] = 
             },
         ],
         result: [
-            getSuiteDevice({
+            mockSuiteDevice({
                 state: '1stTestnet@device_id:0',
                 remember: true,
             }),
-            getSuiteDevice({
+            mockSuiteDevice({
                 state: '1stTestnet@device_id:0',
                 instance: 1,
                 remember: false,
             }),
-            getSuiteDevice({
+            mockSuiteDevice({
                 instance: 2,
             }),
-            getSuiteDevice({
+            mockSuiteDevice({
                 state: '1stTestnet@device_id:0',
                 instance: 3,
                 remember: true,
             }),
-            getSuiteDevice(
+            mockSuiteDevice(
                 {
                     state: '1stTestnet@device_id:0',
                     path: '2',
