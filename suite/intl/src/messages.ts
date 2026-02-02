@@ -270,10 +270,6 @@ export const messages = defineMessages({
         defaultMessage: 'No offers found. Adjust the currency, assets, or amounts.',
         id: 'TR_TRADING_NO_OFFER_BUY_OR_SELL',
     },
-    TR_TRADING_NO_OFFER_SWAP: {
-        defaultMessage: 'No {offers} found. Adjust the rate type, assets, or amounts.',
-        id: 'TR_TRADING_NO_OFFER_SWAP',
-    },
     TR_TRADING_NO_OFFER_BUY_OR_SELL_TOR: {
         defaultMessage:
             'No offers found. Adjust the currency, assets, amounts, or disable Tor to see more offers.',
@@ -307,10 +303,6 @@ export const messages = defineMessages({
     TR_TOKEN_NOT_FOUND: {
         defaultMessage: 'No token found',
         id: 'TR_TOKEN_NOT_FOUND',
-    },
-    TR_TOKEN_NOT_FOUND_ON_NETWORK: {
-        defaultMessage: 'Token not found on the {networkName} network.',
-        id: 'TR_TOKEN_NOT_FOUND_ON_NETWORK',
     },
     TR_TOKEN_TRY_DIFFERENT_SEARCH: {
         defaultMessage: 'Try a different search.',
@@ -389,10 +381,6 @@ export const messages = defineMessages({
     TR_EXCHANGE_COMPLETE: {
         defaultMessage: 'Swap complete',
         id: 'TR_EXCHANGE_COMPLETE',
-    },
-    TR_EXCHANGE_SEND_TO: {
-        defaultMessage: '{providerName}’s address',
-        id: 'TR_EXCHANGE_SEND_TO',
     },
     TR_EXCHANGE_APPROVAL_APPROVE_TOKEN_SPENDING: {
         defaultMessage: 'Set {displaySymbol} spending',
@@ -478,10 +466,6 @@ export const messages = defineMessages({
         defaultMessage: 'Set limit',
         id: 'TR_EXCHANGE_APPROVAL_SET_LIMIT',
     },
-    TR_EXCHANGE_SWAP_SEND_TO: {
-        defaultMessage: '{provider} contract address',
-        id: 'TR_EXCHANGE_SWAP_SEND_TO',
-    },
     TR_EXCHANGE_SWAP_SLIPPAGE_OFFERED: {
         defaultMessage: 'Swap offer amount',
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_OFFERED',
@@ -527,10 +511,6 @@ export const messages = defineMessages({
         id: 'TR_EXCHANGE_RECEIVE_NON_SUITE_ADDRESS_QUESTION_TOOLTIP',
         defaultMessage: 'This is the address for receiving your assets.',
     },
-    TR_EXCHANGE_SELECT_RECEIVE_ACCOUNT: {
-        id: 'TR_EXCHANGE_SELECT_RECEIVE_ACCOUNT',
-        defaultMessage: 'Select {symbol} receive account',
-    },
     TR_EXCHANGE_RECEIVING_ADDRESS_REQUIRED: {
         defaultMessage: 'Receive address is required',
         id: 'TR_EXCHANGE_RECEIVING_ADDRESS_REQUIRED',
@@ -538,10 +518,6 @@ export const messages = defineMessages({
     TR_EXCHANGE_RECEIVING_ADDRESS_INVALID: {
         defaultMessage: 'Receive address is invalid',
         id: 'TR_EXCHANGE_RECEIVING_ADDRESS_INVALID',
-    },
-    TR_EXCHANGE_EXTRA_FIELD: {
-        defaultMessage: '{extraFieldName}',
-        id: 'TR_EXCHANGE_EXTRA_FIELD',
     },
     TR_EXCHANGE_EXTRA_FIELD_SWITCH: {
         defaultMessage: 'Add {extraFieldName}',
@@ -1241,10 +1217,6 @@ export const messages = defineMessages({
         defaultMessage: 'Copied',
         id: 'TR_COPIED_TO_CLIPBOARD',
     },
-    TR_ADDRESS_MODAL_TITLE: {
-        defaultMessage: '{networkName} network receive address',
-        id: 'TR_ADDRESS_MODAL_TITLE',
-    },
     TR_IMPORT_CSV_MODAL_TITLE: {
         defaultMessage: 'Import addresses from CSV',
         id: 'TR_IMPORT_CSV_MODAL_TITLE',
@@ -1730,14 +1702,6 @@ export const messages = defineMessages({
     TR_CONFIRMED_TX: {
         defaultMessage: 'Confirmed',
         id: 'TR_CONFIRMED_TX',
-    },
-    TR_NON_ASCII_CHAR: {
-        defaultMessage: '{label} (with non-recommended "{char}")',
-        id: 'TR_NON_ASCII_CHAR',
-    },
-    TR_NON_ASCII_CHARS: {
-        defaultMessage: '{label} (with non-recommended characters)',
-        id: 'TR_NON_ASCII_CHARS',
     },
     TR_CONNECT_UNLOCK_YOUR_DEVICE: {
         defaultMessage: 'Connect & unlock your Trezor',
@@ -3703,6 +3667,10 @@ export const messages = defineMessages({
         id: 'TOAST_COPY_TO_CLIPBOARD',
         defaultMessage: 'Copied',
     },
+    TOAST_TX_COMPOSED: {
+        id: 'TOAST_TX_COMPOSED',
+        defaultMessage: '{content}',
+    },
     TOAST_TX_REVOKED: {
         id: 'TOAST_TX_REVOKED',
         defaultMessage: 'Revoke transaction was broadcast',
@@ -3710,10 +3678,6 @@ export const messages = defineMessages({
     TOAST_TX_APPROVED: {
         id: 'TOAST_TX_APPROVED',
         defaultMessage: 'Approve transaction was broadcast',
-    },
-    TOAST_TX_APPROVED_MAX: {
-        id: 'TOAST_TX_APPROVED_MAX',
-        defaultMessage: 'Approve transaction of unlimited {tokenSymbol} was broadcast',
     },
     TOAST_TX_SENT: {
         id: 'TOAST_TX_SENT',
@@ -4058,7 +4022,7 @@ export const messages = defineMessages({
     },
     TR_WIPE_DEVICE_ERASE_ALL_DATA_DESCRIPTION: {
         id: 'TR_WIPE_DEVICE_ERASE_ALL_DATA_DESCRIPTION',
-        defaultMessage: "This will erase all device data. This action can't be undone.",
+        defaultMessage: "This will erase all of your device's data. This action can't be undone.",
     },
     TR_WIPE_DEVICE_WALLET_BACKUP: {
         id: 'TR_WIPE_DEVICE_WALLET_BACKUP',
@@ -4075,7 +4039,7 @@ export const messages = defineMessages({
     },
     TR_BACK_TO_DASHBOARD: {
         id: 'TR_BACK_TO_DASHBOARD',
-        defaultMessage: 'Back to dashboard',
+        defaultMessage: 'Back to Dashboard',
     },
     TR_CANCEL: {
         id: 'TR_CANCEL',
@@ -6046,7 +6010,7 @@ export const messages = defineMessages({
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC',
         defaultMessage:
-            'Your device “{name}” is not compatible with Suite Sync. You can use Trezor Safe 3, Trezor Safe 5, and Trezor Safe 7 devices.',
+            'The device {name} isn’t compatible with Suite Sync. Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
     },
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC_GOT_IT: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC_GOT_IT',
@@ -6074,8 +6038,7 @@ export const messages = defineMessages({
     },
     TR_LABELING_FEATURE_ALLOWS: {
         id: 'TR_LABELING_FEATURE_ALLOWS',
-        defaultMessage:
-            'Name your wallets, personalize accounts, and label transactions to stay organized.',
+        defaultMessage: 'Name your wallets, personalize accounts, and label transactions.',
     },
     TR_LABELING_ENABLED: {
         id: 'TR_LABELING_ENABLED',
@@ -6100,7 +6063,7 @@ export const messages = defineMessages({
     },
     TR_BACKEND_DEFAULT_SERVERS: {
         id: 'TR_BACKEND_DEFAULT_SERVERS',
-        defaultMessage: 'Trezor servers (default)',
+        defaultMessage: 'Trezor (default)',
     },
     TR_BACKEND_CUSTOM_RPC: {
         id: 'TR_BACKEND_CUSTOM_RPC',
@@ -7554,7 +7517,7 @@ export const messages = defineMessages({
     },
     TR_TREZOR_NEEDS_TO_BE_IN_PAIRING_MODE: {
         id: 'TR_TREZOR_NEEDS_TO_BE_IN_PAIRING_MODE',
-        defaultMessage: 'Your Trezor needs to be in pairing mode to continue.',
+        defaultMessage: 'Turn on pairing mode on your Trezor',
     },
     TR_WINDOW_WILL_CLOSE_WHEN_TREZOR_IS_PAIRED: {
         id: 'TR_WINDOW_WILL_CLOSE_WHEN_TREZOR_IS_PAIRED',
@@ -7632,10 +7595,6 @@ export const messages = defineMessages({
         id: 'TR_TROUBLESHOOTING_TIP_RESTART_COMPUTER_DESCRIPTION',
         defaultMessage:
             'Restarting your computer may fix the communication issue between Trezor Suite and your Trezor device.',
-    },
-    TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN: {
-        id: 'TR_TROUBLESHOOTING_UNREADABLE_UNKNOWN',
-        defaultMessage: 'Unexpected state: {error}',
     },
     TR_SEEDLESS_SETUP_IS_NOT_SUPPORTED_TITLE: {
         id: 'TR_SEEDLESS_SETUP_IS_NOT_SUPPORTED_TITLE',
@@ -7739,16 +7698,6 @@ export const messages = defineMessages({
         id: 'TR_TX_DEPOSIT',
         defaultMessage: 'Deposit',
         description: 'Label for a deposit amount in transaction detail',
-    },
-    TR_STAKING_DEPOSIT_FEE_DECRIPTION: {
-        id: 'TR_STAKING_DEPOSIT_FEE_DECRIPTION',
-        defaultMessage:
-            'To start staking, a deposit of {feeAmount} ADA is required to register your address. If you decide to unstake later, the full deposit will be returned to you.',
-    },
-    TR_STAKING_TX_PENDING: {
-        id: 'TR_STAKING_TX_PENDING',
-        defaultMessage:
-            'Your transaction {txid} was sent successfully to the blockchain and is waiting for confirmation.',
     },
     TR_STAKING_IS_NOT_SUPPORTED: {
         id: 'TR_STAKING_IS_NOT_SUPPORTED',
@@ -9085,11 +9034,6 @@ export const messages = defineMessages({
         id: 'TR_STAKING_DREP_ID',
         defaultMessage: 'DRep ID',
     },
-    TR_STAKING_CARD_TEXT: {
-        id: 'TR_STAKING_CARD_TEXT',
-        defaultMessage:
-            'Stake your full balance and earn ~{potentialRewards} {displaySymbol} yearly at the current APY. Temporarily locking your {displaySymbol} earns you rewards while boosting the network’s security.',
-    },
     TR_STAKING_CARD_TEXT_FUNDS_STAY: {
         id: 'TR_STAKING_CARD_TEXT_FUNDS_STAY',
         defaultMessage:
@@ -9508,10 +9452,6 @@ export const messages = defineMessages({
         id: 'TR_STAKE_REWARDS',
         defaultMessage: 'Rewards',
     },
-    TR_STAKE_EXPECTED_REWARDS: {
-        id: 'TR_STAKE_EXPECTED_REWARDS',
-        defaultMessage: 'Next estimated reward in ~{count, plural, one {# day} other {# days}}',
-    },
     TR_TX_CONFIRMED: {
         id: 'TR_TX_CONFIRMED',
         defaultMessage: 'Transaction confirmed',
@@ -9595,11 +9535,11 @@ export const messages = defineMessages({
     },
     TOAST_TX_UNSTAKED: {
         id: 'TOAST_TX_UNSTAKED',
-        defaultMessage: '{amount} unstaked',
+        defaultMessage: 'Unstaked from {account}',
     },
     TOAST_TX_CLAIMED: {
         id: 'TOAST_TX_CLAIMED',
-        defaultMessage: '{amount} claimed',
+        defaultMessage: 'Claimed from {account}',
     },
     TOAST_SUCCESSFUL_CLAIM: {
         id: 'TOAST_SUCCESSFUL_CLAIM',
@@ -10342,7 +10282,7 @@ export const messages = defineMessages({
     },
     TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING: {
         id: 'TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING',
-        defaultMessage: 'Turn on Suite Sync to use labels',
+        defaultMessage: 'Turn on Suite Sync',
     },
     TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_DESCRIPTION: {
         id: 'TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_DESCRIPTION',
@@ -10350,27 +10290,27 @@ export const messages = defineMessages({
     },
     TR_TURN_ON_SECURE_SYNC_DATA_STORED_LOCALLY: {
         id: 'TR_TURN_ON_SECURE_SYNC_DATA_STORED_LOCALLY',
-        defaultMessage: 'Your data is stored locally and only synced with devices you’ve approved.',
+        defaultMessage: 'Securely sync your labels and names between mobile & desktop.',
     },
     TR_TURN_ON_SECURE_SYNC_DATA_LABELS: {
         id: 'TR_TURN_ON_SECURE_SYNC_DATA_LABELS',
-        defaultMessage: 'Name your wallets, personalize accounts, and label transactions. ',
+        defaultMessage: 'Name your wallets, personalize accounts, and label transactions.',
     },
     TR_TURN_ON_SECURE_SYNC_ONLY_AUTHORIZED_DEVICES: {
         id: 'TR_TURN_ON_SECURE_SYNC_ONLY_AUTHORIZED_DEVICES',
-        defaultMessage: 'Only devices you’ve approved through your Trezor can decrypt your data.',
+        defaultMessage: 'Only devices you approve using your Trezor can access your labels.',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_HEADING: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_HEADING',
-        defaultMessage: 'Firmware update needed for Suite Sync',
+        defaultMessage: 'Firmware update required',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_DESCRIPTION: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_DESCRIPTION',
-        defaultMessage: 'Update the firmware on your device “{name}” to use Suite Sync.',
+        defaultMessage: 'Update firmware on the device {name} to use Suite Sync.',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE',
-        defaultMessage: 'Upgrade',
+        defaultMessage: 'Update',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_NOT_NOW: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_NOT_NOW',
@@ -10705,7 +10645,7 @@ export const messages = defineMessages({
     },
     TR_HIDDEN_TOKEN_WITHOUT_FIAT: {
         id: 'TR_HIDDEN_TOKEN_WITHOUT_FIAT',
-        defaultMessage: 'No pair',
+        defaultMessage: 'No trading pair',
     },
     TR_NON_TRADABLE_TOKENS: {
         id: 'TR_NON_TRADABLE_TOKENS',

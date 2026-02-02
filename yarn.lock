@@ -10835,7 +10835,6 @@ __metadata:
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
-    "@suite-common/test-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
@@ -11224,6 +11223,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite/intl": "workspace:*"
     "@trezor/connect": "workspace:*"
+    react: "npm:19.1.0"
   languageName: unknown
   linkType: soft
 

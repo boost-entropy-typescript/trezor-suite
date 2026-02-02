@@ -23,83 +23,97 @@ export type TokenInfoBranded = TokenInfo & {
     contract: TokenAddress;
 };
 
-type AccountNetworkSpecific =
-    | {
-          networkType: 'bitcoin';
-          misc: undefined;
-          marker: undefined;
-          stellarCursor: undefined;
-          page: AccountInfo['page'];
-      }
-    | {
-          networkType: 'ripple';
-          misc: { sequence: number; reserve: string };
-          marker: AccountInfo['marker'];
-          stellarCursor: undefined;
-          page: undefined;
-      }
-    | {
-          networkType: 'cardano';
-          marker: undefined;
-          stellarCursor: undefined;
-          misc: {
-              staking: {
-                  address: string;
-                  isActive: boolean;
-                  rewards: string;
-                  poolId: string | null;
-                  drep: {
-                      drep_id: string;
-                      hex: string;
-                      amount: string;
-                      active: boolean;
-                      active_epoch: number | null;
-                      has_script: boolean;
-                  } | null;
-              };
-          };
-          page: AccountInfo['page'];
-      }
-    | {
-          networkType: 'ethereum';
-          misc: {
-              nonce: string;
-              contractInfo?: ContractInfo;
-              stakingPools?: StakingPool[];
-              addressAliases?: { [key: string]: AddressAlias };
-          };
-          marker: undefined;
-          stellarCursor: undefined;
-          page: AccountInfo['page'];
-      }
-    | {
-          networkType: 'tron';
-          misc: {
-              contractInfo?: ContractInfo;
-          };
-          marker: undefined;
-          stellarCursor: undefined;
-          page: AccountInfo['page'];
-      }
-    | {
-          networkType: 'solana';
-          misc?: {
-              rent?: number;
-              solStakingAccounts?: SolanaStakingAccount[];
-              solEpoch?: number;
-              owner?: string;
-          };
-          marker: undefined;
-          stellarCursor: undefined;
-          page: AccountInfo['page'];
-      }
-    | {
-          networkType: 'stellar';
-          misc: { stellarSequence: string; reserve: string };
-          marker: undefined;
-          stellarCursor: AccountInfo['stellarCursor'];
-          page: undefined;
-      };
+export type AccountNetworkSpecificBitcoin = {
+    networkType: 'bitcoin';
+    misc: undefined;
+    marker: undefined;
+    stellarCursor: undefined;
+    page: AccountInfo['page'];
+};
+
+export type AccountNetworkSpecificRipple = {
+    networkType: 'ripple';
+    misc: { sequence: number; reserve: string };
+    marker: AccountInfo['marker'];
+    stellarCursor: undefined;
+    page: undefined;
+};
+
+export type AccountNetworkSpecificCardano = {
+    networkType: 'cardano';
+    marker: undefined;
+    stellarCursor: undefined;
+    misc: {
+        staking: {
+            address: string;
+            isActive: boolean;
+            rewards: string;
+            poolId: string | null;
+            drep: {
+                drep_id: string;
+                hex: string;
+                amount: string;
+                active: boolean;
+                active_epoch: number | null;
+                has_script: boolean;
+            } | null;
+        };
+    };
+    page: AccountInfo['page'];
+};
+
+export type AccountNetworkSpecificEthereum = {
+    networkType: 'ethereum';
+    misc: {
+        nonce: string;
+        contractInfo?: ContractInfo;
+        stakingPools?: StakingPool[];
+        addressAliases?: { [key: string]: AddressAlias };
+    };
+    marker: undefined;
+    stellarCursor: undefined;
+    page: AccountInfo['page'];
+};
+
+export type AccountNetworkSpecificTron = {
+    networkType: 'tron';
+    misc: {
+        contractInfo?: ContractInfo;
+    };
+    marker: undefined;
+    stellarCursor: undefined;
+    page: AccountInfo['page'];
+};
+
+export type AccountNetworkSpecificSolana = {
+    networkType: 'solana';
+    misc?: {
+        rent?: number;
+        solStakingAccounts?: SolanaStakingAccount[];
+        solEpoch?: number;
+        owner?: string;
+    };
+    marker: undefined;
+    stellarCursor: undefined;
+    page: AccountInfo['page'];
+};
+
+export type AccountNetworkSpecificStellar = {
+    networkType: 'stellar';
+    misc: { stellarSequence: string; reserve: string };
+    marker: undefined;
+    stellarCursor: AccountInfo['stellarCursor'];
+    page: undefined;
+};
+
+export type AccountNetworkSpecific =
+    | AccountNetworkSpecificBitcoin
+    | AccountNetworkSpecificRipple
+    | AccountNetworkSpecificCardano
+    | AccountNetworkSpecificEthereum
+    | AccountNetworkSpecificTron
+    | AccountNetworkSpecificSolana
+    | AccountNetworkSpecificStellar;
 
 // decides if account is using TrezorConnect/blockchain-link or other non-standard api
 export type AccountBackendSpecific =
@@ -124,13 +138,26 @@ export type AccountFailureSpecific =
  */
 export type AccountKey = string; // <AccountDescriptor>-<NetworkSymbol>-<DeviceStaticSessionId>
 
+export type CreateAccountKeyParams = {
+    accountDescriptor: AccountDescriptor;
+    networkSymbol: NetworkSymbol;
+    deviceStaticSessionId: StaticSessionId;
+};
+
+export const createAccountKey = ({
+    accountDescriptor,
+    networkSymbol,
+    deviceStaticSessionId,
+}: CreateAccountKeyParams): AccountKey =>
+    `${accountDescriptor}-${networkSymbol}-${deviceStaticSessionId}`;
+
 /**
  * Descriptor or xpub/zpub/..
  */
 export type AccountDescriptor = string & Branded<'AccountDescriptor'>;
 export const asAccountDescriptor = (value: string) => value as AccountDescriptor;
 
-export type Account = {
+export type AccountBase = {
     deviceState: StaticSessionId;
     key: AccountKey;
     index: number;
@@ -157,7 +184,10 @@ export type Account = {
      */
     accountLabel?: string;
     ts: number;
-} & AccountBackendSpecific &
+};
+
+export type Account = AccountBase &
+    AccountBackendSpecific &
     AccountNetworkSpecific &
     AccountFailureSpecific;
 

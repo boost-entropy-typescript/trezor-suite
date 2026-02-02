@@ -9,7 +9,6 @@ import {
 } from '@suite-common/suite-types';
 import { networksCollection } from '@suite-common/wallet-config';
 import {
-    Account,
     BlockchainNetworks,
     FeeInfo,
     WalletAccountTransaction,
@@ -17,40 +16,6 @@ import {
 } from '@suite-common/wallet-types';
 import { AccountUtxo, Device, Features, FirmwareType, TrezorConnect } from '@trezor/connect';
 import { DeviceModelInternal } from '@trezor/device-utils';
-
-/**
- * Generate wallet account
- * @param {Partial<Account>} [account]
- * @returns {Features}
- */
-// @ts-expect-error - related to backendType and status
-const getWalletAccount = (account?: Partial<Account>): Account => ({
-    deviceState: '1stTestnetAddress@device_id:0',
-    index: 0,
-    path: "m/44'/60'/0'/0/1",
-    descriptor: asAccountDescriptor('0xFA01a39f8Abaeb660c3137f14A310d0b414b2A15'),
-    key: `${account?.descriptor ?? '0xFA01a39f8Abaeb660c3137f14A310d0b414b2A15'}-${
-        account?.symbol ?? 'eth'
-    }-${account?.deviceState ?? '1stTestnetAddress@device_id:0'}`,
-    accountType: 'normal',
-    networkType: 'ethereum',
-    symbol: 'eth',
-    empty: false,
-    visible: true,
-    balance: '0',
-    availableBalance: '0',
-    formattedBalance: '0',
-    tokens: [],
-    history: { total: 13, tokens: 0, unconfirmed: 0 },
-    misc: { nonce: '6' },
-    page: { index: 1, size: 25, total: 1 },
-    utxo: undefined,
-    marker: undefined,
-    addresses: undefined,
-    metadata: { key: 'xpub' },
-    ts: 0,
-    ...account,
-});
 
 /**
  * device.firmwareReleaseConfigInfo property
@@ -557,7 +522,6 @@ const setTrezorConnectFixtures = (f?: any) => {
 };
 
 export const testMocks = {
-    getWalletAccount,
     getFirmwareReleaseConfigInfo,
     getDeviceFeatures,
     getWalletTransaction,
