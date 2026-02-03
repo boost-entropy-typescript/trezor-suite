@@ -1,5 +1,4 @@
 import fs from 'fs/promises';
-import stringify from 'json-stable-stringify';
 import path from 'path';
 import { URL } from 'url';
 
@@ -84,7 +83,7 @@ const COMPATIBILITY_PORT = 21325;
 const ADDRESS = new URL('http://127.0.0.1');
 
 export class TrezordNode {
-    version = '3.1.0';
+    version = '3.2.0';
     bundledVersion?: string;
     serviceName = 'trezord-node';
     /** last known descriptors state */
@@ -143,12 +142,28 @@ export class TrezordNode {
                 `http: resolving listen subscriptions. n of aborted subscriptions: ${aborted.length}`,
             );
         }
+        const [affected, unaffected] = arrayPartition(notAborted, subscription => {
+            const currentState = new Map(this.descriptors.map(d => [d.path, d]));
+            const changed = subscription.descriptors.some(d => {
+                const current = currentState.get(d.path);
+                if (!current) return true;
 
-        const [affected, unaffected] = arrayPartition(
-            notAborted,
-            // TODO this may be tricky comparison, e.g. when client send something extra in the descriptors
-            subscription => stringify(subscription.descriptors) !== stringify(this.descriptors),
-        );
+                currentState.delete(d.path);
+                const fields = [
+                    'id',
+                    'type',
+                    'session',
+                    'sessionOwner',
+                    'debugSession',
+                    'vendor',
+                    'product',
+                ] as (keyof Descriptor)[];
+
+                return fields.some(f => current[f] !== d[f]);
+            });
+
+            return changed || currentState.size > 0;
+        });
 
         this.logger?.debug(
             `http: affected subscriptions ${affected.length}. unaffected subscriptions ${unaffected.length}`,

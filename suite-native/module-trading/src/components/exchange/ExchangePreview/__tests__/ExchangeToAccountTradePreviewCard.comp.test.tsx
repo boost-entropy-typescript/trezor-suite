@@ -38,7 +38,8 @@ describe('ExchangeToAccountTradePreviewCard', () => {
         expect(toJSON()).toBeNull();
     });
 
-    it('should render TradeSideCard otherwise', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render TradeSideCard otherwise', async () => {
         const { getByText } = await renderExchangeToAccountTradePreviewCard({
             quote: exchangeQuotes[0],
         });

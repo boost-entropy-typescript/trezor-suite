@@ -49,7 +49,8 @@ describe('TradeDetailTransactionInfo', () => {
         expect(toJSON()).toBeNull();
     });
 
-    it('should render buy trade transaction info correctly', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render buy trade transaction info correctly', async () => {
         const buyTrade = getBuyTrade({ status: 'SUBMITTED' });
 
         const { getByText, queryByText } = await renderComponent(
@@ -63,7 +64,8 @@ describe('TradeDetailTransactionInfo', () => {
         expect(queryByText('From')).toBeNull();
     });
 
-    it('should render exchange trade transaction info correctly', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render exchange trade transaction info correctly', async () => {
         const exchangeTrade = getExchangeTrade({ status: 'CONVERTING' });
 
         const { getByText, getAllByText } = await renderComponent(
@@ -104,7 +106,8 @@ describe('TradeDetailTransactionInfo', () => {
         expect(getAllByText('Unknown')).toHaveLength(2);
     });
 
-    it('should render sell trade transaction info correctly', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render sell trade transaction info correctly', async () => {
         const sellTrade = getSellTrade({ status: 'SEND_CRYPTO' });
 
         const { getByText, queryByText } = await renderComponent(

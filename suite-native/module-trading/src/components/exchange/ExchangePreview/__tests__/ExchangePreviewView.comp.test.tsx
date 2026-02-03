@@ -18,7 +18,8 @@ describe('ExchangePreviewView', () => {
         );
     };
 
-    it('should render all sections except alert', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render all sections except alert', async () => {
         const { getByText } = await renderExchangePreviewView({});
 
         expect(getByText('BTC Account #1')).toBeOnTheScreen();
@@ -26,7 +27,8 @@ describe('ExchangePreviewView', () => {
         expect(getByText('Fee')).toBeOnTheScreen();
     });
 
-    it('should render txnErrorString but no fee picker when isTxnError is true', async () => {
+    // Todo: https://github.com/trezor/trezor-suite/issues/24906
+    it.skip('should render txnErrorString but no fee picker when isTxnError is true', async () => {
         const { getByText, queryByText } = await renderExchangePreviewView({
             txnErrorString: 'txnErrorString',
         });

@@ -1,4 +1,4 @@
-import { EventType, SuiteNativeLegacyAnalyticsEvents } from '@suite-native/analytics';
+import { type AnalyticsNativeEvents, EventType } from '@suite-native/analytics';
 import { CardStepper, CardStepperMap, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import { Link } from '@suite-native/link';
@@ -8,14 +8,14 @@ import {
     DeviceSuspicionCause,
     StackProps,
 } from '@suite-native/navigation';
-import { useLegacyAnalytics } from '@suite-native/services';
+import { useAnalytics } from '@suite-native/services';
 import { Analytics } from '@trezor/analytics-uploader';
 import { TREZOR_RESELLERS_URL } from '@trezor/urls';
 
 import { DeviceOnboardingScreenWithExitButton } from '../components/DeviceOnboardingScreenWithExitButton';
 import { SecuritySealDescription } from '../components/SecuritySealDescription';
 
-const cardStepperContentMap = (legacyAnalytics: Analytics<SuiteNativeLegacyAnalyticsEvents>) =>
+const cardStepperContentMap = (analytics: Analytics<AnalyticsNativeEvents>) =>
     ({
         1: {
             header: <Translation id="moduleDeviceOnboarding.securityCheckScreen.step1.header" />,
@@ -28,7 +28,7 @@ const cardStepperContentMap = (legacyAnalytics: Analytics<SuiteNativeLegacyAnaly
                             <Link
                                 href={TREZOR_RESELLERS_URL}
                                 onPress={() => {
-                                    legacyAnalytics.report({
+                                    analytics.report({
                                         type: EventType.DeviceSetupInfo,
                                         payload: {
                                             location: 'untrustedReseller',
@@ -65,7 +65,7 @@ const cardStepperContentMap = (legacyAnalytics: Analytics<SuiteNativeLegacyAnaly
 export const SecurityCheckScreen = ({
     navigation,
 }: StackProps<DeviceOnboardingStackParamList, DeviceOnboardingStackRoutes.SecurityCheck>) => {
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const handleFinishStepper = () => {
         navigation.navigate(DeviceOnboardingStackRoutes.FirmwareInfo);
     };
@@ -76,7 +76,7 @@ export const SecurityCheckScreen = ({
         navigation.navigate(DeviceOnboardingStackRoutes.SuspiciousDevice, {
             suspicionCause: id,
         });
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.DeviceSetupSecurityCheck,
             payload: {
                 location: id,
@@ -101,7 +101,7 @@ export const SecurityCheckScreen = ({
                     }
                     primaryButtonText={<Translation id="generic.buttons.yes" />}
                     onPressSecondaryButton={handlePressSecondaryButton}
-                    stepToContentMap={cardStepperContentMap(legacyAnalytics)}
+                    stepToContentMap={cardStepperContentMap(analytics)}
                 />
             </VStack>
         </DeviceOnboardingScreenWithExitButton>

@@ -2,37 +2,50 @@ import {
     SuiteSyncDataRootState,
     WithSuiteSyncAndDeviceState,
     selectSuiteSyncAccountLabel as selectAccountLabelLocalFirst,
-    selectIsSuiteSyncEnabled,
+    selectSuiteSyncInteraction,
 } from '@suite-common/suite-sync';
+import { getIsSuiteSyncLabelingActionEnabled } from '@suite-common/suite-sync/src/suiteSyncUtils';
 import { NetworkSymbol } from '@suite-common/wallet-config';
 import {
     AccountsRootState,
-    selectIsPortfolioTrackerDevice,
     selectAccountLabel as selectReduxAccountLabel,
+    selectSelectedDevice,
 } from '@suite-common/wallet-core';
 import { AccountDescriptor } from '@suite-common/wallet-types';
-import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
+import { createAccountKey, parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
+import { SettingsSliceRootState, selectIsExperimentalFeatureEnabled } from '@suite-native/settings';
 import { StaticSessionId } from '@trezor/connect';
 
 export type CombinedLabelingState = SuiteSyncDataRootState &
     WithSuiteSyncAndDeviceState &
-    AccountsRootState;
+    AccountsRootState &
+    SettingsSliceRootState;
 
-export const selectSuiteSyncLabelingEnabled = (state: WithSuiteSyncAndDeviceState) => {
-    const isSuiteSyncEnabled = selectIsSuiteSyncEnabled(state);
-    const isPortfolioTracker = selectIsPortfolioTrackerDevice(state);
+export const selectIsLabellingAllowed = (
+    state: WithSuiteSyncAndDeviceState & SettingsSliceRootState,
+) => {
+    const isSuiteSyncFeatureAvailable = selectIsExperimentalFeatureEnabled(state, 'suite-sync');
+    const device = selectSelectedDevice(state);
 
-    return isSuiteSyncEnabled && !isPortfolioTracker;
+    if (isSuiteSyncFeatureAvailable) {
+        const suiteSyncInteraction = selectSuiteSyncInteraction(
+            state,
+            device?.state?.staticSessionId ?? null,
+        );
+
+        return getIsSuiteSyncLabelingActionEnabled(suiteSyncInteraction);
+    }
+
+    return false;
 };
 
 export const selectAccountLabel = (
-    state: CombinedLabelingState,
+    state: CombinedLabelingState & SettingsSliceRootState,
     deviceStaticSessionId: StaticSessionId,
     accountDescriptor: AccountDescriptor,
     networkSymbol: NetworkSymbol,
-    accountKey: string,
 ) => {
-    const suiteSyncLabelingEnabled = selectSuiteSyncLabelingEnabled(state);
+    const isLabellingAllowed = selectIsLabellingAllowed(state);
 
     const { walletDescriptor } = parseDeviceStaticSessionId(deviceStaticSessionId);
 
@@ -43,9 +56,15 @@ export const selectAccountLabel = (
         networkSymbol,
     );
 
-    if (suiteSyncLabelingEnabled && syncedLabel) {
+    if (isLabellingAllowed && syncedLabel) {
         return syncedLabel;
     }
+
+    const accountKey = createAccountKey({
+        accountDescriptor,
+        networkSymbol,
+        deviceStaticSessionId,
+    });
 
     return selectReduxAccountLabel(state, accountKey);
 };

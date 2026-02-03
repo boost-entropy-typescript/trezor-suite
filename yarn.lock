@@ -11063,6 +11063,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.10.1"
     "@suite-common/delegated-identity-key": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync-types": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -11267,6 +11268,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite/intl": "workspace:*"
+    "@testing-library/react": "npm:^16.3.0"
     "@trezor/address-validator": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/connect-plugin-ethereum": "workspace:*"
@@ -11467,6 +11469,7 @@ __metadata:
     "@suite-native/tokens": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/theme": "workspace:^"
+    "@trezor/utils": "workspace:*"
     jotai: "npm:2.15.0"
     react: "npm:19.1.0"
     react-hook-form: "npm:^7.66.1"
@@ -12372,6 +12375,7 @@ __metadata:
     "@suite-native/forms": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/services": "workspace:*"
+    "@suite-native/settings": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/type-utils": "workspace:*"
@@ -12506,9 +12510,11 @@ __metadata:
     "@suite-native/navigation": "workspace:*"
     "@suite-native/qr-code": "workspace:*"
     "@suite-native/services": "workspace:*"
+    "@suite-native/toasts": "workspace:*"
     "@suite-native/tokens": "workspace:*"
     "@suite-native/transactions": "workspace:*"
     "@trezor/styles": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     date-fns: "npm:^4.1.0"
     jotai: "npm:2.15.0"
@@ -13141,6 +13147,7 @@ __metadata:
     "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
+    "@suite-native/labeling": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/message-system": "workspace:*"
     "@suite-native/module-add-accounts": "workspace:*"
@@ -13437,11 +13444,13 @@ __metadata:
   resolution: "@suite-native/staking@workspace:suite-native/staking"
   dependencies:
     "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
+    "@suite-native/labeling": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     react-redux: "npm:9.2.0"
@@ -13809,6 +13818,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.0"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
@@ -13820,6 +13830,8 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/accounts": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
+    "@suite-native/labeling": "workspace:*"
+    "@suite-native/settings": "workspace:*"
     "@suite-native/tokens": "workspace:*"
     "@suite-native/trading-atoms": "workspace:*"
     "@suite-native/trading-consts": "workspace:*"
@@ -15430,11 +15442,9 @@ __metadata:
     "@trezor/theme": "workspace:*"
     "@trezor/transport": "workspace:*"
     "@trezor/utils": "workspace:*"
-    "@types/json-stable-stringify": "npm:^1"
     esbuild: "npm:^0.25.2"
     html-inline-script-webpack-plugin: "npm:^3.2.1"
     html-webpack-plugin: "npm:5.6.5"
-    json-stable-stringify: "npm:^1.2.1"
     react: "npm:19.1.0"
     react-dom: "npm:19.1.0"
     react-intl: "npm:^8.0.6"
@@ -16467,13 +16477,6 @@ __metadata:
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: 10/1a3c3e06236e4c4aab89499c428d585527ce50c24fe8259e8b3926d3df4cfbbbcf306cfc73ddfb66cbafc973116efd15967020b0f738f63e09e64c7d260519e7
-  languageName: node
-  linkType: hard
-
-"@types/json-stable-stringify@npm:^1":
-  version: 1.0.36
-  resolution: "@types/json-stable-stringify@npm:1.0.36"
-  checksum: 10/765b07589e11a3896c3d06bb9e3a9be681e7edd95adf27370df0647a91bd2bfcfaf0e091fd4a13729343b388973f73f7e789d6cc62ab988240518a2d27c4a4e2
   languageName: node
   linkType: hard
 
@@ -31275,7 +31278,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-stable-stringify@npm:^1.0.2, json-stable-stringify@npm:^1.2.1":
+"json-stable-stringify@npm:^1.0.2":
   version: 1.2.1
   resolution: "json-stable-stringify@npm:1.2.1"
   dependencies:

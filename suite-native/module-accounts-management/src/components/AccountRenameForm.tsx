@@ -14,9 +14,11 @@ import { Translation, useTranslate } from '@suite-native/intl';
 import {
     CombinedLabelingState,
     selectAccountLabel,
-    selectSuiteSyncLabelingEnabled,
+    selectIsLabellingAllowed,
 } from '@suite-native/labeling';
 import { useNativeServices } from '@suite-native/services';
+import { useToast } from '@suite-native/toasts';
+import { exhaustive } from '@trezor/type-utils';
 
 type AccountRenameFormProps = {
     accountKey: string;
@@ -27,22 +29,17 @@ export const AccountRenameForm = ({ accountKey, onSubmit }: AccountRenameFormPro
     const { translate } = useTranslate();
     const dispatch = useDispatch();
     const { suiteSync } = useNativeServices();
+    const { showToast } = useToast();
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
-    const suiteSyncLabelingEnabled = useSelector(selectSuiteSyncLabelingEnabled);
+    const isLabellingAllowed = useSelector(selectIsLabellingAllowed);
     const inputRef = useRef<InputType>(null);
 
     const accountLabel = useSelector((state: CombinedLabelingState) => {
         if (!account) return null;
 
-        return selectAccountLabel(
-            state,
-            account.deviceState,
-            account.descriptor,
-            account.symbol,
-            accountKey,
-        );
+        return selectAccountLabel(state, account.deviceState, account.descriptor, account.symbol);
     });
 
     const form = useAccountLabelForm(accountLabel ?? undefined);
@@ -55,7 +52,7 @@ export const AccountRenameForm = ({ accountKey, onSubmit }: AccountRenameFormPro
     useEffect(() => {
         // Focus account label input field and open keyboard on the first render.
         // Timeout is needed to prevent random placement of the cursor at beginning of the input field instead of the end.
-        // Also it's needed to prevent the keyboard from opening when the modal is animating.
+        // Also, it's needed to prevent the keyboard from opening when the modal is animating.
         const timeout = setTimeout(() => {
             inputRef.current?.focus();
         }, 300);
@@ -65,14 +62,35 @@ export const AccountRenameForm = ({ accountKey, onSubmit }: AccountRenameFormPro
 
     if (!account) return null;
 
-    const handleRenameAccount = handleSubmit((formValues: AccountFormValues) => {
-        if (suiteSyncLabelingEnabled) {
+    const handleRenameAccount = handleSubmit(async (formValues: AccountFormValues) => {
+        if (isLabellingAllowed) {
             if (!account.deviceState) return;
-            suiteSync.labeling.updateAccountLabel({
+
+            const result = await suiteSync.labeling.updateAccountLabel({
                 deviceStaticSessionId: account.deviceState,
                 accountKey,
                 label: formValues.accountLabel,
             });
+
+            if (!result.success) {
+                const { type } = result.error;
+                switch (type) {
+                    case 'SuiteSyncUnavailableOnDeviceError':
+                    case 'SuiteSyncFirmwareUpgradeNeededDeviceErrorType':
+                    case 'DeviceCancelled':
+                    case 'DeviceError':
+                    case 'SuiteSyncUpdateError':
+                        showToast({ variant: 'error', icon: 'warning', message: type });
+
+                        return;
+                    case 'WriteModeRequiredForAllocation':
+                        // Do nothing, this is expected control flow error when we want allocate on-demand.
+                        return;
+
+                    default:
+                        return exhaustive(type);
+                }
+            }
         } else {
             dispatch(accountsActions.renameAccount(accountKey, formValues.accountLabel));
         }

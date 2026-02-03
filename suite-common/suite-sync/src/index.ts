@@ -7,7 +7,7 @@ export {
     type WithSuiteSyncState,
 } from './suiteSyncSelectors';
 export type { WithSuiteSyncAndDeviceState } from './suiteSyncSelectors';
-export type { SuiteSyncInteraction } from './suiteSyncSelectors';
+export type { SuiteSyncInteraction } from './suiteSyncTypes';
 export { createSuiteSyncCompositionRoot } from './createSuiteSyncCompositionRoot';
 export {
     suiteSyncSlice,
@@ -22,6 +22,7 @@ export { DEFAULT_SUITE_SYNC_RELAY_URL } from './relay/relayUrl';
 export { prepareSuiteSyncMiddleware } from './suiteSyncMiddleware';
 export {
     suiteSyncDataReducer,
+    initialSuiteSyncDataState,
     suiteSyncDataSlice,
     clearAll,
     type SuiteSyncDataRootState,
@@ -42,4 +43,8 @@ export {
     findSuiteSyncAccountLabel,
 } from './data/suiteSyncDataSelectors';
 export { suiteSyncToBip329 } from './data/labeling/suiteSyncToBip329';
-export { isSuiteSyncSupportedByDevice, isFwUpgradeNeededForSuiteSync } from './suiteSyncUtils';
+export {
+    isSuiteSyncSupportedByDevice,
+    isFwUpgradeNeededForSuiteSync,
+    getIsSuiteSyncLabelingActionEnabled,
+} from './suiteSyncUtils';

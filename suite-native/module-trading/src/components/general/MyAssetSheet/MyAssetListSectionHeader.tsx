@@ -5,6 +5,7 @@ import { Account } from '@suite-common/wallet-types';
 import { NativeAccountsRootState, selectAccountFiatBalance } from '@suite-native/accounts';
 import { Badge, HStack, Text } from '@suite-native/atoms';
 import { BaseCurrencyAmountFormatter } from '@suite-native/formatters';
+import { AccountLabel } from '@suite-native/labeling';
 
 export type MyAssetListSectionHeaderProps = {
     account: Account;
@@ -31,7 +32,7 @@ export const MyAssetListSectionHeader = ({ account, isFirst }: MyAssetListSectio
         >
             <HStack alignItems="center" spacing="sp8">
                 <Text variant="body" color="textDefault">
-                    {account.accountLabel}
+                    <AccountLabel account={account} />
                 </Text>
                 {formattedAccountType && (
                     <Badge

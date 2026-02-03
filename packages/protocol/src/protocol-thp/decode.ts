@@ -149,7 +149,10 @@ const decodeThpError = (payload: Buffer): ThpMessageResponse => {
     };
 };
 
-const validateCrc = (decodedMessage: ReturnType<TransportProtocolDecode>) => {
+export const getCRC = (decodedMessage: MessageV2) =>
+    decodedMessage.payload.subarray(decodedMessage.length - CRC_LENGTH, decodedMessage.length);
+
+export const validateCrc = (decodedMessage: MessageV2) => {
     // payload length without crc
     const payloadLen = decodedMessage.length - CRC_LENGTH;
     const length = Buffer.alloc(2);
@@ -163,26 +166,13 @@ const validateCrc = (decodedMessage: ReturnType<TransportProtocolDecode>) => {
         ]),
     );
     // get crc from the message
-    const crc = decodedMessage.payload.subarray(payloadLen, decodedMessage.length);
+    const crc = getCRC(decodedMessage);
 
     // compare both crc
     if (expectedCrc.compare(crc) !== 0) {
         throw new Error(
             `Invalid CRC. expected: ${expectedCrc.toString('hex')} received: ${crc.toString('hex')}`,
         );
-    }
-};
-
-// Decode protocol-v2 message from thp send process: ThpAck or ThpError
-export const decodeSendAck = (decodedMessage: MessageV2) => {
-    validateCrc(decodedMessage);
-
-    const { messageType } = decodedMessage;
-    if (messageType === THP_CONTROL_BYTE.ERROR) {
-        return decodeThpError(decodedMessage.payload);
-    }
-    if (messageType === THP_CONTROL_BYTE.ACK_MESSAGE) {
-        return decodeReadAck();
     }
 };
 
@@ -195,8 +185,6 @@ export const decode = (
     if (!thpState) {
         throw new Error('ThpStateMissing');
     }
-
-    validateCrc(decodedMessage);
 
     const message: ThpMessage = {
         ...decodedMessage,

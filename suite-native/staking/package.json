@@ -12,10 +12,12 @@
     },
     "dependencies": {
         "@suite-common/redux-utils": "workspace:*",
+        "@suite-common/suite-sync": "workspace:*",
         "@suite-common/wallet-config": "workspace:*",
         "@suite-common/wallet-core": "workspace:*",
         "@suite-common/wallet-types": "workspace:*",
         "@suite-common/wallet-utils": "workspace:*",
+        "@suite-native/labeling": "workspace:*",
         "@trezor/type-utils": "workspace:*",
         "@trezor/utils": "workspace:*",
         "react-redux": "9.2.0"

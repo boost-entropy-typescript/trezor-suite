@@ -13,11 +13,7 @@ const excluded = [
     // TODO: BIP329 article not live yet
     URLS.HELP_CENTER_BIP329_URL,
     // TODO T3W1 - articles not live yet
-    URLS.TREZOR_SUPPORT_BLUETOOTH_TROUBLESHOOTING,
-    URLS.HELP_CENTER_DRY_RUN_T3W1_URL,
-    URLS.HELP_CENTER_PACKAGING_T3W1_URL,
     URLS.HELP_CENTER_FW_DOWNGRADE_T3W1_URL,
-    URLS.HELP_CENTER_SOLANA_HELP_URL,
     URLS.IMAGE_PROXY_API_URL, // returns 'unauthorized'
 ];
 
@@ -60,8 +56,6 @@ describe('Test that all external links are alive', () => {
     Object.values(URLS)
         .filter(url => !excluded.includes(url))
         .forEach(url => {
-            // Todo: temp fix. this shall run in the Nightly not on every PR
-            //       there shall be probably a test group to run some tests only nightly
             it(`HTTP GET request to ${url} should respond with an acceptable http code`, async () => {
                 const { status } = await fetch(url);
                 expect(isAcceptableHttpCode(status)).toBe(true);

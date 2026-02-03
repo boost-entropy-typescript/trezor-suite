@@ -7,9 +7,6 @@ import { DeviceModelInternal } from '@trezor/device-utils';
 import { EventType } from './constants';
 import {
     AnalyticsSendFlowStep,
-    DemoAccountQuestionnaireLinkKey,
-    DemoAccountQuestionnaireQuestion,
-    DemoAccountQuestionnaireQuestionOption,
     DeviceAuthenticityCheckResult,
     FirmwareUpdatePayload,
     FirmwareUpdateStartType,
@@ -359,72 +356,5 @@ export type SuiteNativeLegacyAnalyticsEvents =
           payload: {
               type: CountryChangeContext;
               parameter: 'country';
-          };
-      }
-    | {
-          type: EventType.TradingCountrySelection;
-          payload: {
-              type: CountryChangeContextCheck;
-              action: CountryChangeAction;
-          };
-      }
-    | {
-          type: EventType.DeviceSetupStarted;
-          payload: {
-              osName: string;
-              deviceModel: DeviceModelInternal | null;
-          };
-      }
-    | {
-          type: EventType.DeviceSetupCompleted;
-          payload: Partial<{
-              osName: string;
-              deviceModel: DeviceModelInternal | null;
-              duration: number;
-              seed: 'create' | 'recovery';
-              firmware: 'install' | 'update' | 'skip' | 'up-to-date';
-              seedType: 'shamir-single' | 'shamir-advanced' | '12-words' | '24-words';
-              recoveryStepBack: boolean;
-              wasBackupSkipped: boolean;
-              wasPinSkipped: boolean;
-          }>;
-      }
-    | {
-          type: EventType.DeviceSetupSecurityCheck;
-          payload: {
-              location:
-                  | 'deviceLooksDifferent'
-                  | 'firmwareAlreadyInstalled'
-                  | 'untrustedReseller'
-                  | 'securitySeal'
-                  | 'packaging';
-          };
-      }
-    | {
-          type: EventType.DeviceSetupInfo;
-          payload: {
-              location: 'untrustedReseller' | 'securitySeal';
-          };
-      }
-    | {
-          type: EventType.ReferralButtonPress;
-      }
-    | {
-          type: EventType.DemoAccountQuestionnaireDashboard;
-      }
-    | {
-          type: EventType.DemoAccountQuestionnaireStart;
-      }
-    | {
-          type: EventType.DemoAccountQuestionnaireQuestion;
-          payload: {
-              option: DemoAccountQuestionnaireQuestionOption;
-              question: DemoAccountQuestionnaireQuestion;
-          };
-      }
-    | {
-          type: EventType.DemoAccountQuestionnaireLinks;
-          payload: {
-              option: DemoAccountQuestionnaireLinkKey;
           };
       };

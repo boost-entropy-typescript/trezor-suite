@@ -5,9 +5,9 @@ import {
     TradingAssetOption,
     TradingAssetSellOption,
 } from '@suite-common/trading';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 import { Badge, Row, Text } from '@trezor/components';
 import { AssetLogo, CoinLogo } from '@trezor/product-components';
-import { spacings } from '@trezor/theme';
 
 import { AssetPickerAccountLabel } from './AssetPickerAccountLabel';
 
@@ -28,9 +28,13 @@ export type AssetPickerInputContentProps = {
 
 export function AssetPickerInputContent({ name, value, dataTestId }: AssetPickerInputContentProps) {
     return (
-        <Row gap={spacings.sm}>
+        <Row gap={12}>
             {value.isNativeToken ? (
-                <CoinLogo size={20} symbol={value.symbol} type="tokenWithNetwork" />
+                <CoinLogo
+                    size={20}
+                    symbol={value.symbol as NetworkSymbol}
+                    type="tokenWithNetwork"
+                />
             ) : (
                 <AssetLogo
                     size={20}

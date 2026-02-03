@@ -27,8 +27,10 @@ import {
     Sign,
 } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
-import { selectLabelingValueBeingEdited } from 'src/reducers/suite/metadataReducer';
-import { AccountLabels } from 'src/types/suite/metadata';
+import {
+    selectLabelingDataForAccount,
+    selectLabelingValueBeingEdited,
+} from 'src/reducers/suite/metadataReducer';
 import { WalletAccountTransaction } from 'src/types/wallet';
 
 import { TargetAddressLabel } from './TargetAddressLabel';
@@ -40,7 +42,6 @@ import { TransactionTargetLayout } from '../TransactionTargetLayout';
 type TransactionTargetProps = CombinedTarget & {
     transaction: WalletAccountTransaction;
     accountKey: string;
-    accountMetadata?: AccountLabels;
     isActionDisabled?: boolean;
     isPhishingTransaction?: boolean;
 };
@@ -49,13 +50,14 @@ export const TransactionTarget = ({
     type,
     payload,
     transaction,
-    accountMetadata,
     accountKey,
     isActionDisabled,
     isPhishingTransaction,
     ...baseLayoutProps
 }: TransactionTargetProps) => {
     const { translationString } = useTranslation();
+
+    const accountMetadata = useSelector(state => selectLabelingDataForAccount(state, accountKey));
 
     const baseCurrencyCode = useSelector(selectBaseCurrency);
     const fiatRateKey = getFiatRateKey(
@@ -70,9 +72,11 @@ export const TransactionTarget = ({
         selectHistoricFiatRatesByTimestamp(state, fiatRateKey, transaction.blockTime as Timestamp),
     );
     const labelingValueBeingEdited = useSelector(selectLabelingValueBeingEdited);
+
     const suiteSyncOutputLabels = useSelector(state =>
         selectSuiteSyncOutputLabels(state, transaction.deviceState),
     );
+
     const isSolanaUnstakeTx = transaction?.solanaSpecific?.stakeOperation?.type === 'unstake';
 
     const amount = useMemo(() => {
@@ -199,7 +203,8 @@ export const TransactionTarget = ({
 
     const outputLabel =
         suiteSyncOutputLabels.find(
-            it => it.txId === transaction.txid && it.outputIndex.toString() === metadataId,
+            it =>
+                it.txId === transaction.txid && it.outputIndex.toString() === metadataId.toString(),
         )?.label ?? targetMetadata;
 
     return (
