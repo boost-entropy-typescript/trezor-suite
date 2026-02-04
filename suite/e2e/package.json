@@ -12,7 +12,7 @@
         "test:e2e:desktop:canary": "yarn xvfb-maybe -- playwright test --config=./playwright-config/playwright-desktop-local-canary.config.ts",
         "test:e2e:web:canary": "yarn xvfb-maybe -- playwright test --config=./playwright-config/playwright-web-local-canary.config.ts",
         "test:orchestrated:e2e": "NODE_OPTIONS='--no-warnings=DEP0040' yarn xvfb-maybe -- pwc-p",
-        "github:report:manual": "NODE_OPTIONS='--no-warnings=DEP0040' yarn xvfb-maybe -- playwright test --config=./playwright-manual.config.ts --reporter=./support/reporters/gitHubReporter.ts",
+        "github:report:manual": "NODE_OPTIONS='--no-warnings=DEP0040' yarn xvfb-maybe -- playwright test --config=./playwright-config/playwright-manual.config.ts --reporter=./support/reporters/gitHubReporter.ts",
         "github:create:project": "tsx ./support/reporters/scriptCreateProject.ts",
         "git:bisect": "./scripts/bisect-commits.sh",
         "decode:sol:stake": "tsx ./scripts/decode-sol-staking-account.ts",
@@ -20,6 +20,7 @@
     },
     "devDependencies": {
         "@currents/playwright": "^1.19.0",
+        "@evolu/common": "patch:@evolu/common@npm%3A7.3.0#~/.yarn/patches/@evolu-common-npm-7.3.0-dc4f142770.patch",
         "@playwright/browser-chromium": "^1.57.0",
         "@playwright/browser-firefox": "^1.57.0",
         "@playwright/browser-webkit": "^1.57.0",
@@ -31,6 +32,7 @@
         "@solana/rpc-types": "^2.3.0",
         "@suite-common/feedback": "workspace:*",
         "@suite-common/message-system": "workspace:*",
+        "@suite-common/suite-sync-evolu": "workspace:*",
         "@suite-common/suite-types": "workspace:*",
         "@suite-common/trading": "workspace:*",
         "@suite-common/wallet-config": "workspace:*",
@@ -52,7 +54,10 @@
         "@trezor/type-utils": "workspace:*",
         "@trezor/urls": "workspace:*",
         "@trezor/utils": "workspace:*",
+        "@types/better-sqlite3": "^7.6.13",
         "@types/lodash": "^4.17.16",
+        "@types/ws": "^8",
+        "better-sqlite3": "^12.1.1",
         "dotenv": "^16.4.7",
         "fs-extra": "^11.3.1",
         "jest-diff": "^29.7.0",
@@ -60,6 +65,7 @@
         "react-intl": "^8.0.6",
         "tsx": "^4.21.0",
         "type-fest": "^5.4.1",
+        "ws": "^8.19.0",
         "xvfb-maybe": "^0.2.1"
     }
 }

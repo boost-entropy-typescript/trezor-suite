@@ -23,6 +23,7 @@ export type FirmwareUpdatePayload = {
 
 export type FirmwareUpdateStuckedState = 'modalPart1' | 'modalPart2' | 'buttonVisible';
 export type FirmwareUpdateStartType = 'normal' | 'retry';
+export type FirmwareUpdateLocation = 'settings' | 'onboarding' | null;
 
 export type TradingNavigateFrom =
     | 'trade'
@@ -50,20 +51,3 @@ export type TradingSellStep =
     | 'fee-selection'
     | 'sign-and-send'
     | 'webview';
-
-export type DemoAccountQuestionnaireQuestion = 'reason' | 'suiteAction';
-
-export type DemoAccountQuestionnaireQuestionOption =
-    | 'considering'
-    | 'ad'
-    | 'friend'
-    | 'none'
-    | 'explore'
-    | 'transaction'
-    | 'hardwareWallet';
-
-export type DemoAccountQuestionnaireLinkKey =
-    | 'hardwareWallet'
-    | 'trezorSecurity'
-    | 'TS7'
-    | 'dashboard';

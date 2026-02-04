@@ -24,7 +24,7 @@ import {
     SendStackRoutes,
     StackNavigationProps,
 } from '@suite-native/navigation';
-import { useLegacyAnalytics } from '@suite-native/services';
+import { useAnalytics } from '@suite-native/services';
 import { TokensRootState, selectAccountTokenInfo } from '@suite-native/tokens';
 import { selectHasAccountAnyTransactions } from '@suite-native/transactions';
 
@@ -87,7 +87,7 @@ const TransactionListHeaderContent = ({
 
 export const TransactionListHeader = memo(
     ({ accountKey, tokenContract }: TransactionListHeaderProps) => {
-        const legacyAnalytics = useLegacyAnalytics();
+        const analytics = useAnalytics();
         const navigation = useNavigation<NavigationProp>();
 
         const account = useSelector((state: AccountsRootState) =>
@@ -113,7 +113,7 @@ export const TransactionListHeader = memo(
         if (!account) return null;
 
         const handleReceive = () => {
-            legacyAnalytics.report({
+            analytics.report({
                 type: EventType.ReceiveFlowEntered,
                 payload: {
                     location: 'accountDetail',
@@ -133,7 +133,7 @@ export const TransactionListHeader = memo(
         };
 
         const handleSend = () => {
-            legacyAnalytics.report({
+            analytics.report({
                 type: EventType.SendFlowEntered,
                 payload: {
                     location: 'accountDetail',

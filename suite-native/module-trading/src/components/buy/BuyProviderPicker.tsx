@@ -12,7 +12,7 @@ import {
 import { EventType } from '@suite-native/analytics';
 import { HStack, Text } from '@suite-native/atoms';
 import { useTranslate } from '@suite-native/intl';
-import { useLegacyAnalytics } from '@suite-native/services';
+import { useAnalytics } from '@suite-native/services';
 import { OverviewRow, OverviewValueSkeleton, ProviderLogo } from '@suite-native/trading-atoms';
 import { ResidenceCheckAwareAnimatedBox } from '@suite-native/trading-residence';
 import {
@@ -66,7 +66,7 @@ export const BuyProviderPicker = () => {
     const form = useBuyFormContext();
     const providers = useSelector(selectTradingBuyProviders);
     const isLoading = useSelector(selectTradingBuyIsLoading);
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const { isSheetVisible, hideSheet, showSheet, setSelectedValue, selectedValue } =
         useSheetControls(form, 'quote');
     const { paymentMethod } = selectedValue ?? {};
@@ -80,7 +80,7 @@ export const BuyProviderPicker = () => {
         if (isLoading) return;
 
         showSheet();
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.TradingCompareOffers,
             payload: {
                 type: 'buy',
@@ -93,7 +93,7 @@ export const BuyProviderPicker = () => {
 
         if (selectedValue?.exchange === quote.exchange) return;
 
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.TradingParameterChanged,
             payload: {
                 type: 'buy',

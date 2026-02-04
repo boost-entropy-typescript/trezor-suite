@@ -2,9 +2,6 @@ export * from './analyticsThunks';
 export { EventType } from './constants';
 export type {
     AnalyticsSendFlowStep,
-    DemoAccountQuestionnaireLinkKey,
-    DemoAccountQuestionnaireQuestion,
-    DemoAccountQuestionnaireQuestionOption,
     DeviceAuthenticityCheckResult,
     FirmwareUpdatePayload,
     FirmwareUpdateStartType,
@@ -15,6 +12,12 @@ export type {
     TradingSellAction,
     TradingSellStep,
 } from './definitions';
+export type {
+    DemoAccountQuestionnaireQuestion,
+    DemoAccountQuestionnaireQuestionOption,
+} from './events/demoAccountQuestionnaireQuestionEvent';
+export type { AutoEjectModalValue } from './events/autoEjectModalEvent';
+export type { DemoAccountQuestionnaireLinkKey } from './events/demoAccountQuestionnaireLinksEvent';
 export type {
     CountryChangeContextCheck,
     CountryChangeContext,

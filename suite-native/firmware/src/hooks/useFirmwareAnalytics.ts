@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { TrezorDevice } from '@suite-common/suite-types';
 import { selectDeviceUpdateFirmwareVersion } from '@suite-common/wallet-core';
 import { EventType, FirmwareUpdatePayload, FirmwareUpdateStartType } from '@suite-native/analytics';
-import { useLegacyAnalytics } from '@suite-native/services';
+import { useAnalytics } from '@suite-native/services';
 import { FirmwareType } from '@trezor/connect';
 import {
     DeviceModelInternal,
@@ -22,7 +22,7 @@ export const useFirmwareAnalytics = ({
     navigationLocation?: 'settings' | 'onboarding';
 }) => {
     const toFwVersion = useSelector(selectDeviceUpdateFirmwareVersion);
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const prepareAnalyticsPayload = useCallback(
         () => ({
             model: device?.features?.internal_model ?? DeviceModelInternal.UNKNOWN,
@@ -61,7 +61,7 @@ export const useFirmwareAnalytics = ({
         ({ startType }: { startType: FirmwareUpdateStartType }) => {
             resetTimeStarted();
 
-            legacyAnalytics.report({
+            analytics.report({
                 type: EventType.FirmwareUpdateStarted,
                 payload: {
                     ...getAnalyticsPayload(),
@@ -69,12 +69,12 @@ export const useFirmwareAnalytics = ({
                 },
             });
         },
-        [getAnalyticsPayload, legacyAnalytics, resetTimeStarted],
+        [getAnalyticsPayload, analytics, resetTimeStarted],
     );
 
     const handleAnalyticsReportStucked = useCallback(
         (state: 'modalPart1' | 'modalPart2' | 'buttonVisible') => {
-            legacyAnalytics.report({
+            analytics.report({
                 type: EventType.FirmwareUpdateStucked,
                 payload: {
                     ...getAnalyticsPayload(),
@@ -83,12 +83,12 @@ export const useFirmwareAnalytics = ({
                 },
             });
         },
-        [legacyAnalytics, getAnalyticsPayload, getElapsedTimeInSeconds],
+        [analytics, getAnalyticsPayload, getElapsedTimeInSeconds],
     );
 
     const handleAnalyticsReportFinished = useCallback(
         ({ error }: { error?: string } = {}) => {
-            legacyAnalytics.report({
+            analytics.report({
                 type: EventType.FirmwareUpdateFinished,
                 payload: {
                     ...getAnalyticsPayload(),
@@ -97,15 +97,15 @@ export const useFirmwareAnalytics = ({
                 },
             });
         },
-        [legacyAnalytics, getAnalyticsPayload, getElapsedTimeInSeconds],
+        [analytics, getAnalyticsPayload, getElapsedTimeInSeconds],
     );
 
     const handleAnalyticsReportCancelled = useCallback(() => {
-        legacyAnalytics.report({
+        analytics.report({
             type: EventType.FirmwareUpdateCancel,
             payload: getAnalyticsPayload(),
         });
-    }, [getAnalyticsPayload, legacyAnalytics]);
+    }, [getAnalyticsPayload, analytics]);
 
     return {
         getElapsedTimeInSeconds,
