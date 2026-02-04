@@ -8,7 +8,6 @@ import { ConnectFactoryDependencies } from '../factory';
 import { InitFullSettings } from '../types/api/init';
 import type { SetTransports } from '../types/api/setTransports';
 import type { Manifest } from '../types/settings';
-import { ProxyEventEmitter } from '../utils/proxy-event-emitter';
 
 type TrezorConnectDynamicParams<
     ImplType,
@@ -20,6 +19,7 @@ type TrezorConnectDynamicParams<
         impl: ImplInterface;
     }[];
     getInitTarget: (settings: InitFullSettings<SettingsType>) => ImplType;
+    handleBeforeInit?: () => void;
     handleBeforeCall: () => Promise<void>;
     handleErrorFallback: (errorCode: string) => Promise<boolean>;
 };
@@ -33,7 +33,7 @@ export class TrezorConnectDynamic<
     SettingsType extends Record<string, any>,
     ImplInterface extends ConnectFactoryDependencies<SettingsType>,
 > implements ConnectFactoryDependencies<SettingsType> {
-    public eventEmitter: EventEmitter;
+    public eventEmitter = new EventEmitter();
 
     private currentTarget: ImplType;
     private implementations: TrezorConnectDynamicParams<
@@ -46,6 +46,11 @@ export class TrezorConnectDynamic<
         SettingsType,
         ImplInterface
     >['getInitTarget'];
+    private handleBeforeInit: TrezorConnectDynamicParams<
+        ImplType,
+        SettingsType,
+        ImplInterface
+    >['handleBeforeInit'];
     private handleBeforeCall: TrezorConnectDynamicParams<
         ImplType,
         SettingsType,
@@ -64,17 +69,19 @@ export class TrezorConnectDynamic<
     public constructor({
         implementations,
         getInitTarget,
+        handleBeforeInit,
         handleBeforeCall,
         handleErrorFallback,
     }: TrezorConnectDynamicParams<ImplType, SettingsType, ImplInterface>) {
         this.implementations = implementations;
         this.currentTarget = this.implementations[0].type;
         this.getInitTarget = getInitTarget;
+        this.handleBeforeInit = handleBeforeInit;
         this.handleBeforeCall = handleBeforeCall;
         this.handleErrorFallback = handleErrorFallback;
-        this.eventEmitter = new ProxyEventEmitter(
-            this.implementations.map(impl => impl.impl.eventEmitter),
-        );
+        this.implementations.forEach(impl => {
+            impl.impl.eventEmitter = this.eventEmitter;
+        });
     }
 
     public getTarget() {
@@ -99,6 +106,7 @@ export class TrezorConnectDynamic<
         const oldTarget = this.getTarget();
         try {
             this.currentTarget = target;
+            this.handleBeforeInit?.();
             await this.getTarget().init(this.lastSettings);
             await oldTarget.dispose();
         } catch {
@@ -124,6 +132,8 @@ export class TrezorConnectDynamic<
 
         // Initialize the target
         try {
+            this.handleBeforeInit?.();
+
             return await this.getTarget().init(this.lastSettings);
         } catch (error) {
             // Handle error by switching to other implementation if available as defined in `handleErrorFallback`.

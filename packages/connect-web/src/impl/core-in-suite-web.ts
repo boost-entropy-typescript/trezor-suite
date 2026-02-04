@@ -10,7 +10,7 @@ import {
     UiResponseEvent,
     createErrorMessage,
 } from '@trezor/connect/src/events';
-import { ConnectFactoryDependencies, factory } from '@trezor/connect/src/factory';
+import { ConnectFactoryDependencies } from '@trezor/connect/src/factory';
 import type { ConnectSettings, ConnectSettingsWeb, Manifest } from '@trezor/connect/src/types';
 import { InitFullSettings } from '@trezor/connect/src/types/api/init';
 import { Log, initLog } from '@trezor/connect/src/utils/debug';
@@ -43,10 +43,16 @@ export class CoreInSuiteWeb implements ConnectFactoryDependencies<ConnectSetting
     }
 
     public dispose() {
-        this.eventEmitter.removeAllListeners();
         this._settings = parseConnectSettings();
 
         return Promise.resolve(undefined);
+    }
+
+    public cancel(_error?: string) {
+        this._popupManager?.channel?.postMessage({
+            type: POPUP.CLOSED,
+            payload: { error: _error },
+        });
     }
 
     public init(settings: InitFullSettings<{}>): Promise<void> {
@@ -134,13 +140,6 @@ export class CoreInSuiteWeb implements ConnectFactoryDependencies<ConnectSetting
         }
     }
 
-    public cancel(_error?: string) {
-        this._popupManager?.channel?.postMessage({
-            type: POPUP.CLOSED,
-            payload: { error: _error },
-        });
-    }
-
     // not supported, transports are controlled by suite
     public setTransports() {
         throw new Error('Method_InvalidPackage');
@@ -164,18 +163,3 @@ export class CoreInSuiteWeb implements ConnectFactoryDependencies<ConnectSetting
     // not needed, only because of types
     renderWebUSBButton() {}
 }
-
-const impl = new CoreInSuiteWeb();
-
-// Exported to enable using directly
-export const TrezorConnect = factory({
-    // Bind all methods due to shadowing `this`
-    eventEmitter: impl.eventEmitter,
-    init: impl.init.bind(impl),
-    call: impl.call.bind(impl),
-    setTransports: impl.setTransports.bind(impl),
-    manifest: impl.manifest.bind(impl),
-    uiResponse: impl.uiResponse.bind(impl),
-    cancel: impl.cancel.bind(impl),
-    dispose: impl.dispose.bind(impl),
-});
