@@ -710,3 +710,31 @@ export const selectTradingDetailData = createMemoizedSelector(
         };
     },
 );
+
+export const selectTradingBuyLastErrorMessage = (state: TradingRootState) =>
+    selectTradingBuy(state).lastErrorMessage;
+
+export const selectTradingExchangeLastErrorMessage = (state: TradingRootState) =>
+    selectTradingExchange(state).lastErrorMessage;
+
+export const selectTradingSellLastErrorMessage = (state: TradingRootState) =>
+    selectTradingSell(state).lastErrorMessage;
+
+export const selectTradingLastErrorMessageByTradeType = (
+    state: TradingRootState,
+    tradingType: TradingType,
+) => {
+    switch (tradingType) {
+        case 'buy':
+            return selectTradingBuyLastErrorMessage(state);
+
+        case 'exchange':
+            return selectTradingExchangeLastErrorMessage(state);
+
+        case 'sell':
+            return selectTradingSellLastErrorMessage(state);
+
+        default:
+            exhaustive(tradingType, 'Unexpected trade type');
+    }
+};
