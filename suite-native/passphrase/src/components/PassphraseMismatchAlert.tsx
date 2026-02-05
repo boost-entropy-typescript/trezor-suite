@@ -20,7 +20,7 @@ import {
     StackToStackCompositeNavigationProps,
     useNavigateToInitialScreen,
 } from '@suite-native/navigation';
-import { useLegacyAnalytics } from '@suite-native/services';
+import { useAnalytics } from '@suite-native/services';
 
 import { selectHasPassphraseMismatchError } from '../passphraseSelectors';
 
@@ -32,7 +32,7 @@ type NavigationProp = StackToStackCompositeNavigationProps<
 
 export const PassphraseMismatchAlert = ({ children }: { children?: React.ReactNode }) => {
     const dispatch = useDispatch();
-    const legacyAnalytics = useLegacyAnalytics();
+    const analytics = useAnalytics();
     const navigation = useNavigation<NavigationProp>();
     const device = useSelector(selectSelectedDevice);
     const navigateToInitialScreen = useNavigateToInitialScreen();
@@ -44,7 +44,7 @@ export const PassphraseMismatchAlert = ({ children }: { children?: React.ReactNo
     useEffect(() => {
         // Wrong passphrase was entered during verifying empty wallet
         if (hasPassphraseMismatchError) {
-            legacyAnalytics.report({ type: EventType.PassphraseMismatch });
+            analytics.report({ type: EventType.PassphraseMismatch });
             showAlert({
                 title: (
                     <Translation id="modulePassphrase.emptyPassphraseWallet.verifyEmptyWallet.passphraseMismatchAlert.title" />
@@ -80,7 +80,7 @@ export const PassphraseMismatchAlert = ({ children }: { children?: React.ReactNo
                     dispatch(cancelDiscoveryThunk(device));
                     navigateToInitialScreen();
 
-                    legacyAnalytics.report({
+                    analytics.report({
                         type: EventType.PassphraseExit,
                         payload: { screen: AuthorizeDeviceStackRoutes.PassphraseConfirmOnTrezor },
                     });
@@ -93,7 +93,7 @@ export const PassphraseMismatchAlert = ({ children }: { children?: React.ReactNo
         device,
         dispatch,
         hasPassphraseMismatchError,
-        legacyAnalytics,
+        analytics,
         navigateToInitialScreen,
         navigation,
         showAlert,
