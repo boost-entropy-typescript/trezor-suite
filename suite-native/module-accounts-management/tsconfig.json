@@ -7,6 +7,9 @@
         },
         { "path": "../../suite-common/graph" },
         {
+            "path": "../../suite-common/suite-sync"
+        },
+        {
             "path": "../../suite-common/token-definitions"
         },
         {
@@ -39,6 +42,9 @@
         { "path": "../link" },
         { "path": "../module-device-onboarding" },
         { "path": "../module-earn" },
+        {
+            "path": "../module-stellar-token-management"
+        },
         { "path": "../navigation" },
         { "path": "../qr-code" },
         { "path": "../services" },

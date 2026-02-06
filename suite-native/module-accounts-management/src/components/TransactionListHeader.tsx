@@ -34,6 +34,7 @@ import { StellarLimitedHistoryBanner } from './AccountBanners/StellarLimitedHist
 import { AccountDetailCryptoValue } from './AccountDetailCryptoValue';
 import { AccountDetailGraph } from './AccountDetailGraph';
 import { CoinPriceCard } from './CoinPriceCard';
+import { StellarTokenActions } from './StellarTokenActions';
 
 type TransactionListHeaderProps = {
     accountKey: AccountKey;
@@ -153,9 +154,11 @@ export const TransactionListHeader = memo(
 
         const isTokenDetail = !!tokenContract;
         const isPriceCardDisplayed = shallDisplayBaseCurrency && !isTokenDetail;
+        const isStellarAccount = account.networkType === 'stellar';
 
         const isSendButtonDisplayed = isNetworkSendFlowEnabled && !isPortfolioTrackerDevice;
         const isReceiveButtonDisplayed = !hasFirmwareAuthenticityCheckHardFailed;
+        const isStellarTokenActionsDisplayed = isStellarAccount && !isPortfolioTrackerDevice;
 
         return (
             <>
@@ -191,7 +194,13 @@ export const TransactionListHeader = memo(
                         </HStack>
                     )}
                     {isPriceCardDisplayed && <CoinPriceCard accountKey={accountKey} />}
-                    {account.networkType === 'stellar' && <StellarLimitedHistoryBanner />}
+                    {isStellarTokenActionsDisplayed && (
+                        <StellarTokenActions
+                            accountKey={accountKey}
+                            tokenContract={tokenContract}
+                        />
+                    )}
+                    {isStellarAccount && <StellarLimitedHistoryBanner />}
                     {account.networkType === 'solana' && <SolanaLimitedHistoryBanner />}
                 </VStack>
                 {hasAccountTransactions && (

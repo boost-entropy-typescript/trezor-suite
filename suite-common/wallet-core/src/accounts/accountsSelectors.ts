@@ -215,11 +215,6 @@ export const selectAccountForNetworkSymbolAndPath = createMemoizedSelector(
         accounts.find(account => path === account.path && networkSymbol === account.symbol) ?? null,
 );
 
-export const selectAccountLabel = createMemoizedSelector(
-    [selectAccountByKey],
-    account => account?.accountLabel ?? null,
-);
-
 export const selectAccountNetworkSymbol = createMemoizedSelector(
     [selectAccountByKey],
     account => account?.symbol ?? null,

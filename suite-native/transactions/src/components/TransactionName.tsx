@@ -58,6 +58,22 @@ export const getTransactionName = (
 export const TransactionName = ({ transaction, isPending, variant }: TransactionNameProps) => {
     const ethName = transaction.ethereumSpecific?.parsedData?.name;
 
+    // Stellar trustline addition/removal (short version without asset code)
+    if (
+        transaction.stellarSpecific?.operationType === 'changeTrust' &&
+        transaction.stellarSpecific?.changeTrust
+    ) {
+        return (
+            <Text variant={variant}>
+                {transaction.stellarSpecific.changeTrust.isRemoval ? (
+                    <Translation id="transactions.name.stellarTrustlineRemoved" />
+                ) : (
+                    <Translation id="transactions.name.stellarTrustlineAdded" />
+                )}
+            </Text>
+        );
+    }
+
     return (
         <Text variant={variant}>
             {
