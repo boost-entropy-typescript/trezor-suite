@@ -5,11 +5,9 @@ import {
     TradingAssetOption,
     TradingAssetSellOption,
 } from '@suite-common/trading';
-import { NetworkSymbol } from '@suite-common/wallet-config';
-import { Badge, Row, Text } from '@trezor/components';
+import { NetworkSymbol, getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
+import { Column, Row, Text } from '@trezor/components';
 import { AssetLogo, CoinLogo } from '@trezor/product-components';
-
-import { AssetPickerAccountLabel } from './AssetPickerAccountLabel';
 
 export type AssetPickerInputContentProps = {
     dataTestId?: string;
@@ -26,35 +24,44 @@ export type AssetPickerInputContentProps = {
       }
 );
 
-export function AssetPickerInputContent({ name, value, dataTestId }: AssetPickerInputContentProps) {
+export function AssetPickerInputContent({ value, dataTestId }: AssetPickerInputContentProps) {
+    const {
+        isNativeToken,
+        networkSymbol,
+        symbol,
+        displaySymbol,
+        name,
+        coingeckoId,
+        contractAddress,
+        networkName,
+    } = value;
+    const displayName = isNativeToken ? getNetworkDisplaySymbolName(networkSymbol) : name;
+    const showNetwork = networkSymbol !== displaySymbol.toLowerCase();
+
     return (
         <Row gap={12}>
-            {value.isNativeToken ? (
-                <CoinLogo
-                    size={20}
-                    symbol={value.symbol as NetworkSymbol}
-                    type="tokenWithNetwork"
-                />
+            {isNativeToken ? (
+                <CoinLogo size={32} symbol={symbol as NetworkSymbol} type="tokenWithNetwork" />
             ) : (
                 <AssetLogo
-                    size={20}
-                    coingeckoId={value.coingeckoId}
-                    symbol={value.networkSymbol}
-                    contractAddress={value.contractAddress}
-                    placeholder={value.displaySymbol}
-                    showNetworkIcon={false}
+                    size={32}
+                    coingeckoId={coingeckoId}
+                    symbol={networkSymbol}
+                    contractAddress={contractAddress}
+                    placeholder={displaySymbol}
+                    showNetworkIcon={showNetwork}
                 />
             )}
-            <Text data-testid={dataTestId ? `${dataTestId}/display-symbol` : undefined}>
-                {value.displaySymbol}
-            </Text>
-            <Text variant="tertiary" typographyStyle="label">
-                {value.name}
-            </Text>
-            {name === TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT && (
-                <AssetPickerAccountLabel accountKey={value.accountKey} />
-            )}
-            {!value.isNativeToken ? <Badge size="small">{value.networkName}</Badge> : null}
+            <Column alignItems="start">
+                <Text data-testid={dataTestId ? `${dataTestId}/display-symbol` : undefined}>
+                    {displayName}
+                </Text>
+                {showNetwork && (
+                    <Text variant="tertiary" typographyStyle="label">
+                        {networkName}
+                    </Text>
+                )}
+            </Column>
         </Row>
     );
 }

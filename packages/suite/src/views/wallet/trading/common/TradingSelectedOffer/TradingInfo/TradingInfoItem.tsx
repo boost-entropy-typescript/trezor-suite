@@ -1,14 +1,19 @@
 import { CryptoId } from 'invity-api';
 
 import { Translation, useTranslation } from '@suite/intl';
-import { type TradingType, cryptoIdToNetworkSymbolAndContractAddress } from '@suite-common/trading';
+import {
+    type TradingType,
+    cryptoIdToNetworkSymbolAndContractAddress,
+    useTradingAssets,
+} from '@suite-common/trading';
+import { NetworkSymbol, getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
 import { Account, TokenAddress } from '@suite-common/wallet-types';
 import { Box, Column, Row, Text } from '@trezor/components';
-import { borders, spacings } from '@trezor/theme';
+import { AssetLogo, CoinLogo } from '@trezor/product-components';
+import { borders } from '@trezor/theme';
 
 import { AccountLabel, Address, BaseCurrencyValue } from 'src/components/suite';
 import { TradingPayGetLabelType } from 'src/types/trading/trading';
-import { TradingCoinLogo } from 'src/views/wallet/trading/common/TradingCoinLogo';
 import { TradingCryptoAmount } from 'src/views/wallet/trading/common/TradingCryptoAmount';
 
 interface TradingInfoItemProps {
@@ -31,17 +36,32 @@ export const TradingInfoItem = ({
     receiveAddress,
 }: TradingInfoItemProps) => {
     const { translationString } = useTranslation();
-
+    const { createAssetOptionFromCryptoId } = useTradingAssets();
     const currencyInfo = currency && cryptoIdToNetworkSymbolAndContractAddress(currency);
     const accountLabelPrefix = translationString(isReceive ? 'TR_TO' : 'TR_FROM').toLowerCase();
 
     const showAccountLabel = !!account && type !== 'sell';
     const isExternalExchange = type === 'exchange' && !account && !!receiveAddress;
 
+    const {
+        isNativeToken,
+        networkSymbol,
+        name,
+        coingeckoId,
+        displaySymbol,
+        networkName,
+        contractAddress,
+        symbol,
+    } = createAssetOptionFromCryptoId(currency);
+
+    const displayName = isNativeToken ? getNetworkDisplaySymbolName(networkSymbol) : name;
+
+    const showNetwork = networkSymbol !== displaySymbol.toLowerCase();
+
     if (!amount || !currency) return null;
 
     return (
-        <Column width="100%">
+        <Column width="100%" gap={8}>
             <Row justifyContent="space-between">
                 <Text variant="tertiary" typographyStyle="hint">
                     <Translation id={label} />
@@ -67,15 +87,39 @@ export const TradingInfoItem = ({
                 )}
             </Row>
             <Box
-                margin={{ top: spacings.xs }}
                 borderWidth={borders.widths.medium}
                 borderRadius={borders.radii.sm}
-                padding={spacings.md}
+                padding={16}
                 backgroundColor="backgroundSurfaceElevation2"
             >
-                <Row gap={spacings.xs} alignItems="center">
-                    <TradingCoinLogo cryptoId={currency} size={24} />
-                    <Column>
+                <Row gap={8} justifyContent="space-between">
+                    <Row gap={8} alignItems="center">
+                        {isNativeToken ? (
+                            <CoinLogo
+                                size={40}
+                                symbol={symbol as NetworkSymbol}
+                                type="tokenWithNetwork"
+                            />
+                        ) : (
+                            <AssetLogo
+                                size={40}
+                                coingeckoId={coingeckoId}
+                                symbol={networkSymbol}
+                                contractAddress={contractAddress}
+                                placeholder={displaySymbol}
+                                showNetworkIcon={showNetwork}
+                            />
+                        )}
+                        <Column alignItems="start">
+                            <Text>{displayName}</Text>
+                            {showNetwork && (
+                                <Text variant="tertiary" typographyStyle="hint">
+                                    {networkName}
+                                </Text>
+                            )}
+                        </Column>
+                    </Row>
+                    <Column alignItems="flex-end">
                         <TradingCryptoAmount amount={amount} cryptoId={currency} />
 
                         {currencyInfo?.symbol && (
