@@ -17,8 +17,12 @@ import {
     selectDevices,
     selectDevicesCount,
 } from '@suite-common/wallet-core';
-import { Account } from '@suite-common/wallet-types';
-import { getAccountTotalStakingBalance } from '@suite-common/wallet-utils';
+import { AccountKey } from '@suite-common/wallet-types';
+import {
+    accumulateAccountCountBySymbolAndType,
+    getAccountTotalStakingBalance,
+    getAccountsWithSomeTransactionHistory,
+} from '@suite-common/wallet-utils';
 import { DEVICE, TRANSPORT } from '@trezor/connect';
 import {
     getBootloaderHash,
@@ -174,21 +178,6 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
             case discoveryActions.updateDiscovery.type: {
                 if (action.payload.status.status !== 'complete') return result;
 
-                const accumulateAccountCountBySymbolAndType = (
-                    acc: Record<string, number>,
-                    { symbol, accountType }: Account,
-                ) => {
-                    const accType = accountType === 'coinjoin' ? 'taproot' : accountType;
-                    const id = `${symbol}_${accType}`;
-                    acc[id] = (acc[id] || 0) + 1;
-
-                    return acc;
-                };
-
-                const accountsWithTransactions = state.wallet.accounts
-                    .filter(account => account.history.total + (account.history.unconfirmed || 0))
-                    .reduce(accumulateAccountCountBySymbolAndType, {});
-
                 const accountsWithNonZeroBalance = state.wallet.accounts
                     .filter(
                         account =>
@@ -224,7 +213,10 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
 
                 asTypedDesktopAnalytics(analytics).report({
                     type: EventType.AccountsStatus,
-                    payload: accountsWithTransactions,
+                    payload: getAccountsWithSomeTransactionHistory(state.wallet.accounts).reduce(
+                        accumulateAccountCountBySymbolAndType,
+                        {},
+                    ),
                 });
 
                 asTypedDesktopAnalytics(analytics).report({
@@ -279,11 +271,11 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
             case COINJOIN.ACCOUNT_UNREGISTER: {
                 const coinjoinAccount = selectCoinjoinAccountByKey(
                     state,
-                    action.payload.accountKey,
+                    action.payload.accountKey as AccountKey,
                 );
                 const anonymityGainToReport = selectAnonymityGainToReportByAccountKey(
                     state,
-                    action.payload.accountKey,
+                    action.payload.accountKey as AccountKey,
                 );
 
                 if (coinjoinAccount && anonymityGainToReport !== null) {

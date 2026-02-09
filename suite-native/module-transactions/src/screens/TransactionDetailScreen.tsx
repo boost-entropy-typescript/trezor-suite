@@ -46,7 +46,7 @@ export const TransactionDetailScreen = ({
         selectExplorer(state, transaction?.symbol),
     );
     const isPending = useSelector((state: TransactionsRootState) =>
-        selectIsTransactionPending(state, txid, accountKey),
+        selectIsTransactionPending(state, accountKey, txid),
     );
 
     const tokenTransfer = transaction?.tokens.find(token => token.contract === tokenContract);

@@ -1,7 +1,7 @@
 import { connectPopupCallThunkInner } from '@suite-common/connect-popup';
 import { createMiddlewareWithExtraDeps } from '@suite-common/redux-utils';
 import { isDeviceAcquired } from '@suite-common/suite-utils';
-import { selectThpStep } from '@suite-common/thp';
+import { selectThpAutoconnectStep, thpActions } from '@suite-common/thp';
 import {
     accountsActions,
     changeNetworks,
@@ -56,12 +56,14 @@ export const prepareDiscoveryMiddleware = createMiddlewareWithExtraDeps(
 
         // delay discovery if THP Autoconnect modal is open (discovery executed by the modal), as it is the only
         // THP step that takes place *after* device acquisition, and also needs device interaction to complete.
-        const isTHPAutoconnectModal = selectThpStep(getState()) === 'AutoconnectInfo';
+        const isTHPAutoconnectModal = selectThpAutoconnectStep(getState()) === 'AutoconnectInfo';
+        const isTHPAutoconnectFinished = thpActions.finishAutoconnectFlow.match(action);
         const isUIReady = !isTHPAutoconnectModal;
 
         if (
             becomesAcquired ||
             becomesConnected ||
+            isTHPAutoconnectFinished ||
             action.type === SUITE.APP_CHANGED ||
             connectPopupCallThunkInner.fulfilled.match(action) ||
             deviceActions.selectDevice.match(action) ||
