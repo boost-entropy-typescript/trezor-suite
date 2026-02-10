@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useNavigation } from '@react-navigation/native';
-import type { BankAccount, FormResponse, SellFiatTrade, SellFiatTradeResponse } from 'invity-api';
+import type { BankAccount, SellFiatTrade, SellFiatTradeResponse } from 'invity-api';
 
 import {
     selectTradingSellInfo,
@@ -10,43 +9,23 @@ import {
     sellThunks,
     sellUtils,
 } from '@suite-common/trading';
-import {
-    RootStackParamList,
-    RootStackRoutes,
-    StackNavigationProps,
-} from '@suite-native/navigation';
 import { selectSellSelectedSendAccount } from '@suite-native/trading-state';
 
-import { buildTradingUrl, getSourceForForm } from '../../utils/general/formUtils';
+import { buildTradingUrl } from '../../utils/general/formUtils';
+import { useBrowserAuth } from '../general/providerConfirmation/useBrowserAuth';
 import { useTradingTransaction } from '../general/useTradingTransaction';
 
 export const useSellFlow = () => {
     const dispatch = useDispatch();
-    const rootNavigation =
-        useNavigation<StackNavigationProps<RootStackParamList, RootStackRoutes>>();
     const sellInfo = useSelector(selectTradingSellInfo);
 
     const selectedQuote = useSelector(selectTradingSellSelectedQuote);
 
     const sendAccount = useSelector(selectSellSelectedSendAccount);
 
-    // whenever we get a form from the webview, we need to navigate to the webview screen
-    const handleWebview = useCallback(
-        (trade: SellFiatTrade, formData: FormResponse['form'], returnUrl: string) => {
-            const source = getSourceForForm(formData);
-            if (!source) {
-                return;
-            }
-
-            rootNavigation.navigate(RootStackRoutes.TradingWebView, {
-                closeCallbackUrl: returnUrl,
-                tradingType: 'sell',
-                source,
-                orderId: trade.orderId,
-            });
-        },
-        [rootNavigation],
-    );
+    const { openBrowserForFormData } = useBrowserAuth({
+        tradingType: 'sell',
+    });
 
     const getCommonFunctions = useCallback(
         (trade?: SellFiatTrade) => {
@@ -69,7 +48,7 @@ export const useSellFlow = () => {
             };
 
             const processResponseData = (response: SellFiatTradeResponse) =>
-                handleWebview(tradeToUse, response.tradeForm?.form, returnUrl);
+                openBrowserForFormData(response.tradeForm?.form, returnUrl);
 
             return {
                 returnUrl,
@@ -77,7 +56,7 @@ export const useSellFlow = () => {
                 processResponseData,
             };
         },
-        [handleWebview, selectedQuote],
+        [openBrowserForFormData, selectedQuote],
     );
 
     const {
@@ -105,7 +84,7 @@ export const useSellFlow = () => {
                 return;
             }
 
-            const { returnUrl, processResponseData } = commonFunctions;
+            const { processResponseData, returnUrl } = commonFunctions;
 
             await dispatch(
                 sellThunks.handleTradeThunk({
@@ -136,7 +115,7 @@ export const useSellFlow = () => {
                 return;
             }
 
-            const { returnUrl, processResponseData, triggerAnalyticsTradeConfirmation } =
+            const { processResponseData, triggerAnalyticsTradeConfirmation, returnUrl } =
                 commonFunctions;
 
             await dispatch(

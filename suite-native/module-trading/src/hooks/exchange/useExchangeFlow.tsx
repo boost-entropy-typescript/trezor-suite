@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useNavigation } from '@react-navigation/native';
-import type { ExchangeTrade, FormResponse } from 'invity-api';
+import type { ExchangeTrade } from 'invity-api';
 
 import {
     TradingSendRejectedProps,
@@ -11,15 +10,11 @@ import {
     selectTradingExchangeSelectedQuote,
 } from '@suite-common/trading';
 import { events } from '@suite-native/analytics';
-import {
-    RootStackParamList,
-    RootStackRoutes,
-    StackNavigationProps,
-} from '@suite-native/navigation';
 import { useAnalytics } from '@suite-native/services';
 import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
 
-import { buildTradingUrl, getSourceForForm } from '../../utils/general/formUtils';
+import { buildTradingUrl } from '../../utils/general/formUtils';
+import { useBrowserAuth } from '../general/providerConfirmation/useBrowserAuth';
 import { useTradingTransaction } from '../general/useTradingTransaction';
 
 export type TradingExchangeConfirmTradeProps = {
@@ -38,32 +33,15 @@ export type TradingExchangeSignAndSendTransactionProps = {
 export const useExchangeFlow = () => {
     const dispatch = useDispatch();
     const analytics = useAnalytics();
-    const rootNavigation =
-        useNavigation<StackNavigationProps<RootStackParamList, RootStackRoutes>>();
-
     const selectedQuote = useSelector(selectTradingExchangeSelectedQuote);
     const preSelectedQuote = useSelector(selectTradingExchangePreselectedQuote);
     const quote = selectedQuote ?? preSelectedQuote;
 
     const sendAccount = useSelector(selectExchangeSelectedSendAccount);
 
-    // whenever we get a form from the webview, we need to navigate to the webview screen
-    const handleWebview = useCallback(
-        (trade: ExchangeTrade, formData: FormResponse['form'], returnUrl: string) => {
-            const source = getSourceForForm(formData);
-            if (!source) {
-                return;
-            }
-
-            rootNavigation.navigate(RootStackRoutes.TradingWebView, {
-                closeCallbackUrl: returnUrl,
-                tradingType: 'exchange',
-                source,
-                orderId: trade?.orderId,
-            });
-        },
-        [rootNavigation],
-    );
+    const { openBrowserForFormData } = useBrowserAuth({
+        tradingType: 'exchange',
+    });
 
     const getCommonFunctions = useCallback(
         (trade?: ExchangeTrade) => {
@@ -91,7 +69,7 @@ export const useExchangeFlow = () => {
             };
 
             const processResponseData = (response: ExchangeTrade) =>
-                handleWebview(tradeToUse, response.tradeForm?.form, returnUrl);
+                openBrowserForFormData(response.tradeForm?.form, returnUrl);
 
             return {
                 returnUrl,
@@ -99,7 +77,7 @@ export const useExchangeFlow = () => {
                 processResponseData,
             };
         },
-        [handleWebview, analytics, quote],
+        [openBrowserForFormData, analytics, quote],
     );
 
     const {

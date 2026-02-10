@@ -29,12 +29,6 @@ class SellPreviewActions extends TradingActions {
         await this.getElementById('continue-button').tap();
     }
 
-    async closePaymentWebview() {
-        await waitForVisible(by.id('@screen/TradingWebView'));
-        await element(by.id('@trading/webview/close')).tap();
-        await this.expectSellPreviewScreenToBeVisible();
-    }
-
     async expectConfirmationInProgress() {
         await waitForVisible(this.getElementById('provider-confirmation-in-progress'), {
             timeout: this.SHORT_TIMEOUT,

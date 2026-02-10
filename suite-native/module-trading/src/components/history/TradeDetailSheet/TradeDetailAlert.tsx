@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 
-import { useNavigation } from '@react-navigation/native';
 import type { BuyTrade } from 'invity-api';
 
 import {
@@ -16,13 +15,9 @@ import { FullAlertBox } from '@suite-native/atoms';
 import { IconName } from '@suite-native/icons';
 import { TxKeyPath, useTranslate } from '@suite-native/intl';
 import { useOpenLink } from '@suite-native/link';
-import {
-    RootStackParamList,
-    RootStackRoutes,
-    StackNavigationProps,
-} from '@suite-native/navigation';
 import { exhaustive } from '@trezor/type-utils';
 
+import { useBrowserAuth } from '../../../hooks/general/providerConfirmation/useBrowserAuth';
 import { buildTradingUrl } from '../../../utils/general/formUtils';
 import { TradeStatusStep } from '../../../utils/general/utils';
 
@@ -39,7 +34,7 @@ type TradeDetailAlertProps = {
     provider?: string;
     tradeType: TradingType;
     orderId?: string;
-    onOpenedWebview?: () => void;
+    onOpenedBrowser?: () => void;
 };
 
 const isBuyOrSell = (
@@ -106,10 +101,9 @@ export const TradeDetailAlert = ({
     provider,
     tradeType,
     orderId,
-    onOpenedWebview,
+    onOpenedBrowser,
 }: TradeDetailAlertProps) => {
     const openLink = useOpenLink();
-    const navigation = useNavigation<StackNavigationProps<RootStackParamList, RootStackRoutes>>();
 
     const providerInfo = useSelector((state: TradingRootState) =>
         selectTradingProviderByNameAndTradeType(state, provider, tradeType),
@@ -120,6 +114,12 @@ export const TradeDetailAlert = ({
     const { translate } = useTranslate();
 
     const alertConfig = getAlertConfig(alertType);
+
+    const { openBrowser } = useBrowserAuth(
+        trade?.tradeType === 'buy'
+            ? { tradingType: trade.tradeType, orderId: trade.data.orderId }
+            : { tradingType: trade?.tradeType },
+    );
 
     // If no config found for this alert type, return null
     if (!alertConfig) {
@@ -139,18 +139,15 @@ export const TradeDetailAlert = ({
         supportUrl = supportUrlTemplate?.replace('{{orderId}}', trade?.data?.orderId || '');
     }
 
-    const navigateToWebView = () => {
+    const navigateToBrowser = () => {
         if (trade && isBuyOrSell(trade) && trade.data.partnerData) {
-            onOpenedWebview?.();
-            navigation.navigate(RootStackRoutes.TradingWebView, {
-                closeCallbackUrl: buildTradingUrl({
-                    actionType: 'trade',
-                    tradeType: trade.tradeType,
-                    orderId,
-                }),
-                tradingType: trade.tradeType,
-                source: { uri: trade.data.partnerData },
+            const callbackUrl = buildTradingUrl({
+                actionType: 'trade',
+                tradeType: trade.tradeType,
+                orderId,
             });
+            onOpenedBrowser?.();
+            openBrowser(trade.data.partnerData, callbackUrl);
         }
     };
 
@@ -158,7 +155,7 @@ export const TradeDetailAlert = ({
     let handleButtonPress: (() => void) | undefined;
 
     if ((['waiting', 'kyc'] as TradeStatusStep[]).includes(alertType) && orderId) {
-        handleButtonPress = () => navigateToWebView();
+        handleButtonPress = () => navigateToBrowser();
     }
 
     if (supportUrl) {

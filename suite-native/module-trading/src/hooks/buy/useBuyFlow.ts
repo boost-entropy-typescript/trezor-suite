@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
-import type { BuyTrade, BuyTradeResponse, FormResponse } from 'invity-api';
+import type { BuyTrade, BuyTradeResponse } from 'invity-api';
 
 import { invariant } from '@suite-common/suite-utils';
 import {
@@ -14,8 +14,6 @@ import {
 import { events } from '@suite-native/analytics';
 import {
     RootStackParamList,
-    RootStackRoutes,
-    StackNavigationProps,
     StackToStackCompositeNavigationProps,
     TradingStackParamList,
     TradingStackRoutes,
@@ -27,11 +25,12 @@ import { useNullTimer } from '@trezor/react-utils';
 
 import { clearBuyFormQuoteData } from './useBuyForm';
 import { getAnalyticsTradingBuyPayload } from '../../utils/buy/quotesUtils';
-import { buildTradingUrl, getSourceForForm } from '../../utils/general/formUtils';
+import { buildTradingUrl } from '../../utils/general/formUtils';
 import {
     getReceiveAccountAddressText,
     isFullySelectedReceiveAccount,
 } from '../../utils/general/receiveAccountUtils';
+import { useBrowserAuth } from '../general/providerConfirmation/useBrowserAuth';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
     TradingStackParamList,
@@ -51,8 +50,6 @@ export const useBuyFlow = (form: BuyFormType) => {
 
     const timer = useNullTimer();
     const navigation = useNavigation<NavigationProps>();
-    const rootNavigation =
-        useNavigation<StackNavigationProps<RootStackParamList, RootStackRoutes>>();
 
     const coinInfo = useSelector((state: TradingRootState) =>
         selectTradingCoinInfoByCryptoId(state, candidateQuote?.receiveCurrency),
@@ -63,6 +60,11 @@ export const useBuyFlow = (form: BuyFormType) => {
     const quoteAnalyticsData = getAnalyticsTradingBuyPayload({
         quote: candidateQuote,
         coinInfo,
+    });
+
+    const { openBrowserForFormData } = useBrowserAuth({
+        tradingType: 'buy',
+        orderId: candidateQuote?.orderId,
     });
 
     const reportTradeConfirmation = () => {
@@ -84,27 +86,13 @@ export const useBuyFlow = (form: BuyFormType) => {
         }
     };
 
-    const handleWebview = (formData: FormResponse['form'], returnUrl: string) => {
-        const source = getSourceForForm(formData);
-        if (!source) {
-            return;
-        }
-
-        rootNavigation.navigate(RootStackRoutes.TradingWebView, {
-            closeCallbackUrl: returnUrl,
-            tradingType: 'buy',
-            source,
-            orderId: candidateQuote?.orderId,
-        });
-    };
-
     const handleTradeResponse = (response: BuyTradeResponse, returnUrl: string) => {
         if (response.trade.paymentId) {
             dispatch(tradingBuyActions.saveTransactionId(response.trade.paymentId));
         }
 
         if (response.tradeForm) {
-            handleWebview(response.tradeForm.form, returnUrl);
+            openBrowserForFormData(response.tradeForm.form, returnUrl);
         }
 
         clearBuyFormQuoteData(form);
@@ -175,7 +163,7 @@ export const useBuyFlow = (form: BuyFormType) => {
                 quote: candidateQuote,
                 timer,
                 returnUrl,
-                loginRequest: formResponse => handleWebview(formResponse, returnUrl),
+                loginRequest: formResponse => openBrowserForFormData(formResponse, returnUrl),
                 nextStep: () => {
                     confirmTrade(candidateQuote, addressText);
                 },
