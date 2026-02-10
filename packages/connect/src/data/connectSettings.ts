@@ -17,7 +17,6 @@ const initialSettings: ConnectSettings = {
     version: VERSION, // constant
     debug: false,
     priority: DEFAULT_PRIORITY,
-    connectSrc: DEFAULT_DOMAIN,
     popupSrc: `${DEFAULT_DOMAIN}popup.html`,
     transports: undefined,
     pendingTransportEvent: true,
@@ -29,7 +28,7 @@ const initialSettings: ConnectSettings = {
     transportReconnect: true,
 };
 
-const parseManifest = (manifest?: Manifest) => {
+export const parseManifest = (manifest?: Manifest) => {
     if (!manifest) return;
     if (typeof manifest.email !== 'string') return;
     if (typeof manifest.appUrl !== 'string') return;
@@ -44,6 +43,9 @@ const parseManifest = (manifest?: Manifest) => {
         appIcon: manifest.appIcon,
     };
 };
+
+export const parseVersion = (version?: string) =>
+    typeof version === 'string' ? version : initialSettings.version;
 
 export const parseLocalFirmwares = (localFirmwares: LocalFirmwares) => {
     if (!localFirmwares) return;
@@ -83,13 +85,6 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
             settings.debug = input.debug === 'true';
         }
     }
-
-    if (typeof input.connectSrc === 'string') {
-        settings.connectSrc = corsValidator(input.connectSrc);
-    }
-
-    const src = settings.connectSrc || DEFAULT_DOMAIN;
-    settings.popupSrc = `${src}popup.html`;
 
     if (typeof input.transportReconnect === 'boolean') {
         settings.transportReconnect = input.transportReconnect;
@@ -142,10 +137,6 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
         settings.coreMode = input.coreMode;
     }
 
-    if (typeof input._extendWebextensionLifetime === 'boolean') {
-        settings._extendWebextensionLifetime = input._extendWebextensionLifetime;
-    }
-
     if (typeof input.binFilesBaseUrl === 'string') {
         settings.binFilesBaseUrl = input.binFilesBaseUrl;
     }
@@ -164,6 +155,10 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
 
     if (typeof input.npmVersion === 'string') {
         settings.npmVersion = input.npmVersion;
+    }
+
+    if (typeof input.version === 'string') {
+        settings.version = input.version;
     }
 
     settings.thp = parseThpSettings(input);

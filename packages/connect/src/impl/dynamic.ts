@@ -3,88 +3,59 @@ import EventEmitter from 'events';
 import { ERRORS } from '@trezor/connect-common/src/constants';
 import { getSynchronize } from '@trezor/utils';
 
+import { parseManifest, parseVersion } from '../data/connectSettings';
 import { CallMethodPayload, createErrorMessage } from '../events';
 import { ConnectFactoryDependencies } from '../factory';
-import { InitFullSettings } from '../types/api/init';
-import type { SetTransports } from '../types/api/setTransports';
+import { ConnectSettings } from '../types';
 
-type TrezorConnectDynamicParams<
-    ImplType,
-    SettingsType extends Record<string, any>,
-    ImplInterface extends ConnectFactoryDependencies<SettingsType>,
-> = {
-    implementations: {
-        type: ImplType;
-        impl: ImplInterface;
-    }[];
-    getInitTarget: (settings: InitFullSettings<SettingsType>) => ImplType;
-    handleBeforeInit?: () => void;
-    handleBeforeCall: () => Promise<void>;
-    handleErrorFallback: (errorCode: string) => Promise<boolean>;
+export type ConnectImplSettings = {
+    manifest: NonNullable<ConnectSettings['manifest']>;
+    version: NonNullable<ConnectSettings['version']>;
+    env?: ConnectSettings['env'];
+    debug?: ConnectSettings['debug'];
+};
+
+type CoreMode = 'auto' | 'suite-desktop' | 'suite-web';
+
+export type ConnectDynamicSettings = Partial<ConnectImplSettings> & {
+    coreMode?: CoreMode;
+};
+
+type ImplType = 'core-in-suite-desktop' | 'core-in-suite-web';
+
+export type ConnectImpl = Omit<
+    ConnectFactoryDependencies<{}>,
+    'init' | 'eventEmitter' | 'uiResponse' | 'setTransports'
+> & {
+    init: (params: ConnectImplSettings) => Promise<void>;
+};
+
+type TrezorConnectDynamicParams = {
+    implementations: Record<ImplType, ConnectImpl>;
 };
 
 /**
  * Implementation of TrezorConnect that can dynamically switch between different implementations.
  *
  */
-export class TrezorConnectDynamic<
-    ImplType,
-    SettingsType extends Record<string, any>,
-    ImplInterface extends ConnectFactoryDependencies<SettingsType>,
-> implements ConnectFactoryDependencies<SettingsType> {
-    public eventEmitter = new EventEmitter();
+export class TrezorConnectDynamic implements ConnectFactoryDependencies<{}> {
+    public readonly eventEmitter = new EventEmitter();
 
     private currentTarget: ImplType;
-    private implementations: TrezorConnectDynamicParams<
-        ImplType,
-        SettingsType,
-        ImplInterface
-    >['implementations'];
-    private getInitTarget: TrezorConnectDynamicParams<
-        ImplType,
-        SettingsType,
-        ImplInterface
-    >['getInitTarget'];
-    private handleBeforeInit: TrezorConnectDynamicParams<
-        ImplType,
-        SettingsType,
-        ImplInterface
-    >['handleBeforeInit'];
-    private handleBeforeCall: TrezorConnectDynamicParams<
-        ImplType,
-        SettingsType,
-        ImplInterface
-    >['handleBeforeCall'];
-    private handleErrorFallback: TrezorConnectDynamicParams<
-        ImplType,
-        SettingsType,
-        ImplInterface
-    >['handleErrorFallback'];
+    private readonly implementations: Record<ImplType, ConnectImpl>;
 
-    public lastSettings?: InitFullSettings<SettingsType>;
+    private coreMode?: CoreMode;
+    private implSettings?: ConnectImplSettings;
     private callPending = 0;
     private beforeCallSynchronize = getSynchronize();
 
-    public constructor({
-        implementations,
-        getInitTarget,
-        handleBeforeInit,
-        handleBeforeCall,
-        handleErrorFallback,
-    }: TrezorConnectDynamicParams<ImplType, SettingsType, ImplInterface>) {
+    public constructor({ implementations }: TrezorConnectDynamicParams) {
         this.implementations = implementations;
-        this.currentTarget = this.implementations[0].type;
-        this.getInitTarget = getInitTarget;
-        this.handleBeforeInit = handleBeforeInit;
-        this.handleBeforeCall = handleBeforeCall;
-        this.handleErrorFallback = handleErrorFallback;
-        this.implementations.forEach(impl => {
-            impl.impl.eventEmitter = this.eventEmitter;
-        });
+        this.currentTarget = 'core-in-suite-desktop';
     }
 
     public getTarget() {
-        return this.implementations.find(impl => impl.type === this.currentTarget)!.impl;
+        return this.implementations[this.currentTarget];
     }
 
     public getTargetType() {
@@ -96,7 +67,7 @@ export class TrezorConnectDynamic<
             return;
         }
 
-        if (!this.lastSettings) {
+        if (!this.implSettings) {
             throw ERRORS.TypedError('Init_ManifestMissing');
         }
 
@@ -105,29 +76,36 @@ export class TrezorConnectDynamic<
         const oldTarget = this.getTarget();
         try {
             this.currentTarget = target;
-            this.handleBeforeInit?.();
-            await this.getTarget().init(this.lastSettings);
+            await this.getTarget().init(this.implSettings);
             await oldTarget.dispose();
         } catch {
             this.currentTarget = oldTargetType;
         }
     }
 
-    public async init(settings: InitFullSettings<SettingsType>) {
-        if (!settings?.manifest) {
+    public async init(settings: ConnectDynamicSettings) {
+        this.coreMode = settings.coreMode;
+
+        const manifest = parseManifest(settings.manifest);
+
+        if (!manifest) {
             throw ERRORS.TypedError('Init_ManifestMissing');
         }
-        // Save settings for later use
-        this.lastSettings = settings;
 
-        this.currentTarget = this.getInitTarget(settings);
+        // Save settings for later use
+        this.implSettings = {
+            manifest,
+            env: settings.env,
+            debug: settings.debug,
+            version: parseVersion(settings.version),
+        };
+
+        this.currentTarget = this.getInitTarget();
         this.callPending = 0;
 
         // Initialize the target
         try {
-            this.handleBeforeInit?.();
-
-            return await this.getTarget().init(this.lastSettings);
+            return await this.getTarget().init(this.implSettings);
         } catch (error) {
             // Handle error by switching to other implementation if available as defined in `handleErrorFallback`.
             if (await this.handleErrorFallback(error.code)) {
@@ -136,11 +114,6 @@ export class TrezorConnectDynamic<
 
             throw error;
         }
-    }
-
-    public setTransports({ transports }: SetTransports) {
-        this.lastSettings = { ...this.lastSettings, transports } as typeof this.lastSettings;
-        this.getTarget().setTransports({ transports });
     }
 
     public async call(params: CallMethodPayload) {
@@ -168,10 +141,6 @@ export class TrezorConnectDynamic<
         }
     }
 
-    public uiResponse(params: any) {
-        return this.getTarget().uiResponse(params);
-    }
-
     public cancel(error?: string) {
         return this.getTarget().cancel(error);
     }
@@ -181,5 +150,56 @@ export class TrezorConnectDynamic<
         this.callPending = 0;
 
         return this.getTarget().dispose();
+    }
+
+    private getInitTarget() {
+        const { coreMode } = this;
+
+        if (coreMode === 'suite-desktop') {
+            return 'core-in-suite-desktop';
+        } else if (coreMode === 'suite-web') {
+            return 'core-in-suite-web';
+        } else {
+            if (coreMode && coreMode !== 'auto') {
+                console.warn(`Invalid coreMode: ${coreMode}`);
+            }
+
+            // TODO for webextension, default was previously core-in-suite-web
+            return 'core-in-suite-desktop';
+        }
+    }
+
+    private async handleBeforeCall() {
+        const { coreMode } = this;
+
+        // Always try if desktop is available again
+        if (coreMode === 'suite-desktop' || coreMode === 'auto' || coreMode === undefined) {
+            await this.switchTarget('core-in-suite-desktop');
+        }
+    }
+
+    private async handleErrorFallback(errorCode: string) {
+        // Handle desktop errors
+        if (
+            this.getTargetType() === 'core-in-suite-desktop' &&
+            // TODO for webextension, Method_Unsupported wasn't here
+            (errorCode === 'Desktop_ConnectionMissing' || errorCode === 'Method_Unsupported')
+        ) {
+            await this.switchTarget('core-in-suite-web');
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // not supported, transports are controlled by suite
+    public setTransports() {
+        throw new Error('Method_InvalidPackage');
+    }
+
+    // this shouldn't be needed, ui response should be handled in suite
+    public uiResponse() {
+        throw ERRORS.TypedError('Method_InvalidPackage');
     }
 }

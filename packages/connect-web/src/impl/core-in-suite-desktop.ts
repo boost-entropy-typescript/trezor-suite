@@ -1,41 +1,33 @@
-import EventEmitter from 'events';
-
 // NOTE: @trezor/connect part is intentionally not imported from the index so we do include the whole library.
+
 import {
     CORE_CALL,
     CallMethodAnyResponse,
     CallMethodPayload,
     POPUP,
-    UiResponseEvent,
 } from '@trezor/connect/src/events';
-import { ConnectFactoryDependencies } from '@trezor/connect/src/factory';
-import type {
-    ConnectSettings,
-    ConnectSettingsPublic,
-    ConnectSettingsWeb,
-} from '@trezor/connect/src/types';
+import type { ConnectImpl, ConnectImplSettings } from '@trezor/connect/src/impl/dynamic';
+import type { Manifest } from '@trezor/connect/src/types/settings';
 import * as ERRORS from '@trezor/connect-common/src/constants/errors';
 import { WebsocketClient } from '@trezor/websocket-client';
 import { WebsocketError } from '@trezor/websocket-client/src/client';
 
-import { parseConnectSettings } from '../connectSettings';
-
 /**
  * CoreInSuiteDesktop implementation for TrezorConnect factory.
  */
-export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSettingsWeb> {
-    public eventEmitter = new EventEmitter();
-    protected _settings: ConnectSettings;
+export class CoreInSuiteDesktop implements ConnectImpl {
+    private manifest?: Manifest;
+    private version?: string;
     private ws: WebsocketClient<{}>;
     private localNetworkPermissionState: PermissionState | 'unknown' = 'unknown';
 
     public constructor() {
-        this._settings = parseConnectSettings();
         this.ws = new WebsocketClient({ url: 'ws://127.0.0.1:21335/connect-ws' });
     }
 
     public dispose() {
-        this._settings = parseConnectSettings();
+        this.manifest = undefined;
+        this.version = undefined;
         this.ws.dispose();
 
         return Promise.resolve(undefined);
@@ -56,9 +48,7 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
             const response = await this.ws.sendMessage(
                 {
                     type: POPUP.HANDSHAKE,
-                    payload: {
-                        settings: this._settings,
-                    },
+                    payload: { settings: { manifest: this.manifest, version: this.version } },
                 },
                 {
                     // can take a while on slower machines due to loading process info
@@ -76,7 +66,7 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         }
     }
 
-    public async init(settings: Partial<ConnectSettingsPublic>): Promise<void> {
+    public async init({ manifest, version }: ConnectImplSettings): Promise<void> {
         const permission = await navigator.permissions
             .query({
                 // @ts-expect-error outdated type definitions
@@ -90,24 +80,16 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
             };
         }
 
-        const newSettings = parseConnectSettings({
-            ...this._settings,
-            ...settings,
-        });
-
         // manifest is required in all implementations. for core-in-suite-desktop, also manifest.appName is required
-        if (!newSettings.manifest || !newSettings.manifest.appName) {
+        if (!manifest.appName) {
             throw ERRORS.TypedError(
                 'Init_ManifestMissing',
                 'Manifest is missing or manifest.appName is not set',
             );
         }
 
-        // defaults
-        if (!newSettings.transports?.length) {
-            newSettings.transports = ['BridgeTransport', 'WebUsbTransport'];
-        }
-        this._settings = newSettings;
+        this.manifest = manifest;
+        this.version = version;
 
         return await this.connect();
     }
@@ -130,11 +112,6 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
         } catch (err) {
             throw this.error(err);
         }
-    }
-
-    public setTransports() {
-        // not supported, transports are controlled by suite-desktop.
-        throw new Error('Method_InvalidPackage');
     }
 
     public async call(params: CallMethodPayload): Promise<CallMethodAnyResponse> {
@@ -167,10 +144,5 @@ export class CoreInSuiteDesktop implements ConnectFactoryDependencies<ConnectSet
                 payload: ERRORS.serializeError(this.error(err)),
             };
         }
-    }
-
-    // this shouldn't be needed, ui response should be handled in suite-desktop
-    uiResponse(_response: UiResponseEvent) {
-        throw ERRORS.TypedError('Method_InvalidPackage');
     }
 }

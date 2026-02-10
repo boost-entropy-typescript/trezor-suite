@@ -6,7 +6,6 @@ import { PartialRecord } from '@trezor/type-utils';
 
 import type { FirmwareUpdateSource } from '../types/firmware';
 
-export type { SystemInfo } from '@trezor/connect-common';
 export interface Manifest {
     appName: string;
     appIcon?: string;
@@ -40,7 +39,6 @@ export type ConnectSettingsTransport =
 
 export interface ConnectSettingsPublic {
     manifest?: Manifest;
-    connectSrc?: string;
     debug?: boolean;
     transportReconnect?: boolean;
     transports?: ConnectSettingsTransport[];
@@ -71,17 +69,9 @@ export interface ConnectSettingsInternal {
     firmwareUpdateSource?: FirmwareUpdateSource;
 }
 
-export interface ConnectSettingsWeb {
-    hostLabel?: string;
-    coreMode?: 'auto' | 'deeplink' | 'suite-desktop' | 'suite-web';
-}
-export interface ConnectSettingsWebextension {
-    /** _extendWebextensionLifetime features makes the service worker in @trezor/connect-webextension stay alive longer */
-    _extendWebextensionLifetime?: boolean;
-    coreMode?: 'auto' | 'suite-desktop' | 'suite-web';
-}
 export interface ConnectSettingsMobile {
-    deeplinkUrl: string;
+    connectSrc?: string;
+    deeplinkUrl?: string;
     deeplinkOpen?: (url: string) => void;
     deeplinkCallbackUrl?: string;
     coreMode?: 'deeplink';
@@ -90,9 +80,6 @@ export interface ConnectSettingsMobile {
 export type ConnectSettings = ConnectSettingsPublic &
     ConnectSettingsInternal &
     // coreMode is a common parameter between these, so it is explicitly handled here for correct handling
-    Omit<ConnectSettingsWeb & ConnectSettingsWebextension & ConnectSettingsMobile, 'coreMode'> & {
-        coreMode?:
-            | ConnectSettingsWeb['coreMode']
-            | ConnectSettingsWebextension['coreMode']
-            | ConnectSettingsMobile['coreMode'];
+    Omit<ConnectSettingsMobile, 'coreMode'> & {
+        coreMode?: 'auto' | 'suite-desktop' | 'suite-web' | 'deeplink';
     };

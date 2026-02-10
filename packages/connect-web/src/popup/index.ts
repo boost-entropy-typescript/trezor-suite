@@ -1,7 +1,5 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/popup/PopupManager.js
 
-import EventEmitter from 'events';
-
 import { CoreEventMessage, DEVICE_EVENT, POPUP } from '@trezor/connect/src/events';
 import type { ConnectSettings } from '@trezor/connect/src/types';
 import { Log } from '@trezor/connect/src/utils/debug';
@@ -35,13 +33,17 @@ const checkIfTabExists = (tabId: number | undefined) =>
 const POPUP_REQUEST_TIMEOUT = 850;
 const POPUP_CLOSE_INTERVAL = 500;
 
-export class PopupManager extends EventEmitter {
+type Params = Pick<ConnectSettings, 'manifest' | 'popupSrc' | 'env' | 'version'> & { logger: Log };
+
+export class PopupManager {
     private popupWindow:
         | { mode: 'tab'; tab: chrome.tabs.Tab }
         | { mode: 'window'; window: Window }
         | undefined;
 
-    private settings: ConnectSettings;
+    private readonly env: Params['env'];
+    private readonly popupSrc: Params['popupSrc'];
+    private readonly settings: Pick<Params, 'manifest' | 'version'>;
 
     private origin: string;
 
@@ -59,10 +61,11 @@ export class PopupManager extends EventEmitter {
 
     private logger: Log;
 
-    constructor(settings: ConnectSettings, { logger }: { logger: Log }) {
-        super();
-        this.settings = settings;
-        this.origin = getOrigin(settings.popupSrc);
+    constructor({ env, popupSrc, manifest, version, logger }: Params) {
+        this.settings = { manifest, version };
+        this.origin = getOrigin(popupSrc);
+        this.env = env;
+        this.popupSrc = popupSrc;
         this.logger = logger;
 
         if (this.isWebExtensionWithTab()) {
@@ -129,7 +132,7 @@ export class PopupManager extends EventEmitter {
         const openFn = this.open.bind(this);
         this.locked = true;
 
-        const timeout = this.settings.env === 'webextension' ? 1 : POPUP_REQUEST_TIMEOUT;
+        const timeout = this.env === 'webextension' ? 1 : POPUP_REQUEST_TIMEOUT;
         this.requestTimeout = setTimeout(() => {
             this.requestTimeout = undefined;
             openFn();
@@ -137,7 +140,7 @@ export class PopupManager extends EventEmitter {
     }
 
     private open() {
-        const src = this.settings.popupSrc;
+        const src = this.popupSrc;
         const url = this.buildPopupUrl(src);
         this.openWrapper(url);
 
@@ -161,9 +164,9 @@ export class PopupManager extends EventEmitter {
     private buildPopupUrl(src: string) {
         const params = new URLSearchParams();
         params.set('version', VERSION);
-        params.set('env', this.settings.env);
+        params.set('env', this.env);
         // Pass extension ID to popup via query string
-        if (this.settings.env === 'webextension' && chrome?.runtime?.id) {
+        if (this.env === 'webextension' && chrome?.runtime?.id) {
             params.set('extension-id', chrome.runtime.id);
             params.set('cs-ver', CONTENT_SCRIPT_VERSION.toString());
         }
@@ -271,7 +274,7 @@ export class PopupManager extends EventEmitter {
                 );
             }
         } else if (message.event === DEVICE_EVENT) {
-            this.emit(DEVICE_EVENT, message);
+            // TODO what to do?
         }
     }
 
@@ -327,7 +330,7 @@ export class PopupManager extends EventEmitter {
         // Check if webextension actually has access to chrome.tabs API
         // This is not the case when used in offscreen context
         return (
-            this.settings?.env === 'webextension' &&
+            this.env === 'webextension' &&
             typeof chrome !== 'undefined' &&
             typeof chrome?.tabs !== 'undefined'
         );
@@ -341,6 +344,5 @@ export class PopupManager extends EventEmitter {
             code: 'Method_Interrupted',
             error: POPUP.CLOSED,
         });
-        this.emit(POPUP.CLOSED);
     }
 }
