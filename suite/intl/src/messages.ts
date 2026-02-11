@@ -3116,6 +3116,19 @@ export const messages = defineMessages({
         defaultMessage: 'Allow',
         id: 'TR_SUITE_SYNC_GET_KEYS',
     },
+    TR_SUITE_SYNC_FIRMWARE_UPDATE: {
+        defaultMessage: 'Update',
+        id: 'TR_SUITE_SYNC_FIRMWARE_UPDATE',
+    },
+    TR_SUITE_SYNC_FIRMWARE_UPDATE_NEEDED_BANNER: {
+        defaultMessage:
+            'Firmware update required. Update firmware on the device to use Suite Sync.',
+        id: 'TR_SUITE_SYNC_FIRMWARE_UPDATE_NEEDED_BANNER',
+    },
+    TR_SUITE_SYNC_CONNECT_DEVICE_TOOLTIP: {
+        defaultMessage: 'Connect your device to proceed.',
+        id: 'TR_SUITE_SYNC_CONNECT_DEVICE_TOOLTIP',
+    },
     TR_SUITE_SYNC_KEYS_NEEDED_BANNER: {
         defaultMessage:
             'Allow Suite Sync to view and edit your labels, wallet names, and account names.',

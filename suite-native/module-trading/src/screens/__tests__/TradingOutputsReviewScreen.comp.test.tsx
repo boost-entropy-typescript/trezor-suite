@@ -31,11 +31,9 @@ const mockUseSellFlow = {
 const mockReportToAnalyticsExchange = jest.fn();
 const mockReportToAnalyticsSell = jest.fn();
 
-jest.mock('../../hooks/exchange/useExchangeAnalyticReportCallback', () => ({
+jest.mock('@suite-native/trading-analytics', () => ({
+    ...jest.requireActual('@suite-native/trading-analytics'),
     useExchangeAnalyticReportCallback: () => mockReportToAnalyticsExchange,
-}));
-
-jest.mock('../../hooks/sell/useSellAnalyticReportCallback', () => ({
     useSellAnalyticReportCallback: () => mockReportToAnalyticsSell,
 }));
 
@@ -118,7 +116,7 @@ const createExchangeRoute = (params: ReturnType<typeof createExchangeRouteParams
         params,
     }) as RouteProp<TradingStackParamList, TradingStackRoutes.TradingExchangeOutputsReview>;
 
-describe('', () => {
+describe('TradingSellOutputsReviewScreen', () => {
     let store: TestStore;
     let unmount: (() => void) | undefined;
 

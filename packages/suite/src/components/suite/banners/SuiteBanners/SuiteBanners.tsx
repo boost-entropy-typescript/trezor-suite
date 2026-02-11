@@ -3,15 +3,11 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { selectBannerMessage } from '@suite-common/message-system';
-import {
-    selectHasDeviceSuiteSyncError,
-    selectSuiteSyncInteraction,
-} from '@suite-common/suite-sync';
+import { selectHasDeviceSuiteSyncError } from '@suite-common/suite-sync';
 import {
     selectDeviceStaticSessionId,
     selectIsDeviceBackupRequired,
     selectIsDeviceBackupUnfinished,
-    selectIsDeviceConnected,
     selectSelectedDevice,
     selectVisibleDeviceAccounts,
 } from '@suite-common/wallet-core';
@@ -37,7 +33,7 @@ import { LocalNetworkAccessPermission } from './LocalNetworkAccessPermission';
 import { NoBackup } from './NoBackupBanner';
 import { NoConnectionBanner } from './NoConnectionBanner';
 import { SafetyChecksBanner } from './SafetyChecksBanner';
-import { SuiteSyncKeysBanner } from './SuiteSyncKeysBanner';
+import { SuiteSyncBanner } from './SuiteSyncBanner';
 
 const Container = styled.div<{ $fill?: boolean }>`
     width: 100%;
@@ -69,13 +65,9 @@ export const SuiteBanners = ({ isOnboarding, fill }: SuiteBannersProps) => {
     const accounts = useSelector(selectVisibleDeviceAccounts);
     const { localNetworkAccessPermission } = useLocalNetworkAccessPermission();
     const deviceStaticSessionId = useSelector(selectDeviceStaticSessionId);
-    const suiteSyncInteraction = useSelector(state =>
-        selectSuiteSyncInteraction(state, deviceStaticSessionId),
-    );
     const hasSuiteSyncError = useSelector(state =>
         selectHasDeviceSuiteSyncError(state, deviceStaticSessionId),
     );
-    const isDeviceConnected = useSelector(selectIsDeviceConnected);
 
     // The dismissal doesn't need to outlive the session. Use local state.
     const [safetyChecksDismissed, setSafetyChecksDismissed] = useState(false);
@@ -132,13 +124,8 @@ export const SuiteBanners = ({ isOnboarding, fill }: SuiteBannersProps) => {
     } else if (accounts.some(account => isCardanoStakedWithFiveBinaries(account))) {
         banner = <CardanoOutdatedStakingBanner />;
         priority = 20;
-    } else if (
-        suiteSyncInteraction === 'keys-needed' &&
-        deviceStaticSessionId &&
-        isDeviceConnected &&
-        hasSuiteSyncError
-    ) {
-        banner = <SuiteSyncKeysBanner deviceStaticSessionId={deviceStaticSessionId} />;
+    } else if (deviceStaticSessionId && hasSuiteSyncError) {
+        banner = <SuiteSyncBanner deviceStaticSessionId={deviceStaticSessionId} />;
         priority = 10;
     }
 

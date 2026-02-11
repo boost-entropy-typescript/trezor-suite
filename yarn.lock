@@ -11462,7 +11462,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/test-utils@workspace:*, @suite-common/test-utils@workspace:^, @suite-common/test-utils@workspace:suite-common/test-utils":
+"@suite-common/test-utils@workspace:*, @suite-common/test-utils@workspace:suite-common/test-utils":
   version: 0.0.0-use.local
   resolution: "@suite-common/test-utils@workspace:suite-common/test-utils"
   dependencies:
@@ -11879,7 +11879,6 @@ __metadata:
     "@suite-common/suite-constants": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
-    "@suite-common/test-utils": "workspace:^"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/alerts": "workspace:*"
@@ -11940,7 +11939,9 @@ __metadata:
     "@trezor/theme": "workspace:*"
     "@trezor/trezor-user-env-link": "workspace:*"
     "@trezor/utils": "workspace:*"
+    "@types/minimist": "npm:^1.2.5"
     "@types/node": "npm:22.13.10"
+    "@types/xml2js": "npm:^0.4.14"
     "@walletconnect/react-native-compat": "npm:^2.20.3"
     "@whatwg-node/events": "npm:0.1.2"
     abortcontroller-polyfill: "npm:1.7.8"
@@ -11980,6 +11981,7 @@ __metadata:
     jotai: "npm:2.15.0"
     lottie-react-native: "npm:7.3.4"
     metro-config: "npm:^0.82.4"
+    minimist: "npm:^1.2.8"
     react: "npm:19.1.0"
     react-freeze: "npm:^1.0.4"
     react-intl: "npm:^8.0.6"
@@ -12018,6 +12020,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     typescript: "npm:5.8.3"
     vm-browserify: "npm:^1.1.2"
+    xml2js: "npm:^0.6.2"
   languageName: unknown
   linkType: soft
 
@@ -13474,7 +13477,6 @@ __metadata:
     "@suite-common/message-system": "workspace:*"
     "@suite-common/mev": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
-    "@suite-common/suite-constants": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
@@ -13505,12 +13507,13 @@ __metadata:
     "@suite-native/message-system": "workspace:*"
     "@suite-native/module-add-accounts": "workspace:*"
     "@suite-native/navigation": "workspace:*"
-    "@suite-native/sentry": "workspace:*"
     "@suite-native/services": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@suite-native/tokens": "workspace:*"
+    "@suite-native/trading-analytics": "workspace:*"
     "@suite-native/trading-atoms": "workspace:*"
+    "@suite-native/trading-browser-auth": "workspace:*"
     "@suite-native/trading-consts": "workspace:*"
     "@suite-native/trading-debug": "workspace:*"
     "@suite-native/trading-fixtures": "workspace:*"
@@ -13529,8 +13532,6 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@types/invity-api": "npm:^1.1.12"
     expo-linear-gradient: "npm:~15.0.8"
-    expo-linking: "npm:~8.0.11"
-    expo-web-browser: "npm:~15.0.10"
     react: "npm:19.1.0"
     react-intl: "npm:^8.0.6"
     react-native: "npm:0.81.5"
@@ -14070,6 +14071,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/trading-analytics@workspace:*, @suite-native/trading-analytics@workspace:suite-native/trading-analytics":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/trading-analytics@workspace:suite-native/trading-analytics"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.0"
+    "@suite-common/trading": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
+    "@suite-native/services": "workspace:*"
+    "@suite-native/test-utils": "workspace:*"
+    "@suite-native/trading-atoms": "workspace:*"
+    "@suite-native/trading-fixtures": "workspace:*"
+    "@types/invity-api": "npm:^1.1.12"
+    react: "npm:19.1.0"
+    react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/trading-atoms@workspace:*, @suite-native/trading-atoms@workspace:suite-native/trading-atoms":
   version: 0.0.0-use.local
   resolution: "@suite-native/trading-atoms@workspace:suite-native/trading-atoms"
@@ -14096,6 +14114,39 @@ __metadata:
     react-native-gesture-handler: "npm:2.29.0"
     react-native-reanimated: "npm:~4.1.5"
     type-fest: "npm:4.24.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/trading-browser-auth@workspace:*, @suite-native/trading-browser-auth@workspace:suite-native/trading-browser-auth":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/trading-browser-auth@workspace:suite-native/trading-browser-auth"
+  dependencies:
+    "@react-navigation/native": "npm:7.1.26"
+    "@reduxjs/toolkit": "npm:2.11.0"
+    "@suite-common/suite-constants": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
+    "@suite-common/trading": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/feature-flags": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/sentry": "workspace:*"
+    "@suite-native/test-utils": "workspace:*"
+    "@suite-native/trading-analytics": "workspace:*"
+    "@suite-native/trading-atoms": "workspace:*"
+    "@suite-native/trading-debug": "workspace:*"
+    "@suite-native/trading-fixtures": "workspace:*"
+    "@suite-native/trading-state": "workspace:*"
+    "@suite-native/trading-types": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
+    "@trezor/utils": "workspace:*"
+    "@types/invity-api": "npm:^1.1.12"
+    expo-linking: "npm:~8.0.11"
+    expo-web-browser: "npm:~15.0.10"
+    react: "npm:19.1.0"
+    react-native: "npm:0.81.5"
+    react-native-reanimated: "npm:~4.1.5"
+    react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
 
@@ -15554,7 +15605,6 @@ __metadata:
     "@playwright/browser-firefox": "npm:^1.57.0"
     "@playwright/browser-webkit": "npm:^1.57.0"
     "@playwright/test": "npm:^1.57.0"
-    "@scure/bip39": "npm:^1.5.1"
     "@solana-program/stake": "npm:^0.5.0"
     "@solana/addresses": "npm:^2.3.0"
     "@solana/kit": "npm:^2.3.0"
@@ -17071,6 +17121,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/minimist@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "@types/minimist@npm:1.2.5"
+  checksum: 10/477047b606005058ab0263c4f58097136268007f320003c348794f74adedc3166ffc47c80ec3e94687787f2ab7f4e72c468223946e79892cf0fd9e25e9970a90
+  languageName: node
+  linkType: hard
+
 "@types/ms@npm:*":
   version: 0.7.31
   resolution: "@types/ms@npm:0.7.31"
@@ -17473,6 +17530,15 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10/1ce05e3174dcacf28dae0e9b854ef1c9a12da44c7ed73617ab6897c5cbe4fccbb155a20be5508ae9a7dde2f83bd80f5cf3baa386b934fc4b40889ec963e94f3a
+  languageName: node
+  linkType: hard
+
+"@types/xml2js@npm:^0.4.14":
+  version: 0.4.14
+  resolution: "@types/xml2js@npm:0.4.14"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10/d76338b8d6ce8540c7af6a32aacf96c38f6de48254568f58f6e5ac2af3f88e6bd1490e5346d3bb336990f91267d23c5cc09e8bf7e80840a63c7855dbf174ecbb
   languageName: node
   linkType: hard
 
