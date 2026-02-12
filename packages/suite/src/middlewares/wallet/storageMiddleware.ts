@@ -177,6 +177,8 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                     analyticsActions.initAnalytics,
                     analyticsActions.enableAnalytics,
                     analyticsActions.disableAnalytics,
+                    analyticsActions.setCustomAnalyticsUrl,
+                    analyticsActions.setLoggerEnabled,
                 )(action)
             ) {
                 api.dispatch(storageActions.saveAnalytics());

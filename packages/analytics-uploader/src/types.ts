@@ -8,6 +8,8 @@ export type InitOptions = {
     sessionId?: string;
     instanceId?: string;
     environment?: Environment;
+    url?: string;
+    loggerEnabled?: boolean;
     isDev: boolean;
     commitId: string;
     callbacks?: {

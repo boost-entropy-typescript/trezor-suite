@@ -199,7 +199,13 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
 
     const analyticsPersistedReducer = preparePersistReducer({
         reducer: analyticsReducer,
-        persistedKeys: ['instanceId', 'enabled', 'confirmed'],
+        persistedKeys: [
+            'instanceId',
+            'enabled',
+            'confirmed',
+            'customAnalyticsUrl',
+            'loggerEnabled',
+        ],
         key: 'analytics',
         version: 1,
         storage: deps.mmkvStorage,

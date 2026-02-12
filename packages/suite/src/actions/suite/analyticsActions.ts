@@ -7,9 +7,11 @@ import { EventType, asTypedDesktopAnalytics } from '@suite/analytics';
 import {
     analyticsActions,
     selectAnalyticsInstanceId,
+    selectCustomAnalyticsUrl,
     selectHasUserAllowedTracking,
     selectIsAnalyticsConfirmed,
     selectIsAnalyticsEnabled,
+    selectLoggerEnabled,
 } from '@suite-common/analytics-redux';
 import { ExtraDependencies } from '@suite-common/redux-utils';
 import { type InitOptions, getTrackingRandomId } from '@trezor/analytics-uploader';
@@ -63,12 +65,16 @@ export const init = () => (dispatch: Dispatch, getState: GetState, extra: ExtraD
     const hasUserAllowedTracking = selectHasUserAllowedTracking(getState());
     const isAnalyticsEnabled = selectIsAnalyticsEnabled(getState());
     const isAnalyticsConfirmed = selectIsAnalyticsConfirmed(getState());
+    const customAnalyticsUrl = selectCustomAnalyticsUrl(getState());
+    const loggerEnabled = selectLoggerEnabled(getState());
     const getOptions: (props: SendReportProps) => InitOptions = ({
         sendReport,
     }: SendReportProps) => ({
         instanceId,
         sessionId,
         environment: getEnvironment(),
+        url: customAnalyticsUrl,
+        loggerEnabled,
         commitId: getCommitHash(),
         isDev: !isCodesignBuild(),
         callbacks: {

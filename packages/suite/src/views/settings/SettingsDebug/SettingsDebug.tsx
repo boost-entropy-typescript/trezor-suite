@@ -8,6 +8,7 @@ import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanner
 import { useSelector } from 'src/hooks/suite';
 import { selectSuiteFlags } from 'src/selectors/suite/suiteSelectors';
 
+import { AnalyticsLogging } from './AnalyticsLogging';
 import { Backends } from './Backends';
 import { CheckFirmwareAuthenticity } from './CheckFirmwareAuthenticity';
 import { CoinjoinApi } from './CoinjoinApi';
@@ -49,6 +50,9 @@ export const SettingsDebug = () => {
                 {isDesktop() && <WipeData />}
                 <TriggerHighlight />
                 <TriggerToast />
+            </SettingsSection>
+            <SettingsSection title="Analytics">
+                <AnalyticsLogging />
             </SettingsSection>
             <SettingsSection title="Invity">
                 <InvityApi />

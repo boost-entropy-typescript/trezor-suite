@@ -78,9 +78,24 @@ interface ReportEventProps {
     url: string;
     options: RequestInit;
     retry: boolean;
+    loggerEnabled?: boolean;
 }
 
-export const reportEvent = async ({ type, url, options, retry }: ReportEventProps) => {
+export const reportEvent = async ({
+    type,
+    url,
+    options,
+    retry,
+    loggerEnabled,
+}: ReportEventProps) => {
+    if (loggerEnabled) {
+        const payload = Object.fromEntries(
+            [...new URL(url).searchParams.entries()].filter(([key]) => !key.startsWith('c_')),
+        );
+        // eslint-disable-next-line no-console
+        console.log(`[Analytics] '${type}'`, { type, url, retry, payload });
+    }
+
     try {
         const response = await fetch(url, options);
 
@@ -91,7 +106,10 @@ export const reportEvent = async ({ type, url, options, retry }: ReportEventProp
         reportEventError(type, retry, err);
 
         if (retry) {
-            setTimeout(() => reportEvent({ type, url, options, retry: false }), 1000);
+            setTimeout(
+                () => reportEvent({ type, url, options, retry: false, loggerEnabled }),
+                1000,
+            );
         }
     }
 };

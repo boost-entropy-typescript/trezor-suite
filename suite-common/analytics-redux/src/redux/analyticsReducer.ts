@@ -9,6 +9,8 @@ export type AnalyticsState = {
     instanceId?: string | undefined;
     enabled?: boolean | undefined;
     confirmed?: boolean | undefined;
+    customAnalyticsUrl?: string | undefined;
+    loggerEnabled?: boolean | undefined;
 };
 
 export type AnalyticsRootState = {
@@ -19,6 +21,8 @@ const analyticsInitialState: AnalyticsState = {
     instanceId: undefined,
     enabled: undefined,
     confirmed: false,
+    customAnalyticsUrl: undefined,
+    loggerEnabled: undefined,
 };
 
 export const prepareAnalyticsReducer = createReducerWithExtraDeps(
@@ -39,6 +43,12 @@ export const prepareAnalyticsReducer = createReducerWithExtraDeps(
             .addCase(analyticsActions.disableAnalytics, state => {
                 state.enabled = false;
                 state.confirmed = true;
+            })
+            .addCase(analyticsActions.setCustomAnalyticsUrl, (state, { payload }) => {
+                state.customAnalyticsUrl = payload;
+            })
+            .addCase(analyticsActions.setLoggerEnabled, (state, { payload }) => {
+                state.loggerEnabled = payload;
             })
             .addMatcher(
                 action => action.type === extra.actionTypes.storageLoad,
@@ -65,3 +75,9 @@ export const selectHasUserAllowedTracking = (state: AnalyticsRootState): boolean
 
 export const selectIsAnalyticsEnabled = (state: AnalyticsRootState): boolean =>
     !!selectHasUserAllowedTracking(state);
+
+export const selectCustomAnalyticsUrl = (state: AnalyticsRootState): string | undefined =>
+    state.analytics.customAnalyticsUrl;
+
+export const selectLoggerEnabled = (state: AnalyticsRootState): boolean | undefined =>
+    state.analytics.loggerEnabled;
