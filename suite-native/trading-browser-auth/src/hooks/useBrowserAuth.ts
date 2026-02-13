@@ -79,7 +79,10 @@ export const useBrowserAuth = ({ tradingType, orderId }: BrowserAuthProps): Brow
         }
 
         handleBrowserSuccess();
-        dismissBrowser();
+        dismissBrowser().catch(_ => {
+            // Ignore the error, browser might have been already closed.
+            // (And in fact it most probably already is.)
+        });
     }, [
         lastCallbackUrl,
         orderId,
@@ -156,13 +159,14 @@ export const useBrowserAuth = ({ tradingType, orderId }: BrowserAuthProps): Brow
                 const msg = 'Unable to open browser, no URI provided.';
                 console.warn(msg);
                 captureSentryException(new BrowserAuthError(msg));
+                dispatchLastErrorMessage(translate('moduleTrading.browser.noURL'));
 
                 return;
             }
 
             await openBrowser(source.uri, returnUrl);
         },
-        [openBrowser],
+        [openBrowser, dispatchLastErrorMessage, translate],
     );
 
     return { openBrowser, openBrowserForFormData };
