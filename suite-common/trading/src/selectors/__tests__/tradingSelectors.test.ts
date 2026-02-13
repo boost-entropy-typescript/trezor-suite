@@ -15,6 +15,7 @@ import coins from '../../__fixtures__/coins.json';
 import { invityAPIFixtures } from '../../__fixtures__/invityAPI';
 import platforms from '../../__fixtures__/platforms.json';
 import { accountBtc, accountEth } from '../../__fixtures__/utils';
+import { getProviderMetadataFixture } from '../../reducers/__fixtures__/providerMetadata';
 import { BuyInfo, TradingBuyState } from '../../reducers/buyReducer';
 import { ExchangeInfo, exchangeInitialState } from '../../reducers/exchangeReducer';
 import { SellInfo, sellInitialState } from '../../reducers/sellReducer';
@@ -60,6 +61,7 @@ import {
     selectTradingPlatformByCryptoId,
     selectTradingPrefilledFromAccount,
     selectTradingProviderByNameAndTradeType,
+    selectTradingProviderMetadata,
     selectTradingSellAccountKey,
     selectTradingSellFormStep,
     selectTradingSellInfo,
@@ -1484,6 +1486,25 @@ describe('tradingSelectors', () => {
             const result = selectTradingLastErrorMessageByTradeType(state, tradeType);
 
             expect(result).toBe(expectedMessage);
+        });
+    });
+
+    describe('selectTradingProviderMetadata', () => {
+        it('should return currentProviderMetadata from state', () => {
+            const providerMetadata = getProviderMetadataFixture('changenow');
+            state.wallet.trading.currentProviderMetadata = providerMetadata;
+
+            const result = selectTradingProviderMetadata(state);
+
+            expect(result).toEqual(providerMetadata);
+        });
+
+        it('should return undefined when currentProviderMetadata is not set', () => {
+            state.wallet.trading.currentProviderMetadata = undefined;
+
+            const result = selectTradingProviderMetadata(state);
+
+            expect(result).toBeUndefined();
         });
     });
 });

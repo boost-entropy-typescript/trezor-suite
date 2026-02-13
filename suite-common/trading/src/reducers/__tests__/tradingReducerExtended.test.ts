@@ -6,6 +6,7 @@ import { AccountKey } from '@suite-common/wallet-types';
 import { selectTradingMaxSlippagePercentage } from '../../selectors/settingsSelectors';
 import { buyThunks } from '../../thunks/buy';
 import { sellThunks } from '../../thunks/sell';
+import { getProviderMetadataFixture } from '../__fixtures__/providerMetadata';
 import { tradingFixtures } from '../__fixtures__/tradingReducer';
 import { buyInitialState, tradingBuyActions } from '../buyReducer';
 import { exchangeInitialState, tradingExchangeActions } from '../exchangeReducer';
@@ -137,6 +138,15 @@ describe('Testing trading reducer', () => {
                 store.dispatch(tradingActions.setModalAccountKey('MY_KEY' as AccountKey)); // Todo: create properly via `createAccountKey()`
 
                 expect(store.getState().wallet.trading.modalAccountKey).toEqual('MY_KEY');
+            });
+
+            it('should set currentProviderMetadata with complete provider data', () => {
+                const providerMetadata = getProviderMetadataFixture('changenow');
+                store.dispatch(tradingActions.setCurrentProviderMetadata(providerMetadata));
+
+                expect(store.getState().wallet.trading.currentProviderMetadata).toEqual(
+                    providerMetadata,
+                );
             });
         });
 
