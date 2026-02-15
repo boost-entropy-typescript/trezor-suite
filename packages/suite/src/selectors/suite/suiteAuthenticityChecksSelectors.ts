@@ -8,6 +8,8 @@ import { Feature, selectIsFeatureDisabled } from '@suite-common/message-system';
 import {
     selectFirmwareHashCheckError,
     selectFirmwareRevisionCheckError,
+    selectIsDeviceIdCheckSuccess,
+    selectIsDeviceInvariabilityCheckSuccess,
     selectIsEntropyCheckFailed,
     selectIsFirmwareAuthenticityCheckDismissed,
 } from '@suite-common/wallet-core';
@@ -93,7 +95,24 @@ export const selectIsEntropyCheckEnabledAndFailed = (state: AppState) => {
     return isEntropyCheckEnabled && !isEntropyCheckDisabledByMessageSystem && isEntropyCheckFailed;
 };
 
+export const selectIsDeviceIdCheckEnabledAndFailed = (state: AppState) => {
+    const isDisabledByMessageSystem = selectIsFeatureDisabled(state, Feature.idCheck);
+    const isDeviceIdValid = selectIsDeviceIdCheckSuccess(state);
+
+    return !isDisabledByMessageSystem && !isDeviceIdValid;
+};
+
+export const selectIsDeviceInvariabilityEnabledAndFailed = (state: AppState) => {
+    const isDisabledByMessageSystem = selectIsFeatureDisabled(state, Feature.invariabilityCheck);
+    const isDeviceInvariabilityCheckSuccess = selectIsDeviceInvariabilityCheckSuccess(state);
+
+    return !isDisabledByMessageSystem && !isDeviceInvariabilityCheckSuccess;
+};
+
 export const selectShouldDisplayDeviceCompromised = (state: AppState): boolean => {
+    const isDeviceIdCheckFailed = selectIsDeviceIdCheckEnabledAndFailed(state);
+    const isDeviceInvariabilityCheckFailed = selectIsDeviceInvariabilityEnabledAndFailed(state);
+
     const isFirmwareCheckEnabledAndFailed =
         selectIsFirmwareAuthenticityCheckEnabledAndHardFailed(state);
     const isFirmwareAuthenticityCheckDismissed = selectIsFirmwareAuthenticityCheckDismissed(state);
@@ -102,6 +121,8 @@ export const selectShouldDisplayDeviceCompromised = (state: AppState): boolean =
     const isEntropyCheckEnabledAndFailed = selectIsEntropyCheckEnabledAndFailed(state);
 
     return (
+        isDeviceIdCheckFailed ||
+        isDeviceInvariabilityCheckFailed ||
         (!isFirmwareAuthenticityCheckDismissed && isFirmwareCheckEnabledAndFailed) ||
         isEntropyCheckEnabledAndFailed
     );

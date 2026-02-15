@@ -3,6 +3,7 @@ import '@suite-common/test-utils/src/globalOverrides';
 import { fireEvent } from '@testing-library/react';
 
 import { AnalyticsState } from '@suite-common/analytics-redux';
+import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { TransportInfo } from '@trezor/connect';
 import * as envUtils from '@trezor/env-utils';
 import { DeepPartial } from '@trezor/type-utils';
@@ -238,19 +239,17 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Unacquired device', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                transportSessionOwner: 'foo',
-                type: 'unacquired',
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        transportSessionOwner: 'foo',
+                        type: 'unacquired',
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -267,20 +266,18 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Unreadable device: webusb HID', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                type: 'unreadable',
-                error: 'unable to open device',
-                hid: true,
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'WebUsbTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        type: 'unreadable',
+                        error: 'unable to open device',
+                        hid: true,
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -298,19 +295,17 @@ describe(`${Preloader.name} component`, () => {
     it('Unreadable device: missing udev on Linux', () => {
         jest.spyOn(envUtils, 'isLinux').mockImplementation(() => true);
 
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                type: 'unreadable',
-                error: 'LIBUSB_ERROR_ACCESS',
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        type: 'unreadable',
+                        error: 'LIBUSB_ERROR_ACCESS',
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -329,19 +324,17 @@ describe(`${Preloader.name} component`, () => {
     it('Unreadable device: missing udev on non-Linux os (should never happen)', () => {
         jest.spyOn(envUtils, 'isLinux').mockImplementation(() => false);
 
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                type: 'unreadable',
-                error: 'LIBUSB_ERROR_ACCESS',
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        type: 'unreadable',
+                        error: 'LIBUSB_ERROR_ACCESS',
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -357,19 +350,17 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Unreadable device: unknown error', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                type: 'unreadable',
-                error: 'Unexpected error',
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        type: 'unreadable',
+                        error: 'Unexpected error',
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -385,19 +376,17 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Unknown device (should never happen)', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                transportSessionOwner: 'foo',
-                features: undefined,
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice({
+                        transportSessionOwner: 'foo',
+                        features: undefined,
+                    }),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -414,20 +403,12 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Seedless device', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                mode: 'seedless',
-                features: {},
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: { selectedDevice: mockSuiteDevice({ mode: 'seedless' }) },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -444,19 +425,12 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Recovery mode device', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                features: { recovery_status: 'Recovery' },
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: { selectedDevice: mockSuiteDevice({}, { recovery_status: 'Recovery' }) },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -473,20 +447,12 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Not initialized device', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                mode: 'initialize',
-                features: {},
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: { selectedDevice: mockSuiteDevice({ mode: 'initialize' }) },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -503,20 +469,17 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Bootloader device with installed firmware', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                mode: 'bootloader',
-                features: { firmware_present: true },
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice(
+                        { mode: 'bootloader' },
+                        { firmware_present: true, bootloader_mode: true },
+                    ),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -534,20 +497,17 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Bootloader device without firmware', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                mode: 'bootloader',
-                features: { firmware_present: false },
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: {
+                    selectedDevice: mockSuiteDevice(
+                        { mode: 'bootloader' },
+                        { firmware_present: false, bootloader_mode: true },
+                    ),
+                },
             }),
         );
         const { unmount } = renderWithProviders(
@@ -584,20 +544,12 @@ describe(`${Preloader.name} component`, () => {
     });
 
     it('Required FW update device', () => {
-        const device: DeepPartial<AppState['device']> = {
-            selectedDevice: {
-                firmware: 'required',
-                features: {},
-                authenticityChecks: {},
-            },
-        };
-
         const store = initStore(
             getInitialState({
                 suite: {
                     transport: { transports: [createTransportInfo({ type: 'BridgeTransport' })] },
                 },
-                device,
+                device: { selectedDevice: mockSuiteDevice({ firmware: 'required' }) },
             }),
         );
         const { unmount } = renderWithProviders(
