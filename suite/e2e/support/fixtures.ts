@@ -11,7 +11,6 @@ import { AssetsSection } from './pageObjects/assetsSection';
 import { ConnectPermissionsModal } from './pageObjects/connectPermissionsModal';
 import { DashboardPage } from './pageObjects/dashboardPage';
 import { DevicePrompt } from './pageObjects/devicePrompt';
-import { FeeSection } from './pageObjects/feeSection';
 import { GuidePanel } from './pageObjects/guidePanel';
 import { MetadataPage } from './pageObjects/metadata/metadataPage';
 import { OnboardingPage } from './pageObjects/onboarding/onboardingPage';
@@ -19,7 +18,8 @@ import { PaginationControl } from './pageObjects/pagination';
 import { RecoveryModal } from './pageObjects/recoveryModal';
 import { SettingsPage } from './pageObjects/settings/settingsPage';
 import { StakingSection } from './pageObjects/staking/stakingSection';
-import { TradingPage } from './pageObjects/tradingPage';
+import { FeeSection } from './pageObjects/trading/feeSection';
+import { TradingPage } from './pageObjects/trading/tradingPage';
 import { TrezorInput } from './pageObjects/trezorInput';
 import { WalletPage } from './pageObjects/walletPage';
 import { suiteBaseTest } from './testExtends/suiteBaseFixture';
@@ -122,7 +122,9 @@ const test = suiteBaseTest.extend<Fixtures>({
         await use(new PaginationControl(page));
     },
     evoluClient: async ({}, use) => {
-        await use(new EvoluClient());
+        const evoluClient = new EvoluClient();
+        await evoluClient.checkServerRunning();
+        await use(evoluClient);
     },
 });
 

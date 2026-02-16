@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@mobily/ts-belt": "^3.13.1",
-        "@reduxjs/toolkit": "2.11.0",
+        "@reduxjs/toolkit": "2.11.2",
         "@suite-common/analytics": "workspace:*",
         "@suite-common/bluetooth": "workspace:*",
         "@suite-common/fiat-services": "workspace:*",
@@ -41,7 +41,7 @@
         "@trezor/utils": "workspace:*",
         "date-fns": "^4.1.0",
         "react": "19.1.0",
-        "react-hook-form": "^7.66.1",
+        "react-hook-form": "^7.71.1",
         "react-redux": "^9.2.0",
         "web3-utils": "^4.3.2"
     }
