@@ -2,8 +2,9 @@ import styled, { RuleSet, css } from 'styled-components';
 
 import { DEFAULT_FLAGSHIP_MODEL } from '@suite-common/suite-constants';
 import { selectSelectedDevice } from '@suite-common/wallet-core';
-import { IconButton, Row, Text, TextProps, Tooltip } from '@trezor/components';
+import { IconButton, Row, Text, type TextProps, Tooltip } from '@trezor/components';
 import { DeviceModelInternal } from '@trezor/device-utils';
+import { type TypographyStyle } from '@trezor/theme';
 
 import { copyAddressToClipboard } from 'src/actions/suite/copyAddressActions';
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -51,8 +52,10 @@ export type AddressProps = {
     isChunked?: boolean;
     isDeviceRendered?: boolean;
     'data-testid'?: string;
-    typographyStyle?: TextProps['typographyStyle'];
-    variant?: TextProps['variant'];
+    typographyStyle?: TypographyStyle;
+    intent?: TextProps['intent'];
+    priority?: TextProps['priority'];
+    isDisabled?: TextProps['isDisabled'];
     isCopyAllowed?: boolean;
     onCopy?: () => void;
 };
@@ -63,7 +66,9 @@ export const Address = ({
     isChunked,
     isDeviceRendered = false,
     typographyStyle,
-    variant,
+    intent,
+    priority,
+    isDisabled,
     'data-testid': dataTestId,
     isCopyAllowed = false,
     onCopy,
@@ -120,7 +125,9 @@ export const Address = ({
         >
             <Text
                 typographyStyle={typographyStyle}
-                variant={variant}
+                intent={intent}
+                priority={priority}
+                isDisabled={isDisabled}
                 isTabular
                 overflowWrap="anywhere"
             >

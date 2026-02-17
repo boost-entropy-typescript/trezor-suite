@@ -33,7 +33,7 @@ const isStepActive = (index: number, activeStep?: number) => {
     return index < activeStep;
 };
 
-export interface ConfirmOnDeviceProps {
+export type ConfirmOnDeviceProps = {
     title: ReactNode;
     successText?: ReactNode;
     steps?: number;
@@ -41,7 +41,7 @@ export interface ConfirmOnDeviceProps {
     onCancel?: () => void;
     deviceModelInternal?: DeviceModelInternal;
     deviceUnitColor?: number;
-}
+};
 
 export const ConfirmOnDevicePillContent = ({
     title,
@@ -69,7 +69,7 @@ export const ConfirmOnDevicePillContent = ({
                 {successText && hasSteps && activeStep > steps && (
                     <Text
                         typographyStyle="callout"
-                        variant="primary"
+                        intent="brand"
                         data-testid="@prompts/confirm-on-device/success"
                     >
                         {successText}

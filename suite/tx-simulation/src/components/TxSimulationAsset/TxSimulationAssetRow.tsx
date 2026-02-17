@@ -1,13 +1,14 @@
 import { useFormatters } from '@suite-common/formatters';
 import { AssetDiff } from '@suite-common/tx-simulation';
 import { asBaseCurrencyAmount } from '@suite-common/wallet-types';
-import { Text, TextProps } from '@trezor/components';
+import { Text, type TextProps } from '@trezor/components';
 import { BigNumber } from '@trezor/utils';
 
 import { TxSimulationSummary } from './TxSimulationSummary';
 
 interface TxSimulationAssetRowProps {
-    variant: Required<TextProps['variant']>;
+    intent: NonNullable<TextProps['intent']>;
+    priority?: TextProps['priority'];
     amountPrefix?: '+' | '-';
     amount: AssetDiff['in'][number] | AssetDiff['out'][number];
     fiatAmount?: string;
@@ -17,7 +18,8 @@ interface TxSimulationAssetRowProps {
 }
 
 export function TxSimulationAssetRow({
-    variant,
+    intent,
+    priority,
     amountPrefix,
     amount,
     fiatAmount,
@@ -29,11 +31,11 @@ export function TxSimulationAssetRow({
 
     return (
         <>
-            <Text variant={variant} data-testid={dataTestId} flex="1">
+            <Text intent={intent} priority={priority} data-testid={dataTestId} flex="1">
                 <TxSimulationSummary amount={amount} assetDiff={assetDiff} />
             </Text>
             {fiatAmount && (
-                <Text variant="tertiary">
+                <Text intent="neutral" priority="secondary">
                     {amountPrefix ? `${amountPrefix} ` : ''}
                     <BaseCurrencyAmountFormatter
                         value={asBaseCurrencyAmount(new BigNumber(fiatAmount))}

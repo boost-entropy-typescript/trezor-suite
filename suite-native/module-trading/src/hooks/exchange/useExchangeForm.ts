@@ -114,6 +114,7 @@ const useAmountAndCurrencyFieldsChangeEffect = ({ setValue, watch }: ExchangeFor
     const prevSendCryptoId = useRef<CryptoId | undefined>(undefined);
     const prevReceiveCryptoId = useRef<CryptoId | undefined>(undefined);
     const analytics = useAnalytics();
+
     useEffect(() => {
         const { unsubscribe } = watch(({ sendAsset, receiveAsset }, { name }) => {
             switch (name) {
@@ -129,6 +130,9 @@ const useAmountAndCurrencyFieldsChangeEffect = ({ setValue, watch }: ExchangeFor
 
                         prevSendCryptoId.current = sendAsset?.cryptoId as CryptoId | undefined;
                         setValue('sendCryptoAmount', undefined, { shouldValidate: true });
+                        if (sendAsset?.cryptoId === receiveAsset?.cryptoId) {
+                            setValue('receiveAsset', undefined);
+                        }
                         dispatch(exchangeActions.sendAssetChanged());
                     }
                     break;

@@ -1,7 +1,8 @@
 import { selectSuiteSyncAccountLabel } from '@suite-common/suite-sync';
 import { Account } from '@suite-common/wallet-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
-import { BadgeSize, FlexProps, Row, Text, TextProps } from '@trezor/components';
+import { BadgeSize, FlexProps, Row, Text, type TextProps } from '@trezor/components';
+import { type TypographyStyle } from '@trezor/theme';
 
 import { useDefaultAccountLabel, useSelector } from 'src/hooks/suite';
 import { selectLabelingDataForAccount } from 'src/reducers/suite/metadataReducer';
@@ -14,8 +15,10 @@ interface AccountLabelProps {
     // Defensive programming to prevent passing 'accountLabel' by mistake.
     // Labeling shall be solved (selected for) only here!
     account: Omit<Account, 'accountLabel'>;
-    variant?: TextProps['variant'];
-    typographyStyle?: TextProps['typographyStyle'];
+    intent?: TextProps['intent'];
+    priority?: TextProps['priority'];
+    isDisabled?: TextProps['isDisabled'];
+    typographyStyle?: TypographyStyle;
     rowProps?: Omit<FlexProps, 'children'>;
 }
 
@@ -24,7 +27,9 @@ export const AccountLabel = ({
     accountTypeBadgeSize = 'medium',
     account,
     typographyStyle,
-    variant,
+    intent,
+    priority,
+    isDisabled,
     rowProps,
 }: AccountLabelProps) => {
     const { getDefaultAccountLabel } = useDefaultAccountLabel();
@@ -44,7 +49,13 @@ export const AccountLabel = ({
 
     return (
         <Row gap={12} overflow="hidden" maxWidth="100%" {...rowProps}>
-            <Text variant={variant} typographyStyle={typographyStyle} ellipsisLineCount={1}>
+            <Text
+                intent={intent}
+                priority={priority}
+                isDisabled={isDisabled}
+                typographyStyle={typographyStyle}
+                ellipsisLineCount={1}
+            >
                 {accountLabel}
             </Text>
             {showAccountTypeBadge && (
