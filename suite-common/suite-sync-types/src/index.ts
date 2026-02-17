@@ -1,4 +1,5 @@
 export type { SuiteSync, SuiteSyncDep } from './SuiteSync';
+
 export type {
     SuiteSyncStorageRepositoryDep,
     CreateSuiteSyncStorageRepository,

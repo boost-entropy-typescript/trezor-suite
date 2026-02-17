@@ -17,10 +17,14 @@ export const pickButtonProps = ({
     priority = 'primary',
 }: CommonButtonProps) => {
     const isLink = href !== undefined;
+    const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
+        event.currentTarget?.setPointerCapture?.(event.pointerId);
+    };
 
     return {
         as: isLink ? 'a' : 'button',
         disabled: isLink ? false : isDisabled || isLoading,
+        onPointerDown: handlePointerDown,
         onClick,
         type: isLink ? undefined : type,
         tabIndex,
@@ -68,12 +72,12 @@ export const mapSizeToBorderRadius = (size: ButtonSize): BorderRadii => {
     return borderRadiusMap[size];
 };
 
-export const mapSizeToIconSize = (size: ButtonSize): number => {
-    const iconSizeMap: Record<ButtonSize, number> = {
+export const mapSizeToIconSize = (size: ButtonSize) => {
+    const iconSizeMap = {
         large: 20,
         medium: 16,
         small: 16,
-    };
+    } as const;
 
     return iconSizeMap[size];
 };

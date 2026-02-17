@@ -1,0 +1,104 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { useDebounce } from '@trezor/react-utils';
+
+import analyticsData from '../analytics.json';
+import type { Sort } from '../types';
+import {
+    compareVersionsDesc,
+    fuzzyMatch,
+    getEventAddedVersion,
+    getEventUpdatedVersion,
+    getEventsFromJson,
+} from './filterUtils';
+import { getParamsFromUrl, updateUrl } from './urlParams';
+
+export const useFilteredEvents = () => {
+    const initial = useMemo(getParamsFromUrl, []);
+    const [query, setQuery] = useState(initial.query);
+    const [sort, setSort] = useState<Sort>(initial.sort);
+    const [debouncedQuery, setDebouncedQuery] = useState(initial.query);
+    const [platform, setPlatform] = useState<string>(initial.platform);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(initial.sidebarOpen);
+    const [isPlatformSortFiltering, setIsPlatformSortFiltering] = useState(false);
+    const isInitialMount = useRef(true);
+    const normalizedQuery = debouncedQuery.trim().toLowerCase();
+    const allEvents = useMemo(() => getEventsFromJson(analyticsData), []);
+    const debounce = useDebounce();
+
+    useEffect(() => {
+        debounce(() => setDebouncedQuery(query));
+    }, [query, debounce]);
+
+    useEffect(() => {
+        updateUrl(debouncedQuery, platform, sort, isSidebarOpen);
+    }, [debouncedQuery, platform, sort, isSidebarOpen]);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        setIsPlatformSortFiltering(true);
+        const id = setTimeout(() => setIsPlatformSortFiltering(false), 300);
+
+        return () => clearTimeout(id);
+    }, [debouncedQuery, platform, sort]);
+
+    const isFiltering = isPlatformSortFiltering;
+
+    const filteredEvents = useMemo(() => {
+        const byPlatformAndQuery = allEvents
+            .filter(e => (platform === 'all' ? true : e.platform.includes(platform)))
+            .filter(e => (normalizedQuery ? fuzzyMatch(normalizedQuery, e.name) : true));
+
+        return byPlatformAndQuery.sort((a, b) => {
+            const an = a.name ?? '';
+            const bn = b.name ?? '';
+
+            if (sort === 'az') return an.localeCompare(bn);
+            if (sort === 'za') return bn.localeCompare(an);
+
+            if (sort === 'added') {
+                const c = compareVersionsDesc(getEventAddedVersion(a), getEventAddedVersion(b));
+
+                return c !== 0 ? c : an.localeCompare(bn);
+            }
+
+            if (sort === 'updated') {
+                const c = compareVersionsDesc(getEventUpdatedVersion(a), getEventUpdatedVersion(b));
+
+                return c !== 0 ? c : an.localeCompare(bn);
+            }
+
+            return an.localeCompare(bn);
+        });
+    }, [allEvents, platform, normalizedQuery, sort]);
+
+    const clearAll = () => {
+        setQuery('');
+        setPlatform('all');
+        setSort('az');
+        setIsPlatformSortFiltering(true);
+        setTimeout(() => setIsPlatformSortFiltering(false), 300);
+    };
+
+    return {
+        filteredEvents,
+        setQuery,
+        setSort,
+        setPlatform,
+        clearAll,
+        query,
+        platform,
+        sort,
+        allEvents,
+        debouncedQuery,
+        normalizedQuery,
+        isFiltering,
+        isSidebarOpen,
+        setIsSidebarOpen,
+    };
+};

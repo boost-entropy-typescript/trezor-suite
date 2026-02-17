@@ -1,4 +1,5 @@
-import { DelegatedIdentityKey, SuiteSyncOwnerId } from '@suite-common/suite-types';
+import { SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
+import { DelegatedIdentityKey } from '@suite-common/suite-types';
 import { WalletDescriptor } from '@suite-common/wallet-types';
 import { Result } from '@trezor/type-utils';
 

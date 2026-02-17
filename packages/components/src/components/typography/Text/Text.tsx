@@ -46,6 +46,7 @@ export const allowedTextFrameProps = [
     'cursor',
     'opacity',
     'pointerEvents',
+    'overflow',
 ] as const satisfies FramePropsKeys[];
 type AllowedFrameProps = Pick<FrameProps, (typeof allowedTextFrameProps)[number]>;
 
@@ -146,7 +147,7 @@ export type TextProps = Pick<HTMLProps<HTMLElement>, 'onCopy' | 'onClick'> & {
     AllowedTextTextProps;
 
 export const Text = ({
-    intent = 'neutral',
+    intent,
     priority = 'primary',
     isDisabled = false,
     color,

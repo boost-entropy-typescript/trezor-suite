@@ -1,3 +1,5 @@
+import { EncryptedHex } from '@suite-common/platform-encryption';
+import { SuiteSyncOwnerSerialized } from '@suite-common/suite-sync-storage';
 import { DeviceRootState, selectDeviceByStaticSessionId } from '@suite-common/wallet-core';
 import { StaticSessionId } from '@trezor/connect';
 
@@ -19,6 +21,14 @@ export const selectIsSuiteSyncDebugEnabled = (state: WithSuiteSyncAndDeviceState
 
 export const selectSuiteSyncRelayUrl = (state: WithSuiteSyncAndDeviceState) =>
     state.suiteSync.settings.suiteSyncRelayUrl;
+
+export const selectSuiteSyncOwnerForDeviceStaticId = (
+    state: WithSuiteSyncAndDeviceState,
+    deviceStaticSessionId: StaticSessionId | undefined,
+): EncryptedHex<SuiteSyncOwnerSerialized> | null =>
+    deviceStaticSessionId !== undefined
+        ? (state.suiteSync.suiteSyncOwners[deviceStaticSessionId] ?? null)
+        : null;
 
 export const selectSuiteSyncInteraction = (
     state: WithSuiteSyncAndDeviceState,
@@ -48,7 +58,7 @@ export const selectSuiteSyncInteraction = (
         return 'firmware-upgrade-needed';
     }
 
-    if (device.suiteSyncOwner === null) {
+    if (selectSuiteSyncOwnerForDeviceStaticId(state, deviceStaticSessionId) === null) {
         return 'keys-needed';
     }
 
