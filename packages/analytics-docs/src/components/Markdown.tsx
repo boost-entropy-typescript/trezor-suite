@@ -7,12 +7,12 @@ export const Markdown = ({ children: childrenMarkdown }: MarkdownProps) => (
     <MarkdownComponent
         components={{
             code: ({ children }) => (
-                <Text isMonospaced typographyStyle="inherit" variant="default">
+                <Text isMonospaced typographyStyle="inherit" intent="neutral">
                     {children}
                 </Text>
             ),
             p: ({ children }) => (
-                <Paragraph typographyStyle="inherit" variant="default">
+                <Paragraph typographyStyle="inherit" intent="neutral">
                     {children}
                 </Paragraph>
             ),

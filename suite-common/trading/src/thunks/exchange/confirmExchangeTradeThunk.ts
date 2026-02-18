@@ -119,14 +119,7 @@ export const confirmExchangeTradeThunk = createThunk(
             return response;
         }
 
-        if (response.status === 'CONFIRM' && !response.isDex) {
-            dispatch(tradingExchangeActions.saveSelectedQuote(response));
-            dispatch(tradingExchangeActions.setFormStep('SEND_TRANSACTION'));
-
-            return response;
-        }
-
-        if (response.status === 'CONFIRM' && response.isDex) {
+        if (response.status === 'CONFIRM') {
             dispatch(tradingExchangeActions.saveSelectedQuote(response));
             dispatch(tradingExchangeActions.setFormStep('SEND_TRANSACTION'));
 

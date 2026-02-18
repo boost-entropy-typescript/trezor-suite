@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDebounce } from '@trezor/react-utils';
 
-import analyticsData from '../analytics.json';
 import type { Sort } from '../types';
 import {
     compareVersionsDesc,
@@ -13,6 +12,8 @@ import {
 } from './filterUtils';
 import { getParamsFromUrl, updateUrl } from './urlParams';
 
+const ANALYTICS_JSON_URL = '/src/analytics.json';
+
 export const useFilteredEvents = () => {
     const initial = useMemo(getParamsFromUrl, []);
     const [query, setQuery] = useState(initial.query);
@@ -20,10 +21,25 @@ export const useFilteredEvents = () => {
     const [debouncedQuery, setDebouncedQuery] = useState(initial.query);
     const [platform, setPlatform] = useState<string>(initial.platform);
     const [isSidebarOpen, setIsSidebarOpen] = useState(initial.sidebarOpen);
+    const [isSidebarLoading, setIsSidebarLoading] = useState(false);
     const [isPlatformSortFiltering, setIsPlatformSortFiltering] = useState(false);
+    const [analyticsData, setAnalyticsData] = useState<unknown | null>(null);
     const isInitialMount = useRef(true);
     const normalizedQuery = debouncedQuery.trim().toLowerCase();
-    const allEvents = useMemo(() => getEventsFromJson(analyticsData), []);
+
+    useEffect(() => {
+        fetch(ANALYTICS_JSON_URL)
+            .then(res => (res.ok ? res.json() : null))
+            .then(data => setAnalyticsData(data ?? {}))
+            .catch(() => setAnalyticsData({}));
+    }, []);
+
+    const allEvents = useMemo(() => getEventsFromJson(analyticsData ?? {}), [analyticsData]);
+    const isAnalyticsDataGenerated =
+        analyticsData !== null &&
+        typeof analyticsData === 'object' &&
+        'events' in analyticsData &&
+        typeof (analyticsData as { events?: unknown }).events === 'object';
     const debounce = useDebounce();
 
     useEffect(() => {
@@ -33,6 +49,12 @@ export const useFilteredEvents = () => {
     useEffect(() => {
         updateUrl(debouncedQuery, platform, sort, isSidebarOpen);
     }, [debouncedQuery, platform, sort, isSidebarOpen]);
+
+    useEffect(() => {
+        const id = setTimeout(() => setIsSidebarLoading(false), 200);
+
+        return () => clearTimeout(id);
+    }, [isSidebarOpen]);
 
     useEffect(() => {
         if (isInitialMount.current) {
@@ -99,6 +121,10 @@ export const useFilteredEvents = () => {
         normalizedQuery,
         isFiltering,
         isSidebarOpen,
+        isSidebarLoading,
+        isAnalyticsDataGenerated,
+        isAnalyticsDataLoading: analyticsData === null,
         setIsSidebarOpen,
+        setIsSidebarLoading,
     };
 };

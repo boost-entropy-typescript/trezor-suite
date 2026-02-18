@@ -5,13 +5,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { useKeepAwake } from 'expo-keep-awake';
 
-import { firmwareActions } from '@suite-common/firmware/src/firmwareActions';
+import { firmwareActions } from '@suite-common/firmware';
 import { Box, Button, VStack, useBottomSheetModal } from '@suite-native/atoms';
 import {
     ConfirmOnTrezorWrapper,
-    setTemporaryRememberedDeviceThunk,
     useConfirmOnTrezorController,
-} from '@suite-native/device';
+} from '@suite-native/confirm-on-trezor';
 import { Translation } from '@suite-native/intl';
 import { SUITE_MOBILE_SUPPORT_URL, useOpenLink } from '@suite-native/link';
 import { DynamicScreenHeader } from '@suite-native/navigation';
@@ -19,6 +18,7 @@ import { reportSecurityCheck } from '@suite-native/sentry';
 import TrezorConnect from '@trezor/connect';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles';
 
+import { setTemporaryRememberedDeviceThunk } from '../firmwareThunks';
 import { DoNotCloseAppBottomSheetTrigger } from './DoNotCloseAppBottomSheetTrigger';
 import { FirmwareInstallationProgressTitles } from './FirmwareInstallationProgressTitles';
 import { MayBeStuckedBottomSheet } from './MayBeStuckedBottomSheet';

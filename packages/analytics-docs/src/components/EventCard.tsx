@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
     Badge,
     Card,
+    Dropdown,
     H3,
-    IconButton,
     InfoItem,
     Row,
+    Text,
     Tooltip,
     useMediaQuery,
     variables,
@@ -18,6 +19,7 @@ import { AttributesTable } from './AttributesTable';
 import { Changelog } from './Changelog';
 import { LastUpdatedBadge } from './LastUpdatedBadge';
 import { Markdown } from './Markdown';
+import { getEventId } from '../utils/filterUtils';
 import { getPlatformIcon } from '../utils/getPlatformIcon';
 import { useChangelogButton } from '../utils/useChangelogButton';
 
@@ -42,15 +44,57 @@ const toEventName = (input: string): string =>
         )
         .join('') + 'Event';
 
+const COPY_FEEDBACK_MS = 2000;
+
 const Header = ({ event }: { event: EventDoc }) => {
-    const [isCopied, setIsCopied] = useState<boolean>(false);
     const { ChangelogButton, isChangelogOpened } = useChangelogButton();
     const isMobile = useMediaQuery(`(max-width: ${variables.SCREEN_SIZE.MD})`);
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!copied) return;
+        const id = setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
+
+        return () => clearTimeout(id);
+    }, [copied]);
 
     if (!event.name) return null;
 
-    const getEventUrl = (eventName: string) =>
+    const getEventDefinitionUrl = (eventName: string) =>
         `https://github.com/trezor/trezor-suite/blob/develop/${getPlatformDirectory(event.platform)}/src/events/${toEventName(eventName)}.ts`;
+
+    const getEventUsagesUrl = (eventName: string) =>
+        `https://github.com/search?q=repo%3Atrezor%2Ftrezor-suite%20${toEventName(eventName)}.name&type=code`;
+
+    const getEventAnchorLink = () =>
+        `${typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''}#${getEventId(event.name)}`;
+
+    const handleCopyLink = () => {
+        const link = getEventAnchorLink();
+        void navigator.clipboard?.writeText(link);
+        setCopied(true);
+    };
+
+    const dropdownItems = [
+        {
+            key: 'open-definition',
+            label: 'Open definition on Github',
+            icon: 'note' as const,
+            onClick: () => window.open(getEventDefinitionUrl(event.name), '_blank'),
+        },
+        {
+            key: 'find-usages',
+            label: 'Find usages on Github',
+            icon: 'magnifyingGlass' as const,
+            onClick: () => window.open(getEventUsagesUrl(event.name), '_blank'),
+        },
+        {
+            key: 'copy-link',
+            label: 'Copy link',
+            icon: 'copy' as const,
+            onClick: handleCopyLink,
+        },
+    ];
 
     return (
         <>
@@ -63,30 +107,17 @@ const Header = ({ event }: { event: EventDoc }) => {
             >
                 <Row gap={16} alignItems="center" overflow="auto" padding={{ bottom: 8 }}>
                     <H3>{event.name} </H3>
-                    <Row gap={4}>
-                        <Tooltip content="Copy event name">
-                            <IconButton
-                                onClick={() => {
-                                    setIsCopied(true);
-                                    navigator.clipboard.writeText(event.name);
-                                    setTimeout(() => setIsCopied(false), 1000);
-                                }}
-                                icon={isCopied ? 'check' : 'copy'}
-                                intent={isCopied ? 'brand' : 'neutral'}
-                                size="small"
-                                priority="secondary"
-                            />
-                        </Tooltip>
+                    <Row gap={4} alignItems="center">
                         <ChangelogButton />
-                        <Tooltip content="Open in Github">
-                            <IconButton
-                                href={getEventUrl(event.name)}
-                                icon="arrowLineUpRight"
-                                intent="neutral"
-                                size="small"
-                                priority="secondary"
-                            />
+
+                        <Tooltip content="More actions">
+                            <Dropdown items={dropdownItems} iconName="dotsThree" iconSize="small" />
                         </Tooltip>
+                        {copied && (
+                            <Text intent="brand" priority="primary" typographyStyle="label">
+                                Copied to clipboard
+                            </Text>
+                        )}
                     </Row>
                 </Row>
                 <Row gap={8} margin={{ vertical: 12 }}>
