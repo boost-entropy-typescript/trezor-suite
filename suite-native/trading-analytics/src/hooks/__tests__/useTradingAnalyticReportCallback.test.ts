@@ -1,9 +1,9 @@
 import {
-    EventType,
     TradingExchangeAction,
     TradingExchangeStep,
     TradingSellAction,
     TradingSellStep,
+    events,
 } from '@suite-native/analytics';
 import { useAnalytics } from '@suite-native/services';
 import { PreloadedState, renderHookWithStoreProvider } from '@suite-native/test-utils';
@@ -53,7 +53,7 @@ describe('useTradingAnalyticReportCallback', () => {
             );
 
             expect(reportMock).toHaveBeenCalledWith({
-                type: EventType.TradingSell,
+                type: events.tradingSellEvent.name,
                 payload: expect.objectContaining({
                     step: 'sell-form',
                     action: 'visit',
@@ -82,7 +82,7 @@ describe('useTradingAnalyticReportCallback', () => {
             );
 
             expect(reportMock).toHaveBeenCalledWith({
-                type: EventType.TradingExchange,
+                type: events.tradingExchangeEvent.name,
                 payload: expect.objectContaining({
                     step: 'exchange-form',
                     action: 'continue',
