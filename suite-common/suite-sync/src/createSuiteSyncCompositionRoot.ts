@@ -32,6 +32,7 @@ import {
 import { createSaveSuiteSyncOwner } from './owner/createSaveSuiteSyncOwner';
 import { createChangeRelayUrl } from './relay/createChangeRelayUrl';
 import { DEFAULT_SUITE_SYNC_RELAY_URL } from './relay/relayUrl';
+import { createEnsureQuota } from './storage/createEnsureQuota';
 import { createEnsureStorage } from './storage/createEnsureStorage';
 import { createEnsureWalletSuiteSyncOn } from './storage/createEnsureWalletSuiteSyncOn';
 import { createEnsureWalletSuiteSyncOnWithErrorHandler } from './storage/createEnsureWalletSuiteSyncOnWithErrorHandler';
@@ -94,10 +95,16 @@ export const createSuiteSyncCompositionRoot = (
         dispatch: deps.dispatch,
         ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         ensureSuiteSyncOwner,
-        loadSuiteSyncOwnerFromState,
+        getDeviceForStaticSessionId,
+    });
+
+    const ensureQuota = createEnsureQuota({
+        dispatch: deps.dispatch,
         getDeviceForStaticSessionId,
         hasAllowance: ({ walletDescriptor, deviceId }) =>
             selectHasDeviceAllowance(deps.getState(), deviceId ?? null, walletDescriptor),
+        defaultRelayUrl: DEFAULT_SUITE_SYNC_RELAY_URL,
+        getRelayUrl: toGetter(deps.getState, selectSuiteSyncRelayUrl),
     });
 
     const suiteSyncErrorHandler: SuiteSyncErrorHandler = createSuiteSyncErrorHandler({
@@ -108,9 +115,9 @@ export const createSuiteSyncCompositionRoot = (
 
     const ensureStorage = createEnsureStorage({
         refreshSuiteSyncKeys,
+        ensureQuota,
         suiteSyncStorageRepository,
         createSuiteStorage,
-        defaultRelayUrl: DEFAULT_SUITE_SYNC_RELAY_URL,
         getRelayUrl: toGetter(deps.getState, selectSuiteSyncRelayUrl),
         getDeviceForStaticSessionId,
     });

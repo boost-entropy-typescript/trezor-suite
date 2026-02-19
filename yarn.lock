@@ -11420,6 +11420,7 @@ __metadata:
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/delegated-identity-key": "workspace:*"
+    "@suite-common/delegated-identity-key-types": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
@@ -14562,12 +14563,19 @@ __metadata:
     "@evolu/web": "npm:^2.3.0"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/delegated-identity-key-types": "workspace:*"
+    "@suite-common/device": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-evolu": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@trezor/components": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    react: "npm:19.1.0"
+    react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft
 
@@ -14812,10 +14820,10 @@ __metadata:
   resolution: "@trezor/analytics-docs@workspace:packages/analytics-docs"
   dependencies:
     "@suite-common/analytics": "workspace:*"
-    "@suite-native/analytics": "workspace:*"
-    "@suite/analytics": "workspace:*"
     "@trezor/components": "workspace:*"
     "@trezor/eslint": "workspace:*"
+    "@trezor/react-utils": "workspace:*"
+    "@trezor/theme": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@vitejs/plugin-react": "npm:^4.7.0"
     react: "npm:19.1.0"
@@ -15512,6 +15520,16 @@ __metadata:
     socks-proxy-agent: "npm:8.0.5"
     ts-node: "npm:^10.9.2"
     ws: "npm:^8.18.0"
+  languageName: unknown
+  linkType: soft
+
+"@trezor/requirements@workspace:packages/requirements":
+  version: 0.0.0-use.local
+  resolution: "@trezor/requirements@workspace:packages/requirements"
+  dependencies:
+    "@trezor/utils": "workspace:*"
+    chalk: "npm:^5.6.2"
+    tsx: "npm:^4.21.0"
   languageName: unknown
   linkType: soft
 

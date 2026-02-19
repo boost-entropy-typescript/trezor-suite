@@ -1,11 +1,10 @@
 import { SuiteSyncOwner } from '@suite-common/suite-sync-storage';
+import { DelegatedIdentityKey, TrezorDevice } from '@suite-common/suite-types';
 import type { DeviceCancelledErrType, DeviceErrorType } from '@suite-common/suite-types';
-import { TrezorDevice } from '@suite-common/suite-types';
 import { Result } from '@trezor/type-utils';
 
 type RefreshSuiteSyncKeysParams = {
     device: TrezorDevice;
-    isWriteMode: boolean;
 };
 
 /**
@@ -18,19 +17,17 @@ export type SuiteSyncUnavailableOnDeviceErrorType = {
     type: 'SuiteSyncUnavailableOnDeviceError';
 };
 
-export type WriteModeRequiredForAllocationErrType = {
-    type: 'WriteModeRequiredForAllocation';
+export type RefreshSuiteSyncKeysResult = {
+    owner: SuiteSyncOwner;
+    delegatedKey: DelegatedIdentityKey;
 };
 
 export type RefreshSuiteSyncKeys = (
     params: RefreshSuiteSyncKeysParams,
 ) => Promise<
     Result<
-        SuiteSyncOwner,
-        | SuiteSyncUnavailableOnDeviceErrorType
-        | DeviceErrorType
-        | DeviceCancelledErrType
-        | WriteModeRequiredForAllocationErrType
+        RefreshSuiteSyncKeysResult,
+        SuiteSyncUnavailableOnDeviceErrorType | DeviceErrorType | DeviceCancelledErrType
     >
 >;
 

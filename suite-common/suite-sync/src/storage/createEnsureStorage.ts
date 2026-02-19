@@ -8,18 +8,20 @@ import type { WriteModeRequiredForAllocationErrType } from '@suite-common/suite-
 import { DeviceCancelledErrType, DeviceErrorType } from '@suite-common/suite-types';
 import { StaticSessionId } from '@trezor/connect';
 import { Result, err, ok } from '@trezor/type-utils';
+import { isNotNull } from '@trezor/utils';
 
+import { EnsureQuotaDep } from './createEnsureQuota';
 import { createStorageIdFromDeviceStaticSessionId } from './createStorageIdFromDeviceStaticSessionId';
 import { SuiteSyncUnavailableOnDeviceError } from '../createRefreshSuiteSyncKeys';
 import { GetDeviceForStaticSessionIdDep } from '../getDeviceForStaticSessionId';
 
 export type EnsureStorageDeps = {
-    defaultRelayUrl: string;
-    getRelayUrl: () => string | null;
+    getRelayUrl: () => string;
 } & SuiteSyncStorageRepositoryDep &
     CreateSuiteStorageDep &
     RefreshSuiteSyncKeysDep &
-    GetDeviceForStaticSessionIdDep;
+    GetDeviceForStaticSessionIdDep &
+    EnsureQuotaDep;
 
 export type EnsureStorageParams = {
     deviceStaticSessionId: StaticSessionId;
@@ -49,7 +51,7 @@ export const createEnsureStorage =
 
         const storage = deps.suiteSyncStorageRepository.get(storageId);
 
-        if (storage !== null) {
+        if (isNotNull(storage)) {
             return ok(storage);
         }
 
@@ -59,17 +61,29 @@ export const createEnsureStorage =
             return err(SuiteSyncUnavailableOnDeviceError());
         }
 
-        const ownerResult = await deps.refreshSuiteSyncKeys({ device, isWriteMode });
+        const keysResult = await deps.refreshSuiteSyncKeys({ device });
 
-        if (!ownerResult.success) {
-            return ownerResult;
+        if (!keysResult.success) {
+            return keysResult;
         }
 
-        const relayUrl = deps.getRelayUrl();
+        const { owner, delegatedKey } = keysResult.payload;
+
         const newStorage = deps.createSuiteStorage({
-            suiteSyncOwner: ownerResult.payload,
-            relayUrl: relayUrl !== null && relayUrl.trim() !== '' ? relayUrl : deps.defaultRelayUrl,
+            suiteSyncOwner: owner,
         });
+
+        const quotaResult = await deps.ensureQuota({
+            deviceStaticSessionId,
+            delegatedKey,
+            owner,
+            isWriteMode,
+        });
+
+        if (quotaResult.success) {
+            // Only set the relay URL for transport in case that quota manager is enabled or has quota for device.
+            await newStorage.updateRelayUrl(deps.getRelayUrl());
+        }
 
         deps.suiteSyncStorageRepository.set(storageId, newStorage);
 
