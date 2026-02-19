@@ -20,8 +20,8 @@ const containerStyle = prepareNativeStyle<Pick<FullAlertStyles, 'backgroundColor
 export type FullAlertBoxProps = {
     title: React.ReactNode;
     description?: React.ReactNode;
-    primaryButtonLabel?: string;
-    secondaryButtonLabel?: string;
+    primaryButtonLabel?: string | React.ReactNode;
+    secondaryButtonLabel?: string | React.ReactNode;
     onPressPrimaryButton?: () => void;
     onPressSecondaryButton?: () => void;
     primaryButtonProps?: Partial<ButtonProps>;
@@ -56,7 +56,7 @@ export const FullAlertBox = ({
                 <Box flex={1}>
                     <Text>{title}</Text>
                     {description && (
-                        <Text color="textSubdued" variant="hint">
+                        <Text color="textSubdued" variant="body-sm">
                             {description}
                         </Text>
                     )}

@@ -5,65 +5,39 @@ import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { selectThpAutoconnectStep, selectThpStep } from '@suite-common/thp';
-import { useAlert } from '@suite-native/alerts';
 import { ContinueOnTrezorScreenContent } from '@suite-native/device';
-import { Translation } from '@suite-native/intl';
 import {
     AuthorizeDeviceStackParamList,
     AuthorizeDeviceStackRoutes,
     Screen,
     useInterceptNativeNavigation,
-    useNavigateToInitialScreen,
 } from '@suite-native/navigation';
-import { useThpAutoconnectActions } from '@suite-native/thp';
+import { useThpAutoconnectAlert } from '@suite-native/thp';
 
 import { ThpScreenHeader } from '../../components/thp/ThpScreenHeader';
-import { selectIsThpScreenDismissable } from '../../selectors';
+import { useThpScreenDismissal } from '../../hooks/useThpScreenDismissal';
 
 export const ThpConfirmationScreen = ({
     navigation,
 }: {
     navigation: NativeStackNavigationProp<AuthorizeDeviceStackParamList>;
 }) => {
-    useInterceptNativeNavigation();
-    const navigateToInitialScreen = useNavigateToInitialScreen();
-
-    const { startThpAutoconnect, ignoreThpAutoconnect } = useThpAutoconnectActions();
+    const { showEnableThpAutoconnectAlert } = useThpAutoconnectAlert();
 
     const thpStep = useSelector(selectThpStep);
     const thpAutoconnectStep = useSelector(selectThpAutoconnectStep);
-    const isThpScreenDismissable = useSelector(selectIsThpScreenDismissable);
 
-    const { showAlert } = useAlert();
-
-    const showThpAutoconnectEnableAlert = useCallback(() => {
-        showAlert({
-            title: <Translation id="thp.autoconnect.title" />,
-            description: <Translation id="thp.autoconnect.description" />,
-            primaryButtonTitle: <Translation id="thp.autoconnect.turnOnButton" />,
-            onPressPrimaryButton: startThpAutoconnect,
-            secondaryButtonTitle: <Translation id="thp.autoconnect.noThanksButton" />,
-            onPressSecondaryButton: ignoreThpAutoconnect,
-        });
-    }, [showAlert, startThpAutoconnect, ignoreThpAutoconnect]);
+    useInterceptNativeNavigation();
+    useThpScreenDismissal();
 
     useFocusEffect(
         useCallback(() => {
             if (thpStep === 'CodeEntry') {
                 navigation.replace(AuthorizeDeviceStackRoutes.ThpCodeEntry);
             } else if (thpAutoconnectStep === 'AutoconnectInfo') {
-                showThpAutoconnectEnableAlert();
-            } else if (isThpScreenDismissable) {
-                navigateToInitialScreen();
+                showEnableThpAutoconnectAlert();
             }
-        }, [
-            thpStep,
-            thpAutoconnectStep,
-            isThpScreenDismissable,
-            navigateToInitialScreen,
-            navigation,
-            showThpAutoconnectEnableAlert,
-        ]),
+        }, [thpStep, thpAutoconnectStep, showEnableThpAutoconnectAlert, navigation]),
     );
 
     return (

@@ -21,7 +21,6 @@ export const UI_REQUEST = {
     TRANSPORT: 'ui-no_transport',
     BOOTLOADER: 'ui-device_bootloader_mode',
     NOT_IN_BOOTLOADER: 'ui-device_not_in_bootloader_mode',
-    REQUIRE_MODE: 'ui-device_require_mode',
     INITIALIZE: 'ui-device_not_initialized',
     SEEDLESS: 'ui-device_seedless',
     FIRMWARE_OLD: 'ui-device_firmware_old',
@@ -48,11 +47,7 @@ export const UI_REQUEST = {
     INVALID_PIN_ATTEMPTS_DEPLETED: 'ui-invalid_pin_attempts_depleted',
     REQUEST_PASSPHRASE: 'ui-request_passphrase',
     REQUEST_PASSPHRASE_ON_DEVICE: 'ui-request_passphrase_on_device',
-    INVALID_PASSPHRASE: 'ui-invalid_passphrase',
     REQUEST_THP_PAIRING: 'ui-request_thp_pairing',
-    CONNECT: 'ui-connect',
-    LOADING: 'ui-loading',
-    SET_OPERATION: 'ui-set_operation',
     SELECT_ACCOUNT: 'ui-select_account',
     SELECT_FEE: 'ui-select_fee',
     UPDATE_CUSTOM_FEE: 'ui-update_custom_fee',
@@ -60,16 +55,11 @@ export const UI_REQUEST = {
     REQUEST_BUTTON: 'ui-button',
     REQUEST_WORD: 'ui-request_word',
 
-    LOGIN_CHALLENGE_REQUEST: 'ui-login_challenge_request',
     BUNDLE_PROGRESS: 'ui-bundle_progress',
     ADDRESS_VALIDATION: 'ui-address_validation',
 } as const;
 
 export type UiRequestWithoutPayload =
-    | {
-          type: typeof UI_REQUEST.LOADING;
-          payload?: typeof undefined;
-      }
     | {
           type: typeof UI_REQUEST.TRANSPORT;
           payload?: typeof undefined;
@@ -80,10 +70,6 @@ export type UiRequestWithoutPayload =
       }
     | {
           type: typeof UI_REQUEST.CLOSE_UI_WINDOW;
-          payload?: typeof undefined;
-      }
-    | {
-          type: typeof UI_REQUEST.LOGIN_CHALLENGE_REQUEST;
           payload?: typeof undefined;
       };
 
@@ -129,13 +115,6 @@ export type UiRequestDeviceAction =
               device: Device;
               type?: typeof undefined;
           };
-      }
-    | {
-          type: typeof UI_REQUEST.INVALID_PASSPHRASE;
-          payload: {
-              device: Device;
-              type?: typeof undefined;
-          };
       };
 
 export type UiRequestButtonData =
@@ -170,12 +149,6 @@ export interface UiRequestButton {
 export interface UiRequestAddressValidation {
     type: typeof UI_REQUEST.ADDRESS_VALIDATION;
     payload: UiRequestButtonData | undefined;
-}
-
-// todo: not used at the moment
-export interface UiRequestSetOperation {
-    type: typeof UI_REQUEST.SET_OPERATION;
-    payload: string;
 }
 
 export interface UiRequestConfirmation {
@@ -326,7 +299,6 @@ export type UiEvent =
     | FirmwareReconnect
     | FirmwareDisconnect
     | UiRequestAddressValidation
-    | UiRequestSetOperation
     | UiRequestFirmwareDownloaded;
 
 export type UiEventMessage = UiEvent & { event: typeof UI_EVENT };

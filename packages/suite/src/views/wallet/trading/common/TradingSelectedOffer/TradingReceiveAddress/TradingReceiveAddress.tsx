@@ -15,8 +15,8 @@ interface TradingReceiveAddressEmptyProps {
 
 export const TradingReceiveAddressEmpty = ({ title, text }: TradingReceiveAddressEmptyProps) => (
     <Column alignItems="center" gap={4} padding={{ vertical: 16 }}>
-        <Text typographyStyle="body">{title}</Text>
-        <Text typographyStyle="hint" intent="neutral" priority="secondary">
+        <Text typographyStyle="body-md">{title}</Text>
+        <Text typographyStyle="body-sm" intent="neutral" priority="secondary">
             {text}
         </Text>
     </Column>
@@ -26,7 +26,7 @@ export const TradingReceiveAddress = () => {
     const { tradingReceiveAddress } = useTradingReceiveAddressValues();
     const modalControls = useReceiveAddressModalControls();
 
-    const { receiveAddress, selectedAccountOption } = tradingReceiveAddress;
+    const { receiveAddress, selectedAccount } = tradingReceiveAddress;
 
     const onReceiveAccountClick = () => {
         modalControls.open('accountModal');
@@ -43,14 +43,14 @@ export const TradingReceiveAddress = () => {
                 alignItems="center"
                 justifyContent="space-between"
                 padding={{
-                    vertical: selectedAccountOption?.account && receiveAddress ? 12 : 16,
+                    vertical: selectedAccount && receiveAddress ? 12 : 16,
                     horizontal: 20,
                 }}
             >
-                <Text typographyStyle="body" align="start">
+                <Text typographyStyle="body-md" align="start">
                     <Translation
                         id={
-                            selectedAccountOption?.account || !receiveAddress
+                            selectedAccount || !receiveAddress
                                 ? 'TR_BUY_RECEIVING_ACCOUNT'
                                 : 'TR_BUY_RECEIVING_ADDRESS'
                         }
@@ -58,24 +58,24 @@ export const TradingReceiveAddress = () => {
                 </Text>
                 <Row gap={16}>
                     <Column alignItems="flex-end">
-                        {selectedAccountOption?.account && receiveAddress ? (
+                        {selectedAccount && receiveAddress ? (
                             <>
                                 <Text
-                                    typographyStyle="body"
+                                    typographyStyle="body-md"
                                     as="div"
                                     data-testid="@trading/selected-receive-account"
                                     ellipsisLineCount={1}
                                     maxWidth={200}
                                 >
                                     <AccountLabeling
-                                        account={selectedAccountOption.account}
+                                        account={selectedAccount}
                                         accountTypeBadgeSize="small"
                                         showAccountTypeBadge
                                     />
                                 </Text>
                                 <Address
                                     value={receiveAddress}
-                                    typographyStyle="hint"
+                                    typographyStyle="body-sm"
                                     intent="neutral"
                                     priority="secondary"
                                     isTruncated
@@ -86,13 +86,13 @@ export const TradingReceiveAddress = () => {
                                 {receiveAddress ? (
                                     <Address
                                         value={receiveAddress}
-                                        typographyStyle="body"
+                                        typographyStyle="body-md"
                                         intent="neutral"
                                         isTruncated
                                     />
                                 ) : (
                                     <Text
-                                        typographyStyle="hint"
+                                        typographyStyle="body-sm"
                                         intent="neutral"
                                         priority="secondary"
                                     >

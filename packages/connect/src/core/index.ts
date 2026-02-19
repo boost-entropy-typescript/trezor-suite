@@ -772,12 +772,10 @@ export class Core extends EventEmitter {
             case UI.RECEIVE_CONFIRMATION:
             case UI.RECEIVE_PIN:
             case UI.RECEIVE_PASSPHRASE:
-            case UI.INVALID_PASSPHRASE_ACTION:
             case UI.RECEIVE_THP_PAIRING_TAG:
             case UI.RECEIVE_ACCOUNT:
             case UI.RECEIVE_FEE:
             case UI.RECEIVE_WORD:
-            case UI.LOGIN_CHALLENGE_RESPONSE:
                 this.uiPromises.resolve(message);
                 break;
             case UI.RECEIVE_FIRMWARE: {

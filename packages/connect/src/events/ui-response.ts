@@ -17,9 +17,6 @@ export const UI_RESPONSE = {
     RECEIVE_ACCOUNT: 'ui-receive_account',
     RECEIVE_FEE: 'ui-receive_fee',
     RECEIVE_WORD: 'ui-receive_word',
-    INVALID_PASSPHRASE_ACTION: 'ui-invalid_passphrase_action',
-    CHANGE_SETTINGS: 'ui-change_settings',
-    LOGIN_CHALLENGE_RESPONSE: 'ui-login_challenge_response',
 } as const;
 
 export interface UiResponseConfirmation {
@@ -61,12 +58,6 @@ export interface UiResponseThpPairingTag {
               selectedMethod: ThpPairingMethod | keyof typeof ThpPairingMethod;
           };
 }
-
-export interface UiResponsePassphraseAction {
-    type: typeof UI_RESPONSE.INVALID_PASSPHRASE_ACTION;
-    payload: boolean;
-}
-
 export interface UiResponseAccount {
     type: typeof UI_RESPONSE.RECEIVE_ACCOUNT;
     payload: number;
@@ -88,24 +79,14 @@ export interface UiResponseFee {
           };
 }
 
-export interface UiResponseLoginChallenge {
-    type: typeof UI_RESPONSE.LOGIN_CHALLENGE_RESPONSE;
-    payload: {
-        challengeHidden: string;
-        challengeVisual: string;
-    };
-}
-
 export type UiResponseEvent =
     | UiResponseConfirmation
     | UiResponsePin
     | UiResponseWord
     | UiResponsePassphrase
     | UiResponseThpPairingTag
-    | UiResponsePassphraseAction
     | UiResponseAccount
     | UiResponseFee
-    | UiResponseLoginChallenge
     | UiResponseFirmwares;
 
 export type UiResponseMessage = UiResponseEvent & { event: typeof UI_EVENT };

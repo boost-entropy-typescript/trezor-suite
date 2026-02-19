@@ -19,7 +19,6 @@ import {
     isCardanoStakedOutsideEverstake,
 } from '@suite-common/wallet-utils';
 import { Button, Column, Icon, Paragraph, Row, Table } from '@trezor/components';
-import { spacings } from '@trezor/theme';
 import { BigNumber } from '@trezor/utils';
 
 import { goto } from 'src/actions/suite/routerActions';
@@ -162,7 +161,11 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
                         />
 
                         {isStakingActive && (
-                            <Paragraph typographyStyle="hint" intent="neutral" priority="secondary">
+                            <Paragraph
+                                typographyStyle="body-sm"
+                                intent="neutral"
+                                priority="secondary"
+                            >
                                 <Translation
                                     id="TR_EARN_STAKING_DASHBOARD_STAKED"
                                     values={{
@@ -200,7 +203,7 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
                     )}
 
                     {!isCardanoNetworkType && apy && (
-                        <Paragraph typographyStyle="hint" intent="neutral" priority="secondary">
+                        <Paragraph typographyStyle="body-sm" intent="neutral" priority="secondary">
                             <Translation
                                 id="TR_EARN_STAKING_DASHBOARD_IF_YOU_ADD"
                                 values={{
@@ -232,7 +235,7 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
             {state === 'insufficient-funds' && (
                 <>
                     <Table.Cell colSpan={2}>
-                        <Paragraph typographyStyle="body" intent="neutral" priority="secondary">
+                        <Paragraph typographyStyle="body-md" intent="neutral" priority="secondary">
                             <Translation
                                 id="TR_EARN_STAKING_DASHBOARD_MINIMUM_STAKE"
                                 values={{
@@ -280,7 +283,7 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
                     <CurrentRewardsCell />
 
                     <Table.Cell>
-                        <Paragraph typographyStyle="body" intent="neutral" priority="secondary">
+                        <Paragraph typographyStyle="body-md" intent="neutral" priority="secondary">
                             <Translation id="TR_EARN_STAKING_DASHBOARD_MAXIMUM_STAKE" />
                         </Paragraph>
                     </Table.Cell>
@@ -303,7 +306,7 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
                     <CurrentRewardsCell />
 
                     <Table.Cell>
-                        <Paragraph typographyStyle="body" intent="neutral" priority="secondary">
+                        <Paragraph typographyStyle="body-md" intent="neutral" priority="secondary">
                             <Translation
                                 id="TR_EARN_STAKING_DASHBOARD_MINIMUM_STAKE"
                                 values={{
@@ -330,9 +333,9 @@ export const EarnStakingAccountRow = ({ account }: { account: Account }) => {
             {state === 'staking-outdated-provider' && (
                 <>
                     <Table.Cell colSpan={2}>
-                        <Row gap={spacings.xxs}>
+                        <Row gap={4}>
                             <Icon name="warning" size={24} variant="warning" />
-                            <Paragraph typographyStyle="body" intent="warning">
+                            <Paragraph typographyStyle="body-md" intent="warning">
                                 <Translation
                                     id="TR_EARN_STAKING_DASHBOARD_OUTDATED_PROVIDER"
                                     values={{ apy: formatApyValue(apy) }}
