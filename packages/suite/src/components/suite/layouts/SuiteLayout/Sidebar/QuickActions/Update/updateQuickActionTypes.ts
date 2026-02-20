@@ -1,8 +1,4 @@
-import { DefaultTheme } from 'styled-components';
-
-import { IconName } from '@trezor/components';
-import { UIVariant } from '@trezor/components/src/config/types';
-import { CSSColor, Color } from '@trezor/theme';
+import { IconName, UIIntent } from '@trezor/components';
 
 import {
     installUpdate,
@@ -11,9 +7,6 @@ import {
 } from '../../../../../../../actions/suite/desktopUpdateActions';
 import { goto } from '../../../../../../../actions/suite/routerActions';
 import { Dispatch } from '../../../../../../../types/suite';
-
-export const updateVariants = ['tertiary', 'info', 'purple'] as const;
-export type UpdateVariant = Extract<UIVariant, (typeof updateVariants)[number]> | 'purple';
 
 export type UpdateStatusDevice = 'up-to-date' | 'update-available' | 'disconnected';
 
@@ -35,13 +28,13 @@ export const mapUpdateStatusToIcon: Record<UpdateStatus, IconName> = {
     'just-updated': 'check',
 };
 
-export const mapUpdateStatusToVariant: Record<UpdateStatus, UpdateVariant> = {
-    disconnected: 'tertiary',
+export const mapUpdateStatusToIntent: Record<UpdateStatus, UIIntent> = {
+    disconnected: 'neutral',
     'update-downloaded-manual': 'info',
     'update-downloaded-auto-restart-to-update': 'info',
-    'up-to-date': 'tertiary',
+    'up-to-date': 'brand',
     'update-available': 'info',
-    'just-updated': 'purple',
+    'just-updated': 'accentViolet',
 };
 
 type OnClickCallbackCallback = ((params: { dispatch: Dispatch }) => void) | null;
@@ -59,19 +52,4 @@ export const mapSuiteUpdateToClick: Record<UpdateStatusSuite, OnClickCallbackCal
     'update-downloaded-manual': ({ dispatch }) => dispatch(setIsUpdateModalVisible(true)),
     'just-updated': ({ dispatch }) => dispatch(justUpdated()),
     'update-available': ({ dispatch }) => dispatch(setIsUpdateModalVisible(true)),
-};
-
-type MapArgs = {
-    $variant: UpdateVariant;
-    theme: DefaultTheme;
-};
-
-export const mapVariantToIconBackground = ({ $variant, theme }: MapArgs): CSSColor => {
-    const colorMap: Record<UpdateVariant, Color> = {
-        purple: 'backgroundAlertPurpleSubtleOnElevationNegative',
-        tertiary: 'transparent',
-        info: 'backgroundAlertBlueSubtleOnElevationNegative',
-    };
-
-    return theme[colorMap[$variant]];
 };

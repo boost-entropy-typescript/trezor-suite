@@ -1,40 +1,62 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
-import styled from 'styled-components';
-
-import { ManagedTooltipProps, Tooltip } from '@trezor/components';
-
-const Container = styled.div`
-    height: 44px;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`;
+import {
+    ComponentWithSubIcon,
+    ComponentWithSubIconIntent,
+    Icon,
+    IconName,
+    ManagedTooltipProps,
+    Row,
+    Tooltip,
+} from '@trezor/components';
 
 type ActionButtonProps = {
     onClick?: () => void;
-    children: ReactNode;
+    subIconIntent?: ComponentWithSubIconIntent;
+    subIconName?: IconName;
     tooltip?: Partial<ManagedTooltipProps>;
     'data-testid'?: string;
     isOpen?: boolean;
-};
+} & (
+    | { iconComponent: React.ReactNode; iconName?: undefined }
+    | {
+          iconComponent?: undefined;
+          iconName: IconName;
+      }
+);
 
 export const QuickActionButton = ({
-    children,
     onClick,
     tooltip,
     'data-testid': dataTest,
     isOpen,
-}: ActionButtonProps) =>
-    tooltip ? (
-        <Tooltip content={tooltip?.content} cursor="pointer" {...tooltip} isOpen={isOpen}>
-            <Container data-testid={dataTest} onClick={onClick}>
-                {children}
-            </Container>
-        </Tooltip>
+    iconComponent,
+    iconName,
+    subIconIntent,
+    subIconName,
+}: ActionButtonProps) => {
+    const icon = iconName ? (
+        <Icon name={iconName} size={16} intent="neutral" priority="secondary" />
     ) : (
-        <Container data-testid={dataTest} onClick={onClick}>
-            {children}
-        </Container>
+        iconComponent
     );
+
+    return (
+        <Tooltip content={tooltip?.content} cursor="pointer" {...tooltip} isOpen={isOpen}>
+            <Row data-testid={dataTest} onClick={onClick} justifyContent="center">
+                {subIconName ? (
+                    <ComponentWithSubIcon
+                        intent={subIconIntent}
+                        iconName={subIconName}
+                        iconSize={8}
+                        iconOffset={8}
+                    >
+                        {icon}
+                    </ComponentWithSubIcon>
+                ) : (
+                    icon
+                )}
+            </Row>
+        </Tooltip>
+    );
+};

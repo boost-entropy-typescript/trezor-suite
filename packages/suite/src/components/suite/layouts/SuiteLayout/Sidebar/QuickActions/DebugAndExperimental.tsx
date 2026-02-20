@@ -1,8 +1,5 @@
-import styled from 'styled-components';
-
 import { Translation } from '@suite/intl';
-import { Column, Icon, getIconSize, iconSizes } from '@trezor/components';
-import { spacings } from '@trezor/theme';
+import { Box, Column, Icon } from '@trezor/components';
 
 import { goto } from 'src/actions/suite/routerActions';
 import { SettingsAnchor } from 'src/constants/suite/anchors';
@@ -23,35 +20,33 @@ const DebugAndExperimentalTooltip = ({
     isEapEnabled,
     isExperimental,
 }: DebugAndExperimentalTooltipProps) => (
-    <Column gap={spacings.md} padding={spacings.xxs} alignItems="start">
+    <Column gap={16} padding={4} alignItems="start">
         {isExperimental && (
             <TooltipRow
-                circleIconName="check"
-                variant="primary"
+                iconName="check"
+                intent="brand"
                 header={<Translation id="TR_EXPERIMENTAL_FEATURES_ALLOW" />}
-                leftItem={<Icon name="atom" variant="warning" size={iconSizes.medium} />}
+                leftItem={<Icon name="atom" intent="warning" size={16} />}
             >
                 <Translation id="TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED" />
             </TooltipRow>
         )}
         {isEapEnabled && (
             <TooltipRow
-                circleIconName="check"
-                variant="primary"
+                iconName="check"
+                intent="brand"
                 header={<Translation id="TR_EARLY_ACCESS" />}
-                leftItem={<Icon name="starFour" variant="info" size={iconSizes.medium} />}
+                leftItem={<Icon name="starFour" intent="info" size={16} />}
             >
                 <Translation id="TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED" />
             </TooltipRow>
         )}
         {isDebugMode && (
             <TooltipRow
-                circleIconName="check"
-                variant="primary"
+                iconName="check"
+                intent="brand"
                 header="Debug Mode"
-                leftItem={
-                    <Icon name="dotOutlineFilled" variant="destructive" size={iconSizes.medium} />
-                }
+                leftItem={<Icon name="dotOutlineFilled" intent="critical" size={16} />}
             >
                 <Translation id="TR_QUICK_ACTION_DEBUG_EAP_EXPERIMENTAL_ENABLED" />
             </TooltipRow>
@@ -59,24 +54,13 @@ const DebugAndExperimentalTooltip = ({
     </Column>
 );
 
-const Relative = styled.div<{ $size: number }>`
-    position: relative;
-    width: ${({ $size }) => $size}px;
-    height: ${({ $size }) => $size}px;
-`;
-
-const Absolute = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-`;
-
 export const DebugAndExperimental = () => {
     const dispatch = useDispatch();
 
     const isEapEnabled = useSelector(state => state.desktopUpdate.allowPrerelease);
     const isExperimental = useSelector(state => state.suite.settings.experimental !== undefined);
     const isDebug = useSelector(selectIsDebugModeActive);
+    const position = { type: 'absolute', top: 0, left: 0 } as const;
 
     const handleEapClick = () => {
         dispatch(goto('settings-index', { anchor: SettingsAnchor.EarlyAccess }));
@@ -96,28 +80,25 @@ export const DebugAndExperimental = () => {
                 ),
             }}
             onClick={handleEapClick}
-        >
-            <Relative $size={getIconSize(iconSizes.medium)}>
-                {isDebug && (
-                    <Absolute>
-                        <Icon
-                            name="dotOutlineFilled"
-                            variant="destructive"
-                            size={iconSizes.medium}
-                        />
-                    </Absolute>
-                )}
-                {isExperimental && (
-                    <Absolute>
-                        <Icon name="atom" variant="warning" size={iconSizes.medium} />
-                    </Absolute>
-                )}
-                {isEapEnabled && (
-                    <Absolute>
-                        <Icon name="starFour" variant="info" size={iconSizes.medium} />
-                    </Absolute>
-                )}
-            </Relative>
-        </QuickActionButton>
+            iconComponent={
+                <Box position={{ type: 'relative' }} width={16} height={16}>
+                    {isDebug && (
+                        <Box position={position}>
+                            <Icon name="dotOutlineFilled" intent="critical" size={16} />
+                        </Box>
+                    )}
+                    {isExperimental && (
+                        <Box position={position}>
+                            <Icon name="atom" intent="warning" size={16} />
+                        </Box>
+                    )}
+                    {isEapEnabled && (
+                        <Box position={position}>
+                            <Icon name="starFour" intent="info" size={16} />
+                        </Box>
+                    )}
+                </Box>
+            }
+        />
     );
 };
