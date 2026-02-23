@@ -27,14 +27,13 @@ test.describe('Trading - Buy Ethereum', { tag: ['@webOnly', '@T3W1', '@T3T1'] },
     }) => {
         await test.step('Request to buy Ethereum', async () => {
             await walletPage.openTradingGlobalButton.click();
-            await tradingPage.assets.selectBuyAsset({
+            await tradingPage.assetPicker.selectBuyAsset({
                 searchFilter: 'Ethereum',
                 networkFilter: 'eth',
                 assetCryptoId: getCryptoId('eth'),
             });
             await tradingPage.fillBuyForm({
                 amount: fiatAmount,
-                cryptoCurrency: 'ethereum',
                 selectReceiveAddress: async () => {
                     await tradingPage.receiveAccount.selectAddSuiteReceiveAccount(0);
                 },

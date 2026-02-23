@@ -1,106 +1,88 @@
 import { Locator, Page } from '@playwright/test';
 import { CryptoId } from 'invity-api';
 
-import { NetworkConfigWithoutTestnets, NetworkSymbol } from '@suite-common/wallet-config';
+import { NetworkSymbol } from '@suite-common/wallet-config';
 
 import { step } from '../../common';
+import { AssetPickerNetworkFilter, BuyAsset, SellAsset } from '../../types';
 
-type AssetPickerNetworkFilter = 'all-networks' | NetworkConfigWithoutTestnets['symbol'];
+export class TradingAssetPicker {
+    readonly openSellModal: Locator;
+    readonly openBuyModal: Locator;
+    readonly searchInput: Locator;
+    readonly displaySymbol: Locator;
+    readonly networkFilterButton: Locator;
+    readonly networkFilterOption = (tab: AssetPickerNetworkFilter) =>
+        this.page.getByTestId(`@asset-picker/search/filter/select-option/${tab}`);
+    readonly globalAddAccountButton: Locator;
 
-export class TradingAssetsModal {
-    // `From` field asset picker in swap/sell form
-    readonly sellAssetPickerInput: Locator;
-    readonly sellAssetPickerSearchInput: Locator;
-    readonly sellAssetPickerNetworkFilter: Locator;
-    readonly sellAssetPickerDisplaySymbol: Locator;
-
-    readonly sellAssetPickerNetworkFilterOption = (tab: AssetPickerNetworkFilter) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-sell/search/select-option/${tab}`);
-
-    readonly sellAssetPickerTokenOption = (networkSymbol?: NetworkSymbol, tokenSymbol?: string) =>
+    // buy and sell options
+    readonly sellOption = (networkSymbol: NetworkSymbol, tokenSymbol?: string) =>
         this.page.getByTestId(
-            `@trading/form/select-crypto-for-sell/token/${networkSymbol}/${tokenSymbol}`,
+            `@asset-picker/sell/option/${networkSymbol}${tokenSymbol ? `/${tokenSymbol}` : ''}`,
         );
-    readonly sellAssetPickerAccountOption = (networkSymbol?: NetworkSymbol) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-sell/account/${networkSymbol}`);
-
-    // `To` field asset picker in swap/buy form
-    readonly buyAssetPickerInput: Locator;
-    readonly buyAssetPickerSearchInput: Locator;
-    readonly buyAssetPickerNetworkFilter: Locator;
-    readonly buyAssetPickerDisplaySymbol: Locator;
-
-    readonly buyAssetPickerNetworkFilterOption = (tab: AssetPickerNetworkFilter) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-buy/search/select-option/${tab}`);
-
-    readonly buyAssetPickerTokenOption = (networkSymbol?: NetworkSymbol, tokenSymbol?: string) =>
+    readonly buyOption = (networkSymbol: NetworkSymbol, tokenSymbol?: string) =>
         this.page.getByTestId(
-            `@trading/form/select-crypto-for-buy/token/${networkSymbol}/${tokenSymbol}`,
+            `@asset-picker/buy/option/${networkSymbol}${tokenSymbol ? `/${tokenSymbol}` : ''}`,
         );
-    readonly buyAssetPickerAccountOption = (networkSymbol?: NetworkSymbol) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-buy/account/${networkSymbol}`);
-    readonly buyAssetPickerTopAssetOption = (id: CryptoId) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-buy/top-assets/asset/${id}`);
-    readonly buyAssetPickerAssetOption = (id: CryptoId) =>
-        this.page.getByTestId(`@trading/form/select-crypto-for-buy/asset/${id}`);
+    readonly buyAssetOption = (assetCryptoId: CryptoId) =>
+        this.page.getByTestId(`@asset-picker/buy/option/asset/${assetCryptoId}`);
+
+    // send and receive options
+    readonly sendOption = (params: {
+        accountSymbol: NetworkSymbol;
+        accountType: string;
+        index: number;
+        tokenSymbol?: string;
+    }) =>
+        this.page.getByTestId(
+            `@asset-picker/send/option/${params.accountType}/${params.accountSymbol}/${params.index}${
+                params.tokenSymbol ? `/token/${params.tokenSymbol}` : ''
+            }`,
+        );
+    readonly receiveOption = (params: {
+        accountSymbol: NetworkSymbol;
+        accountType: string;
+        index: number;
+    }) =>
+        this.page.getByTestId(
+            `@global-receive-account/${params.accountType}/${params.accountSymbol}/${params.index}`,
+        );
 
     constructor(private readonly page: Page) {
-        this.sellAssetPickerInput = this.page.getByTestId(
-            '@trading/form/select-crypto-for-sell/input',
-        );
-        this.sellAssetPickerDisplaySymbol = this.page.getByTestId(
-            '@trading/form/select-crypto-for-sell/display-symbol',
-        );
-        this.sellAssetPickerSearchInput = this.page.getByTestId(
-            '@trading/form/select-crypto-for-sell/search',
-        );
-        this.sellAssetPickerNetworkFilter = this.page.getByTestId(
-            '@trading/form/select-crypto-for-sell/search/select/input',
-        );
-
-        this.buyAssetPickerInput = this.page.getByTestId(
-            '@trading/form/select-crypto-for-buy/input',
-        );
-        this.buyAssetPickerDisplaySymbol = this.page.getByTestId(
-            '@trading/form/select-crypto-for-buy/display-symbol',
-        );
-        this.buyAssetPickerSearchInput = this.page.getByTestId(
-            '@trading/form/select-crypto-for-buy/search',
-        );
-        this.buyAssetPickerNetworkFilter = this.page.getByTestId(
-            '@trading/form/select-crypto-for-buy/search/select/input',
-        );
+        this.openSellModal = this.page.getByTestId('@trading/sell/asset-picker/input');
+        this.openBuyModal = this.page.getByTestId('@trading/buy/asset-picker/input');
+        this.searchInput = this.page.getByTestId('@asset-picker/search/input');
+        this.displaySymbol = this.page.getByTestId('@asset-picker/display-symbol');
+        this.networkFilterButton = this.page.getByTestId('@asset-picker/search/filter/input');
+        this.globalAddAccountButton = this.page.getByTestId('@global-send-receive/add-account');
     }
 
     @step()
-    async selectSellAsset({
-        searchFilter,
-        networkFilter,
-        networkSymbol,
-        tokenSymbol,
-    }: {
-        searchFilter?: string;
-        networkFilter?: AssetPickerNetworkFilter;
-        networkSymbol?: NetworkSymbol;
-        tokenSymbol?: string;
-    }) {
-        await this.sellAssetPickerInput.click();
+    async filterByNetwork(networkFilter: AssetPickerNetworkFilter) {
+        await this.networkFilterButton.click();
+        await this.networkFilterOption(networkFilter).click();
+    }
+
+    @step()
+    async searchAsset(searchFilter: string) {
+        await this.searchInput.pressSequentially(searchFilter, { delay: 250 });
+        await this.searchInput.blur();
+    }
+
+    @step()
+    async selectSellAsset({ searchFilter, networkFilter, networkSymbol, tokenSymbol }: SellAsset) {
+        await this.openSellModal.click();
 
         if (networkFilter) {
-            await this.sellAssetPickerNetworkFilter.click();
-            await this.sellAssetPickerNetworkFilterOption(networkFilter).click();
+            await this.filterByNetwork(networkFilter);
         }
 
         if (searchFilter) {
-            await this.sellAssetPickerSearchInput.pressSequentially(searchFilter, { delay: 250 });
-            await this.sellAssetPickerSearchInput.blur();
+            await this.searchAsset(searchFilter);
         }
 
-        if (networkSymbol && tokenSymbol) {
-            await this.sellAssetPickerTokenOption(networkSymbol, tokenSymbol).click();
-        } else if (networkSymbol) {
-            await this.sellAssetPickerAccountOption(networkSymbol).click();
-        }
+        await this.sellOption(networkSymbol, tokenSymbol).click();
     }
 
     @step()
@@ -110,32 +92,23 @@ export class TradingAssetsModal {
         assetCryptoId,
         networkSymbol,
         tokenSymbol,
-    }: {
-        searchFilter?: string;
-        networkFilter?: AssetPickerNetworkFilter;
-
-        assetCryptoId?: CryptoId;
-        networkSymbol?: NetworkSymbol;
-        tokenSymbol?: string;
-    }) {
-        await this.buyAssetPickerInput.click();
+    }: BuyAsset) {
+        await this.openBuyModal.click();
 
         if (networkFilter) {
-            await this.buyAssetPickerNetworkFilter.click();
-            await this.buyAssetPickerNetworkFilterOption(networkFilter).click();
+            await this.filterByNetwork(networkFilter);
         }
 
         if (searchFilter) {
-            await this.buyAssetPickerSearchInput.pressSequentially(searchFilter, { delay: 250 });
-            await this.buyAssetPickerSearchInput.blur();
+            await this.searchAsset(searchFilter);
         }
 
-        if (networkSymbol && tokenSymbol) {
-            await this.buyAssetPickerTokenOption(networkSymbol, tokenSymbol).click();
+        if (assetCryptoId) {
+            await this.buyAssetOption(assetCryptoId).click();
         } else if (networkSymbol) {
-            await this.buyAssetPickerAccountOption(networkSymbol).click();
-        } else if (assetCryptoId) {
-            await this.buyAssetPickerAssetOption(assetCryptoId).click();
+            await this.buyOption(networkSymbol, tokenSymbol).click();
+        } else {
+            throw new Error('Either assetCryptoId or networkSymbol must be provided');
         }
     }
 }
