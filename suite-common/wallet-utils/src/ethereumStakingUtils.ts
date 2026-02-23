@@ -11,8 +11,7 @@ import {
     SupportedEthereumNetworkSymbol,
     supportedNetworkSymbols,
 } from '@suite-common/wallet-types';
-import { isArrayMember } from '@trezor/utils';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber, isArrayMember } from '@trezor/utils';
 
 export const getEverstakePool = (account?: Account) => {
     if (account?.networkType !== 'ethereum') {

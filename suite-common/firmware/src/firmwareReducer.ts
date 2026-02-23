@@ -5,6 +5,7 @@ import { FirmwareStatus, TrezorDevice } from '@suite-common/suite-types';
 import {
     DEVICE,
     DeviceButtonRequest,
+    FirmwareChannel,
     FirmwareProgress,
     FirmwareProgressUnexpectedDelay,
     FirmwareReconnect,
@@ -12,7 +13,6 @@ import {
     UI,
     UiRequestConfirmation,
 } from '@trezor/connect';
-import { FirmwareChannel } from '@trezor/connect/src/types/firmware';
 
 import { firmwareActions } from './firmwareActions';
 

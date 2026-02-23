@@ -1,5 +1,5 @@
 import { BaseCurrencyAmount, asBaseCurrencyAmount } from '@suite-common/wallet-types';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 import { AmountUnit, asAmountUnit } from './AmountTypes';
 

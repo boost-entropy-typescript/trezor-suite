@@ -6,7 +6,7 @@ import {
     networkSpecificDefaultStellar,
 } from '@suite-common/wallet-types/mocks';
 import { FeeLevel } from '@trezor/connect';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 import * as fixtures from '../__fixtures__/sendFormUtils';
 import { getUtxoOutpoint } from '../accountUtils';

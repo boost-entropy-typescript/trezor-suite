@@ -17,7 +17,7 @@ import {
 import { acquireDevice } from '@suite-common/wallet-core';
 import { useAlert } from '@suite-native/alerts';
 import { events } from '@suite-native/analytics';
-import { selectIsFirmwareInstallationRunning } from '@suite-native/firmware/src/nativeFirmwareSlice';
+import { selectIsFirmwareInstallationRunning } from '@suite-native/firmware';
 import { Translation } from '@suite-native/intl';
 import { SUITE_MOBILE_SUPPORT_URL, useOpenLink } from '@suite-native/link';
 import {

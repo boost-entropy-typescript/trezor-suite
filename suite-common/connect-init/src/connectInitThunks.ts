@@ -5,7 +5,7 @@ import {
     selectIsPendingTransportEvent,
     selectSelectedDevice,
 } from '@suite-common/device';
-import { selectFirmwareChannel } from '@suite-common/firmware/src/firmwareReducer';
+import { selectFirmwareChannel } from '@suite-common/firmware';
 import {
     Feature,
     parseTimeoutThresholdsPerModel,

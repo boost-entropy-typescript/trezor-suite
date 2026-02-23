@@ -2,8 +2,8 @@ import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/r
 import {
     TokenDefinitionsRootState,
     getIsPhishingTransaction,
+    selectNetworkTokenDefinitions,
 } from '@suite-common/token-definitions';
-import { selectNetworkTokenDefinitions } from '@suite-common/token-definitions/src/tokenDefinitionsSelectors';
 import { Account, AccountKey, WalletAccountTransaction } from '@suite-common/wallet-types';
 import {
     getConfirmations,

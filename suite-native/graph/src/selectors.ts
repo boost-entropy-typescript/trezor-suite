@@ -1,8 +1,7 @@
 import { A } from '@mobily/ts-belt';
 
 import type { DeviceRootState } from '@suite-common/device';
-import { AccountItem } from '@suite-common/graph';
-import { isIgnoredBalanceHistoryCoin } from '@suite-common/graph/src/constants';
+import { AccountItem, isIgnoredBalanceHistoryCoin } from '@suite-common/graph';
 import { createWeakMapSelector } from '@suite-common/redux-utils';
 import {
     TokenDefinitionsRootState,

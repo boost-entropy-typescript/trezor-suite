@@ -1,5 +1,4 @@
-import { UpdateWalletLabel } from '@suite-common/suite-sync-types';
-import { EnsureWalletSuiteSyncOnDep } from '@suite-common/suite-sync-types/src/storage/ensureWalletSuiteSyncOn';
+import { EnsureWalletSuiteSyncOnDep, UpdateWalletLabel } from '@suite-common/suite-sync-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 
 export type UpdateWalletLabelDeps = EnsureWalletSuiteSyncOnDep;

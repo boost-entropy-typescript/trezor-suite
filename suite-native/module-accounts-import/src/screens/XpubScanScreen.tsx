@@ -8,7 +8,7 @@ import {
     XpubFormContext,
     XpubFormValues,
     xpubFormValidationSchema,
-} from '@suite-common/validators/src/schemas/xpubSchema';
+} from '@suite-common/validators';
 import { getNetworkType } from '@suite-common/wallet-config';
 import { isAddressBasedNetwork, isAddressValid } from '@suite-common/wallet-utils';
 import { SelectableNetworkItem } from '@suite-native/accounts';

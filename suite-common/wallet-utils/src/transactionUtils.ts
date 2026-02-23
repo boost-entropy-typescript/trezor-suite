@@ -29,8 +29,7 @@ import {
     TokenTransfer,
 } from '@trezor/connect';
 import { Branded } from '@trezor/type-utils';
-import { arrayPartition, typedObjectKeys } from '@trezor/utils';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber, arrayPartition, typedObjectKeys } from '@trezor/utils';
 
 import { convertAmountSubunitsToUnits, formatNetworkAmount } from './amountUtils';
 import { isCardanoStakingTx } from './cardanoStakingUtils';

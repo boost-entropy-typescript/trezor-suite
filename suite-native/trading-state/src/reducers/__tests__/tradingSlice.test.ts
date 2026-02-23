@@ -8,7 +8,7 @@ import {
     tradingSellActions,
 } from '@suite-common/trading';
 import { AccountKey } from '@suite-common/wallet-types';
-import { tradingInitialState } from '@suite-native/trading-consts/';
+import { tradingInitialState } from '@suite-native/trading-consts';
 import {
     adaAsset,
     btcAsset,

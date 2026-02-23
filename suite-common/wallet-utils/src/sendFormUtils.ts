@@ -42,8 +42,7 @@ import {
     PROTO,
     TokenInfo,
 } from '@trezor/connect';
-import { typedObjectKeys } from '@trezor/utils';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber, typedObjectKeys } from '@trezor/utils';
 
 import { getUtxoOutpoint } from './accountUtils';
 import {

@@ -6,7 +6,7 @@ import {
     fromBaseCurrencyToCryptoUnit,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 type ConvertInput = {
     amount: string | null;

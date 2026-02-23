@@ -1,4 +1,4 @@
-import { TradingType } from '@suite-common/trading/';
+import { TradingType } from '@suite-common/trading';
 import { TestStore, act, initStore, renderHookWithStoreProvider } from '@suite-native/test-utils';
 import { selectTradingProviderConfirmationStatus } from '@suite-native/trading-state';
 

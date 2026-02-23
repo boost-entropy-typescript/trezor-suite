@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { AnimatedBox, Box, VStack, useBannerAwareSafeAreaInsets } from '@suite-native/atoms';
 import { isDetoxTestBuild } from '@suite-native/config';
-import { DynamicHeaderProvider } from '@suite-native/navigation/src/components/DynamicHeader/DynamicScreenHeaderContext';
+import { DynamicHeaderProvider } from '@suite-native/navigation';
 import { useActiveColorScheme } from '@suite-native/theme';
 import {
     StylesProvider,

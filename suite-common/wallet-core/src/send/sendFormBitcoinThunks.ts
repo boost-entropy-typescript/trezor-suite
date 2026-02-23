@@ -26,7 +26,7 @@ import TrezorConnect, {
     SignTransaction,
     SignedTransaction,
 } from '@trezor/connect';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 import { SEND_MODULE_PREFIX } from './sendFormConstants';
 import {

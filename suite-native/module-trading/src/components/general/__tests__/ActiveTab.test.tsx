@@ -1,4 +1,4 @@
-import { TradingType } from '@suite-common/trading/';
+import { TradingType } from '@suite-common/trading';
 import { PreloadedState, renderWithStoreProviderAsync } from '@suite-native/test-utils';
 
 import { ActiveTab } from '../ActiveTab';

@@ -1,4 +1,4 @@
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 import { localizeNumber } from '../localizeNumberUtils';
 

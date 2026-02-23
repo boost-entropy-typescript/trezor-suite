@@ -13,7 +13,7 @@ import {
     shouldDeviceBeRemembered,
     sortDevices,
 } from '@suite-common/device';
-import { selectIsFirmwareInstallationRunning } from '@suite-common/firmware/src/firmwareReducer';
+import { selectIsFirmwareInstallationRunning } from '@suite-common/firmware';
 import { createThunk } from '@suite-common/redux-utils';
 import { AcquiredDevice, TrezorDevice } from '@suite-common/suite-types';
 import {

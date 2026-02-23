@@ -1,5 +1,5 @@
 import { TokenAddress, WalletAccountTransaction } from '@suite-common/wallet-types';
-import { BigNumber } from '@trezor/utils/src/bigNumber';
+import { BigNumber } from '@trezor/utils';
 
 import { LocalBalanceHistoryCoin } from './constants';
 import { AccountHistoryMovement, AccountHistoryMovementItem } from './types';

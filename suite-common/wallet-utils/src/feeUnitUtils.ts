@@ -1,4 +1,4 @@
-import type { NetworkType } from '@suite-common/wallet-config/src/types';
+import type { NetworkType } from '@suite-common/wallet-config';
 
 const mapNetworkTypeToFeeUnits: Record<NetworkType, string> = {
     bitcoin: 'sat/vB',

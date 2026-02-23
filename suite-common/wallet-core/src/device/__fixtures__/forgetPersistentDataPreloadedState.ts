@@ -1,10 +1,13 @@
-import { BluetoothState, prepareInitialState } from '@suite-common/bluetooth';
-import { createBluetoothDeviceCommon } from '@suite-common/bluetooth/src/support/mocks';
-import { BluetoothDeviceCommon } from '@suite-common/bluetooth/src/types';
+import {
+    BluetoothDeviceCommon,
+    BluetoothState,
+    prepareInitialState,
+} from '@suite-common/bluetooth';
+import { createBluetoothDeviceCommon } from '@suite-common/bluetooth/mocks';
 import { DeviceReducerState, deviceInitialState } from '@suite-common/device';
 import { defaultDevicePersistentData, mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { ThpState, initialThpState } from '@suite-common/thp';
-import { createCredential, createDeviceThp } from '@suite-common/thp/src/support/mocks';
+import { createCredential, createDeviceThp } from '@suite-common/thp/mocks';
 import { asBluetoothDeviceId } from '@trezor/connect';
 
 type ForgetPersistentDataPreloadedState = {
