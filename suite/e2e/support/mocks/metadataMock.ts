@@ -1,7 +1,8 @@
 import { Page } from '@playwright/test';
 
+// Hack: direct import to prevent some nasty import cascade resulting in error while importing icons
+import { encrypt } from '@suite/metadata/src/metadataUtils';
 import { DropboxMock, GoogleMock } from '@trezor/e2e-utils';
-import { encrypt } from '@trezor/suite/src//utils/suite/metadata';
 
 import { step } from '../common';
 

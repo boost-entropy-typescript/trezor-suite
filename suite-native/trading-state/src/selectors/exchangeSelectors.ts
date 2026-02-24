@@ -1,6 +1,5 @@
 import type { ExchangeTrade } from 'invity-api';
 
-import { createWeakMapSelector } from '@suite-common/redux-utils';
 import {
     selectTradingExchangeBuyCryptoIds,
     selectTradingExchangeProviders,
@@ -19,14 +18,12 @@ import {
 
 import {
     TradingRootState,
-    createMemoizedSelector,
     createMemoizedSelectorWithAccounts,
+    createTradingWithFeatureFlagsMemoizedSelector,
 } from '../reducers';
+import { getAssetByEnabledNetworksFilter } from '../utils';
 
 export type TradingWithFeatureFlagsRootState = TradingRootState & FeatureFlagsRootState;
-
-const createTradingWithFeatureFlagsMemoizedSelector =
-    createWeakMapSelector.withTypes<TradingWithFeatureFlagsRootState>();
 
 export const selectTradingExchange = (state: TradingRootState) => state.wallet.trading.exchange;
 
@@ -56,22 +53,36 @@ export const selectExchangeSelectedReceiveAccount = createMemoizedSelectorWithAc
     },
 );
 
-export const selectExchangeBuyTradeableAssets = createMemoizedSelector(
+export const selectExchangeBuyTradeableAssets = createTradingWithFeatureFlagsMemoizedSelector(
     [
         selectTradingExchangeBuyCryptoIds as unknown as (
             state: TradingRootState,
         ) => ReturnType<typeof selectTradingExchangeBuyCryptoIds>,
         ({ wallet }) => wallet.trading.info.coins,
         (_state: TradingRootState, forbiddenCryptoId?: string) => forbiddenCryptoId,
+        state => selectIsFeatureFlagEnabled(state, FeatureFlag.AreDebugOnlyNetworksEnabled),
+        state => selectIsFeatureFlagEnabled(state, FeatureFlag.AreExperimentalOnlyNetworksEnabled),
     ],
-    (cryptoIds, coins, forbiddenCryptoId) => {
+    (
+        cryptoIds,
+        coins,
+        forbiddenCryptoId,
+        areDebugOnlyNetworksEnabled,
+        areExperimentalOnlyNetworksEnabled,
+    ) => {
         if (!coins || !cryptoIds) {
             return [];
         }
 
         return cryptoIds
             .filter(cryptoId => cryptoId !== forbiddenCryptoId)
-            .map(cryptoId => coinInfoToTradeableAsset(cryptoId, coins[cryptoId]));
+            .map(cryptoId => coinInfoToTradeableAsset(cryptoId, coins[cryptoId]))
+            .filter(
+                getAssetByEnabledNetworksFilter(
+                    areDebugOnlyNetworksEnabled,
+                    areExperimentalOnlyNetworksEnabled,
+                ),
+            );
     },
 );
 

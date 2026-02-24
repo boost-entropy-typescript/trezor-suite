@@ -12,6 +12,7 @@ import {
     findPackageRoot,
     findUp,
 } from '../src/utils/extractAttributeTypes';
+import { normalizeChangelog } from '../src/utils/normalizeChangelog';
 import { normalizeEvents } from '../src/utils/normalizeEvents';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,10 +31,25 @@ const PACKAGE_TO_PLATFORM: Record<(typeof PACKAGES)[number], string> = {
     '@suite-native/analytics': 'mobile',
 };
 
+/** Paths from repo root for packages we don't depend on (to avoid cyclic deps). */
+const PACKAGE_TO_REL_PATH: Partial<Record<(typeof PACKAGES)[number], string>> = {
+    '@suite/analytics': 'suite/analytics',
+    '@suite-native/analytics': 'suite-native/analytics',
+};
+
+const getPackageRoot = (packageName: (typeof PACKAGES)[number]): string => {
+    const relPath = PACKAGE_TO_REL_PATH[packageName];
+    if (relPath) {
+        return path.join(repoRoot, relPath);
+    }
+
+    return path.dirname(cjsRequire.resolve(`${packageName}/package.json`));
+};
+
 const loadEventsFromPackage = async (
-    packageName: string,
+    packageName: (typeof PACKAGES)[number],
 ): Promise<Array<EventDef<unknown, string>>> => {
-    const packageRoot = path.dirname(cjsRequire.resolve(`${packageName}/package.json`));
+    const packageRoot = getPackageRoot(packageName);
     const eventsPath = path.join(packageRoot, 'src', 'events', 'index.ts');
     const module = await import(pathToFileURL(eventsPath).href);
 
@@ -65,7 +81,7 @@ const getTsConfigPath = (): string => {
 
 const getPackageRoots = (): string[] => {
     const roots = PACKAGES.map(name =>
-        findPackageRoot(cjsRequire.resolve(`${name}/package.json`)),
+        findPackageRoot(path.join(getPackageRoot(name), 'package.json')),
     ).filter((x): x is string => Boolean(x));
 
     return [...new Set(roots)];
@@ -76,6 +92,24 @@ const getEventFileGlobs = (packageRoots: string[]): string[] =>
         path.join(root, 'src/**/*.{ts,tsx}'),
         path.join(root, 'dist/**/*.d.ts'),
     ]);
+
+/** Adds attribute docs for type-only keys (e.g. Record<string, number>) so runtimeType can be merged. */
+const ensureAttributeDocsFromTypes = (
+    events: Record<string, EventDoc>,
+    attributeTypesByEventName: AttributeTypesByEventName,
+): void => {
+    for (const [eventName, eventDoc] of Object.entries(events)) {
+        const eventTypes = attributeTypesByEventName[eventName];
+        if (!eventTypes) continue;
+
+        for (const attrName of Object.keys(eventTypes)) {
+            if (attrName in eventDoc.attributes) continue;
+            eventDoc.attributes[attrName] = {
+                changelog: eventDoc.changelog ?? normalizeChangelog(),
+            };
+        }
+    }
+};
 
 const mergeRuntimeTypes = (
     events: Record<string, EventDoc>,
@@ -92,7 +126,10 @@ const mergeRuntimeTypes = (
     }
 };
 
-const writeOutput = (data: { events: Record<string, EventDoc> }, outputPath: string): void => {
+const writeOutput = (
+    data: { events: Record<string, EventDoc>; generatedAt: string },
+    outputPath: string,
+): void => {
     const pretty = process.env.PRETTY_ANALYTICS_JSON === '1';
     const json = pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
     fs.writeFileSync(outputPath, json, 'utf-8');
@@ -111,12 +148,14 @@ const run = async () => {
         eventFileGlobs,
     });
 
+    ensureAttributeDocsFromTypes(normalizedEvents, attributeTypesByEventName);
     mergeRuntimeTypes(normalizedEvents, attributeTypesByEventName);
 
     const publicDir = path.resolve(__dirname, '../public');
     fs.mkdirSync(publicDir, { recursive: true });
     const outputPath = path.join(publicDir, 'analytics.json');
-    writeOutput({ events: normalizedEvents }, outputPath);
+    const generatedAt = new Date().toISOString();
+    writeOutput({ events: normalizedEvents, generatedAt }, outputPath);
 
     // eslint-disable-next-line no-console
     console.log(
