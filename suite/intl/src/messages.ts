@@ -766,6 +766,11 @@ export const messages = defineMessages({
         defaultMessage:
             'This service is provided by <comp>{provider}</comp> and governed by their Terms & Conditions. Trezor isn’t involved.',
     },
+    TR_TRADING_TERMS_NO_PROVIDER: {
+        id: 'TR_TRADING_TERMS_NO_PROVIDER',
+        defaultMessage:
+            'This service is provided by provider and governed by their Terms & Conditions. Trezor isn’t involved.',
+    },
     TR_BUY_MODAL_SECURITY_HEADER: {
         defaultMessage: 'Security first with your Trezor',
         id: 'TR_BUY_MODAL_SECURITY_HEADER',
@@ -985,6 +990,18 @@ export const messages = defineMessages({
         defaultMessage: 'Country of residence',
         id: 'TR_TRADING_COUNTRY',
     },
+    TR_SEARCH_COUNTRY_PLACEHOLDER: {
+        defaultMessage: 'Search country',
+        id: 'TR_SEARCH_COUNTRY_PLACEHOLDER',
+    },
+    TR_TRADING_COUNTRY_NOT_FOUND: {
+        defaultMessage: 'Country not found',
+        id: 'TR_TRADING_COUNTRY_NOT_FOUND',
+    },
+    TR_TRADING_FILTERING_ERROR: {
+        defaultMessage: 'Check the spelling or browse the list to select an option.',
+        id: 'TR_TRADING_FILTERING_ERROR',
+    },
     TR_TRADING_OFFER_LOOKING: {
         defaultMessage: 'Searching for your best offer',
         id: 'TR_TRADING_OFFER_LOOKING',
@@ -1005,6 +1022,34 @@ export const messages = defineMessages({
     TR_TRADING_FEES_CALCULATION_DISCLAIMER: {
         defaultMessage: 'See how fees are calculated.',
         id: 'TR_TRADING_FEES_CALCULATION_DISCLAIMER',
+    },
+    TR_HOW_TRADING_WORKS_SHORT: {
+        defaultMessage: 'How trading works',
+        id: 'TR_HOW_TRADING_WORKS_SHORT',
+    },
+    TR_HOW_TRADING_WORKS: {
+        defaultMessage: 'How trading with Trezor works',
+        id: 'TR_HOW_TRADING_WORKS',
+    },
+    TR_HOW_TRADING_COMPARES_PROVIDERS: {
+        defaultMessage: 'Trezor compares trusted exchange providers to find the best offer',
+        id: 'TR_HOW_TRADING_COMPARES_PROVIDERS',
+    },
+    TR_HOW_TRADING_LOCATION_OFFERS: {
+        defaultMessage: 'Providers use your location only to show relevant offers',
+        id: 'TR_HOW_TRADING_LOCATION_OFFERS',
+    },
+    TR_HOW_TRADING_PRIVACY_KYC: {
+        defaultMessage: 'Trezor never sees your payment or KYC data',
+        id: 'TR_HOW_TRADING_PRIVACY_KYC',
+    },
+    TR_HOW_TRADING_PRIVACY_KYC_SUBTEXT: {
+        defaultMessage: 'You share it only with the exchange if you complete the trade.',
+        id: 'TR_HOW_TRADING_PRIVACY_KYC_SUBTEXT',
+    },
+    TR_HOW_TRADING_TERMS_OF_USE: {
+        defaultMessage: "Trezor's Terms of Use",
+        id: 'TR_HOW_TRADING_TERMS_OF_USE',
     },
     TR_TRADING_NETWORK_FEE: {
         defaultMessage: 'Network fee',
@@ -6037,10 +6082,13 @@ export const messages = defineMessages({
         id: 'FIRMWARE_NEEDS_UPGRADE_FOR_SUITE_SYNC',
         defaultMessage: "Upgrade your Trezor's firmware to use Suite Sync.",
     },
+    TR_UNSUPPORTED_DEVICE_SUITE_SYNC_HEADING: {
+        id: 'TR_UNSUPPORTED_DEVICE_SUITE_SYNC_HEADING',
+        defaultMessage: "This device isn't compatible with Suite Sync",
+    },
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC',
-        defaultMessage:
-            'The device {name} isn’t compatible with Suite Sync. Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
+        defaultMessage: 'Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
     },
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC_GOT_IT: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC_GOT_IT',
@@ -10345,7 +10393,7 @@ export const messages = defineMessages({
     },
     TR_SWITCH_ANYWAY: {
         id: 'TR_SWITCH_ANYWAY',
-        defaultMessage: 'Yes, switch',
+        defaultMessage: 'Switch',
     },
     TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING: {
         id: 'TR_TURN_ON_SECURE_SYNC_LABELS_MODAL_HEADING',
@@ -10373,7 +10421,7 @@ export const messages = defineMessages({
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_DESCRIPTION: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_DESCRIPTION',
-        defaultMessage: 'Update firmware on the device {name} to use Suite Sync.',
+        defaultMessage: 'Update the firmware on the device {name} to use Suite Sync.',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE',
@@ -10389,11 +10437,11 @@ export const messages = defineMessages({
     },
     TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED: {
         id: 'TR_SECURE_SYNC_LABELS_CANNOT_BE_MIGRATED',
-        defaultMessage: 'Labels created with Suite Sync can’t be migrated.',
+        defaultMessage: 'Labels created with Suite Sync can’t be migrated and won’t be visible.',
     },
     TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE: {
         id: 'TR_LEGACY_LABELS_CANNOT_BE_SYNCED_TO_MOBILE',
-        defaultMessage: 'Legacy labeling doesn’t sync labels to mobile devices.',
+        defaultMessage: 'Legacy labeling doesn’t sync labels to your mobile devices.',
     },
     TR_SWITCH_ACCOUNT: {
         id: 'TR_SWITCH_ACCOUNT',

@@ -16,9 +16,9 @@ import {
     isTradingBuyContext,
     isTradingExchangeContext,
 } from 'src/utils/wallet/trading/tradingTypingUtils';
-import { TradingFormInputCountry } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputCountry';
+import { TradingFormInputCountry } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputCountry/TradingFormInputCountry';
 import { TradingFormInputFiatCrypto } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputFiatCrypto';
-import { TradingFormInputPaymentMethod } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputPaymentMethod';
+import { TradingFormInputPaymentMethod } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputPaymentMethod/TradingFormInputPaymentMethod';
 import { TradingOffersExchangeFiltersPanel } from 'src/views/wallet/trading/common/TradingHeader/TradingOffersExchangeFiltersPanel';
 
 const InputWrapper = styled.div`
@@ -60,10 +60,10 @@ export const TradingHeaderFilter = () => {
                 </InputWrapper>
             )}
             <InputWrapper>
-                <TradingFormInputPaymentMethod />
+                <TradingFormInputPaymentMethod renderInput label="TR_TRADING_PAYMENT_METHOD" />
             </InputWrapper>
             <InputWrapper>
-                <TradingFormInputCountry />
+                <TradingFormInputCountry renderInput label="TR_TRADING_COUNTRY" />
             </InputWrapper>
         </Row>
     );
