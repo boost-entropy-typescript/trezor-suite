@@ -156,6 +156,7 @@
         "tslib": "^2.6.2",
         "tsx": "^4.21.0",
         "typescript": "5.8.3",
+        "typescript-eslint": "^8.54.0",
         "version-bump-prompt": "^6.1.0"
     },
     "dependenciesMeta": {
@@ -172,5 +173,5 @@
             "built": true
         }
     },
-    "packageManager": "yarn@4.10.3"
+    "packageManager": "yarn@4.12.0"
 }

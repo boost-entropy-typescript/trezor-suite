@@ -1,3 +1,4 @@
+import { events } from '@suite/analytics';
 import { Translation, useTranslation } from '@suite/intl';
 import { useFormatters } from '@suite-common/formatters';
 import { formInputsMaxLength } from '@suite-common/validators';
@@ -12,6 +13,7 @@ import { BaseCurrencyValue } from 'src/components/suite/BaseCurrencyValue';
 import { useSupplyFormContext } from 'src/hooks/earn/useSupplyForm';
 import { useSelector } from 'src/hooks/suite';
 import { selectLanguage } from 'src/selectors/suite/suiteSelectors';
+import { useAnalytics } from 'src/support/useAnalytics';
 import { CRYPTO_INPUT, FIAT_INPUT } from 'src/types/earn/earnFormFields';
 import { validateStakingMax } from 'src/utils/suite/staking';
 import {
@@ -21,11 +23,13 @@ import {
     validateMin,
     validateReserveOrBalance,
 } from 'src/utils/suite/validation';
+import { FormPercentButtonValue } from 'src/views/wallet/trading/common/TradingForm/tradingFormInputsUtils';
 
 export const SupplyInputs = () => {
     const { translationString } = useTranslation();
     const { CryptoAmountFormatter } = useFormatters();
     const locale = useSelector(selectLanguage);
+    const analytics = useAnalytics();
 
     const {
         control,
@@ -140,6 +144,12 @@ export const SupplyInputs = () => {
         />
     );
 
+    const reportButtonClickEvent = (value: FormPercentButtonValue) =>
+        analytics.report({
+            type: events.appFormPercentButtonsEvent.name,
+            payload: { type: 'staking', value },
+        });
+
     return (
         <Column gap={12} alignItems="center">
             <InputWithOptions<StakeFormState>
@@ -220,28 +230,40 @@ export const SupplyInputs = () => {
                         children: <Translation id="TR_FRACTION_BUTTONS_10_PERCENT" />,
                         tooltip: isFractionButtonDisabled(10) && tooltip,
                         isDisabled: isFractionButtonDisabled(10),
-                        onClick: () => setRatioAmount(10),
+                        onClick: () => {
+                            reportButtonClickEvent('10%');
+                            setRatioAmount(10);
+                        },
                     },
                     {
                         id: 'TR_FRACTION_BUTTONS_25_PERCENT',
                         children: <Translation id="TR_FRACTION_BUTTONS_25_PERCENT" />,
                         tooltip: isFractionButtonDisabled(4) && tooltip,
                         isDisabled: isFractionButtonDisabled(4),
-                        onClick: () => setRatioAmount(4),
+                        onClick: () => {
+                            reportButtonClickEvent('25%');
+                            setRatioAmount(4);
+                        },
                     },
                     {
                         id: 'TR_FRACTION_BUTTONS_50_PERCENT',
                         children: <Translation id="TR_FRACTION_BUTTONS_50_PERCENT" />,
                         tooltip: isFractionButtonDisabled(2) && tooltip,
                         isDisabled: isFractionButtonDisabled(2),
-                        onClick: () => setRatioAmount(2),
+                        onClick: () => {
+                            reportButtonClickEvent('50%');
+                            setRatioAmount(2);
+                        },
                     },
                     {
                         id: 'TR_FRACTION_BUTTONS_MAX',
                         children: <Translation id="TR_FRACTION_BUTTONS_MAX" />,
                         tooltip: maxTooltip || (isBalanceBelowMinStake && tooltip),
                         isDisabled: isBalanceBelowMinStake || !!missingAmount,
-                        onClick: () => setMax(),
+                        onClick: () => {
+                            reportButtonClickEvent('max');
+                            setMax();
+                        },
                     },
                 ]}
             />
