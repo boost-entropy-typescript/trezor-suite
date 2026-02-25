@@ -304,7 +304,7 @@ export const getAccountTypeUrl = (path: string) => {
  * - primary: by network `symbol`
  * - secondary: by `accountType`
  */
-export const sortByCoin = (accounts: Account[]) =>
+export const sortByCoin = <T extends Account>(accounts: T[]) =>
     accounts.sort((a, b) => {
         // primary sorting: by order of network keys
         const aSymbolIndex = networkSymbolCollection.indexOf(a.symbol);
@@ -323,7 +323,7 @@ export const sortByCoin = (accounts: Account[]) =>
         return a.index - b.index;
     });
 
-export const findAccountsByNetwork = (symbol: NetworkSymbol, accounts: Account[]) =>
+export const findAccountsByNetwork = <T extends Account>(symbol: NetworkSymbol, accounts: T[]) =>
     accounts.filter(a => a.symbol === symbol);
 
 export const findAccountsByDescriptor = (descriptor: string, accounts: Account[]) =>
@@ -809,17 +809,18 @@ export const getAccountIdentifier = (account: Account) => ({
 
 export type AccountSearchParams = {
     coinsFilter?: NetworkSymbol[] | NetworkSymbol;
-    metadataAccountLabel?: string;
-    /**
-     * Return true if the account has token that match the search string
-     */
+
+    /** Needs to be mandatory, so it is no forgotten. */
+    accountLabel: string;
+
+    /** Return true if the account has token that match the search string */
     tokensMatch?: boolean;
 };
 
 export const accountSearchFn = (
     account: Account,
     rawSearchString: string | undefined,
-    { coinsFilter, metadataAccountLabel, tokensMatch = true }: AccountSearchParams = {},
+    { coinsFilter, accountLabel, tokensMatch = true }: AccountSearchParams,
 ) => {
     let coinsFilterArray: NetworkSymbol[] = [];
 
@@ -861,8 +862,7 @@ export const accountSearchFn = (
     const matchXRPAlternativeName =
         network?.networkType === 'ripple' && 'ripple'.includes(searchString);
 
-    const metadataMatch = !!metadataAccountLabel?.toLowerCase().includes(searchString);
-    const accountLabelMatch = !!account.accountLabel?.toLowerCase().includes(searchString);
+    const accountLabelMatch = accountLabel.toLowerCase().includes(searchString);
 
     const filterTokens = (token: TokenInfo) =>
         token.name?.toLowerCase().includes(searchString) ||
@@ -880,7 +880,6 @@ export const accountSearchFn = (
         descriptorMatch ||
         addressMatch ||
         matchXRPAlternativeName ||
-        metadataMatch ||
         accountLabelMatch ||
         tokenMatch
     );
@@ -1234,10 +1233,10 @@ export function accountsFiatBalanceInDescOrderComparator({
 export const isProgramDerivedAccount = (data: AccountInfo) =>
     !(data?.misc?.owner === SYSTEM_PROGRAM_PUBLIC_KEY || data?.misc?.owner === undefined);
 
-export function filterAccountsByNetworkSymbol(
-    accounts: Account[],
+export function filterAccountsByNetworkSymbol<T extends Account>(
+    accounts: T[],
     networkSymbol: NetworkSymbol | undefined,
-): Account[] {
+): T[] {
     return networkSymbol ? findAccountsByNetwork(networkSymbol, accounts) : accounts;
 }
 
