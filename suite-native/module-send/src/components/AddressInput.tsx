@@ -81,6 +81,8 @@ export const AddressInput = ({ index, accountKey }: AddressInputProps) => {
     };
 
     const utxoLabel = watch(utxoLabelFieldName);
+    const tokenFieldName = getOutputFieldName(index, 'token');
+    const outputToken = watch(tokenFieldName);
 
     return (
         <VStack spacing="sp12">
@@ -88,12 +90,16 @@ export const AddressInput = ({ index, accountKey }: AddressInputProps) => {
                 <Text variant="body-sm">
                     <Translation id="moduleSend.outputs.recipients.addressLabel" />
                 </Text>
-                <SendFormLabelEditable
-                    label={utxoLabel ?? null}
-                    onLabelChange={newUtxoLabel => {
-                        setValue(utxoLabelFieldName, newUtxoLabel, { shouldValidate: true });
-                    }}
-                />
+                {/* Tokens labels wouldn't sync properly between desktop & mobile, so labeling is */}
+                {/* turned off for tokens until it's fixed. */}
+                {!outputToken && (
+                    <SendFormLabelEditable
+                        label={utxoLabel ?? null}
+                        onLabelChange={newUtxoLabel => {
+                            setValue(utxoLabelFieldName, newUtxoLabel, { shouldValidate: true });
+                        }}
+                    />
+                )}
             </HStack>
             {isDebugEnv() && (
                 <Button size="small" colorScheme="tertiaryElevation0" onPress={fillSelfAddress}>
