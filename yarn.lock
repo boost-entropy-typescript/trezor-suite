@@ -10876,6 +10876,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/connect-common": "workspace:^"
+    "@trezor/type-utils": "workspace:^"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:19.1.6"
     react: "npm:19.1.0"
@@ -10932,6 +10933,7 @@ __metadata:
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -10945,6 +10947,7 @@ __metadata:
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
@@ -11255,6 +11258,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     web3-utils: "npm:^4.3.2"
@@ -11558,6 +11562,7 @@ __metadata:
     "@testing-library/react": "npm:^16.3.2"
     "@trezor/address-validator": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     "@trezor/connect-plugin-ethereum": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/react-utils": "workspace:*"
@@ -11736,6 +11741,7 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/connect-plugin-ethereum": "workspace:*"
     "@trezor/env-utils": "workspace:*"
+    "@trezor/type-utils": "workspace:^"
     "@trezor/utils": "workspace:*"
     "@walletconnect/core": "npm:^2.21.5"
     "@walletconnect/types": "npm:^2.21.4"
@@ -12414,6 +12420,7 @@ __metadata:
     "@trezor/analytics-uploader": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
@@ -13831,7 +13838,7 @@ __metadata:
     "@suite-native/tokens": "workspace:*"
     "@suite-native/transaction-management": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
-    "@trezor/connect": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -14200,7 +14207,6 @@ __metadata:
     "@suite-common/trading": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/config": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/sentry": "workspace:*"
@@ -14289,6 +14295,7 @@ __metadata:
     react: "npm:19.1.0"
     react-native: "npm:0.81.5"
     react-native-reanimated: "npm:~4.1.5"
+    react-native-safe-area-context: "npm:5.6.2"
     react-native-svg: "npm:15.15.2"
     react-redux: "npm:9.2.0"
   languageName: unknown
@@ -14576,6 +14583,17 @@ __metadata:
     history: "npm:^5.3.0"
     react: "npm:19.1.0"
     react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite/trading@workspace:*, @suite/trading@workspace:suite/trading":
+  version: 0.0.0-use.local
+  resolution: "@suite/trading@workspace:suite/trading"
+  dependencies:
+    "@suite-common/icons": "workspace:*"
+    "@trezor/components": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    styled-components: "npm:^6.3.9"
   languageName: unknown
   linkType: soft
 
@@ -15912,6 +15930,7 @@ __metadata:
     "@suite/platform-encryption-electron": "workspace:*"
     "@suite/platform-encryption-webauthn": "workspace:*"
     "@suite/suite-sync": "workspace:*"
+    "@suite/trading": "workspace:*"
     "@suite/tx-simulation": "workspace:^"
     "@tanstack/react-query": "npm:5.90.20"
     "@testing-library/jest-dom": "npm:6.9.1"
