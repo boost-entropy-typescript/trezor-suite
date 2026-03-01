@@ -14475,6 +14475,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite/experimental-feedback@workspace:*, @suite/experimental-feedback@workspace:suite/experimental-feedback":
+  version: 0.0.0-use.local
+  resolution: "@suite/experimental-feedback@workspace:suite/experimental-feedback"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/feedback": "workspace:*"
+    "@suite/experimental": "workspace:*"
+    "@suite/intl": "workspace:*"
+    "@trezor/components": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    "@types/react": "npm:19.1.6"
+    react: "npm:19.1.0"
+    react-redux: "npm:^9.2.0"
+    styled-components: "npm:^6.3.9"
+  languageName: unknown
+  linkType: soft
+
+"@suite/experimental@workspace:*, @suite/experimental@workspace:suite/experimental":
+  version: 0.0.0-use.local
+  resolution: "@suite/experimental@workspace:suite/experimental"
+  dependencies:
+    "@suite/intl": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite/idb-migration-utils@workspace:*, @suite/idb-migration-utils@workspace:suite/idb-migration-utils":
   version: 0.0.0-use.local
   resolution: "@suite/idb-migration-utils@workspace:suite/idb-migration-utils"
@@ -15944,6 +15969,8 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-common/walletconnect": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/experimental": "workspace:*"
+    "@suite/experimental-feedback": "workspace:*"
     "@suite/idb-migration-utils": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/metadata": "workspace:*"
@@ -17493,7 +17520,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:19.1.6, @types/react@npm:>=16":
+"@types/react@npm:*, @types/react@npm:>=16":
+  version: 19.2.13
+  resolution: "@types/react@npm:19.2.13"
+  dependencies:
+    csstype: "npm:^3.2.2"
+  checksum: 10/a3bb8d09c79f5f29dfbc7e47c5b39c687f4329b76041713993c025781f32c26e4881fbeead65ff44d728945f222b781c6053263bc1819ef90596b4fbfd83f718
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:19.1.6":
   version: 19.1.6
   resolution: "@types/react@npm:19.1.6"
   dependencies:
@@ -22936,7 +22972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:3.2.3, csstype@npm:^3.0.2, csstype@npm:^3.0.5, csstype@npm:^3.1.2, csstype@npm:^3.1.3":
+"csstype@npm:3.2.3, csstype@npm:^3.0.2, csstype@npm:^3.0.5, csstype@npm:^3.1.2, csstype@npm:^3.1.3, csstype@npm:^3.2.2":
   version: 3.2.3
   resolution: "csstype@npm:3.2.3"
   checksum: 10/ad41baf7e2ffac65ab544d79107bf7cd1a4bb9bab9ac3302f59ab4ba655d5e30942a8ae46e10ba160c6f4ecea464cc95b975ca2fefbdeeacd6ac63f12f99fe1f

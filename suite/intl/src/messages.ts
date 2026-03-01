@@ -6321,6 +6321,10 @@ export const messages = defineMessages({
         id: 'TR_FEEDBACK_CATEGORY_OTHER',
         defaultMessage: 'Other',
     },
+    TR_FEEDBACK_CATEGORY_EXPERIMENTAL: {
+        id: 'TR_FEEDBACK_CATEGORY_EXPERIMENTAL',
+        defaultMessage: 'Experimental',
+    },
     FIRMWARE_USER_HAS_SEED_CHECKBOX_DESC: {
         id: 'FIRMWARE_USER_HAS_SEED_CHECKBOX_DESC',
         defaultMessage: 'Yes, I do.',
@@ -10729,5 +10733,30 @@ export const messages = defineMessages({
     TR_NON_TRADABLE_TOKENS: {
         id: 'TR_NON_TRADABLE_TOKENS',
         defaultMessage: 'Non-tradable tokens',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_MODAL_HEADING: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_HEADING',
+        defaultMessage: 'Rate your {feature} experience',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_CARD_HEADING: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_HEADING',
+        defaultMessage: 'Please rate your {feature} experience',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_CARD_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_DESCRIPTION',
+        defaultMessage:
+            'It takes just a few seconds. Your feedback helps us improve Suite Sync for you and others. ',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_MODAL_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_DESCRIPTION',
+        defaultMessage: 'Your feedback helps improve-tell us what you think.',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_MODAL_SUBMIT: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_SUBMIT',
+        defaultMessage: 'Submit',
+    },
+    TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON: {
+        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON',
+        defaultMessage: 'Sure thing',
     },
 } as const);
