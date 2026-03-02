@@ -173,6 +173,9 @@ export const messages = {
             description:
                 'Allow Suite Sync to view and edit your labels, wallet names, and account names.',
             button: 'Allow',
+            connectDescription:
+                'Connect Trezor and allow Suite Sync to view and edit your labels, wallet names, and account names.',
+            connectButton: 'Connect & allow',
         },
         suiteSyncFirmwareUpdateAlert: {
             title: 'Firmware update required',
@@ -1365,6 +1368,7 @@ export const messages = {
         },
         advanced: {
             title: 'Advanced',
+            buttonLearnMore: 'Learn more',
             authenticityChecks: {
                 buttonTurnOff: 'Turn off',
                 buttonTurnOn: 'Turn on',
@@ -1395,6 +1399,11 @@ export const messages = {
                         'This check verifies that your Trezor device is genuine. It helps ensure you never use a compromised or fake device. ',
                     turnOffTitle: 'Turn off device authenticity check',
                 },
+            },
+            networkReserve: {
+                title: 'Network reserve',
+                subtitle:
+                    'We’ve reserved a small amount of the native token on {supportedNetworks} to cover any extra network fees when you send, swap, or sell your assets.',
             },
             mevProtection: {
                 title: 'MEV Protection',
@@ -2922,6 +2931,10 @@ export const messages = {
         },
     },
     transactionManagement: {
+        networkReserveBanner: {
+            title: 'We reserve up to {amount} {displaySymbol} in case extra network fees apply.',
+            buttonTitle: 'Manage',
+        },
         fees: {
             levels: {
                 low: 'Low',
