@@ -11608,6 +11608,7 @@ __metadata:
     "@suite-common/geolocation": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -12952,6 +12953,7 @@ __metadata:
     date-fns: "npm:^4.1.0"
     jotai: "npm:2.15.0"
     react: "npm:19.1.0"
+    react-hook-form: "npm:^7.71.1"
     react-native: "npm:0.81.5"
     react-redux: "npm:9.2.0"
   languageName: unknown
@@ -13158,6 +13160,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:7.9.0"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/analytics-redux": "workspace:*"
+    "@suite-common/device": "workspace:*"
     "@suite-common/firmware": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
