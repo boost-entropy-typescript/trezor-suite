@@ -234,7 +234,13 @@ deviceConnectionMiddleware.startListening({
 
         if (
             selectIsFirmwareInstallationRunning(getState()) ||
-            checkIsActiveRouteAnyOf([DeviceSettingsStackRoutes.DevicePinProtectionStack])
+            checkIsActiveRouteAnyOf([
+                DeviceSettingsStackRoutes.DeviceNameStack,
+                DeviceSettingsStackRoutes.FirmwareUpdateStack,
+                DeviceSettingsStackRoutes.DevicePinProtectionStack,
+                DeviceSettingsStackRoutes.DeviceCheckBackupStack,
+                DeviceSettingsStackRoutes.DeviceAuthenticityStack,
+            ])
         ) {
             return;
         }

@@ -3178,10 +3178,6 @@ export const messages = defineMessages({
             'Firmware update required. Update firmware on your Trezor to use Suite Sync.',
         id: 'TR_SUITE_SYNC_FIRMWARE_UPDATE_NEEDED_BANNER',
     },
-    TR_SUITE_SYNC_CONNECT_DEVICE_TOOLTIP: {
-        defaultMessage: 'Connect your Trezor to continue.',
-        id: 'TR_SUITE_SYNC_CONNECT_DEVICE_TOOLTIP',
-    },
     TR_SUITE_SYNC_KEYS_NEEDED_BANNER: {
         defaultMessage:
             'Allow Suite Sync to view and edit your labels, wallet names, and account names.',
@@ -10829,6 +10825,14 @@ export const messages = defineMessages({
     },
     TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON: {
         id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON',
-        defaultMessage: 'Share feedback',
+        defaultMessage: 'Sure thing',
+    },
+    TR_OUTSIDE_STAKING_CARD_TITLE: {
+        id: 'TR_OUTSIDE_STAKING_CARD_TITLE',
+        defaultMessage: "You're staking outside of Trezor Suite",
+    },
+    TR_OUTSIDE_STAKING_CARD_TEXT: {
+        id: 'TR_OUTSIDE_STAKING_CARD_TEXT',
+        defaultMessage: '{amount} {displaySymbol} (= {fiat}) is currently staked elsewhere.',
     },
 } as const);
