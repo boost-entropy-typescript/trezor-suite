@@ -1,5 +1,5 @@
 import { Translation } from '@suite/intl';
-import { EarnFlow } from '@suite-common/suite-types/src/staking';
+import { type StakeModalFlow } from '@suite-common/suite-types/src/staking';
 import { selectAreFeesLoading, selectHasRunningDiscovery } from '@suite-common/wallet-core';
 import { Modal, Tooltip } from '@trezor/components';
 
@@ -11,11 +11,11 @@ import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking
 import { useAnalytics } from 'src/support/useAnalytics';
 import { CRYPTO_INPUT, FIAT_INPUT } from 'src/types/earn/earnFormFields';
 
-type SupplyButtonProps = {
-    flow: EarnFlow;
+type StakeButtonProps = {
+    flow: StakeModalFlow;
 };
 
-export const SupplyButton = ({ flow }: SupplyButtonProps) => {
+export const StakeButton = ({ flow }: StakeButtonProps) => {
     const dispatch = useDispatch();
     const { device, isLocked } = useDevice();
     const {
