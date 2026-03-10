@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-import { selectCompromisedDeviceFailedCheck } from '@suite-native/device';
+import { selectSelectedDeviceCompromisedDeviceFailedCheck } from '@suite-native/device';
 import { exhaustive } from '@trezor/type-utils';
 
 import { DeviceAuthenticityCheckFailModalContent } from '../components/DeviceAuthenticityCheckFailModalContent';
@@ -14,7 +14,7 @@ import { FirmwareAuthenticityCheckFailModalContent } from '../components/Firmwar
  * - device authenticity check failure
  */
 export const DeviceCompromisedModalScreen = () => {
-    const failedCheck = useSelector(selectCompromisedDeviceFailedCheck);
+    const failedCheck = useSelector(selectSelectedDeviceCompromisedDeviceFailedCheck);
 
     switch (failedCheck) {
         case 'device-authenticity':
@@ -22,6 +22,7 @@ export const DeviceCompromisedModalScreen = () => {
         case 'entropy':
             return <EntropyCheckFailModalContent />;
         case 'firmware-authenticity':
+        case null: // TODO fix entropy check screen persistence after disconnecting the device
             return <FirmwareAuthenticityCheckFailModalContent />;
         default:
             return exhaustive(failedCheck);
