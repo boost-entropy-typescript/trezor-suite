@@ -1,6 +1,5 @@
+import { RouteParams } from '@suite/router';
 import { Account } from '@suite-common/wallet-types';
-
-import { RouteParams } from 'src/utils/suite/router';
 
 type GetEarnRouteParamsProps = {
     account: Account;

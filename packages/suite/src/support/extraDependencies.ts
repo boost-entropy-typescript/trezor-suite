@@ -7,6 +7,13 @@ import { closeModal, openModal } from '@suite/modal';
 import { createElectronPlatformEncryption } from '@suite/platform-encryption-electron';
 import { createWebauthnPlatformEncryption } from '@suite/platform-encryption-webauthn';
 import {
+    ensureRouterPath,
+    getPrefixedURL,
+    selectRoute,
+    selectRouterApp,
+    stripPrefixedURL,
+} from '@suite/router';
+import {
     DisableLegacyMetadataIfNeededDep,
     createSuiteSyncDesktopCompositionRoot,
 } from '@suite/suite-sync';
@@ -42,7 +49,6 @@ import { desktopApi } from '@trezor/suite-desktop-api';
 import { StorageLoadAction } from 'src/actions/suite/storageActions';
 import * as cardanoStakingActions from 'src/actions/wallet/cardanoStakingActions';
 import { selectIsWindowVisible } from 'src/reducers/suite/windowReducer';
-import { ensureRouterPath, getPrefixedURL, stripPrefixedURL } from 'src/utils/suite/router';
 import { reportSecurityCheck } from 'src/utils/suite/sentry';
 import { fixLoadedCoinjoinAccount } from 'src/utils/wallet/coinjoinUtils';
 
@@ -171,8 +177,8 @@ export const extraDependencies: ExtraDependenciesStatic = {
         selectDevice: (state: AppState) => state.device.selectedDevice,
         selectLanguage: (state: AppState) => state.suite.settings.language,
         selectMetadata: (state: AppState) => state.metadata,
-        selectRouterApp: (state: AppState) => state.router.app,
-        selectRoute: (state: AppState) => state.router.route,
+        selectRouterApp,
+        selectRoute,
         selectAddressDisplayType: (state: AppState) => state.suite.settings.addressDisplayType,
         selectSelectedAccount: (state: AppState) => state.wallet.selectedAccount,
         selectSelectedAccountStatus: (state: AppState) => state.wallet.selectedAccount.status,
