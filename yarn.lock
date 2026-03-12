@@ -11284,6 +11284,7 @@ __metadata:
   dependencies:
     "@everstake/wallet-sdk-ethereum": "npm:1.0.5"
     "@suite-common/staking-solana-types": "workspace:*"
+    "@suite-common/wallet-api": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -11580,6 +11581,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/device": "workspace:*"
     "@suite-common/geolocation": "workspace:*"
+    "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
@@ -11644,6 +11646,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/wallet-api@workspace:*, @suite-common/wallet-api@workspace:^, @suite-common/wallet-api@workspace:suite-common/wallet-api":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/wallet-api@workspace:suite-common/wallet-api"
+  dependencies:
+    orval: "npm:8.2.0"
+    prettier: "npm:3.8.1"
+    zod: "npm:4.3.6"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/wallet-config@workspace:*, @suite-common/wallet-config@workspace:^, @suite-common/wallet-config@workspace:suite-common/wallet-config":
   version: 0.0.0-use.local
   resolution: "@suite-common/wallet-config@workspace:suite-common/wallet-config"
@@ -11684,6 +11696,7 @@ __metadata:
     "@suite-common/thp": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
+    "@suite-common/wallet-api": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -11702,6 +11715,7 @@ __metadata:
     react-hook-form: "npm:^7.71.1"
     react-redux: "npm:^9.2.0"
     web3-utils: "npm:^4.3.2"
+    zod: "npm:4.3.6"
   languageName: unknown
   linkType: soft
 
@@ -11731,6 +11745,7 @@ __metadata:
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
+    "@suite-common/wallet-api": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -13940,6 +13955,7 @@ __metadata:
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
+    "@suite-common/wallet-api": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -14719,8 +14735,12 @@ __metadata:
   resolution: "@suite/trading@workspace:suite/trading"
   dependencies:
     "@suite-common/icons": "workspace:*"
+    "@suite-common/trading": "workspace:*"
+    "@suite/intl": "workspace:*"
     "@trezor/components": "workspace:*"
+    "@trezor/product-components": "workspace:*"
     "@trezor/theme": "workspace:*"
+    react: "npm:19.1.0"
     styled-components: "npm:^6.3.9"
   languageName: unknown
   linkType: soft
@@ -16034,6 +16054,7 @@ __metadata:
     "@suite-common/transaction-search": "workspace:*"
     "@suite-common/tx-simulation": "workspace:^"
     "@suite-common/validators": "workspace:*"
+    "@suite-common/wallet-api": "workspace:^"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -47968,17 +47989,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zod@npm:4.3.6, zod@npm:^3.25.0 || ^4.0.0, zod@npm:^4.1.11":
+  version: 4.3.6
+  resolution: "zod@npm:4.3.6"
+  checksum: 10/25fc0f62e01b557b4644bf0b393bbaf47542ab30877c37837ea8caf314a8713d220c7d7fe51f68ffa72f0e1018ddfa34d96f1973d23033f5a2a5a9b6b9d9da01
+  languageName: node
+  linkType: hard
+
 "zod@npm:^3.21.4, zod@npm:^3.22.3, zod@npm:^3.24.2":
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: 10/f0c963ec40cd96858451d1690404d603d36507c1fc9682f2dae59ab38b578687d542708a7fdbf645f77926f78c9ed558f57c3d3aa226c285f798df0c4da16995
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.25.0 || ^4.0.0, zod@npm:^4.1.11":
-  version: 4.3.6
-  resolution: "zod@npm:4.3.6"
-  checksum: 10/25fc0f62e01b557b4644bf0b393bbaf47542ab30877c37837ea8caf314a8713d220c7d7fe51f68ffa72f0e1018ddfa34d96f1973d23033f5a2a5a9b6b9d9da01
   languageName: node
   linkType: hard
 
