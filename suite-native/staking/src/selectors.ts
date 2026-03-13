@@ -128,11 +128,11 @@ export const selectAccountHasStaking = (state: NativeStakingRootState, accountKe
 
 export const selectIsStakePendingByAccountKey = (
     state: NativeStakingRootState,
-    accountKey: AccountKey,
+    accountKey: AccountKey | null,
 ) => {
     const account = selectAccountByKey(state, accountKey);
     const symbol = account?.symbol;
-    if (!symbol || !doesCoinSupportStaking(symbol)) {
+    if (!symbol || !doesCoinSupportStaking(symbol) || !accountKey) {
         return false;
     }
 
@@ -176,7 +176,10 @@ export const selectIsStakeConfirmingByAccountKey = (
     }
 };
 
-export const selectAPYByAccountKey = (state: NativeStakingRootState, accountKey: AccountKey) => {
+export const selectAPYByAccountKey = (
+    state: NativeStakingRootState,
+    accountKey: AccountKey | null,
+) => {
     const account = selectAccountByKey(state, accountKey);
     const symbol = account?.symbol;
     if (!symbol || !doesCoinSupportStaking(symbol)) {
@@ -186,7 +189,10 @@ export const selectAPYByAccountKey = (state: NativeStakingRootState, accountKey:
     return selectPoolStatsApyData(state, account);
 };
 
-export const selectAPYBySymbol = (state: NativeStakingRootState, symbol: StakingNetworkSymbol) => {
+export const selectAPYBySymbol = (
+    state: NativeStakingRootState,
+    symbol: StakingNetworkSymbol | null,
+) => {
     if (!symbol || !doesCoinSupportStaking(symbol)) {
         return null;
     }
@@ -246,11 +252,11 @@ export const selectStakedBalanceByAccountKey = (
 
 export const selectRewardsBalanceByAccountKey = (
     state: NativeStakingRootState,
-    accountKey: AccountKey,
+    accountKey: AccountKey | null,
 ) => {
     const account = selectAccountByKey(state, accountKey);
     const symbol = account?.symbol;
-    if (!symbol || !doesCoinSupportStaking(symbol)) {
+    if (!symbol || !doesCoinSupportStaking(symbol) || !accountKey) {
         return '0';
     }
 
@@ -272,11 +278,11 @@ export const selectRewardsBalanceByAccountKey = (
 
 export const selectTotalStakePendingByAccountKey = (
     state: NativeStakingRootState,
-    accountKey: AccountKey,
+    accountKey: AccountKey | null,
 ) => {
     const account = selectAccountByKey(state, accountKey);
     const symbol = account?.symbol;
-    if (!symbol || !doesCoinSupportStaking(symbol)) {
+    if (!symbol || !doesCoinSupportStaking(symbol) || !accountKey) {
         return '0';
     }
 
