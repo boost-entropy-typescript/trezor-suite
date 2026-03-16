@@ -23,6 +23,8 @@
         {
             "path": "../../suite-common/wallet-types"
         },
+        { "path": "../locks" },
+        { "path": "../modal" },
         { "path": "../../packages/type-utils" }
     ]
 }

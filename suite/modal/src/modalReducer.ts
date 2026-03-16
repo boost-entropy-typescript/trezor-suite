@@ -54,7 +54,7 @@ export type ModalState =
           payload: UserContextPayload;
       };
 
-type ModalRootState = {
+export type ModalRootState = {
     modal: ModalState;
 };
 
@@ -156,6 +156,9 @@ const modalReducer = (state: State = initialState, action: AnyAction): State => 
             return state;
     }
 };
+
+export const selectHasActiveModal = (state: ModalRootState) =>
+    state.modal.context !== MODAL_CONTEXT_NONE;
 
 export const selectModalType = (state: ModalRootState) => {
     if ('payload' in state.modal) {

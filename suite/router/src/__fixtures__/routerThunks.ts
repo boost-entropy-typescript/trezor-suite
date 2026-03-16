@@ -1,4 +1,4 @@
-import { getRoute } from '@suite/router';
+import { getRoute } from '../router';
 
 export const init = [
     {
@@ -32,27 +32,6 @@ export const init = [
         result: undefined,
     },
 ] as const;
-
-export const onBeforePopState = [
-    {
-        description: `success`,
-        result: true,
-    },
-    {
-        description: `router locked`,
-        state: {
-            locks: { router: 1 },
-        },
-        result: false,
-    },
-    {
-        description: `device locked`,
-        state: {
-            locks: { ui: 1 },
-        },
-        result: false,
-    },
-];
 
 export const goto = [
     {
@@ -97,11 +76,7 @@ export const initialRedirection = [
     },
     {
         description: `already initialized`,
-        state: {
-            suite: {
-                flags: { initialRun: false },
-            },
-        },
+        isInitialRun: false,
         app: 'unknown', // app will be set later, after SUITE.READY
     },
     {

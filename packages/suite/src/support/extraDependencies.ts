@@ -8,11 +8,12 @@ import { closeModal, openModal } from '@suite/modal';
 import { createElectronPlatformEncryption } from '@suite/platform-encryption-electron';
 import { createWebauthnPlatformEncryption } from '@suite/platform-encryption-webauthn';
 import {
-    ensureRouterPath,
-    getPrefixedURL,
+    HistoryDep,
+    SuiteRouterHistoryDep,
+    asSuiteRouterHistoryService,
+    createSuiteRouterHistory,
     selectRoute,
     selectRouterApp,
-    stripPrefixedURL,
 } from '@suite/router';
 import {
     DisableLegacyMetadataIfNeededDep,
@@ -53,12 +54,6 @@ import { selectIsWindowVisible } from 'src/reducers/suite/windowReducer';
 import { reportSecurityCheck } from 'src/utils/suite/sentry';
 import { fixLoadedCoinjoinAccount } from 'src/utils/wallet/coinjoinUtils';
 
-import {
-    HistoryDep,
-    SuiteRouterHistory,
-    SuiteRouterHistoryDep,
-    SuiteRouterHistoryDeps,
-} from './suite/suiteRouterHistory';
 import { forgetBluetoothDeviceThunk } from '../actions/bluetooth/bluetoothEraseBondsThunk';
 import { createDisableLegacyMetadataIfNeeded } from '../actions/suiteSync/disableLegacyMetadateIfNeeded';
 import type { BioAuthState } from '../reducers/bioAuth';
@@ -76,25 +71,6 @@ const connectInitSettings: ConnectInitSettings = {
     enableFirmwareHashCheck: true,
     firmwareHashCheckTimeouts: FW_HASH_CHECK_DEFAULT_TIMEOUTS,
 };
-
-export const createSuiteRouterHistory = ({
-    history,
-}: SuiteRouterHistoryDeps): SuiteRouterHistory => ({
-    getLocation: () => {
-        const { location } = history;
-
-        return ensureRouterPath({ ...location, pathname: stripPrefixedURL(location.pathname) });
-    },
-    navigate: (to, state) =>
-        history.push(
-            { ...to, pathname: to.pathname ? getPrefixedURL(to.pathname) : undefined },
-            state,
-        ),
-    listen: listener =>
-        history.listen(({ location, action }) =>
-            listener({ location: ensureRouterPath(location), action }),
-        ),
-});
 
 export type StoreAPIDep = {
     getState: () => any;
@@ -343,4 +319,4 @@ export const extraDependencies: ExtraDependenciesStatic = {
 // extra.services do contain all the needed services, but in order to make the typing work properly,
 // we'd need to define dispatch() for each platform separately
 export const asSuiteServices = (services: CommonServices): SuiteServices =>
-    services as SuiteServices;
+    asSuiteRouterHistoryService(services) as SuiteServices;

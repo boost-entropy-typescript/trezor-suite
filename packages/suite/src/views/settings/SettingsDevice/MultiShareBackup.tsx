@@ -1,5 +1,6 @@
 import { events } from '@suite/analytics';
 import { Translation } from '@suite/intl';
+import { goto } from '@suite/router';
 import { selectSelectedDevice } from '@suite-common/device';
 import { TrezorDevice } from '@suite-common/suite-types';
 import { HELP_CENTER_MULTI_SHARE_BACKUP_URL } from '@trezor/urls';
@@ -7,8 +8,6 @@ import { HELP_CENTER_MULTI_SHARE_BACKUP_URL } from '@trezor/urls';
 import { ActionButton, ActionColumn, SectionItem, TextColumn } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useAnalytics } from 'src/support/useAnalytics';
-
-import { goto } from '../../../actions/suite/routerActions';
 
 const doesSupportMultiShare = (device: TrezorDevice | undefined): boolean => {
     if (device?.features === undefined) {
@@ -47,7 +46,7 @@ export const MultiShareBackup = ({ isDeviceLocked }: { isDeviceLocked: boolean }
             payload: { action: 'start' },
         });
 
-        dispatch(goto('create-multi-share-backup'));
+        dispatch(goto({ routeName: 'create-multi-share-backup' }));
     };
 
     return (

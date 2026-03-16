@@ -2,6 +2,7 @@ import { memo } from 'react';
 
 import { events } from '@suite/analytics';
 import { Translation } from '@suite/intl';
+import { goto } from '@suite/router';
 import { AssetFiatBalance } from '@suite-common/assets';
 import { selectCoinDefinitions } from '@suite-common/token-definitions';
 import { Network } from '@suite-common/wallet-config';
@@ -13,7 +14,6 @@ import { TokenInfo } from '@trezor/blockchain-link-types';
 import { Column, Icon, IconButton, Row, Table, Text } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
-import { goto } from 'src/actions/suite/routerActions';
 import {
     AmountUnitSwitchWrapper,
     BaseCurrencyValue,
@@ -66,7 +66,8 @@ export const AssetRow = memo(
 
         const handleRowClick = () => {
             dispatch(
-                goto('wallet-index', {
+                goto({
+                    routeName: 'wallet-index',
                     params: {
                         symbol,
                         accountIndex: 0,
