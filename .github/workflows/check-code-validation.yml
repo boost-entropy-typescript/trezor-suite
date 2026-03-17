@@ -21,14 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Install node and yarn
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       - name: Yarn Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: yarn-cache-folder-${{ hashFiles('**/yarn.lock', '.yarnrc.yml') }}
@@ -69,15 +69,8 @@ jobs:
       - name: "Minimal yarn install"
         uses: ./.github/actions/minimal-yarn-install
 
-      - name: ESlint Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            **/.eslintcache
-            !**/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/.eslintrc.js') }}
       - name: Lint JS
-        run: yarn lint:js --cache-strategy content
+        run: yarn nx:lint:js --output-style=stream
       - name: Lint Styles
         run: yarn nx:lint:styles --output-style=stream
       - name: Check rust files changes
@@ -173,7 +166,6 @@ jobs:
         run: yarn workspace @suite-common/message-system validate-config
       - name: Translation Duplicates
         run: yarn workspace @suite/intl translations:list-duplicates
-
 
   releases-revision-checks:
     name: Releases revision Checks

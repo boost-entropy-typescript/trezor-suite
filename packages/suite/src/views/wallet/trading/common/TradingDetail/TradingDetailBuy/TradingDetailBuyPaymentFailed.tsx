@@ -1,4 +1,4 @@
-import { BuyProviderInfo, BuyTrade } from 'invity-api';
+import { type BuyProviderInfo, type BuyTrade } from 'invity-api';
 
 import { Translation } from '@suite/intl';
 import { goto } from '@suite/router';
@@ -45,7 +45,7 @@ export const TradingDetailBuyPaymentFailed = ({
                             trade={trade}
                         />
                     )}
-                    <TradingDetailSupportBanner provider={provider} orderId={trade.paymentId} />
+                    <TradingDetailSupportBanner provider={provider} trade={trade} />
                 </Column>
             </Card>
         </Column>

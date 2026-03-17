@@ -1,11 +1,11 @@
-import { SellFiatTrade, SellProviderInfo } from 'invity-api';
+import { type SellFiatTrade, type SellProviderInfo } from 'invity-api';
 
 import { Translation } from '@suite/intl';
 import { goto } from '@suite/router';
 import { Button, Card, Column, H3, IconCircle, Paragraph } from '@trezor/components';
 
 import { useDispatch } from 'src/hooks/suite';
-import { Account } from 'src/types/wallet';
+import { type Account } from 'src/types/wallet';
 
 import { TradingDetailProviderInfo } from '../TradingDetailProviderInfo';
 import { TradingDetailSupportBanner } from '../TradingDetailSupportBanner';
@@ -50,7 +50,7 @@ export const TradingDetailSellPaymentFailed = ({
                             txId={trade.txid}
                         />
                     )}
-                    <TradingDetailSupportBanner provider={provider} orderId={trade.orderId} />
+                    <TradingDetailSupportBanner provider={provider} trade={trade} />
                 </Column>
             </Card>
         </Column>
