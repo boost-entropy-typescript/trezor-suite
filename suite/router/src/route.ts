@@ -1,4 +1,4 @@
-import { type routes } from '@suite-common/suite-config';
+import { type routes } from '@suite/router-config';
 import { type ArrayElement, type ConstWithOptionalFields, type Keys } from '@trezor/type-utils';
 
 type RouteKeys = Keys<ArrayElement<typeof routes>>;

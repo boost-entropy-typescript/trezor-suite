@@ -13,8 +13,6 @@ import {
     type SuiteRouterHistoryDep,
     asSuiteRouterHistoryService,
     createSuiteRouterHistory,
-    selectRoute,
-    selectRouterApp,
 } from '@suite/router';
 import {
     type DisableLegacyMetadataIfNeededDep,
@@ -154,8 +152,6 @@ export const extraDependencies: ExtraDependenciesStatic = {
         selectDevice: (state: AppState) => state.device.selectedDevice,
         selectLanguage: (state: AppState) => state.suite.settings.language,
         selectMetadata: (state: AppState) => state.metadata,
-        selectRouterApp,
-        selectRoute,
         selectAddressDisplayType: (state: AppState) => state.suite.settings.addressDisplayType,
         selectSelectedAccount: (state: AppState) => state.wallet.selectedAccount,
         selectSelectedAccountStatus: (state: AppState) => state.wallet.selectedAccount.status,

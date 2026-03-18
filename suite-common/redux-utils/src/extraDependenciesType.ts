@@ -12,7 +12,6 @@ import { type MigrateSuiteSyncLabelsForRbfTransactionDep } from '@suite-common/s
 import { type SuiteSyncDep } from '@suite-common/suite-sync-types';
 import {
     type ReportSecurityCheckDep,
-    type Route,
     type TrezorDevice,
     type UserContextPayload,
 } from '@suite-common/suite-types';
@@ -76,8 +75,6 @@ export type ExtraDependenciesStatic = {
         selectDevice: SuiteCompatibleSelector<TrezorDevice | undefined>;
         selectLanguage: SuiteCompatibleSelector<string>;
         selectIsWindowVisible: SuiteCompatibleSelector<boolean>;
-        selectRouterApp: SuiteCompatibleSelector<string>;
-        selectRoute: SuiteCompatibleSelector<Route | undefined>;
         selectMetadata: SuiteCompatibleSelector<any>;
         selectAddressDisplayType: SuiteCompatibleSelector<AddressDisplayOptions>;
         selectSelectedAccount: SuiteCompatibleSelector<SelectedAccountStatus>;

@@ -4,6 +4,8 @@ import {
     type Reducer,
     type ReducersMapObject,
     configureStore,
+    isFulfilled,
+    isPending,
 } from '@reduxjs/toolkit';
 import { type ThunkDispatch } from 'redux-thunk';
 
@@ -15,6 +17,14 @@ import {
 import { mergeDeepObject } from '@trezor/utils';
 
 import { extraDependenciesCommonMock } from './extraDependenciesCommonMock';
+
+/*
+ * This function is useful, because a lot of test fixtures doesn't count with added thunk pending/fulfilled action that are now
+ * dispatched everytime. This will filter out these action so we don't need to fix fixtures everywhere.
+ * It should be used only in /packages/suite everything migrated to suite-common/ should be adjusted to work with new thunk API!!!
+ */
+export const filterThunkActionTypes = (actions: AnyAction[]) =>
+    actions.filter(action => !isPending(action) && !isFulfilled(action));
 
 export type MockStoreConfig<S = any, A extends AnyAction = AnyAction> = {
     middleware?: any[];

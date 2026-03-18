@@ -14,11 +14,7 @@ import {
     notImplementedThunk,
 } from '@suite-common/redux-utils';
 import type { SuiteSync } from '@suite-common/suite-sync-types';
-import {
-    type ReportSecurityCheckParams,
-    type Route,
-    asDelegatedIdentityKey,
-} from '@suite-common/suite-types';
+import { type ReportSecurityCheckParams, asDelegatedIdentityKey } from '@suite-common/suite-types';
 import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import {
     AddressDisplayOptions,
@@ -105,8 +101,6 @@ export const extraDependenciesCommonMock: ExtraDependencies = {
             transports: [],
         }),
         selectDesktopBinDir: notImplementedSelector('selectDesktopBinDir', '/bin'),
-        selectRouterApp: notImplementedSelector('selectRouterApp', ''),
-        selectRoute: notImplementedSelector('selectRoute', {} as Route),
         selectMetadata: notImplementedSelector('selectMetadata', {}),
         selectDevice: notImplementedSelector('selectDevice', {
             ...mockSuiteDevice(),
