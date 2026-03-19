@@ -14787,6 +14787,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite/backup@workspace:*, @suite/backup@workspace:suite/backup":
+  version: 0.0.0-use.local
+  resolution: "@suite/backup@workspace:suite/backup"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/device": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/test-utils": "workspace:*"
+    "@suite-common/toast-notifications": "workspace:*"
+    "@suite/analytics": "workspace:*"
+    "@suite/router": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    "@trezor/device-utils": "workspace:*"
+    "@trezor/protobuf": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite/device@workspace:*, @suite/device@workspace:suite/device":
   version: 0.0.0-use.local
   resolution: "@suite/device@workspace:suite/device"
@@ -16371,6 +16389,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-common/walletconnect": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/backup": "workspace:*"
     "@suite/device": "workspace:*"
     "@suite/experimental": "workspace:*"
     "@suite/experimental-feedback": "workspace:*"
@@ -16407,7 +16426,6 @@ __metadata:
     "@trezor/eslint": "workspace:*"
     "@trezor/ipc-proxy": "workspace:*"
     "@trezor/product-components": "workspace:*"
-    "@trezor/protobuf": "workspace:*"
     "@trezor/react-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
     "@trezor/suite-data": "workspace:*"

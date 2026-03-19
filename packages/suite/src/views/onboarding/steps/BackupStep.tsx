@@ -1,20 +1,24 @@
 import { useState } from 'react';
 
+import {
+    type BackupDeviceParams,
+    backupDeviceThunk,
+    canContinue,
+    selectBackup,
+    selectBackupStatus,
+} from '@suite/backup';
 import { Translation } from '@suite/intl';
 import { selectIsDeviceLocked } from '@suite/locks';
 import { SettingsAnchor, goto } from '@suite/router';
 import { selectSelectedDevice } from '@suite-common/device';
 import { exhaustive } from '@trezor/type-utils';
 
-import { backupDevice } from 'src/actions/backup/backupActions';
 import { goToNextStep, updateAnalytics } from 'src/actions/onboarding/onboardingActions';
 import * as onboardingActions from 'src/actions/onboarding/onboardingActions';
 import { BackupSeedCards } from 'src/components/backup';
 import { OnboardingCard } from 'src/components/onboarding/OnboardingCard/OnboardingCard';
 import { SkipStepConfirmation } from 'src/components/onboarding/SkipStepConfirmation';
 import { useDispatch, useSelector } from 'src/hooks/suite';
-import { selectBackup, selectBackupStatus } from 'src/reducers/backup/backupReducer';
-import { canContinue } from 'src/utils/backup';
 
 export const BackupStep = () => {
     const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
@@ -29,7 +33,7 @@ export const BackupStep = () => {
     const handleBackup = () => {
         dispatch(updateAnalytics({ backup: 'create' }));
 
-        const backupParams: Parameters<typeof backupDevice>[0] =
+        const params: BackupDeviceParams =
             backupType === 'shamir-single'
                 ? {
                       group_threshold: 1,
@@ -37,7 +41,7 @@ export const BackupStep = () => {
                   }
                 : {};
 
-        dispatch(backupDevice(backupParams, true));
+        dispatch(backupDeviceThunk({ params, skipSuccessToast: true }));
     };
 
     const handleSkip = () => {
