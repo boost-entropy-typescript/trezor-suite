@@ -46,12 +46,15 @@ import {
     selectTradingExchange,
     selectTradingExchangeActiveQuote,
     selectTradingExchangeBuyCryptoIds,
+    selectTradingExchangeDexQuoteApprovalPrefetchLoading,
+    selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId,
     selectTradingExchangeFormStep,
     selectTradingExchangeInfo,
     selectTradingExchangeIsLoading,
     selectTradingExchangeLastErrorMessage,
     selectTradingExchangeLoadingTimestampAndStatus,
     selectTradingExchangeProviders,
+    selectTradingExchangeQuotes,
     selectTradingExchangeQuotesRequest,
     selectTradingExchangeSelectedQuote,
     selectTradingExchangeSellCryptoIds,
@@ -583,6 +586,30 @@ describe('tradingSelectors', () => {
         expect(selectTradingExchangeQuotesRequest(state)).toBe(
             state.wallet.trading.exchange.quotesRequest,
         );
+    });
+
+    it('selectTradingExchangeQuotes should return correct data', () => {
+        expect(selectTradingExchangeQuotes(state)).toBe(state.wallet.trading.exchange.quotes);
+    });
+
+    it('selectTradingExchangeDexQuoteApprovalPrefetchLoading should return correct data', () => {
+        expect(selectTradingExchangeDexQuoteApprovalPrefetchLoading(state)).toBe(
+            !!state.wallet.trading.exchange.dexQuoteApprovalPrefetchLoadingQuoteId,
+        );
+    });
+
+    it('selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId should return correct data', () => {
+        state.wallet.trading.exchange.dexQuoteApprovalPrefetchLoadingQuoteId = 'quoteId1';
+
+        expect(
+            selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId(state, 'quoteId1'),
+        ).toBe(true);
+        expect(
+            selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId(state, 'quoteId2'),
+        ).toBe(false);
+        expect(
+            selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId(state, undefined),
+        ).toBe(false);
     });
 
     it('selectTradingSellQuotesRequest should return correct data', () => {

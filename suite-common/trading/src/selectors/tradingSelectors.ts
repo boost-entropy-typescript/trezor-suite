@@ -284,6 +284,9 @@ export const selectTradingBuyQuotesRequest = (state: TradingRootState) =>
 export const selectTradingExchangeQuotesRequest = (state: TradingRootState) =>
     state.wallet.trading.exchange.quotesRequest;
 
+export const selectTradingExchangeQuotes = (state: TradingRootState) =>
+    state.wallet.trading.exchange.quotes;
+
 export const selectTradingSellQuotesRequest = (state: TradingRootState) =>
     state.wallet.trading.sell.quotesRequest;
 
@@ -507,6 +510,18 @@ export const selectTradingBuyQuoteByOrderId = (
 
 export const selectTradingExchangeIsLoading = (state: TradingRootState) =>
     state.wallet.trading.exchange.isLoading;
+
+export const selectTradingExchangeDexQuoteApprovalPrefetchLoading = (state: TradingRootState) =>
+    !!state.wallet.trading.exchange.dexQuoteApprovalPrefetchLoadingQuoteId;
+
+export const selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId = (
+    state: TradingRootState,
+    quoteId: string | undefined,
+) => !!quoteId && state.wallet.trading.exchange.dexQuoteApprovalPrefetchLoadingQuoteId === quoteId;
+
+export const selectTradingExchangeDexQuoteApprovalPrefetchLoadingQuoteId = (
+    state: TradingRootState,
+) => state.wallet.trading.exchange.dexQuoteApprovalPrefetchLoadingQuoteId;
 
 export const selectTradingSellIsLoading = (state: TradingRootState) =>
     state.wallet.trading.sell.isLoading;

@@ -3,8 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import {
+    type TradingRootState,
     exchangeThunks,
+    getApprovalStatus,
     parseCryptoId,
+    requiresTokenApproval,
+    selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId,
     selectTradingExchangeIsLoading,
     selectTradingMaxSlippagePercentage,
     tokenSupportsIncreasingAllowance,
@@ -26,7 +30,6 @@ import { type ExchangeFormType } from '@suite-native/trading-types';
 import { useNullTimer } from '@trezor/react-utils';
 
 import { clearExchangeFormQuoteData } from './useExchangeForm';
-import { getApprovalStatus } from '../../utils/general/approvalStatusUtils';
 import { isFullySelectedReceiveAccount } from '../../utils/general/receiveAccountUtils';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
@@ -38,19 +41,30 @@ type NavigationProps = StackToStackCompositeNavigationProps<
 export const useExchangeSelectQuote = (form: ExchangeFormType) => {
     const dispatch = useDispatch();
     const timer = useNullTimer();
+    const [candidateQuote, receiveAsset] = form.watch(['quote', 'receiveAsset']);
 
     const isLoading = useSelector(selectTradingExchangeIsLoading);
+    const isDexQuoteApprovalPrefetchLoadingForCandidateQuote = useSelector(
+        (state: TradingRootState) =>
+            selectTradingExchangeDexQuoteApprovalPrefetchLoadingByQuoteId(
+                state,
+                candidateQuote?.quoteId,
+            ),
+    );
     const sendAccount = useSelector(selectExchangeSelectedSendAccount);
     const receiveAccount = useSelector(selectExchangeSelectedReceiveAccount);
     const swapSlippage = useSelector(selectTradingMaxSlippagePercentage);
 
     const navigation = useNavigation<NavigationProps>();
 
-    const [candidateQuote, receiveAsset] = form.watch(['quote', 'receiveAsset']);
-
     const analyticsReportCallback = useExchangeAnalyticReportCallback(candidateQuote);
+    const isCandidateQuotePrefetchBlocked =
+        !!candidateQuote &&
+        requiresTokenApproval(candidateQuote) &&
+        isDexQuoteApprovalPrefetchLoadingForCandidateQuote;
 
-    const canProceed = !isLoading && !!candidateQuote && !!sendAccount;
+    const canProceed =
+        !isLoading && !isCandidateQuotePrefetchBlocked && !!candidateQuote && !!sendAccount;
 
     const selectReceiveAccount = () => {
         const selectedNetworkSymbol = getSymbolFromTradeableAsset(receiveAsset);
@@ -63,7 +77,7 @@ export const useExchangeSelectQuote = (form: ExchangeFormType) => {
     };
 
     const selectQuote = async () => {
-        if (!candidateQuote || isLoading) {
+        if (!candidateQuote || isLoading || isCandidateQuotePrefetchBlocked) {
             return;
         }
 
