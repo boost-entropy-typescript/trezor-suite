@@ -9,7 +9,13 @@
     "exclude": [],
     "compilerOptions": {
         "outDir": "libDev",
-        "types": ["vite/client", "jest"]
+        "types": ["vite/client", "jest"],
+        "baseUrl": ".",
+        "paths": {
+            "@trezor/analytics-log-server": [
+                "../analytics-log-server/src/index.ts"
+            ]
+        }
     },
     "references": [
         {
