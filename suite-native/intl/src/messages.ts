@@ -2584,7 +2584,6 @@ export const messages = {
             fromAccount: 'From',
             toAccount: 'To',
             details: 'Transaction details',
-            feeLabel: 'Fee',
             providerNamePlaceholder: 'Provider',
             providerReceiveAddressLabel: "{providerName}'s receive address",
             confirmationAlertTitle: 'Failed to confirm offer.',
@@ -2635,8 +2634,10 @@ export const messages = {
         confirmApprovalError: 'Failed to confirm approval. Please try again.',
         tradingExchangeApprovalScreen: {
             title: 'Set {symbol} spending',
+            approveTitle: 'Approve {symbol} spending',
             subtitle:
                 'Set the {symbol} amount to approve so {companyName} can access it. This is required to continue with your swap.',
+            approveSubtitle: 'Approve provider to spend your {symbol} to swap.',
             revokeSuccessAlert: 'Revoke successful. Set a higher limit.',
             lowLimitInfoAlert:
                 'You’ve approved this token, but the limit is too low. Increase it to continue.',
@@ -2646,6 +2647,7 @@ export const messages = {
             unlimitedLabel: 'Unlimited',
             limitInfo:
                 'Skip future approvals and pay less fees. {companyName} will gain full access to your {symbol}.',
+            approveErrorAlert: 'Error approving token. Please try again later.',
         },
         tradingExchangeRevokeScreen: {
             title: 'Revoke {symbol} approval',
@@ -2669,12 +2671,11 @@ export const messages = {
         exchangeApprovalLimitSheet: {
             title: 'Set limit',
             unlimitedCard: {
-                description:
-                    'Approve unlimited {symbol} to skip future approval requests and reduce fees. Only use this option if you trust {companyName}, as it will have access to all your {symbol}.',
+                info: 'Approve once and avoid future network fees. This provider can spend any amount until you revoke the approval.',
+                alert: 'If the provider is compromised, all your {coinSymbol} may be taken.',
             },
             limitedCard: {
-                description:
-                    "Approve only the amount needed for this swap. This helps reduce risk, but you'll need to approve again (and pay a fee) for future swaps.",
+                info: 'Approve this amount for the provider. Valid until fully used or revoked. Then a new approval and network fee will be required.',
             },
         },
         exchangeTradePreviewCard: {

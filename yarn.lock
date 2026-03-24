@@ -11216,6 +11216,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/bip329@workspace:*, @suite-common/bip329@workspace:suite-common/bip329":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/bip329@workspace:suite-common/bip329"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/bluetooth@workspace:*, @suite-common/bluetooth@workspace:suite-common/bluetooth":
   version: 0.0.0-use.local
   resolution: "@suite-common/bluetooth@workspace:suite-common/bluetooth"
@@ -11814,11 +11820,11 @@ __metadata:
   resolution: "@suite-common/suite-sync@workspace:suite-common/suite-sync"
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/bip329": "workspace:*"
     "@suite-common/delegated-identity-key": "workspace:*"
     "@suite-common/delegated-identity-key-types": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
-    "@suite-common/metadata-types": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync-quota-manager": "workspace:*"
@@ -12110,7 +12116,6 @@ __metadata:
     "@trezor/protobuf": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
-    date-fns: "npm:^4.1.0"
     react: "npm:19.2.4"
     react-hook-form: "npm:^7.71.2"
     react-redux: "npm:^9.2.0"
@@ -13208,6 +13213,7 @@ __metadata:
     "@suite-native/navigation": "workspace:*"
     "@suite-native/services": "workspace:*"
     "@suite-native/settings": "workspace:*"
+    "@suite-native/test-utils": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/type-utils": "workspace:*"
@@ -14661,6 +14667,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
+    "@suite-native/labeling": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/trading-fixtures": "workspace:*"
     "@suite-native/trading-types": "workspace:*"
@@ -15046,6 +15053,7 @@ __metadata:
   resolution: "@suite/metadata@workspace:suite/metadata"
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/bip329": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -16519,6 +16527,7 @@ __metadata:
     "@suite-common/analytics": "workspace:*"
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/assets": "workspace:*"
+    "@suite-common/bip329": "workspace:*"
     "@suite-common/bluetooth": "workspace:*"
     "@suite-common/connect-init": "workspace:*"
     "@suite-common/connect-popup": "workspace:*"
