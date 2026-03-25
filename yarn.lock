@@ -15072,6 +15072,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite/analytics": "workspace:*"
     "@suite/intl": "workspace:*"
+    "@suite/settings": "workspace:*"
     "@trezor/components": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/env-utils": "workspace:*"
@@ -15186,6 +15187,24 @@ __metadata:
     "@suite-common/suite-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@suite/settings@workspace:*, @suite/settings@workspace:suite/settings":
+  version: 0.0.0-use.local
+  resolution: "@suite/settings@workspace:suite/settings"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/metadata-types": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/test-utils": "workspace:*"
+    "@suite-common/trading": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@suite/experimental": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    "@trezor/env-utils": "workspace:*"
+    "@trezor/suite-desktop-api": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -16454,6 +16473,7 @@ __metadata:
     "@suite/intl": "workspace:^"
     "@suite/metadata": "workspace:*"
     "@suite/router-config": "workspace:*"
+    "@suite/settings": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:^"
     "@trezor/connect-web": "workspace:*"
     "@trezor/e2e-utils": "workspace:*"
@@ -16597,6 +16617,7 @@ __metadata:
     "@suite/platform-encryption-webauthn": "workspace:*"
     "@suite/recovery": "workspace:*"
     "@suite/router": "workspace:*"
+    "@suite/settings": "workspace:*"
     "@suite/suite-sync": "workspace:*"
     "@suite/trading": "workspace:*"
     "@suite/tx-simulation": "workspace:^"
@@ -16639,6 +16660,7 @@ __metadata:
     "@types/redux-logger": "npm:^3.0.13"
     "@types/redux-mock-store": "npm:^1.5.0"
     "@types/semver": "npm:^7.7.0"
+    "@zxing/library": "npm:^0.21.3"
     date-fns: "npm:^4.1.0"
     file-saver: "npm:^2.0.5"
     framer-motion: "npm:^12.33.0"
@@ -19485,6 +19507,19 @@ __metadata:
     "@zxing/text-encoding":
       optional: true
   checksum: 10/866ec2adc9f59b5176046a6219951122bd075eac846aa739285b9b20372635c29ad13bc49a4a721e91d13b0d078c5f50fe81087a510920b0ea202dda41b0a5a4
+  languageName: node
+  linkType: hard
+
+"@zxing/library@npm:^0.21.3":
+  version: 0.21.3
+  resolution: "@zxing/library@npm:0.21.3"
+  dependencies:
+    "@zxing/text-encoding": "npm:~0.9.0"
+    ts-custom-error: "npm:^3.2.1"
+  dependenciesMeta:
+    "@zxing/text-encoding":
+      optional: true
+  checksum: 10/867e7a9be38ea8636050ab5852440e012525c01cd8791448afd15b8ec3ca41de6594202e3f8c90b2d3677b381a6a186eab79e5a431f23d09eb7887cdec772772
   languageName: node
   linkType: hard
 
