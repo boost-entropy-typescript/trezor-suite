@@ -1,9 +1,7 @@
-import React, { type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { Card, Column, type IconName, InfoItem, Tooltip } from '@trezor/components';
 import { spacings } from '@trezor/theme';
-
-import { useLayoutSize } from 'src/hooks/suite';
 
 type SettingsSectionProps = {
     title: ReactNode;
@@ -11,10 +9,16 @@ type SettingsSectionProps = {
     className?: string;
     children?: ReactNode;
     tooltipText?: ReactNode;
+    isBelowLaptop?: boolean;
 };
 
-export const SettingsSection = ({ title, icon, children, tooltipText }: SettingsSectionProps) => {
-    const { isBelowLaptop } = useLayoutSize();
+export const SettingsSection = ({
+    title,
+    icon,
+    children,
+    tooltipText,
+    isBelowLaptop,
+}: SettingsSectionProps) => {
     const width = isBelowLaptop ? '100%' : 250;
 
     return (

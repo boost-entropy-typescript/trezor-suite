@@ -4,9 +4,6 @@ import styled from 'styled-components';
 
 import { Paragraph } from '@trezor/components';
 import { typography } from '@trezor/theme';
-import { type Url } from '@trezor/urls';
-
-import { LearnMoreButton } from '../LearnMoreButton';
 
 const Wrapper = styled.div`
     display: flex;
@@ -35,25 +32,19 @@ const Description = styled.div`
 interface TextColumnProps {
     title?: ReactNode;
     description?: ReactNode;
-    buttonLink?: Url;
-    buttonTitle?: ReactNode;
+    bottomContent?: ReactNode;
     'data-testid'?: string;
 }
 
 export const TextColumn = ({
     title,
     description,
-    buttonLink,
-    buttonTitle,
+    bottomContent,
     'data-testid': dataTestId,
 }: TextColumnProps) => (
     <Wrapper data-test={dataTestId}>
         {title && <Paragraph typographyStyle="body-md">{title}</Paragraph>}
         {description && <Description>{description}</Description>}
-        {buttonLink && (
-            <LearnMoreButton data-testid={`${dataTestId}/learn-more-button`} url={buttonLink}>
-                {buttonTitle}
-            </LearnMoreButton>
-        )}
+        {bottomContent}
     </Wrapper>
 );
