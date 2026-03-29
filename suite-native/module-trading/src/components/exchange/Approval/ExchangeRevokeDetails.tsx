@@ -9,21 +9,21 @@ import { NetworkAndAccountCard } from '@suite-native/trading-atoms';
 import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
 import { FeeSelector } from '@suite-native/transaction-management';
 
-import { LimitPicker } from './LimitPicker';
+import { RevokeLimitInfoRow } from './RevokeLimitInfoRow';
 import { updateTradingSelectedFeeLevelThunk } from '../../../thunks';
 import { ProviderInfoRow } from '../../general/TradeInfo/ProviderInfoRow';
 
-type ExchangeApprovalDetailsProps = {
+type ExchangeRevokeDetailsProps = {
     exchange: string | undefined;
 };
 
-export const ExchangeApprovalDetails = ({ exchange }: ExchangeApprovalDetailsProps) => {
+export const ExchangeRevokeDetails = ({ exchange }: ExchangeRevokeDetailsProps) => {
     const account = useSelector(selectExchangeSelectedSendAccount);
     const { draft: formDraft, formDraftKey } = useFormDraft<FormState>('trading-exchange');
 
     useEffect(() => {
         if (!account) {
-            console.error('No account selected for exchange approval details');
+            console.error('No account selected for exchange revoke details');
         }
     }, [account]);
 
@@ -31,7 +31,7 @@ export const ExchangeApprovalDetails = ({ exchange }: ExchangeApprovalDetailsPro
         return (
             <InlineAlertBox
                 title={
-                    <Translation id="moduleTrading.tradingExchangeApprovalScreen.approveErrorAlert" />
+                    <Translation id="moduleTrading.tradingExchangeRevokeScreen.revokeErrorAlert" />
                 }
                 variant="critical"
             />
@@ -45,7 +45,7 @@ export const ExchangeApprovalDetails = ({ exchange }: ExchangeApprovalDetailsPro
                 title={<Translation id="moduleTrading.exchangeTradePreviewCard.account" />}
             >
                 <ProviderInfoRow exchange={exchange} />
-                <LimitPicker />
+                <RevokeLimitInfoRow />
             </NetworkAndAccountCard>
 
             <Card noPadding>
