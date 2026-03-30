@@ -10527,9 +10527,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/bip329-types@workspace:*, @suite-common/bip329-types@workspace:suite-common/bip329-types":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/bip329-types@workspace:suite-common/bip329-types"
+  dependencies:
+    "@suite-common/suite-sync-storage": "workspace:*"
+    "@suite-common/suite-sync-types": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
+    yup: "npm:1.7.1"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/bip329@workspace:*, @suite-common/bip329@workspace:suite-common/bip329":
   version: 0.0.0-use.local
   resolution: "@suite-common/bip329@workspace:suite-common/bip329"
+  dependencies:
+    "@suite-common/bip329-types": "workspace:*"
+    "@suite-common/metadata-types": "workspace:*"
+    "@suite-common/suite-sync-storage": "workspace:*"
+    "@suite-common/suite-sync-types": "workspace:*"
+    "@suite-common/wallet-config": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -10938,6 +10959,7 @@ __metadata:
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/analytics": "workspace:*"
+    "@suite-common/bip329-types": "workspace:*"
     "@suite-common/delegated-identity-key-types": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
@@ -11132,7 +11154,6 @@ __metadata:
   resolution: "@suite-common/suite-sync@workspace:suite-common/suite-sync"
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
-    "@suite-common/bip329": "workspace:*"
     "@suite-common/delegated-identity-key": "workspace:*"
     "@suite-common/delegated-identity-key-types": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
@@ -11214,6 +11235,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/bip329-types": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
@@ -11658,6 +11680,7 @@ __metadata:
     "@shopify/react-native-skia": "npm:2.5.1"
     "@storybook/react-native": "npm:^10.2.1"
     "@suite-common/device": "workspace:*"
+    "@suite-common/e2e-evolu-client": "workspace:*"
     "@suite-common/firmware-authenticity": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/react-query": "workspace:^"
@@ -11724,6 +11747,7 @@ __metadata:
     "@trezor/theme": "workspace:*"
     "@trezor/trezor-user-env-link": "workspace:*"
     "@trezor/utils": "workspace:*"
+    "@types/lodash": "npm:^4"
     "@types/minimist": "npm:^1.2.5"
     "@types/node": "npm:22.13.10"
     "@types/xml2js": "npm:^0.4.14"
@@ -11763,8 +11787,10 @@ __metadata:
     expo-web-browser: "npm:~55.0.9"
     https-browserify: "npm:^1.0.0"
     jest: "npm:29.7.0"
+    jest-diff: "npm:^30.2.0"
     jest-junit: "npm:^16.0.0"
     jotai: "npm:2.17.1"
+    lodash: "npm:^4.17.23"
     lottie-react-native: "npm:7.3.5"
     metro-config: "npm:^0.83.0"
     minimist: "npm:^1.2.8"
@@ -13701,6 +13727,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@rozenite/redux-devtools-plugin": "npm:^1.4.0"
     "@suite-common/analytics-redux": "workspace:*"
+    "@suite-common/bip329-types": "workspace:*"
     "@suite-common/connect-popup": "workspace:*"
     "@suite-common/delegated-identity-key": "workspace:*"
     "@suite-common/device": "workspace:*"
@@ -14368,7 +14395,6 @@ __metadata:
   resolution: "@suite/metadata@workspace:suite/metadata"
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
-    "@suite-common/bip329": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -15343,6 +15369,7 @@ __metadata:
     "@octokit/rest": "npm:^21.1.1"
     "@playwright/test": "npm:1.57.0"
     "@trezor/node-utils": "workspace:*"
+    "@trezor/trezor-user-env-link": "workspace:*"
     "@trezor/utils": "workspace:*"
     dotenv: "npm:^16.4.7"
     express: "npm:^5.2.1"
@@ -15428,6 +15455,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
     "@trezor/theme": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:19.2.14"
     "@types/zxcvbn": "npm:4.4.5"
@@ -15444,6 +15472,7 @@ __metadata:
     stylelint-config-standard: "npm:^40.0.0"
     svgo: "npm:4.0.0"
     typescript-styled-plugin: "npm:^0.18.3"
+    yup: "npm:1.7.1"
     zxcvbn: "npm:^4.4.2"
   languageName: unknown
   linkType: soft
@@ -15873,10 +15902,12 @@ __metadata:
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/assets": "workspace:*"
     "@suite-common/bip329": "workspace:*"
+    "@suite-common/bip329-types": "workspace:*"
     "@suite-common/bluetooth": "workspace:*"
     "@suite-common/connect-init": "workspace:*"
     "@suite-common/connect-popup": "workspace:*"
     "@suite-common/delegated-identity-key": "workspace:*"
+    "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
     "@suite-common/earn-api": "workspace:*"
@@ -16999,10 +17030,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.16, @types/lodash@npm:^4.17.7":
-  version: 4.17.20
-  resolution: "@types/lodash@npm:4.17.20"
-  checksum: 10/8cd8ad3bd78d2e06a93ae8d6c9907981d5673655fec7cb274a4d9a59549aab5bb5b3017361280773b8990ddfccf363e14d1b37c97af8a9fe363de677f9a61524
+"@types/lodash@npm:^4, @types/lodash@npm:^4.17.16, @types/lodash@npm:^4.17.7":
+  version: 4.17.24
+  resolution: "@types/lodash@npm:4.17.24"
+  checksum: 10/0f2082565f60f9787eefc046edc38458054512be5a8b3584ef0bad5fd9e85d0ab55ec5a1fbfae1ed6ba015cf1f9e837d5fb4da1f99fc60b8f74b2a46146fb00f
   languageName: node
   linkType: hard
 
@@ -30409,7 +30440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^30.0.2":
+"jest-diff@npm:^30.0.2, jest-diff@npm:^30.2.0":
   version: 30.2.0
   resolution: "jest-diff@npm:30.2.0"
   dependencies:

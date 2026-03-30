@@ -7,6 +7,7 @@ import { selectIsMevProtectionSettingsVisible } from '@suite-common/mev';
 import { getNetwork } from '@suite-common/wallet-config';
 import {
     selectEnabledNetworks,
+    selectIsDustPhishingThresholdSettingsVisible,
     selectIsNetworkReserveSettingsVisible,
 } from '@suite-common/wallet-core';
 import { isDesktop, isLinux, isWeb } from '@trezor/env-utils';
@@ -30,6 +31,7 @@ import { ClearStorage } from './ClearStorage';
 import { ConnectLabelingProvider } from './ConnectLabelingProvider';
 import { DesktopSuiteBanner } from './DesktopSuiteBanner';
 import { DisconnectLabelingProvider } from './DisconnectLabelingProvider';
+import { DustPhishing } from './DustPhishing';
 import { EarlyAccess } from './EarlyAccess';
 import { Experimental } from './Experimental';
 import { Labeling } from './Labeling';
@@ -69,6 +71,12 @@ export const SettingsGeneral = () => {
     const isProviderConnected = useSelector(selectSelectedProviderForLabels);
     const isMevProtectionSettingsVisible = useSelector(selectIsMevProtectionSettingsVisible);
     const isNetworkReserveSettingsVisible = useSelector(selectIsNetworkReserveSettingsVisible);
+    const isDustPhishingThresholdSettingsVisible = useSelector(
+        selectIsDustPhishingThresholdSettingsVisible,
+    );
+
+    const isSecuritySettingsSectionVisible =
+        isMevProtectionSettingsVisible || isDustPhishingThresholdSettingsVisible;
 
     return (
         <SettingsLayout data-testid="@settings/index">
@@ -134,13 +142,14 @@ export const SettingsGeneral = () => {
                 <VersionWithUpdate />
             </SettingsSection>
 
-            {isMevProtectionSettingsVisible && (
+            {isSecuritySettingsSectionVisible && (
                 <SettingsSection
-                    isBelowLaptop={isBelowLaptop}
                     title={<Translation id="TR_SECURITY" />}
                     icon="shield"
+                    isBelowLaptop={isBelowLaptop}
                 >
-                    <MevProtection />
+                    {isMevProtectionSettingsVisible && <MevProtection />}
+                    {isDustPhishingThresholdSettingsVisible && <DustPhishing />}
                 </SettingsSection>
             )}
 
