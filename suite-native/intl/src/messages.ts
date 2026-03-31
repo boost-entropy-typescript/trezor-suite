@@ -2447,6 +2447,59 @@ export const messages = {
                 stepReadyToClaim: 'Ready to claim',
             },
         },
+        earnConsentsScreen: {
+            title: 'Before you continue',
+            entryPeriodCard: {
+                title: 'Entry period',
+                firstItem: 'The entry period can currently take up to 72 days.',
+                secondItem: 'You can not cancel your stake during this period.',
+            },
+            delegatingCard: {
+                title: 'Delegating to Everstake',
+                firstItem:
+                    "Staking transfers the direct control of your {displaySymbol} from your Trezor device to Everstake's smart contract environment.",
+                secondItem: 'Everstake maintains and secures your funds.',
+            },
+        },
+        earnTransactionDataReviewScreen: {
+            title: 'Review with Trezor',
+            successMessage: 'You’re all set.',
+            viewTransactionButton: 'Stake now',
+            pushTransactionFailedAlert: {
+                title: 'Transaction failed',
+                description: 'Failed to submit your stake transaction. Please try again.',
+                primaryButton: 'Go to home',
+            },
+            pendingTransactionConflictAlert: {
+                title: 'Pending transaction detected',
+                description:
+                    'A stake transaction is already pending for this account. Please wait for it to be confirmed before staking again.',
+                primaryButton: 'Go to home',
+            },
+        },
+        earnStakeOutputItem: {
+            title: 'Stake',
+            description: 'Stake {symbol} on Everstake?',
+        },
+        earnSummaryOutputItem: {
+            title: 'Total including fee',
+        },
+        earnFormScreen: {
+            title: '{assetName} staking',
+            amountLabel: 'Amount',
+            stakeMaxButton: 'Stake max',
+            withdrawalFeesBanner:
+                "We've left {amount} {displaySymbol} in your account so you can pay for withdrawal fees.",
+            estimatedRewardsLabel: 'Estimated yearly rewards',
+            estimatedRewardsPlaceholder: 'To be calculated',
+            validation: {
+                amountIsZero: 'Amount must be greater than 0.',
+                amountBelowMinimum: 'Amount must be at least {amount} {symbol}.',
+                insufficientBalance: "You don't have enough balance to stake this amount.",
+                feeBufferReserve: 'Not enough funds left after we reserve for withdrawal fees.',
+                tooManyDecimals: 'Too many decimals.',
+            },
+        },
         earnScreen: {
             title: 'Earn',
             subtitle: 'Staking can be currently managed only in Trezor Suite for desktop.',
@@ -2471,6 +2524,62 @@ export const messages = {
             },
             adaInfo: 'Your ADA stays fully accessible while earning rewards.',
         },
+        howStakeWorksScreen: {
+            title: 'How {displaySymbol} staking works?',
+            subtitle:
+                'Support the {networkName} network. Lock in your funds and earn staking rewards.',
+            infoBannerTitle: '<b>{totalStakedAmount}</b> currently staked with Trezor',
+            benefits: {
+                first: {
+                    title: 'Earn up to ~{potentialRewards} {displaySymbol} annually',
+                    description: 'When staking your total {displaySymbol} balance',
+                },
+                second: {
+                    title: 'Compounds automatically',
+                    description: 'Rewards are re-staked for you',
+                },
+                third: {
+                    title: 'Put your {displaySymbol} to work',
+                    description: 'Enjoy weekly growth while you hold',
+                },
+            },
+            timelineCardTitle: 'Staking timeline',
+            timelineBottomSheetTitle: 'Staking timeline & fees',
+            stakingTimelineTitle: 'Staking',
+            stakingTimeline: {
+                first: {
+                    title: 'Sign staking transaction',
+                    description: 'Network fee',
+                },
+                second: {
+                    title: 'Entry period',
+                    description: '~{entryPeriod} days',
+                },
+                third: {
+                    title: 'Receive weekly rewards',
+                    description: '{apy}% yearly',
+                },
+            },
+            unstakeTimelineTitle: 'Unstake',
+            unstakeTimeline: {
+                first: {
+                    title: 'Sign unstaking transaction',
+                    description: 'Network fee',
+                },
+                second: {
+                    title: 'Leave staking pool',
+                    description: '~{unstakingPeriod} days',
+                },
+                third: {
+                    title: 'Claim unstaked {symbol}',
+                    description: 'Network fee',
+                },
+                fourth: {
+                    title: 'Receive {symbol} in your account',
+                    description: 'Instantly',
+                },
+            },
+        },
         staked: 'Staked',
         stakedAutomatically: 'Staked automatically',
         fullBalance: 'Full balance',
@@ -2487,7 +2596,7 @@ export const messages = {
                 "You're earning nearly 0% in ADA rewards right now. Switch to Everstake to earn up to {apy}% APY. Your funds and past rewards are safe.",
             updateToNewProvider:
                 'Update to our new provider, Everstake, and earn ~{apy}% APY. Your ADA with our previous provider is safe, and your rewards stay intact, though rates aren’t guaranteed.',
-            rewardsReduced: 'Cardano staking rewards reduced',
+            rewardsReduced: '{networkName} staking rewards reduced',
         },
         notAvailable: 'Not available',
         apyNotAvailable: 'APY not available',
