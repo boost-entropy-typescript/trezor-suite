@@ -6300,6 +6300,19 @@ export const messages = defineMessages({
         defaultMessage: 'Labels not synced',
         id: 'TR_LABELING_NOT_SYNCED',
     },
+    TR_LABELING_SYNCED_THROUGH_TREZOR_SERVERS: {
+        defaultMessage: 'Synced through Trezor servers (default)',
+        id: 'TR_LABELING_SYNCED_THROUGH_TREZOR_SERVERS',
+    },
+    TR_LABELING_SERVERS_DESCRIPTION: {
+        defaultMessage:
+            'Your labels are synced through Trezor servers. You can connect to your own server for more privacy and control.',
+        id: 'TR_LABELING_SERVERS_DESCRIPTION',
+    },
+    TR_LABELING_SERVERS_CHANGE: {
+        defaultMessage: 'Change',
+        id: 'TR_LABELING_SERVERS_CHANGE',
+    },
     TR_TO_MAKE_YOUR_LABELS_PERSISTENT: {
         defaultMessage:
             'To make your labels consistent and available on different devices, connect to a cloud storage provider.',
@@ -6507,6 +6520,30 @@ export const messages = defineMessages({
     TR_LABELING_ERROR: {
         id: 'TR_LABELING_ERROR',
         defaultMessage: 'There was an error saving your label. Try again.',
+    },
+    TR_SUITE_SYNC_SERVER_TREZOR_DEFAULT: {
+        id: 'TR_SUITE_SYNC_SERVER_TREZOR_DEFAULT',
+        defaultMessage: 'Trezor servers (default)',
+    },
+    TR_SUITE_SYNC_SERVER_CUSTOM: {
+        id: 'TR_SUITE_SYNC_SERVER_CUSTOM',
+        defaultMessage: 'Own server',
+    },
+    TR_SUITE_SYNC_SERVER_CUSTOM_PLACEHOLDER: {
+        id: 'TR_SUITE_SYNC_SERVER_CUSTOM_PLACEHOLDER',
+        defaultMessage: 'e.g. https://your-server.domain.com',
+    },
+    TR_SUITE_SYNC_SERVER: {
+        id: 'TR_SUITE_SYNC_SERVER',
+        defaultMessage: 'Sync server',
+    },
+    TR_SUITE_SYNC_SERVER_MODAL: {
+        id: 'TR_SUITE_SYNC_SERVER_MODAL',
+        defaultMessage: 'Suite Sync server',
+    },
+    TR_SUITE_SYNC_SERVER_MODAL_DESCRIPTION: {
+        id: 'TR_SUITE_SYNC_SERVER_MODAL_DESCRIPTION',
+        defaultMessage: 'Connect to your own server to increase your privacy and control.',
     },
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',

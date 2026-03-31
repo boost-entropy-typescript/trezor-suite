@@ -4,6 +4,7 @@ import { Translation, useTranslation } from '@suite/intl';
 import { metadataLabelingActions } from '@suite/metadata';
 import { SettingsAnchor } from '@suite/router';
 import { selectHasExperimentalFeature } from '@suite/settings';
+import { SuiteSyncServers } from '@suite/suite-sync';
 import { events } from '@suite-common/analytics';
 import { selectIsSuiteSyncEnabled } from '@suite-common/suite-sync';
 import { LoadingContent } from '@trezor/components';
@@ -169,6 +170,7 @@ export const Labeling = () => {
                     />
                 </ActionColumn>
             </SettingsSectionItem>
+            {isSuiteSyncEnabled && <SuiteSyncServers suiteSync={suiteSync} />}
         </>
     );
 };
