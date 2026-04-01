@@ -10577,10 +10577,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/calldata@workspace:^, @suite-common/calldata@workspace:suite-common/calldata":
+"@suite-common/calldata@workspace:*, @suite-common/calldata@workspace:^, @suite-common/calldata@workspace:suite-common/calldata":
   version: 0.0.0-use.local
   resolution: "@suite-common/calldata@workspace:suite-common/calldata"
   dependencies:
+    "@trezor/blockchain-link-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     viem: "npm:^2.46.3"
@@ -11433,6 +11434,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/analytics": "workspace:*"
     "@suite-common/bluetooth": "workspace:*"
+    "@suite-common/calldata": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/firmware": "workspace:*"
@@ -11451,6 +11453,7 @@ __metadata:
     "@suite-common/wallet-constants": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
+    "@trezor/blockchain-link": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/blockchain-link-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
@@ -14950,6 +14953,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link-utils@workspace:packages/blockchain-link-utils"
   dependencies:
+    "@noble/hashes": "npm:^2.0.1"
     "@solana/addresses": "npm:^2.3.0"
     "@solana/keys": "npm:^2.3.0"
     "@solana/rpc-api": "npm:^2.3.0"

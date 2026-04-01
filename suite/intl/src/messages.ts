@@ -5333,14 +5333,22 @@ export const messages = defineMessages({
         defaultMessage:
             'Used for smart contract actions like sending tokens. If you run out, TRX is burned as a network fee. Refills within 24 hours.',
     },
+    TR_TRON_FEE_BANDWIDTH: {
+        id: 'TR_TRON_FEE_BANDWIDTH',
+        defaultMessage: '{count} bandwidth',
+    },
+    TR_TRON_FEE_ENERGY: {
+        id: 'TR_TRON_FEE_ENERGY',
+        defaultMessage: '{count} energy',
+    },
     TR_EXPERIMENTAL_TRON_VIEW_ONLY: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY',
-        defaultMessage: 'Tron View-Only (Beta)',
+        defaultMessage: 'Tron (Beta)',
     },
     TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION',
         defaultMessage:
-            'Enable the Tron network. The latest firmware is required. You can receive funds, check your balance, view tokens, charts, and transaction history (may contain bugs). Full support coming soon (or available via third-party wallets).',
+            'Enable the Tron Network with the latest firmware to check your balance, send and receive Tron and TRC-20 tokens, view charts and your transaction history. Full support is coming soon.',
     },
     TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_SUITE_SYNC_DESCRIPTION',
