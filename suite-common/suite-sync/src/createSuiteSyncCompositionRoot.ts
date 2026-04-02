@@ -5,11 +5,7 @@ import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-iden
 import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
-import {
-    selectEnforceQuotaManager,
-    selectHasDeviceAllowance,
-    selectHasOwnerAllowance,
-} from '@suite-common/suite-sync-quota-manager';
+import { createSuiteSyncQuotaManagerCompositionRoot } from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorage,
     type CreateSuiteSyncOwnerDep,
@@ -45,7 +41,6 @@ import {
 import { createSaveSuiteSyncOwner } from './owner/createSaveSuiteSyncOwner';
 import { createChangeRelayUrl } from './relay/createChangeRelayUrl';
 import { isUsingTrezorServer } from './relay/isUsingTrezorServer';
-import { createEnsureQuota } from './storage/createEnsureQuota';
 import { createEnsureStorage } from './storage/createEnsureStorage';
 import { createEnsureWalletSuiteSyncOn } from './storage/createEnsureWalletSuiteSyncOn';
 import { createEnsureWalletSuiteSyncOnWithErrorHandler } from './storage/createEnsureWalletSuiteSyncOnWithErrorHandler';
@@ -118,13 +113,11 @@ export const createSuiteSyncCompositionRoot = (
         getDeviceForStaticSessionId,
     });
 
-    const ensureQuota = createEnsureQuota({
+    const { ensureQuota, getOwnerHasAllowance } = createSuiteSyncQuotaManagerCompositionRoot({
         dispatch: deps.dispatch,
+        getState: deps.getState,
         getDeviceForStaticSessionId,
-        hasAllowance: toGetter(deps.getState, selectHasDeviceAllowance),
-        getIsDefaultRelayUrlSet: () =>
-            isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
-        getEnforceQuotaManager: toGetter(deps.getState, selectEnforceQuotaManager),
+        getIsUsingTrezorRelay: () => isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
     });
 
     const suiteSyncErrorHandler: SuiteSyncErrorHandler = createSuiteSyncErrorHandler({
@@ -140,8 +133,7 @@ export const createSuiteSyncCompositionRoot = (
         createSuiteStorage,
         getRelayUrl: toGetter(deps.getState, selectSuiteSyncRelayUrl),
         getDeviceForStaticSessionId,
-        hasOwnerAllowance: walletDescriptor =>
-            selectHasOwnerAllowance(deps.getState(), walletDescriptor),
+        getOwnerHasAllowance,
     });
 
     const suiteSyncListener = createSuiteSyncListener({

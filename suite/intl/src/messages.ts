@@ -9223,10 +9223,7 @@ export const messages = defineMessages({
         defaultMessage:
             'Grow your crypto by locking it to help secure the network—and earn rewards in return.',
     },
-    TR_EARN_YIELD_DASHBOARD_TITLE: {
-        id: 'TR_EARN_YIELD_DASHBOARD_TITLE',
-        defaultMessage: 'Stablecoin yield',
-    },
+
     TR_EARN_YIELD_DASHBOARD_TEXT: {
         id: 'TR_EARN_YIELD_DASHBOARD_TEXT',
         defaultMessage: 'Put your stablecoins to work and earn rewards.',
@@ -9298,6 +9295,10 @@ export const messages = defineMessages({
     TR_EARN_YIELD_BACK_TO_OVERVIEW: {
         id: 'TR_EARN_YIELD_BACK_TO_OVERVIEW',
         defaultMessage: 'Back to overview',
+    },
+    TR_EARN_STABLECOIN_YIELD_TITLE: {
+        id: 'TR_EARN_STABLECOIN_YIELD_TITLE',
+        defaultMessage: 'Stablecoin Yield',
     },
     TR_MODIFY: {
         id: 'TR_MODIFY',
@@ -10897,20 +10898,20 @@ export const messages = defineMessages({
         id: 'TR_EXCHANGE_DETAIL_FEEDBACK_TITLE',
         defaultMessage: 'How was your trading experience?',
     },
-    TR_EXCHANGE_DETAIL_FEEDBACK_DESCRIPTION: {
-        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_DESCRIPTION',
+    TR_FEEDBACK_CARD_DESCRIPTION: {
+        id: 'TR_FEEDBACK_CARD_DESCRIPTION',
         defaultMessage: 'Your feedback helps us improve—tell us what you think.',
     },
-    TR_EXCHANGE_DETAIL_FEEDBACK_INPUT_BUTTON: {
-        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_INPUT_BUTTON',
+    TR_FEEDBACK_CARD_SEND: {
+        id: 'TR_FEEDBACK_CARD_SEND',
         defaultMessage: 'Send feedback',
     },
-    TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_TITLE: {
-        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_TITLE',
+    TR_FEEDBACK_CARD_SUCCESS_TITLE: {
+        id: 'TR_FEEDBACK_CARD_SUCCESS_TITLE',
         defaultMessage: 'Thanks!',
     },
-    TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_DESCRIPTION: {
-        id: 'TR_EXCHANGE_DETAIL_FEEDBACK_SUCCESS_DESCRIPTION',
+    TR_FEEDBACK_CARD_SUCCESS_DESCRIPTION: {
+        id: 'TR_FEEDBACK_CARD_SUCCESS_DESCRIPTION',
         defaultMessage: 'We value your feedback.',
     },
     TR_APPROVE_TITLE: {
