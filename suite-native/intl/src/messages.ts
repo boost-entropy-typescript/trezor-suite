@@ -1125,6 +1125,10 @@ export const messages = {
                     title: 'Advanced',
                     subtitle: 'Expert features for power users ',
                 },
+                experimental: {
+                    title: 'Experimental',
+                    subtitle: 'Get early access to new features',
+                },
                 labeling: {
                     title: 'Labeling',
                     subtitle: 'Name your wallets, accounts and more',
@@ -1525,6 +1529,15 @@ export const messages = {
                     descriptionLabel: "Tell us what's working and what's not—we read every reply.",
                     submitButton: 'Submit',
                 },
+            },
+        },
+        experimental: {
+            title: 'Experimental features',
+            subtitle: 'For experienced users only. Use at your own risk.',
+            tronViewOnly: {
+                title: 'Tron View-Only (Beta)',
+                description:
+                    'Enable the Tron network. The latest firmware is required. You can receive funds, check your balance, view tokens, charts, and transaction history (may contain bugs). Full support coming soon (or available via third-party wallets).',
             },
         },
         appLog: {
