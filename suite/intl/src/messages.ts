@@ -3103,8 +3103,12 @@ export const messages = defineMessages({
         id: 'TR_SETTINGS_TOOLTIP_DESCRIPTION_WEB',
     },
     TR_SETTINGS_DEVICE_BANNER_TITLE_DISCONNECTED: {
-        defaultMessage: 'Connect your Trezor to access device settings',
+        defaultMessage: 'Trezor disconnected',
         id: 'TR_SETTINGS_DEVICE_BANNER_TITLE_DISCONNECTED',
+    },
+    TR_SETTINGS_DEVICE_BANNER_DESCRIPTION_DISCONNECTED: {
+        defaultMessage: 'Connect your Trezor to access Device Settings',
+        id: 'TR_SETTINGS_DEVICE_BANNER_DESCRIPTION_DISCONNECTED',
     },
     TR_SETTINGS_DEVICE_BANNER_TITLE_UNAVAILABLE: {
         defaultMessage: 'Your Trezor is in an incorrect state',
@@ -6343,8 +6347,7 @@ export const messages = defineMessages({
     },
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC',
-        defaultMessage:
-            'The device {name} isn’t compatible with Suite Sync. Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
+        defaultMessage: 'Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
     },
     TR_DISABLED_SWITCH_TOOLTIP: {
         id: 'TR_DISABLED_SWITCH_TOOLTIP',
@@ -9336,9 +9339,9 @@ export const messages = defineMessages({
         id: 'TR_STAKING_MODAL_OUTDATED_BUTTON',
         defaultMessage: 'Update provider',
     },
-    TR_EARN_DASHBOARD_TABLE_ACCOUNT_BALANCE: {
-        id: 'TR_EARN_DASHBOARD_TABLE_ACCOUNT_BALANCE',
-        defaultMessage: 'Account & balance',
+    TR_EARN_DASHBOARD_TABLE_ACCOUNT_VAULT: {
+        id: 'TR_EARN_DASHBOARD_TABLE_ACCOUNT_VAULT',
+        defaultMessage: 'Account & vault',
     },
     TR_EARN_DASHBOARD_TABLE_APY: {
         id: 'TR_EARN_DASHBOARD_TABLE_APY',
