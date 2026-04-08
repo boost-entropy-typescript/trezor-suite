@@ -7,6 +7,7 @@ export enum RootStackRoutes {
     AccountDetail = 'AccountDetail',
     StakingDetail = 'StakingDetail',
     StakingManagement = 'StakingManagement',
+    StakingInsufficientBalance = 'StakingInsufficientBalance',
     HowStakeWorksScreen = 'HowStakeWorksScreen',
     EarnForm = 'EarnForm',
     EarnConsents = 'EarnConsents',
@@ -33,6 +34,8 @@ export enum RootStackRoutes {
     PassphraseStack = 'PassphraseStack',
     StellarManageTokenStack = 'StellarManageTokenStack',
     ExperimentalFeedbackModal = 'ExperimentalFeedbackModal',
+    UnstakeFlow = 'UnstakeFlow',
+    UnstakeTransactionDataReview = 'UnstakeTransactionDataReview',
 }
 
 export enum AppTabsRoutes {
@@ -256,6 +259,7 @@ export enum SettingsStackRoutes {
     SettingsCoinEnabling = 'SettingsCoinEnabling',
     SettingsSuiteSync = 'SettingsSuiteSync',
     SettingsAdvanced = 'SettingsAdvanced',
+    SettingsDustPhishing = 'SettingsDustPhishing',
     SettingsExperimental = 'SettingsExperimental',
     TurnOffDeviceAuthenticityCheck = 'TurnOffDeviceAuthenticityCheck',
     TurnOffFirmwareAuthenticityCheck = 'TurnOffFirmwareAuthenticityCheck',
