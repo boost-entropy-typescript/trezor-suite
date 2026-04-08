@@ -27,6 +27,8 @@ import {
 } from '@suite-native/module-device-onboarding';
 import { DeviceSettingsStackNavigator } from '@suite-native/module-device-settings';
 import {
+    ClaimReviewScreen,
+    ClaimTransactionDataReviewScreen,
     EarnConsentsScreen,
     EarnFormScreen,
     EarnTransactionDataReviewScreen,
@@ -37,7 +39,7 @@ import {
     UnstakeFlowScreen,
     UnstakeTransactionDataReviewScreen,
 } from '@suite-native/module-earn';
-import { ExperimentalFeedbackModalScreen } from '@suite-native/module-home';
+import { FeatureFeedbackModalScreen } from '@suite-native/module-home';
 import { OnboardingStackNavigator } from '@suite-native/module-onboarding';
 import { PassphraseStackNavigator } from '@suite-native/module-passphrase';
 import { SendStackNavigator } from '@suite-native/module-send';
@@ -149,6 +151,16 @@ export const RootStackNavigator = () => {
                 component={UnstakeTransactionDataReviewScreen}
             />
             <RootStack.Screen
+                options={{ title: RootStackRoutes.ClaimReview }}
+                name={RootStackRoutes.ClaimReview}
+                component={ClaimReviewScreen}
+            />
+            <RootStack.Screen
+                options={{ title: RootStackRoutes.ClaimTransactionDataReview }}
+                name={RootStackRoutes.ClaimTransactionDataReview}
+                component={ClaimTransactionDataReviewScreen}
+            />
+            <RootStack.Screen
                 name={RootStackRoutes.DevUtilsStack}
                 component={DevUtilsStackNavigator}
             />
@@ -235,8 +247,8 @@ export const RootStackNavigator = () => {
                     component={StellarManageTokenStackNavigator}
                 />
                 <RootStack.Screen
-                    name={RootStackRoutes.ExperimentalFeedbackModal}
-                    component={ExperimentalFeedbackModalScreen}
+                    name={RootStackRoutes.FeatureFeedbackModal}
+                    component={FeatureFeedbackModalScreen}
                 />
 
                 {isDevelopOrDebugEnv() && (

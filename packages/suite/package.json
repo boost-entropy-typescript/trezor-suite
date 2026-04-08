@@ -1,6 +1,6 @@
 {
     "name": "@trezor/suite",
-    "suiteVersion": "26.4.0",
+    "suiteVersion": "26.5.0",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -80,7 +80,7 @@
         "@suite/backup": "workspace:*",
         "@suite/device": "workspace:*",
         "@suite/experimental": "workspace:*",
-        "@suite/experimental-feedback": "workspace:*",
+        "@suite/feature-feedback": "workspace:*",
         "@suite/flags": "workspace:*",
         "@suite/idb-migration-utils": "workspace:*",
         "@suite/intl": "workspace:*",

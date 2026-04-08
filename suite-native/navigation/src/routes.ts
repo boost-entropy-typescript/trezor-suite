@@ -12,6 +12,8 @@ export enum RootStackRoutes {
     EarnForm = 'EarnForm',
     EarnConsents = 'EarnConsents',
     EarnTransactionDataReview = 'EarnTransactionDataReview',
+    ClaimReview = 'ClaimReview',
+    ClaimTransactionDataReview = 'ClaimTransactionDataReview',
     DevUtilsStack = 'DevUtilsStack',
     AccountSettings = 'AccountSettings',
     TransactionDetailStack = 'TransactionDetailStack',
@@ -33,7 +35,7 @@ export enum RootStackRoutes {
     Storybook = 'Storybook',
     PassphraseStack = 'PassphraseStack',
     StellarManageTokenStack = 'StellarManageTokenStack',
-    ExperimentalFeedbackModal = 'ExperimentalFeedbackModal',
+    FeatureFeedbackModal = 'FeatureFeedbackModal',
     UnstakeFlow = 'UnstakeFlow',
     UnstakeTransactionDataReview = 'UnstakeTransactionDataReview',
 }

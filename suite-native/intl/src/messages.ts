@@ -1513,16 +1513,16 @@ export const messages = {
                     description:
                         'Keep your wallet, account, and transaction labels updated in Trezor Suite on all your devices. Your data stays safe—only your Trezor can decrypt it.',
                 },
-                feedback: {
-                    title: 'Rate your {featureName} experience',
-                    description:
-                        'It takes just a few seconds. Your feedback helps us improve the feature for everyone.',
-                    rateButton: 'Share feedback',
-                    dismissButton: 'Dismiss',
-                    ratingLabel: "How's {featureName} making you feel?",
-                    descriptionLabel: "Tell us what's working and what's not—we read every reply.",
-                    submitButton: 'Submit',
-                },
+            },
+            featureFeedback: {
+                title: 'Rate your {featureName} experience',
+                description:
+                    'It takes just a few seconds. Your feedback helps us improve the feature for everyone.',
+                rateButton: 'Share feedback',
+                dismissButton: 'Dismiss',
+                ratingLabel: "How's {featureName} making you feel?",
+                descriptionLabel: "Tell us what's working and what's not—we read every reply.",
+                submitButton: 'Submit',
             },
         },
         experimental: {
@@ -2542,6 +2542,13 @@ export const messages = {
         earnSummaryOutputItem: {
             title: 'Total including fee',
         },
+        claimOutputItem: {
+            title: 'Claim',
+            description: 'Claim {displaySymbol} from account?',
+        },
+        claimSummaryOutputItem: {
+            title: 'Total including fee',
+        },
         earnFormScreen: {
             title: '{assetName} staking',
             unstakeTitle: 'Unstake {displaySymbol}',
@@ -2688,8 +2695,31 @@ export const messages = {
             transactionPending: 'Transaction pending',
             unknownStatus: 'Unknown status',
         },
+        claimReviewScreen: {
+            title: 'Claim {displaySymbol}',
+            reviewAndSignButton: 'Review & Sign',
+            amountLabel: 'Amount',
+            instantClaimBanner: "You'll claim the {displaySymbol} instantly",
+        },
+        claimTransactionDataReviewScreen: {
+            title: 'Review with Trezor',
+            successMessage: "You're all set.",
+            viewTransactionButton: 'Claim now',
+            pushTransactionFailedAlert: {
+                title: 'Transaction failed',
+                description: 'Failed to submit your claim transaction. Please try again.',
+                primaryButton: 'Go to home',
+            },
+            pendingTransactionConflictAlert: {
+                title: 'Pending transaction detected',
+                description:
+                    'A claim transaction is already pending for this account. Please wait for it to be confirmed before claiming again.',
+                primaryButton: 'Go to home',
+            },
+        },
         claimableCard: {
             claimable: 'Claimable',
+            claimButton: 'Claim',
         },
         stakingBottomSheet: {
             title: 'To manage your staked funds, please use Trezor Suite for desktop.',

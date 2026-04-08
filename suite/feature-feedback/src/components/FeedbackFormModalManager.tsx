@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import type { FeedbackFeatureName } from '@suite/experimental';
+import { type FeedbackFeatureName, experimentalFeatureSet } from '@suite/experimental';
 import {
-    type ExperimentalFeedbackRootState,
+    type FeatureFeedbackRootState,
     type Rating,
     buildUserFeedbackData,
     selectPendingFeedbackFeature,
     sendFeedbackAction,
 } from '@suite-common/feedback';
 
-import { feedbackDismissed } from '../experimentalFeedbackSlice';
+import { feedbackDismissed } from '../featureFeedbackSlice';
 import { FeedbackFormModal } from './FeedbackFormModal';
 import { RateYourExperienceCard } from './RateYourExperienceCard';
 
@@ -18,9 +18,8 @@ export const FeedbackFormManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const dispatch = useDispatch();
-    const pendingFeature = useSelector(
-        (state: ExperimentalFeedbackRootState<FeedbackFeatureName>) =>
-            selectPendingFeedbackFeature(state),
+    const pendingFeature = useSelector((state: FeatureFeedbackRootState<FeedbackFeatureName>) =>
+        selectPendingFeedbackFeature(state),
     );
 
     if (!pendingFeature) return null;
@@ -36,7 +35,9 @@ export const FeedbackFormManager = () => {
             sendFeedbackAction({
                 type: 'SUGGESTION',
                 payload: {
-                    category: 'experimental',
+                    category: (experimentalFeatureSet as ReadonlySet<string>).has(pendingFeature)
+                        ? 'experimental'
+                        : 'feature',
                     description,
                     rating,
                     feature: pendingFeature,

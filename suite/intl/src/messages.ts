@@ -13,6 +13,10 @@ export const messages = defineMessages({
         defaultMessage: 'Error 404: Link not found',
         id: 'TR_404_TITLE',
     },
+    TR_NEW: {
+        defaultMessage: 'New',
+        id: 'TR_NEW',
+    },
     TR_NEW_PASSPHRASE_WALLET: {
         defaultMessage: 'New passphrase',
         id: 'TR_NEW_PASSPHRASE_WALLET',
@@ -3115,7 +3119,7 @@ export const messages = defineMessages({
         id: 'TR_SETTINGS_TOOLTIP_DESCRIPTION_WEB',
     },
     TR_SETTINGS_DEVICE_BANNER_TITLE_DISCONNECTED: {
-        defaultMessage: 'Trezor disconnected',
+        defaultMessage: 'Connect your Trezor to access device settings',
         id: 'TR_SETTINGS_DEVICE_BANNER_TITLE_DISCONNECTED',
     },
     TR_SETTINGS_DEVICE_BANNER_DESCRIPTION_DISCONNECTED: {
@@ -4840,6 +4844,19 @@ export const messages = defineMessages({
         id: 'TR_BACKUP_CREATED',
         defaultMessage: 'Wallet backup created successfully',
     },
+    TR_WALLET_CREATED_NOT_SECURED: {
+        id: 'TR_WALLET_CREATED_NOT_SECURED',
+        defaultMessage: 'Wallet created, but not secured',
+    },
+    TR_WALLET_CREATED_NOT_SECURED_DESCRIPTION: {
+        id: 'TR_WALLET_CREATED_NOT_SECURED_DESCRIPTION',
+        defaultMessage:
+            'If your Trezor is lost, damaged, or stolen, you will lose access to your funds without a wallet backup. Finish your Trezor setup first, then create a wallet backup in Device Settings.',
+    },
+    TR_CONTINUE_TO_PIN: {
+        id: 'TR_CONTINUE_TO_PIN',
+        defaultMessage: 'Continue to PIN',
+    },
     TR_REMOVE: {
         id: 'TR_REMOVE',
         defaultMessage: 'Remove',
@@ -5181,6 +5198,18 @@ export const messages = defineMessages({
         defaultMessage:
             "Generates a single set of 12 or 24 words that can fully recover your wallet. A legacy wallet backup can't be upgraded to a Multi-share Backup. <a>Learn more</a>",
     },
+    TR_NEW_WALLET: {
+        id: 'TR_NEW_WALLET',
+        defaultMessage: 'New wallet',
+    },
+    TR_RECOVER_WALLET: {
+        id: 'TR_RECOVER_WALLET',
+        defaultMessage: 'Recover wallet',
+    },
+    TR_WALLET_BACKUP_TYPE: {
+        id: 'TR_WALLET_BACKUP_TYPE',
+        defaultMessage: 'Wallet backup type',
+    },
     TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP: {
         id: 'TR_CREATE_WALLET_DEFAULT_OPTION_DISABLED_TOOLTIP',
         defaultMessage: 'Update your device firmware to enable the Single-share Backup feature.',
@@ -5207,9 +5236,9 @@ export const messages = defineMessages({
         id: 'TR_ONBOARDING_CANNOT_SELECT_SEED_TYPE',
         defaultMessage: 'Trezor will create your new wallet.',
     },
-    TR_ONBOARDING_SELECT_SEED_TYPE_CONFIRM: {
-        id: 'TR_ONBOARDING_SELECT_SEED_TYPE_CONFIRM',
-        defaultMessage: 'Create wallet',
+    TR_ONBOARDING_SELECT_SEED_TYPE_CONTINUE: {
+        id: 'TR_ONBOARDING_SELECT_SEED_TYPE_CONTINUE',
+        defaultMessage: 'Continue',
     },
     TR_CREATE_WALLET: {
         id: 'TR_CREATE_WALLET',
@@ -5365,6 +5394,10 @@ export const messages = defineMessages({
         id: 'TR_TRON_FEE_LIMIT_BELOW_RECOMMENDED',
         defaultMessage: 'Fee limit too low',
     },
+    TR_FEE_LIMIT: {
+        id: 'TR_FEE_LIMIT',
+        defaultMessage: 'Fee limit',
+    },
     TR_EXPERIMENTAL_TRON_VIEW_ONLY: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY',
         defaultMessage: 'Tron (Beta)',
@@ -5372,7 +5405,7 @@ export const messages = defineMessages({
     TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION',
         defaultMessage:
-            'Enable the Tron Network with the latest firmware to check your balance, send and receive TRX and tokens, view charts and transaction history, and use Wallet Connect. Full support, including freezing and voting, is coming soon.',
+            'Enable the Tron Network with the latest firmware to check your balance, send and receive TRX and tokens, view charts and transaction history, and use WalletConnect. Full support, including freezing and voting, is coming soon.',
     },
     TR_EXPERIMENTAL_SLIP24: {
         id: 'TR_EXPERIMENTAL_SLIP24',
@@ -6308,7 +6341,7 @@ export const messages = defineMessages({
         id: 'TR_LABELING_NOT_SYNCED',
     },
     TR_LABELING_SYNCED_THROUGH_TREZOR_SERVERS: {
-        defaultMessage: 'Synced through Trezor servers (default)',
+        defaultMessage: 'Label server',
         id: 'TR_LABELING_SYNCED_THROUGH_TREZOR_SERVERS',
     },
     TR_LABELING_SERVERS_DESCRIPTION: {
@@ -6363,7 +6396,8 @@ export const messages = defineMessages({
     },
     FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC: {
         id: 'FIRMWARE_UNSUPPORTED_DEVICE_SUITE_SYNC',
-        defaultMessage: 'Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
+        defaultMessage:
+            'The device {name} isn’t compatible with Suite Sync. Suite Sync supports Trezor Safe 3, 5, and 7 devices.',
     },
     TR_DISABLED_SWITCH_TOOLTIP: {
         id: 'TR_DISABLED_SWITCH_TOOLTIP',
@@ -6558,7 +6592,7 @@ export const messages = defineMessages({
     TR_GRAPH_MISSING_DATA_WITH_TOKENS: {
         id: 'TR_GRAPH_MISSING_DATA_WITH_TOKENS',
         defaultMessage:
-            "{networks}, all token and staking amounts are included in the portfolio balance, but aren't currently supported in graph view.",
+            "{networks}, all token, and staking amounts are included in the portfolio balance, but aren't currently supported in graph view.",
     },
     TR_GRAPH_MISSING_DATA_NETWORKS: {
         id: 'TR_GRAPH_MISSING_DATA_NETWORKS',
@@ -9320,7 +9354,7 @@ export const messages = defineMessages({
     },
     TR_EARN_STABLECOIN_YIELD_TITLE: {
         id: 'TR_EARN_STABLECOIN_YIELD_TITLE',
-        defaultMessage: 'Stablecoin Yield',
+        defaultMessage: 'Stablecoin yield',
     },
     TR_MODIFY: {
         id: 'TR_MODIFY',
@@ -10921,11 +10955,11 @@ export const messages = defineMessages({
     },
     TR_FEEDBACK_CARD_DESCRIPTION: {
         id: 'TR_FEEDBACK_CARD_DESCRIPTION',
-        defaultMessage: 'Your feedback helps us improve—tell us what you think.',
+        defaultMessage: 'Tell us what’s working and what’s not—we read every reply.',
     },
     TR_FEEDBACK_CARD_SEND: {
         id: 'TR_FEEDBACK_CARD_SEND',
-        defaultMessage: 'Send feedback',
+        defaultMessage: 'Submit',
     },
     TR_FEEDBACK_CARD_SUCCESS_TITLE: {
         id: 'TR_FEEDBACK_CARD_SUCCESS_TITLE',
@@ -11172,28 +11206,28 @@ export const messages = defineMessages({
         id: 'TR_NON_TRADABLE_TOKENS',
         defaultMessage: 'Non-tradable tokens',
     },
-    TR_EXPERIMENTAL_FEEDBACK_MODAL_HEADING: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_HEADING',
+    TR_FEATURE_FEEDBACK_MODAL_HEADING: {
+        id: 'TR_FEATURE_FEEDBACK_MODAL_HEADING',
         defaultMessage: 'Rate your {feature} experience',
     },
-    TR_EXPERIMENTAL_FEEDBACK_CARD_HEADING: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_HEADING',
+    TR_FEATURE_FEEDBACK_CARD_HEADING: {
+        id: 'TR_FEATURE_FEEDBACK_CARD_HEADING',
         defaultMessage: 'Rate your {feature} experience',
     },
-    TR_EXPERIMENTAL_FEEDBACK_CARD_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_DESCRIPTION',
+    TR_FEATURE_FEEDBACK_CARD_DESCRIPTION: {
+        id: 'TR_FEATURE_FEEDBACK_CARD_DESCRIPTION',
         defaultMessage: 'Tell us what’s working and what’s not—we read every reply.',
     },
-    TR_EXPERIMENTAL_FEEDBACK_MODAL_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_DESCRIPTION',
+    TR_FEATURE_FEEDBACK_MODAL_DESCRIPTION: {
+        id: 'TR_FEATURE_FEEDBACK_MODAL_DESCRIPTION',
         defaultMessage: 'Tell us what’s working and what’s not—we read every reply.',
     },
-    TR_EXPERIMENTAL_FEEDBACK_MODAL_SUBMIT: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_MODAL_SUBMIT',
+    TR_FEATURE_FEEDBACK_MODAL_SUBMIT: {
+        id: 'TR_FEATURE_FEEDBACK_MODAL_SUBMIT',
         defaultMessage: 'Submit',
     },
-    TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON: {
-        id: 'TR_EXPERIMENTAL_FEEDBACK_CARD_RATE_BUTTON',
+    TR_FEATURE_FEEDBACK_CARD_RATE_BUTTON: {
+        id: 'TR_FEATURE_FEEDBACK_CARD_RATE_BUTTON',
         defaultMessage: 'Share feedback',
     },
     TR_OUTSIDE_STAKING_CARD_TITLE: {

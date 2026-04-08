@@ -409,6 +409,13 @@ export type RootStackParamList = {
         accountKey: AccountKey;
         amount: string;
     };
+    [RootStackRoutes.ClaimReview]: {
+        accountKey: AccountKey;
+        symbol: NetworkSymbol;
+    };
+    [RootStackRoutes.ClaimTransactionDataReview]: {
+        accountKey: AccountKey;
+    };
     [RootStackRoutes.DeviceSettingsStack]: NavigatorScreenParams<DeviceSettingsStackParamList>;
     [RootStackRoutes.AddCoinAccountStack]: NavigatorScreenParams<AddCoinAccountStackParamList>;
     [RootStackRoutes.ReceiveStack]: NavigatorScreenParams<ReceiveStackParamList>;
@@ -430,7 +437,7 @@ export type RootStackParamList = {
     [RootStackRoutes.Storybook]: undefined;
     [RootStackRoutes.PassphraseStack]: NavigatorScreenParams<PassphraseStackParamList>;
     [RootStackRoutes.StellarManageTokenStack]: NavigatorScreenParams<StellarManageTokenStackParamList>;
-    [RootStackRoutes.ExperimentalFeedbackModal]: { feature: ExperimentalFeature };
+    [RootStackRoutes.FeatureFeedbackModal]: { feature: ExperimentalFeature };
 };
 
 export type TransactionDetailStackParamList = {
