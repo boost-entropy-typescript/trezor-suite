@@ -4625,7 +4625,7 @@ export const messages = defineMessages({
     },
     TR_FORGET_DEVICE_MODAL_DISCONNECT_SUBTITLE: {
         id: 'TR_FORGET_DEVICE_MODAL_DISCONNECT_SUBTITLE',
-        defaultMessage: 'Disconnect your Trezor from your phone.',
+        defaultMessage: 'Disconnect your Trezor from the computer.',
     },
     RECEIVE_TITLE: {
         id: 'RECEIVE_TITLE',
@@ -5397,6 +5397,14 @@ export const messages = defineMessages({
     TR_FEE_LIMIT: {
         id: 'TR_FEE_LIMIT',
         defaultMessage: 'Fee limit',
+    },
+    TR_TRON_ACCOUNT_ACTIVATION_FEE: {
+        id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE',
+        defaultMessage: 'Activation fee',
+    },
+    TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP: {
+        id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP',
+        defaultMessage: 'New TRON accounts require a one-time 1 TRX network fee to activate.',
     },
     TR_EXPERIMENTAL_TRON_VIEW_ONLY: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY',

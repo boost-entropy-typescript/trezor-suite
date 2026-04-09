@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type StakingBatchItem =
+export type StakingBatchDataItem =
     | {
           stats: {
               /** Pool APY as a percentage number (e.g. 3.08). Derived from Everstake pool APR decimal × 100, rounded down to 3 decimal places. */
@@ -15,11 +15,11 @@ export type StakingBatchItem =
           };
           validators: {
               /** Seconds — estimated delay before a validator becomes active (Everstake `validator_activation_time`). */
-              activatedAt?: number;
+              activationTime?: number;
               /** Seconds — estimated delay before a validator is exited (`validator_exit_time`). */
-              exitedAt?: number;
+              exitTime?: number;
               /** Seconds — withdraw period from beacon chain (`validator_withdraw_time`). */
-              withdrewAt?: number;
+              withdrawTime?: number;
               /** Seconds — delay before validator is known at beacon chain (`validator_adding_delay`). */
               addingDelay?: number;
               /** Unix timestamp (seconds) of last upstream refresh (`updated_at`). */
@@ -28,8 +28,11 @@ export type StakingBatchItem =
           symbol: 'eth';
       }
     | {
-          /** Same as SolChainStats.apy. */
-          apy: number;
+          /** Solana chain stats. */
+          stats: {
+              /** Same as SolChainStats.apy. */
+              apy: number;
+          };
           symbol: 'sol';
       }
     | {
