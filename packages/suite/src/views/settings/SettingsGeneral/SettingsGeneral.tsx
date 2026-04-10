@@ -1,6 +1,6 @@
 import { selectIsSettingsDesktopAppPromoBannerShown } from '@suite/flags';
 import { Translation } from '@suite/intl';
-import { selectIsMetadataEnabled, selectSelectedProviderForLabels } from '@suite/metadata';
+import { selectSelectedProviderForLabels } from '@suite/metadata';
 import { selectHasExperimentalFeature } from '@suite/settings';
 import { Context } from '@suite-common/message-system';
 import { selectIsMevProtectionSettingsVisible } from '@suite-common/mev';
@@ -13,6 +13,7 @@ import {
 import { isDesktop, isLinux, isWeb } from '@trezor/env-utils';
 import { SettingsSection } from '@trezor/product-components';
 
+import { selectIsLegacyLabelingVisible } from 'src/actions/labels/selectIsLegacyLabelingVisible';
 import { SettingsLayout } from 'src/components/settings/SettingsLayout';
 import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanners/ContextMessage';
 import { useLayoutSize, useSelector } from 'src/hooks/suite';
@@ -56,7 +57,7 @@ export const SettingsGeneral = () => {
     const torStatus = useSelector(state => state.suite.torStatus);
     const enabledNetworks = useSelector(selectEnabledNetworks);
     const desktopUpdate = useSelector(state => state.desktopUpdate);
-    const isMetadataEnabled = useSelector(selectIsMetadataEnabled);
+    const isLegacyLabelingVisible = useSelector(selectIsLegacyLabelingVisible);
     const { isBelowLaptop, isBelowTablet } = useLayoutSize();
 
     const hasBitcoinNetworks = enabledNetworks.some(symbol => {
@@ -106,7 +107,7 @@ export const SettingsGeneral = () => {
                 icon="tag"
             >
                 <Labeling />
-                {isMetadataEnabled &&
+                {isLegacyLabelingVisible &&
                     (isProviderConnected ? (
                         <DisconnectLabelingProvider />
                     ) : (
