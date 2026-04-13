@@ -9,6 +9,9 @@
             "path": "../../suite-common/formatters"
         },
         {
+            "path": "../../suite-common/message-system"
+        },
+        {
             "path": "../../suite-common/validators"
         },
         {
@@ -41,8 +44,10 @@
         { "path": "../intl" },
         { "path": "../labeling" },
         { "path": "../link" },
+        { "path": "../message-system" },
         { "path": "../navigation" },
         { "path": "../services" },
+        { "path": "../settings" },
         { "path": "../staking" },
         { "path": "../test-utils" },
         { "path": "../transaction-management" },

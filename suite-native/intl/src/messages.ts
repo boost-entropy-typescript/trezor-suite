@@ -1533,6 +1533,10 @@ export const messages = {
                 description:
                     'Enable the Tron network. The latest firmware is required. You can receive funds, check your balance, view tokens, charts, and transaction history (may contain bugs). Full support coming soon (or available via third-party wallets).',
             },
+            testnets: {
+                title: 'Testnet coins & features',
+                description: 'Test networks carry no real value and are used only for testing.',
+            },
         },
         appLog: {
             sensitiveDataToggle: {
@@ -2585,7 +2589,6 @@ export const messages = {
         },
         earnScreen: {
             title: 'Earn',
-            subtitle: 'Staking can be currently managed only in Trezor Suite for desktop.',
             otherOpportunities: 'Other opportunities',
             depositsCard: {
                 title: 'Your deposits',
@@ -2722,6 +2725,7 @@ export const messages = {
         claimableCard: {
             claimable: 'Claimable',
             claimButton: 'Claim',
+            readyToClaim: '{amount} ready to be claimed',
         },
         stakingBottomSheet: {
             title: 'To manage your staked funds, please use Trezor Suite for desktop.',

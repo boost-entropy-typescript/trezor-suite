@@ -4,7 +4,6 @@
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/connect-web",
     "description": "High-level javascript interface for Trezor hardware wallet in web environment.",
-    "npmPublishAccess": "public",
     "license": "SEE LICENSE IN LICENSE.md",
     "repository": {
         "type": "git",
@@ -22,7 +21,6 @@
     "main": "src/index.ts",
     "publishConfig": {
         "main": "./lib/index.js",
-        "module": "./libESM/index.mjs",
         "types": "./lib/index.d.ts",
         "exports": {
             ".": {
@@ -39,10 +37,7 @@
                 "types": "./lib/impl/*.d.ts",
                 "default": "./lib/impl/*.js"
             },
-            "./libESM/impl/*": {
-                "types": "./libESM/impl/*.d.mts",
-                "default": "./libESM/impl/*.mjs"
-            }
+            "./libESM/impl/*": "./libESM/impl/*"
         }
     },
     "files": [

@@ -14,7 +14,6 @@
     "bugs": {
         "url": "https://github.com/trezor/trezor-suite/issues"
     },
-    "npmPublishAccess": "public",
     "license": "SEE LICENSE IN LICENSE.md",
     "description": "Data used by trezor-connect library.",
     "main": "./src/index.ts",
@@ -30,13 +29,21 @@
         "types": "./lib/index.d.ts",
         "exports": {
             ".": {
-                "import": "./libESM/index.mjs",
-                "require": "./lib/index.js",
-                "types": "./lib/index.d.ts"
+                "import": {
+                    "types": "./libESM/index.d.mts",
+                    "default": "./libESM/index.mjs"
+                },
+                "require": {
+                    "types": "./lib/index.d.ts",
+                    "default": "./lib/index.js"
+                }
             },
-            "./lib/*": "./lib/*.js",
-            "./files/*": "./files/*",
-            "./libESM/*": "./libESM/*"
+            "./lib/*": {
+                "types": "./lib/*.d.ts",
+                "default": "./lib/*.js"
+            },
+            "./libESM/*": "./libESM/*",
+            "./files/*": "./files/*"
         }
     },
     "scripts": {
