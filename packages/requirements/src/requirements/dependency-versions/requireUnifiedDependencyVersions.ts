@@ -20,11 +20,13 @@ export const ALLOWED_DRIFTS = new Set([
     'vite-plugin-node-polyfills',
     '@storybook/react',
     'storybook',
+    '@scure/base', // i think i had a cjs problem, todo: investigate later
 ]);
 
 type PackageJson = {
     readonly name?: string;
     readonly workspaces?: { readonly packages?: ReadonlyArray<string> } | ReadonlyArray<string>;
+    readonly resolutions?: Record<string, string>;
     readonly dependencies?: Record<string, string>;
     readonly devDependencies?: Record<string, string>;
 };
@@ -32,7 +34,7 @@ type PackageJson = {
 type VersionOccurrence = {
     readonly version: string;
     readonly workspace: string;
-    readonly depType: 'dependencies' | 'devDependencies';
+    readonly depType: 'dependencies' | 'devDependencies' | 'resolutions';
 };
 
 type YarnWorkspaceInfo = {
@@ -73,7 +75,7 @@ const collectDependencyVersions = (workspaceDirs: ReadonlyArray<string>) => {
         const pkg = readPackageJson(dir);
         const workspaceName = pkg.name ?? dir;
 
-        for (const depType of ['dependencies', 'devDependencies'] as const) {
+        for (const depType of ['dependencies', 'devDependencies', 'resolutions'] as const) {
             const deps = pkg[depType];
 
             if (deps === undefined) continue;

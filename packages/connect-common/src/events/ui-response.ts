@@ -1,5 +1,6 @@
 import type { ThpPairingMethod } from '@trezor/protocol';
 
+import { type UI_EVENT } from './ui-request';
 import type { DiscoveryAccount } from '../types/account';
 import type { LocalFirmwares } from '../types/settings';
 
@@ -22,6 +23,7 @@ export const UI_RESPONSE = {
 export interface UiResponseConfirmation {
     type: typeof UI_RESPONSE.RECEIVE_CONFIRMATION;
     payload: boolean;
+    requestId?: string;
 }
 
 export interface UiResponseFirmwares {
@@ -32,11 +34,13 @@ export interface UiResponseFirmwares {
 export interface UiResponsePin {
     type: typeof UI_RESPONSE.RECEIVE_PIN;
     payload: string;
+    requestId?: string;
 }
 
 export interface UiResponseWord {
     type: typeof UI_RESPONSE.RECEIVE_WORD;
     payload: string;
+    requestId?: string;
 }
 
 export interface UiResponsePassphrase {
@@ -46,6 +50,7 @@ export interface UiResponsePassphrase {
         passphraseOnDevice?: boolean;
         save?: boolean;
     };
+    requestId?: string;
 }
 
 export interface UiResponseThpPairingTag {
@@ -57,6 +62,7 @@ export interface UiResponseThpPairingTag {
         | {
               selectedMethod: ThpPairingMethod | keyof typeof ThpPairingMethod;
           };
+    requestId?: string;
 }
 
 export interface UiResponseAccount {
@@ -94,4 +100,7 @@ export type UiResponseEvent =
     | UiResponseAccount
     | UiResponseFee
     | UiResponseFirmwares
-    | UiResponseDiscoveryAccounts;
+    | UiResponseDiscoveryAccounts
+    | UiResponseFirmwares;
+
+export type UiResponseMessage = UiResponseEvent & { event: typeof UI_EVENT; requestId?: string };
