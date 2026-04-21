@@ -2,13 +2,13 @@ import { selectTradingExchangeActiveQuote, tradingExchangeActions } from '@suite
 import { getTranslation } from '@suite-native/intl';
 import {
     type TestStore,
-    initStore,
     renderWithStoreProvider,
     userEvent,
     within,
-} from '@suite-native/test-utils';
-import { getWalletState, mercuryoFixedWorstQuote } from '@suite-native/trading-fixtures';
+} from '@suite-native/test-utils-store';
+import { mercuryoFixedWorstQuote } from '@suite-native/trading-fixtures';
 
+import { createTradingLightStore } from '../../../../__tests__/tradingTestUtils';
 import { LimitPicker } from '../LimitPicker';
 
 describe('LimitPicker', () => {
@@ -35,17 +35,20 @@ describe('LimitPicker', () => {
     beforeEach(() => {
         mockOnApprovalTypeChange.mockReset();
 
-        const preloadedState = {
-            wallet: getWalletState({
-                tradeType: 'exchange',
-            }),
-        };
-
         const quote = { ...mercuryoFixedWorstQuote, approvalStringAmount: '100' };
 
-        preloadedState!.wallet!.trading.exchange.preselectedQuote = quote;
-
-        store = initStore(preloadedState).store;
+        store = createTradingLightStore({
+            tradeType: 'exchange',
+            overrides: {
+                wallet: {
+                    trading: {
+                        exchange: {
+                            preselectedQuote: quote,
+                        },
+                    },
+                },
+            },
+        });
         store.dispatch(tradingExchangeActions.saveSelectedQuote(quote));
     });
 
