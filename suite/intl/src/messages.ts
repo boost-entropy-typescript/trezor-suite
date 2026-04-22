@@ -1758,6 +1758,28 @@ export const messages = defineMessages({
         defaultMessage: 'Hidden',
         id: 'TR_HIDDEN',
     },
+    TR_DEFI: {
+        defaultMessage: 'DeFi',
+        id: 'TR_DEFI',
+    },
+    TR_DEFI_BANNER_TEXT: {
+        id: 'TR_DEFI_BANNER_TEXT',
+        defaultMessage:
+            'These tokens represent your DeFi positions. Sending or swapping them will transfer ownership of those positions.',
+    },
+    TR_DEFI_YIELD_TOKEN_BANNER_TITLE: {
+        id: 'TR_DEFI_YIELD_TOKEN_BANNER_TITLE',
+        defaultMessage: '{token} represents your position in a vault.',
+    },
+    TR_DEFI_YIELD_TOKEN_BANNER_DESCRIPTION: {
+        id: 'TR_DEFI_YIELD_TOKEN_BANNER_DESCRIPTION',
+        defaultMessage:
+            'If you transfer this token elsewhere, you will move your entire position and stop future rewards.',
+    },
+    TR_DEFI_NO_VAULT_TOOLTIP: {
+        id: 'TR_DEFI_NO_VAULT_TOOLTIP',
+        defaultMessage: 'No vault found',
+    },
     TR_CONFIRM: {
         defaultMessage: 'Confirm',
         id: 'TR_CONFIRM',
@@ -2929,6 +2951,10 @@ export const messages = defineMessages({
         description:
             'User is instructed to enter words from seed (backup) into the form in browser',
         id: 'TR_RANDOM_SEED_WORDS_DISCLAIMER',
+    },
+    TR_SEND: {
+        defaultMessage: 'Send',
+        id: 'TR_SEND',
     },
     TR_RECEIVE: {
         defaultMessage: 'Receive',
@@ -8200,6 +8226,14 @@ export const messages = defineMessages({
     TR_EARN_YOUR_UNSTAKED_FUNDS: {
         id: 'TR_EARN_YOUR_UNSTAKED_FUNDS',
         defaultMessage: 'Your unstaked {networkDisplaySymbol} is ready',
+    },
+    TR_EARN_CLAIM_REWARDS_LABEL: {
+        id: 'TR_EARN_CLAIM_REWARDS_LABEL',
+        defaultMessage: 'Available rewards',
+    },
+    TR_EARN_CLAIM_REWARDS_BUTTON: {
+        id: 'TR_EARN_CLAIM_REWARDS_BUTTON',
+        defaultMessage: 'Claim',
     },
     TR_RECEIVING_SYMBOL: {
         id: 'TR_RECEIVING_SYMBOL',
