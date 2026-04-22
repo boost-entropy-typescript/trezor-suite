@@ -10914,11 +10914,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/earn-api@workspace:*, @suite-common/earn-api@workspace:suite-common/earn-api":
+"@suite-common/earn-stablecoin-api@workspace:*, @suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api":
   version: 0.0.0-use.local
-  resolution: "@suite-common/earn-api@workspace:suite-common/earn-api"
+  resolution: "@suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api"
   dependencies:
     "@suite-common/calldata": "workspace:^"
+    "@suite-common/http-client": "workspace:^"
     "@suite-common/react-query": "workspace:^"
     "@trezor/utils": "workspace:^"
     orval: "npm:8.5.0"
@@ -11058,7 +11059,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/http-client@workspace:*, @suite-common/http-client@workspace:suite-common/http-client":
+"@suite-common/http-client@workspace:*, @suite-common/http-client@workspace:^, @suite-common/http-client@workspace:suite-common/http-client":
   version: 0.0.0-use.local
   resolution: "@suite-common/http-client@workspace:suite-common/http-client"
   dependencies:
@@ -11629,7 +11630,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/wallet-config@workspace:suite-common/wallet-config"
   dependencies:
-    "@suite-common/earn-api": "workspace:*"
+    "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
@@ -12912,7 +12913,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:7.12.0"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/device": "workspace:*"
-    "@suite-common/earn-api": "workspace:*"
+    "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/graph": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
@@ -13157,7 +13158,6 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@react-navigation/native": "npm:7.1.28"
-    "@react-navigation/native-stack": "npm:7.12.0"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/device": "workspace:*"
@@ -13173,11 +13173,8 @@ __metadata:
     "@suite-native/clipboard": "workspace:*"
     "@suite-native/config": "workspace:*"
     "@suite-native/feature-flags": "workspace:*"
-    "@suite-native/firmware": "workspace:*"
     "@suite-native/forms": "workspace:*"
-    "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
-    "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/sentry": "workspace:*"
     "@suite-native/services": "workspace:*"
@@ -13186,9 +13183,6 @@ __metadata:
     "@suite-native/trading-state": "workspace:*"
     "@trezor/connect-common": "workspace:^"
     "@trezor/env-utils": "workspace:*"
-    "@trezor/styles-native": "workspace:*"
-    "@trezor/theme": "workspace:*"
-    "@trezor/urls": "workspace:*"
     expo: "npm:~55.0.3"
     react: "npm:19.2.4"
     react-native: "npm:0.83.2"
@@ -13303,7 +13297,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@shopify/flash-list": "npm:2.3.0"
     "@suite-common/device": "workspace:*"
-    "@suite-common/earn-api": "workspace:*"
+    "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/earn-staking-api": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/message-system": "workspace:*"
@@ -16319,7 +16313,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
-    "@suite-common/earn-api": "workspace:*"
+    "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/earn-staking-api": "workspace:*"
     "@suite-common/feedback": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
