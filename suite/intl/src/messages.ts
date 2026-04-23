@@ -1498,6 +1498,11 @@ export const messages = defineMessages({
         description: 'Text that appears after backup is finished',
         id: 'TR_BACKUP_FINISHED_TEXT',
     },
+    TR_BACKUP_FINISHED_TEXT_NFC: {
+        defaultMessage:
+            'Make sure to store your backup tags in a secure, private place. No one can recover your funds if you lose your wallet backup - not even Trezor Support.',
+        id: 'TR_BACKUP_FINISHED_TEXT_NFC',
+    },
     TR_BACKUP_RECOVERY_SEED: {
         defaultMessage: 'Wallet backup',
         id: 'TR_BACKUP_RECOVERY_SEED',
@@ -2951,10 +2956,6 @@ export const messages = defineMessages({
         description:
             'User is instructed to enter words from seed (backup) into the form in browser',
         id: 'TR_RANDOM_SEED_WORDS_DISCLAIMER',
-    },
-    TR_SEND: {
-        defaultMessage: 'Send',
-        id: 'TR_SEND',
     },
     TR_RECEIVE: {
         defaultMessage: 'Receive',
@@ -6476,6 +6477,32 @@ export const messages = defineMessages({
             'Keep your wallet, account, and transaction labels consistent on all your devices.',
         id: 'TR_LEGACY_LABELING_TURN_ON_SUITE_SYNC_BANNER_DESCRIPTION',
     },
+    TR_LABELING_MIGRATION_TITLE: {
+        defaultMessage: 'Migrate legacy labels to Suite Sync',
+        id: 'TR_LABELING_MIGRATION_TITLE',
+    },
+    TR_LABELING_MIGRATION_DESCRIPTION: {
+        defaultMessage:
+            'Select a legacy labeling provider and import labels from selected wallet. Existing Suite Sync labels will stay unchanged.',
+        id: 'TR_LABELING_MIGRATION_DESCRIPTION',
+    },
+    TR_LABELING_MIGRATION_MODAL_HEADING: {
+        defaultMessage: 'Migrate legacy labels',
+        id: 'TR_LABELING_MIGRATION_MODAL_HEADING',
+    },
+    TR_LABELING_MIGRATION_MODAL_DESCRIPTION: {
+        defaultMessage:
+            'Choose where your legacy labels are stored. Only missing labels will be copied to Suite Sync.',
+        id: 'TR_LABELING_MIGRATION_MODAL_DESCRIPTION',
+    },
+    TR_LABELING_MIGRATION_FAILED: {
+        defaultMessage: 'Migration failed. Try again.',
+        id: 'TR_LABELING_MIGRATION_FAILED',
+    },
+    TR_LABELING_MIGRATION_SUCCESS: {
+        defaultMessage: '{added} labels migrated successfully, {skipped} skipped',
+        id: 'TR_LABELING_MIGRATION_SUCCESS',
+    },
     TR_TO_MAKE_YOUR_LABELS_PERSISTENT: {
         defaultMessage:
             'To make your labels consistent and available on different devices, connect to a cloud storage provider.',
@@ -8752,6 +8779,10 @@ export const messages = defineMessages({
         id: 'TR_LOADING_ACCOUNTS_DESCRIPTION',
         defaultMessage: 'You can change your selected assets once your accounts are loaded.',
     },
+    TR_MIGRATE: {
+        defaultMessage: 'Migrate',
+        id: 'TR_MIGRATE',
+    },
     TR_LOADING_FACT_TITLE: {
         id: 'TR_LOADING_FACT_TITLE',
         defaultMessage: 'Did you know?',
@@ -9116,6 +9147,11 @@ export const messages = defineMessages({
         id: 'TR_PHISHING_BANNER_ZERO_AMOUNT',
         defaultMessage:
             'Proceed with caution. This transaction has a zero amount and may be suspicious. <a>Learn more</a>',
+    },
+    TR_PHISHING_BANNER_TRC10_TRANSFER: {
+        id: 'TR_PHISHING_BANNER_TRC10_TRANSFER',
+        defaultMessage:
+            'Proceed with caution. This transaction is a TRC10 transfer and may be suspicious. <a>Learn more</a>',
     },
     TR_HIDE_TRANSACTION: {
         id: 'TR_HIDE_TRANSACTION',

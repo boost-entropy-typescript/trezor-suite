@@ -172,7 +172,11 @@
         { "path": "../../suite/intl" },
         { "path": "../../suite/locks" },
         { "path": "../../suite/metadata" },
+        {
+            "path": "../../suite/metadata-migration"
+        },
         { "path": "../../suite/modal" },
+        { "path": "../../suite/nfc" },
         {
             "path": "../../suite/onboarding-components"
         },
