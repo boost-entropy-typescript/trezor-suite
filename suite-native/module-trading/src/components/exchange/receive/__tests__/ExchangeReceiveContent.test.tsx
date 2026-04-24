@@ -1,5 +1,6 @@
 import { FeatureFlag } from '@suite-native/feature-flags';
 import { Form } from '@suite-native/forms';
+import { getTranslation } from '@suite-native/intl';
 import {
     act,
     renderHookWithStoreProvider,
@@ -13,9 +14,9 @@ import {
     createTradingPreloadedState,
 } from '../../../../__tests__/tradingTestUtils';
 import { useExchangeForm } from '../../../../hooks/exchange/useExchangeForm';
-import { ExchangeReceiveCard } from '../ExchangeReceiveCard';
+import { ExchangeReceiveContent } from '../ExchangeReceiveContent';
 
-describe('ExchangeReceiveCard', () => {
+describe('ExchangeReceiveContent', () => {
     let form: ExchangeFormType;
     const preloadedState = createTradingPreloadedState({
         tradeType: 'exchange',
@@ -40,8 +41,8 @@ describe('ExchangeReceiveCard', () => {
             preloadedState,
         });
 
-    const renderExchangeBuyCard = () =>
-        renderWithStoreProvider(<ExchangeReceiveCard />, {
+    const renderExchangeReceiveContent = () =>
+        renderWithStoreProvider(<ExchangeReceiveContent />, {
             preloadedState,
             wrapper: ({ children }) => <Form form={form}>{children}</Form>,
         });
@@ -56,13 +57,18 @@ describe('ExchangeReceiveCard', () => {
             form.setValue('receiveAsset', usdcAsset);
             form.setValue('quote', mercuryoFixedWorstQuote);
         });
-        const { getByText, getByLabelText } = renderExchangeBuyCard();
+        const { getByText, getByLabelText } = renderExchangeReceiveContent();
 
-        expect(getByText('You get')).toBeOnTheScreen();
-        expect(getByLabelText('Select asset')).toHaveTextContent(/USDC/);
-        expect(getByLabelText('Network name')).toHaveTextContent('Ethereum');
-        expect(getByLabelText('You get')).toHaveDisplayValue('0.00083554');
-        expect(getByText('Balance:')).toBeOnTheScreen();
-        expect(getByText('- USDC')).toBeOnTheScreen();
+        expect(
+            getByLabelText(getTranslation('moduleTrading.selectCoin.buttonTitle')),
+        ).toHaveTextContent(/USDC/);
+        expect(getByLabelText(getTranslation('moduleTrading.networkName'))).toHaveTextContent(
+            'Ethereum',
+        );
+        expect(
+            getByLabelText(getTranslation('moduleTrading.selectCoin.amountLabel')),
+        ).toHaveDisplayValue('0.00083554');
+        expect(getByText(getTranslation('moduleTrading.tradingScreen.balance'))).toBeOnTheScreen();
+        expect(getByText('- ' + usdcAsset.symbol)).toBeOnTheScreen();
     });
 });
