@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { selectIsDeviceOrUiLocked } from '@suite/locks';
 import { selectSelectedDevice } from '@suite-common/device';
 import { type TrezorDevice } from '@suite-common/suite-types';
-
-import { useSelector } from './useSelector';
 
 type Result = {
     device?: TrezorDevice;
