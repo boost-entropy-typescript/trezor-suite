@@ -3,15 +3,26 @@ import { DeviceModelInternal, FirmwareType } from '@trezor/device-utils';
 import { parseConfigure } from '@trezor/protobuf';
 import { v1 as protocolV1 } from '@trezor/protocol';
 import { buildMessage } from '@trezor/transport/src/utils/send';
-import { Log } from '@trezor/utils';
+import { Log, bufferUtils } from '@trezor/utils';
 
-import * as mockFwHash from '../../api/firmware/calculateFirmwareHash';
+import { calculateFirmwareHash } from '../../api/firmware/calculateFirmwareHash';
 import { DataManager } from '../../data/DataManager';
 import { getBundledRelease, initializeFirmwareConfig } from '../../data/firmwareInfo';
 import { DeviceList } from '../../device/DeviceList';
-// mocks
-import * as mockAssets from '../../utils/assets';
+import { httpRequest } from '../../utils/assets';
 import { onCallFirmwareUpdate } from '../onCallFirmwareUpdate';
+
+jest.mock('../../utils/assets', () => ({
+    ...jest.requireActual('../../utils/assets'),
+    httpRequest: jest.fn(jest.requireActual('../../utils/assets').httpRequest),
+}));
+
+jest.mock('../../api/firmware/calculateFirmwareHash', () => ({
+    ...jest.requireActual('../../api/firmware/calculateFirmwareHash'),
+    calculateFirmwareHash: jest.fn(
+        jest.requireActual('../../api/firmware/calculateFirmwareHash').calculateFirmwareHash,
+    ),
+}));
 
 // NOTE:
 // to disable asset mock and work with the real binaries (tests takes longer):
@@ -160,6 +171,9 @@ const httpRequestMock = (version?: number[]) => {
     return Promise.resolve(binary);
 };
 
+const getFirmwareBinaryBytes = async (version?: number[]): Promise<ArrayBuffer> =>
+    bufferUtils.bufferToBytes(await httpRequestMock(version));
+
 const calculateFirmwareHashMock = (hash?: string) => ({
     hash:
         hash ||
@@ -236,7 +250,7 @@ describe('onCallFirmwareUpdate', () => {
     });
     beforeEach(() => {
         if (!ASSETS_BASE_URL) {
-            jest.spyOn(mockAssets, 'httpRequest').mockImplementation((url, type) => {
+            (httpRequest as jest.Mock).mockImplementation((url, type) => {
                 if (type === 'json') {
                     return Promise.reject(new Error('Offline'));
                 }
@@ -265,7 +279,7 @@ describe('onCallFirmwareUpdate', () => {
             });
         }
 
-        jest.spyOn(mockFwHash, 'calculateFirmwareHash').mockImplementation((..._args) =>
+        (calculateFirmwareHash as jest.Mock).mockImplementation((..._args) =>
             calculateFirmwareHashMock(),
         );
     });
@@ -304,7 +318,7 @@ describe('onCallFirmwareUpdate', () => {
             buildFixture('0037', {}),
         ]);
 
-        const binary = await httpRequestMock([2, 8, 3]);
+        const binary = await getFirmwareBinaryBytes([2, 8, 3]);
         const result = await runFirmwareUpdate({
             params: { binary },
             context,
@@ -426,7 +440,7 @@ describe('onCallFirmwareUpdate', () => {
             buildFixture('0037', {}),
         ]);
 
-        const binary = await httpRequestMock();
+        const binary = await getFirmwareBinaryBytes();
         const result = await runFirmwareUpdate({
             params: { binary },
             context,
@@ -451,7 +465,7 @@ describe('onCallFirmwareUpdate', () => {
             buildFixture('0037', {}),
         ]);
 
-        const binary = await httpRequestMock();
+        const binary = await getFirmwareBinaryBytes();
         const result = await runFirmwareUpdate({
             params: { binary },
             context,
