@@ -2605,6 +2605,22 @@ export const messages = defineMessages({
         id: 'TR_DUST_PHISHING_ERROR_EMPTY',
         defaultMessage: 'Dust threshold cannot be empty',
     },
+    TR_GAP_LIMIT_ERROR_EMPTY: {
+        id: 'TR_GAP_LIMIT_ERROR_EMPTY',
+        defaultMessage: 'Gap limit cannot be empty',
+    },
+    TR_GAP_LIMIT_ERROR_NUMBER: {
+        id: 'TR_GAP_LIMIT_ERROR_NUMBER',
+        defaultMessage: 'Enter a valid whole number',
+    },
+    TR_GAP_LIMIT_ERROR_POSITIVE: {
+        id: 'TR_GAP_LIMIT_ERROR_POSITIVE',
+        defaultMessage: 'Gap limit must be a positive number',
+    },
+    TR_GAP_LIMIT_ERROR_TOO_LOW: {
+        id: 'TR_GAP_LIMIT_ERROR_TOO_LOW',
+        defaultMessage: 'Gap limit must be at least {min}',
+    },
     TR_CONFIRM_AUTO_EJECT: {
         defaultMessage: 'Enable auto-eject',
         id: 'TR_CONFIRM_AUTO_EJECT',
@@ -5415,6 +5431,46 @@ export const messages = defineMessages({
         id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP',
         defaultMessage: 'New TRON accounts require a one-time 1 TRX network fee to activate.',
     },
+    TR_TRON_TX_CREATE_ACCOUNT: {
+        id: 'TR_TRON_TX_CREATE_ACCOUNT',
+        defaultMessage: 'Create Account',
+    },
+    TR_TRON_TX_UPDATE_ACCOUNT: {
+        id: 'TR_TRON_TX_UPDATE_ACCOUNT',
+        defaultMessage: 'Update Account',
+    },
+    TR_TRON_TX_DEPLOY_SMART_CONTRACT: {
+        id: 'TR_TRON_TX_DEPLOY_SMART_CONTRACT',
+        defaultMessage: 'Deploy Smart Contract',
+    },
+    TR_TRON_TX_VOTE_WITNESS: {
+        id: 'TR_TRON_TX_VOTE_WITNESS',
+        defaultMessage: 'Vote Witness',
+    },
+    TR_TRON_TX_FREEZE_BALANCE: {
+        id: 'TR_TRON_TX_FREEZE_BALANCE',
+        defaultMessage: 'Freeze Balance',
+    },
+    TR_TRON_TX_UNFREEZE_BALANCE: {
+        id: 'TR_TRON_TX_UNFREEZE_BALANCE',
+        defaultMessage: 'Unfreeze Balance',
+    },
+    TR_TRON_TX_WITHDRAW_BALANCE: {
+        id: 'TR_TRON_TX_WITHDRAW_BALANCE',
+        defaultMessage: 'Withdraw Balance',
+    },
+    TR_TRON_TX_CLAIM_REWARDS: {
+        id: 'TR_TRON_TX_CLAIM_REWARDS',
+        defaultMessage: 'Claim Rewards',
+    },
+    TR_TRON_TX_DELEGATE_RESOURCE: {
+        id: 'TR_TRON_TX_DELEGATE_RESOURCE',
+        defaultMessage: 'Delegate Resource',
+    },
+    TR_TRON_TX_UNDELEGATE_RESOURCE: {
+        id: 'TR_TRON_TX_UNDELEGATE_RESOURCE',
+        defaultMessage: 'Undelegate Resource',
+    },
     TR_EXPERIMENTAL_TRON_VIEW_ONLY: {
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY',
         defaultMessage: 'Tron (Beta)',
@@ -5423,6 +5479,15 @@ export const messages = defineMessages({
         id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION',
         defaultMessage:
             'Enable the Tron Network with the latest firmware to check your balance, send and receive TRX and tokens, view charts and transaction history, and use WalletConnect. Full support, including freezing and voting, is coming soon.',
+    },
+    TR_EXPERIMENTAL_GAP_LIMIT: {
+        id: 'TR_EXPERIMENTAL_GAP_LIMIT',
+        defaultMessage: 'Gap Limit',
+    },
+    TR_EXPERIMENTAL_GAP_LIMIT_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_GAP_LIMIT_DESCRIPTION',
+        defaultMessage:
+            'When recovering or scanning a wallet, Trezor checks addresses one by one and stops after finding 20 consecutive unused ones. If some of your transactions are missing, raise this limit to scan further.',
     },
     TR_EXPERIMENTAL_MCP_SERVER: {
         id: 'TR_EXPERIMENTAL_MCP_SERVER',
@@ -6567,6 +6632,10 @@ export const messages = defineMessages({
     TR_LABELING_ENABLED: {
         id: 'TR_LABELING_ENABLED',
         defaultMessage: 'Labeling',
+    },
+    SETTINGS_BACKEND_SETTINGS_CUSTOM_GAP_LIMIT: {
+        id: 'SETTINGS_BACKEND_SETTINGS_CUSTOM_GAP_LIMIT',
+        defaultMessage: 'Custom Gap Limit',
     },
     SETTINGS_BACKEND_SETTINGS_DESCRIPTION: {
         id: 'SETTINGS_BACKEND_SETTINGS_DESCRIPTION',
@@ -10146,6 +10215,18 @@ export const messages = defineMessages({
     TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD: {
         id: 'TR_STAKE_ACKNOWLEDGE_ENTRY_PERIOD',
         defaultMessage: 'I acknowledge the entry period.',
+    },
+    TR_TX_STAKE_STAKE: {
+        id: 'TR_TX_STAKE_STAKE',
+        defaultMessage: 'Stake',
+    },
+    TR_TX_STAKE_UNSTAKE: {
+        id: 'TR_TX_STAKE_UNSTAKE',
+        defaultMessage: 'Unstake',
+    },
+    TR_TX_STAKE_CLAIM: {
+        id: 'TR_TX_STAKE_CLAIM',
+        defaultMessage: 'Claim Withdraw Request',
     },
     TR_STAKE_STAKE: {
         id: 'TR_STAKE_STAKE',

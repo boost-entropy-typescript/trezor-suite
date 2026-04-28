@@ -28,14 +28,7 @@ export type InitializeFirmwareConfig = (
     intermediaries: Record<DeviceModelInternal, IntermediaryReleaseConfig[]>;
 }>;
 
-type AssetKeys = `firmware-${string}` | 'coins' | 'coinsEth';
-type AssetCollection = {
-    [K in AssetKeys]?: Record<string, any>;
-};
-
 export class DataManager {
-    static assets: AssetCollection = {};
-
     private static settings: ConnectSettings;
     // at the moment, messages is readonly but it might make sense to modify this in the future, when
     // we implement additive protobufs handling as a part of modularization effort
@@ -63,32 +56,21 @@ export class DataManager {
 
         if (!withAssets) return;
 
-        const assetsMap = {
-            coins,
-            coinsEth,
-        };
-        Object.assign(this.assets, assetsMap);
-
-        // parse coins definitions
         parseCoinsJson({
-            ...this.assets.coins,
-            ...this.assets.coinsEth,
+            ...coins,
+            ...coinsEth,
         });
 
-        this.prepareLocalFirmwareReleaseData();
+        const { config: localFirmwareReleaseConfig } = getOnlyLocalFirmwareReleaseConfig();
+        this.localFirmwareReleaseConfig = localFirmwareReleaseConfig;
         await this.loadFirmwareReleaseConfig(onlyLocalFirmwareConfig);
-    }
-
-    private static prepareLocalFirmwareReleaseData() {
-        const { config } = getOnlyLocalFirmwareReleaseConfig();
-        this.setLocalFirmwareReleaseConfig(config);
     }
 
     private static async loadFirmwareReleaseConfig(onlyLocal: boolean): Promise<void> {
         let firmwareReleaseConfig;
         if (onlyLocal) {
             firmwareReleaseConfig = {
-                config: this.getLocalFirmwareReleaseConfig(),
+                config: this.localFirmwareReleaseConfig,
                 isRemote: false,
             };
         } else {
@@ -96,8 +78,8 @@ export class DataManager {
         }
         const { config, isRemote } = firmwareReleaseConfig;
         const firmwareConfig = await this.initializeFirmwareConfig(config, isRemote);
-        this.setFirmwareReleaseConfig(firmwareConfig.releases);
-        this.setFirmwareIntermediaryReleaseConfig(firmwareConfig.intermediaries);
+        this.firmwareReleasesConfig = firmwareConfig.releases;
+        this.firmwareIntermediaryReleasesConfig = firmwareConfig.intermediaries;
     }
 
     public static getProtobufMessages() {
@@ -135,26 +117,14 @@ export class DataManager {
         return this.localFirmwares;
     }
 
-    private static setLocalFirmwareReleaseConfig(
-        localFirmwareReleaseConfig: FirmwareReleaseConfig,
-    ) {
-        this.localFirmwareReleaseConfig = localFirmwareReleaseConfig;
-    }
     public static getLocalFirmwareReleaseConfig(): FirmwareReleaseConfig {
         return this.localFirmwareReleaseConfig;
     }
 
-    private static setFirmwareReleaseConfig(releaseConfig: ReleasesConfig): void {
-        this.firmwareReleasesConfig = releaseConfig;
-    }
     public static getFirmwareReleaseConfig() {
         return this.firmwareReleasesConfig;
     }
-    private static setFirmwareIntermediaryReleaseConfig(
-        intermediariesConfig: Record<DeviceModelInternal, IntermediaryReleaseConfig[]>,
-    ) {
-        this.firmwareIntermediaryReleasesConfig = intermediariesConfig;
-    }
+
     public static getFirmwareIntermediaryReleaseConfig() {
         return this.firmwareIntermediaryReleasesConfig;
     }
