@@ -3472,6 +3472,10 @@ export const messages = defineMessages({
         defaultMessage: 'unknown',
         id: 'TR_UNKNOWN_CONFIRMATION_TIME',
     },
+    TR_UNKNOWN: {
+        defaultMessage: 'Unknown',
+        id: 'TR_UNKNOWN',
+    },
     TR_UNKNOWN_TRANSACTION: {
         defaultMessage: 'Unknown transaction',
         id: 'TR_UNKNOWN_TRANSACTION',
@@ -9622,10 +9626,6 @@ export const messages = defineMessages({
     TR_EARN_YIELD_PENDING_WITHDRAW: {
         id: 'TR_EARN_YIELD_PENDING_WITHDRAW',
         defaultMessage: 'Confirming withdrawal...',
-    },
-    TR_EARN_YIELD_APPROVAL_INSUFFICIENT: {
-        id: 'TR_EARN_YIELD_APPROVAL_INSUFFICIENT',
-        defaultMessage: 'Approval amount is lower than the requested amount.',
     },
     TR_EARN_YIELD_APPROVAL_TOO_LOW: {
         id: 'TR_EARN_YIELD_APPROVAL_TOO_LOW',

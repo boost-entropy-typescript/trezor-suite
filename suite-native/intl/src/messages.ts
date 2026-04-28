@@ -3131,6 +3131,17 @@ export const messages = {
             title: 'Review with Trezor',
             submitButton: 'Send transaction',
         },
+        tradingConfirmationScreen: {
+            approveHeaderTitle: 'Approve {symbol} spending',
+            revokeHeaderTitle: 'Revoke {symbol} approval',
+            approveTitle: 'Confirming approval',
+            revokeTitle: 'Confirming revoke',
+            subtitle: 'This may take a few moments.',
+            pending: 'Pending',
+            error: 'Error confirming transaction. Please try again.',
+            date: 'Date',
+            exploreInBlockchain: 'Explore in blockchain',
+        },
         exchangeApprovalLimitSheet: {
             title: 'Set limit',
             unlimitedCard: {
