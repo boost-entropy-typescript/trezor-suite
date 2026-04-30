@@ -256,4 +256,4 @@ export const FLAGS = {
     ZM: 'Zambia',
     ZW: 'Zimbabwe',
     UNKNOWN: 'Worldwide',
-};
+} as const;
