@@ -45,6 +45,7 @@ import {
     type TradingStackRoutes,
     type TransactionDetailStackRoutes,
     type WipeDeviceStackRoutes,
+    type YieldStackRoutes,
 } from './routes';
 import { type NavigateParameters } from './types';
 
@@ -80,6 +81,25 @@ export type AccountsStackParamList = {
 
 export type EarnStackParamList = {
     [EarnStackRoutes.Earn]: undefined;
+};
+
+export type YieldFlowParams = {
+    yieldId: string;
+    accountKey: AccountKey;
+    tokenContract: TokenAddress;
+};
+
+export type YieldSupplyApprovalReviewParams = YieldFlowParams & {
+    amount: string;
+    approvalLimitType: 'per-supply' | 'unlimited';
+};
+
+export type YieldStackParamList = {
+    [YieldStackRoutes.HowYieldWorks]: YieldFlowParams;
+    [YieldStackRoutes.YieldConsents]: YieldFlowParams;
+    [YieldStackRoutes.YieldSupplyFlow]: YieldFlowParams;
+    [YieldStackRoutes.YieldSupplyApprovalReview]: YieldSupplyApprovalReviewParams;
+    [YieldStackRoutes.YieldSupplyReview]: YieldFlowParams;
 };
 
 export type HomeStackParamList = {
@@ -388,6 +408,7 @@ export type RootStackParamList = {
         accountKey?: AccountKey;
         symbol: NetworkSymbol;
     };
+    [RootStackRoutes.YieldNavigator]: NavigatorScreenParams<YieldStackParamList>;
     [RootStackRoutes.EarnForm]: {
         accountKey: AccountKey;
     };

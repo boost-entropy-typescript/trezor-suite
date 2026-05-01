@@ -2550,6 +2550,122 @@ export const messages = {
                 },
             },
         },
+        howYieldWorksScreen: {
+            title: 'How yield works',
+            subtitle: 'Your stablecoins are put to work in lending protocols to earn yield.',
+            benefits: {
+                first: {
+                    title: 'The supplied amount of {tokenSymbol} is locked until you withdraw it.',
+                    description: 'Withdrawal is instant.',
+                },
+                second: {
+                    title: 'Rewards are mostly compounded.',
+                    description:
+                        'Most rewards are compounded automatically. Some must be claimed separately.',
+                },
+                third: {
+                    title: 'Deposit {tokenSymbol} to receive {vaultTokenName} tokens.',
+                    description: 'These tokens represent your vault position.',
+                },
+            },
+            timelineCardTitle: 'Supply timeline',
+            timelineBottomSheetTitle: 'Supply timeline & fees',
+            supplyTimelineTitle: 'Supply',
+            supplyTimeline: {
+                first: {
+                    title: 'Approve spending transaction',
+                    description: 'Network fee',
+                },
+                second: {
+                    title: 'Sign supplying transaction',
+                    description: 'Network fee',
+                },
+                third: {
+                    title: 'Yield accrues as your assets grow in value',
+                    description: '~{apy}% yearly',
+                },
+            },
+            withdrawTimelineTitle: 'Withdraw',
+            withdrawTimeline: {
+                first: {
+                    title: 'Sign withdrawal transaction',
+                    description: 'Network fee',
+                },
+                second: {
+                    title: 'Receive {tokenSymbol} in account',
+                    description: 'Instantly',
+                },
+            },
+        },
+        yieldConsentsScreen: {
+            title: 'Before you continue',
+            providerCard: {
+                title: 'Supplying to {providerName}',
+                firstItem:
+                    '{providerName} maintains and protects your supplied {tokenSymbol} with their smart contracts, infrastructure, and technology.',
+                secondItem:
+                    "When supplying, the responsibility for your funds' security transitions from your Trezor to {providerName}.",
+            },
+        },
+        yieldSupplyFlowScreen: {
+            step: 'Step {stepNumber} of {stepCount}',
+            approvalStepTitle: 'Select amount & approve',
+            modalTitle: 'Supply',
+            supplyTransactionStepTitle: 'Supply transaction',
+            supplyCompleteStepTitle: 'Supply complete',
+            amountToSupply: 'Amount to supply',
+            supplyMax: 'Supply max',
+            balance: 'Balance:',
+            approvalLimit: 'Approval limit',
+            perSupply: 'Per supply',
+            estimatedRewardsLabel: 'Estimated yearly rewards',
+            approvalLimitSheet: {
+                title: 'Select approval limit',
+                perSupply: {
+                    description:
+                        'Approve the exact amount for the provider. Valid until fully used or revoked. Then a new approval and network fee will be required.',
+                },
+                unlimited: {
+                    title: 'Unlimited',
+                    description:
+                        'Approve once and avoid future network fees. This provider can spend any amount until you revoke the approval.',
+                    alert: 'If the provider is compromised, all your {tokenSymbol} may be taken.',
+                },
+            },
+            validation: {
+                amountIsZero: 'Amount must be greater than 0.',
+                insufficientBalance: "You don't have enough {tokenSymbol} balance.",
+                tooManyDecimals: 'Too many decimals.',
+            },
+        },
+        yieldSupplyApprovalReviewScreen: {
+            title: 'Review with Trezor',
+            successMessage: "You're all set.",
+            approvalCard: {
+                title: 'Approve',
+            },
+            detailsCard: {
+                title: 'Approval details',
+                amount: 'Amount',
+                approvalLimit: 'Approval limit',
+            },
+            errorAlert: {
+                title: 'Approval is not ready',
+                description: 'The approval transaction could not be prepared. Try again later.',
+            },
+            pushTransactionFailedAlert: {
+                title: 'Approval was not submitted',
+                description:
+                    'The approval transaction was signed but could not be submitted to the network.',
+                primaryButton: 'Go to homepage',
+            },
+            pendingTransactionConflictAlert: {
+                title: 'Approval was not submitted',
+                description:
+                    'There is already a pending transaction for this account. Wait for it to finish before trying again.',
+                primaryButton: 'Go to homepage',
+            },
+        },
         staked: 'Staked',
         stakedAutomatically: 'Staked automatically',
         fullBalance: 'Full balance',
