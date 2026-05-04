@@ -3415,15 +3415,27 @@ export const messages = {
             confirmButton: 'Confirm location',
             skipButton: 'Not now',
             countryOfResidence: 'Country of residence',
+            countrySubdivision: 'State of residence',
             noCountryOfResidence: 'No country of residence selected',
             selectedCountryOfResidence: 'Selected country of residence',
+            noCountrySubdivision: 'No state selected',
+            selectedCountrySubdivision: 'Selected state',
             notSelected: 'Not selected',
+            selectCountrySubdivisionButton: 'Select state',
+            selectCountrySubdivisionLabel:
+                'To see available offers, select your state of residence.',
         },
         countrySheet: {
             title: 'Country of residence',
             emptyTitle: 'Country not found',
             emptyDescription: 'Check the spelling or browse the list to select an option.',
             searchInputPlaceholder: 'Search country',
+        },
+        countrySubdivisionSheet: {
+            title: 'State of residence',
+            emptyTitle: 'State not found',
+            emptyDescription: 'Check the spelling or browse the list to select an option.',
+            searchInputPlaceholder: 'Search state',
         },
     },
     moduleDemoAccountQuestionnaire: {
