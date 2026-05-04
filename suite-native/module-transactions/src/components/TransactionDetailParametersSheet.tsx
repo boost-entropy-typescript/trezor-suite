@@ -158,6 +158,42 @@ export const TransactionDetailParametersSheet = ({
                     </TransactionDetailRow>
                 </Card>
 
+                {transaction.solanaSpecific?.memo && (
+                    <Card>
+                        <TransactionDetailRow
+                            title={translate(
+                                'transactions.TransactionDetailScreen.parametersSheet.memo',
+                            )}
+                        >
+                            <Box
+                                flexDirection="row"
+                                alignItems="center"
+                                paddingLeft="sp16"
+                                justifyContent="flex-end"
+                            >
+                                <Text numberOfLines={1} style={{ flexShrink: 1 }}>
+                                    {transaction.solanaSpecific.memo}
+                                </Text>
+                                <Box marginLeft="sp8">
+                                    <IconButton
+                                        iconName="copy"
+                                        onPress={() =>
+                                            copyToClipboard(
+                                                transaction.solanaSpecific!.memo!,
+                                                translate(
+                                                    'transactions.TransactionDetailScreen.parametersSheet.memoCopied',
+                                                ),
+                                            )
+                                        }
+                                        intent="neutral"
+                                        priority="secondary"
+                                    />
+                                </Box>
+                            </Box>
+                        </TransactionDetailRow>
+                    </Card>
+                )}
+
                 {parametersCardIsDisplayed && (
                     <Card>
                         {displayedParameters.includes('ethereumSpecific') &&

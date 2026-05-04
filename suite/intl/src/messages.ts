@@ -9606,6 +9606,10 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_WITHDRAW_DISABLED',
         defaultMessage: 'Withdrawal is currently disabled.',
     },
+    TR_EARN_YIELD_CLAIM_DISABLED: {
+        id: 'TR_EARN_YIELD_CLAIM_DISABLED',
+        defaultMessage: 'Claim is currently disabled.',
+    },
     TR_EARN_STABLECOIN_YIELD_TITLE: {
         id: 'TR_EARN_STABLECOIN_YIELD_TITLE',
         defaultMessage: 'Stablecoin yield',
@@ -11639,5 +11643,13 @@ export const messages = defineMessages({
     TR_EARN_YIELD_CLAIM_MODAL_SUBTITLE: {
         id: 'TR_EARN_YIELD_CLAIM_MODAL_SUBTITLE',
         defaultMessage: 'Select an account to claim rewards.',
+    },
+    MEMO: {
+        id: 'MEMO',
+        defaultMessage: 'Memo',
+    },
+    MEMO_SWITCH: {
+        id: 'MEMO_SWITCH',
+        defaultMessage: 'Add memo',
     },
 } as const);

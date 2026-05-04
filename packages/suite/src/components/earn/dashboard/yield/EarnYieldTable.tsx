@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Translation } from '@suite/intl';
 import { goto } from '@suite/router';
 import { Context } from '@suite-common/message-system';
-import { NORMAL_ACCOUNT_TYPE } from '@suite-common/wallet-config';
+import { NORMAL_ACCOUNT_TYPE, isEarnYieldClaimSupported } from '@suite-common/wallet-config';
 import { selectVisibleDeviceAccounts } from '@suite-common/wallet-core';
 import { Button, Card, Column, Table } from '@trezor/components';
 
@@ -66,7 +66,12 @@ export const EarnYieldTable = () => {
     const merkleRewardsSources = useMemo(
         () =>
             yieldAccountOpportunities.flatMap(opportunity => {
-                if (!opportunity.hasVaultPosition || !opportunity.account) {
+                // Merkl rewards are claimable only for accounts that already hold a vault position.
+                if (
+                    !opportunity.hasVaultPosition ||
+                    !opportunity.account ||
+                    !isEarnYieldClaimSupported(opportunity.networkSymbol)
+                ) {
                     return [];
                 }
 
@@ -81,13 +86,12 @@ export const EarnYieldTable = () => {
     );
     const { merkleRewardsQuery } = useMerkleRewards(merkleRewardsSources);
     const { rewards } = merkleRewardsQuery.data;
-    const isClaimDisabled =
-        !merkleRewardsQuery.isSuccess || !merkleRewardsQuery.data.totalRewardsToClaim.value.gt(0);
     const claimableAccounts = useMemo<EarnYieldClaimableAccount[]>(
         () =>
             merkleRewardsQuery.isSuccess ? getClaimableAccounts({ rewards, visibleAccounts }) : [],
         [merkleRewardsQuery.isSuccess, rewards, visibleAccounts],
     );
+    const isClaimDisabled = !merkleRewardsQuery.isSuccess || claimableAccounts.length === 0;
 
     const badge = getEarnDashboardBadgeState({
         isSectionActive: !isYieldDashboardDisabled && isYieldActive,

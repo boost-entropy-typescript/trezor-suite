@@ -1945,6 +1945,8 @@ export const messages = {
                 broadcast: 'Broadcast',
                 transactionId: 'Transaction ID',
                 transactionIdCopied: 'Transaction ID copied',
+                memo: 'Memo',
+                memoCopied: 'Memo copied',
                 ethereum: {
                     gasLimit: 'Gas limit',
                     gasUsed: 'Gas used',
@@ -2170,6 +2172,16 @@ export const messages = {
                         description:
                             'Accidentally sending to smart contract address may result in loss of funds.',
                         primaryButton: 'I understand',
+                    },
+                },
+                solana: {
+                    memo: {
+                        label: 'Memo',
+                        addButton: 'Add memo',
+                        editButton: 'Edit memo',
+                        inputPlaceholder: 'Enter your memo',
+                        saveButton: 'Save memo',
+                        removeButton: 'Remove memo',
                     },
                 },
             },

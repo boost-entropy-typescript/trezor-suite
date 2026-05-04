@@ -2,6 +2,7 @@ import { fromWei } from 'web3-utils';
 
 import { closeModal, openDeferredModal, preserveModal } from '@suite/modal';
 import { selectAddressDisplayType } from '@suite/settings';
+import { asEvmAddress, buildClaim } from '@suite-common/calldata';
 import { selectSelectedDevice } from '@suite-common/device';
 import {
     type TransactionDto,
@@ -10,7 +11,12 @@ import {
 } from '@suite-common/earn-stablecoin-api';
 import { createThunk } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { type NetworkSymbol } from '@suite-common/wallet-config';
+import {
+    type NetworkSymbol,
+    getEarnYieldClaimContractAddress,
+    getNetwork,
+} from '@suite-common/wallet-config';
+import { ETH_CONTRACT_CALL_BACKUP_GAS_LIMIT } from '@suite-common/wallet-constants';
 import {
     STABLECOIN_YIELD_PREFIX,
     type YieldFlowDisplayToken,
@@ -21,10 +27,13 @@ import {
     getYieldSupplyTransaction,
     getYieldWithdrawTransaction,
     openYieldApproveModal,
+    selectStablecoinYieldTxReview,
     setYieldGenericError,
     stablecoinYieldActions,
     submitYieldOpportunity,
+    synchronizeSentTransactionThunk,
 } from '@suite-common/wallet-core';
+import { ethereumGetCurrentNonceThunk } from '@suite-common/wallet-core/src/send/sendFormEthereumThunks';
 import {
     type Account,
     AddressDisplayOptions,
@@ -36,14 +45,16 @@ import {
     convertAmountUnitsToSubunits,
     getAccountIdentity,
     getContractAddressForNetworkSymbol,
+    prepareEthereumTransaction,
+    strip,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, { type EthereumSignTransaction, type TokenInfo } from '@trezor/connect';
+import { BigNumber } from '@trezor/utils';
 
+import type { MerkleRewardWithFiat } from 'src/components/earn/dashboard/yield/hooks/useMerkleRewards';
 import type { AppState, Dispatch } from 'src/types/suite';
 
 const YIELD_THUNK_PREFIX = `${STABLECOIN_YIELD_PREFIX}/thunk`;
-
-type EvmAccount = Extract<Account, { networkType: 'ethereum' }>;
 
 const serializeNonce = (nonce: number | `0x${string}`) =>
     typeof nonce === 'number' ? `0x${nonce.toString(16)}` : nonce;
@@ -51,6 +62,8 @@ const serializeNonce = (nonce: number | `0x${string}`) =>
 type ParsedTransactionForSigning = NonNullable<
     ReturnType<typeof parseUnsignedEvmTransactionForSigning>
 >;
+
+const evmHexToBigNumber = (hex: `0x${string}`) => new BigNumber(strip(hex), 16);
 
 type BuildYieldReviewTokenParams = {
     token: YieldFlowDisplayToken;
@@ -111,8 +124,6 @@ const getTransactionForSigning = (
     throw new Error('Yield transaction gas parameters are missing.');
 };
 
-const toGweiAmount = (amount: bigint) => fromWei(amount.toString(), 'gwei');
-
 const buildYieldReviewToken = ({
     token,
     symbol,
@@ -138,11 +149,11 @@ const buildYieldReviewState = ({
     flowType,
     vaultName,
 }: BuildYieldReviewStateParams): BuildYieldReviewStateResult => {
-    const gasLimit = BigInt(parsedTransaction.gasLimit);
-    const gasPriceWei = BigInt(
+    const gasLimit = evmHexToBigNumber(parsedTransaction.gasLimit);
+    const gasPrice = evmHexToBigNumber(
         parsedTransaction.maxFeePerGas ?? parsedTransaction.gasPrice ?? ('0x0' as `0x${string}`),
     );
-    const feeWei = gasLimit * gasPriceWei;
+    const fee = gasLimit.multipliedBy(gasPrice);
     const reviewToken = buildYieldReviewToken({ token, symbol });
     const amountSubunits = convertAmountUnitsToSubunits(amount, token.decimals);
     let eip1559ReviewFields: Partial<
@@ -151,8 +162,14 @@ const buildYieldReviewState = ({
 
     if (parsedTransaction.maxFeePerGas && parsedTransaction.maxPriorityFeePerGas) {
         eip1559ReviewFields = {
-            maxFeePerGas: toGweiAmount(BigInt(parsedTransaction.maxFeePerGas)),
-            maxPriorityFeePerGas: toGweiAmount(BigInt(parsedTransaction.maxPriorityFeePerGas)),
+            maxFeePerGas: fromWei(
+                evmHexToBigNumber(parsedTransaction.maxFeePerGas).toFixed(0),
+                'gwei',
+            ),
+            maxPriorityFeePerGas: fromWei(
+                evmHexToBigNumber(parsedTransaction.maxPriorityFeePerGas).toFixed(0),
+                'gwei',
+            ),
         };
     }
 
@@ -169,8 +186,8 @@ const buildYieldReviewState = ({
             },
         ],
         selectedFee: 'custom',
-        feePerUnit: toGweiAmount(gasPriceWei),
-        feeLimit: gasLimit.toString(),
+        feePerUnit: fromWei(gasPrice.toFixed(0), 'gwei'),
+        feeLimit: gasLimit.toFixed(0),
         ...eip1559ReviewFields,
         options: ['broadcast', 'transactionData'],
         transactionData: parsedTransaction.data,
@@ -182,10 +199,12 @@ const buildYieldReviewState = ({
 
     const precomposedTransaction: PrecomposedTransactionFinal = {
         type: 'final',
-        fee: feeWei.toString(),
-        feePerByte: toGweiAmount(gasPriceWei),
-        feeLimit: gasLimit.toString(),
-        totalSpent: reviewToken ? amountSubunits : (BigInt(amountSubunits) + feeWei).toString(),
+        fee: fee.toFixed(0),
+        feePerByte: fromWei(gasPrice.toFixed(0), 'gwei'),
+        feeLimit: gasLimit.toFixed(0),
+        totalSpent: reviewToken
+            ? amountSubunits
+            : new BigNumber(amountSubunits).plus(fee).toFixed(0),
         bytes: 0,
         inputs: [],
         outputs: [
@@ -259,7 +278,7 @@ const sendYieldTransaction = async ({
                 state: device.state,
                 useEmptyPassphrase: device.useEmptyPassphrase,
             },
-            path: (account as EvmAccount).path,
+            path: account.path,
             transaction: transactionForSigning,
             chunkify: addressDisplayType === AddressDisplayOptions.CHUNKED,
         });
@@ -296,6 +315,15 @@ const sendYieldTransaction = async ({
         if (!pushResponse.success) {
             throw new Error(pushResponse.error.message);
         }
+
+        dispatch(
+            synchronizeSentTransactionThunk({
+                selectedAccount: account,
+                precomposedTransaction,
+                precomposedForm: formState,
+                txid: pushResponse.payload.txid,
+            }),
+        );
 
         return pushResponse.payload;
     } finally {
@@ -403,7 +431,6 @@ export const submitYieldActionThunk = createThunk(
             dispatch(
                 notificationsActions.addToast({
                     type: flowType === 'supply' ? 'tx-yield-supply' : 'tx-yield-withdraw',
-                    formattedAmount: `${amount} ${flowData.token.symbol}`,
                     descriptor: flowData.account.descriptor,
                     symbol: flowData.account.symbol,
                     txid: result.txid,
@@ -437,6 +464,362 @@ export const submitYieldActionThunk = createThunk(
             setYieldGenericError({ dispatch, flowType, flowKey });
         } finally {
             dispatch(stablecoinYieldActions.finishSubmittingAction({ flowType, flowKey }));
+        }
+    },
+);
+
+type BuildClaimReviewStateParams = {
+    data: string;
+    contractAddress: `0x${string}`;
+    gasLimit: BigNumber;
+    gasPrice?: BigNumber;
+    maxFeePerGas?: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
+    baseFeePerGas?: BigNumber;
+};
+
+const buildClaimReviewState = ({
+    data,
+    contractAddress,
+    gasLimit,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    baseFeePerGas,
+}: BuildClaimReviewStateParams): BuildYieldReviewStateResult => {
+    const feePrice = maxFeePerGas ?? gasPrice;
+
+    if (typeof feePrice === 'undefined') {
+        throw new Error('Fee price is missing.');
+    }
+
+    const feeWei = gasLimit.multipliedBy(feePrice).toFixed(0);
+    let eip1559TransactionFields: Partial<
+        Pick<PrecomposedTransactionFinal, 'maxFeePerGas' | 'maxPriorityFeePerGas'>
+    > = {};
+    let eip1559FormFields: Pick<FormState, 'baseFeePerGas'> = {};
+
+    if (typeof maxFeePerGas !== 'undefined' && typeof maxPriorityFeePerGas !== 'undefined') {
+        eip1559TransactionFields = {
+            maxFeePerGas: fromWei(maxFeePerGas.toFixed(0), 'gwei'),
+            maxPriorityFeePerGas: fromWei(maxPriorityFeePerGas.toFixed(0), 'gwei'),
+        };
+        eip1559FormFields = {
+            baseFeePerGas:
+                typeof baseFeePerGas !== 'undefined'
+                    ? fromWei(baseFeePerGas.toFixed(0), 'gwei')
+                    : undefined,
+        };
+    }
+
+    const formState: FormState = {
+        outputs: [
+            {
+                type: 'payment',
+                address: contractAddress,
+                amount: '0',
+                fiat: '',
+                currency: { value: '', label: '' },
+                token: null,
+                dataHex: data,
+            },
+        ],
+        selectedFee: 'custom',
+        feePerUnit: fromWei(feePrice.toFixed(0), 'gwei'),
+        feeLimit: gasLimit.toFixed(0),
+        ...eip1559TransactionFields,
+        ...eip1559FormFields,
+        options: ['broadcast', 'transactionData'],
+        transactionData: data,
+        isCoinControlEnabled: false,
+        hasCoinControlBeenOpened: false,
+        selectedUtxos: [],
+    };
+
+    const precomposedTransaction: PrecomposedTransactionFinal = {
+        type: 'final',
+        fee: feeWei,
+        feePerByte: fromWei(feePrice.toFixed(0), 'gwei'),
+        feeLimit: gasLimit.toFixed(0),
+        totalSpent: feeWei,
+        bytes: 0,
+        inputs: [],
+        outputs: [{ address: contractAddress, amount: '0' }],
+        outputsPermutation: [0],
+        ...eip1559TransactionFields,
+    };
+
+    return { formState, precomposedTransaction };
+};
+
+type ClaimEstimateFeeLevel = {
+    feePerUnit?: string;
+    feeLimit?: string;
+    eip1559?: {
+        baseFeePerGas?: string;
+        medium?: {
+            maxFeePerGas?: string;
+            maxPriorityFeePerGas?: string;
+        };
+    };
+};
+
+type ClaimFeeFields = {
+    gasLimit: BigNumber;
+    gasPrice?: BigNumber;
+    maxFeePerGas?: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
+    baseFeePerGas?: BigNumber;
+};
+
+const getClaimFeeFields = (feeLevel: ClaimEstimateFeeLevel): ClaimFeeFields => {
+    const gasLimit = new BigNumber(feeLevel.feeLimit ?? ETH_CONTRACT_CALL_BACKUP_GAS_LIMIT);
+    const eip1559MediumFee = feeLevel.eip1559?.medium;
+
+    if (eip1559MediumFee?.maxFeePerGas && eip1559MediumFee.maxPriorityFeePerGas) {
+        return {
+            gasLimit,
+            maxFeePerGas: new BigNumber(eip1559MediumFee.maxFeePerGas),
+            maxPriorityFeePerGas: new BigNumber(eip1559MediumFee.maxPriorityFeePerGas),
+            baseFeePerGas: feeLevel.eip1559?.baseFeePerGas
+                ? new BigNumber(feeLevel.eip1559.baseFeePerGas)
+                : undefined,
+        };
+    }
+
+    if (!feeLevel.feePerUnit) {
+        throw new Error('Fee per unit is missing.');
+    }
+
+    return {
+        gasLimit,
+        gasPrice: new BigNumber(feeLevel.feePerUnit),
+    };
+};
+
+export const cancelSignYieldTx = createThunk(
+    `${YIELD_THUNK_PREFIX}/cancelSignYieldTx`,
+    (_params, { dispatch, getState }) => {
+        const { serializedTx } = selectStablecoinYieldTxReview(getState());
+
+        if (!serializedTx) {
+            TrezorConnect.cancel('tx-cancelled');
+        }
+
+        dispatch(closeModal());
+    },
+);
+
+type ClaimMerkleRewardsParams = {
+    account: Account;
+    flowKey: string;
+    rewards: MerkleRewardWithFiat[];
+};
+
+export const claimMerkleRewardsThunk = createThunk(
+    `${YIELD_THUNK_PREFIX}/claimMerkleRewards`,
+    async ({ account, flowKey, rewards }: ClaimMerkleRewardsParams, { dispatch, getState }) => {
+        const device = selectSelectedDevice(getState());
+        const addressDisplayType = selectAddressDisplayType(getState());
+
+        if (!device) {
+            throw new Error('Device not found.');
+        }
+
+        if (account.networkType !== 'ethereum') {
+            throw new Error('Yield claim currently supports only EVM accounts.');
+        }
+
+        const network = getNetwork(account.symbol);
+
+        if (!network.chainId) {
+            throw new Error('Chain ID not found for network.');
+        }
+
+        const merklXyzContractAddress = getEarnYieldClaimContractAddress(network.symbol);
+
+        if (!merklXyzContractAddress) {
+            throw new Error('Merkl.xyz contract address not found for network.');
+        }
+
+        dispatch(
+            stablecoinYieldActions.startSubmittingAction({
+                flowType: 'claim',
+                flowKey,
+                amount: '',
+            }),
+        );
+
+        try {
+            const sender = asEvmAddress(account.descriptor);
+            const claimResult = buildClaim(
+                {
+                    users: rewards.map(() => sender),
+                    tokens: rewards.map(reward => asEvmAddress(reward.token.address)),
+                    amounts: rewards.map(reward => new BigNumber(reward.amount)),
+                    proofs: rewards.map(reward => reward.proofs),
+                },
+                { sender },
+            );
+
+            if (!claimResult.isValid || !claimResult.data) {
+                throw new Error('Failed to build claim calldata.');
+            }
+
+            const estimatedFee = await TrezorConnect.blockchainEstimateFee({
+                coin: account.symbol,
+                request: {
+                    blocks: [2],
+                    specific: {
+                        from: account.descriptor,
+                        to: merklXyzContractAddress,
+                        data: claimResult.data,
+                    },
+                },
+            });
+
+            if (!estimatedFee.success) {
+                throw new Error('Failed to estimate fee for claim transaction.');
+            }
+
+            const feeLevel = estimatedFee.payload.levels[0];
+
+            if (!feeLevel) {
+                throw new Error('No fee level available.');
+            }
+
+            const claimFeeFields = getClaimFeeFields(feeLevel);
+
+            const { nonce } = await dispatch(
+                ethereumGetCurrentNonceThunk({ selectedAccount: account }),
+            ).unwrap();
+
+            const { formState, precomposedTransaction } = buildClaimReviewState({
+                data: claimResult.data,
+                contractAddress: merklXyzContractAddress,
+                ...claimFeeFields,
+            });
+
+            dispatch(
+                stablecoinYieldActions.storePrecomposedTransaction({
+                    precomposedTx: precomposedTransaction,
+                    precomposedForm: formState,
+                    accountKey: account.key,
+                }),
+            );
+
+            const commonTxFields = {
+                to: merklXyzContractAddress,
+                amount: '0',
+                chainId: network.chainId,
+                nonce,
+                gasLimit: claimFeeFields.gasLimit.toFixed(0),
+                data: claimResult.data,
+            };
+            const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = claimFeeFields;
+
+            const hasEip1559Fees = maxFeePerGas !== undefined && maxPriorityFeePerGas !== undefined;
+
+            if (!hasEip1559Fees && gasPrice === undefined) {
+                throw new Error('Gas price is missing.');
+            }
+
+            const transactionForSigning: EthereumSignTransaction['transaction'] = hasEip1559Fees
+                ? prepareEthereumTransaction({
+                      ...commonTxFields,
+                      maxFeePerGas: fromWei(maxFeePerGas.toFixed(0), 'gwei'),
+                      maxPriorityFeePerGas: fromWei(maxPriorityFeePerGas.toFixed(0), 'gwei'),
+                  })
+                : prepareEthereumTransaction({
+                      ...commonTxFields,
+                      gasPrice: fromWei(gasPrice!.toFixed(0), 'gwei'),
+                  });
+
+            try {
+                dispatch(preserveModal());
+
+                const signingResponse = await TrezorConnect.ethereumSignTransaction({
+                    device: {
+                        path: device.path,
+                        instance: device.instance,
+                        state: device.state,
+                        useEmptyPassphrase: device.useEmptyPassphrase,
+                    },
+                    path: account.path,
+                    transaction: transactionForSigning,
+                    chunkify: addressDisplayType === AddressDisplayOptions.CHUNKED,
+                });
+
+                if (!signingResponse.success) {
+                    dispatch(closeModal());
+                    throw new Error(signingResponse.error.message);
+                }
+
+                dispatch(
+                    stablecoinYieldActions.storeSignedTransaction({
+                        serializedTx: {
+                            tx: signingResponse.payload.serializedTx,
+                            symbol: account.symbol,
+                        },
+                    }),
+                );
+
+                const isPushConfirmed = await dispatch(
+                    openDeferredModal({ type: 'review-transaction' }),
+                );
+
+                if (!isPushConfirmed) {
+                    return null;
+                }
+
+                const pushResponse = await TrezorConnect.pushTransaction({
+                    tx: signingResponse.payload.serializedTx,
+                    coin: account.symbol,
+                    identity: getAccountIdentity(account),
+                });
+
+                dispatch(closeModal());
+
+                if (!pushResponse.success) {
+                    throw new Error(pushResponse.error.message);
+                }
+
+                dispatch(
+                    synchronizeSentTransactionThunk({
+                        selectedAccount: account,
+                        precomposedTransaction,
+                        precomposedForm: formState,
+                        txid: pushResponse.payload.txid,
+                    }),
+                );
+
+                dispatch(
+                    notificationsActions.addToast({
+                        type: 'tx-yield-claim',
+                        descriptor: account.descriptor,
+                        symbol: account.symbol,
+                        txid: pushResponse.payload.txid,
+                    }),
+                );
+
+                dispatch(
+                    stablecoinYieldActions.setPendingTx({
+                        flowType: 'claim',
+                        flowKey,
+                        tx: {
+                            type: 'claim',
+                            txid: pushResponse.payload.txid,
+                            amount: '',
+                        },
+                    }),
+                );
+
+                return pushResponse.payload;
+            } finally {
+                dispatch(stablecoinYieldActions.discardTransaction());
+            }
+        } finally {
+            dispatch(stablecoinYieldActions.finishSubmittingAction({ flowType: 'claim', flowKey }));
         }
     },
 );

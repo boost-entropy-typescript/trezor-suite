@@ -1,5 +1,5 @@
 import { ChainAddressKey } from '@suite-common/earn-stablecoin-api';
-import { getNetworkByEvmChainId } from '@suite-common/wallet-config';
+import { getNetworkByEvmChainId, isEarnYieldClaimSupported } from '@suite-common/wallet-config';
 import { type Account, asBaseCurrencyAmount } from '@suite-common/wallet-types';
 import { BigNumber } from '@trezor/utils';
 
@@ -17,7 +17,7 @@ export const getClaimableAccounts = ({
 }: GetClaimableAccountsParams): EarnYieldClaimableAccount[] =>
     Object.entries(rewards).flatMap(([key, accountRewards]) => {
         const { chainId, address } = ChainAddressKey.parse(key);
-        const network = getNetworkByEvmChainId(Number(chainId));
+        const network = getNetworkByEvmChainId(chainId);
 
         const account = visibleAccounts.find(
             a =>
@@ -26,6 +26,10 @@ export const getClaimableAccounts = ({
         );
 
         if (!account) {
+            return [];
+        }
+
+        if (!network || !isEarnYieldClaimSupported(network.symbol)) {
             return [];
         }
 

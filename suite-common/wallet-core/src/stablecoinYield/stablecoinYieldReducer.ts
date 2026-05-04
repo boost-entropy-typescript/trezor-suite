@@ -111,6 +111,7 @@ export const initialStablecoinYieldTxReviewState: StablecoinYieldTxReviewState =
 export const initialStablecoinYieldState: StablecoinYieldState = {
     supply: Object.create(null),
     withdraw: Object.create(null),
+    claim: Object.create(null),
     txReview: initialStablecoinYieldTxReviewState,
 };
 
