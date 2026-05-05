@@ -5415,6 +5415,26 @@ export const messages = defineMessages({
         id: 'TR_TRON_FEE_LIMIT_BELOW_RECOMMENDED',
         defaultMessage: 'Fee limit too low',
     },
+    TR_TRON_NOTE: {
+        id: 'TR_TRON_NOTE',
+        defaultMessage: 'Note',
+    },
+    TR_TRON_NOTE_ADD: {
+        id: 'TR_TRON_NOTE_ADD',
+        defaultMessage: 'Add note',
+    },
+    TR_TRON_NOTE_ADD_TOOLTIP: {
+        id: 'TR_TRON_NOTE_ADD_TOOLTIP',
+        defaultMessage: 'Add a note to the transaction.',
+    },
+    TR_TRON_NOTE_TOO_LONG: {
+        id: 'TR_TRON_NOTE_TOO_LONG',
+        defaultMessage: 'Note is too long',
+    },
+    TR_TRON_NOTE_INFO: {
+        id: 'TR_TRON_NOTE_INFO',
+        defaultMessage: 'Adds 1 {networkDisplaySymbol} in network fee.',
+    },
     TR_FEE_LIMIT: {
         id: 'TR_FEE_LIMIT',
         defaultMessage: 'Fee limit',
@@ -5425,7 +5445,8 @@ export const messages = defineMessages({
     },
     TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP: {
         id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP',
-        defaultMessage: 'New TRON accounts require a one-time 1 TRX network fee to activate.',
+        defaultMessage:
+            'New TRON accounts require a one-time 1 {networkDisplaySymbol} network fee to activate.',
     },
     TR_TRON_TX_CREATE_ACCOUNT: {
         id: 'TR_TRON_TX_CREATE_ACCOUNT',

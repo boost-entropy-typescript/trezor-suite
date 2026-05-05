@@ -1840,6 +1840,15 @@ export const messages = {
                     'Used for smart contract actions like sending tokens. If depleted, TRX is burned as a fee. Refills automatically over time (up to 24 hours).',
             },
         },
+        accountSettingsExportBip329Button: {
+            title: 'Export labels',
+            button: 'Export',
+            description:
+                'Export transaction labels for this account. Compatible with other wallet applications that support the BIP-329 format.',
+            exportSuccessfulToast: 'Labels exported.',
+            exportFailedToast: 'Failed to export labels.',
+            fileSavingNotSupported: 'File saving is not supported on this platform.',
+        },
     },
     transactions: {
         title: 'Transactions',
@@ -1871,6 +1880,7 @@ export const messages = {
         },
         detail: {
             header: '<transactionType></transactionType> transaction',
+            unstakeHeader: 'Unstake {amount}',
             exploreButton: 'Explore in blockchain',
             feeLabel: 'Fee',
             dateLabel: 'Date',
@@ -1939,6 +1949,7 @@ export const messages = {
             },
             parametersSheet: {
                 confirmations: 'Confirmations',
+                tronNote: 'Note',
                 feeRate: 'Fee rate',
                 rbf: 'RBF',
                 lockTime: 'Lock time',
@@ -2190,7 +2201,16 @@ export const messages = {
             accountActivationFee: 'Activation Fee',
             accountActivationFeeTitle: 'Activation fee',
             accountActivationFeeDescription:
-                'New TRON accounts require a one-time 1 TRX network fee to activate.',
+                'New TRON accounts require a one-time 1 {networkDisplaySymbol} network fee to activate.',
+            note: {
+                label: 'Note',
+                addButton: 'Add note',
+                editButton: 'Edit note',
+                inputPlaceholder: 'Enter your note',
+                saveButton: 'Save note',
+                removeButton: 'Remove note',
+                info: 'Adds 1 {networkDisplaySymbol} in network fee.',
+            },
         },
         fees: {
             recipient: {
@@ -3345,6 +3365,7 @@ export const messages = {
                 tokenLabel: 'Token',
                 feeLimitLabel: 'Fee Limit',
                 feeLimitSummaryLabel: 'Summary',
+                noteLabel: 'Note',
                 summary: {
                     label: 'Total including fee',
                     totalAmount: 'Total amount',
