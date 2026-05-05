@@ -25,24 +25,27 @@ export const YieldSupplyForm = () => {
         receiptToken,
         apy,
         liveAmount,
-        approvedAmount,
         completedAmount,
         completedReceiptAmount,
         maxAmount,
         errorMessage,
         approveModalState,
         pendingTransaction,
-        isModifyMode,
-        lastApprovedAmount,
-        isRevokeRequired,
+        allowanceAmount,
+        allowanceStatus,
+        approvalAction,
+        canRevokeAllowance,
+        approvalNetworkFeeWarning,
+        actionNetworkFeeWarning,
+        isAmountEmpty,
         isAmountTooHigh,
         isApprovalInsufficient,
         isSubmittingApprove,
         isSubmittingAction,
         setAmountInput,
-        submitApprove,
+        submitApprovalAction,
         submitAction,
-        submitRevoke,
+        revokeAllowance,
         enterModifyApproval,
         handleApproveModalCancel,
         handleApproveSuccessTxid,
@@ -90,18 +93,18 @@ export const YieldSupplyForm = () => {
         }
     }, [analytics, errorMessage, token.networkSymbol, token.contractAddress, translationString]);
 
-    const handleOnApprove = () => {
+    const handleOnApprovalSubmit = () => {
         analytics.report({
             type: events.yieldSupplyEvent.name,
             payload: {
-                type: 'approve',
+                type: approvalAction === 'revoke' ? 'revoke' : 'approve',
                 action: 'continue',
                 networkSymbol: token.networkSymbol,
                 contractAddress: token.contractAddress ?? undefined,
             },
         });
 
-        submitApprove();
+        submitApprovalAction();
     };
 
     const handleOnRevoke = () => {
@@ -115,7 +118,7 @@ export const YieldSupplyForm = () => {
             },
         });
 
-        submitRevoke();
+        revokeAllowance();
     };
 
     const handleOnModify = () => {
@@ -202,20 +205,30 @@ export const YieldSupplyForm = () => {
                                         flowType="supply"
                                         token={token}
                                         variant={approveStepState === 'done' ? 'done' : 'active'}
-                                        amount={liveAmount}
                                         summaryValue={
                                             <FormattedCryptoAmount
                                                 value={maxAmount}
                                                 symbol={token.symbol}
                                             />
                                         }
-                                        approvedAmount={approvedAmount ?? undefined}
-                                        isModifyMode={isModifyMode}
-                                        previousApprovedAmount={lastApprovedAmount || undefined}
-                                        isRevokeRequired={isRevokeRequired}
+                                        approvedAmount={allowanceAmount || undefined}
+                                        isApprovedAmountLoading={allowanceStatus === 'loading'}
+                                        hasApprovedAmountError={allowanceStatus === 'error'}
+                                        approvalAction={approvalAction}
+                                        canRevokeAllowance={canRevokeAllowance}
                                         warning={
                                             isAmountTooHigh ? (
-                                                <YieldActionStepWarning isInsufficientFunds />
+                                                <YieldActionStepWarning
+                                                    isInsufficientFunds={isAmountTooHigh}
+                                                />
+                                            ) : undefined
+                                        }
+                                        networkFeeWarning={
+                                            approveStepState === 'active' &&
+                                            approvalNetworkFeeWarning ? (
+                                                <YieldActionStepWarning
+                                                    networkFeeWarning={approvalNetworkFeeWarning}
+                                                />
                                             ) : undefined
                                         }
                                         isDisabled={
@@ -223,7 +236,7 @@ export const YieldSupplyForm = () => {
                                         }
                                         pendingApproveTransaction={approvalPendingTransaction}
                                         onMaxClick={() => setAmountInput(maxAmount)}
-                                        onApprove={handleOnApprove}
+                                        onApprovalSubmit={handleOnApprovalSubmit}
                                         onRevoke={handleOnRevoke}
                                         onPendingTxClick={openPendingTransaction}
                                     />
@@ -250,7 +263,15 @@ export const YieldSupplyForm = () => {
                                                     onModifyApproval={enterModifyApproval}
                                                 />
                                             }
+                                            networkFeeWarning={
+                                                actionNetworkFeeWarning ? (
+                                                    <YieldActionStepWarning
+                                                        networkFeeWarning={actionNetworkFeeWarning}
+                                                    />
+                                                ) : undefined
+                                            }
                                             isDisabled={
+                                                isAmountEmpty ||
                                                 isAmountTooHigh ||
                                                 isApprovalInsufficient ||
                                                 isSubmittingAction

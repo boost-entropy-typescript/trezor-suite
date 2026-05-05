@@ -4,8 +4,11 @@ import { closeModal, openDeferredModal, preserveModal } from '@suite/modal';
 import { selectAddressDisplayType } from '@suite/settings';
 import { asEvmAddress, buildClaim } from '@suite-common/calldata';
 import { selectSelectedDevice } from '@suite-common/device';
+import { type SupplyTxSimulationParams } from '@suite-common/earn-stablecoin/src/tx-simulation';
 import {
     type TransactionDto,
+    flattenEvmFees,
+    parseEvmFee,
     parseUnsignedEvmTransactionForSigning,
     submitTransactionHash,
 } from '@suite-common/earn-stablecoin-api';
@@ -37,6 +40,7 @@ import { ethereumGetCurrentNonceThunk } from '@suite-common/wallet-core/src/send
 import {
     type Account,
     AddressDisplayOptions,
+    type EvmSelectedFee,
     type FormState,
     type PrecomposedTransactionFinal,
     type YieldFormMetadata,
@@ -71,7 +75,7 @@ type BuildYieldReviewTokenParams = {
 };
 
 type BuildYieldReviewStateParams = BuildYieldReviewTokenParams & {
-    parsedTransaction: ParsedTransactionForSigning;
+    tx: ParsedTransactionForSigning;
     amount: string;
     flowType: YieldFormMetadata['type'];
     vaultName: string;
@@ -80,17 +84,6 @@ type BuildYieldReviewStateParams = BuildYieldReviewTokenParams & {
 type BuildYieldReviewStateResult = {
     formState: FormState;
     precomposedTransaction: PrecomposedTransactionFinal;
-};
-
-type SendYieldTransactionParams = {
-    account: Account;
-    amount: string;
-    token: YieldFlowDisplayToken;
-    transaction: TransactionDto;
-    flowType: YieldFormMetadata['type'];
-    vaultName: string;
-    dispatch: Dispatch;
-    getState: () => AppState;
 };
 
 const getTransactionForSigning = (
@@ -142,17 +135,15 @@ const buildYieldReviewToken = ({
 };
 
 const buildYieldReviewState = ({
-    parsedTransaction,
+    tx,
     amount,
     token,
     symbol,
     flowType,
     vaultName,
 }: BuildYieldReviewStateParams): BuildYieldReviewStateResult => {
-    const gasLimit = evmHexToBigNumber(parsedTransaction.gasLimit);
-    const gasPrice = evmHexToBigNumber(
-        parsedTransaction.maxFeePerGas ?? parsedTransaction.gasPrice ?? ('0x0' as `0x${string}`),
-    );
+    const gasLimit = evmHexToBigNumber(tx.gasLimit);
+    const gasPrice = evmHexToBigNumber(tx.maxFeePerGas ?? tx.gasPrice ?? ('0x0' as `0x${string}`));
     const fee = gasLimit.multipliedBy(gasPrice);
     const reviewToken = buildYieldReviewToken({ token, symbol });
     const amountSubunits = convertAmountUnitsToSubunits(amount, token.decimals);
@@ -160,14 +151,11 @@ const buildYieldReviewState = ({
         Pick<PrecomposedTransactionFinal, 'maxFeePerGas' | 'maxPriorityFeePerGas'>
     > = {};
 
-    if (parsedTransaction.maxFeePerGas && parsedTransaction.maxPriorityFeePerGas) {
+    if (tx.maxFeePerGas && tx.maxPriorityFeePerGas) {
         eip1559ReviewFields = {
-            maxFeePerGas: fromWei(
-                evmHexToBigNumber(parsedTransaction.maxFeePerGas).toFixed(0),
-                'gwei',
-            ),
+            maxFeePerGas: fromWei(evmHexToBigNumber(tx.maxFeePerGas).toFixed(0), 'gwei'),
             maxPriorityFeePerGas: fromWei(
-                evmHexToBigNumber(parsedTransaction.maxPriorityFeePerGas).toFixed(0),
+                evmHexToBigNumber(tx.maxPriorityFeePerGas).toFixed(0),
                 'gwei',
             ),
         };
@@ -177,12 +165,12 @@ const buildYieldReviewState = ({
         outputs: [
             {
                 type: 'payment',
-                address: parsedTransaction.to,
+                address: tx.to,
                 amount,
                 fiat: '',
                 currency: { value: '', label: '' },
                 token: reviewToken?.contract ?? null,
-                dataHex: parsedTransaction.data,
+                dataHex: tx.data,
             },
         ],
         selectedFee: 'custom',
@@ -190,7 +178,7 @@ const buildYieldReviewState = ({
         feeLimit: gasLimit.toFixed(0),
         ...eip1559ReviewFields,
         options: ['broadcast', 'transactionData'],
-        transactionData: parsedTransaction.data,
+        transactionData: tx.data,
         isCoinControlEnabled: false,
         hasCoinControlBeenOpened: false,
         selectedUtxos: [],
@@ -209,7 +197,7 @@ const buildYieldReviewState = ({
         inputs: [],
         outputs: [
             {
-                address: parsedTransaction.to,
+                address: tx.to,
                 amount: amountSubunits,
             },
         ],
@@ -221,6 +209,18 @@ const buildYieldReviewState = ({
     return { formState, precomposedTransaction };
 };
 
+type SendYieldTransactionParams = {
+    account: Account;
+    amount: string;
+    token: YieldFlowDisplayToken;
+    transaction: TransactionDto;
+    flowType: YieldFormMetadata['type'];
+    vaultName: string;
+    dispatch: Dispatch;
+    getState: () => AppState;
+    selectedFee: EvmSelectedFee | null;
+};
+
 const sendYieldTransaction = async ({
     account,
     amount,
@@ -230,6 +230,7 @@ const sendYieldTransaction = async ({
     vaultName,
     dispatch,
     getState,
+    selectedFee,
 }: SendYieldTransactionParams) => {
     const device = selectSelectedDevice(getState());
     const addressDisplayType = selectAddressDisplayType(getState());
@@ -242,17 +243,28 @@ const sendYieldTransaction = async ({
         throw new Error('Yield actions currently support only EVM accounts.');
     }
 
-    const parsedTransaction = parseUnsignedEvmTransactionForSigning(
-        transaction.unsignedTransaction,
-    );
+    const parsedTx = parseUnsignedEvmTransactionForSigning(transaction.unsignedTransaction);
 
-    if (!parsedTransaction) {
+    if (!parsedTx) {
         throw new Error('Unsupported yield transaction payload.');
     }
 
-    const transactionForSigning = getTransactionForSigning(parsedTransaction);
+    const parsedSelectedFee = parseEvmFee(selectedFee ?? parsedTx);
+
+    if (!parsedSelectedFee) {
+        throw new Error('Fee information is missing for the transaction.');
+    }
+
+    const unknownEvmFee = flattenEvmFees(parsedSelectedFee);
+
+    const tx: ParsedTransactionForSigning = {
+        ...parsedTx,
+        ...unknownEvmFee,
+    } satisfies ParsedTransactionForSigning;
+
+    const transactionForSigning = getTransactionForSigning(tx);
     const { formState, precomposedTransaction } = buildYieldReviewState({
-        parsedTransaction,
+        tx,
         amount,
         token,
         symbol: account.symbol,
@@ -286,7 +298,7 @@ const sendYieldTransaction = async ({
         if (!signingResponse.success) {
             dispatch(closeModal());
 
-            throw new Error(signingResponse.error.message);
+            throw new Error(`${signingResponse.error.code}: ${signingResponse.error.message}`);
         }
 
         dispatch(
@@ -313,7 +325,7 @@ const sendYieldTransaction = async ({
         dispatch(closeModal());
 
         if (!pushResponse.success) {
-            throw new Error(pushResponse.error.message);
+            throw new Error(`${pushResponse.error.code}: ${pushResponse.error.message}`);
         }
 
         dispatch(
@@ -326,6 +338,9 @@ const sendYieldTransaction = async ({
         );
 
         return pushResponse.payload;
+        // eslint-disable-next-line no-useless-catch
+    } catch (error) {
+        throw error;
     } finally {
         dispatch(stablecoinYieldActions.discardTransaction());
     }
@@ -403,6 +418,32 @@ export const submitYieldActionThunk = createThunk(
                 return;
             }
 
+            let selectedFee: EvmSelectedFee | null = null;
+
+            if (flowType === 'supply') {
+                if (typeof actionTransaction.unsignedTransaction !== 'string') {
+                    setYieldGenericError({ dispatch, flowType, flowKey });
+
+                    return;
+                }
+
+                const userAcceptedTxSimulation = await dispatch(
+                    openDeferredModal({
+                        type: 'earn-yield-tx-simulation',
+                        data: {
+                            unsignedSupplyTx: actionTransaction.unsignedTransaction,
+                            account: flowData.account,
+                        } satisfies SupplyTxSimulationParams,
+                    }),
+                );
+
+                if (userAcceptedTxSimulation?.value === false) {
+                    return;
+                }
+
+                selectedFee = userAcceptedTxSimulation?.selectedFee ?? null;
+            }
+
             const isWithdraw = flowType === 'withdraw';
             const reviewAmount = isWithdraw ? requestAmount : amount;
             const reviewToken = isWithdraw ? flowData.receiptToken : flowData.token;
@@ -417,6 +458,7 @@ export const submitYieldActionThunk = createThunk(
                 vaultName,
                 dispatch,
                 getState,
+                selectedFee,
             });
 
             if (!result) {
@@ -460,7 +502,8 @@ export const submitYieldActionThunk = createThunk(
                     receiptAmount,
                 }),
             );
-        } catch {
+        } catch (error) {
+            console.error(error);
             setYieldGenericError({ dispatch, flowType, flowKey });
         } finally {
             dispatch(stablecoinYieldActions.finishSubmittingAction({ flowType, flowKey }));

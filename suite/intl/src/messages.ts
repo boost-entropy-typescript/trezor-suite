@@ -7688,6 +7688,18 @@ export const messages = defineMessages({
         id: 'TR_ONBOARDING_STEP_WALLET',
         defaultMessage: 'Wallet',
     },
+    TR_ONBOARDING_FINAL_HEADING: {
+        id: 'TR_ONBOARDING_FINAL_HEADING',
+        defaultMessage: 'You’re all set!',
+    },
+    TR_ONBOARDING_FINAL_DESCRIPTION: {
+        id: 'TR_ONBOARDING_FINAL_DESCRIPTION',
+        defaultMessage: 'Your {deviceName} is set up and ready for use.',
+    },
+    TR_ONBOARDING_FINAL_GO_TO_DASHBOARD: {
+        id: 'TR_ONBOARDING_FINAL_GO_TO_DASHBOARD',
+        defaultMessage: 'Go to Dashboard',
+    },
     TR_ONBOARDING_CURRENT_VERSION: {
         id: 'TR_ONBOARDING_CURRENT_VERSION',
         defaultMessage: 'Current version',
@@ -9578,6 +9590,15 @@ export const messages = defineMessages({
     TR_EARN_YIELD_APPROVED_AMOUNT: {
         id: 'TR_EARN_YIELD_APPROVED_AMOUNT',
         defaultMessage: 'Approved amount',
+    },
+    TR_EARN_YIELD_NETWORK_FEE_WARNING_TITLE: {
+        id: 'TR_EARN_YIELD_NETWORK_FEE_WARNING_TITLE',
+        defaultMessage: 'You only have {amount} {networkDisplaySymbol} available.',
+    },
+    TR_EARN_YIELD_NETWORK_FEE_WARNING_DESCRIPTION: {
+        id: 'TR_EARN_YIELD_NETWORK_FEE_WARNING_DESCRIPTION',
+        defaultMessage:
+            'This balance may not cover network fees. Consider adding more {networkDisplaySymbol} before you continue.',
     },
     TR_EARN_YIELD_SUPPLY_COMPLETE: {
         id: 'TR_EARN_YIELD_SUPPLY_COMPLETE',

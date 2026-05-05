@@ -1814,7 +1814,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blockaid/client@npm:^0.65.0":
+"@blockaid/client@npm:0.65.0":
   version: 0.65.0
   resolution: "@blockaid/client@npm:0.65.0"
   dependencies:
@@ -11116,7 +11116,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/earn-stablecoin-api@workspace:*, @suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api":
+"@suite-common/earn-stablecoin-api@workspace:*, @suite-common/earn-stablecoin-api@workspace:^, @suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api":
   version: 0.0.0-use.local
   resolution: "@suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api"
   dependencies:
@@ -11131,9 +11131,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/earn-stablecoin@workspace:suite-common/earn-stablecoin":
+"@suite-common/earn-stablecoin@workspace:^, @suite-common/earn-stablecoin@workspace:suite-common/earn-stablecoin":
   version: 0.0.0-use.local
   resolution: "@suite-common/earn-stablecoin@workspace:suite-common/earn-stablecoin"
+  dependencies:
+    "@suite-common/earn-stablecoin-api": "workspace:^"
+    "@suite-common/wallet-config": "workspace:^"
+    "@suite-common/wallet-types": "workspace:^"
+    zod: "npm:4.3.6"
   languageName: unknown
   linkType: soft
 
@@ -11827,7 +11832,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/tx-simulation@workspace:suite-common/tx-simulation"
   dependencies:
-    "@blockaid/client": "npm:^0.65.0"
+    "@blockaid/client": "npm:0.65.0"
     "@suite-common/react-query": "workspace:^"
     "@suite-common/wallet-config": "workspace:^"
     "@suite-common/wallet-constants": "workspace:*"
@@ -16792,6 +16797,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
+    "@suite-common/earn-stablecoin": "workspace:^"
     "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/earn-staking-api": "workspace:*"
     "@suite-common/feedback": "workspace:*"

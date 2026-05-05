@@ -66,19 +66,27 @@ export const EarnYieldTable = () => {
     const merkleRewardsSources = useMemo(
         () =>
             yieldAccountOpportunities.flatMap(opportunity => {
-                // Merkl rewards are claimable only for accounts that already hold a vault position.
+                const { networkSymbol, account } = opportunity;
                 if (
-                    !opportunity.hasVaultPosition ||
-                    !opportunity.account ||
-                    !isEarnYieldClaimSupported(opportunity.networkSymbol)
+                    !(
+                        isEarnYieldClaimSupported(networkSymbol) &&
+                        account &&
+                        account.networkType === 'ethereum'
+                    )
                 ) {
+                    return [];
+                }
+
+                const isApproveTx = Number(account.misc.nonce) === 0;
+
+                if (isApproveTx) {
                     return [];
                 }
 
                 return [
                     {
-                        networkSymbol: opportunity.networkSymbol,
-                        address: opportunity.account.descriptor,
+                        networkSymbol,
+                        address: account.descriptor,
                     },
                 ];
             }),
