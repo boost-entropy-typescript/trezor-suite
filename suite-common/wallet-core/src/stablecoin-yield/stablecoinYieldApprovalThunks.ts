@@ -42,7 +42,7 @@ export type YieldSessionDataAmountPayload = YieldSessionDataPayload & {
 };
 
 type InitYieldAllowancePayload = YieldSessionDataPayload & {
-    flowType: 'supply';
+    flowType: 'deposit';
 };
 
 type SetYieldGenericErrorParams = YieldSessionPayload & {
@@ -99,7 +99,7 @@ export const getApprovalContractAddress = ({
     flowType,
     flowData,
 }: GetApprovalContractAddressParams) =>
-    flowType === 'supply'
+    flowType === 'deposit'
         ? (flowData.token.contractAddress ?? undefined)
         : (flowData.receiptToken.contractAddress ?? undefined);
 
@@ -108,7 +108,7 @@ export const getApprovalRequestAmount = ({
     amount,
     flowData,
 }: GetApprovalRequestAmountParams) => {
-    if (flowType === 'supply') {
+    if (flowType === 'deposit') {
         return amount;
     }
 
@@ -234,7 +234,7 @@ export const submitYieldOpportunity = async ({
     amount,
 }: SubmitYieldOpportunityParams) => {
     switch (flowType) {
-        case 'supply': {
+        case 'deposit': {
             const response = await enterYield({
                 yieldId: flowData.vault.id,
                 address: flowData.account.descriptor,
@@ -368,6 +368,7 @@ export const submitYieldRevokeThunk = createThunk(
         const fallbackSpender = approval.approvedSpender ?? getAllowanceSpender(flowData);
 
         dispatch(stablecoinYieldActions.clearError({ flowType, flowKey }));
+        dispatch(stablecoinYieldActions.startSubmittingApproval({ flowType, flowKey }));
 
         try {
             const { response, verification } = await submitYieldOpportunity({
@@ -429,6 +430,8 @@ export const submitYieldRevokeThunk = createThunk(
             if (!isRevokeModalOpen) {
                 setYieldGenericError({ dispatch, flowType, flowKey });
             }
+        } finally {
+            dispatch(stablecoinYieldActions.finishSubmittingApproval({ flowType, flowKey }));
         }
     },
 );

@@ -112,8 +112,8 @@ const getTranslationValues = (
         return getStakeTranslations(stakeType, networkType);
     }
 
-    if (evmTxType === 'supply' || evmTxType === 'withdraw') {
-        const isSupply = evmTxType === 'supply';
+    if (evmTxType === 'deposit' || evmTxType === 'withdraw') {
+        const isSupply = evmTxType === 'deposit';
 
         return {
             label: isSupply
@@ -172,14 +172,17 @@ const getOutputTitle = (
             return <Translation id={contractTitle} />;
         case 'address':
         case 'regular_legacy':
-            if (evmTxType === 'supply' || evmTxType === 'withdraw') {
-                return <Translation id="TR_EARN_YIELD_VAULT" />;
+            if (evmTxType === 'deposit') {
+                return <Translation id="TR_EARN_YIELD_DEPOSIT_TO" />;
+            }
+            if (evmTxType === 'withdraw') {
+                return <Translation id="TR_EARN_YIELD_REDEEM_FROM" />;
             }
 
             return <Translation id={translation ? translation.label : 'TR_RECIPIENT_ADDRESS'} />;
 
         case 'amount':
-            if (evmTxType === 'supply' || evmTxType === 'withdraw') {
+            if (evmTxType === 'deposit' || evmTxType === 'withdraw') {
                 return <Translation id="AMOUNT" />;
             }
 
@@ -317,7 +320,7 @@ const getOutputLines = ({
                 device,
             );
 
-            if (evmTxType === 'supply' || evmTxType === 'withdraw') {
+            if (evmTxType === 'deposit' || evmTxType === 'withdraw') {
                 if (type === 'data' && translationValues) {
                     return [
                         {
@@ -333,7 +336,7 @@ const getOutputLines = ({
                         {
                             id: 'address',
                             type: 'default',
-                            value,
+                            value: translationString('TR_EARN_YIELD_VAULT_NAME', { vault: value }),
                         },
                     ];
                 }
@@ -394,14 +397,14 @@ const getOutputLines = ({
                 },
             ];
         case 'amount': {
-            if (evmTxType === 'supply' || evmTxType === 'withdraw') {
+            if (evmTxType === 'deposit' || evmTxType === 'withdraw') {
                 return [
                     {
                         id: 'amount',
                         label: (
                             <Translation
                                 id={
-                                    evmTxType === 'supply'
+                                    evmTxType === 'deposit'
                                         ? 'TR_EARN_YIELD_REVIEW_SUPPLY_AMOUNT'
                                         : 'TR_EARN_YIELD_REVIEW_WITHDRAW_AMOUNT'
                                 }

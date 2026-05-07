@@ -21,10 +21,10 @@ export const YieldSupplyForm = () => {
 
     const {
         account,
+        vault,
         token,
         receiptToken,
         apy,
-        liveAmount,
         completedAmount,
         completedReceiptAmount,
         maxAmount,
@@ -60,7 +60,7 @@ export const YieldSupplyForm = () => {
     } = flow.stepStates;
 
     const { approvalPendingTransaction, actionPendingTransaction: supplyPendingTransaction } =
-        splitYieldPendingTransaction(pendingTransaction, 'supply');
+        splitYieldPendingTransaction(pendingTransaction, 'deposit');
 
     // trigger success analytics event
     useEffect(() => {
@@ -156,6 +156,8 @@ export const YieldSupplyForm = () => {
                     {flow.currentStep === 'complete' ? (
                         <YieldFlowCompleteSupply
                             apy={apy}
+                            vault={vault}
+                            networkSymbol={account.symbol}
                             input={{
                                 token,
                                 amount: completedAmount,
@@ -202,7 +204,7 @@ export const YieldSupplyForm = () => {
                                     }
                                 >
                                     <YieldApproveStep
-                                        flowType="supply"
+                                        flowType="deposit"
                                         token={token}
                                         variant={approveStepState === 'done' ? 'done' : 'active'}
                                         summaryValue={
@@ -232,8 +234,9 @@ export const YieldSupplyForm = () => {
                                             ) : undefined
                                         }
                                         isDisabled={
-                                            !liveAmount || isAmountTooHigh || isSubmittingApprove
+                                            isAmountEmpty || isAmountTooHigh || isSubmittingApprove
                                         }
+                                        isLoading={isSubmittingApprove}
                                         pendingApproveTransaction={approvalPendingTransaction}
                                         onMaxClick={() => setAmountInput(maxAmount)}
                                         onApprovalSubmit={handleOnApprovalSubmit}
@@ -248,7 +251,7 @@ export const YieldSupplyForm = () => {
                                 >
                                     {actionStepState === 'active' && (
                                         <YieldActionStep
-                                            flowType="supply"
+                                            flowType="deposit"
                                             token={token}
                                             summaryValue={
                                                 <FormattedCryptoAmount

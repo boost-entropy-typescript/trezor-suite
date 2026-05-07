@@ -4,6 +4,7 @@ import { events } from '@suite/analytics';
 import { useDevice } from '@suite/device';
 import { Translation } from '@suite/intl';
 import { openModal } from '@suite/modal';
+import { selectIsDebugModeActive } from '@suite/settings';
 import { ChainAddressKey } from '@suite-common/earn-stablecoin-api';
 import { Context } from '@suite-common/message-system';
 import { isEarnYieldClaimSupported } from '@suite-common/wallet-config';
@@ -16,6 +17,7 @@ import { type Account } from '@suite-common/wallet-types';
 import { Banner, Button, Card, Column, Text } from '@trezor/components';
 import { BigNumber } from '@trezor/utils';
 
+import { setConnectionModal, setConnectionMode } from 'src/actions/device/deviceSlice';
 import { claimMerkleRewardsThunk } from 'src/actions/wallet/stablecoinYieldSigningThunks';
 import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanners/ContextMessage';
 import { useDispatch, useSelector } from 'src/hooks/suite';
@@ -45,12 +47,14 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
     const claimSession = useSelector(state =>
         selectStablecoinYieldSession(state, 'claim', flowKey),
     );
-    const isClaiming =
+    const isDebugMode = useSelector(selectIsDebugModeActive);
+    const isClaimSubmitting =
         claimSession.action.isSubmitting ||
-        !!claimSession.action.pendingTransaction ||
         (!!yieldTxReview.precomposedTx && yieldTxReview.accountKey === account?.key);
+    const isClaiming = isClaimSubmitting || !!claimSession.action.pendingTransaction;
     const isDeviceConnected = !!device?.connected && device.available;
-    const isClaimSupported = !!account && isEarnYieldClaimSupported(account.symbol);
+    const isClaimSupported =
+        !!account && isEarnYieldClaimSupported(account.symbol, { isDebugMode });
 
     const merkleRewardsSources = useMemo(
         () =>
@@ -96,7 +100,16 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
     });
 
     const handleClaim = async () => {
-        if (!account || !flowKey || !isDeviceConnected || claimableRewards.length === 0) return;
+        if (!account || !flowKey || claimableRewards.length === 0) return;
+
+        if (!isDeviceConnected) {
+            if (device?.descriptor?.apiType === 'bluetooth') {
+                dispatch(setConnectionMode('bluetooth'));
+            }
+            dispatch(setConnectionModal(true));
+
+            return;
+        }
 
         analytics.report({
             type: events.yieldClaimEvent.name,
@@ -209,10 +222,9 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
                             isDisabled={
                                 merkleRewardsQuery.isLoading ||
                                 claimableRewards.length === 0 ||
-                                isClaiming ||
-                                !isDeviceConnected
+                                isClaiming
                             }
-                            isLoading={isClaiming}
+                            isLoading={isClaimSubmitting}
                             onClick={handleClaim}
                         >
                             <Translation id="TR_EARN_YIELD_CLAIM" />
