@@ -84,7 +84,6 @@ export type EarnStackParamList = {
 };
 
 export type YieldFlowParams = {
-    yieldId: string;
     accountKey: AccountKey;
     tokenContract: TokenAddress;
 };
@@ -400,6 +399,7 @@ export type RootStackParamList = {
     [RootStackRoutes.AccountSettings]: { accountKey: AccountKey };
     [RootStackRoutes.TransactionDetailStack]: NavigatorScreenParams<TransactionDetailStackParamList>;
     [RootStackRoutes.DevUtils]: undefined;
+    [RootStackRoutes.AccountAssets]: { accountKey: AccountKey };
     [RootStackRoutes.AccountDetail]: AccountDetailParams;
     [RootStackRoutes.StakingDetail]: { accountKey: AccountKey };
     [RootStackRoutes.StakingManagement]: { accountKey: AccountKey };
@@ -509,9 +509,6 @@ export type TradingStackParamList = {
 };
 
 export type StellarManageTokenStackParamList = {
-    [StellarManageTokenStackRoutes.TokenSelection]: {
-        accountKey: AccountKey;
-    };
     [StellarManageTokenStackRoutes.ManualTokenInput]: {
         accountKey: AccountKey;
     };

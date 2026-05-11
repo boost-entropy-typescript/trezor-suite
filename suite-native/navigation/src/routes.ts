@@ -4,6 +4,7 @@ export enum RootStackRoutes {
     DeviceOnboardingStack = 'DeviceOnboardingStack',
     AccountsImport = 'AccountsImport',
     AuthorizeDeviceStack = 'AuthorizeDeviceStack',
+    AccountAssets = 'AccountAssets',
     AccountDetail = 'AccountDetail',
     StakingDetail = 'StakingDetail',
     StakingManagement = 'StakingManagement',
@@ -292,7 +293,6 @@ export enum TransactionDetailStackRoutes {
 }
 
 export enum StellarManageTokenStackRoutes {
-    TokenSelection = 'TokenSelection',
     ManualTokenInput = 'ManualTokenInput',
     ActivationFee = 'ActivationFee',
     DeactivationFee = 'DeactivationFee',

@@ -124,6 +124,11 @@ export const messages = {
                     'Add the networks you want to use. You can buy or receive assets on any network you enable.',
                 button: 'Get started',
             },
+            discoveryNotFinished: {
+                title: 'Reconnect your Trezor',
+                subtitle:
+                    'Your Trezor was disconnected before any assets could be discovered. Reconnect it to finish setup.',
+            },
             portfolioTracker: {
                 title: 'Get started',
                 subtitle: 'Sync your coin addresses and view your portfolio balance.',
@@ -1778,6 +1783,22 @@ export const messages = {
         accountsScreen: {
             title: 'My assets',
         },
+        accountAssetsScreen: {
+            tab: {
+                tokens: 'Tokens{count, plural, =0 {} other { #}}',
+                defi: 'DeFi{count, plural, =0 {} other { #}}',
+                hidden: 'Hidden',
+                inactive: 'Inactive',
+            },
+            zeroBalanceSection: {
+                title: 'Zero-balance tokens',
+            },
+            hiddenTokensSection: {
+                title: 'Unrecognized tokens',
+                warning: "We don't recognize this token. It may be unsafe—proceed with caution.",
+                emptyTitle: 'No hidden tokens',
+            },
+        },
         accountSettingsScreen: {
             coin: 'Coin',
             accountType: 'Account type',
@@ -1823,8 +1844,9 @@ export const messages = {
                 apyBreakdown: {
                     apyLabel: '{apy} APY',
                     autoCompounded: 'Automatically added and compounded.',
-                    manualCompound: 'Manually claim and deposit to compound.',
-                    footer: 'APY may change over time.',
+                    manualCompound:
+                        'Manually claim. Swap to {tokenSymbol} and deposit to compound.',
+                    footer: 'APY can change over time.',
                 },
             },
         },
@@ -2336,6 +2358,8 @@ export const messages = {
     earn: {
         staking: 'Staking',
         stablecoinYield: 'Stablecoin yield',
+        poweredBy: 'Powered by',
+        vaultName: '{vaultName} Vault',
         portfolioTracker: {
             alert: {
                 title: 'Staking is disabled in the portfolio tracker',
