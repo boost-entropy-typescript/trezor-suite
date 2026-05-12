@@ -84,6 +84,10 @@ export const messages = defineMessages({
         description: 'Used as a variable for device name',
         id: 'TR_ANY_TREZOR',
     },
+    TR_FILTER: {
+        defaultMessage: 'Filter',
+        id: 'TR_FILTER',
+    },
     TR_HIDE_SCAM_TRANSACTIONS_TOOLTIP: {
         defaultMessage: 'Hide suspicious transactions for a cleaner view.',
         id: 'TR_HIDE_SCAM_TRANSACTIONS_TOOLTIP',
@@ -2822,15 +2826,15 @@ export const messages = defineMessages({
         id: 'TR_INCLUDING_TOKENS_AND_STAKING',
     },
     TR_BALANCE_EXCLUDES_TOKENS: {
-        defaultMessage: "Token amounts aren't included in the balance.",
+        defaultMessage: "Token amounts aren't included.",
         id: 'TR_BALANCE_EXCLUDES_TOKENS',
     },
     TR_BALANCE_EXCLUDES_STAKING: {
-        defaultMessage: "Staked amounts aren't included in the balance.",
+        defaultMessage: "Staked amounts aren't included.",
         id: 'TR_BALANCE_EXCLUDES_STAKING',
     },
     TR_BALANCE_EXCLUDES_TOKENS_AND_STAKING: {
-        defaultMessage: "Token and staked amounts aren't included in the balance.",
+        defaultMessage: "Token and staked amounts aren't included.",
         id: 'TR_BALANCE_EXCLUDES_TOKENS_AND_STAKING',
     },
     TR_NETWORK_TITLE: {
@@ -7266,7 +7270,7 @@ export const messages = defineMessages({
     },
     TR_RANGE: {
         id: 'TR_RANGE',
-        defaultMessage: 'range',
+        defaultMessage: 'Range',
     },
     TR_BUMP_FEE: {
         id: 'TR_BUMP_FEE',
