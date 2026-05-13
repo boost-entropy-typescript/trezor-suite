@@ -169,6 +169,10 @@ export const messages = defineMessages({
         defaultMessage: 'Standard wallet',
         id: 'TR_ADD_WALLET',
     },
+    TR_PASSPHRASE_WALLET_NEEDS_ENABLED_NETWORK: {
+        defaultMessage: 'Activate at least one coin before adding a passphrase wallet.',
+        id: 'TR_PASSPHRASE_WALLET_NEEDS_ENABLED_NETWORK',
+    },
     TR_RECIPIENT_ADDRESS: {
         defaultMessage: 'Recipient address',
         description: 'Used as label for send address input',
@@ -2952,12 +2956,8 @@ export const messages = defineMessages({
         id: 'TR_RECEIVE',
     },
     TR_RECEIVE_DESCRIPTION: {
-        defaultMessage: 'Learn how to <a>select the right network</a> to receive your tokens',
-        id: 'TR_RECEIVE_DESCRIPTION',
-    },
-    TR_SWAP_TO_NETWORK_DESCRIPTION: {
         defaultMessage: 'Learn how to <a>choose the right network</a> to receive your tokens',
-        id: 'TR_SWAP_TO_NETWORK_DESCRIPTION',
+        id: 'TR_RECEIVE_DESCRIPTION',
     },
     TR_RECEIVE_SEARCH: {
         defaultMessage: 'Search account',
