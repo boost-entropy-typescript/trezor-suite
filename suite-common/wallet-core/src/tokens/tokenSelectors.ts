@@ -48,12 +48,47 @@ export const selectAccountHiddenTokens = createMemoizedSelector(
     },
 );
 
+export const selectAccountManuallyHiddenTokens = createMemoizedSelector(
+    [selectAccountTokens],
+    (tokenCategories): TokenInfoBranded[] => {
+        if (!tokenCategories) return [];
+
+        return (
+            [
+                ...tokenCategories.hiddenWithBalance,
+                ...tokenCategories.hiddenWithoutBalance,
+            ] as TokenInfoBranded[]
+        ).sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    },
+);
+
+export const selectAccountUnrecognizedTokens = createMemoizedSelector(
+    [selectAccountTokens],
+    (tokenCategories): TokenInfoBranded[] => {
+        if (!tokenCategories) return [];
+
+        return (
+            [
+                ...tokenCategories.unverifiedWithBalance,
+                ...tokenCategories.unverifiedWithoutBalance,
+            ] as TokenInfoBranded[]
+        ).sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    },
+);
+
+export const selectAccountManuallyHiddenTokensCount = createMemoizedSelector(
+    [selectAccountManuallyHiddenTokens],
+    (tokens): number => tokens.length,
+);
+
 export const selectAccountDefiTokens = createMemoizedSelector(
     [selectAccountTokens],
     (tokenCategories): TokenInfoBranded[] => {
         if (!tokenCategories) return [];
 
-        return tokenCategories.shownWithBalance.filter(isErc4626) as TokenInfoBranded[];
+        return (tokenCategories.shownWithBalance.filter(isErc4626) as TokenInfoBranded[]).sort(
+            (a, b) => (a.name ?? '').localeCompare(b.name ?? ''),
+        );
     },
 );
 

@@ -13,8 +13,8 @@ import {
 import {
     type SimpleTokenStructure,
     type TokenDefinitionsRootState,
-    filterKnownTokens,
     getSimpleCoinDefinitionsByNetwork,
+    isTokenDefinitionKnown,
     selectTokenDefinitions,
 } from '@suite-common/token-definitions';
 import {
@@ -23,13 +23,20 @@ import {
     type TransactionsRootState,
     type WalletSettingsRootState,
     selectAccountByKey,
+    selectAccountDefiTokensCount,
     selectBaseCurrency,
     selectCurrentFiatRates,
     selectIsAccountUtxoBased,
     selectPendingAccountAddresses,
     selectVisibleDeviceAccounts,
 } from '@suite-common/wallet-core';
-import { type Account, type AccountKey, type TokenInfoBranded } from '@suite-common/wallet-types';
+import {
+    type Account,
+    type AccountKey,
+    type RatesByKey,
+    type TokenAddress,
+    type TokenInfoBranded,
+} from '@suite-common/wallet-types';
 import {
     BASE_CURRENCY_ZERO,
     getAccountFiatBalance,
@@ -147,31 +154,37 @@ export const getAccountListSections = (
     account: Account,
     tokenDefinitions: SimpleTokenStructure | undefined,
     groupZeroBalance = false,
+    hiddenContracts: string[] = [],
+    shownContracts: string[] = [],
+    fiatRates?: RatesByKey,
+    localCurrency?: ReturnType<typeof selectBaseCurrency>,
 ) => {
     const sections: AccountSelectBottomSheetSection[] = [];
     const isNetworkSupportingTokens = isNetworkWithTokens(account.symbol);
 
-    // TODO: unify with desktop when token management is ready,
-    // unhide token during activation automatically
-    // For Stellar, show all tokens without filtering.
-    // Unlike EVM chains where tokens can be airdropped as spam, Stellar tokens (trustlines)
-    // require explicit user action to activate. See tokensSelectors.ts for details.
+    const hiddenSet = new Set(hiddenContracts.map(c => c.toLowerCase()));
+    const shownSet = new Set(shownContracts.map(c => c.toLowerCase()));
     const tokens =
         account.networkType === 'stellar'
-            ? (account.tokens ?? [])
-            : filterKnownTokens(tokenDefinitions, account.symbol, account.tokens ?? []);
+            ? (account.tokens ?? []).filter(token => !hiddenSet.has(token.contract.toLowerCase()))
+            : (account.tokens ?? [])
+                  .filter(
+                      token =>
+                          isTokenDefinitionKnown(
+                              tokenDefinitions,
+                              account.symbol,
+                              token.contract,
+                          ) || shownSet.has(token.contract.toLowerCase()),
+                  )
+                  .filter(token => !hiddenSet.has(token.contract.toLowerCase()));
 
-    const tokensWithBalance =
-        account.networkType === 'stellar'
-            ? tokens
-            : tokens.filter(token => parseFloat(token?.balance ?? '0') > 0);
+    const tokensWithBalance = tokens.filter(token => parseFloat(token?.balance ?? '0') > 0);
 
-    const zeroBalanceTokens: TokenInfoBranded[] =
-        groupZeroBalance && account.networkType !== 'stellar'
-            ? (tokens
-                  .filter(token => parseFloat(token?.balance ?? '0') === 0)
-                  .filter(token => !isErc4626(token)) as TokenInfoBranded[])
-            : [];
+    const zeroBalanceTokens: TokenInfoBranded[] = groupZeroBalance
+        ? (tokens
+              .filter(token => parseFloat(token?.balance ?? '0') === 0)
+              .filter(token => !isErc4626(token)) as TokenInfoBranded[])
+        : [];
 
     const hasAnyKnownTokens =
         isNetworkSupportingTokens && !!(tokensWithBalance.length + zeroBalanceTokens.length);
@@ -206,7 +219,22 @@ export const getAccountListSections = (
     }
 
     if (hasAnyKnownTokens) {
-        const tokensToShow = tokensWithBalance.filter(token => !isErc4626(token));
+        const getTokenFiatValue = (token: { contract: string; balance?: string }): number => {
+            if (!fiatRates || !localCurrency) return 0;
+            const fiatRateKey = getFiatRateKey(
+                account.symbol,
+                localCurrency,
+                token.contract as TokenAddress,
+            );
+            const rate = fiatRates[fiatRateKey]?.rate;
+            if (!rate || !token.balance) return 0;
+
+            return toFiatCurrency({ amount: token.balance, rate })?.toNumber() ?? 0;
+        };
+
+        const tokensToShow = tokensWithBalance
+            .filter(token => !isErc4626(token))
+            .sort((a, b) => getTokenFiatValue(b) - getTokenFiatValue(a));
         tokensToShow.forEach((token, index) => {
             sections.push({
                 type: 'token',
@@ -220,7 +248,9 @@ export const getAccountListSections = (
             sections.push({
                 type: 'zeroBalance',
                 account,
-                tokens: zeroBalanceTokens,
+                tokens: [...zeroBalanceTokens].sort((a, b) =>
+                    (a.name ?? '').localeCompare(b.name ?? ''),
+                ),
             });
         }
     }
@@ -231,31 +261,59 @@ export const getAccountListSections = (
 const EMPTY_ARRAY: AccountSelectBottomSheetSection[] = [];
 
 export const selectAccountListSections = createMemoizedSelector(
-    [selectAccountByKey, selectTokenDefinitions],
-    (account, tokenDefinitions) => {
+    [selectAccountByKey, selectTokenDefinitions, selectCurrentFiatRates, selectBaseCurrency],
+    (account, tokenDefinitions, fiatRates, localCurrency) => {
         if (!account) return EMPTY_ARRAY;
 
         const networkTokenDefinitions = getSimpleCoinDefinitionsByNetwork(
             tokenDefinitions,
             account.symbol,
         );
+        const coinDefs = tokenDefinitions[account.symbol]?.coin;
 
-        return getAccountListSections(account, networkTokenDefinitions);
+        return getAccountListSections(
+            account,
+            networkTokenDefinitions,
+            false,
+            coinDefs?.hide ?? [],
+            coinDefs?.show ?? [],
+            fiatRates,
+            localCurrency,
+        );
     },
 );
 
 export const selectAccountListSectionsWithZeroBalanceGroup = createMemoizedSelector(
-    [selectAccountByKey, selectTokenDefinitions],
-    (account, tokenDefinitions) => {
+    [selectAccountByKey, selectTokenDefinitions, selectCurrentFiatRates, selectBaseCurrency],
+    (account, tokenDefinitions, fiatRates, localCurrency) => {
         if (!account) return EMPTY_ARRAY;
 
         const networkTokenDefinitions = getSimpleCoinDefinitionsByNetwork(
             tokenDefinitions,
             account.symbol,
         );
+        const coinDefs = tokenDefinitions[account.symbol]?.coin;
 
-        return getAccountListSections(account, networkTokenDefinitions, true);
+        return getAccountListSections(
+            account,
+            networkTokenDefinitions,
+            true,
+            coinDefs?.hide ?? [],
+            coinDefs?.show ?? [],
+            fiatRates,
+            localCurrency,
+        );
     },
+);
+
+export const selectActiveTokensTabSections = createMemoizedSelector(
+    [selectAccountListSectionsWithZeroBalanceGroup],
+    sections => sections.filter(item => item.type !== 'sectionTitle'),
+);
+
+export const selectActiveAndDefiTokensCount = createMemoizedSelector(
+    [selectActiveTokensTabSections, selectAccountDefiTokensCount],
+    (sections, defiCount) => sections.filter(item => item.type === 'token').length + defiCount,
 );
 
 export const selectFreshAccountAddress = createMemoizedSelector(
