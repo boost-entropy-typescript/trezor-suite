@@ -17,6 +17,7 @@ import {
     isTokenDefinitionKnown,
     selectTokenDefinitions,
 } from '@suite-common/token-definitions';
+import { type NetworkSymbol } from '@suite-common/wallet-config';
 import {
     type AccountsRootState,
     type FiatRatesRootState,
@@ -53,6 +54,7 @@ import { isNetworkWithTokens, selectAccountTokenInfo } from '@suite-native/token
 import { type AccountSelectBottomSheetSection, type GroupedByTypeAccounts } from './types';
 import {
     filterAccountsByLabelAndNetworkNames,
+    filterAccountsByNetworkSymbols,
     filterSendAvailableAccounts,
     groupAccountsByNetworkAccountType,
     sortAccountsByNetworksAndAccountTypes,
@@ -81,23 +83,60 @@ export const selectFilteredDeviceAccountsGroupedByNetworkAccountType = createMem
     [
         selectVisibleAccountsWithLabel,
         (_state: NativeAccountsRootState, filterValue: string) => filterValue,
+        (_state: NativeAccountsRootState, _filterValue: string, isSendFlow: boolean = false) =>
+            isSendFlow,
         (
             _state: NativeAccountsRootState,
             _filterValue: string,
-            isSendFilterEnabled: boolean = false,
-        ) => isSendFilterEnabled,
+            _isSendFlow: boolean = false,
+            networkSymbols: NetworkSymbol[],
+        ) => networkSymbols,
     ],
-    (accounts, filterValue, isSendFilterEnabled) => {
+    (accounts, filterValue, isSendFlow, networkSymbols) => {
         const sortedAccounts = sortAccountsByNetworksAndAccountTypes(accounts);
-        const sendFilteredAccounts = isSendFilterEnabled
+        const sendFilteredAccounts = isSendFlow
             ? filterSendAvailableAccounts(sortedAccounts)
             : sortedAccounts;
 
         return pipe(
             sendFilteredAccounts,
+            accountsSorted => filterAccountsByNetworkSymbols(accountsSorted, networkSymbols),
             accountsSorted => filterAccountsByLabelAndNetworkNames(accountsSorted, filterValue),
             groupAccountsByNetworkAccountType,
         ) as GroupedByTypeAccounts;
+    },
+);
+
+export type NetworkFilterOption = {
+    symbol: NetworkSymbol;
+    accountCount: number;
+};
+
+export const selectNetworkFilterOptions = createMemoizedSelector(
+    [
+        selectVisibleAccountsWithLabel,
+        (_state: NativeAccountsRootState, isSendFlow: boolean = false) => isSendFlow,
+    ],
+    (accounts, isSendFlow) => {
+        const sortedAccounts = sortAccountsByNetworksAndAccountTypes(accounts);
+        const filteredAccounts = isSendFlow
+            ? filterSendAvailableAccounts(sortedAccounts)
+            : sortedAccounts;
+
+        const seen = new Set<NetworkSymbol>();
+        const options: NetworkFilterOption[] = [];
+
+        for (const account of filteredAccounts) {
+            if (!seen.has(account.symbol)) {
+                seen.add(account.symbol);
+                options.push({
+                    symbol: account.symbol,
+                    accountCount: filteredAccounts.filter(a => a.symbol === account.symbol).length,
+                });
+            }
+        }
+
+        return options;
     },
 );
 

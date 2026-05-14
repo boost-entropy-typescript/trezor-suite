@@ -1,5 +1,13 @@
+import {
+    type TokenDefinitionsRootState,
+    selectIsSpecificCoinDefinitionKnown,
+} from '@suite-common/token-definitions';
 import { type NetworkSymbol, getNetworkType } from '@suite-common/wallet-config';
 import {
+    type AccountsRootState,
+    type FiatRatesRootState,
+    type WalletSettingsRootState,
+    selectAccountByKey,
     selectAccountDefiTokens,
     selectAccountManuallyHiddenTokens,
     selectAccountUnrecognizedTokens,
@@ -10,11 +18,24 @@ import {
     type FeatureFlagsRootState,
     selectIsFeatureFlagEnabled,
 } from '@suite-native/feature-flags';
-import { type AccountAssetsTab } from '@suite-native/navigation';
 import { type TokensRootState } from '@suite-native/tokens';
 
+import { type AccountAssetsTab } from './components/AccountAssets/types';
+
+export const selectIsUnrecognizedToken = (
+    state: TokenDefinitionsRootState & AccountsRootState,
+    accountKey: AccountKey,
+    tokenContract?: TokenAddress,
+): boolean => {
+    if (!tokenContract) return false;
+    const account = selectAccountByKey(state, accountKey);
+    if (!account) return false;
+
+    return !selectIsSpecificCoinDefinitionKnown(state, account.symbol, tokenContract);
+};
+
 export const selectAssetTabOfAccountToken = (
-    state: TokensRootState,
+    state: TokensRootState & FiatRatesRootState & WalletSettingsRootState,
     accountKey: AccountKey,
     tokenContract: TokenAddress,
 ): AccountAssetsTab => {

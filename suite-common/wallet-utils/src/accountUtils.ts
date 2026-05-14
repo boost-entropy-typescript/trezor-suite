@@ -29,7 +29,7 @@ import {
     createAccountKey,
 } from '@suite-common/wallet-types';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
-import { solanaUtils } from '@trezor/blockchain-link-utils';
+import { SYSTEM_PROGRAM_PUBLIC_KEY } from '@trezor/coins-solana/constants';
 import TrezorConnect, {
     type AccountAddress,
     type AccountAddresses,
@@ -51,8 +51,6 @@ import { getFiatRateKey } from './fiatRatesUtils';
 import { getAccountTotalStakingBalance } from './stakingUtils';
 import { shouldUppercaseTokenSymbol } from './tokenUtils';
 import { isRbfBumpFeeTransaction } from './transactionUtils';
-
-const { SYSTEM_PROGRAM_PUBLIC_KEY } = solanaUtils;
 
 export const isUtxoBased = (account: Account) =>
     account.networkType === 'bitcoin' || account.networkType === 'cardano';

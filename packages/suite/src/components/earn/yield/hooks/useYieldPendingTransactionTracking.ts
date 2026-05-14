@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
 import { events } from '@suite/analytics';
-import { commonQueryKeys, useQueryClient } from '@suite-common/react-query';
 import {
     type YieldFlowType,
     fetchAndUpdateAccountThunk,
@@ -30,7 +29,7 @@ const getPollIntervalMs = (blockTime: number | undefined): number => {
 };
 
 type UseYieldPendingTransactionTrackingProps = {
-    account?: Account;
+    account: Account;
     flowType: YieldFlowType;
     flowKey: string;
 };
@@ -41,23 +40,19 @@ export const useYieldPendingTransactionTracking = ({
     flowKey,
 }: UseYieldPendingTransactionTrackingProps) => {
     const dispatch = useDispatch();
-    const queryClient = useQueryClient();
     const analytics = useAnalytics();
     const pendingTransaction = useSelector(
         state => selectStablecoinYieldSession(state, flowType, flowKey).action.pendingTransaction,
     );
     const trackedPendingTransaction = useSelector(state =>
-        account && pendingTransaction
+        pendingTransaction
             ? selectTransactionByAccountKeyAndTxid(state, account.key, pendingTransaction.txid)
             : null,
     );
-    const feeInfo = useSelector(state =>
-        account ? selectConvertedNetworkFeeInfo(state, account.symbol) : null,
-    );
+    const feeInfo = useSelector(state => selectConvertedNetworkFeeInfo(state, account.symbol));
     const pollIntervalMs = getPollIntervalMs(feeInfo?.blockTime);
 
     const isCurrentlyPending =
-        !!account &&
         !!pendingTransaction &&
         (!trackedPendingTransaction || isPending(trackedPendingTransaction));
 
@@ -118,14 +113,12 @@ export const useYieldPendingTransactionTracking = ({
             );
 
             if (flowType === 'claim') {
-                queryClient.refetchQueries({ queryKey: commonQueryKeys.merkleRewards() });
-
                 analytics.report({
                     type: events.yieldClaimEvent.name,
                     payload: {
                         action: 'continue',
                         type: 'success',
-                        networkSymbol: account?.symbol,
+                        networkSymbol: account.symbol,
                     },
                 });
             }
@@ -140,8 +133,7 @@ export const useYieldPendingTransactionTracking = ({
         pendingTransaction,
         dispatch,
         trackedPendingTransaction,
-        queryClient,
         analytics,
-        account?.symbol,
+        account.symbol,
     ]);
 };
