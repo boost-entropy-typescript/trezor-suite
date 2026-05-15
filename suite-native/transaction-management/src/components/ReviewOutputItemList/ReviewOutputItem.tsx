@@ -8,6 +8,7 @@ import {
 } from '@suite-common/wallet-types';
 import { Translation } from '@suite-native/intl';
 import { type ExchangeFlowType } from '@suite-native/navigation';
+import { exhaustive } from '@trezor/type-utils';
 
 import { ReviewOutputCard } from './ReviewOutputCard';
 import { ReviewOutputItemContent } from './ReviewOutputItemContent';
@@ -31,34 +32,51 @@ const OutputLabel = ({
     switch (type) {
         case 'address':
         case 'regular_legacy':
-            if (flowType === 'approve' || flowType === 'swap') {
-                return <Translation id="transactionManagement.review.outputs.tokenApprovalLabel" />;
-            }
-            if (flowType === 'revoke' || flowType === 'revoke-and-approve') {
-                return (
-                    <Translation id="transactionManagement.review.outputs.tokenRevocationLabel" />
-                );
-            }
+            switch (flowType) {
+                case 'approve':
+                    return (
+                        <Translation id="transactionManagement.review.outputs.tokenApprovalLabel" />
+                    );
 
-            return <Translation id="transactionManagement.review.outputs.addressLabel" />;
+                case 'revoke':
+                case 'revoke-and-approve':
+                    return (
+                        <Translation id="transactionManagement.review.outputs.tokenRevocationLabel" />
+                    );
+
+                case 'swap':
+                case undefined:
+                    return <Translation id="transactionManagement.review.outputs.addressLabel" />;
+
+                default:
+                    throw exhaustive(flowType);
+            }
         case 'amount':
             return <Translation id="transactionManagement.review.outputs.amountLabel" />;
         case 'destination-tag':
             return <Translation id="transactionManagement.review.outputs.destinationTagLabel" />;
         case 'contract':
-            if (flowType === 'approve') {
-                return <Translation id="transactionManagement.review.outputs.approveToLabel" />;
-            }
-            if (flowType === 'revoke' || flowType === 'revoke-and-approve') {
-                return (
-                    <Translation id="transactionManagement.review.outputs.revokeApprovalFromLabel" />
-                );
-            }
-            if (flowType === 'swap') {
-                return <Translation id="transactionManagement.review.outputs.swapContractLabel" />;
-            }
+            switch (flowType) {
+                case 'approve':
+                    return <Translation id="transactionManagement.review.outputs.approveToLabel" />;
 
-            return <Translation id="transactionManagement.review.outputs.contractLabel" />;
+                case 'revoke':
+                case 'revoke-and-approve':
+                    return (
+                        <Translation id="transactionManagement.review.outputs.revokeApprovalFromLabel" />
+                    );
+
+                case 'swap':
+                    return (
+                        <Translation id="transactionManagement.review.outputs.swapContractLabel" />
+                    );
+
+                case undefined:
+                    return <Translation id="transactionManagement.review.outputs.contractLabel" />;
+
+                default:
+                    throw exhaustive(flowType);
+            }
         case 'data':
             return <Translation id="transactionManagement.review.outputs.transactionDataLabel" />;
         case 'recipient_name':
