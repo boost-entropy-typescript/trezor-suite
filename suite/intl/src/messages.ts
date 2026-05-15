@@ -688,10 +688,6 @@ export const messages = defineMessages({
         id: 'TR_SELL_MODAL_SECURITY_HEADER',
         dynamic: true,
     },
-    TR_SELL_REGISTER: {
-        id: 'TR_SELL_REGISTER',
-        defaultMessage: 'Register',
-    },
     TR_SELL_BANK_ACCOUNT_STEP: {
         defaultMessage: 'Bank account',
         id: 'TR_SELL_BANK_ACCOUNT_STEP',
@@ -837,10 +833,6 @@ export const messages = defineMessages({
     TR_BUY_STATUS_SUCCESS: {
         defaultMessage: 'Approved',
         id: 'TR_BUY_STATUS_SUCCESS',
-    },
-    TR_LOGIN_PROCEED: {
-        id: 'TR_LOGIN_PROCEED',
-        defaultMessage: 'Proceed',
     },
     TR_BUY_BUY: {
         defaultMessage: 'Buy',
@@ -3339,6 +3331,10 @@ export const messages = defineMessages({
             'Suite Sync storage is full. New labels will be saved locally on this computer, but not synced to your other devices.',
         id: 'TR_SUITE_SYNC_OUT_OF_QUOTA_BANNER_DESCRIPTION',
     },
+    TR_SUITE_SYNC_ERROR_QUOTA_MANAGER_COMMUNICATION_FAILED: {
+        id: 'TR_SUITE_SYNC_ERROR_QUOTA_MANAGER_COMMUNICATION_FAILED',
+        defaultMessage: 'Failed to communicate with storage quota manager.',
+    },
     TR_TAKE_ME_BACK_TO_WALLET: {
         defaultMessage: 'Take me back to Suite',
         id: 'TR_TAKE_ME_BACK_TO_WALLET',
@@ -5792,6 +5788,10 @@ export const messages = defineMessages({
     TR_MY_ASSETS: {
         id: 'TR_MY_ASSETS',
         defaultMessage: 'My assets',
+    },
+    TR_MY_ASSETS_CHANGE_VIEW: {
+        defaultMessage: 'Change view',
+        id: 'TR_MY_ASSETS_CHANGE_VIEW',
     },
     TR_ON: {
         id: 'TR_ON',
@@ -9640,6 +9640,11 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_APPROVAL_TOO_LOW',
         defaultMessage: 'Approval is too low. Change approval or lower amount.',
     },
+    TR_APPROVE_OVER_BALANCE: {
+        id: 'TR_APPROVE_OVER_BALANCE',
+        defaultMessage:
+            'You can approve more than your current balance, reuse it later, and revoke it anytime.',
+    },
     TR_EARN_YIELD_MODIFY_APPROVAL: {
         id: 'TR_EARN_YIELD_MODIFY_APPROVAL',
         defaultMessage: 'Change approval',
@@ -10633,6 +10638,10 @@ export const messages = defineMessages({
     TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON: {
         id: 'TR_SWITCH_DEVICE_EJECT_CONFIRMATION_CANCEL_BUTTON',
         defaultMessage: 'Cancel',
+    },
+    TR_SWITCH_DEVICE_EJECT_TOOLTIP: {
+        id: 'TR_SWITCH_DEVICE_EJECT_TOOLTIP',
+        defaultMessage: 'Eject wallet',
     },
     TR_DO_NOT_SHOW_AGAIN: {
         id: 'TR_DO_NOT_SHOW_AGAIN',
