@@ -1,26 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSelector } from 'react-redux';
 
-import { type NetworkSymbol } from '@suite-common/wallet-config';
-import { selectDiscoverySupportedNetworks } from '@suite-native/discovery';
+import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
 import { useTranslate } from '@suite-native/intl';
 import { type FilterItem, FilterTabs } from '@suite-native/trading-atoms';
 
-type TradeableAssetsFilterTabsProps = {
+type MyAssetFilterTabsProps = {
     isVisible: boolean;
     animationDuration: number;
     onSelectedNetworkFilter: (symbol: NetworkSymbol | undefined) => void;
+    availableNetworks: NetworkSymbol[];
 };
 
 const keyExtractor = (item: FilterItem<NetworkSymbol | undefined>) => item.value ?? 'undefined';
 
-const TradeableAssetFilterTabsContent = ({
+const MyAssetFilterTabsContent = ({
     animationDuration,
     onSelectedNetworkFilter,
-}: Omit<TradeableAssetsFilterTabsProps, 'isVisible'>) => {
-    const networks = useSelector(selectDiscoverySupportedNetworks);
-
+    availableNetworks,
+}: Omit<MyAssetFilterTabsProps, 'isVisible'>) => {
     const [selectedValue, setSelectedValue] = useState<NetworkSymbol | undefined>(undefined);
 
     const { translate } = useTranslate();
@@ -30,7 +28,6 @@ const TradeableAssetFilterTabsContent = ({
         onSelectedNetworkFilter(value);
     };
 
-    // Clear network filter on unmounting filter tabs
     useEffect(() => () => onSelectedNetworkFilter(undefined), [onSelectedNetworkFilter]);
 
     const filterItems: FilterItem<NetworkSymbol | undefined>[] = useMemo(
@@ -39,9 +36,12 @@ const TradeableAssetFilterTabsContent = ({
                 label: translate('moduleTrading.tradeableAssetsSheet.allFilterTabTitle'),
                 value: undefined,
             },
-            ...networks.map(n => ({ label: n.name, value: n.symbol })),
+            ...availableNetworks.map(symbol => ({
+                label: getNetwork(symbol).name,
+                value: symbol,
+            })),
         ],
-        [networks, translate],
+        [availableNetworks, translate],
     );
 
     return (
@@ -59,13 +59,10 @@ const TradeableAssetFilterTabsContent = ({
     );
 };
 
-export const TradeableAssetFilterTabs = ({
-    isVisible,
-    ...rest
-}: TradeableAssetsFilterTabsProps) => {
+export const MyAssetFilterTabs = ({ isVisible, ...rest }: MyAssetFilterTabsProps) => {
     if (!isVisible) {
         return null;
     }
 
-    return <TradeableAssetFilterTabsContent {...rest} />;
+    return <MyAssetFilterTabsContent {...rest} />;
 };

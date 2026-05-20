@@ -1,37 +1,22 @@
-import { type Network } from '@suite-common/wallet-config';
+import { type NetworkSymbol } from '@suite-common/wallet-config';
 import { fireEvent, renderWithStoreProvider } from '@suite-native/test-utils-store';
 
-import { TradeableAssetFilterTabs } from '../TradeableAssetFilterTabs';
+import { MyAssetFilterTabs } from '../MyAssetFilterTabs';
 
-jest.mock('@suite-native/discovery', () => {
-    const networks: Network[] = [
-        {
-            name: 'Bitcoin',
-            symbol: 'btc',
-        } as Network,
-        {
-            name: 'Ethereum',
-            symbol: 'eth',
-        } as Network,
-    ];
+const availableNetworks: NetworkSymbol[] = ['btc', 'eth'];
 
-    return {
-        ...jest.requireActual('@suite-native/discovery'),
-        selectDiscoverySupportedNetworks: () => networks,
-    };
-});
-
-describe('TradeableAssetFilterTabs', () => {
+describe('MyAssetFilterTabs', () => {
     const renderComponent = (onSelectedNetworkFilter = jest.fn()) =>
         renderWithStoreProvider(
-            <TradeableAssetFilterTabs
+            <MyAssetFilterTabs
                 isVisible={true}
                 animationDuration={300}
                 onSelectedNetworkFilter={onSelectedNetworkFilter}
+                availableNetworks={availableNetworks}
             />,
         );
 
-    it('should render all filter tabs including "All" option', () => {
+    it('should render "All" tab and one tab per available network', () => {
         const { getByText } = renderComponent();
 
         expect(getByText('All')).toBeTruthy();
@@ -41,10 +26,11 @@ describe('TradeableAssetFilterTabs', () => {
 
     it('should not render anything when visible is false', () => {
         const { queryByText } = renderWithStoreProvider(
-            <TradeableAssetFilterTabs
+            <MyAssetFilterTabs
                 isVisible={false}
                 animationDuration={300}
                 onSelectedNetworkFilter={jest.fn()}
+                availableNetworks={availableNetworks}
             />,
         );
 
@@ -53,7 +39,7 @@ describe('TradeableAssetFilterTabs', () => {
         expect(queryByText('Ethereum')).toBeNull();
     });
 
-    it('should call onSelectedNetworkFilter with undefined when "All" is selected', () => {
+    it('should call onSelectedNetworkFilter with undefined when "All" tab is pressed', () => {
         const onSelectedNetworkFilter = jest.fn();
         const { getByText } = renderComponent(onSelectedNetworkFilter);
 
@@ -62,7 +48,7 @@ describe('TradeableAssetFilterTabs', () => {
         expect(onSelectedNetworkFilter).toHaveBeenCalledWith(undefined);
     });
 
-    it('should call onSelectedNetworkFilter with network symbol when network tab is selected', () => {
+    it('should call onSelectedNetworkFilter with network symbol when a network tab is pressed', () => {
         const onSelectedNetworkFilter = jest.fn();
         const { getByText } = renderComponent(onSelectedNetworkFilter);
 
@@ -71,15 +57,25 @@ describe('TradeableAssetFilterTabs', () => {
         expect(onSelectedNetworkFilter).toHaveBeenCalledWith('btc');
     });
 
+    it('should call onSelectedNetworkFilter with undefined when unmounted', () => {
+        const onSelectedNetworkFilter = jest.fn();
+        const { unmount } = renderComponent(onSelectedNetworkFilter);
+
+        unmount();
+
+        expect(onSelectedNetworkFilter).toHaveBeenCalledWith(undefined);
+    });
+
     it('should call onSelectedNetworkFilter with undefined when hidden', () => {
         const onSelectedNetworkFilter = jest.fn();
         const { rerender } = renderComponent(onSelectedNetworkFilter);
 
         rerender(
-            <TradeableAssetFilterTabs
+            <MyAssetFilterTabs
                 isVisible={false}
                 animationDuration={300}
                 onSelectedNetworkFilter={onSelectedNetworkFilter}
+                availableNetworks={availableNetworks}
             />,
         );
 
