@@ -103,7 +103,7 @@ const discoveryFailedMessage = (
     discovery: DiscoveryStatus | undefined,
     failed: FailedAccount[],
 ) => {
-    if (!discovery || discovery.status !== 'failed') return '';
+    if (discovery?.status !== 'failed') return '';
     if (discovery.error) return <div>{discovery.error}</div>;
 
     // Group all failed networks into array of errors.
@@ -195,7 +195,7 @@ export const PortfolioCardException = ({
                         action: async () => {
                             // enable passphrase
                             const result = await dispatch(applySettings({ use_passphrase: true }));
-                            if (!result || !result.success) return;
+                            if (!result?.success) return;
                             // restart discovery
                             dispatch(startOrRestartDiscoveryThunk());
                         },

@@ -1,4 +1,4 @@
-import { fromWei, hexToNumberString } from 'web3-utils';
+import { fromWei, hexToNumberString, numberToHex } from 'web3-utils';
 
 import { closeModal, openDeferredModal, preserveModal } from '@suite/modal';
 import { Calldata, asEvmAddress } from '@suite-common/calldata';
@@ -16,6 +16,7 @@ import { ETH_CONTRACT_CALL_BACKUP_GAS_LIMIT } from '@suite-common/wallet-constan
 import {
     STABLECOIN_YIELD_PREFIX,
     selectAddressDisplayType,
+    selectIsMevProtectionEnabled,
     stablecoinYieldActions,
     synchronizeSentTransactionThunk,
 } from '@suite-common/wallet-core';
@@ -27,7 +28,7 @@ import {
     type FormState,
     type PrecomposedTransactionFinal,
 } from '@suite-common/wallet-types';
-import { getAccountIdentity, sanitizeHex } from '@suite-common/wallet-utils';
+import { getAccountIdentity, getMevProtectedTxData, sanitizeHex } from '@suite-common/wallet-utils';
 import TrezorConnect, { type StaticSessionId } from '@trezor/connect';
 import { BigNumber } from '@trezor/utils';
 
@@ -209,7 +210,7 @@ export const claimMerkleRewardsThunk = createThunk(
 
         try {
             const sender = asEvmAddress(account.descriptor);
-            const claimResult = Calldata.evm.distributor.claim(
+            const claimResult = Calldata.evm.distributor.claim.encode(
                 {
                     users: rewards.map(() => sender),
                     tokens: rewards.map(reward => asEvmAddress(reward.token.address)),
@@ -298,7 +299,7 @@ export const claimMerkleRewardsThunk = createThunk(
                         to: unsignedClaimTx.to,
                         chainId: unsignedClaimTx.chainId,
                         value: '0x0',
-                        nonce: unsignedClaimTx.nonce,
+                        nonce: numberToHex(unsignedClaimTx.nonce),
                         data: sanitizeHex(unsignedClaimTx.data),
                         gasLimit: parsedSelectedFee.gasLimit,
                         ...(parsedSelectedFee.type === 'eip1559'
@@ -335,8 +336,13 @@ export const claimMerkleRewardsThunk = createThunk(
                     return null;
                 }
 
+                const isMevProtectionEnabled = selectIsMevProtectionEnabled(getState());
                 const pushResponse = await TrezorConnect.pushTransaction({
-                    tx: signingResponse.payload.serializedTx,
+                    tx: getMevProtectedTxData(
+                        account.symbol,
+                        signingResponse.payload.serializedTx,
+                        isMevProtectionEnabled,
+                    ),
                     coin: account.symbol,
                     identity: getAccountIdentity(account),
                 });

@@ -11,19 +11,16 @@ import { type AccountKey } from '@suite-common/wallet-types';
 import {
     type AccountFormValues,
     MAX_ACCOUNT_LABEL_LENGTH,
+    selectAccountLabel,
     useAccountLabelForm,
 } from '@suite-native/accounts';
 import { Box, Button, type InputType, VStack } from '@suite-native/atoms';
 import { featureUsed } from '@suite-native/feature-feedback';
 import { Form, TextInputField } from '@suite-native/forms';
 import { Translation, useTranslate } from '@suite-native/intl';
-import {
-    type CombinedLabelingState,
-    selectAccountLabel,
-    selectIsLabellingAllowed,
-    useSuiteSyncErrorHandler,
-} from '@suite-native/labeling';
+import { type CombinedLabelingState, selectIsLabellingAllowed } from '@suite-native/labeling';
 import { useNativeServices } from '@suite-native/services';
+import { useSuiteSyncErrorHandler } from '@suite-native/suite-sync';
 
 type AccountRenameFormProps = {
     accountKey: AccountKey;

@@ -71,7 +71,7 @@ export const TradingFormOfferOTC = () => {
 
     const fiatAmount = amountInCrypto ? fiatAmountConverted : fiatInput;
 
-    if (!otcData || !otcData.minFiatLimits || !otcData.links || !fiatAmount) {
+    if (!otcData?.minFiatLimits || !otcData.links || !fiatAmount) {
         return null;
     }
 
@@ -86,9 +86,11 @@ export const TradingFormOfferOTC = () => {
         return null;
     }
 
-    if (otcProviders && otcProviders.length === 0) {
+    if (otcProviders?.length === 0) {
         return null;
     }
+
+    const isBuy = context.type === 'buy';
 
     return (
         <Banner
@@ -97,11 +99,7 @@ export const TradingFormOfferOTC = () => {
                 <Column gap={16}>
                     <Text margin={{ bottom: 4 }}>
                         <Translation
-                            id={
-                                context.type === 'buy'
-                                    ? 'TR_TRADING_OTC_INFO_BUY'
-                                    : 'TR_TRADING_OTC_INFO_SELL'
-                            }
+                            id={isBuy ? 'TR_TRADING_OTC_INFO_BUY' : 'TR_TRADING_OTC_INFO_SELL'}
                             values={{
                                 minimumFiat: localizeNumber(displayedFiatLimit, locale),
                                 fiatSymbol: displayedFiatCurrency.toUpperCase(),
@@ -113,11 +111,7 @@ export const TradingFormOfferOTC = () => {
                         onClick={() => dispatch(goto({ routeName: 'wallet-trading-concierge' }))}
                     >
                         <Translation
-                            id={
-                                context.type === 'buy'
-                                    ? 'TR_TRADING_OTC_LINK_BUY'
-                                    : 'TR_TRADING_OTC_LINK_SELL'
-                            }
+                            id={isBuy ? 'TR_TRADING_OTC_LINK_BUY' : 'TR_TRADING_OTC_LINK_SELL'}
                         />
                     </Banner.Button>
                 </Column>

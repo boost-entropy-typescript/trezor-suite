@@ -42,11 +42,11 @@
         { "path": "../firmware" },
         { "path": "../graph" },
         { "path": "../intl" },
-        { "path": "../labeling" },
         { "path": "../link" },
         { "path": "../navigation" },
         { "path": "../services" },
         { "path": "../settings" },
+        { "path": "../suite-sync" },
         { "path": "../toasts" },
         { "path": "../../packages/device-utils" },
         {
