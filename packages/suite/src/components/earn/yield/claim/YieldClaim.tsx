@@ -49,9 +49,10 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
     const isClaiming = isClaimSubmitting || !!claimSession.action.pendingTransaction;
     const isDeviceConnected = !!device?.connected && device.available;
 
-    const { merkleRewardsQuery } = useMerkleRewards(account);
+    const { merkleRewardsQuery, missingRateTickersQuery } = useMerkleRewards(account);
     const accountRewards: YieldAccountRewards | undefined =
         merkleRewardsQuery.data?.accountsRewards[0];
+    const isRewardsLoading = merkleRewardsQuery.isLoading || missingRateTickersQuery.isFetching;
 
     useEffect(() => {
         dispatch(stablecoinYieldActions.initSession({ flowType: 'claim', flowKey }));
@@ -89,6 +90,7 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
                 action: 'continue',
                 type: 'claim',
                 networkSymbol: account.symbol,
+                rewardCount: rewards.length,
             },
         });
 
@@ -107,6 +109,15 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
 
     const handleTxClick = useCallback(
         (txid: string) => {
+            analytics.report({
+                type: events.yieldInteractionEvent.name,
+                payload: {
+                    element: 'pending-tx-open',
+                    value: 'claim',
+                    networkSymbol: account.symbol,
+                },
+            });
+
             dispatch(
                 openModal({
                     type: 'transaction-detail',
@@ -118,7 +129,7 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
                 }),
             );
         },
-        [account, dispatch],
+        [account, analytics, dispatch],
     );
 
     if (claimSession.step === 'complete' && accountRewards) {
@@ -152,7 +163,7 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
 
                                 <YieldRewardsList
                                     accountRewards={accountRewards}
-                                    isLoading={merkleRewardsQuery.isLoading}
+                                    isLoading={isRewardsLoading}
                                 />
                             </Column>
                         </Card>
@@ -173,9 +184,7 @@ export const YieldClaim = ({ account }: YieldClaimProps) => {
                             size="large"
                             width="100%"
                             isDisabled={
-                                merkleRewardsQuery.isLoading ||
-                                !accountRewards?.rewards.length ||
-                                isClaiming
+                                isRewardsLoading || !accountRewards?.rewards.length || isClaiming
                             }
                             isLoading={isClaimSubmitting}
                             onClick={handleClaim}

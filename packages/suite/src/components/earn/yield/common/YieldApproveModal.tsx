@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { type DexApprovalType } from 'invity-api';
+
 import { events } from '@suite/analytics';
 import { KNOWN_VAULTS } from '@suite-common/suite-constants';
 import { parseCryptoId, toTokenCryptoId } from '@suite-common/trading';
@@ -16,6 +18,7 @@ export type YieldApproveModalProps = {
     amount: string;
     contractAddress: string;
     account: Account;
+    vaultId: string;
     spender: string;
     preapprovedAmount?: string;
     txType: 'approve' | 'revoke' | 'revoke-only';
@@ -27,6 +30,7 @@ export const YieldApproveModal = ({
     amount,
     contractAddress,
     account,
+    vaultId,
     spender,
     preapprovedAmount,
     txType,
@@ -52,7 +56,7 @@ export const YieldApproveModal = ({
             contractAddress: parsedContract,
             size: 80,
         }),
-        isActive: true,
+        label: 'TR_EARN_YIELD_VAULT' as const,
     };
 
     useEffect(() => {
@@ -82,26 +86,31 @@ export const YieldApproveModal = ({
         setApprovalTxid(null);
     }, [approvalTxid, onSuccess, setApprovalTxid]);
 
-    const handleOnApproveConfirm = () => {
+    const handleOnApproveConfirm = (approvalType: DexApprovalType) => {
+        // Approve flow exposes only INFINITE/MINIMAL choice; the other DexApprovalType
+        // values (ZERO is revoke, PRESET is unused here) can't be selected by the user.
+        if (approvalType !== 'INFINITE' && approvalType !== 'MINIMAL') return;
+
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: 'approve-modal',
                 action: 'continue',
                 networkSymbol: account.symbol,
-                contractAddress,
+                vaultId,
+                approvalType,
             },
         });
     };
 
     const handleOnApproveCancel = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: 'approve-modal',
                 action: 'cancel',
                 networkSymbol: account.symbol,
-                contractAddress,
+                vaultId,
             },
         });
 
@@ -110,24 +119,24 @@ export const YieldApproveModal = ({
 
     const handleOnRevokeConfirm = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: 'revoke-modal',
                 action: 'continue',
                 networkSymbol: account.symbol,
-                contractAddress,
+                vaultId,
             },
         });
     };
 
     const handleOnRevokeCancel = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: 'revoke-modal',
                 action: 'cancel',
                 networkSymbol: account.symbol,
-                contractAddress,
+                vaultId,
             },
         });
 

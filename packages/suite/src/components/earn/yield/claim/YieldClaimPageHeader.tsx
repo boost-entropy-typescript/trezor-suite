@@ -49,13 +49,15 @@ export const YieldClaimPageHeader = ({ account }: YieldClaimPageHeaderProps) => 
                         <CoinLogo symbol={account.symbol} type="token" size={32} />
                         <AccountLabel
                             account={account}
+                            showAccountTypeBadge
+                            accountTypeBadgeSize="small"
                             typographyStyle="headline-md"
                             rowProps={{ flex: '1', overflow: 'hidden' }}
                         />
                     </Row>
                 ) : (
                     <BasicName>
-                        <Translation id="TR_EARN" />
+                        <Translation id="TR_EARN_CLAIM_REWARDS" />
                     </BasicName>
                 )}
             </Row>

@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
-
 import { events } from '@suite/analytics';
-import { Translation, useTranslation } from '@suite/intl';
+import { Translation } from '@suite/intl';
 import { splitYieldPendingTransaction } from '@suite-common/wallet-core';
 import { Banner, BulletList, Button, Column, Row, Text } from '@trezor/components';
 
@@ -17,7 +15,6 @@ import { YieldFlowCompleteSupply } from '../common/YieldFlowCompleteSupply';
 
 export const YieldSupplyForm = () => {
     const analytics = useAnalytics();
-    const { translationString } = useTranslation();
 
     const {
         account,
@@ -61,45 +58,14 @@ export const YieldSupplyForm = () => {
     const { approvalPendingTransaction, actionPendingTransaction: supplyPendingTransaction } =
         splitYieldPendingTransaction(pendingTransaction, 'deposit');
 
-    // trigger success analytics event
-    useEffect(() => {
-        if (flow.currentStep === 'complete') {
-            analytics.report({
-                type: events.yieldSupplyEvent.name,
-                payload: {
-                    type: 'success',
-                    action: 'continue',
-                    networkSymbol: token.networkSymbol,
-                    contractAddress: token.contractAddress ?? undefined,
-                },
-            });
-        }
-    }, [flow.currentStep, analytics, token.networkSymbol, token.contractAddress]);
-
-    // trigger error analytics event
-    useEffect(() => {
-        if (errorMessage) {
-            analytics.report({
-                type: events.yieldSupplyEvent.name,
-                payload: {
-                    type: 'error',
-                    action: 'continue',
-                    networkSymbol: token.networkSymbol,
-                    contractAddress: token.contractAddress ?? undefined,
-                    errorMessage: translationString(errorMessage),
-                },
-            });
-        }
-    }, [analytics, errorMessage, token.networkSymbol, token.contractAddress, translationString]);
-
     const handleOnApprovalSubmit = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: approvalAction === 'revoke' ? 'revoke' : 'approve',
                 action: 'continue',
                 networkSymbol: token.networkSymbol,
-                contractAddress: token.contractAddress ?? undefined,
+                vaultId: vault.id,
             },
         });
 
@@ -108,12 +74,12 @@ export const YieldSupplyForm = () => {
 
     const handleOnRevoke = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
                 type: 'revoke',
                 action: 'continue',
                 networkSymbol: token.networkSymbol,
-                contractAddress: token.contractAddress ?? undefined,
+                vaultId: vault.id,
             },
         });
 
@@ -122,12 +88,12 @@ export const YieldSupplyForm = () => {
 
     const handleOnModify = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
-                type: 'modify',
+                type: 'modify-allowance',
                 action: 'continue',
                 networkSymbol: token.networkSymbol,
-                contractAddress: token.contractAddress ?? undefined,
+                vaultId: vault.id,
             },
         });
 
@@ -136,16 +102,29 @@ export const YieldSupplyForm = () => {
 
     const handleOnSupply = () => {
         analytics.report({
-            type: events.yieldSupplyEvent.name,
+            type: events.yieldDepositEvent.name,
             payload: {
-                type: 'supply',
+                type: 'deposit',
                 action: 'continue',
                 networkSymbol: token.networkSymbol,
-                contractAddress: token.contractAddress ?? undefined,
+                vaultId: vault.id,
             },
         });
 
         submitAction();
+    };
+
+    const handleMaxClick = () => {
+        analytics.report({
+            type: events.yieldInteractionEvent.name,
+            payload: {
+                element: 'deposit-max',
+                networkSymbol: token.networkSymbol,
+                vaultId: vault.id,
+            },
+        });
+
+        setAmountInput(maxAmount);
     };
 
     return (
@@ -232,7 +211,7 @@ export const YieldSupplyForm = () => {
                                         }
                                         isLoading={isSubmittingApprove}
                                         pendingApproveTransaction={approvalPendingTransaction}
-                                        onMaxClick={() => setAmountInput(maxAmount)}
+                                        onMaxClick={handleMaxClick}
                                         onApprovalSubmit={handleOnApprovalSubmit}
                                         onRevoke={handleOnRevoke}
                                         onPendingTxClick={openPendingTransaction}
@@ -260,7 +239,7 @@ export const YieldSupplyForm = () => {
                                                         isApprovalInsufficient={
                                                             isApprovalInsufficient
                                                         }
-                                                        onModifyApproval={enterModifyApproval}
+                                                        onModifyApproval={handleOnModify}
                                                     />
                                                 ) : undefined
                                             }
@@ -274,7 +253,7 @@ export const YieldSupplyForm = () => {
                                             }
                                             isPending={isSubmittingAction}
                                             pendingTransaction={supplyPendingTransaction}
-                                            onMaxClick={() => setAmountInput(maxAmount)}
+                                            onMaxClick={handleMaxClick}
                                             onSubmit={handleOnSupply}
                                             onPendingTxClick={openPendingTransaction}
                                         />
@@ -295,6 +274,7 @@ export const YieldSupplyForm = () => {
                 <YieldApproveModal
                     {...approveModalState}
                     account={account}
+                    vaultId={vault.id}
                     onCancel={handleApproveModalCancel}
                     onSuccess={handleApproveSuccessTxid}
                 />

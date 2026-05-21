@@ -8,6 +8,7 @@ import { Button, Card, Column, Divider, Icon, IconCircle, Row, Text } from '@tre
 import { FeedbackCard } from '@trezor/product-components';
 
 import { useDispatch } from 'src/hooks/suite';
+import { useLayoutSize } from 'src/hooks/suite/useLayoutSize';
 import { useAnalytics } from 'src/support/useAnalytics';
 
 type YieldFlowCompleteProps = {
@@ -15,6 +16,7 @@ type YieldFlowCompleteProps = {
     heading: ReactNode;
     description: ReactNode;
     showFeedback?: boolean;
+    vaultId?: string;
     children: ReactNode;
 };
 
@@ -23,11 +25,13 @@ export const YieldFlowComplete = ({
     heading,
     description,
     showFeedback,
+    vaultId,
     children,
 }: YieldFlowCompleteProps) => {
     const dispatch = useDispatch();
     const analytics = useAnalytics();
     const { translationString } = useTranslation();
+    const { isBelowMobile } = useLayoutSize();
 
     const handleBackToOverview = () => {
         analytics.report({
@@ -36,6 +40,7 @@ export const YieldFlowComplete = ({
                 action: 'continue',
                 from: `${type}-form`,
                 to: 'earn-dashboard',
+                vaultId,
             },
         });
 
@@ -43,6 +48,15 @@ export const YieldFlowComplete = ({
     };
 
     const handleFeedbackSubmit = (rating: Rating, description: string) => {
+        analytics.report({
+            type: events.yieldInteractionEvent.name,
+            payload: {
+                element: 'feedback-submit',
+                value: rating,
+                vaultId,
+            },
+        });
+
         dispatch(
             sendFeedbackAction({
                 type: 'SUGGESTION',
@@ -59,7 +73,7 @@ export const YieldFlowComplete = ({
 
     return (
         <Column gap={16}>
-            <IconCircle name="check" intent="brand" size={96} />
+            <IconCircle name="check" intent="brand" size={isBelowMobile ? 64 : 96} />
 
             <Column gap={4}>
                 <Text typographyStyle="headline-md">{heading}</Text>
