@@ -1,6 +1,8 @@
 import { type MouseEventHandler, type ReactNode } from 'react';
 
+import { Address } from '@suite/address';
 import { Translation, useTranslation } from '@suite/intl';
+import { Labeling } from '@suite/labeling';
 import {
     selectIsLegacyLabelingVisible,
     selectLabelingDataForSelectedAccount,
@@ -29,11 +31,12 @@ import {
 } from '@trezor/components';
 import { type AccountUtxo } from '@trezor/connect';
 
-import { Address, BaseCurrencyValue, FormattedCryptoAmount, Labeling } from 'src/components/suite';
+import { BaseCurrencyValue, FormattedCryptoAmount } from 'src/components/suite';
 import { TransactionTimestamp, UtxoAnonymity } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useSendFormContext } from 'src/hooks/wallet';
 import { useCoinjoinUnavailableUtxos } from 'src/hooks/wallet/form/useCoinjoinUnavailableUtxos';
+import { useSuiteServices } from 'src/support/SuiteServicesProvider';
 import { type WalletAccountTransaction } from 'src/types/wallet';
 
 type ResolveUtxoSpendableProps = {
@@ -72,6 +75,7 @@ type UtxoSelectionProps = {
 };
 
 export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
+    const { suiteSync } = useSuiteServices();
     const {
         account,
         network,
@@ -159,6 +163,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                     <Row gap={12} justifyContent="space-between">
                         <Text typographyStyle="body-md">
                             <Labeling
+                                suiteSync={suiteSync}
                                 deviceStaticSessionId={account.deviceState}
                                 payload={{
                                     type: 'addressLabel',
@@ -253,6 +258,7 @@ export const UtxoSelection = ({ transaction, utxo }: UtxoSelectionProps) => {
                                 </TextButton>
                             )}
                             <Labeling
+                                suiteSync={suiteSync}
                                 deviceStaticSessionId={account.deviceState}
                                 displayValue={<Translation id="TR_LABELING_ADD_LABEL" />}
                                 payload={{

@@ -1,38 +1,55 @@
 import { type ReactNode, useCallback, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { isFulfilled } from '@reduxjs/toolkit';
 
 import {
+    type MetadataRootState,
     metadataLabelingActions,
     selectIsLabelingAvailableForEntity,
+    selectIsMetadataEnabled,
     selectMetadata,
 } from '@suite/metadata';
+import {
+    type DesktopSuiteSyncRootState,
+    SuiteSyncInteractionsTooltip,
+    TurnOnSuiteSyncModals,
+    selectDesktopSuiteSyncInteraction,
+    suiteSyncErrorHandler,
+} from '@suite/suite-sync';
+import { type MessageSystemRootState } from '@suite-common/message-system';
 import { type MetadataAddPayload } from '@suite-common/metadata-types';
-import { selectIsSuiteSyncEnabled } from '@suite-common/suite-sync';
+import {
+    type WithSuiteSyncAndDeviceState,
+    selectIsSuiteSyncEnabled,
+} from '@suite-common/suite-sync';
+import { type SuiteSync } from '@suite-common/suite-sync-types';
+import { type DiscoveryRootState, selectHasRunningDiscovery } from '@suite-common/wallet-core';
 import { type StaticSessionId } from '@trezor/connect';
 import { EditableText, type EditableTextProps } from '@trezor/product-components';
 
-import { selectDesktopSuiteSyncInteraction } from 'src/actions/suiteSync/suiteSyncSlice';
-import { processLegacyMetadataIntoSuiteSyncThunk } from 'src/actions/wallet/processLegacyMetadataIntoSuiteSyncThunk';
-import { useDiscovery, useDispatch, useSelector } from 'src/hooks/suite';
-import { useSuiteServices } from 'src/support/SuiteServicesProvider';
-
-import { SuiteSyncInteractionsTooltip } from './SuiteSyncInteractionsTooltip';
+import { processLegacyMetadataIntoSuiteSyncThunk } from './processLegacyMetadataIntoSuiteSyncThunk';
 import { selectIsLabelActionEnabled } from './selectIsLabelActionEnabled';
-import { TurnOnSuiteSyncModals } from '../TurnOnSuiteSync/TurnOnSuiteSyncModals';
-import { suiteSyncErrorHandler } from '../suiteSyncErrorHandler';
 
-type LabelingProps = {
+export type LabelingProps = {
     payload: MetadataAddPayload;
     deviceStaticSessionId: StaticSessionId;
+    suiteSync: SuiteSync;
     children?: ReactNode;
     isDisabled?: boolean;
     onSubmit?: (value: string) => Promise<boolean>;
 } & Partial<EditableTextProps>;
 
+type LabelingState = WithSuiteSyncAndDeviceState &
+    MetadataRootState &
+    DesktopSuiteSyncRootState &
+    MessageSystemRootState &
+    DiscoveryRootState;
+
 export const Labeling = ({
     payload,
     deviceStaticSessionId,
+    suiteSync,
     children,
     isDisabled,
     onSubmit,
@@ -41,22 +58,22 @@ export const Labeling = ({
     const dispatch = useDispatch();
     const [showEnableSuiteSyncModal, setShowEnableSuiteSyncModal] = useState(false);
     const suiteSyncTurnOnEditResolveRef = useRef<((value: boolean) => void) | null>(null);
-    const { isDiscoveryRunning } = useDiscovery();
-    const { suiteSync } = useSuiteServices();
+    const isDiscoveryRunning = useSelector(selectHasRunningDiscovery);
     const legacyMetadataState = useSelector(selectMetadata);
     const isSuiteSyncEnabled = useSelector(selectIsSuiteSyncEnabled);
-    const isLabelActionEnabled = useSelector(state =>
+    const isMetadataEnabled = useSelector(selectIsMetadataEnabled);
+    const isLabelActionEnabled = useSelector((state: LabelingState) =>
         selectIsLabelActionEnabled(state, deviceStaticSessionId, payload.entityKey),
     );
 
     const deviceState =
         payload.type === 'walletLabel' ? (payload.entityKey as StaticSessionId) : undefined;
-    const isLegacyLabelingEnabled = useSelector(state =>
+    const isLegacyLabelingEnabled = useSelector((state: LabelingState) =>
         selectIsLabelingAvailableForEntity(state, payload.entityKey, deviceState),
     );
 
-    const suiteSyncInteraction = useSelector(state =>
-        selectDesktopSuiteSyncInteraction(state, deviceStaticSessionId),
+    const suiteSyncInteraction = useSelector((state: LabelingState) =>
+        selectDesktopSuiteSyncInteraction(state, deviceStaticSessionId, isMetadataEnabled),
     );
 
     const handleEdit = useCallback(async () => {
@@ -110,14 +127,14 @@ export const Labeling = ({
 
         return true;
     }, [
-        isSuiteSyncEnabled,
-        suiteSync,
-        legacyMetadataState.initiating,
-        isLegacyLabelingEnabled,
-        suiteSyncInteraction,
-        dispatch,
-        deviceStaticSessionId,
         deviceState,
+        deviceStaticSessionId,
+        dispatch,
+        isLegacyLabelingEnabled,
+        isSuiteSyncEnabled,
+        legacyMetadataState.initiating,
+        suiteSync,
+        suiteSyncInteraction,
     ]);
 
     const handleSuiteSyncTurnOnModalComplete = useCallback((success: boolean) => {
@@ -156,7 +173,7 @@ export const Labeling = ({
                 );
             }
         },
-        [isSuiteSyncEnabled, dispatch, payload, deviceStaticSessionId],
+        [deviceStaticSessionId, dispatch, isSuiteSyncEnabled, payload],
     );
 
     return (
@@ -166,6 +183,7 @@ export const Labeling = ({
                     onClose={() => handleSuiteSyncTurnOnModalComplete(false)}
                     onSuccess={() => handleSuiteSyncTurnOnModalComplete(true)}
                     deviceStaticSessionId={deviceStaticSessionId}
+                    suiteSync={suiteSync}
                 />
             )}
             <SuiteSyncInteractionsTooltip

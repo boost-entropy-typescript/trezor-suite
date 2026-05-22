@@ -1,10 +1,15 @@
+import { useSelector } from 'react-redux';
+
 import { FirmwareUpgradeNeededModal } from '@suite/firmware-upgrade';
 import { useTranslation } from '@suite/intl';
-import { selectSuiteSyncInteraction } from '@suite-common/suite-sync';
+import { type MessageSystemRootState } from '@suite-common/message-system';
+import {
+    type WithSuiteSyncAndDeviceState,
+    selectSuiteSyncInteraction,
+} from '@suite-common/suite-sync';
+import { type SuiteSync } from '@suite-common/suite-sync-types';
 import { type StaticSessionId } from '@trezor/connect';
 import { exhaustive } from '@trezor/type-utils';
-
-import { useSelector } from 'src/hooks/suite';
 
 import { SuiteSyncTurnOnModal } from './SuiteSyncTurnOnModal';
 import { SuiteSyncTurnOnUnsupportedModal } from './SuiteSyncTurnOnUnsupportedModal';
@@ -13,16 +18,19 @@ type TurnOnSuiteSyncModalsProps = {
     onClose: () => void;
     onSuccess?: () => void;
     deviceStaticSessionId: StaticSessionId | null;
+    suiteSync: SuiteSync;
 };
 
 export const TurnOnSuiteSyncModals = ({
     onClose,
     onSuccess,
     deviceStaticSessionId,
+    suiteSync,
 }: TurnOnSuiteSyncModalsProps) => {
     const { translationString } = useTranslation();
-    const suiteSyncInteraction = useSelector(state =>
-        selectSuiteSyncInteraction(state, deviceStaticSessionId),
+    const suiteSyncInteraction = useSelector(
+        (state: WithSuiteSyncAndDeviceState & MessageSystemRootState) =>
+            selectSuiteSyncInteraction(state, deviceStaticSessionId),
     );
 
     if (deviceStaticSessionId === null || suiteSyncInteraction === null) {
@@ -35,12 +43,14 @@ export const TurnOnSuiteSyncModals = ({
 
         case 'unsupported':
             return <SuiteSyncTurnOnUnsupportedModal onClose={onClose} />;
+
         case 'suite-sync-off':
             return (
                 <SuiteSyncTurnOnModal
                     onClose={onClose}
                     onSuccess={onSuccess}
                     deviceStaticSessionId={deviceStaticSessionId}
+                    suiteSync={suiteSync}
                 />
             );
 
@@ -51,6 +61,7 @@ export const TurnOnSuiteSyncModals = ({
                     featureName={translationString('TR_LABELING_SECURE_SYNC')}
                 />
             );
+
         default:
             return exhaustive(suiteSyncInteraction);
     }
