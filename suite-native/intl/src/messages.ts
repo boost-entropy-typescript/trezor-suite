@@ -1850,8 +1850,8 @@ export const messages = {
                 infoText: 'This token represents your deposit and all rewards in stablecoin yield.',
                 vault: 'Vault',
                 apy: 'Annual percentage yield',
-                supplied: 'Deposited',
-                supplyMore: 'Deposit more',
+                deposited: 'Deposited',
+                depositMore: 'Deposit more',
                 withdraw: 'Withdraw',
                 apyBreakdown: {
                     apyLabel: '{apy} APY',
@@ -2627,7 +2627,7 @@ export const messages = {
             subtitle: 'Your stablecoins are put to work in lending protocols to earn yield.',
             benefits: {
                 first: {
-                    title: 'The supplied amount of {tokenSymbol} is locked until you withdraw it.',
+                    title: 'The deposited amount of {tokenSymbol} is locked until you withdraw it.',
                     description: 'Withdrawal is instant.',
                 },
                 second: {
@@ -2640,16 +2640,16 @@ export const messages = {
                     description: 'These tokens represent your vault position.',
                 },
             },
-            timelineCardTitle: 'Supply timeline',
-            timelineBottomSheetTitle: 'Supply timeline & fees',
-            supplyTimelineTitle: 'Supply',
-            supplyTimeline: {
+            timelineCardTitle: 'Deposit timeline',
+            timelineBottomSheetTitle: 'Deposit timeline & fees',
+            depositTimelineTitle: 'Deposit',
+            depositTimeline: {
                 first: {
                     title: 'Approve spending transaction',
                     description: 'Network fee',
                 },
                 second: {
-                    title: 'Sign supplying transaction',
+                    title: 'Sign deposit transaction',
                     description: 'Network fee',
                 },
                 third: {
@@ -2672,28 +2672,31 @@ export const messages = {
         yieldConsentsScreen: {
             title: 'Before you continue',
             providerCard: {
-                title: 'Supplying to {providerName}',
+                title: 'Depositing to {providerName}',
                 firstItem:
-                    '{providerName} maintains and protects your supplied {tokenSymbol} with their smart contracts, infrastructure, and technology.',
+                    '{providerName} maintains and protects your deposited {tokenSymbol} with their smart contracts, infrastructure, and technology.',
                 secondItem:
-                    "When supplying, the responsibility for your funds' security transitions from your Trezor to {providerName}.",
+                    "When depositing, the responsibility for your funds' security transitions from your Trezor to {providerName}.",
             },
         },
-        yieldSupplyFlowScreen: {
+        yieldDepositFlowScreen: {
             step: 'Step {stepNumber} of {stepCount}',
             approvalStepTitle: 'Select amount & approve',
-            modalTitle: 'Supply',
-            supplyTransactionStepTitle: 'Supply transaction',
-            supplyCompleteStepTitle: 'Supply complete',
-            amountToSupply: 'Amount to supply',
-            supplyMax: 'Supply max',
+            modalTitle: 'Deposit',
+            depositTransactionStepTitle: 'Deposit transaction',
+            depositCompleteStepTitle: 'Deposit complete',
+            depositPendingTitle: 'Confirming deposit',
+            amountToDeposit: 'Amount to deposit',
+            depositMax: 'Deposit max',
             balance: 'Balance:',
+            approvedAmount: 'Approved amount',
             approvalLimit: 'Approval limit',
-            perSupply: 'Per supply',
+            increaseApprovalLimit: 'Increase approval limit',
+            perDeposit: 'Per deposit',
             estimatedRewardsLabel: 'Estimated yearly rewards',
             approvalLimitSheet: {
                 title: 'Select approval limit',
-                perSupply: {
+                perDeposit: {
                     description:
                         'Approve the exact amount for the provider. Valid until fully used or revoked. Then a new approval and network fee will be required.',
                 },
@@ -2709,29 +2712,100 @@ export const messages = {
                 insufficientBalance: "You don't have enough {tokenSymbol} balance.",
                 tooManyDecimals: 'Too many decimals.',
             },
+            alerts: {
+                approvalUnavailable: {
+                    title: 'Approval unavailable',
+                    description: 'Approval could not be prepared. Check the amount and try again.',
+                },
+                approvalReviewUnavailable: {
+                    title: 'Approval review unavailable',
+                    description:
+                        'Approval review could not be prepared. Check the selected fee and try again.',
+                },
+                depositUnavailable: {
+                    title: 'Deposit unavailable',
+                    description: 'Deposit could not be prepared. Check the amount and try again.',
+                },
+                approvalResetNotSupported: {
+                    title: 'Approval reset not supported',
+                    description:
+                        'This deposit needs an approval reset first. Revoke is not supported on mobile yet.',
+                },
+                transactionFailed: {
+                    title: 'Transaction failed',
+                    description:
+                        'The transaction failed on the network. Check the details and try again.',
+                },
+            },
         },
-        yieldSupplyApprovalReviewScreen: {
+        yieldDepositApprovalReviewScreen: {
             title: 'Review with Trezor',
             successMessage: "You're all set.",
+        },
+        yieldDepositReviewScreen: {
+            title: 'Review with Trezor',
+            successMessage: "You're all set.",
+            submitButton: 'Deposit now',
+        },
+        yieldDepositCompleteScreen: {
+            title: 'Deposit complete',
+            subtitle: 'Your deposit is now earning yield in the vault.',
+        },
+        yieldCompleteScreen: {
+            status: 'Status',
+            completed: 'Completed',
+            apy: 'APY',
+            received: 'Received',
+            sent: 'Sent',
+            backToOverview: 'Back to overview',
+        },
+        yieldReview: {
             approvalCard: {
                 title: 'Approve',
             },
-            detailsCard: {
+            depositCard: {
+                title: 'Deposit',
+            },
+            receiveCard: {
+                title: 'Receive',
+            },
+            approvalDetailsCard: {
                 title: 'Approval details',
-                amount: 'Amount',
                 approvalLimit: 'Approval limit',
             },
-            pushTransactionFailedAlert: {
-                title: 'Approval was not submitted',
-                description:
-                    'The approval transaction was signed but could not be submitted to the network.',
-                primaryButton: 'Go to homepage',
+            transactionDetailsCard: {
+                title: 'Transaction details',
             },
-            pendingTransactionConflictAlert: {
-                title: 'Approval was not submitted',
-                description:
-                    'There is already a pending transaction for this account. Wait for it to finish before trying again.',
+            alerts: {
                 primaryButton: 'Go to homepage',
+                approval: {
+                    pushTransactionFailed: {
+                        title: 'Approval was not submitted',
+                        description:
+                            'The approval transaction was signed but could not be submitted to the network.',
+                    },
+                    pendingTransactionConflict: {
+                        title: 'Approval was not submitted',
+                        description:
+                            'There is already a pending transaction for this account. Wait for it to finish before trying again.',
+                    },
+                },
+                deposit: {
+                    signTransactionFailed: {
+                        title: 'Transaction was not signed',
+                        description: 'Review the transaction and sign it again.',
+                    },
+                    pushTransactionFailed: {
+                        title: 'Deposit was not submitted',
+                        description:
+                            'The deposit transaction was signed but could not be submitted to the network.',
+                    },
+                    pendingTransactionConflict: {
+                        title: 'Deposit was not submitted',
+                        description:
+                            'There is already a pending transaction for this account. Wait for it to finish before trying again.',
+                    },
+                },
             },
         },
         staked: 'Staked',

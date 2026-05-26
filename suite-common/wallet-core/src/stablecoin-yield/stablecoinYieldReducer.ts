@@ -24,6 +24,12 @@ type StablecoinYieldSerializedTx = {
     symbol: NetworkSymbol;
 };
 
+type StablecoinYieldActionReviewState = {
+    amount: string;
+    receiptAmount: string;
+    unsignedTransaction: string;
+};
+
 export type YieldAllowanceStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 export const STABLECOIN_YIELD_PREFIX = '@suite-common/wallet-core/stablecoin-yield';
@@ -55,6 +61,7 @@ export type StablecoinYieldSessionState = {
         isSubmitting: boolean;
         pendingTransaction: YieldPendingTransactionState | null;
         pendingReceiptAmount: string;
+        review: StablecoinYieldActionReviewState | null;
     };
     result: {
         completedAmount: string;
@@ -97,6 +104,7 @@ export const initialStablecoinYieldSessionState: StablecoinYieldSessionState = {
         isSubmitting: false,
         pendingTransaction: null,
         pendingReceiptAmount: '',
+        review: null,
     },
     result: {
         completedAmount: '0',
@@ -245,6 +253,9 @@ export const stablecoinYieldSlice = createSlice({
         startSubmittingApproval(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
             withSession(state, action.payload, session => {
                 session.approval.isSubmitting = true;
+                session.approval.modalState = null;
+                session.approval.revokeTransactions = null;
+                session.approval.isRevokeRequired = false;
                 session.error = null;
             });
         },
@@ -299,6 +310,7 @@ export const stablecoinYieldSlice = createSlice({
                 session.approval.isModifyMode = true;
                 session.approval.modalState = null;
                 session.action.pendingTransaction = null;
+                session.action.review = null;
                 session.error = null;
                 session.step = 'approve';
             });
@@ -313,9 +325,12 @@ export const stablecoinYieldSlice = createSlice({
         ) {
             withSession(state, action.payload, session => {
                 session.approval.isModifyMode = false;
+                session.approval.modalState = null;
+                session.approval.isRevokeRequired = false;
                 session.action.amount = action.payload.amount;
                 session.approval.isPending = false;
                 session.action.pendingTransaction = null;
+                session.action.review = null;
                 session.approval.revokeTransactions = null;
                 session.step = 'action';
             });
@@ -354,12 +369,28 @@ export const stablecoinYieldSlice = createSlice({
             withSession(state, action.payload, session => {
                 session.action.amount = action.payload.amount;
                 session.action.isSubmitting = true;
+                session.action.review = null;
                 session.error = null;
             });
         },
         finishSubmittingAction(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
             withSession(state, action.payload, session => {
                 session.action.isSubmitting = false;
+            });
+        },
+        storeActionReviewData(
+            state,
+            action: PayloadAction<
+                StablecoinYieldSessionActionPayload & StablecoinYieldActionReviewState
+            >,
+        ) {
+            withSession(state, action.payload, session => {
+                session.action.amount = action.payload.amount;
+                session.action.review = {
+                    amount: action.payload.amount,
+                    receiptAmount: action.payload.receiptAmount,
+                    unsignedTransaction: action.payload.unsignedTransaction,
+                };
             });
         },
         setPendingTx(
@@ -393,6 +424,7 @@ export const stablecoinYieldSlice = createSlice({
                 session.result.completedAmount = action.payload.amount;
                 session.result.completedReceiptAmount = session.action.pendingReceiptAmount;
                 session.action.pendingTransaction = null;
+                session.action.review = null;
                 session.step = 'complete';
             });
         },
