@@ -12,6 +12,7 @@
     },
     "include": [".", "e2e", "**/*.json"],
     "references": [
+        { "path": "../../suite-common/address" },
         {
             "path": "../../suite-common/analytics"
         },
@@ -153,8 +154,12 @@
         {
             "path": "../../suite-common/walletconnect"
         },
+        { "path": "../../suite/account" },
         { "path": "../../suite/address" },
         { "path": "../../suite/analytics" },
+        {
+            "path": "../../suite/authenticity-checks"
+        },
         { "path": "../../suite/backup" },
         { "path": "../../suite/desktop-update" },
         { "path": "../../suite/device" },
@@ -183,6 +188,7 @@
         {
             "path": "../../suite/onboarding-components"
         },
+        { "path": "../../suite/receive" },
         { "path": "../../suite/recovery" },
         { "path": "../../suite/router" },
         { "path": "../../suite/settings" },

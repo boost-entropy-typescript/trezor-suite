@@ -1,18 +1,21 @@
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
+import { useSelector } from 'react-redux';
 
+import {
+    type AuthenticityChecksRootState,
+    selectIsFirmwareAuthenticityCheckEnabledAndHardFailed,
+} from '@suite/authenticity-checks';
 import { Translation } from '@suite/intl';
 import { selectIsDeviceBackupUnfinished } from '@suite-common/device';
 import { Tooltip } from '@trezor/components';
 
-import { selectIsFirmwareAuthenticityCheckEnabledAndHardFailed } from 'src/selectors/suite/suiteAuthenticityChecksSelectors';
-
-import { useSelector } from './useSelector';
-
 export const useReceiveDisabled = () => {
-    const isAuthenticityCheckFailed = useSelector(
-        selectIsFirmwareAuthenticityCheckEnabledAndHardFailed,
+    const isAuthenticityCheckFailed = useSelector((state: AuthenticityChecksRootState) =>
+        selectIsFirmwareAuthenticityCheckEnabledAndHardFailed(state),
     );
-    const isDeviceBackupUnfinished = useSelector(selectIsDeviceBackupUnfinished);
+    const isDeviceBackupUnfinished = useSelector((state: AuthenticityChecksRootState) =>
+        selectIsDeviceBackupUnfinished(state),
+    );
 
     const isReceiveDisabled: boolean = isAuthenticityCheckFailed || isDeviceBackupUnfinished;
 

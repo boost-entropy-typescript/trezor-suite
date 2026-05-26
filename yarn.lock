@@ -10186,6 +10186,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@suite-common/address@workspace:*, @suite-common/address@workspace:suite-common/address":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/address@workspace:suite-common/address"
+  dependencies:
+    "@suite-common/wallet-types": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/analytics-redux@workspace:*, @suite-common/analytics-redux@workspace:suite-common/analytics-redux":
   version: 0.0.0-use.local
   resolution: "@suite-common/analytics-redux@workspace:suite-common/analytics-redux"
@@ -10307,11 +10315,6 @@ __metadata:
     "@types/react": "npm:19.2.14"
     react: "npm:19.2.4"
     react-redux: "npm:9.2.0"
-  peerDependencies:
-    "@trezor/suite-desktop-api": "workspace:*"
-  peerDependenciesMeta:
-    "@trezor/suite-desktop-api":
-      optional: true
   languageName: unknown
   linkType: soft
 
@@ -11272,6 +11275,7 @@ __metadata:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@react-navigation/native": "npm:7.1.28"
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/address": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/message-system": "workspace:*"
@@ -14216,6 +14220,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite/account@workspace:*, @suite/account@workspace:suite/account":
+  version: 0.0.0-use.local
+  resolution: "@suite/account@workspace:suite/account"
+  dependencies:
+    "@suite-common/connect-popup": "workspace:*"
+    "@suite-common/trading": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    redux: "npm:^5.0.1"
+  languageName: unknown
+  linkType: soft
+
 "@suite/address@workspace:*, @suite/address@workspace:suite/address":
   version: 0.0.0-use.local
   resolution: "@suite/address@workspace:suite/address"
@@ -14251,6 +14267,17 @@ __metadata:
     "@suite/router-config": "workspace:*"
     "@trezor/analytics-uploader": "workspace:*"
     "@trezor/device-utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@suite/authenticity-checks@workspace:*, @suite/authenticity-checks@workspace:suite/authenticity-checks":
+  version: 0.0.0-use.local
+  resolution: "@suite/authenticity-checks@workspace:suite/authenticity-checks"
+  dependencies:
+    "@suite-common/device": "workspace:*"
+    "@suite-common/firmware-authenticity": "workspace:*"
+    "@suite-common/message-system": "workspace:*"
+    "@suite/settings": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -14607,6 +14634,39 @@ __metadata:
   dependencies:
     "@suite-common/platform-encryption": "workspace:*"
     "@trezor/type-utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@suite/receive@workspace:*, @suite/receive@workspace:suite/receive":
+  version: 0.0.0-use.local
+  resolution: "@suite/receive@workspace:suite/receive"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/address": "workspace:*"
+    "@suite-common/device": "workspace:*"
+    "@suite-common/message-system": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/toast-notifications": "workspace:*"
+    "@suite-common/wallet-config": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-common/wallet-types": "workspace:*"
+    "@suite/account": "workspace:*"
+    "@suite/address": "workspace:*"
+    "@suite/analytics": "workspace:*"
+    "@suite/authenticity-checks": "workspace:*"
+    "@suite/external-links": "workspace:*"
+    "@suite/intl": "workspace:*"
+    "@suite/labeling": "workspace:*"
+    "@suite/metadata": "workspace:*"
+    "@suite/modal": "workspace:*"
+    "@trezor/components": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    "@types/react": "npm:19.2.14"
+    react: "npm:19.2.4"
+    react-redux: "npm:9.2.0"
+    redux: "npm:^5.0.1"
   languageName: unknown
   linkType: soft
 
@@ -15732,6 +15792,7 @@ __metadata:
     express: "npm:^5.2.1"
     tsx: "npm:^4.21.0"
     ws: "npm:^8.20.0"
+    zod: "npm:4.3.6"
   languageName: unknown
   linkType: soft
 
@@ -16264,6 +16325,7 @@ __metadata:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@sentry/core": "npm:10.50.0"
+    "@suite-common/address": "workspace:*"
     "@suite-common/analytics": "workspace:*"
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/assets": "workspace:*"
@@ -16321,8 +16383,10 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-common/walletconnect": "workspace:*"
+    "@suite/account": "workspace:*"
     "@suite/address": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/authenticity-checks": "workspace:*"
     "@suite/backup": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/device": "workspace:*"
@@ -16341,6 +16405,7 @@ __metadata:
     "@suite/modal": "workspace:*"
     "@suite/nfc": "workspace:*"
     "@suite/onboarding-components": "workspace:*"
+    "@suite/receive": "workspace:*"
     "@suite/recovery": "workspace:*"
     "@suite/router": "workspace:*"
     "@suite/settings": "workspace:*"

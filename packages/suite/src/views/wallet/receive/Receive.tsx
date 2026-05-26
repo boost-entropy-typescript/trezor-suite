@@ -1,4 +1,5 @@
 import { useDevice } from '@suite/device';
+import { FreshAddress } from '@suite/receive';
 import { selectIsCoinjoinReceiveWarningHidden } from '@suite/settings';
 import { selectSelectedDevice } from '@suite-common/device';
 import { selectPendingAccountAddresses } from '@suite-common/wallet-core';
@@ -10,13 +11,12 @@ import { WalletLayout, WalletSubpageHeading } from 'src/components/wallet';
 import { useSelector } from 'src/hooks/suite';
 
 import { CoinjoinReceiveWarning } from './components/CoinjoinReceiveWarning';
-import { FreshAddress } from './components/FreshAddress';
 import { UsedAddresses } from './components/UsedAddresses';
 
 export const Receive = () => {
     const isCoinjoinReceiveWarningHidden = useSelector(selectIsCoinjoinReceiveWarningHidden);
     const selectedAccount = useSelector(state => state.wallet.selectedAccount);
-    const receive = useSelector(state => state.wallet.receive);
+    const alreadyUsedAddresses = useSelector(state => state.wallet.receive);
     const device = useSelector(selectSelectedDevice);
 
     const { account } = selectedAccount;
@@ -29,12 +29,16 @@ export const Receive = () => {
 
     const isDeviceLocked = isLocked(true);
 
+    if (account === undefined) {
+        return null;
+    }
+
     if (!device || selectedAccount.status !== 'loaded') {
         return <WalletLayout title="TR_NAV_RECEIVE" account={selectedAccount} />;
     }
 
     const disabled = false; // TODO: it should be disabled based on locks probably
-    const showCexWarning = account?.accountType === 'coinjoin' && !isCoinjoinReceiveWarningHidden;
+    const showCexWarning = account.accountType === 'coinjoin' && !isCoinjoinReceiveWarningHidden;
 
     const isDeviceConnected = device.connected && device.available;
 
@@ -45,7 +49,7 @@ export const Receive = () => {
                 <WalletSubpageHeading title="TR_NAV_RECEIVE" />
                 <FreshAddress
                     account={account}
-                    addresses={receive}
+                    alreadyUsedAddresses={alreadyUsedAddresses}
                     disabled={disabled}
                     locked={isDeviceLocked}
                     pendingAddresses={pendingAddresses}
@@ -54,7 +58,7 @@ export const Receive = () => {
                 {account && (
                     <UsedAddresses
                         account={account}
-                        addresses={receive}
+                        addresses={alreadyUsedAddresses}
                         locked={isDeviceLocked}
                         pendingAddresses={pendingAddresses}
                     />

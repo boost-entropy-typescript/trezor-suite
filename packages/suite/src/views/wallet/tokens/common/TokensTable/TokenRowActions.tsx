@@ -2,11 +2,13 @@ import { type ReactNode } from 'react';
 
 import { Address, copyAddressToClipboard, showCopyAddressModal } from '@suite/address';
 import { type DesktopAnalyticsDep, events } from '@suite/analytics';
+import { selectIsDeviceCompromised } from '@suite/authenticity-checks';
 import { useDevice } from '@suite/device';
 import { useExternalLink } from '@suite/external-links';
 import { selectIsCopyAddressModalShown, selectIsUnhideTokenModalShown } from '@suite/flags';
 import { Translation } from '@suite/intl';
 import { openModal } from '@suite/modal';
+import { showAddressThunk } from '@suite/receive';
 import { goto } from '@suite/router';
 import { useServices } from '@suite-common/dependency-injection';
 import { selectSelectedDevice } from '@suite-common/device';
@@ -48,10 +50,8 @@ import {
 
 import { SUITE } from 'src/actions/suite/constants';
 import { setSendFormPrefill } from 'src/actions/suite/suiteActions';
-import { showAddress } from 'src/actions/wallet/receiveActions';
 import { getEarnRouteParams } from 'src/components/earn/utils/getEarnRouteParams';
 import { useDispatch, useLayoutSize, useSelector } from 'src/hooks/suite';
-import { selectIsDeviceCompromised } from 'src/selectors/suite/suiteAuthenticityChecksSelectors';
 import { getTokenAddressTranslationId } from 'src/utils/wallet/tokenUtils';
 
 import type { TokensTableType } from './types';
@@ -252,7 +252,7 @@ const TokenRowBasicActions = ({
         if (network.networkType === 'cardano') {
             goToWithAnalytics({ routeName: 'wallet-receive', preserveParams: true });
         } else {
-            dispatch(showAddress(path, unusedAddress));
+            dispatch(showAddressThunk({ path, address: unusedAddress }));
         }
     };
 

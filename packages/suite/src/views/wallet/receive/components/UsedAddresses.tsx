@@ -7,6 +7,7 @@ import {
     selectIsLegacyLabelingVisible,
     selectLabelingDataForSelectedAccount,
 } from '@suite/metadata';
+import { showAddressThunk, useReceiveDisabled } from '@suite/receive';
 import { type MetadataAddPayload } from '@suite-common/metadata-types';
 import { returnStableArrayIfEmpty } from '@suite-common/redux-utils';
 import { selectIsSuiteSyncEnabled, selectSuiteSyncAddressLabels } from '@suite-common/suite-sync';
@@ -18,10 +19,8 @@ import { Button, Card, Column, Row, Table, Text } from '@trezor/components';
 import { type AccountAddress } from '@trezor/connect';
 import { spacings } from '@trezor/theme';
 
-import { showAddress } from 'src/actions/wallet/receiveActions';
 import { FormattedCryptoAmount } from 'src/components/suite';
 import { useDispatch, useSelector } from 'src/hooks/suite';
-import { useReceiveDisabled } from 'src/hooks/suite/useReceiveDisabled';
 import { type AppState } from 'src/types/suite';
 
 const DEFAULT_LIMIT = 10;
@@ -187,7 +186,14 @@ export const UsedAddresses = ({
                                             ? addressLabels[addr.address]
                                             : undefined),
                                 }}
-                                onClick={() => dispatch(showAddress(addr.path, addr.address))}
+                                onClick={() =>
+                                    dispatch(
+                                        showAddressThunk({
+                                            path: addr.path,
+                                            address: addr.address,
+                                        }),
+                                    )
+                                }
                             />
                         ))}
                     </Table.Body>
