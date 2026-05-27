@@ -1798,15 +1798,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitcoinerlab/secp256k1@npm:1.2.0":
-  version: 1.2.0
-  resolution: "@bitcoinerlab/secp256k1@npm:1.2.0"
-  dependencies:
-    "@noble/curves": "npm:^1.7.0"
-  checksum: 10/435978260e15832227e37c683ca9b470625786ef8903a174ff4386d16cba49ba5c43c7bc4d0284be2d69e467b3fb0e030c8845895f2fe768b505ebd42e106938
-  languageName: node
-  linkType: hard
-
 "@blazediff/core@npm:1.9.1":
   version: 1.9.1
   resolution: "@blazediff/core@npm:1.9.1"
@@ -5783,7 +5774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:1.9.7, @noble/curves@npm:^1.0.0, @noble/curves@npm:^1.7.0, @noble/curves@npm:^1.9.6, @noble/curves@npm:~1.9.0":
+"@noble/curves@npm:1.9.7, @noble/curves@npm:^1.0.0, @noble/curves@npm:^1.9.6, @noble/curves@npm:~1.9.0":
   version: 1.9.7
   resolution: "@noble/curves@npm:1.9.7"
   dependencies:
@@ -11450,7 +11441,6 @@ __metadata:
   resolution: "@suite-native/app@workspace:suite-native/app"
   dependencies:
     "@babel/core": "npm:7.29.0"
-    "@bitcoinerlab/secp256k1": "npm:1.2.0"
     "@config-plugins/detox": "npm:^11.0.0"
     "@currents/cmd": "npm:^1.9.7"
     "@evolu/common": "npm:8.0.0-next.5"
@@ -11602,7 +11592,6 @@ __metadata:
     react-native-ble-plx: "npm:3.5.1"
     react-native-edge-to-edge: "npm:1.7.0"
     react-native-gesture-handler: "npm:2.31.1"
-    react-native-get-random-values: "npm:^2.0.0"
     react-native-keyboard-controller: "npm:1.20.7"
     react-native-launch-arguments: "npm:^4.1.1"
     react-native-mmkv: "npm:~4.3.0"
@@ -15263,7 +15252,6 @@ __metadata:
     "@trezor/eslint": "workspace:*"
     cbor: "npm:^10.0.12"
     crc: "npm:^3.8.0"
-    groestl-hash-js: "npm:1.0.0"
     jssha: "npm:2.3.1"
   peerDependencies:
     tslib: ^2.6.2
@@ -27207,13 +27195,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-base64-decode@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "fast-base64-decode@npm:1.0.0"
-  checksum: 10/4c59eb1775a7f132333f296c5082476fdcc8f58d023c42ed6d378d2e2da4c328c7a71562f271181a725dd17cdaa8f2805346cc330cdbad3b8e4b9751508bd0a3
-  languageName: node
-  linkType: hard
-
 "fast-content-type-parse@npm:^2.0.0":
   version: 2.0.1
   resolution: "fast-content-type-parse@npm:2.0.1"
@@ -28766,13 +28747,6 @@ __metadata:
     section-matter: "npm:^1.0.0"
     strip-bom-string: "npm:^1.0.0"
   checksum: 10/9a8f146a7a918d2524d5d60e0b4d45729f5bca54aa41247f971d9e4bc984943fda58159435763d463ec2abc8a0e238e807bd9b05e3a48f4a613a325c9dd5ad0c
-  languageName: node
-  linkType: hard
-
-"groestl-hash-js@npm:1.0.0":
-  version: 1.0.0
-  resolution: "groestl-hash-js@npm:1.0.0"
-  checksum: 10/ef5598adb70863cc7bca6137e464ae1743b38e03f63210a0c58e4ee2518a25e44e55f80d236708c810fcec0bffdba6d4c8623086eb35a83bf78bc7d0d8e84a9d
   languageName: node
   linkType: hard
 
@@ -39858,17 +39832,6 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10/0f02d989fddae1a59f3595b8039da04e8332206e0e8f7e05548b1ab2e57b6efa1b37d634ac8e5cc85b1844363a78f2f1400ace26164319b2140e994b0e779ea3
-  languageName: node
-  linkType: hard
-
-"react-native-get-random-values@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "react-native-get-random-values@npm:2.0.0"
-  dependencies:
-    fast-base64-decode: "npm:^1.0.0"
-  peerDependencies:
-    react-native: ">=0.81"
-  checksum: 10/f55218ac9710f9d329f0cfb1d8dce9765b4d06fdd2b9f966ed0476298f8373875679caf68b44f4e3b363abe81d1cb6f4c47b45f58b87eae63bd54776beeded46
   languageName: node
   linkType: hard
 
