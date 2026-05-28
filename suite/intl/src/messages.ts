@@ -1127,6 +1127,18 @@ export const messages = defineMessages({
         id: 'TR_TRADING_SELL',
         defaultMessage: 'Sell',
     },
+    TR_TRADING_BUY_VIA: {
+        id: 'TR_TRADING_BUY_VIA',
+        defaultMessage: 'Buy via {providerName}',
+    },
+    TR_TRADING_SELL_VIA: {
+        id: 'TR_TRADING_SELL_VIA',
+        defaultMessage: 'Sell via {providerName}',
+    },
+    TR_TRADING_KYC_REQUIRED_WARNING: {
+        id: 'TR_TRADING_KYC_REQUIRED_WARNING',
+        defaultMessage: 'Identity verification will be required.',
+    },
     TR_TRADING_RATE: {
         id: 'TR_TRADING_RATE',
         defaultMessage: 'Rate',
@@ -5476,15 +5488,6 @@ export const messages = defineMessages({
     TR_TRON_TX_UNDELEGATE_RESOURCE: {
         id: 'TR_TRON_TX_UNDELEGATE_RESOURCE',
         defaultMessage: 'Undelegate resource',
-    },
-    TR_EXPERIMENTAL_TRON_VIEW_ONLY: {
-        id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY',
-        defaultMessage: 'Tron (Beta)',
-    },
-    TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION: {
-        id: 'TR_EXPERIMENTAL_TRON_VIEW_ONLY_DESCRIPTION',
-        defaultMessage:
-            'Enable the Tron Network with the latest firmware to check your balance, send and receive TRX and tokens, view charts and transaction history, and use WalletConnect. Full support, including freezing and voting, is coming soon.',
     },
     TR_EXPERIMENTAL_GAP_LIMIT: {
         id: 'TR_EXPERIMENTAL_GAP_LIMIT',
