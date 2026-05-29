@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -13,7 +13,7 @@ import {
     Screen,
     type StackProps,
 } from '@suite-native/navigation';
-import { useExchangeAnalyticReportCallback } from '@suite-native/trading-analytics';
+import { useExchangeAnalyticsStepReport } from '@suite-native/trading-analytics';
 import {
     selectExchangeSelectedReceiveAccount,
     selectExchangeSelectedSendAccount,
@@ -51,10 +51,13 @@ const TradingExchangePreviewScreenContent = ({
     const toAccount = useSelector(selectExchangeSelectedReceiveAccount);
     const hasRequestedTradeConfirmation = useRef(false);
 
-    const reportToAnalytics = useExchangeAnalyticReportCallback();
+    const reportToAnalytics = useExchangeAnalyticsStepReport('transaction-preview');
+    const reportVisit = useEffectEvent(() => {
+        reportToAnalytics('visit');
+    });
     useEffect(() => {
-        reportToAnalytics('transaction-preview', 'visit');
-    }, [reportToAnalytics]);
+        reportVisit();
+    }, []);
 
     useSubscribeForSolanaBlockUpdates(fromAccount ?? null);
 
@@ -96,7 +99,7 @@ const TradingExchangePreviewScreenContent = ({
 
     const onSignTransactionNavigation = useCallback(() => {
         hasRequestedTradeConfirmation.current = false;
-        reportToAnalytics('transaction-preview', 'continue');
+        reportToAnalytics('continue');
     }, [reportToAnalytics]);
 
     useFocusEffect(
@@ -140,13 +143,13 @@ const TradingExchangePreviewScreenContent = ({
                 primaryButtonColorProps: { intent: 'critical', priority: 'primary' },
                 onPressPrimaryButton: () => {
                     handleConfirmTrade();
-                    reportToAnalytics('transaction-preview', 'retry');
+                    reportToAnalytics('retry');
                 },
                 secondaryButtonTitle: <Translation id="generic.buttons.cancel" />,
                 secondaryButtonColorProps: { intent: 'critical', priority: 'secondary' },
                 onPressSecondaryButton: () => {
                     navigation.popToTop();
-                    reportToAnalytics('transaction-preview', 'cancel');
+                    reportToAnalytics('cancel');
                 },
             });
             setIsConfirmationErrorRequested(false);

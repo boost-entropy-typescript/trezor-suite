@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import {
     Screen,
     type StackProps,
 } from '@suite-native/navigation';
+import { useExchangeAnalyticsStepReport } from '@suite-native/trading-analytics';
 import { useTransactionStatusOverride } from '@suite-native/trading-debug';
 import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
 import { useTransactionDetails } from '@suite-native/transaction-management';
@@ -44,6 +45,9 @@ export const TradingConfirmingScreen = ({
     const activeQuote = useSelector(selectTradingExchangeSelectedQuote);
     const accountKey = sendAccount?.key ?? null;
     const approvalSendTxHash = activeQuote?.approvalSendTxHash;
+    const reportToAnalytics = useExchangeAnalyticsStepReport(
+        flowType === 'approve' ? 'approval-confirming' : 'revoke-confirming',
+    );
 
     const { confirmApproval } = useApprovalFlow();
 
@@ -54,6 +58,13 @@ export const TradingConfirmingScreen = ({
         approvalTxid,
         setApprovalTxid,
     } = useAllowanceTxTracking({ accountKey });
+
+    const reportVisit = useEffectEvent(() => {
+        reportToAnalytics('visit');
+    });
+    useEffect(() => {
+        reportVisit();
+    }, []);
 
     useEffect(() => {
         if (approvalSendTxHash) {
@@ -81,11 +92,12 @@ export const TradingConfirmingScreen = ({
 
             if (isSingleBackPress) {
                 dispatch(tradingExchangeActions.saveSelectedQuote(undefined));
+                reportToAnalytics('cancel');
             }
         });
 
         return unsubscribe;
-    }, [dispatch, navigation]);
+    }, [dispatch, navigation, reportToAnalytics]);
 
     useFocusEffect(
         useCallback(() => {
@@ -156,12 +168,22 @@ export const TradingConfirmingScreen = ({
                     default:
                         exhaustive(flowType);
                 }
+
+                reportToAnalytics('continue');
             };
 
             void handleConfirmed().catch(() => {
                 hasConfirmedRef.current = false;
             });
-        }, [isConfirmed, activeQuote, flowType, confirmApproval, dispatch, navigation]),
+        }, [
+            isConfirmed,
+            activeQuote,
+            flowType,
+            confirmApproval,
+            dispatch,
+            navigation,
+            reportToAnalytics,
+        ]),
     );
 
     return (

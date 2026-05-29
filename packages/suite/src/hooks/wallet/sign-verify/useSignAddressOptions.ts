@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { type ExtendedMessageDescriptor, useTranslation } from '@suite/intl';
-import { type ReceiveState as RevealedAddresses } from '@suite/receive';
+import { type ReceiveInfo } from '@suite-common/wallet-types';
 import { getStakingPath } from '@suite-common/wallet-utils';
 
 import type { Account } from 'src/types/wallet';
@@ -13,7 +13,7 @@ export type AddressItem = {
 
 export const useSignAddressOptions = (
     account: Account | undefined,
-    revealedAddresses: RevealedAddresses,
+    revealedAddresses: ReceiveInfo[],
 ) => {
     const reduceAddresses = (
         addresses: { address: string; path: string }[],
@@ -117,8 +117,13 @@ export const useSignAddressOptions = (
                 ? translationString(label as ExtendedMessageDescriptor['id'])
                 : label;
 
-            const pathParts = options[0].value.split('/');
-            const pathLabel = `m/${pathParts[pathParts.length - 2]}/i`;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const firstOption: (typeof options)[number] = options[0];
+            const pathParts = firstOption.value.split('/');
+            const lastSegmentIndex = pathParts.length - 2;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const pathSegment: string = pathParts[lastSegmentIndex];
+            const pathLabel = `m/${pathSegment}/i`;
 
             return {
                 label: `${translatedLabel} ${pathLabel}`,

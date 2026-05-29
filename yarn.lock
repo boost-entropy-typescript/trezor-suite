@@ -10399,11 +10399,27 @@ __metadata:
   resolution: "@suite-common/earn-stablecoin-api@workspace:suite-common/earn-stablecoin-api"
   dependencies:
     "@suite-common/calldata": "workspace:^"
+    "@suite-common/earn-stablecoin-defs": "workspace:^"
     "@suite-common/http-client": "workspace:^"
     "@suite-common/react-query": "workspace:^"
     "@suite-common/schemas": "workspace:^"
+    "@suite-common/wallet-config": "workspace:^"
+    "@suite-common/wallet-types": "workspace:^"
+    "@suite-common/wallet-utils": "workspace:^"
+    "@trezor/blockchain-link-types": "workspace:^"
     "@trezor/env-utils": "workspace:*"
+    "@trezor/react-utils": "workspace:^"
     "@trezor/utils": "workspace:^"
+    react: "npm:19.2.4"
+    zod: "npm:4.3.6"
+  languageName: unknown
+  linkType: soft
+
+"@suite-common/earn-stablecoin-defs@workspace:*, @suite-common/earn-stablecoin-defs@workspace:^, @suite-common/earn-stablecoin-defs@workspace:suite-common/earn-stablecoin-defs":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/earn-stablecoin-defs@workspace:suite-common/earn-stablecoin-defs"
+  dependencies:
+    "@trezor/env-utils": "workspace:*"
     orval: "npm:8.8.0"
     prettier: "npm:^3.8.3"
     zod: "npm:4.3.6"
@@ -11118,7 +11134,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/wallet-config@workspace:suite-common/wallet-config"
   dependencies:
-    "@suite-common/earn-stablecoin-api": "workspace:*"
+    "@suite-common/earn-stablecoin-defs": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
     "@trezor/coins-solana": "workspace:*"
     "@trezor/device-utils": "workspace:*"
@@ -11198,7 +11214,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@suite-common/wallet-utils@workspace:*, @suite-common/wallet-utils@workspace:suite-common/wallet-utils":
+"@suite-common/wallet-utils@workspace:*, @suite-common/wallet-utils@workspace:^, @suite-common/wallet-utils@workspace:suite-common/wallet-utils":
   version: 0.0.0-use.local
   resolution: "@suite-common/wallet-utils@workspace:suite-common/wallet-utils"
   dependencies:
@@ -14235,9 +14251,16 @@ __metadata:
   resolution: "@suite/account@workspace:suite/account"
   dependencies:
     "@suite-common/connect-popup": "workspace:*"
+    "@suite-common/message-system": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync": "workspace:*"
     "@suite-common/trading": "workspace:*"
+    "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
+    "@suite/metadata": "workspace:*"
+    "@trezor/connect": "workspace:*"
     redux: "npm:^5.0.1"
   languageName: unknown
   linkType: soft
@@ -14249,12 +14272,18 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/device": "workspace:*"
     "@suite-common/formatters": "workspace:*"
+    "@suite-common/message-system": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
+    "@suite-common/suite-sync": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite/account": "workspace:*"
+    "@suite/metadata": "workspace:*"
     "@suite/modal": "workspace:*"
     "@trezor/components": "workspace:*"
+    "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/dom-utils": "workspace:*"
     "@trezor/theme": "workspace:*"
@@ -14564,6 +14593,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
     "@suite/analytics": "workspace:*"
     "@suite/device": "workspace:*"
     "@suite/intl": "workspace:*"
@@ -14654,9 +14684,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/address": "workspace:*"
     "@suite-common/device": "workspace:*"
-    "@suite-common/message-system": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
-    "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -14669,7 +14697,6 @@ __metadata:
     "@suite/external-links": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/labeling": "workspace:*"
-    "@suite/metadata": "workspace:*"
     "@suite/modal": "workspace:*"
     "@trezor/components": "workspace:*"
     "@trezor/theme": "workspace:*"
@@ -15937,7 +15964,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/react-utils@workspace:*, @trezor/react-utils@workspace:packages/react-utils":
+"@trezor/react-utils@workspace:*, @trezor/react-utils@workspace:^, @trezor/react-utils@workspace:packages/react-utils":
   version: 0.0.0-use.local
   resolution: "@trezor/react-utils@workspace:packages/react-utils"
   dependencies:
