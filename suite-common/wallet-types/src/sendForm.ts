@@ -79,11 +79,9 @@ export interface FormState {
     bitcoinLocktimeBlockHeight?: string;
     bitcoinLocktimeDatetime?: string;
     ethereumNonce?: string; // TODO: ethereum RBF
-    ethereumDataAscii?: string;
     ethereumAdjustGasLimit?: string; // if used, final gas limit = estimated limit * ethereumAdjustGasLimit
-    tronDataAscii?: string;
     transactionData?: string; // used for solana serialized txn from trading api, ethereum or tron txn hex data
-    destinationTag?: string; // For Ripple, Stellar, and Solana
+    destinationTag?: string; // For Ripple, Stellar, Solana, and Tron
     rbfParams?: RbfTransactionParams;
     isCoinControlEnabled: boolean;
     hasCoinControlBeenOpened: boolean;
