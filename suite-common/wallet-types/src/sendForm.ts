@@ -48,6 +48,7 @@ type FormStateTradingSell = {
 export type FormStateTradingExchange = {
     activeSection: 'exchange';
     receive: FormStateTradingCryptoCurrency;
+    receiveAddress?: string;
 } & FormStateTradingCommon;
 
 export type FormStateTrading =
@@ -89,10 +90,4 @@ export interface FormState {
     selectedUtxos: AccountUtxo[];
     utxoSorting?: UtxoSorting;
     trading?: FormStateTrading;
-    yieldMetadata?: YieldFormMetadata;
 }
-
-export type YieldFormMetadata = {
-    type: 'deposit' | 'withdraw' | 'redeem';
-    vaultName: string;
-};
