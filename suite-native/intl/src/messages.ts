@@ -1241,14 +1241,12 @@ export const messages = {
         },
         networks: {
             title: 'Coins',
-            subtitle: {
-                configurable:
-                    'Enable coins to buy or receive assets. Disable unused coins to improve loading speed.',
-                bitcoinOnly:
-                    'This device is running Bitcoin-only firmware. No extra configuration is available.',
-            },
+            subtitle:
+                'Enable coins to buy or receive assets. Disable unused coins to improve loading speed.',
         },
         coinEnabling: {
+            testnetsLabel: 'Testnet networks',
+            unsupportedSubtitle: 'Not supported on this device',
             bottomNote:
                 'Didn’t find what you’re looking for? Check if it’s not a token running one of the listed coin’s network.',
             toasts: {
@@ -2432,7 +2430,7 @@ export const messages = {
             title: 'Before you continue',
             entryPeriodCard: {
                 title: 'Entry period',
-                firstItem: 'The entry period can currently take up to 72 days.',
+                firstItem: 'The entry period can currently take up to {entryPeriodInDays} days.',
                 secondItem: 'You can not cancel your stake during this period.',
             },
             delegatingCard: {

@@ -23,6 +23,7 @@ import type {
 import {
     getFormDraftKey,
     isAccountSuccessful,
+    parseDeviceStaticSessionId,
     selectHistoricRatesByTransactions,
 } from '@suite-common/wallet-utils';
 import { type StaticSessionId } from '@trezor/connect';
@@ -252,13 +253,16 @@ export const forgetDevice = (device: TrezorDevice) => (_: Dispatch, getState: Ge
 
     const accounts = getState().wallet.accounts.filter(a => a.deviceState === staticSessionId);
 
-    // forget device metadata error
-    const metadataError = getState().metadata?.error;
-    let error;
-    if (metadataError) {
-        error = cloneObject(metadataError);
-        delete error[device.state.staticSessionId];
-    }
+    // forget device metadata stuff
+    const { metadata } = getState();
+    const { walletDescriptor } = parseDeviceStaticSessionId(staticSessionId);
+
+    const hasLegacyLabelsMigrated = cloneObject(metadata.hasLegacyLabelsMigrated);
+    delete hasLegacyLabelsMigrated[walletDescriptor];
+
+    const metadataError = metadata.error;
+    const error = metadataError ? cloneObject(metadataError) : undefined;
+    delete error?.[staticSessionId];
 
     return Promise.all([
         db.removeItemByPK('devices', staticSessionId),
@@ -268,7 +272,7 @@ export const forgetDevice = (device: TrezorDevice) => (_: Dispatch, getState: Ge
         db.removeItemByIndex('graph', 'deviceState', staticSessionId),
         ...accounts.map(removeAccountWithDependencies(getState)),
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        ...(error ? [saveMetadata({ error })] : []),
+        saveMetadata({ error, hasLegacyLabelsMigrated }),
     ]);
 };
 
@@ -457,7 +461,12 @@ export const saveAnalytics = () => (_dispatch: Dispatch, getState: GetState) => 
     );
 };
 
-type MetadataPersistentKeys = 'providers' | 'enabled' | 'selectedProvider' | 'error';
+type MetadataPersistentKeys =
+    | 'providers'
+    | 'enabled'
+    | 'selectedProvider'
+    | 'error'
+    | 'hasLegacyLabelsMigrated';
 
 const saveMetadata = async (metadata: Partial<Pick<MetadataState, MetadataPersistentKeys>>) => {
     if (!db.isAccessible()) return;
@@ -491,6 +500,7 @@ export const saveMetadataSettings = () => async (_dispatch: Dispatch, getState: 
         providers: metadata.providers,
         enabled: metadata.enabled,
         selectedProvider: metadata.selectedProvider,
+        hasLegacyLabelsMigrated: metadata.hasLegacyLabelsMigrated,
     });
 };
 
