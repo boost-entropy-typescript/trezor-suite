@@ -36,6 +36,7 @@ import {
 // eslint-disable-next-line local-rules/no-package-deep-imports
 import { prepareWalletConnectReducer } from '@suite-common/walletconnect/src/walletConnectReducer';
 import { bannerFlagsPersistWhitelist, bannerFlagsReducer } from '@suite-native/banner-flags';
+import { biometricsPersistWhitelist, biometricsSlice } from '@suite-native/biometrics';
 import { bluetoothSlice } from '@suite-native/bluetooth';
 import { deviceAuthorizationReducer } from '@suite-native/device-authorization';
 import { deviceOnboardingReducer } from '@suite-native/device-onboarding';
@@ -60,6 +61,7 @@ import {
     migrateAccountLabel,
     migrateAccountsDeprecateNetworks,
     migrateAutoEjectToWalletSettings,
+    migrateBiometricsAtomToRedux,
     migrateDeviceState,
     migrateLocaleTagToAppLocaleCode,
     migrateTransactionsBnbToBsc,
@@ -117,6 +119,17 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
         key: 'blockchain',
         version: 1,
         transforms: [blockchainPersistTransform],
+        storage: deps.mmkvStorage,
+    });
+
+    const biometricsPersistedReducer = preparePersistReducer({
+        reducer: biometricsSlice.reducer,
+        persistedKeys: biometricsPersistWhitelist,
+        key: biometricsSlice.name,
+        version: 1,
+        migrations: {
+            1: migrateBiometricsAtomToRedux,
+        },
         storage: deps.mmkvStorage,
     });
 
@@ -369,6 +382,7 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
             analytics: analyticsPersistedReducer,
             app: appReducer,
             appSettings: appSettingsPersistedReducer,
+            biometrics: biometricsPersistedReducer,
             bannerFlags: bannerFlagsPersistedReducer,
             bluetooth: bluetoothPersistedReducer,
             featureFeedback: featureFeedbackPersistedReducer,
