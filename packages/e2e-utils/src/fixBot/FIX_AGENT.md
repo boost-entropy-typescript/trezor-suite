@@ -23,7 +23,7 @@ Your fix task is embedded at the bottom of this prompt. Read it before doing any
 
 ## Fix Constraints
 
-Allowed changes depend on the fix task's `fix_scope`:
+Allowed changes depend on the fix task's `fixScope`:
 
 - `TEST_CODE` — only files inside `suite/e2e/`
 - `LOCATOR_ADD` — files inside `suite/e2e/` AND `data-testid` attributes in product source files. No other product code changes.
@@ -79,7 +79,7 @@ touch /tmp/preflight-marker
 Exit code 0 = already passing in pre-flight.
 Non-zero = failing — read the trace before deciding anything further (see below).
 
-**If all validations already pass in pre-flight:** write the status block (Step 4) with `result: "not_duplicated"` and stop — do not enter the fix loop.
+**If all validations already pass in pre-flight:** return the status block (Step 4) with `result: "not_duplicated"` and stop — do not enter the fix loop.
 
 ### Reading traces after pre-flight and any test run
 
@@ -99,7 +99,7 @@ ls /tmp/trace-preflight/resources/page@*.jpeg | sort | tail -10
 After reading the trace: if the test fails due to an infrastructure or environment error
 (emulator crash, transport failure, bridge error, process startup issue) rather than the
 test assertion described in `diagnosis` — retry once. If the retry shows the same
-infrastructure or environment error, write the result files (Step 4) with `result: "fail"` and
+infrastructure or environment error, return the result (Step 4) with `result: "fail"` and
 `iterations: 0`, and stop. Do not enter the fix loop.
 
 ---
@@ -112,7 +112,7 @@ Track your current iteration number starting at 1. Stop when budget is exhausted
 
 ### Per iteration
 
-**1. Make changes** according to `fix_scope`. For `LOCATOR_ADD`: only add or modify `data-testid`
+**1. Make changes** according to `fixScope`. For `LOCATOR_ADD`: only add or modify `data-testid`
 attributes — no logic changes in product code.
 
 **2. Run all validations that are still failing:**
@@ -156,24 +156,28 @@ Then use `git commit --fixup $FIRST_SHA` for all subsequent iterations.
 
 ---
 
-## Step 4 — Write result files
+## Step 4 — Write the PR description and return the result
 
-Write two files to the repo root (current directory) using the Write tool.
+**`pr-description.md`** — write this file to the repo root (current directory) using the
+Write tool (see the section below for its contents).
 
-**`fix-result.json`** — machine-readable status for the caller:
+**Machine-readable status** — do **not** write `fix-result.json` to disk; the harness
+captures it for you. Your **final response** must be a single JSON object matching the
+structure below (the run is configured with a JSON Schema that validates this output).
+Emit only the JSON object as your final answer, with no surrounding prose or code fence:
 
 ```json
 {
-  "task_id": "<id from fix task>",
+  "taskId": "<id from fix task>",
   "result": "<pass | partial | fail | not_duplicated>",
   "iterations": <number of fix iterations performed, 0 if none needed>,
   "passed": ["<platform>/<group>/<spec>"],
   "failed": ["<platform>/<group>/<spec>"],
-  "pr_title": "<string up to 100 chars>"
+  "prTitle": "<string up to 100 chars>"
 }
 ```
 
-`pr_title` must be the full PR title including the `Nightly fix <YY-MM-DD> - ` prefix. Base it on the fix you just made.
+`prTitle` must be the full PR title including the `Nightly fix <YY-MM-DD> - ` prefix. Base it on the fix you just made.
 `pass` — all validations pass after fixes.
 `partial` — at least one passes, at least one fails.
 `fail` — zero validations pass after fixes.
@@ -186,8 +190,8 @@ Use `<platform>/<group>/<spec>` format with the `spec` value as-is (repo-root-re
 
 1. `## Nightly fix — <YYYY-MM-DD>`
 2. `**Task:**`, `**Scope:**`, `**Result:**` (✅ pass / ⚠️ partial / ❌ fail)
-3. `### Root cause` — `root_cause` from the fix task
-4. `### Fix` — `fix_description` from the fix task
+3. `### Root cause` — `rootCause` from the fix task
+4. `### Fix` — `fixDescription` from the fix task
 5. `### Validations` — markdown table with Status (✅/❌), Platform, Group, Spec for every validation
 6. `### Commits` — output of `git log --oneline origin/develop..HEAD`
 7. `### Prompt gaps` — one bullet per ambiguity or missing instruction you encountered,

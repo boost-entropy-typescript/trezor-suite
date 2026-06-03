@@ -23,9 +23,12 @@ export type StakingEarnItem = {
 export type StablecoinYieldEarnItem = {
     id: string;
     type: 'stablecoin-yield';
+    yieldId: string;
     vaultName: string;
     tokenSymbol: TokenSymbol;
     networkSymbol: NetworkSymbol;
+    underlyingTokenContract: TokenAddress;
+    receiptTokenContract: TokenAddress | null;
     contractAddress: TokenAddress;
     tokenContractAddress: TokenAddress;
     accountKey: AccountKey | null;
@@ -33,6 +36,14 @@ export type StablecoinYieldEarnItem = {
     tokenBalance: string | null;
     apy: number | null;
 };
+
+export type StablecoinYieldNavigationItem = Pick<
+    StablecoinYieldEarnItem,
+    'yieldId' | 'underlyingTokenContract' | 'receiptTokenContract'
+>;
+
+export type StablecoinYieldPromoNavigationItem = StablecoinYieldNavigationItem &
+    Pick<StablecoinYieldEarnItem, 'networkSymbol'>;
 
 export type EarnPromoItem = StakingEarnItem | StablecoinYieldEarnItem;
 

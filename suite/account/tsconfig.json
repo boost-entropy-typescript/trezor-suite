@@ -27,7 +27,10 @@
         {
             "path": "../../suite-common/wallet-utils"
         },
+        { "path": "../intl" },
         { "path": "../metadata" },
-        { "path": "../../packages/connect" }
+        { "path": "../../packages/components" },
+        { "path": "../../packages/connect" },
+        { "path": "../../packages/theme" }
     ]
 }
