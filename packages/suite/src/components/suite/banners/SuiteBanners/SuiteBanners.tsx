@@ -6,6 +6,7 @@ import {
     selectFirmwareHashCheckErrorIfEnabled,
     selectFirmwareRevisionCheckErrorIfEnabled,
 } from '@suite/authenticity-checks';
+import { SuiteSyncBanner, selectIsSuiteSyncBannerVisible } from '@suite/suite-sync';
 import {
     selectDeviceStaticSessionId,
     selectIsDeviceBackupRequired,
@@ -13,7 +14,6 @@ import {
     selectSelectedDevice,
 } from '@suite-common/device';
 import { selectBannerMessage } from '@suite-common/message-system';
-import { selectHasDeviceSuiteSyncError } from '@suite-common/suite-sync';
 import { selectVisibleDeviceAccounts } from '@suite-common/wallet-core';
 import { isCardanoStakedWithFiveBinaries } from '@suite-common/wallet-utils';
 import { isWeb } from '@trezor/env-utils';
@@ -32,7 +32,6 @@ import { LocalNetworkAccessPermission } from './LocalNetworkAccessPermission';
 import { NoBackup } from './NoBackupBanner';
 import { NoConnectionBanner } from './NoConnectionBanner';
 import { SafetyChecksBanner } from './SafetyChecksBanner';
-import { SuiteSyncBanner } from './SuiteSyncBanner';
 
 const Container = styled.div<{ $fill?: boolean }>`
     width: 100%;
@@ -62,8 +61,8 @@ export const SuiteBanners = ({ isOnboarding, fill }: SuiteBannersProps) => {
     const accounts = useSelector(selectVisibleDeviceAccounts);
     const { localNetworkAccessPermission } = useLocalNetworkAccessPermission();
     const deviceStaticSessionId = useSelector(selectDeviceStaticSessionId);
-    const hasSuiteSyncError = useSelector(state =>
-        selectHasDeviceSuiteSyncError(state, deviceStaticSessionId),
+    const isSuiteSyncBannerVisible = useSelector(state =>
+        selectIsSuiteSyncBannerVisible(state, deviceStaticSessionId),
     );
 
     // The dismissal doesn't need to outlive the session. Use local state.
@@ -121,7 +120,7 @@ export const SuiteBanners = ({ isOnboarding, fill }: SuiteBannersProps) => {
     } else if (accounts.some(account => isCardanoStakedWithFiveBinaries(account))) {
         banner = <CardanoOutdatedStakingBanner />;
         priority = 20;
-    } else if (deviceStaticSessionId && hasSuiteSyncError) {
+    } else if (deviceStaticSessionId !== null && isSuiteSyncBannerVisible) {
         banner = <SuiteSyncBanner deviceStaticSessionId={deviceStaticSessionId} />;
         priority = 10;
     }

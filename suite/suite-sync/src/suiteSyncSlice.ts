@@ -5,6 +5,7 @@ import {
     type SuiteSyncState,
     type WithSuiteSyncAndDeviceState,
     initialSuiteSyncState as commonInitialState,
+    selectHasDeviceSuiteSyncError,
     selectIsSuiteSyncFeatureAvailable,
     selectSuiteSyncInteraction,
     suiteSyncReducer,
@@ -14,11 +15,13 @@ import { typedObjectFromEntries } from '@trezor/utils';
 
 export type DesktopSuiteSyncState = SuiteSyncState & {
     showEnableSuiteSyncModal: StaticSessionId | null;
+    isUnsupportedDeviceBannerDismissed?: boolean;
 };
 
 export const initialSuiteSyncDesktopState: DesktopSuiteSyncState = {
     ...commonInitialState,
     showEnableSuiteSyncModal: null,
+    isUnsupportedDeviceBannerDismissed: false,
 };
 
 export type DesktopSuiteSyncRootState = {
@@ -32,6 +35,9 @@ export const suiteSyncSlice = createSliceWithExtraDeps({
         updateShowEnableSuiteSyncModal: (state, action) => {
             state.showEnableSuiteSyncModal = action.payload.deviceStaticSessionId;
         },
+        dismissUnsupportedDeviceBanner: state => {
+            state.isUnsupportedDeviceBannerDismissed = true;
+        },
     },
     extraReducers: builder => {
         builder
@@ -43,25 +49,32 @@ export const suiteSyncSlice = createSliceWithExtraDeps({
                     (actionWithPayload.payload.suiteSyncSettings ||
                         actionWithPayload.payload.suiteSyncOwners)
                 ) {
+                    const { isUnsupportedDeviceBannerDismissed, ...suiteSyncSettings } =
+                        actionWithPayload.payload.suiteSyncSettings ?? {};
+
                     return {
                         ...state,
+                        isUnsupportedDeviceBannerDismissed:
+                            isUnsupportedDeviceBannerDismissed ??
+                            state.isUnsupportedDeviceBannerDismissed ??
+                            false,
                         settings: {
                             ...state.settings,
-                            ...actionWithPayload.payload.suiteSyncSettings,
+                            ...suiteSyncSettings,
                         },
                         suiteSyncOwners: {
                             ...state.suiteSyncOwners,
                             // We need to transform array of { key, value } from storage to the Record
                             ...typedObjectFromEntries(
                                 (
-                                    actionWithPayload.payload.suiteSyncOwners as {
+                                    (actionWithPayload.payload.suiteSyncOwners ?? []) as {
                                         key: string;
                                         value: any;
                                     }[]
                                 ).map(({ key, value }) => [key, value]),
                             ),
                         },
-                    } satisfies SuiteSyncState;
+                    } satisfies DesktopSuiteSyncState;
                 }
             })
             .addDefaultCase((state, action) => {
@@ -73,6 +86,27 @@ export const suiteSyncSlice = createSliceWithExtraDeps({
 export const selectShowEnableSuiteSyncModal = (
     state: DesktopSuiteSyncRootState,
 ): StaticSessionId | null => state.suiteSync.showEnableSuiteSyncModal;
+
+export const selectIsUnsupportedDeviceBannerDismissed = (
+    state: DesktopSuiteSyncRootState,
+): boolean => state.suiteSync.isUnsupportedDeviceBannerDismissed ?? false;
+
+export const selectIsSuiteSyncBannerVisible = (
+    state: DesktopSuiteSyncRootState & WithSuiteSyncAndDeviceState & MessageSystemRootState,
+    deviceStaticSessionId: StaticSessionId | null,
+): boolean => {
+    const hasSuiteSyncError = selectHasDeviceSuiteSyncError(state, deviceStaticSessionId);
+    const suiteSyncInteraction = selectSuiteSyncInteraction(state, deviceStaticSessionId);
+    const isUnsupportedDeviceBannerDismissed = selectIsUnsupportedDeviceBannerDismissed(state);
+
+    return (
+        deviceStaticSessionId !== null &&
+        hasSuiteSyncError &&
+        suiteSyncInteraction !== null &&
+        suiteSyncInteraction !== 'suite-sync-off' &&
+        (suiteSyncInteraction !== 'unsupported' || !isUnsupportedDeviceBannerDismissed)
+    );
+};
 
 export const selectDesktopSuiteSyncInteraction = (
     state: DesktopSuiteSyncRootState & WithSuiteSyncAndDeviceState & MessageSystemRootState,
@@ -96,4 +130,5 @@ export const selectDesktopSuiteSyncInteraction = (
     return interaction;
 };
 
-export const { updateShowEnableSuiteSyncModal } = suiteSyncSlice.actions;
+export const { dismissUnsupportedDeviceBanner, updateShowEnableSuiteSyncModal } =
+    suiteSyncSlice.actions;
