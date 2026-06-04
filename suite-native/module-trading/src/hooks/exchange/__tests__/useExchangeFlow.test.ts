@@ -1,5 +1,6 @@
 import { type AccountKey } from '@suite-common/wallet-types';
-import { events } from '@suite-native/analytics';
+import { type NativeAnalyticsDep, events } from '@suite-native/analytics';
+import { mockNativeAnalytics } from '@suite-native/analytics/mocks';
 import { RootStackRoutes } from '@suite-native/navigation';
 import { type TestStore, act, renderHookWithStoreProvider } from '@suite-native/test-utils-store';
 import {
@@ -80,10 +81,8 @@ describe('useExchangeFlow', () => {
         flowType?: UseExchangeFlowProps['flowType'];
     }) => {
         const reportMock = jest.fn();
-        const services = {
-            analytics: {
-                report: reportMock,
-            },
+        const services: NativeAnalyticsDep = {
+            analytics: mockNativeAnalytics(reportMock),
         };
 
         return {

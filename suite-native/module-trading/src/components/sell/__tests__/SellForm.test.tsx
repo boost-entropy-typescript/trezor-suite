@@ -1,4 +1,5 @@
-import { events } from '@suite-native/analytics';
+import { type NativeAnalyticsDep, events } from '@suite-native/analytics';
+import { mockNativeAnalytics } from '@suite-native/analytics/mocks';
 import { Form } from '@suite-native/forms';
 import { act, screen } from '@suite-native/test-utils-store';
 import {
@@ -28,10 +29,8 @@ jest.mock('../../concierge/ConciergeAlert', () => ({
 }));
 
 const reportMock = jest.fn();
-const services = {
-    analytics: {
-        report: reportMock,
-    },
+const services: NativeAnalyticsDep = {
+    analytics: mockNativeAnalytics(reportMock),
 };
 
 describe('SellForm', () => {

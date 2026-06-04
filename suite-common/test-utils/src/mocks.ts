@@ -167,19 +167,6 @@ const getWalletTransaction = (t?: Partial<WalletAccountTransaction>): WalletAcco
     ...t,
 });
 
-// Mocked @suite-common/analytics-redux package used in various tests
-const getAnalytics = () => {
-    const originalModule = jest.requireActual('@suite-common/analytics-redux');
-
-    return {
-        __esModule: true, // this property makes it work
-        ...originalModule,
-        analytics: {
-            report: jest.fn(),
-        },
-    };
-};
-
 const getMessageSystemConfig = (
     root?: Partial<MessageSystem>,
     action1?: Partial<Action>,
@@ -525,7 +512,6 @@ export const testMocks = {
     getFirmwareReleaseConfigInfo,
     getDeviceFeatures,
     getWalletTransaction,
-    getAnalytics,
     getMessageSystemConfig,
     getGuideNode,
     getUtxo,

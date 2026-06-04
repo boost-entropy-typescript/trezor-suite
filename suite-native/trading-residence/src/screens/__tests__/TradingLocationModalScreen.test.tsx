@@ -3,7 +3,8 @@ import { combineReducers } from '@reduxjs/toolkit';
 
 import { messageSystemInitialState } from '@suite-common/message-system';
 import { initialWalletSettingsState } from '@suite-common/wallet-core';
-import { events } from '@suite-native/analytics';
+import { type NativeAnalyticsDep, events } from '@suite-native/analytics';
+import { mockNativeAnalytics } from '@suite-native/analytics/mocks';
 import { localeReducer } from '@suite-native/intl';
 import { type RootStackParamList, RootStackRoutes } from '@suite-native/navigation';
 import {
@@ -22,10 +23,8 @@ import {
 
 const mockNavigationDispatch = jest.fn();
 const reportMock = jest.fn();
-const services = {
-    analytics: {
-        report: reportMock,
-    },
+const services: NativeAnalyticsDep = {
+    analytics: mockNativeAnalytics(reportMock),
 };
 
 const mockRoute: TradingLocationModalScreenProps['route'] = {

@@ -1,5 +1,6 @@
 import { mockMessageSystemStateWithFeatureFlags } from '@suite-common/message-system/mocks';
-import { events } from '@suite-native/analytics';
+import { type NativeAnalyticsDep, events } from '@suite-native/analytics';
+import { mockNativeAnalytics } from '@suite-native/analytics/mocks';
 import { FeatureFlag, featureFlagsInitialState } from '@suite-native/feature-flags';
 import { type TestStore, fireEvent } from '@suite-native/test-utils-store';
 
@@ -21,10 +22,8 @@ describe('Header', () => {
 
     const setupReportMock = () => {
         const reportMock = jest.fn();
-        const services = {
-            analytics: {
-                report: reportMock,
-            },
+        const services: NativeAnalyticsDep = {
+            analytics: mockNativeAnalytics(reportMock),
         };
 
         return { reportMock, services };

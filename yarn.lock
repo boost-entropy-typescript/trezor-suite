@@ -10416,6 +10416,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/earn-stablecoin@workspace:suite-common/earn-stablecoin"
   dependencies:
+    "@suite-common/calldata": "workspace:^"
     "@suite-common/earn-stablecoin-api": "workspace:^"
     "@suite-common/schemas": "workspace:^"
     "@suite-common/wallet-config": "workspace:^"
@@ -10423,6 +10424,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/connect-common": "workspace:^"
     "@trezor/utils": "workspace:*"
+    react: "npm:19.2.4"
     zod: "npm:4.3.6"
   languageName: unknown
   linkType: soft
@@ -10972,6 +10974,7 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/analytics": "workspace:*"
     "@suite-common/bip329-types": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -12546,7 +12549,9 @@ __metadata:
     "@suite-native/accounts": "workspace:*"
     "@suite-native/add-coin-account": "workspace:*"
     "@suite-native/atoms": "workspace:*"
+    "@suite-native/coin-enabling": "workspace:*"
     "@suite-native/discovery": "workspace:*"
+    "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
@@ -13800,6 +13805,7 @@ __metadata:
     "@suite-common/formatters": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/services": "workspace:*"
     "@testing-library/react-native": "npm:13.3.3"
@@ -16017,6 +16023,7 @@ __metadata:
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@types/react": "npm:19.2.14"
+    date-fns: "npm:^4.1.0"
     react: "npm:19.2.4"
     react-dom: "npm:19.2.4"
   languageName: unknown

@@ -2100,8 +2100,8 @@ export const messages = {
         },
         form: {
             enterWallet: 'Enter passphrase',
-            createWalletInputLabel: 'Enter your passphrase',
-            verifyPassphraseInputLabel: 'Re-enter your passphrase',
+            createWalletInputLabel: 'Enter passphrase',
+            verifyPassphraseInputLabel: 'Re-enter passphrase',
         },
         enterPassphraseOnTrezor: {
             button: 'Enter passphrase on Trezor',
@@ -3440,6 +3440,15 @@ export const messages = {
         networkReserveBanner: {
             title: 'We’ve reserved {amount} {displaySymbol} to cover any extra network fees.',
             buttonTitle: 'Manage',
+        },
+        txValidityTimer: {
+            countdown: '{seconds}s left to confirm',
+            confirming: 'Confirming transaction',
+            expiredTitle: 'Transaction expired',
+            expiredAlert: {
+                title: 'Transaction confirmation expired',
+                description: 'Your funds are safe. Try again to continue.',
+            },
         },
         fees: {
             levels: {
