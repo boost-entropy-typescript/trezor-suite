@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Animated, { LinearTransition, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { LinearTransition } from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
 import { useNavigation } from '@react-navigation/native';
@@ -7,14 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useServices } from '@suite-common/dependency-injection';
 import { changeCoinVisibility } from '@suite-common/wallet-core';
 import { events, selectNativeAnalyticsDep } from '@suite-native/analytics';
-import {
-    AnimatedBox,
-    AnimatedInlineAlertBox,
-    Box,
-    Button,
-    ScreenFooterGradient,
-    VStack,
-} from '@suite-native/atoms';
+import { AnimatedBox, AnimatedInlineAlertBox, VStack } from '@suite-native/atoms';
 import { Form, useForm } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
 import {
@@ -30,9 +23,12 @@ import {
 
 import {
     type CoinEnablingFormValues,
-    coinEnablingFormValidationSchema,
-} from '../coinEnablingSchema';
+    getNetworkSymbolsFromEnabledCoins,
+} from '../coinEnablingFormUtils';
+import { coinEnablingFormValidationSchema } from '../coinEnablingSchema';
+import { CoinEnablingInitFooter } from '../components/CoinEnablingInitFooter';
 import { DiscoveryCoinsFilter } from '../components/DiscoveryCoinsFilter';
+import { useHasEnabledCoin } from '../hooks/useHasEnabledCoin';
 
 type NavigationProps = StackToStackCompositeNavigationProps<
     AuthorizeDeviceStackParamList,
@@ -50,22 +46,22 @@ export const CoinEnablingInitScreen = () => {
 
     const form = useForm<CoinEnablingFormValues>({
         defaultValues: {
-            enabledCoins: [],
+            enabledCoins: {},
         },
         validation: coinEnablingFormValidationSchema,
     });
-    const {
-        formState: { isValid },
-    } = form;
+    const hasEnabledCoin = useHasEnabledCoin(form.control);
 
-    const handleSubmit = form.handleSubmit(values => {
-        values.enabledCoins.forEach(symbol => {
+    const handleSubmit = form.handleSubmit((values: CoinEnablingFormValues) => {
+        const enabledCoins = getNetworkSymbolsFromEnabledCoins(values.enabledCoins);
+
+        enabledCoins.forEach(symbol => {
             dispatch(changeCoinVisibility({ symbol, shouldBeVisible: true }));
         });
 
         analytics.report({
             type: events.coinEnablingInitStateEvent.name,
-            payload: { enabledNetworks: values.enabledCoins },
+            payload: { enabledNetworks: enabledCoins },
         });
 
         navigation.popTo(RootStackRoutes.AuthorizeDeviceStack, {
@@ -82,18 +78,7 @@ export const CoinEnablingInitScreen = () => {
                     closeActionType="close"
                 />
             }
-            footer={
-                isValid && (
-                    <Animated.View entering={SlideInDown} exiting={SlideOutDown}>
-                        <ScreenFooterGradient />
-                        <Box marginHorizontal="sp16" marginBottom="sp16">
-                            <Button onPress={handleSubmit} testID="@coin-enabling/button-save">
-                                <Translation id="generic.buttons.confirm" />
-                            </Button>
-                        </Box>
-                    </Animated.View>
-                )
-            }
+            footer={hasEnabledCoin && <CoinEnablingInitFooter onSubmit={handleSubmit} />}
         >
             <VStack spacing="sp16">
                 {!isAlertDismissed && (
