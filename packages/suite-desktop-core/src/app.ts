@@ -11,7 +11,8 @@ import { colorVariants } from '@trezor/theme';
 import { createDeferred, resolveAfter } from '@trezor/utils';
 
 import { handshakeAndHangDetect } from './handshake-and-hang-detect';
-import { processStatePatch, removeElectronAppData, restartApp } from './libs/app-utils';
+import { processStatePatch, restartApp } from './libs/app-utils';
+import { isAutoStartEnabled, promptForAutoStartBeforeQuit } from './libs/auto-start';
 import { APP_NAME } from './libs/constants';
 import { createElectronSessionInterceptor } from './libs/create-electron-session-interceptor';
 import { getBuildInfo, getComputerInfo } from './libs/info';
@@ -22,9 +23,8 @@ import { hasSwitch } from './libs/process-switches';
 import { MIN_HEIGHT, MIN_WIDTH } from './libs/screen';
 import { initSentry } from './libs/sentry';
 import { Store, type WinBoundsCoords } from './libs/store';
-import { clearAppCache, initUserData } from './libs/user-data';
+import { clearAppCache, clearUserDataOptimistically, initUserData } from './libs/user-data';
 import { initBackgroundModules, initModules } from './modules';
-import { isAutoStartEnabled, promptForAutoStartBeforeQuit } from './modules/auto-start';
 // todo: why is this separated here? shoudlnt it be part of modules?
 import { initBioAuthModule } from './modules/bioAuthModule';
 import { mainThreadEmitter } from './modules/module';
@@ -43,7 +43,7 @@ global.resourcesPath = isDevEnv
 
 const parseRemoveUserDataSwitch = () => {
     if (hasSwitch('remove-user-data-on-start')) {
-        removeElectronAppData();
+        clearUserDataOptimistically();
     }
 };
 parseRemoveUserDataSwitch();
