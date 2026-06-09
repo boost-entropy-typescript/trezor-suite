@@ -4,18 +4,11 @@ import styled from 'styled-components';
 
 import { Translation, useTranslation } from '@suite/intl';
 import type { GuideCategory } from '@suite-common/suite-types';
-import { Box, Icon, Input, Paragraph, Spinner } from '@trezor/components';
+import { Box, CardList, Icon, Input, Paragraph, Spinner } from '@trezor/components';
 import { typography } from '@trezor/theme';
 
 import { GuideNode } from 'src/components/guide';
 import { useGuideSearch } from 'src/hooks/guide';
-
-const PageFoundList = styled.div`
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-`;
 
 const PreviewContent = styled.div`
     white-space: nowrap;
@@ -61,10 +54,11 @@ export const GuideSearch = ({ pageRoot, setSearchActive }: GuideSearchProps) => 
     }, [query, searchResult, setSearchActive, loading]);
 
     return (
-        <Box margin={{ bottom: 8 }}>
+        <Box margin={{ bottom: 16 }}>
             <Input
                 placeholder={translationString('TR_SEARCH')}
                 value={query}
+                size="small"
                 onChange={e => setQuery(e.currentTarget.value)}
                 showClearButton={true}
                 onClear={() => setQuery('')}
@@ -89,7 +83,7 @@ export const GuideSearch = ({ pageRoot, setSearchActive }: GuideSearchProps) => 
             />
 
             {searchResult.length ? (
-                <PageFoundList data-testid="@guide/search/results">
+                <CardList margin={{ top: 16 }} data-testid="@guide/search/results">
                     {searchResult.map(({ page, preview }) => (
                         <GuideNode
                             key={page.id}
@@ -97,16 +91,16 @@ export const GuideSearch = ({ pageRoot, setSearchActive }: GuideSearchProps) => 
                             description={preview && <Preview {...preview} />}
                         />
                     ))}
-                </PageFoundList>
+                </CardList>
             ) : (
                 query &&
                 !loading && (
                     <Paragraph
                         data-testid="@guide/search/no-results"
-                        typographyStyle="body-sm"
+                        typographyStyle="body-md"
                         intent="neutral"
                         priority="secondary"
-                        margin={{ top: 12 }}
+                        margin={{ top: 16 }}
                     >
                         <Translation id="TR_ACCOUNT_SEARCH_NO_RESULTS" />
                     </Paragraph>
