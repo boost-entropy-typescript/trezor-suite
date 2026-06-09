@@ -1,7 +1,6 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 
 import { asTypedDesktopAnalytics, events } from '@suite/analytics';
-import { setFlag } from '@suite/flags';
 import {
     anchorChange,
     routerLocationChange,
@@ -297,16 +296,6 @@ const analyticsMiddleware = createMiddlewareWithExtraDeps(
                     type: action.payload.remember
                         ? events.switchDeviceRememberEvent.name
                         : events.switchDeviceForgetEvent.name,
-                });
-                break;
-
-            case WALLET_SETTINGS.SET_HIDE_BALANCE:
-                if (!state.flags.discreetModeCompleted) {
-                    dispatch(setFlag({ key: 'discreetModeCompleted', value: true }));
-                }
-                asTypedDesktopAnalytics(analytics).report({
-                    type: events.menuToggleDiscreetEvent.name,
-                    payload: { value: action.toggled },
                 });
                 break;
 

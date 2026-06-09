@@ -45,6 +45,9 @@
             "path": "../../suite-common/device-authenticity"
         },
         {
+            "path": "../../suite-common/discreet-mode"
+        },
+        {
             "path": "../../suite-common/earn-stablecoin"
         },
         {
@@ -164,6 +167,7 @@
         { "path": "../../suite/backup" },
         { "path": "../../suite/desktop-update" },
         { "path": "../../suite/device" },
+        { "path": "../../suite/discreet-mode" },
         { "path": "../../suite/experimental" },
         { "path": "../../suite/external-links" },
         {

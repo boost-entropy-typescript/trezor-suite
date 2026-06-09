@@ -10261,7 +10261,6 @@ __metadata:
     "@suite-common/firmware": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
-    "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -10360,6 +10359,16 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
+    react: "npm:19.2.4"
+    react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite-common/discreet-mode@workspace:*, @suite-common/discreet-mode@workspace:suite-common/discreet-mode":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/discreet-mode@workspace:suite-common/discreet-mode"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
     react: "npm:19.2.4"
     react-redux: "npm:9.2.0"
   languageName: unknown
@@ -10522,6 +10531,7 @@ __metadata:
   dependencies:
     "@formatjs/intl": "npm:4.1.2"
     "@mobily/ts-belt": "npm:^3.13.1"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -10607,6 +10617,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
@@ -10719,6 +10730,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@trezor/analytics-uploader": "workspace:*"
     "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     lodash: "npm:^4.18.1"
     react: "npm:19.2.4"
     react-redux: "npm:9.2.0"
@@ -11494,6 +11506,7 @@ __metadata:
     "@storybook/react-native": "npm:^10.2.1"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/e2e-evolu-client": "workspace:*"
     "@suite-common/firmware-authenticity": "workspace:*"
     "@suite-common/formatters": "workspace:*"
@@ -11696,6 +11709,7 @@ __metadata:
     "@shopify/flash-list": "npm:2.3.0"
     "@shopify/react-native-skia": "npm:2.5.1"
     "@storybook/react-native": "npm:^10.2.1"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/flags": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -12245,6 +12259,7 @@ __metadata:
     "@shopify/react-native-skia": "npm:2.5.1"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/graph": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -12881,6 +12896,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:7.12.0"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@shopify/flash-list": "npm:2.3.0"
+    "@suite-common/calldata": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/earn-stablecoin": "workspace:*"
@@ -13135,6 +13151,7 @@ __metadata:
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/logger": "workspace:*"
     "@suite-common/mev": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
@@ -13326,6 +13343,7 @@ __metadata:
     "@react-navigation/native": "npm:7.1.28"
     "@react-navigation/native-stack": "npm:7.12.0"
     "@suite-common/dependency-injection": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -13623,6 +13641,7 @@ __metadata:
     "@suite-common/delegated-identity-key": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/firmware": "workspace:*"
     "@suite-common/geolocation": "workspace:*"
     "@suite-common/logger": "workspace:*"
@@ -13921,6 +13940,7 @@ __metadata:
     "@react-navigation/native": "npm:7.1.28"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/device": "workspace:*"
+    "@suite-common/formatters": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
@@ -14091,6 +14111,7 @@ __metadata:
     "@suite-native/trading-fixtures": "workspace:*"
     "@suite-native/trading-state": "workspace:*"
     "@suite-native/trading-types": "workspace:*"
+    "@trezor/styles-native": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@types/invity-api": "npm:^1.1.15"
@@ -14107,13 +14128,13 @@ __metadata:
   dependencies:
     "@suite-common/formatters": "workspace:*"
     "@suite-common/trading": "workspace:*"
-    "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/test-utils-store": "workspace:*"
+    "@suite-native/trading-atoms": "workspace:*"
     "@suite-native/trading-fixtures": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -14269,6 +14290,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@shopify/flash-list": "npm:2.3.0"
     "@suite-common/dependency-injection": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/staking": "workspace:*"
@@ -14496,6 +14518,17 @@ __metadata:
     react-redux: "npm:9.2.0"
     redux-mock-store: "npm:^1.5.5"
     redux-thunk: "npm:^3.1.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite/discreet-mode@workspace:*, @suite/discreet-mode@workspace:suite/discreet-mode":
+  version: 0.0.0-use.local
+  resolution: "@suite/discreet-mode@workspace:suite/discreet-mode"
+  dependencies:
+    "@suite-common/discreet-mode": "workspace:*"
+    react: "npm:19.2.4"
+    react-redux: "npm:9.2.0"
+    styled-components: "npm:^6.3.9"
   languageName: unknown
   linkType: soft
 
@@ -15491,6 +15524,7 @@ __metadata:
     "@types/cors": "npm:^2.8.17"
     cors: "npm:^2.8.6"
     express: "npm:^5.2.1"
+    express-rate-limit: "npm:^8.5.2"
   peerDependencies:
     tslib: ^2.6.2
   languageName: unknown
@@ -16527,6 +16561,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/device-authenticity": "workspace:*"
+    "@suite-common/discreet-mode": "workspace:*"
     "@suite-common/earn-stablecoin": "workspace:^"
     "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/earn-staking-api": "workspace:*"
@@ -16579,6 +16614,7 @@ __metadata:
     "@suite/backup": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/device": "workspace:*"
+    "@suite/discreet-mode": "workspace:*"
     "@suite/experimental": "workspace:*"
     "@suite/external-links": "workspace:*"
     "@suite/feature-feedback": "workspace:*"
@@ -27220,14 +27256,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express-rate-limit@npm:^8.2.1":
-  version: 8.2.1
-  resolution: "express-rate-limit@npm:8.2.1"
+"express-rate-limit@npm:^8.2.1, express-rate-limit@npm:^8.5.2":
+  version: 8.5.2
+  resolution: "express-rate-limit@npm:8.5.2"
   dependencies:
-    ip-address: "npm:10.0.1"
+    ip-address: "npm:^10.2.0"
   peerDependencies:
     express: ">= 4.11"
-  checksum: 10/7cbf70df2e88e590e463d2d8f93380775b2ea181d97f2c50c2ff9f2c666c247f83109a852b21d9c99ccc5762119101f281f54a27252a2f1a0a918be6d71f955b
+  checksum: 10/de2aa4582d3b1b1d242fdb8dba7b3b1c64e3a58dfa7a40d370681c175a61321fb550c6b190d755f47cefdf28f35eaad6c99ea196f99caec8caaffc2462fea1ae
   languageName: node
   linkType: hard
 
@@ -30314,10 +30350,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ip-address@npm:10.0.1":
-  version: 10.0.1
-  resolution: "ip-address@npm:10.0.1"
-  checksum: 10/09731acda32cd8e14c46830c137e7e5940f47b36d63ffb87c737331270287d631cf25aa95570907a67d3f919fdb25f4470c404eda21e62f22e0a55927f4dd0fb
+"ip-address@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "ip-address@npm:10.2.0"
+  checksum: 10/12fec399e1af5753ac322e47a6d81a50d3a528b3abb17c09525b2a2edcaedcca628c40520706f7037bc4d8e951b0296c47e7b86d0a8e6e2335c8f0ba4afcfac1
   languageName: node
   linkType: hard
 

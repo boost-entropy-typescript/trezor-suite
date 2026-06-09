@@ -4,6 +4,7 @@ import { getStoredState } from 'redux-persist';
 import { prepareAnalyticsReducer } from '@suite-common/analytics-redux';
 import { prepareConnectPopupReducer } from '@suite-common/connect-popup';
 import { prepareDeviceReducer } from '@suite-common/device';
+import { discreetModeReducer } from '@suite-common/discreet-mode';
 import { prepareFirmwareReducer } from '@suite-common/firmware';
 import { geolocationReducer } from '@suite-common/geolocation';
 import { logsSlice } from '@suite-common/logger';
@@ -151,11 +152,37 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
         storage: deps.mmkvStorage,
     });
 
+    const discreetModePersistedReducer = preparePersistReducer({
+        reducer: discreetModeReducer,
+        persistedKeys: ['isActive'],
+        key: 'discreetMode',
+        version: 1,
+        migrations: {
+            1: async (oldState: any /* FIXME */) => {
+                // Seed discreetMode from the old walletSettings persist key
+                const walletSettingsState = await getStoredState({
+                    key: 'walletSettings',
+                    storage: deps.mmkvStorage,
+                });
+
+                const isActive =
+                    walletSettingsState &&
+                    typeof walletSettingsState === 'object' &&
+                    'discreetMode' in walletSettingsState
+                        ? walletSettingsState.discreetMode === true
+                        : false;
+
+                return { ...(oldState ?? {}), isActive };
+            },
+        },
+        storage: deps.mmkvStorage,
+    });
+
     const walletSettingsPersistedReducer = preparePersistReducer({
         reducer: walletSettingsReducer,
         persistedKeys: walletSettingsPersistedWhitelist,
         key: 'walletSettings',
-        version: 1,
+        version: 3,
         migrations: {
             1: initialMigrateAppSettingsAndDiscoveryConfig({
                 mmkvStorage: deps.mmkvStorage,
@@ -165,6 +192,13 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
                 mmkvStorage: deps.mmkvStorage,
                 getStoredState,
             }),
+            3: (oldState: any /* FIXME */) => {
+                if (!oldState) return oldState;
+                // Remove discreetMode — it now lives in its own persist key
+                const { discreetMode: _, ...rest } = oldState;
+
+                return rest;
+            },
         },
         storage: deps.mmkvStorage,
     });
@@ -387,6 +421,7 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
             bluetooth: bluetoothPersistedReducer,
             featureFeedback: featureFeedbackPersistedReducer,
             connectPopup: connectPopupPersistedReducer,
+            discreetMode: discreetModePersistedReducer,
             device: devicePersistedReducer,
             deviceAuthorization: deviceAuthorizationReducer,
             deviceOnboarding: deviceOnboardingReducer,

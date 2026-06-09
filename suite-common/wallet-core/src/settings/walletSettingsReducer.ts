@@ -31,7 +31,6 @@ export const createMemoizedSelector = createWeakMapSelector.withTypes<WalletSett
 
 const initialState: WalletSettingsState = {
     localCurrency: 'usd',
-    discreetMode: false,
     enabledNetworks: [],
     hideSuspiciousTransactions: false,
     bitcoinAmountUnit: PROTO.AmountUnit.BITCOIN,
@@ -44,7 +43,6 @@ export const initialWalletSettingsState: WalletSettingsState = initialState;
 
 export const walletSettingsPersistedWhitelist: Array<keyof WalletSettingsState> = [
     'localCurrency',
-    'discreetMode',
     'enabledNetworks',
     'hideSuspiciousTransactions',
     'bitcoinAmountUnit',
@@ -63,12 +61,6 @@ export const prepareWalletSettingsReducer = createReducerWithExtraDeps(
             (state, action: ReturnType<typeof walletSettingsActions.setBaseCurrency>) => {
                 const { localCurrency } = action.payload;
                 state.localCurrency = localCurrency;
-            },
-        );
-        builder.addCase(
-            WALLET_SETTINGS.SET_HIDE_BALANCE,
-            (state, action: walletSettingsActions.SetHideBalanceAction) => {
-                state.discreetMode = action.toggled;
             },
         );
         builder.addCase(
@@ -120,8 +112,6 @@ export const selectEnabledNetworks = (state: WalletSettingsRootState) =>
     returnStableArrayIfEmpty(state.wallet.settings.enabledNetworks);
 export const selectBaseCurrency = (state: WalletSettingsRootState) =>
     state.wallet.settings.localCurrency;
-export const selectIsDiscreteModeActive = (state: WalletSettingsRootState) =>
-    state.wallet.settings.discreetMode;
 export const selectIsHideSuspiciousTransactions = (state: WalletSettingsRootState) =>
     state.wallet.settings.hideSuspiciousTransactions;
 export const selectBitcoinAmountUnit = (state: WalletSettingsRootState) =>

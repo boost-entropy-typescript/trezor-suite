@@ -17,6 +17,7 @@ import {
     selectDevices,
     selectSelectedDevice,
 } from '@suite-common/device';
+import { discreetModeActions } from '@suite-common/discreet-mode';
 import { firmwareActions } from '@suite-common/firmware';
 import { messageSystemActions } from '@suite-common/message-system';
 import {
@@ -352,8 +353,11 @@ const storageMiddleware = (api: MiddlewareAPI<Dispatch, AppState>) => {
                 api.dispatch(storageActions.savePersistentDeviceData());
             }
 
+            if (discreetModeActions.setDiscreetMode.match(action)) {
+                api.dispatch(storageActions.saveDiscreetMode());
+            }
+
             switch (action.type) {
-                case WALLET_SETTINGS.SET_HIDE_BALANCE:
                 case setBaseCurrency.type:
                 case WALLET_SETTINGS.SET_BITCOIN_AMOUNT_UNITS:
                 case WALLET_SETTINGS.SET_MEV_PROTECTION:

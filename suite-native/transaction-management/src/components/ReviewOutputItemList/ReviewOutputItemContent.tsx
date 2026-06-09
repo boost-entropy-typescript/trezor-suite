@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import {
     type AccountKey,
     type FormStateTradingCryptoCurrency,
@@ -17,7 +19,7 @@ import { exhaustive } from '@trezor/type-utils';
 import { ReviewOutputHexData } from './ReviewOutputHexData';
 import { ReviewOutputItemValues } from './ReviewOutputItemValues';
 
-export type ReviewOutputItemContentProps = {
+export type ReviewOutputItemContentDataProps = {
     accountKey: AccountKey;
     outputType: ReviewOutputType;
     value: string;
@@ -29,17 +31,25 @@ export type ReviewOutputItemContentProps = {
     receive?: FormStateTradingCryptoCurrency | FormStateTradingFiatCurrency;
 };
 
+export type ReviewOutputItemContentProps = {
+    contentBuilder?: (props: ReviewOutputItemContentDataProps) => ReactNode | undefined;
+} & ReviewOutputItemContentDataProps;
+
+const noop = () => undefined;
+
 export const ReviewOutputItemContent = ({
-    accountKey,
-    outputType,
-    value,
-    value2,
-    token,
-    tokenContract,
-    flowType,
-    send,
-    receive,
+    contentBuilder = noop,
+    ...props
 }: ReviewOutputItemContentProps) => {
+    const content = contentBuilder(props);
+
+    if (content) {
+        return content;
+    }
+
+    const { accountKey, outputType, value, value2, token, tokenContract, flowType, send, receive } =
+        props;
+
     switch (outputType) {
         case 'amount':
             return (
@@ -254,6 +264,16 @@ export const ReviewOutputItemContent = ({
                         <Text variant="body-sm">{Number(value).toLocaleString()} SUN</Text>
                     </Box>
                 </HStack>
+            );
+        case 'swap_intent':
+            return (
+                <Text variant="body-sm">
+                    {value === 'swap' ? (
+                        <Translation id="transactionManagement.review.outputs.swapIntentValue" />
+                    ) : (
+                        value
+                    )}
+                </Text>
             );
 
         default:
