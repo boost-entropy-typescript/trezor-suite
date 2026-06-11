@@ -17,6 +17,7 @@ import {
     renderHookWithStoreProvider,
     renderWithStoreProvider,
     screen,
+    within,
 } from '@suite-native/test-utils-store';
 import {
     buyQuotes,
@@ -120,7 +121,8 @@ describe('BuyPaymentMethodPicker', () => {
         });
 
         it('should allow to select payment method', () => {
-            const { getByText, getByLabelText } = renderPaymentMethodPicker(withQuotes);
+            const { getByText, getByLabelText, getByTestId } =
+                renderPaymentMethodPicker(withQuotes);
 
             fireEvent.press(getByText('Payment method'));
             fireEvent.press(getByText(creditCardPaymentMethodTranslation));
@@ -128,6 +130,12 @@ describe('BuyPaymentMethodPicker', () => {
             expect(getByLabelText('Selected payment method')).toHaveTextContent(
                 creditCardPaymentMethodTranslation,
             );
+
+            const picker = getByTestId('@trading/buy/payment-method-picker');
+
+            expect(
+                within(picker).getByTestId('@icons/payment-method-icon/creditCard'),
+            ).toBeTruthy();
         });
 
         it('should display loader while quotes are fetched', () => {

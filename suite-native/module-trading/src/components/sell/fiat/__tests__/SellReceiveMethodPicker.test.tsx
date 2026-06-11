@@ -8,6 +8,7 @@ import {
     renderHookWithStoreProvider,
     renderWithStoreProvider,
     screen,
+    within,
 } from '@suite-native/test-utils-store';
 import { banxaBankTransferSellQuote, sellQuotes } from '@suite-native/trading-fixtures';
 import { type SellFormType } from '@suite-native/trading-types';
@@ -89,9 +90,12 @@ describe('SellReceiveMethodPicker', () => {
         });
 
         it('should render selected receive method', () => {
-            const { getByLabelText } = renderSellReceiveMethodPicker(withQuotes);
+            const { getByLabelText, getByTestId } = renderSellReceiveMethodPicker(withQuotes);
 
             expect(getByLabelText('Selected receive method')).toHaveTextContent('Bank Transfer');
+
+            const picker = getByTestId('@trading/sell/receive-method-picker');
+            expect(within(picker).getByTestId('@icons/payment-method-icon/bank')).toBeTruthy();
         });
 
         it('should render loading skeleton when quotes are loaded and new quotes are loading', () => {
