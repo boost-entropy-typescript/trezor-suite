@@ -7488,18 +7488,6 @@ export const messages = defineMessages({
         id: 'TR_FINGERPRINT_ADDRESS',
         defaultMessage: 'Fingerprint:',
     },
-    TR_ANALYZE_IN_EXPLORER: {
-        id: 'TR_ANALYZE_IN_EXPLORER',
-        defaultMessage: 'Analyze in blockchain explorer',
-    },
-    TR_ANALYZE_IN_EXPLORER_DESC: {
-        id: 'TR_ANALYZE_IN_EXPLORER_DESC',
-        defaultMessage: 'The blockchain explorer makes it easier to analyze inputs and outputs.',
-    },
-    TR_ANALYZE_IN_EXPLORER_OPEN: {
-        id: 'TR_ANALYZE_IN_EXPLORER_OPEN',
-        defaultMessage: 'Open',
-    },
     TR_PAGINATION_NEWER: {
         id: 'TR_PAGINATION_NEWER',
         defaultMessage: 'Newer',
@@ -9829,18 +9817,6 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_REVIEW_CLAIM_TITLE',
         defaultMessage: 'Claim rewards from',
     },
-    TR_EARN_DASHBOARD_ACTIVE: {
-        id: 'TR_EARN_DASHBOARD_ACTIVE',
-        defaultMessage: 'Active',
-    },
-    TR_EARN_DASHBOARD_NOT_ACTIVE: {
-        id: 'TR_EARN_DASHBOARD_NOT_ACTIVE',
-        defaultMessage: 'Inactive',
-    },
-    TR_EARN_STAKING_DASHBOARD_OUTDATED: {
-        id: 'TR_EARN_STAKING_DASHBOARD_OUTDATED',
-        defaultMessage: 'Outdated provider',
-    },
     TR_STAKING_MODAL_OUTDATED: {
         id: 'TR_STAKING_MODAL_OUTDATED',
         defaultMessage:
@@ -10172,6 +10148,14 @@ export const messages = defineMessages({
         id: 'TR_EARN_TRON_VOTE_TRANSACTION',
         defaultMessage: 'Vote transaction',
     },
+    TR_EARN_TRON_VOTE: {
+        id: 'TR_EARN_TRON_VOTE',
+        defaultMessage: 'Vote',
+    },
+    TR_TRON_VOTES: {
+        id: 'TR_TRON_VOTES',
+        defaultMessage: 'Votes',
+    },
     TR_EARN_TRON_EARN_REWARDS: {
         id: 'TR_EARN_TRON_EARN_REWARDS',
         defaultMessage: 'Earn rewards',
@@ -10193,6 +10177,42 @@ export const messages = defineMessages({
         id: 'TR_EARN_TRON_ENERGY',
         defaultMessage: '{count, plural, =0 {Energy} other {+# energy}}',
     },
+    TR_EARN_TRON_STAKE_TITLE: {
+        id: 'TR_EARN_TRON_STAKE_TITLE',
+        defaultMessage: 'Stake',
+    },
+    TR_EARN_TRON_STAKE_COMPLETE: {
+        id: 'TR_EARN_TRON_STAKE_COMPLETE',
+        defaultMessage: 'Stake complete',
+    },
+    TR_EARN_TRON_STAKE_COMPLETE_DESCRIPTION: {
+        id: 'TR_EARN_TRON_STAKE_COMPLETE_DESCRIPTION',
+        defaultMessage: 'Your stake is now earning rewards',
+    },
+    TR_EARN_TRON_APR_LABEL: {
+        id: 'TR_EARN_TRON_APR_LABEL',
+        defaultMessage: 'APR',
+    },
+    TR_EARN_TRON_EARNED_RESOURCE: {
+        id: 'TR_EARN_TRON_EARNED_RESOURCE',
+        defaultMessage: 'Earned resource',
+    },
+    TR_EARN_TRON_SUPPLIED: {
+        id: 'TR_EARN_TRON_SUPPLIED',
+        defaultMessage: 'Supplied',
+    },
+    TR_EARN_TRON_VOTE_COMPLETE: {
+        id: 'TR_EARN_TRON_VOTE_COMPLETE',
+        defaultMessage: 'Vote complete',
+    },
+    TR_EARN_TRON_VOTE_COMPLETE_DESCRIPTION: {
+        id: 'TR_EARN_TRON_VOTE_COMPLETE_DESCRIPTION',
+        defaultMessage: 'Your voting allocation was updated',
+    },
+    TR_EARN_TRON_CHANGE_REPRESENTATIVE: {
+        id: 'TR_EARN_TRON_CHANGE_REPRESENTATIVE',
+        defaultMessage: 'Change representative',
+    },
     TR_EARN_TRON_FREEZE_STEP_TITLE: {
         id: 'TR_EARN_TRON_FREEZE_STEP_TITLE',
         defaultMessage: 'Freeze your funds',
@@ -10201,10 +10221,6 @@ export const messages = defineMessages({
         id: 'TR_EARN_TRON_VOTE_STEP_TITLE',
         defaultMessage: 'Vote for representative',
     },
-    TR_EARN_TRON_EARN_STEP_TITLE: {
-        id: 'TR_EARN_TRON_EARN_STEP_TITLE',
-        defaultMessage: 'Earn rewards',
-    },
     TR_EARN_TRON_SUBMIT_ERROR: {
         id: 'TR_EARN_TRON_SUBMIT_ERROR',
         defaultMessage: 'Transaction failed. Please try again.',
@@ -10212,6 +10228,26 @@ export const messages = defineMessages({
     TR_EARN_TRON_PENDING_FREEZE: {
         id: 'TR_EARN_TRON_PENDING_FREEZE',
         defaultMessage: 'Confirming freeze…',
+    },
+    TR_EARN_TRON_PENDING_VOTE: {
+        id: 'TR_EARN_TRON_PENDING_VOTE',
+        defaultMessage: 'Confirming vote…',
+    },
+    TR_EARN_TRON_SELECT_REPRESENTATIVE: {
+        id: 'TR_EARN_TRON_SELECT_REPRESENTATIVE',
+        defaultMessage: 'Select representative',
+    },
+    TR_EARN_TRON_ENTER_DIFFERENT_REPRESENTATIVE: {
+        id: 'TR_EARN_TRON_ENTER_DIFFERENT_REPRESENTATIVE',
+        defaultMessage: 'Enter different representative',
+    },
+    TR_EARN_TRON_ENTER_REPRESENTATIVE_ADDRESS: {
+        id: 'TR_EARN_TRON_ENTER_REPRESENTATIVE_ADDRESS',
+        defaultMessage: 'Enter representative address',
+    },
+    TR_EARN_TRON_APR: {
+        id: 'TR_EARN_TRON_APR',
+        defaultMessage: 'APR {apr}%',
     },
     TR_EARN_SUPPLYING_IN_A_NUTSHELL: {
         id: 'TR_EARN_SUPPLYING_IN_A_NUTSHELL',

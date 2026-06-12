@@ -8,7 +8,7 @@ import { useEarnRouteAccount } from 'src/components/earn/utils/useEarnRouteAccou
 import { AccountNotExists } from 'src/components/wallet/WalletLayout/AccountException/AccountNotExists';
 import { useDispatch, useLayout, useSelector } from 'src/hooks/suite';
 
-export const EarnStakingTron = () => {
+export const EarnTronStake = () => {
     const dispatch = useDispatch();
     const isDebugModeActive = useSelector(selectIsDebugModeActive);
     const { account } = useEarnRouteAccount();
