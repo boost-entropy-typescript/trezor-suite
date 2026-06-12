@@ -3,6 +3,8 @@
     "compilerOptions": { "outDir": "libDev" },
     "references": [
         { "path": "../../coins/coins-solana" },
+        { "path": "../../coins/coins-stellar" },
+        { "path": "../../coins/coins-xrpl" },
         { "path": "../env-utils" },
         { "path": "../utils" },
         { "path": "../blockchain-link-types" },

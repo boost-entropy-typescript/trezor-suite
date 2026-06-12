@@ -12,7 +12,6 @@ import {
 } from './helpers';
 
 const readFile = promisify(fs.readFile);
-const existsDirectory = promisify(fs.exists);
 const writeFile = promisify(fs.writeFile);
 
 const args = process.argv.slice(2);
@@ -127,6 +126,7 @@ const bumpConnect = async () => {
         // inlined into @trezor/connect). The 10.x release is a stub and the
         // package source is frozen — no need to auto-bump it on every connect
         // release. Keep it removed from this list unless the stub itself changes.
+        // TODO The same applies to connect-plugin-stellar.
         const mainPackages = [
             'connect-plugin-stellar',
             'connect-webextension',
@@ -185,7 +185,7 @@ const bumpConnect = async () => {
             // We do that so we can generate the complete CHANGELOG automatically when doing stable release.
             if (newCommits.length && deploymentType === 'stable') {
                 const CHANGELOG_PATH = path.join(PACKAGE_PATH, 'CHANGELOG.md');
-                if (!(await existsDirectory(CHANGELOG_PATH))) {
+                if (!fs.existsSync(CHANGELOG_PATH)) {
                     await writeFile(CHANGELOG_PATH, '');
                 }
 

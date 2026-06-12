@@ -1,7 +1,4 @@
-import type { types } from '@fivebinaries/coin-selection';
-import { coinSelection } from '@fivebinaries/coin-selection';
-import * as cbor from 'cbor';
-
+import type { types } from '@trezor/coins-cardano/types';
 import type { AccountUtxo, CardanoCertificate } from '@trezor/connect-common';
 import { MessagesSchema as PROTO } from '@trezor/protobuf';
 
@@ -101,7 +98,7 @@ export const getTtl = (testnet: boolean) => {
     return currentSlot + CARDANO_DEFAULT_TTL_OFFSET;
 };
 
-export const composeTxPlan = (
+export const getCoinSelectionParams = (
     descriptor: string,
     utxo: AccountUtxo[],
     outputs: types.UserOutput[],
@@ -109,52 +106,17 @@ export const composeTxPlan = (
     withdrawals: types.Withdrawal[],
     changeAddress: string,
     isTestnet: boolean,
-    options?: types.Options,
-) =>
-    coinSelection(
-        {
-            utxos: transformUtxos(utxo),
-            outputs,
-            changeAddress,
-            certificates: prepareCertificates(certificates),
-            withdrawals,
-            accountPubKey: descriptor,
-            ttl: getTtl(isTestnet),
-        },
-        options,
-    );
+) => ({
+    utxos: transformUtxos(utxo),
+    outputs,
+    changeAddress,
+    certificates: prepareCertificates(certificates),
+    withdrawals,
+    accountPubKey: descriptor,
+    ttl: getTtl(isTestnet),
+});
 
 export const hexStringByteLength = (s: string) => s.length / 2;
-
-// Builds the CIP-0008 COSE_Sign1 / COSE_Key structures for a signed Cardano message.
-// See https://cips.cardano.org/cips/cip8. The byte layout is consumed by CIP-30 verifiers,
-// so the encoding must stay deterministic.
-export const createCose = (payload: string, signature: string, address: string, pubKey: string) => {
-    const coseSignature = cbor.encode([
-        Buffer.from(
-            cbor.encode(
-                new Map()
-                    .set(1, -8) // alg: EdDSA
-                    .set('address', Buffer.from(address, 'hex')),
-            ),
-        ),
-        new Map().set('hashed', false),
-        Buffer.from(payload, 'hex'),
-        Buffer.from(signature, 'hex'),
-    ]);
-    const coseKey = cbor.encode(
-        new Map()
-            .set(1, 1) // kty: OKP
-            .set(3, -8) // alg: EdDSA
-            .set(-1, 6) // crv: Ed25519
-            .set(-2, Buffer.from(pubKey, 'hex')),
-    );
-
-    return {
-        coseSignature: Buffer.from(coseSignature).toString('hex'),
-        coseKey: Buffer.from(coseKey).toString('hex'),
-    };
-};
 
 export const sendChunkedHexString = async (
     typedCall: PROTO.TypedCall,

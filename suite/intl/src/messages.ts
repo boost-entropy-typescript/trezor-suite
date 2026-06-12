@@ -1208,10 +1208,6 @@ export const messages = defineMessages({
         defaultMessage: 'Anonymous',
         id: 'TR_TRADING_KYC_ANONYMOUS',
     },
-    TR_TRADING_BUY_AND_SELL: {
-        defaultMessage: 'Buy & sell',
-        id: 'TR_TRADING_BUY_AND_SELL',
-    },
     TR_TRADING_SWAP: {
         defaultMessage: 'Swap',
         id: 'TR_TRADING_SWAP',
@@ -3358,10 +3354,6 @@ export const messages = defineMessages({
     TR_SUITE_SYNC_GET_KEYS: {
         defaultMessage: 'Allow',
         id: 'TR_SUITE_SYNC_GET_KEYS',
-    },
-    TR_SUITE_SYNC_CONNECT_AND_GET_KEYS: {
-        defaultMessage: 'Connect & allow',
-        id: 'TR_SUITE_SYNC_CONNECT_AND_GET_KEYS',
     },
     TR_SUITE_SYNC_FIRMWARE_UPDATE: {
         defaultMessage: 'Update',
@@ -7598,10 +7590,6 @@ export const messages = defineMessages({
         id: 'TR_SUGGESTION',
         defaultMessage: 'Feedback',
     },
-    TR_GUIDE_DASHBOARD: {
-        id: 'TR_GUIDE_DASHBOARD',
-        defaultMessage: 'Dashboard',
-    },
     TR_GUIDE_BUG_LABEL: {
         id: 'TR_GUIDE_BUG_LABEL',
         defaultMessage: 'Is something wrong?',
@@ -7634,10 +7622,6 @@ export const messages = defineMessages({
     TR_GUIDE_FORUM: {
         id: 'TR_GUIDE_FORUM',
         defaultMessage: 'Trezor Forum',
-    },
-    TR_GUIDE_FORUM_LABEL: {
-        id: 'TR_GUIDE_FORUM_LABEL',
-        defaultMessage: 'Connect with the Trezor community',
     },
     TR_GUIDE_SUPPORT_AND_FEEDBACK: {
         id: 'TR_GUIDE_SUPPORT_AND_FEEDBACK',
@@ -9420,9 +9404,42 @@ export const messages = defineMessages({
         id: 'TR_PROMO_BANNER_DASHBOARD_STABLECOIN_YIELD_BUTTON',
         defaultMessage: 'Get started',
     },
+    TR_NO_DEVICE_ESHOP_BANNER_HEADING: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_HEADING',
+        defaultMessage: 'Don’t have a Trezor yet?',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_DESCRIPTION: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_DESCRIPTION',
+        defaultMessage: 'It’s the safest way to secure your crypto.',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_SETTINGS_DESCRIPTION: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_SETTINGS_DESCRIPTION',
+        defaultMessage:
+            'Secure your crypto offline and unlock its full potential with Trezor hardware wallets.',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_CTA: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_CTA',
+        defaultMessage: 'Get Trezor',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_BULLET_SECURITY: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_BULLET_SECURITY',
+        defaultMessage: 'Advanced open-source security',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_BULLET_APP: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_BULLET_APP',
+        defaultMessage: 'Powerful crypto app for mobile & desktop',
+    },
+    TR_NO_DEVICE_ESHOP_BANNER_BULLET_SETUP: {
+        id: 'TR_NO_DEVICE_ESHOP_BANNER_BULLET_SETUP',
+        defaultMessage: 'Easy to set up & simple to recover',
+    },
     TR_ENABLE_AUTOSTOP_COINJOIN: {
         id: 'TR_ENABLE_AUTOSTOP_COINJOIN',
         defaultMessage: 'Stop coinjoin after this round',
+    },
+    TR_TREZOR_WALLET: {
+        id: 'TR_TREZOR_WALLET',
+        defaultMessage: 'Trezor wallet',
     },
     TR_TREZOR_DEVICE_TUTORIAL_HEADING: {
         id: 'TR_TREZOR_DEVICE_TUTORIAL_HEADING',
@@ -9629,10 +9646,6 @@ export const messages = defineMessages({
     TR_EARN_YIELD_APY_TOOLTIP_FOOTER: {
         id: 'TR_EARN_YIELD_APY_TOOLTIP_FOOTER',
         defaultMessage: 'APY can change over time',
-    },
-    TR_EARN_YIELD_AMOUNT_TO_SUPPLY: {
-        id: 'TR_EARN_YIELD_AMOUNT_TO_SUPPLY',
-        defaultMessage: 'Amount to deposit',
     },
     TR_EARN_YIELD_AMOUNT_TO_WITHDRAW: {
         id: 'TR_EARN_YIELD_AMOUNT_TO_WITHDRAW',

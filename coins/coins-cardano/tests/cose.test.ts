@@ -1,5 +1,5 @@
-import { createCoseFixtures } from '../__fixtures__/cardanoCose';
-import { createCose } from '../cardanoUtils';
+import { createCoseFixtures } from './cose.fixture';
+import { createCose } from '../src/runtime/exports';
 
 describe('cardano createCose', () => {
     createCoseFixtures.forEach(f => {
