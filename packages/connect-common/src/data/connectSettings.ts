@@ -21,7 +21,6 @@ const initialSettings: ConnectSettings = {
     pendingTransportEvent: true,
     env: 'node',
     timestamp: new Date().getTime(),
-    sharedLogger: true,
     transportReconnect: true,
 };
 
@@ -83,6 +82,11 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
         }
     }
 
+    // Runtime function supplied by the host composition root; passthrough (not validated).
+    if (typeof input.createLogger === 'function') {
+        settings.createLogger = input.createLogger;
+    }
+
     if (typeof input.transportReconnect === 'boolean') {
         settings.transportReconnect = input.transportReconnect;
     }
@@ -117,10 +121,6 @@ export const parseConnectSettings = (input: Partial<ConnectSettings> = {}) => {
 
     if (typeof input.manifest === 'object') {
         settings.manifest = parseManifest(input.manifest);
-    }
-
-    if (typeof input.sharedLogger === 'boolean') {
-        settings.sharedLogger = input.sharedLogger;
     }
 
     if (
