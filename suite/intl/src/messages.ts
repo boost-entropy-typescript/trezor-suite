@@ -548,7 +548,7 @@ export const messages = defineMessages({
         id: 'TR_EXCHANGE_APPROVAL_SET_LIMIT',
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_OFFERED: {
-        defaultMessage: 'Swap offer amount',
+        defaultMessage: 'Swap offer',
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_OFFERED',
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_AMOUNT: {
@@ -561,7 +561,7 @@ export const messages = defineMessages({
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_INFO: {
         defaultMessage:
-            "Exchange rates can change quickly, so the final amount you receive may differ from the offer—this is called slippage. Slippage tolerance sets the maximum difference you're willing to accept. A higher tolerance means your transaction is more likely to go through but you might get less than expected. A lower tolerance gives you a better rate but may cause the transaction to fail, and you'll still pay the transaction fee.",
+            'Limit how much the rate can change before the transaction fails. Network fees always apply.',
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_INFO',
     },
     TR_EXCHANGE_SWAP_SLIPPAGE_CUSTOM: {
@@ -579,6 +579,10 @@ export const messages = defineMessages({
     TR_EXCHANGE_SWAP_SLIPPAGE_NOT_IN_RANGE: {
         defaultMessage: 'Slippage must be between 0.01% and 50%',
         id: 'TR_EXCHANGE_SWAP_SLIPPAGE_NOT_IN_RANGE',
+    },
+    TR_EXCHANGE_SWAP_SLIPPAGE_ERROR: {
+        defaultMessage: 'Failed to update slippage. Please try again.',
+        id: 'TR_EXCHANGE_SWAP_SLIPPAGE_ERROR',
     },
     TR_EXCHANGE_CONFIRM_ON_TREZOR_SEND: {
         defaultMessage: 'Confirm on Trezor & send',
@@ -979,16 +983,6 @@ export const messages = defineMessages({
         defaultMessage: 'Trade history',
         id: 'TR_TRADING_LAST_TRANSACTIONS',
     },
-    TR_TRADING_BUY_AND_SELL_COUNTER: {
-        defaultMessage:
-            '{totalBuys, plural, =0 {{totalBuys} buys} one {{totalBuys} buy} other {{totalBuys} buys} } • {totalSells, plural, =0 {{totalSells} sells} one {{totalSells} sell} other {{totalSells} sells} }',
-        id: 'TR_TRADING_BUY_AND_SELL_COUNTER',
-    },
-    TR_TRADING_SWAP_COUNTER: {
-        defaultMessage:
-            '{totalSwaps, plural, =0 {{totalSwaps} swaps} one {{totalSwaps} swap} other {{totalSwaps} swaps} }',
-        id: 'TR_TRADING_SWAP_COUNTER',
-    },
     TR_TRADING_PAYMENT_METHOD: {
         defaultMessage: 'Payment method',
         id: 'TR_TRADING_PAYMENT_METHOD',
@@ -1113,6 +1107,11 @@ export const messages = defineMessages({
     TR_TRADING_TRADE_FEE: {
         defaultMessage: 'Trade fee',
         id: 'TR_TRADING_TRADE_FEE',
+    },
+    TR_TRADING_TRADE_HISTORY_COUNTER: {
+        defaultMessage:
+            '{totalBuys, plural, =0 {{totalBuys} buys} one {{totalBuys} buy} other {{totalBuys} buys} } • {totalSells, plural, =0 {{totalSells} sells} one {{totalSells} sell} other {{totalSells} sells} } • {totalSwaps, plural, =0 {{totalSwaps} swaps} one {{totalSwaps} swap} other {{totalSwaps} swaps} }',
+        id: 'TR_TRADING_TRADE_HISTORY_COUNTER',
     },
     TR_TRADING_POPULAR_CURRENCIES: {
         defaultMessage: 'Popular currencies',
