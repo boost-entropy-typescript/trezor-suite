@@ -1,4 +1,5 @@
 import type { YieldDto } from '@suite-common/earn-stablecoin-api';
+import type { EvmHexString } from '@suite-common/schemas/src/evm';
 import type { NetworkSymbol } from '@suite-common/wallet-config';
 import type { Account } from '@suite-common/wallet-types';
 
@@ -39,6 +40,26 @@ export type YieldFlowCompleteValue = {
     token: YieldFlowDisplayToken;
     amount: string;
 };
+
+type StablecoinYieldClaimUnsignedTransactionFee =
+    | {
+          gasPrice: string;
+          maxFeePerGas?: never;
+          maxPriorityFeePerGas?: never;
+      }
+    | {
+          gasPrice?: never;
+          maxFeePerGas: string;
+          maxPriorityFeePerGas: string;
+      };
+
+export type StablecoinYieldClaimUnsignedTransaction = {
+    to: EvmHexString;
+    data: EvmHexString;
+    chainId: number;
+    gasLimit: string;
+    nonce: string;
+} & StablecoinYieldClaimUnsignedTransactionFee;
 
 export type YieldApproveModalState = {
     amount: string;

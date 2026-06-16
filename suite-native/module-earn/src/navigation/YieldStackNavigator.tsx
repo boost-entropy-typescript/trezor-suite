@@ -8,6 +8,9 @@ import {
 } from '@suite-native/navigation';
 
 import { HowYieldWorksScreen } from '../screens/HowYieldWorksScreen';
+import { YieldClaimCompleteScreen } from '../screens/YieldClaimCompleteScreen';
+import { YieldClaimReviewScreen } from '../screens/YieldClaimReviewScreen';
+import { YieldClaimScreen } from '../screens/YieldClaimScreen';
 import { YieldConsentsScreen } from '../screens/YieldConsentsScreen';
 import { YieldDepositApprovalScreen } from '../screens/YieldDepositApprovalScreen';
 import { YieldDepositApprovalTransactionDataReviewScreen } from '../screens/YieldDepositApprovalTransactionDataReviewScreen';
@@ -38,6 +41,21 @@ export const YieldStackNavigator = () => {
                 options={{ title: YieldStackRoutes.YieldConsents }}
                 name={YieldStackRoutes.YieldConsents}
                 component={YieldConsentsScreen}
+            />
+            <YieldStack.Screen
+                options={{ title: YieldStackRoutes.YieldClaim }}
+                name={YieldStackRoutes.YieldClaim}
+                component={YieldClaimScreen}
+            />
+            <YieldStack.Screen
+                options={{ title: YieldStackRoutes.YieldClaimReview }}
+                name={YieldStackRoutes.YieldClaimReview}
+                component={YieldClaimReviewScreen}
+            />
+            <YieldStack.Screen
+                options={{ title: YieldStackRoutes.YieldClaimComplete }}
+                name={YieldStackRoutes.YieldClaimComplete}
+                component={YieldClaimCompleteScreen}
             />
             <YieldStack.Screen
                 options={{ title: YieldStackRoutes.YieldDepositApproval }}

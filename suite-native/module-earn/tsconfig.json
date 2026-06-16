@@ -30,7 +30,11 @@
         {
             "path": "../../suite-common/redux-utils"
         },
+        { "path": "../../suite-common/schemas" },
         { "path": "../../suite-common/staking" },
+        {
+            "path": "../../suite-common/test-utils"
+        },
         {
             "path": "../../suite-common/validators"
         },
@@ -74,6 +78,7 @@
         { "path": "../tx-simulation" },
         { "path": "../../coins/coins-solana" },
         { "path": "../../packages/connect" },
+        { "path": "../../packages/device-utils" },
         { "path": "../../packages/react-utils" },
         {
             "path": "../../packages/styles-native"

@@ -91,7 +91,11 @@ export type YieldFlowParams = {
     yieldId?: string;
 };
 
-type YieldInsufficientBalanceParams = {
+export type YieldClaimParams = {
+    accountKey: AccountKey;
+};
+
+export type YieldInsufficientBalanceParams = {
     accountKey: AccountKey;
     tokenContract: TokenAddress;
     yieldId: string;
@@ -119,6 +123,9 @@ export type YieldWithdrawParams = YieldFlowParams & {
 export type YieldStackParamList = {
     [YieldStackRoutes.HowYieldWorks]: YieldFlowParams;
     [YieldStackRoutes.YieldConsents]: YieldFlowParams;
+    [YieldStackRoutes.YieldClaim]: YieldClaimParams;
+    [YieldStackRoutes.YieldClaimReview]: YieldClaimParams;
+    [YieldStackRoutes.YieldClaimComplete]: YieldClaimParams;
     [YieldStackRoutes.YieldDepositApproval]: YieldFlowParams;
     [YieldStackRoutes.YieldDeposit]: YieldFlowParams;
     [YieldStackRoutes.YieldDepositRevoke]: YieldDepositRevokeParams;

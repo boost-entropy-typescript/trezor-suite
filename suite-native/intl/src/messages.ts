@@ -2589,10 +2589,15 @@ export const messages = {
             depositsCard: {
                 title: 'Your deposits',
                 networkStaking: '{networkName} staking',
+                availableRewards: 'Available rewards',
+                claimRewardsButton: 'Claim rewards',
             },
             activeSheet: {
                 stakingTitle: 'Your stakes',
                 stablecoinYieldTitle: 'Your yields',
+            },
+            claimRewards: {
+                title: 'Claim rewards from an account',
             },
             chooseAccountSheet: {
                 title: 'Choose account',
@@ -2727,7 +2732,7 @@ export const messages = {
             providerCard: {
                 title: 'Deposit to {providerName}',
                 firstItem:
-                    '{providerName} maintains and protects your supplied {tokenSymbol} with their smart contracts, infrastructure, and technology.',
+                    '{providerName} maintains and protects your deposited {tokenSymbol} with their smart contracts, infrastructure, and technology.',
                 secondItem:
                     "When you deposit, the responsibility for your funds' security transitions from your Trezor to {providerName}.",
             },
@@ -2790,7 +2795,7 @@ export const messages = {
                     description: 'Deposit could not be prepared. Check the amount and try again.',
                 },
                 approvalTooLow: {
-                    title: 'Approval is too low. Change approval or lower amount to supply.',
+                    title: 'Approval is too low. Change approval or lower amount to deposit.',
                     primaryButton: 'Change approval',
                 },
                 transactionFailed: {
@@ -2813,12 +2818,22 @@ export const messages = {
         yieldWithdrawFlowScreen: {
             withdrawalAmount: 'Withdrawal amount',
             withdrawMax: 'Withdraw max',
-            supplied: 'Supplied:',
+            deposited: 'Deposited:',
             withdrawPendingTitle: 'Confirming withdrawal',
             amountToWithdraw: 'Amount to withdraw',
-            amountExceedsSupplied: 'The amount exceeds your supplied balance.',
+            amountExceedsDeposited: 'The amount exceeds your deposited balance.',
             networkFeeWarning:
                 'Network fees may exceed this amount. Your balance may decrease. Enter higher amount.',
+        },
+        yieldClaimFlowScreen: {
+            title: 'Claim rewards',
+            rewards: 'Rewards',
+            noRewards: 'No rewards to claim.',
+            claimPendingTitle: 'Confirming claim',
+            feeWarning: {
+                title: 'Network fees may exceed rewards.',
+                description: 'Consider waiting until your rewards grow before claiming.',
+            },
         },
         yieldDepositApprovalReviewScreen: {
             title: 'Review with Trezor',
@@ -2838,6 +2853,11 @@ export const messages = {
             successMessage: "You're all set.",
             submitButton: 'Withdraw now',
         },
+        yieldClaimReviewScreen: {
+            title: 'Review with Trezor',
+            successMessage: "You're all set.",
+            submitButton: 'Claim now',
+        },
         yieldDepositCompleteScreen: {
             title: 'Deposit complete',
             subtitle: 'Your deposit is now earning yield in the vault.',
@@ -2846,11 +2866,16 @@ export const messages = {
             title: 'Withdrawal complete',
             subtitle: 'Your funds have been withdrawn from the vault.',
         },
+        yieldClaimCompleteScreen: {
+            title: 'Claim complete',
+            subtitle: 'Rewards added to your balance.',
+        },
         yieldCompleteScreen: {
             status: 'Status',
             completed: 'Completed',
             apy: 'APY',
             received: 'Received',
+            rewards: 'Rewards',
             sent: 'Sent',
             withdrawalAmount: 'Withdrawal amount',
             backToOverview: 'Back to overview',
@@ -2861,6 +2886,9 @@ export const messages = {
             },
             withdrawCard: {
                 title: 'Withdraw',
+            },
+            claimRewardsCard: {
+                title: 'Rewards',
             },
             receiveCard: {
                 title: 'Receive',
@@ -2922,6 +2950,22 @@ export const messages = {
                     },
                     pendingTransactionConflict: {
                         title: 'Withdraw was not submitted',
+                        description:
+                            'There is already a pending transaction for this account. Wait for it to finish before trying again.',
+                    },
+                },
+                claim: {
+                    signTransactionFailed: {
+                        title: 'Transaction was not signed',
+                        description: 'Review the transaction and sign it again.',
+                    },
+                    pushTransactionFailed: {
+                        title: 'Claim was not submitted',
+                        description:
+                            'The claim transaction was signed but could not be submitted to the network.',
+                    },
+                    pendingTransactionConflict: {
+                        title: 'Claim was not submitted',
                         description:
                             'There is already a pending transaction for this account. Wait for it to finish before trying again.',
                     },

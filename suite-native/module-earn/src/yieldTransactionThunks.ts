@@ -33,12 +33,12 @@ type YieldSignTransactionError = {
     message?: string;
 };
 
-type YieldPushTransactionError = {
+export type YieldPushTransactionError = {
     error: 'push-transaction-failed' | 'push-transaction-pending-conflict';
     message?: string;
 };
 
-const getPushErrorType = (message: string): YieldPushTransactionError['error'] =>
+export const getPushErrorType = (message: string): YieldPushTransactionError['error'] =>
     message.includes('could not replace existing tx')
         ? 'push-transaction-pending-conflict'
         : 'push-transaction-failed';
@@ -59,7 +59,7 @@ export const signYieldActionReviewThunk = createThunk<
         } = session;
         const device = selectSelectedDevice(getState());
 
-        if (!review || !device || flowData.account.networkType !== 'ethereum') {
+        if (review?.type !== flowType || !device || flowData.account.networkType !== 'ethereum') {
             return rejectWithValue({
                 error: 'sign-transaction-failed',
                 message: 'Invalid input data.',
@@ -157,7 +157,7 @@ export const pushYieldActionReviewThunk = createThunk<
             action: { review },
         } = session;
 
-        if (!review || !serializedTx || !precomposedForm || !precomposedTx) {
+        if (review?.type !== flowType || !serializedTx || !precomposedForm || !precomposedTx) {
             return rejectWithValue({
                 error: 'push-transaction-failed',
                 message: 'Transaction not found.',
