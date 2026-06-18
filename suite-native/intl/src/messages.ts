@@ -1882,6 +1882,12 @@ export const messages = {
                 deposited: 'Deposited',
                 depositMore: 'Deposit more',
                 withdraw: 'Withdraw',
+                firmwareUpdateAlert: {
+                    title: 'Firmware update required',
+                    description: 'Update firmware on the device {name} to use {featureName}.',
+                    primaryButtonTitle: 'Update',
+                    secondaryButtonTitle: 'Not now',
+                },
                 apyBreakdown: {
                     apyLabel: '{apy} APY',
                     autoCompounded: 'Automatically added and compounded.',
@@ -2994,6 +3000,21 @@ export const messages = {
         rewards: 'Rewards',
         rewardsPerEpoch: 'Next estimated reward',
         apy: 'Annual Percentage Yield',
+        apr: 'Annual Percentage Return',
+        tron: {
+            votes: 'Votes',
+            allVotesUsed: 'All {count} votes used',
+            votesRemaining:
+                '{count, plural, one {1 remaining vote} other {{count} remaining votes}}',
+            votesBottomSheet: {
+                title: 'Assign all votes to earn more rewards.',
+                description: 'Staking can be currently managed only in Trezor Suite for desktop.',
+            },
+            votesAlertText:
+                'Assign {count, plural, one {1 remaining vote} other {{count} remaining votes}} to earn more rewards.',
+            readyToWithdrawAlert: '{amount} TRX unstaked & ready to be withdrawn.',
+            unstakingCardTitle: 'Unstaking (~{days} days)',
+        },
         stakingCanBeManaged: 'Staking is currently only available with',
         trezorDesktop: 'the Trezor Suite desktop and web apps.',
         adaStaysFullyAccessuble: 'Your ADA stays fully accessible while earning rewards.',

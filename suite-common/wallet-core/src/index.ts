@@ -66,6 +66,7 @@ export * from './stablecoin-yield/stablecoinYieldSelectors';
 export * from './stablecoin-yield/stablecoinYieldApprovalActionUtils';
 export * from './stablecoin-yield/stablecoinYieldApprovalThunks';
 export * from './stablecoin-yield/stablecoinYieldDepositThunks';
+export * from './stablecoin-yield/stablecoinYieldDeviceUtils';
 export * from './stablecoin-yield/stablecoinYieldTypes';
 export * from './stablecoin-yield/stablecoinYieldUtils';
 export * from './stake/tron/tronStakeReducer';
@@ -79,7 +80,6 @@ export { submitTronUnstakeThunk } from './stake/tron/actions/unstake/submitUnsta
 export { composeTronWithdrawFeeLevelsThunk } from './stake/tron/actions/withdraw/composeWithdraw';
 export { submitTronWithdrawThunk } from './stake/tron/actions/withdraw/submitWithdraw';
 export * from './stake/tron/tronStakeTypes';
-export * from './stake/tron/tronStakeUtils';
 export * from './token/stellarTokenThunks';
 export * from './tokens/tokenSelectors';
 export * from './tokens/tokenUtils';
