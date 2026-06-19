@@ -1,14 +1,20 @@
+import { blake256 } from '@noble/hashes/blake1.js';
+import { blake2b } from '@noble/hashes/blake2.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { keccak_256 } from '@noble/hashes/sha3.js';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
+import { base58 } from '@scure/base';
+
 import { typedObjectKeys } from '@trezor/utils';
 
 import type { AddressValidator } from '../AddressValidator';
 import { addressType } from '../addressType';
-import * as base58 from '../crypto/base58';
 import * as bech32 from '../crypto/bech32';
-import type { HashFunction } from '../crypto/types';
-import * as cryptoUtils from '../crypto/utils';
 import type { NetworkEnvironment } from '../networkEnvironment';
 import { bchValidator } from './bch_validator';
 import type { NetworkSymbol } from '../networkTypes';
+
+type HashFunction = 'sha256' | 'blake256' | 'blake256keccak256' | 'keccak256';
 
 type BitcoinCurrency = {
     symbol: NetworkSymbol;
@@ -98,28 +104,30 @@ const getNetworkEnvironments = (
 
 function getDecoded(address: string): number[] | null {
     try {
-        return base58.decode(address);
+        return Array.from(base58.decode(address));
     } catch {
         // if decoding fails, assume invalid address
         return null;
     }
 }
 
+const toHex = (bytes: number[]): string => bytesToHex(Uint8Array.from(bytes));
+
 function getChecksum(hashFunction: HashFunction, payload: string): string {
     // Each currency may implement different hashing algorithm
     switch (hashFunction) {
         // blake then keccak hash chain
         case 'blake256keccak256': {
-            const blake = cryptoUtils.blake2b256(payload);
+            const blake = blake2b(hexToBytes(payload), { dkLen: 32 });
 
-            return cryptoUtils.keccak256Checksum(Buffer.from(blake, 'hex'));
+            return bytesToHex(keccak_256(blake)).slice(0, 8);
         }
         case 'blake256':
-            return cryptoUtils.blake256Checksum(payload);
+            return bytesToHex(blake256(blake256(hexToBytes(payload)))).slice(0, 8);
         case 'keccak256':
-            return cryptoUtils.keccak256Checksum(payload);
+            return bytesToHex(keccak_256(hexToBytes(payload))).slice(0, 8);
         case 'sha256':
-            return cryptoUtils.sha256Checksum(payload);
+            return bytesToHex(sha256(sha256(hexToBytes(payload)))).slice(0, 8);
     }
 }
 
@@ -141,13 +149,11 @@ function getAddressTypeHex(address: string, currency: BitcoinCurrency): string |
             }
         }
 
-        const checksum = cryptoUtils.toHex(decoded.slice(length - 4, length));
-        const body = cryptoUtils.toHex(decoded.slice(0, length - 4));
+        const checksum = toHex(decoded.slice(length - 4, length));
+        const body = toHex(decoded.slice(0, length - 4));
         const goodChecksum = getChecksum(hashFunction, body);
 
-        return checksum === goodChecksum
-            ? cryptoUtils.toHex(decoded.slice(0, expectedLength - 24))
-            : null;
+        return checksum === goodChecksum ? toHex(decoded.slice(0, expectedLength - 24)) : null;
     }
 
     return null;
