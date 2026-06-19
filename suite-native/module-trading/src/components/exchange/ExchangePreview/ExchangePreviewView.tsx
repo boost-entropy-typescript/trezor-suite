@@ -12,6 +12,7 @@ import {
 import { AnimatedVStack, InlineAlertBox, VStack } from '@suite-native/atoms';
 import { Translation, useTranslate } from '@suite-native/intl';
 import { KycPolicyWarning, hasKycPolicyWarning } from '@suite-native/trading-provider-utils';
+import { SlippagePicker } from '@suite-native/trading-slippage';
 
 import { ExchangeEIP712Info } from './ExchangeEIP712Info';
 import { ExchangeFeePickerCard } from './ExchangeFeePickerCard';
@@ -58,9 +59,13 @@ export const ExchangePreviewView = memo(
                     <ExchangeToAccountTradePreviewCard quote={quote} />
                     <ExchangeFiatDeviationWarning quote={quote} />
                     {hasEIP712SignData ? (
-                        <ExchangeEIP712Info exchange={quote?.exchange} />
+                        <ExchangeEIP712Info exchange={quote?.exchange}>
+                            <SlippagePicker />
+                        </ExchangeEIP712Info>
                     ) : (
-                        <ExchangeFeePickerCard quote={quote} isTxnError={isTxnError} />
+                        <ExchangeFeePickerCard quote={quote} isTxnError={isTxnError}>
+                            <SlippagePicker />
+                        </ExchangeFeePickerCard>
                     )}
                     {hasKycPolicyWarning(kycPolicy) && (
                         <InlineAlertBox

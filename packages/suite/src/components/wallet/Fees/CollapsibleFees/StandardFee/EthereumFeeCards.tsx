@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useFormState } from 'react-hook-form';
 
+import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
 import { Translation } from '@suite/intl';
-import { selectIsDebugModeActive } from '@suite/settings';
 import { formatDurationStrict } from '@suite-common/suite-utils';
 import { selectAreFeesLoading } from '@suite-common/wallet-core';
 import { type FormState } from '@suite-common/wallet-types';
@@ -12,7 +12,6 @@ import { FeeRate } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
 
 import { BaseCurrencyValue } from 'src/components/suite';
-import { DebugOnlyBadge } from 'src/components/suite/DebugOnlyBadge';
 import { useLocales, useSelector } from 'src/hooks/suite';
 
 import { FeeCard } from './FeeCard';

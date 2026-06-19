@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { selectIsDebugModeActive } from '@suite/settings';
+import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
 import { selectCardanoPoolsInfo } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import {
@@ -10,7 +10,6 @@ import {
 import { Card, Column, Icon, InfoItem, Paragraph, Row } from '@trezor/components';
 import { spacings } from '@trezor/theme';
 
-import { DebugOnlyBadge } from 'src/components/suite/DebugOnlyBadge';
 import { useSelector } from 'src/hooks/suite';
 
 const ParagraphWrapper = styled.div`

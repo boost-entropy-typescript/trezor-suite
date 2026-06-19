@@ -13394,6 +13394,7 @@ __metadata:
     "@suite-native/trading-provider-utils": "workspace:*"
     "@suite-native/trading-quote-utils": "workspace:*"
     "@suite-native/trading-residence": "workspace:*"
+    "@suite-native/trading-slippage": "workspace:*"
     "@suite-native/trading-state": "workspace:*"
     "@suite-native/trading-types": "workspace:*"
     "@suite-native/transaction-management": "workspace:*"
@@ -14260,6 +14261,35 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/trading-slippage@workspace:*, @suite-native/trading-slippage@workspace:suite-native/trading-slippage":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/trading-slippage@workspace:suite-native/trading-slippage"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/test-utils": "workspace:*"
+    "@suite-common/trading": "workspace:*"
+    "@suite-common/validators": "workspace:*"
+    "@suite-common/wallet-core": "workspace:*"
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/forms": "workspace:*"
+    "@suite-native/helpers": "workspace:*"
+    "@suite-native/icons": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/link": "workspace:*"
+    "@suite-native/test-utils": "workspace:*"
+    "@suite-native/test-utils-store": "workspace:*"
+    "@suite-native/trading-atoms": "workspace:*"
+    "@suite-native/trading-fixtures": "workspace:*"
+    "@suite-native/trading-state": "workspace:*"
+    "@trezor/urls": "workspace:*"
+    "@trezor/utils": "workspace:*"
+    "@types/invity-api": "npm:^1.1.15"
+    react: "npm:19.2.4"
+    react-native: "npm:0.83.2"
+    react-redux: "npm:9.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/trading-state@workspace:*, @suite-native/trading-state@workspace:suite-native/trading-state":
   version: 0.0.0-use.local
   resolution: "@suite-native/trading-state@workspace:suite-native/trading-state"
@@ -14552,6 +14582,25 @@ __metadata:
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/protobuf": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@suite/debug@workspace:*, @suite/debug@workspace:suite/debug":
+  version: 0.0.0-use.local
+  resolution: "@suite/debug@workspace:suite/debug"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.11.2"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite/intl": "workspace:*"
+    "@suite/settings": "workspace:*"
+    "@trezor/components": "workspace:*"
+    "@trezor/suite-desktop-api": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    "@trezor/utils": "workspace:*"
+    react: "npm:19.2.4"
+    react-redux: "npm:9.2.0"
+    styled-components: "npm:^6.3.9"
   languageName: unknown
   linkType: soft
 
@@ -16497,6 +16546,7 @@ __metadata:
     "@sentry/electron": "npm:^7.13.0"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/debug": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/flags": "workspace:*"
     "@suite/github": "workspace:*"
@@ -16562,6 +16612,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/debug": "workspace:*"
     "@suite/flags": "workspace:*"
     "@suite/intl": "workspace:^"
     "@suite/labeling": "workspace:*"
@@ -16614,6 +16665,7 @@ __metadata:
   dependencies:
     "@sentry/browser": "npm:10.53.1"
     "@suite-common/dependency-injection": "workspace:*"
+    "@suite/debug": "workspace:*"
     "@suite/platform-encryption-webauthn": "workspace:*"
     "@suite/router": "workspace:*"
     "@suite/sentry": "workspace:*"
@@ -16711,6 +16763,7 @@ __metadata:
     "@suite/analytics": "workspace:*"
     "@suite/authenticity-checks": "workspace:*"
     "@suite/backup": "workspace:*"
+    "@suite/debug": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/device": "workspace:*"
     "@suite/discreet-mode": "workspace:*"

@@ -1,6 +1,6 @@
+import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
 import { getSuiteFirmwareTypeString, useFirmwareDesktopUpdate } from '@suite/firmware-upgrade';
 import { Translation, useTranslation } from '@suite/intl';
-import { selectIsDebugModeActive } from '@suite/settings';
 import {
     getChangelogUrl,
     getFwUpdateVersion,
@@ -13,8 +13,6 @@ import { spacings } from '@trezor/theme';
 
 import { MarkdownWithComponents } from 'src/components/suite';
 import { useSelector } from 'src/hooks/suite';
-
-import { DebugOnlyBadge } from '../suite/DebugOnlyBadge';
 
 type FirmwareOfferProps = {
     isCustomFirmware?: boolean;

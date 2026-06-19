@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
     selectAutodetectLanguage,
-    selectIsDebugModeActive,
     selectLanguage,
     selectShowTranslationKeys,
     suiteSettingsActions,
@@ -10,8 +10,7 @@ import {
 import { LANGUAGES, type Locale } from '@suite-common/suite-types';
 import { KEYBOARD_CODE } from '@trezor/components';
 
-import { useDispatch } from './useDispatch';
-import { useSelector } from './useSelector';
+import { selectIsDebugModeActive } from './debugSelectors';
 
 const languages: { value: Locale; label: string }[] = Object.entries(LANGUAGES)
     .filter(lang => ['official', 'community'].includes(lang[1].type || ''))
@@ -64,7 +63,6 @@ export const useDebugLanguageShortcut = () => {
     );
 
     useEffect(() => {
-        // removeEventListener method will do nothing if the specified listener does not exist on the target element
         if (isDebug) {
             document.addEventListener('keydown', onLanguageKeys);
         } else {
