@@ -4,9 +4,10 @@ import { Text } from 'react-native';
 import { type TradingExchangeType, type TradingSellType } from '@suite-common/trading';
 import { mockAccountKey } from '@suite-common/wallet-types/mocks';
 import { getTranslation } from '@suite-native/intl';
+import { mercuryoDexQuote } from '@suite-native/trading-fixtures';
 
-import { renderWithTradingProvider } from '../../../__tests__/tradingTestUtils';
-import { FeePickerCard } from '../FeePickerCard';
+import { renderWithTradingProvider } from '../../../../__tests__/tradingTestUtils';
+import { TradeInfo } from '../TradeInfo';
 
 const btc1AccountKey = mockAccountKey({ symbol: 'btc', descriptor: 'btc1' });
 
@@ -21,33 +22,32 @@ jest.mock('@suite-native/transaction-management', () => ({
     }),
 }));
 
-describe('FeePickerCard', () => {
+describe('TradeInfo', () => {
     const defaultProps = {
-        trade: undefined,
+        trade: mercuryoDexQuote,
         accountKey: btc1AccountKey,
         tradingType: 'exchange' as TradingExchangeType | TradingSellType,
     };
 
-    const renderFeePickerCard = (props = {}) => {
+    const renderTradeInfo = (props = {}) => {
         const finalProps = { ...defaultProps, ...props };
 
-        return renderWithTradingProvider(<FeePickerCard {...finalProps} />);
+        return renderWithTradingProvider(<TradeInfo {...finalProps} />);
     };
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it('should render the details title', () => {
-        const { getByText } = renderFeePickerCard();
+    it('should render provider', () => {
+        const { getByText } = renderTradeInfo();
 
-        expect(
-            getByText(getTranslation('moduleTrading.tradingExchangePreviewScreen.details')),
-        ).toBeTruthy();
+        expect(getByText(getTranslation('moduleTrading.tradingScreen.provider'))).toBeOnTheScreen();
+        expect(getByText('Mercuryo')).toBeOnTheScreen();
     });
 
     it('should pass correct props to FeeSelector', () => {
-        renderFeePickerCard();
+        renderTradeInfo();
 
         expect(mockFeeSelectorProps).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -58,7 +58,7 @@ describe('FeePickerCard', () => {
     });
 
     it('should render children', () => {
-        const { getByText } = renderFeePickerCard({
+        const { getByText } = renderTradeInfo({
             children: <Text>child content</Text>,
         });
 

@@ -5,18 +5,14 @@ import type { ExchangeTrade } from 'invity-api';
 
 import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
 
-import { FeePickerCard } from '../../fees/FeePickerCard';
+import { TradeInfo } from '../../general/TradeInfo/TradeInfo';
 
-export type ExchangeFeePickerCardProps = {
+export type ExchangeInfoProps = {
     quote?: ExchangeTrade;
     isTxnError: boolean;
 } & PropsWithChildren;
 
-export const ExchangeFeePickerCard = ({
-    quote,
-    isTxnError,
-    children,
-}: ExchangeFeePickerCardProps) => {
+export const ExchangeInfo = ({ quote, isTxnError, children }: ExchangeInfoProps) => {
     const fromAccount = useSelector(selectExchangeSelectedSendAccount);
 
     if (!fromAccount || !quote?.send || isTxnError) {
@@ -24,8 +20,8 @@ export const ExchangeFeePickerCard = ({
     }
 
     return (
-        <FeePickerCard trade={quote} accountKey={fromAccount.key} tradingType="exchange">
+        <TradeInfo trade={quote} accountKey={fromAccount.key} tradingType="exchange">
             {children}
-        </FeePickerCard>
+        </TradeInfo>
     );
 };

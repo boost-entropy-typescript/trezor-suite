@@ -7,27 +7,25 @@ import { type TradingExchangeType, type TradingSellType } from '@suite-common/tr
 import { type FormDraftRootState, selectDeepCopyOfFormDraft } from '@suite-common/wallet-core';
 import { type AccountKey, type FeeLevelLabel } from '@suite-common/wallet-types';
 import { Card, Divider } from '@suite-native/atoms';
-import { Translation } from '@suite-native/intl';
-import { TradeInfoHeader } from '@suite-native/trading-atoms';
 import { getFormDraftKeyByTradeType } from '@suite-native/trading-state';
 import { FeeSelectorRow } from '@suite-native/transaction-management';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
-import { updateTradingSelectedFeeLevelThunk } from '../../thunks';
-import { ProviderReceiveAddress } from '../general/ProviderReceiveAddress';
+import { ProviderInfoRow } from './ProviderInfoRow';
+import { updateTradingSelectedFeeLevelThunk } from '../../../thunks';
 
 const dividerStyle = prepareNativeStyle(utils => ({
     borderBottomColor: utils.colors.borderNeutral,
 }));
 
-type FeePickerCardProps = {
+type TradeInfoProps = {
     trade: ExchangeTrade | SellFiatTrade | undefined;
     accountKey: AccountKey;
     tradingType: TradingSellType | TradingExchangeType;
     children?: ReactNode;
 };
 
-export const FeePickerCard = ({ trade, accountKey, tradingType, children }: FeePickerCardProps) => {
+export const TradeInfo = ({ trade, accountKey, tradingType, children }: TradeInfoProps) => {
     const { applyStyle } = useNativeStyles();
     const formDraftKey = getFormDraftKeyByTradeType(tradingType);
     const formDraft = useSelector((state: FormDraftRootState) =>
@@ -36,10 +34,7 @@ export const FeePickerCard = ({ trade, accountKey, tradingType, children }: FeeP
 
     return (
         <Card noPadding>
-            <TradeInfoHeader
-                title={<Translation id="moduleTrading.tradingExchangePreviewScreen.details" />}
-            />
-            {trade && <ProviderReceiveAddress trade={trade} />}
+            <ProviderInfoRow exchange={trade?.exchange} tradingType={tradingType} noBorder />
             <Divider style={applyStyle(dividerStyle)} />
             <FeeSelectorRow
                 accountKey={accountKey}

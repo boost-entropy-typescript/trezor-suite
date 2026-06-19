@@ -6,7 +6,7 @@ import { getTranslation } from '@suite-native/intl';
 import { btc1NormalAccount, mercuryoFixedWorstQuote } from '@suite-native/trading-fixtures';
 
 import { renderWithTradingProvider } from '../../../../__tests__/tradingTestUtils';
-import { ExchangeFeePickerCard, type ExchangeFeePickerCardProps } from '../ExchangeFeePickerCard';
+import { ExchangeInfo, type ExchangeInfoProps } from '../ExchangeInfo';
 
 // Mock FeeSelector to avoid deep dependency chain
 jest.mock('@suite-native/transaction-management', () => ({
@@ -14,12 +14,12 @@ jest.mock('@suite-native/transaction-management', () => ({
     FeeSelector: jest.fn(() => null),
 }));
 
-describe('ExchangeFeePickerCard', () => {
-    const renderExchangeFeePickerCard = (
-        props: Partial<ExchangeFeePickerCardProps> = {},
+describe('ExchangeInfo', () => {
+    const renderExchangeInfo = (
+        props: Partial<ExchangeInfoProps> = {},
         tradingAccountKey: AccountKey = btc1NormalAccount.key,
     ) =>
-        renderWithTradingProvider(<ExchangeFeePickerCard isTxnError={false} {...props} />, {
+        renderWithTradingProvider(<ExchangeInfo isTxnError={false} {...props} />, {
             tradeType: 'exchange',
             overrides: {
                 wallet: { trading: { exchange: { tradingAccountKey } } },
@@ -27,7 +27,7 @@ describe('ExchangeFeePickerCard', () => {
         });
 
     it('should render nothing when isTxnError', () => {
-        const { toJSON } = renderExchangeFeePickerCard({
+        const { toJSON } = renderExchangeInfo({
             quote: mercuryoFixedWorstQuote,
             isTxnError: true,
         });
@@ -36,13 +36,13 @@ describe('ExchangeFeePickerCard', () => {
     });
 
     it('should render nothing when there is no quote', () => {
-        const { toJSON } = renderExchangeFeePickerCard({});
+        const { toJSON } = renderExchangeInfo({});
 
         expect(toJSON()).toBeNull();
     });
 
     it('should render nothing when account is not found', () => {
-        const { toJSON } = renderExchangeFeePickerCard(
+        const { toJSON } = renderExchangeInfo(
             { quote: mercuryoFixedWorstQuote },
             mockAccountKey({ descriptor: 'unknownAccountKey' }),
         );
@@ -50,16 +50,15 @@ describe('ExchangeFeePickerCard', () => {
         expect(toJSON()).toBeNull();
     });
 
-    it('should render FeePickerCard otherwise', () => {
-        const { getByText } = renderExchangeFeePickerCard({ quote: mercuryoFixedWorstQuote });
+    it('should render TradeInfo otherwise', () => {
+        const { getByText } = renderExchangeInfo({ quote: mercuryoFixedWorstQuote });
 
-        expect(
-            getByText(getTranslation('moduleTrading.tradingExchangePreviewScreen.details')),
-        ).toBeOnTheScreen();
+        // 1st line of trade info is provider
+        expect(getByText(getTranslation('moduleTrading.tradingScreen.provider'))).toBeOnTheScreen();
     });
 
-    it('should render children inside FeePickerCard', () => {
-        const { getByText } = renderExchangeFeePickerCard({
+    it('should render children inside TradeInfo', () => {
+        const { getByText } = renderExchangeInfo({
             quote: mercuryoFixedWorstQuote,
             children: <Text>child content</Text>,
         });
