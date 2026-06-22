@@ -1955,6 +1955,49 @@ export const messages = defineMessages({
         defaultMessage: 'Create wallet backup',
         id: 'TR_CREATE_BACKUP',
     },
+    TR_CREATE_ADDITIONAL_BACKUP: {
+        defaultMessage: 'Create additional backup',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_HOW: {
+        defaultMessage: 'How does it work?',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_HOW',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_HOW_DESCRIPTION: {
+        defaultMessage:
+            'Your Trezor creates a new wallet backup in addition to the one you already have.',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_HOW_DESCRIPTION',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_CURRENT: {
+        defaultMessage: 'What about your current backup?',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_CURRENT',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_CURRENT_DESCRIPTION: {
+        defaultMessage:
+            'Your current wallet backup is still valid and can be used to recover your funds. Store it securely, if you want to keep it. Otherwise destroy it.',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_CURRENT_DESCRIPTION',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_UNDERSTAND: {
+        defaultMessage:
+            'I understand that my current wallet backup is still valid and able to recover my wallet.',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_UNDERSTAND',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_CREATE_STEP: {
+        defaultMessage: 'Create your new backup',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_CREATE_STEP',
+    },
+    TR_CREATE_ADDITIONAL_BACKUP_CREATE_STEP_DESCRIPTION: {
+        defaultMessage: 'Select your new wallet backup type and create the backup.',
+        id: 'TR_CREATE_ADDITIONAL_BACKUP_CREATE_STEP_DESCRIPTION',
+    },
+    TR_CREATE_NEW_WALLET_BACKUP: {
+        defaultMessage: 'Create wallet backup',
+        id: 'TR_CREATE_NEW_WALLET_BACKUP',
+    },
+    TR_CREATE_NEW_WALLET_BACKUP_DESCRIPTION: {
+        defaultMessage: 'Create a new wallet backup in addition to the one you already have.',
+        id: 'TR_CREATE_NEW_WALLET_BACKUP_DESCRIPTION',
+    },
     TR_DETAIL: {
         defaultMessage: 'Detail',
         description: 'Button in modal, button in UTXO selection',
@@ -5266,6 +5309,14 @@ export const messages = defineMessages({
         id: 'TR_RECOVER_WALLET',
         defaultMessage: 'Recover a wallet',
     },
+    TR_WALLET_BACKUP_CREATED: {
+        defaultMessage: 'Wallet backup created',
+        id: 'TR_WALLET_BACKUP_CREATED',
+    },
+    TR_WALLET_BACKUP_CREATED_DESCRIPTION: {
+        defaultMessage: 'Make sure to store your wallet backup in a secure, private place.',
+        id: 'TR_WALLET_BACKUP_CREATED_DESCRIPTION',
+    },
     TR_WALLET_BACKUP_TYPE: {
         id: 'TR_WALLET_BACKUP_TYPE',
         defaultMessage: 'Wallet backup type',
@@ -6429,10 +6480,6 @@ export const messages = defineMessages({
     BROADCAST: {
         id: 'BROADCAST',
         defaultMessage: 'Broadcast',
-    },
-    BROADCAST_TOOLTIP: {
-        id: 'BROADCAST_TOOLTIP',
-        defaultMessage: 'Broadcast the transaction to the network.',
     },
     IMPORT_CSV: {
         id: 'IMPORT_CSV',
@@ -11060,6 +11107,10 @@ export const messages = defineMessages({
     TR_SOLANA_LIMIT_HISTORY_DESCRIPTION: {
         id: 'TR_SOLANA_LIMIT_HISTORY_DESCRIPTION',
         defaultMessage: 'For the full history, view on the blockchain explorer.',
+    },
+    TR_SOLANA_MEMO_TOOLTIP: {
+        id: 'TR_SOLANA_MEMO_TOOLTIP',
+        defaultMessage: 'Add a memo to the transaction.',
     },
     TR_GOT_IT_BUTTON: {
         id: 'TR_GOT_IT_BUTTON',

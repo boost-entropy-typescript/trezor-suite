@@ -1,3 +1,9 @@
+import {
+    BackupFailed,
+    BackupRecoverySeed,
+    CreateWalletBackup,
+    MultiShareBackup,
+} from '@suite/backup';
 import { useDevice } from '@suite/device';
 import { Translation } from '@suite/intl';
 import { isRecoveryInProgress } from '@suite/recovery';
@@ -21,8 +27,6 @@ import { getHowToGetFromBootloaderInstructionsMap } from 'src/utils/device/bootl
 
 import { AuthenticateDevice } from './AuthenticateDevice';
 import { AutoLock } from './AutoLock';
-import { BackupFailed } from './BackupFailed';
-import { BackupRecoverySeed } from './BackupRecoverySeed';
 import { Brightness } from './Brightness';
 import { ChangeLanguage } from './ChangeLanguage';
 import { ChangePin } from './ChangePin';
@@ -37,7 +41,6 @@ import { FirmwareVersion } from './FirmwareVersion';
 import { ForgetDevice } from './ForgetDevice';
 import { HapticFeedback } from './HapticFeedback';
 import { Homescreen } from './Homescreen';
-import { MultiShareBackup } from './MultiShareBackup';
 import {
     NoDeviceEshopSettingsBanner,
     selectShouldShowNoDeviceEshopSettingsBanner,
@@ -167,6 +170,7 @@ export const SettingsDevice = () => {
                             <BackupRecoverySeed isDeviceLocked={isDeviceLocked} />
                             <MultiShareBackup isDeviceLocked={isDeviceLocked} />
                             <CheckRecoverySeed isDeviceLocked={isDeviceLocked} />
+                            <CreateWalletBackup isDeviceLocked={isDeviceLocked} />
                         </>
                     )}
                 </SettingsSection>

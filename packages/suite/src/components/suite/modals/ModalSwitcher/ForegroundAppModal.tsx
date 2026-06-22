@@ -1,5 +1,6 @@
 import { type FunctionComponent } from 'react';
 
+import { CreateWalletBackupModal } from '@suite/backup';
 import { closeModalApp } from '@suite/router';
 
 import { useDispatch } from 'src/hooks/suite';
@@ -33,6 +34,7 @@ const getForegroundApp = (app: ForegroundAppRoute['app']) => {
         recovery: Recovery,
         backup: Backup,
         'create-multi-share-backup': MultiShareBackupModal,
+        'create-wallet-backup': CreateWalletBackupModal,
     };
 
     return map[app];
