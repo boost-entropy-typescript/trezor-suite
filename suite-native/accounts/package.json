@@ -15,7 +15,7 @@
         "@gorhom/bottom-sheet": "5.2.8",
         "@mobily/ts-belt": "^3.13.1",
         "@react-navigation/native": "7.1.28",
-        "@reduxjs/toolkit": "2.11.2",
+        "@reduxjs/toolkit": "2.12.0",
         "@suite-common/address": "workspace:*",
         "@suite-common/device": "workspace:*",
         "@suite-common/formatters": "workspace:*",
@@ -47,10 +47,10 @@
         "@trezor/theme": "workspace:^",
         "@trezor/utils": "workspace:*",
         "react": "19.2.4",
-        "react-hook-form": "^7.71.2",
+        "react-hook-form": "^7.77.0",
         "react-native": "0.83.2",
         "react-native-reanimated": "~4.2.1",
-        "react-redux": "9.2.0"
+        "react-redux": "9.3.0"
     },
     "devDependencies": {
         "@suite-native/test-utils": "workspace:*",
