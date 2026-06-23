@@ -9,16 +9,21 @@ import {
     useAllowanceTxTracking,
 } from '@suite-common/trading';
 import { sendFormActions } from '@suite-common/wallet-core';
+import { Translation } from '@suite-native/intl';
 import {
     type RootStackParamList,
     RootStackRoutes,
     Screen,
     type StackProps,
+    useNavigateToInitialScreen,
 } from '@suite-native/navigation';
 import { useExchangeAnalyticsStepReport } from '@suite-native/trading-analytics';
 import { useTransactionStatusOverride } from '@suite-native/trading-debug';
 import { selectExchangeSelectedSendAccount } from '@suite-native/trading-state';
-import { useTransactionDetails } from '@suite-native/transaction-management';
+import {
+    useNavigationRemoveInterceptorAlert,
+    useTransactionDetails,
+} from '@suite-native/transaction-management';
 import { exhaustive } from '@trezor/type-utils';
 
 import { ConfirmationQuoteDebugView } from '../components/exchange/Confirmation/ConfirmationQuoteDebugView';
@@ -81,23 +86,25 @@ export const TradingConfirmingScreen = ({
 
     const { isConfirmed, isFailed, isPending } = status;
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('beforeRemove', e => {
-            const { type, payload } = e.data.action as {
-                type: string;
-                payload?: { count?: number };
-            };
-            const isSingleBackPress =
-                type === 'GO_BACK' || (type === 'POP' && (payload?.count ?? 1) <= 1);
+    const navigateToInitialScreen = useNavigateToInitialScreen();
+    const handleRemoveConfirmed = useCallback(() => {
+        dispatch(tradingExchangeActions.saveSelectedQuote(undefined));
+        reportToAnalytics('cancel');
+        navigateToInitialScreen();
+    }, [dispatch, navigateToInitialScreen, reportToAnalytics]);
 
-            if (isSingleBackPress) {
-                dispatch(tradingExchangeActions.saveSelectedQuote(undefined));
-                reportToAnalytics('cancel');
-            }
-        });
-
-        return unsubscribe;
-    }, [dispatch, navigation, reportToAnalytics]);
+    useNavigationRemoveInterceptorAlert({
+        shouldPrevent: !isFailed,
+        onRemoveConfirmed: handleRemoveConfirmed,
+        alertOptions: {
+            description:
+                flowType === 'approve' ? (
+                    <Translation id="moduleTrading.tradingConfirmationScreen.approvalPendingAlert" />
+                ) : (
+                    <Translation id="moduleTrading.tradingConfirmationScreen.revocationPendingAlert" />
+                ),
+        },
+    });
 
     useFocusEffect(
         useCallback(() => {

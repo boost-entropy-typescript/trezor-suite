@@ -3351,6 +3351,10 @@ export const messages = {
             error: 'Failed to confirm transaction. Try again.',
             date: 'Date',
             exploreInBlockchain: 'Explore in blockchain',
+            approvalPendingAlert:
+                'Your approval is still processing. When confirmed, you’ll be able to use this approval with the same provider.',
+            revocationPendingAlert:
+                'Your revocation is still processing. When confirmed, the provider will no longer be able to spend your tokens.',
         },
         exchangeApprovalLimitSheet: {
             title: 'Set limit',
@@ -3641,6 +3645,11 @@ export const messages = {
         },
     },
     transactionManagement: {
+        stayOnScreenAlert: {
+            title: 'Leave this screen?',
+            removeButton: 'Leave',
+            stayButton: 'Stay',
+        },
         networkReserveBanner: {
             title: 'We’ve reserved {amount} {displaySymbol} to cover any extra network fees.',
             buttonTitle: 'Manage',
