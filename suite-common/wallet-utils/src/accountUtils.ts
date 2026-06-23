@@ -791,12 +791,18 @@ export type AccountSearchParams = {
 
     /** Return true if the account has token that match the search string */
     tokensMatch?: boolean;
+
+    /**
+     * Pre-filtered list of visible (non-hidden, non-unverified) tokens to search against.
+     * When provided, replaces account.tokens so that hidden/spam tokens are excluded from search.
+     */
+    searchableTokens?: TokenInfo[];
 };
 
 export const accountSearchFn = (
     account: Account,
     rawSearchString: string | undefined,
-    { coinsFilter, accountLabel, tokensMatch = true }: AccountSearchParams,
+    { coinsFilter, accountLabel, tokensMatch = true, searchableTokens }: AccountSearchParams,
 ) => {
     let coinsFilterArray: NetworkSymbol[] = [];
 
@@ -842,13 +848,13 @@ export const accountSearchFn = (
 
     // filter tokens by search string and balance greater than zero
     const filterTokens = (token: TokenInfo) =>
-        [token.name, token.symbol, token.contract].some(
-            field =>
-                field?.toLowerCase().includes(searchString) &&
-                new BigNumber(token.balance || '0').gt(0),
+        new BigNumber(token.balance || '0').gt(0) &&
+        [token.name, token.symbol, token.contract].some(field =>
+            field?.toLowerCase().includes(searchString),
         );
 
-    const tokenMatch = tokensMatch && !!account.tokens?.some(filterTokens);
+    const tokens = searchableTokens ?? account.tokens;
+    const tokenMatch = tokensMatch && !!tokens?.some(filterTokens);
 
     return (
         accountNumberMatch ||
