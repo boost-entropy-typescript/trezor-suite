@@ -1,27 +1,43 @@
 import { useNavigation } from '@react-navigation/native';
 
+import { type ServerType, getNetwork } from '@suite-common/wallet-config';
 import { useAlert } from '@suite-native/alerts';
 import { Button, Card, HStack, InlineAlertText, Select, Text, VStack } from '@suite-native/atoms';
 import { Form, TextInputField } from '@suite-native/forms';
 import { Icon } from '@suite-native/icons';
 import { Translation, useTranslate } from '@suite-native/intl';
-import { DynamicScreenHeader, Screen } from '@suite-native/navigation';
+import {
+    DynamicScreenHeader,
+    Screen,
+    type SettingsStackParamList,
+    type SettingsStackRoutes,
+    type StackProps,
+} from '@suite-native/navigation';
 
 import { ConnectionInfoButton } from '../components/ConnectionInfoButton';
-import { type ServerType, useBackendServersForm } from '../hooks/useBackendServersForm';
+import { useBackendServersForm } from '../hooks/useBackendServersForm';
 
-export const BitcoinBackendsScreen = () => {
+export const NetworkBackendsScreen = ({
+    route,
+}: StackProps<SettingsStackParamList, SettingsStackRoutes.SettingsNetworkBackends>) => {
     const { showAlert } = useAlert();
     const { translate } = useTranslate();
     const navigation = useNavigation();
 
-    const { form, serverTypes, isConnected, isConnecting, submit, discard } =
-        useBackendServersForm();
+    const network = getNetwork(route.params.networkSymbol);
+    const {
+        form,
+        serverTypes,
+        selectedServerType,
+        setServerType,
+        serverAddressExample,
+        isConnected,
+        isConnecting,
+        submit,
+        discard,
+    } = useBackendServersForm(network);
 
     const { isDirty } = form.formState;
-    const serverType = form.watch('serverType');
-    const setServerType = (value: ServerType) =>
-        form.setValue('serverType', value, { shouldDirty: true });
 
     const discardChanges = () => {
         discard();
@@ -31,19 +47,17 @@ export const BitcoinBackendsScreen = () => {
     const closeAction = () => {
         if (isDirty) {
             showAlert({
-                title: (
-                    <Translation id="moduleSettings.advanced.bitcoinBackends.closeAction.title" />
-                ),
+                title: <Translation id="moduleSettings.networkBackends.closeAction.title" />,
                 description: (
-                    <Translation id="moduleSettings.advanced.bitcoinBackends.closeAction.description" />
+                    <Translation id="moduleSettings.networkBackends.closeAction.description" />
                 ),
                 primaryButtonTitle: (
-                    <Translation id="moduleSettings.advanced.bitcoinBackends.closeAction.discardButton" />
+                    <Translation id="moduleSettings.networkBackends.closeAction.discardButton" />
                 ),
                 primaryButtonColorProps: { intent: 'critical', priority: 'primary' },
                 onPressPrimaryButton: discardChanges,
                 secondaryButtonTitle: (
-                    <Translation id="moduleSettings.advanced.bitcoinBackends.closeAction.continueEditingButton" />
+                    <Translation id="moduleSettings.networkBackends.closeAction.continueEditingButton" />
                 ),
                 secondaryButtonColorProps: { intent: 'critical', priority: 'secondary' },
             });
@@ -56,11 +70,14 @@ export const BitcoinBackendsScreen = () => {
         <Screen
             header={
                 <DynamicScreenHeader
-                    title={<Translation id="moduleSettings.advanced.bitcoinBackends.title" />}
-                    subtitle={
-                        <Translation id="moduleSettings.advanced.bitcoinBackends.description" />
+                    title={
+                        <Translation
+                            id="moduleSettings.networkBackends.title"
+                            values={{ networkName: network.name }}
+                        />
                     }
-                    rightIcon={<ConnectionInfoButton />}
+                    subtitle={<Translation id="moduleSettings.networkBackends.description" />}
+                    rightIcon={<ConnectionInfoButton network={network} />}
                     closeAction={closeAction}
                 />
             }
@@ -71,35 +88,39 @@ export const BitcoinBackendsScreen = () => {
                         <HStack>
                             <Icon name="database" size="mediumLarge" />
                             <Text variant="body-md">
-                                <Translation id="moduleSettings.advanced.bitcoinBackends.servers.title" />
+                                <Translation id="moduleSettings.networkBackends.servers.title" />
                             </Text>
                         </HStack>
                         {!isDirty &&
                             (isConnected ? (
                                 <InlineAlertText variant="success">
-                                    <Translation id="moduleSettings.advanced.bitcoinBackends.servers.status.connected" />
+                                    <Translation id="moduleSettings.networkBackends.servers.status.connected" />
                                 </InlineAlertText>
                             ) : (
                                 <InlineAlertText variant="critical">
-                                    <Translation id="moduleSettings.advanced.bitcoinBackends.servers.status.disconnected" />
+                                    <Translation id="moduleSettings.networkBackends.servers.status.disconnected" />
                                 </InlineAlertText>
                             ))}
                     </HStack>
                     <Form form={form}>
                         <Select<ServerType>
                             title={
-                                <Translation id="moduleSettings.advanced.bitcoinBackends.servers.serverType" />
+                                <Translation id="moduleSettings.networkBackends.servers.serverType.label" />
                             }
                             items={serverTypes}
-                            value={serverType}
+                            value={selectedServerType}
                             onSelectItem={setServerType}
                             isLabelShown
                         />
-                        {serverType === 'electrum' && (
+                        {selectedServerType !== 'default' && (
                             <TextInputField
                                 name="serverAddress"
                                 label={translate(
-                                    'moduleSettings.advanced.bitcoinBackends.servers.serverAddress',
+                                    'moduleSettings.networkBackends.servers.serverAddress.label',
+                                )}
+                                hint={translate(
+                                    'moduleSettings.networkBackends.servers.serverAddress.hint',
+                                    { example: serverAddressExample },
                                 )}
                                 autoCapitalize="none"
                                 keyboardType="url"
@@ -107,7 +128,7 @@ export const BitcoinBackendsScreen = () => {
                         )}
                         {(isDirty || !isConnected) && (
                             <Button onPress={submit} isLoading={isConnecting}>
-                                <Translation id="moduleSettings.advanced.bitcoinBackends.servers.connectButton" />
+                                <Translation id="moduleSettings.networkBackends.servers.connectButton" />
                             </Button>
                         )}
                     </Form>

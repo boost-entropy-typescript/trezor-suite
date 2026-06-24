@@ -1,10 +1,10 @@
 import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { UpdateState } from '@suite/desktop-update';
-import { Translation } from '@suite/intl';
+import { Translation, type TranslationKey } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
 import { selectSelectedDevice } from '@suite-common/device';
 import { isDevEnv } from '@suite-common/suite-utils';
-import { Box, Column, Icon, IconCircle, Paragraph, Row } from '@trezor/components';
+import { Box, CardList, Column, Icon, IconCircle, Row, Text } from '@trezor/components';
 import { getFirmwareVersion } from '@trezor/device-utils';
 import { isDesktop } from '@trezor/env-utils';
 import { TREZOR_FORUM_URL } from '@trezor/urls';
@@ -19,7 +19,11 @@ import {
 import { SupportConsentPopover } from 'src/components/guide/SupportConsentPopover';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
-import { GuideItem } from './GuideItem';
+const StatusText = ({ id }: { id: TranslationKey }) => (
+    <Text typographyStyle="body-sm" intent="neutral" priority="secondary" as="div">
+        <Translation id={id} />
+    </Text>
+);
 
 export const SupportFeedbackSelection = () => {
     const { analytics } = useServices(selectDesktopAnalyticsDep);
@@ -30,13 +34,55 @@ export const SupportFeedbackSelection = () => {
     const appUpToDate =
         isDesktop() &&
         [UpdateState.Checking, UpdateState.NotAvailable].includes(desktopUpdate.state);
+    const appUpdateAvailable =
+        isDesktop() &&
+        [UpdateState.Available, UpdateState.Downloading, UpdateState.Ready].includes(
+            desktopUpdate.state,
+        );
+    const appVersion = `${process.env.VERSION}${isDevEnv ? '-dev' : ''}`;
 
+    const isDeviceConnected = !!device?.features;
     const firmwareUpToDate = device?.firmware === 'valid';
-    const firmwareVersion = device?.features ? (
-        getFirmwareVersion(device) || <Translation id="TR_DEVICE_FW_UNKNOWN" />
-    ) : (
-        <Translation id="TR_DEVICE_NOT_CONNECTED" />
-    );
+    const getFirmwareVersionLabel = () => {
+        if (!device?.features) {
+            return '-/-';
+        }
+
+        const version = getFirmwareVersion(device);
+
+        if (!version) {
+            return <Translation id="TR_DEVICE_FW_UNKNOWN" />;
+        }
+
+        return <Translation id="TR_YOUR_CURRENT_VERSION" values={{ version }} />;
+    };
+
+    const getAppStatusId = (): TranslationKey | null => {
+        if (appUpToDate) {
+            return 'TR_UP_TO_DATE';
+        }
+
+        if (appUpdateAvailable) {
+            return 'TR_UPDATE_AVAILABLE';
+        }
+
+        return null;
+    };
+
+    const getFirmwareStatusId = (): TranslationKey | null => {
+        if (firmwareUpToDate) {
+            return 'TR_UP_TO_DATE';
+        }
+
+        if (!isDeviceConnected) {
+            return 'TR_GUIDE_SUPPORT_DEVICE_DISCONNECTED';
+        }
+
+        return null;
+    };
+
+    const appStatusId = getAppStatusId();
+    const firmwareStatusId = getFirmwareStatusId();
 
     const goBack = () => dispatch(setView('GUIDE_DEFAULT'));
     const handleBugButtonClick = () => {
@@ -61,124 +107,178 @@ export const SupportFeedbackSelection = () => {
                 label={<Translation id="TR_GUIDE_VIEW_HEADLINES_SUPPORT_FEEDBACK_SELECTION" />}
             />
             <GuideContent>
-                <Box margin={{ bottom: 16 }}>
-                    <GuideSectionHeadline id="TR_GUIDE_VIEW_HEADLINE_HELP_US_IMPROVE" />
-                    <Column gap={12}>
-                        <GuideItem
-                            onClick={handleBugButtonClick}
-                            data-testid="@guide/feedback/bug"
-                            icon={<IconCircle name="lifebuoy" size={32} intent="neutral" />}
-                        >
-                            <Column gap={4} justifyContent="space-between">
-                                <Translation id="TR_BUG" />
-                                <Paragraph
-                                    typographyStyle="body-sm"
-                                    intent="neutral"
-                                    priority="secondary"
+                <Column justifyContent="space-between" height="100%">
+                    <Box flex="1">
+                        <Box margin={{ bottom: 16 }}>
+                            <GuideSectionHeadline id="TR_GUIDE_VIEW_HEADLINE_HELP_US_IMPROVE" />
+                            <CardList>
+                                <CardList.Item
+                                    paddingType="medium"
+                                    onClick={handleBugButtonClick}
+                                    data-testid="@guide/feedback/bug"
                                 >
-                                    <Translation id="TR_GUIDE_BUG_LABEL" />
-                                </Paragraph>
-                            </Column>
-                        </GuideItem>
-                        <GuideItem
-                            onClick={handleFeedbackButtonClick}
-                            data-testid="@guide/feedback/suggestion"
-                            icon={<IconCircle name="megaphone" size={32} intent="neutral" />}
-                        >
-                            <Column gap={4} justifyContent="space-between">
-                                <Translation id="TR_SUGGESTION" />
-                                <Paragraph
-                                    typographyStyle="body-sm"
-                                    intent="neutral"
-                                    priority="secondary"
+                                    <Row gap={16} flex="1" overflow="hidden">
+                                        <IconCircle name="bugBeetle" size={32} intent="neutral" />
+                                        <Column gap={4} alignItems="flex-start" overflow="hidden">
+                                            <Text
+                                                typographyStyle="body-md"
+                                                as="div"
+                                                maxWidth="100%"
+                                            >
+                                                <Translation id="TR_BUG" />
+                                            </Text>
+                                            <Text
+                                                typographyStyle="body-sm"
+                                                intent="neutral"
+                                                priority="secondary"
+                                                as="div"
+                                                maxWidth="100%"
+                                            >
+                                                <Translation id="TR_GUIDE_BUG_LABEL" />
+                                            </Text>
+                                        </Column>
+                                    </Row>
+                                    <Icon
+                                        name="caretRight"
+                                        size={20}
+                                        intent="neutral"
+                                        priority="secondary"
+                                    />
+                                </CardList.Item>
+                                <CardList.Item
+                                    paddingType="medium"
+                                    onClick={handleFeedbackButtonClick}
+                                    data-testid="@guide/feedback/suggestion"
                                 >
-                                    <Translation id="TR_GUIDE_SUGGESTION_LABEL" />
-                                </Paragraph>
-                            </Column>
-                        </GuideItem>
-                    </Column>
-                </Box>
+                                    <Row gap={16} flex="1" overflow="hidden">
+                                        <IconCircle name="megaphone" size={32} intent="neutral" />
+                                        <Column gap={4} alignItems="flex-start" overflow="hidden">
+                                            <Text
+                                                typographyStyle="body-md"
+                                                as="div"
+                                                maxWidth="100%"
+                                            >
+                                                <Translation id="TR_SUGGESTION" />
+                                            </Text>
+                                            <Text
+                                                typographyStyle="body-sm"
+                                                intent="neutral"
+                                                priority="secondary"
+                                                as="div"
+                                                maxWidth="100%"
+                                            >
+                                                <Translation id="TR_GUIDE_SUGGESTION_LABEL" />
+                                            </Text>
+                                        </Column>
+                                    </Row>
+                                    <Icon
+                                        name="caretRight"
+                                        size={20}
+                                        intent="neutral"
+                                        priority="secondary"
+                                    />
+                                </CardList.Item>
+                            </CardList>
+                        </Box>
 
-                <Box>
-                    <GuideSectionHeadline id="TR_GUIDE_VIEW_HEADLINE_NEED_HELP" />
-                    <Column gap={12}>
-                        <SupportConsentPopover>
-                            <GuideItem onClick={() => {}} data-testid="@guide/support">
-                                <Row gap={8} justifyContent="space-between">
-                                    <Translation id="TR_GUIDE_SUPPORT" />
-                                    <Icon name="arrowLineUpRight" size={20} />
-                                </Row>
-                            </GuideItem>
-                        </SupportConsentPopover>
+                        <Box>
+                            <GuideSectionHeadline id="TR_GUIDE_VIEW_HEADLINE_NEED_HELP" />
+                            <CardList>
+                                <SupportConsentPopover>
+                                    <CardList.Item
+                                        paddingType="medium"
+                                        onClick={() => {}}
+                                        data-testid="@guide/support"
+                                        width="100%"
+                                    >
+                                        <Row gap={16} flex="1" overflow="hidden">
+                                            <IconCircle
+                                                name="lifebuoy"
+                                                size={32}
+                                                intent="neutral"
+                                            />
+                                            <Text
+                                                typographyStyle="body-md"
+                                                as="div"
+                                                maxWidth="100%"
+                                            >
+                                                <Translation id="TR_GUIDE_SUPPORT" />
+                                            </Text>
+                                        </Row>
+                                        <Icon
+                                            name="arrowLineUpRight"
+                                            size={20}
+                                            intent="neutral"
+                                            priority="secondary"
+                                        />
+                                    </CardList.Item>
+                                </SupportConsentPopover>
 
-                        <GuideItem
-                            onClick={() => window.open(TREZOR_FORUM_URL, '_blank')}
-                            data-testid="@guide/forum"
-                        >
-                            <Row gap={8} justifyContent="space-between">
-                                <Translation id="TR_GUIDE_FORUM" />
-                                <Icon name="arrowLineUpRight" size={20} />
+                                <CardList.Item
+                                    paddingType="medium"
+                                    onClick={() => window.open(TREZOR_FORUM_URL, '_blank')}
+                                    data-testid="@guide/forum"
+                                >
+                                    <Row gap={16} flex="1" overflow="hidden">
+                                        <IconCircle name="chats" size={32} intent="neutral" />
+                                        <Text typographyStyle="body-md" as="div" maxWidth="100%">
+                                            <Translation id="TR_GUIDE_FORUM" />
+                                        </Text>
+                                    </Row>
+                                    <Icon
+                                        name="arrowLineUpRight"
+                                        size={20}
+                                        intent="neutral"
+                                        priority="secondary"
+                                    />
+                                </CardList.Item>
+                            </CardList>
+                        </Box>
+                    </Box>
+                    <CardList margin={{ bottom: 16 }}>
+                        <CardList.Item data-testid="@guide/support/version" paddingType="medium">
+                            <Row justifyContent="space-between" width="100%" alignItems="flex-end">
+                                <Column gap={4} alignItems="flex-start" overflow="hidden">
+                                    <Text typographyStyle="body-md" as="div" maxWidth="100%">
+                                        <Translation id="TR_APPLICATION" />
+                                    </Text>
+                                    <Text
+                                        typographyStyle="body-sm"
+                                        intent="neutral"
+                                        priority="secondary"
+                                        as="div"
+                                        maxWidth="100%"
+                                    >
+                                        <Translation
+                                            id="TR_YOUR_CURRENT_VERSION"
+                                            values={{ version: appVersion }}
+                                        />
+                                    </Text>
+                                </Column>
+                                {!!appStatusId && <StatusText id={appStatusId} />}
                             </Row>
-                        </GuideItem>
-                    </Column>
-                </Box>
-
-                <Row
-                    gap={16}
-                    margin={{ top: 20 }}
-                    alignItems="center"
-                    justifyContent="space-around"
-                >
-                    <Paragraph
-                        data-testid="@guide/support/version"
-                        typographyStyle="body-xs"
-                        intent="neutral"
-                        priority="secondary"
-                    >
-                        <Translation id="TR_APP" />
-                        :&nbsp;
-                        {!isDevEnv && appUpToDate ? (
-                            <>
-                                <Icon
-                                    size={12}
-                                    margin={{ horizontal: 4 }}
-                                    name="check"
-                                    intent="neutral"
-                                    priority="secondary"
-                                />
-                                <Translation id="TR_UP_TO_DATE" />
-                            </>
-                        ) : (
-                            <>
-                                {process.env.VERSION}
-                                {isDevEnv && '-dev'}
-                            </>
-                        )}
-                    </Paragraph>
-                    <Paragraph
-                        data-testid="@guide/support/firmware"
-                        typographyStyle="body-xs"
-                        intent="neutral"
-                        priority="secondary"
-                    >
-                        <Translation id="TR_FIRMWARE" />
-                        :&nbsp;
-                        {firmwareUpToDate ? (
-                            <>
-                                <Icon
-                                    size={12}
-                                    margin={{ horizontal: 4 }}
-                                    name="check"
-                                    intent="neutral"
-                                    priority="secondary"
-                                />
-                                <Translation id="TR_UP_TO_DATE" />
-                            </>
-                        ) : (
-                            firmwareVersion
-                        )}
-                    </Paragraph>
-                </Row>
+                        </CardList.Item>
+                        <CardList.Item data-testid="@guide/support/firmware" paddingType="medium">
+                            <Row justifyContent="space-between" width="100%" alignItems="flex-end">
+                                <Column gap={4} alignItems="flex-start" overflow="hidden">
+                                    <Text typographyStyle="body-md" as="div" maxWidth="100%">
+                                        <Translation id="TR_FIRMWARE" />
+                                    </Text>
+                                    <Text
+                                        typographyStyle="body-sm"
+                                        intent="neutral"
+                                        priority="secondary"
+                                        as="div"
+                                        maxWidth="100%"
+                                    >
+                                        {getFirmwareVersionLabel()}
+                                    </Text>
+                                </Column>
+                                {!!firmwareStatusId && <StatusText id={firmwareStatusId} />}
+                            </Row>
+                        </CardList.Item>
+                    </CardList>
+                </Column>
             </GuideContent>
         </GuideViewWrapper>
     );
