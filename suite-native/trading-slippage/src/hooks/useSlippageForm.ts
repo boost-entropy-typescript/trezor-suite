@@ -1,12 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 
 import {
     SLIPPAGE_MAX,
     SLIPPAGE_MIN,
     type SlippageFormValues,
+    TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
     getSlippageFormValidationSchema,
-    selectTradingMaxSlippagePercentage,
 } from '@suite-common/trading';
 import { yup } from '@suite-common/validators';
 import { useForm } from '@suite-native/forms';
@@ -22,7 +21,6 @@ type UseSlippageFormRet = {
 
 export const useSlippageForm = (): UseSlippageFormRet => {
     const { translate } = useTranslate();
-    const defaultSlippage = useSelector(selectTradingMaxSlippagePercentage);
 
     const validationSchema = useMemo(
         () =>
@@ -40,23 +38,22 @@ export const useSlippageForm = (): UseSlippageFormRet => {
     );
 
     const form = useForm<SlippageFormValues>({
-        defaultValues: { slippage: defaultSlippage },
+        defaultValues: { slippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT },
         validation: validationSchema,
+        mode: 'onChange',
     });
 
     const {
         setValue,
-        trigger,
         formState: { isValid },
         handleSubmit,
     } = form;
 
     const handlePresetPress = useCallback(
         (preset: string) => {
-            setValue('slippage', preset);
-            trigger('slippage');
+            setValue('slippage', preset, { shouldValidate: true });
         },
-        [setValue, trigger],
+        [setValue],
     );
 
     return { isValid, handlePresetPress, handleSubmit, form };
