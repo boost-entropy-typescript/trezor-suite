@@ -8,7 +8,8 @@ import {
     address,
     appendTransactionMessageInstruction,
     appendTransactionMessageInstructions,
-    assertTransactionIsFullySigned,
+    assertIsFullySignedTransaction,
+    assertIsSendableTransaction,
     createNoopSigner,
     createTransactionMessage,
     decompileTransactionMessageFetchingLookupTables,
@@ -16,8 +17,8 @@ import {
     getCompiledTransactionMessageDecoder,
     getSignatureFromTransaction,
     getTransactionDecoder,
-    isDurableNonceTransaction,
     isSolanaError,
+    isTransactionMessageWithDurableNonceLifetime,
     lamports,
     prependTransactionMessageInstructions,
     sendAndConfirmTransactionFactory,
@@ -38,10 +39,10 @@ import { BigNumber } from '@trezor/utils';
 import { SYSTEM_PROGRAM_PUBLIC_KEY, tokenProgramsInfo } from '../constants';
 import type {
     Blockhash,
-    CompilableTransactionMessage,
     SolanaAPI,
     TokenProgramName,
     TransactionMessage,
+    TransactionMessageWithFeePayer,
 } from '../types';
 import { createTransactionShim } from './shim';
 
@@ -111,7 +112,7 @@ export const buildTransferTransaction = (
         }),
         messageWithLifetime,
     );
-    let messageWithFees: CompilableTransactionMessage = addPriorityFees(
+    let messageWithFees: TransactionMessage & TransactionMessageWithFeePayer = addPriorityFees(
         messageWithTransfer,
         priorityFees,
     );
@@ -180,14 +181,16 @@ export const buildCreateAssociatedTokenAccountInstruction = async (
         tokenProgramName,
     );
 
-    const txInstruction = getCreateAssociatedTokenInstruction({
-        ata: associatedTokenAccountAddress,
-        mint: address(tokenMintAddress),
-        owner: address(newOwnerAddress),
-        payer: createNoopSigner(address(funderAddress)),
-    });
-    // @ts-expect-error - we are overriding this due to FW compatibility issue, it expects [] instead of [0]
-    txInstruction.data = new Uint8Array([]);
+    const txInstruction = {
+        ...getCreateAssociatedTokenInstruction({
+            ata: associatedTokenAccountAddress,
+            mint: address(tokenMintAddress),
+            owner: address(newOwnerAddress),
+            payer: createNoopSigner(address(funderAddress)),
+        }),
+        // Override data due to FW compatibility issue: expects [] instead of [0]
+        data: new Uint8Array([]),
+    };
 
     return [txInstruction, associatedTokenAccountAddress] as const;
 };
@@ -261,7 +264,10 @@ export const buildTokenTransferTransaction = async (
         },
         messageBase,
     );
-    let message: CompilableTransactionMessage = addPriorityFees(messageWithLifetime, priorityFees);
+    let message: TransactionMessage & TransactionMessageWithFeePayer = addPriorityFees(
+        messageWithLifetime,
+        priorityFees,
+    );
 
     // Token transaction building logic
 
@@ -345,11 +351,12 @@ export const buildTokenTransferTransaction = async (
 const preparePushTransaction = async (rawTx: string, api: SolanaAPI) => {
     const txByteArray = getBase16Encoder().encode(rawTx);
     const transaction = getTransactionDecoder().decode(txByteArray);
-    assertTransactionIsFullySigned(transaction);
+    assertIsFullySignedTransaction(transaction);
+    assertIsSendableTransaction(transaction);
 
     const compiledMessage = getCompiledTransactionMessageDecoder().decode(transaction.messageBytes);
     const message = await decompileTransactionMessageFetchingLookupTables(compiledMessage, api.rpc);
-    if (isDurableNonceTransaction(message)) {
+    if (isTransactionMessageWithDurableNonceLifetime(message)) {
         // TODO: Handle durable nonce transactions.
         throw new Error('Unimplemented: Confirming durable nonce transactions');
     }

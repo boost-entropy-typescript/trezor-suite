@@ -6,7 +6,7 @@ import { type RouteProp, useIsFocused, useNavigation, useRoute } from '@react-na
 import { getNetwork } from '@suite-common/wallet-config';
 import { getYieldApprovalAction, stablecoinYieldActions } from '@suite-common/wallet-core';
 import { isPositiveBalance } from '@suite-common/wallet-utils';
-import { Box, VStack, useBottomSheetModal } from '@suite-native/atoms';
+import { Box, FullAlertBox, VStack, useBottomSheetModal } from '@suite-native/atoms';
 import { Form } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
 import {
@@ -69,7 +69,7 @@ export const YieldDepositApprovalScreen = () => {
         flowKey,
         token,
         tokenSymbol,
-        vault,
+        vaultTokenSymbol,
         vaultTokenName,
         resolutionStatus,
     } = resolvedFlowData;
@@ -248,7 +248,7 @@ export const YieldDepositApprovalScreen = () => {
                     closeAction={handleCloseApproval}
                     onInfoPress={openInfoBottomSheet}
                     tokenContract={route.params.tokenContract}
-                    vaultName={vault.metadata.name}
+                    vaultName={vaultTokenName}
                 />
             }
             footer={
@@ -294,6 +294,17 @@ export const YieldDepositApprovalScreen = () => {
                             />
                         </Box>
 
+                        {footerApprovalAction === 'revoke' && (
+                            <Box paddingHorizontal="sp16">
+                                <FullAlertBox
+                                    variant="warning"
+                                    title={
+                                        <Translation id="earn.yieldDepositFlowScreen.alerts.approvalIncreaseRequiresRevoke.title" />
+                                    }
+                                />
+                            </Box>
+                        )}
+
                         <Box paddingHorizontal="sp16">
                             <FeeSelector
                                 accountKey={account.key}
@@ -324,7 +335,7 @@ export const YieldDepositApprovalScreen = () => {
                     title={
                         <Translation id="moduleTrading.tradingConfirmationScreen.approveTitle" />
                     }
-                    vaultName={vault.metadata.name}
+                    vaultName={vaultTokenName}
                     vaultTokenContract={route.params.tokenContract}
                 />
             )}
@@ -333,7 +344,7 @@ export const YieldDepositApprovalScreen = () => {
                 apy={apy}
                 onClose={handleCloseInfoBottomSheet}
                 tokenSymbol={tokenSymbol}
-                vaultTokenName={vaultTokenName}
+                vaultTokenSymbol={vaultTokenSymbol}
             />
             <YieldDepositApprovalLimitBottomSheet
                 ref={approvalLimitBottomSheetRef}

@@ -29,7 +29,7 @@ import {
     useBottomSheetModal,
 } from '@suite-native/atoms';
 import { useCryptoFiatConverters } from '@suite-native/formatters';
-import { decimalTransformer } from '@suite-native/helpers';
+import { decimalTransformer, truncateDecimals } from '@suite-native/helpers';
 import { Translation, useTranslate } from '@suite-native/intl';
 import {
     Screen,
@@ -105,6 +105,7 @@ export const YieldWithdrawScreen = () => {
         resolutionStatus,
         depositedSharesAmount: resolvedDepositedSharesAmount,
         vault,
+        vaultTokenSymbol: resolvedVaultTokenSymbol,
         vaultTokenName,
     } = useResolvedYieldFlowData(route.params);
 
@@ -313,7 +314,12 @@ export const YieldWithdrawScreen = () => {
     };
 
     const handleAmountChange = (value: string) => {
-        const transformedValue = decimalTransformer(value);
+        if (!flowData) {
+            return;
+        }
+
+        const inputToken = getYieldWithdrawInputToken({ flowData, flowType });
+        const transformedValue = truncateDecimals(decimalTransformer(value), inputToken.decimals);
 
         if (!transformedValue) {
             setAssetAmount('');
@@ -423,7 +429,7 @@ export const YieldWithdrawScreen = () => {
                     closeAction={handleClose}
                     onInfoPress={openInfoBottomSheet}
                     tokenContract={headerTokenContract}
-                    vaultName={vault.metadata.name}
+                    vaultName={vaultTokenName}
                 />
             }
             footer={
@@ -550,7 +556,7 @@ export const YieldWithdrawScreen = () => {
                     onExplorePress={openInBlockchain}
                     submittedAt={new Date(actionPendingTransaction.submittedAt ?? 0)}
                     title={<Translation id="earn.yieldWithdrawFlowScreen.withdrawPendingTitle" />}
-                    vaultName={vault.metadata.name}
+                    vaultName={vaultTokenName}
                     vaultTokenContract={vaultTokenContract}
                 />
             )}
@@ -560,7 +566,7 @@ export const YieldWithdrawScreen = () => {
                 apy={apy}
                 onClose={handleCloseInfoBottomSheet}
                 tokenSymbol={underlyingTokenSymbol}
-                vaultTokenName={vaultTokenName}
+                vaultTokenSymbol={resolvedVaultTokenSymbol}
             />
         </Screen>
     );

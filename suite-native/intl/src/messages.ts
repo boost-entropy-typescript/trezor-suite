@@ -2775,7 +2775,7 @@ export const messages = {
                         'Most rewards compound automatically—some must be claimed manually.',
                 },
                 third: {
-                    title: 'Deposit {tokenSymbol} to receive {vaultTokenName}',
+                    title: 'Deposit {tokenSymbol} to receive {vaultTokenSymbol}',
                     description: 'This is your vault position.',
                 },
             },
@@ -2792,7 +2792,7 @@ export const messages = {
                     description: 'Network fee',
                 },
                 third: {
-                    title: 'Earn rewards as your assets grow in value',
+                    title: 'Receive {vaultTokenSymbol}',
                     description: '~{apy}% APY',
                 },
             },
@@ -2879,6 +2879,9 @@ export const messages = {
                 approvalTooLow: {
                     title: 'Approval is too low. Change approval or lower amount to supply.',
                     primaryButton: 'Change approval',
+                },
+                approvalIncreaseRequiresRevoke: {
+                    title: 'To increase your approval, you must first revoke the current allowance.',
                 },
                 transactionFailed: {
                     title: 'Transaction failed',
@@ -3121,6 +3124,7 @@ export const messages = {
         notAvailable: 'Not available',
         apyNotAvailable: 'APY not available',
         apyPercentage: '~{apy}% APY',
+        aprPercentage: '~{apy}% APR',
         notAvailableShort: 'N/A',
         stakePendingCard: {
             totalStakePending: 'Total stake pending',

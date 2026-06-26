@@ -23,22 +23,29 @@ import { COMPUTE_BUDGET_PROGRAM_ID, SOL_BASE_FEE, STAKE_ACCOUNT_V2_SIZE } from '
 import type {
     Address,
     Base64EncodedWireTransaction,
-    CompilableTransactionMessage,
-    CompiledTransactionMessage,
+    CompiledTransactionMessageWithLifetime,
     GetFeeForMessageApi,
     GetRecentPrioritizationFeesApi,
+    LegacyCompiledTransactionMessage,
     Rpc,
     SignaturesMap,
     SimulateTransactionApi,
     SolanaAPI,
     TokenProgramName,
+    TransactionMessage,
     TransactionMessageBytes,
     TransactionMessageBytesBase64,
+    TransactionMessageWithFeePayer,
+    V0CompiledTransactionMessage,
 } from '../types';
 
 const DEFAULT_COMPUTE_UNIT_PRICE_MICROLAMPORTS = BigInt(300_000); // micro-lamports, value taken from other wallets
 
-const stripComputeBudgetInstructions = (message: CompiledTransactionMessage) => ({
+type CompiledTransactionMessageV0OrLegacy =
+    | LegacyCompiledTransactionMessage
+    | V0CompiledTransactionMessage;
+
+const stripComputeBudgetInstructions = (message: CompiledTransactionMessageV0OrLegacy) => ({
     ...message,
     // Remove ComputeBudget instructions from the message when estimating the base fee
     // since the exact priority fees are computed separately and getFeeForMessage also
@@ -52,8 +59,8 @@ const stripComputeBudgetInstructions = (message: CompiledTransactionMessage) => 
 // increase compute unit limit to maximum for priority fee simulation
 // avoid simulation fail in case instructions are wrong (e.g. from backend)
 const bumpUnitLimitComputeBudgetInstructions = (
-    message: CompiledTransactionMessage,
-): CompiledTransactionMessage => ({
+    message: CompiledTransactionMessageV0OrLegacy,
+): CompiledTransactionMessageV0OrLegacy => ({
     ...message,
     instructions: message.instructions.map(ix => {
         if (
@@ -71,7 +78,10 @@ const bumpUnitLimitComputeBudgetInstructions = (
     }),
 });
 
-const getBaseFee = async (api: Rpc<GetFeeForMessageApi>, message: CompiledTransactionMessage) => {
+const getBaseFee = async (
+    api: Rpc<GetFeeForMessageApi>,
+    message: CompiledTransactionMessageV0OrLegacy,
+) => {
     const messageWithoutComputeBudget = pipe(
         stripComputeBudgetInstructions(message),
         getCompiledTransactionMessageEncoder().encode,
@@ -88,8 +98,8 @@ const getBaseFee = async (api: Rpc<GetFeeForMessageApi>, message: CompiledTransa
 // https://solana.com/developers/guides/advanced/how-to-use-priority-fees#how-do-i-estimate-priority-fees
 const getPriorityFee = async (
     api: Rpc<GetRecentPrioritizationFeesApi & SimulateTransactionApi>,
-    decompiledMessage: CompilableTransactionMessage,
-    compiledMessage: CompiledTransactionMessage,
+    decompiledMessage: TransactionMessage & TransactionMessageWithFeePayer,
+    compiledMessage: CompiledTransactionMessageV0OrLegacy,
     signatures: SignaturesMap,
 ) => {
     const affectedAccounts = new Set<Address>(
@@ -176,7 +186,10 @@ export const getFees = async (
     api: SolanaAPI,
 ) => {
     const transaction = pipe(messageHex, getBase16Encoder().encode, getTransactionDecoder().decode);
-    const message = pipe(transaction.messageBytes, getCompiledTransactionMessageDecoder().decode);
+    const message = pipe(
+        transaction.messageBytes,
+        getCompiledTransactionMessageDecoder().decode,
+    ) as CompiledTransactionMessageV0OrLegacy & CompiledTransactionMessageWithLifetime;
 
     const decompiledTransactionMessage = await decompileTransactionMessageFetchingLookupTables(
         message,

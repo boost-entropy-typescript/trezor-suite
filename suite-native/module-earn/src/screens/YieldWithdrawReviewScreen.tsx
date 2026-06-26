@@ -11,18 +11,17 @@ import {
     selectFormDraft,
     selectStablecoinYieldSessionByFlowKey,
 } from '@suite-common/wallet-core';
-import { type FormState, isFinalPrecomposedTransaction } from '@suite-common/wallet-types';
+import { type FormState } from '@suite-common/wallet-types';
 import {
     type StackNavigationProps,
     type YieldStackParamList,
     YieldStackRoutes,
 } from '@suite-native/navigation';
-import { type NativeSendRootState, selectFeeLevels } from '@suite-native/transaction-management';
 
 import { YieldWithdrawReviewContent } from '../components/YieldWithdrawReviewContent';
 import { useResolvedYieldFlowData } from '../hooks/useResolvedYieldFlowData';
 import { buildYieldReviewPreview } from '../utils/yieldReviewOutputUtils';
-import { getSelectedEvmFeeFromPrecomposedTransaction } from '../utils/yieldSelectedFeeUtils';
+import { getSelectedEvmFeeFromFormDraft } from '../utils/yieldSelectedFeeUtils';
 import { getYieldWithdrawFormDraftKey } from '../utils/yieldWithdrawUtils';
 
 type RouteProps = RouteProp<YieldStackParamList, YieldStackRoutes.YieldWithdrawReview>;
@@ -34,7 +33,9 @@ type NavigationProps = StackNavigationProps<
 export const YieldWithdrawReviewScreen = () => {
     const route = useRoute<RouteProps>();
     const navigation = useNavigation<NavigationProps>();
-    const { flowData, flowKey, resolutionStatus } = useResolvedYieldFlowData(route.params);
+    const { flowData, flowKey, resolutionStatus, vaultTokenName } = useResolvedYieldFlowData(
+        route.params,
+    );
     const device = useSelector(selectSelectedDevice);
     const flowType = route.params.withdrawFlowType ?? 'withdraw';
     const session = useSelector((state: StablecoinYieldRootState) =>
@@ -44,7 +45,6 @@ export const YieldWithdrawReviewScreen = () => {
     const formDraft = useSelector((state: FormDraftRootState) =>
         formDraftKey ? selectFormDraft<FormState>(state, formDraftKey) : undefined,
     );
-    const feeLevels = useSelector((state: NativeSendRootState) => selectFeeLevels(state));
     const actionReview = session?.action.review;
     const review = useMemo(
         () =>
@@ -63,18 +63,16 @@ export const YieldWithdrawReviewScreen = () => {
 
         return getYieldWithdrawInputToken({ flowData, flowType });
     }, [flowData, flowType]);
-    const selectedFeePreview = formDraft?.selectedFee
-        ? feeLevels[formDraft.selectedFee]
-        : undefined;
-    const selectedFee = useMemo(
-        () =>
-            getSelectedEvmFeeFromPrecomposedTransaction(
-                isFinalPrecomposedTransaction(selectedFeePreview) ? selectedFeePreview : undefined,
-            ),
-        [selectedFeePreview],
-    );
+    const selectedFee = useMemo(() => getSelectedEvmFeeFromFormDraft(formDraft), [formDraft]);
     const preview = useMemo(() => {
-        if (!review || !device || !flowData || !reviewToken) {
+        if (
+            !review ||
+            !device ||
+            !flowData ||
+            !reviewToken ||
+            !selectedFee ||
+            vaultTokenName === null
+        ) {
             return null;
         }
 
@@ -85,8 +83,9 @@ export const YieldWithdrawReviewScreen = () => {
             reviewToken,
             selectedFee,
             type: 'withdraw',
+            vaultName: vaultTokenName,
         });
-    }, [device, flowData, review, reviewToken, selectedFee]);
+    }, [device, flowData, review, reviewToken, selectedFee, vaultTokenName]);
 
     useEffect(() => {
         if (resolutionStatus !== 'resolved') {
@@ -99,10 +98,10 @@ export const YieldWithdrawReviewScreen = () => {
             return;
         }
 
-        if (!review || session?.step !== 'action') {
+        if (!review || !selectedFee || session?.step !== 'action') {
             navigation.navigate(YieldStackRoutes.YieldWithdraw, route.params);
         }
-    }, [navigation, resolutionStatus, review, route.params, session?.step]);
+    }, [navigation, resolutionStatus, review, route.params, selectedFee, session?.step]);
 
     if (resolutionStatus !== 'resolved' || !flowData || !review || !reviewToken || !preview) {
         return null;
