@@ -69,6 +69,14 @@ export const messages = defineMessages({
         defaultMessage: "Account doesn't exist",
         id: 'TR_ACCOUNT_EXCEPTION_NOT_EXIST',
     },
+    TR_EARN_APY: {
+        id: 'TR_EARN_APY',
+        defaultMessage: 'APY',
+    },
+    TR_EARN_APR: {
+        id: 'TR_EARN_APR',
+        defaultMessage: 'APR',
+    },
     TR_EARN_YIELD_VAULT_NOT_EXIST: {
         defaultMessage: "Vault doesn't exist",
         id: 'TR_EARN_YIELD_VAULT_NOT_EXIST',
@@ -9933,6 +9941,10 @@ export const messages = defineMessages({
         id: 'TR_EARN_DASHBOARD_TABLE_APY',
         defaultMessage: 'APY',
     },
+    TR_EARN_DASHBOARD_TABLE_RATE: {
+        id: 'TR_EARN_DASHBOARD_TABLE_RATE',
+        defaultMessage: 'Rate',
+    },
     TR_EARN_DASHBOARD_TABLE_YEARLY_REWARDS: {
         id: 'TR_EARN_DASHBOARD_TABLE_YEARLY_REWARDS',
         defaultMessage: 'Your yearly rewards',
@@ -9972,6 +9984,10 @@ export const messages = defineMessages({
     TR_EARN_STAKING_DASHBOARD_OUTDATED_PROVIDER: {
         id: 'TR_EARN_STAKING_DASHBOARD_OUTDATED_PROVIDER',
         defaultMessage: 'Update to Everstake and earn ~{apy}% APY',
+    },
+    TR_EARN_STAKING_DASHBOARD_REMAINING_VOTES: {
+        id: 'TR_EARN_STAKING_DASHBOARD_REMAINING_VOTES',
+        defaultMessage: 'Vote with all votes to earn ~{apr}% APR',
     },
     TR_STAKING_BANNER_DETAIL_TITLE: {
         id: 'TR_STAKING_BANNER_DETAIL_TITLE',
@@ -10824,6 +10840,10 @@ export const messages = defineMessages({
     TR_STAKE_APY: {
         id: 'TR_STAKE_APY',
         defaultMessage: 'Annual Percentage Yield',
+    },
+    TR_STAKE_APR: {
+        id: 'TR_STAKE_APR',
+        defaultMessage: 'Annual Percentage Rate',
     },
     TR_STAKE_APY_ABBR: {
         id: 'TR_STAKE_APY_ABBR',
