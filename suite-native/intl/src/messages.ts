@@ -2919,6 +2919,10 @@ export const messages = {
             maximumFee: 'Maximum fee',
             feeToBeCalculated: 'To be calculated',
             amountExceedsSupplied: 'The amount exceeds your supplied balance.',
+            validation: {
+                amountIsZero: 'Amount must be greater than 0.',
+                tooManyDecimals: 'Too many decimals.',
+            },
         },
         yieldClaimFlowScreen: {
             title: 'Claim rewards',
@@ -2933,20 +2937,23 @@ export const messages = {
         yieldDepositApprovalReviewScreen: {
             title: 'Review with Trezor',
             successMessage: "You're all set",
+            submitButton: 'Approve',
         },
         yieldDepositRevokeReviewScreen: {
             title: 'Review with Trezor',
             successMessage: 'Revoke approval transaction signed',
+            submitButton: 'Revoke',
         },
         yieldDepositReviewScreen: {
             title: 'Review with Trezor',
             successMessage: "You're all set",
-            submitButton: 'Deposit now',
+            submitButton: 'Deposit',
         },
         yieldWithdrawReviewScreen: {
             title: 'Review with Trezor',
             successMessage: "You're all set.",
-            submitButton: 'Withdraw now',
+            submitButton: 'Withdraw',
+            redeemSubmitButton: 'Redeem',
         },
         yieldClaimReviewScreen: {
             title: 'Review with Trezor',
