@@ -11,7 +11,7 @@
         "type-check": "yarn g:tsc --build"
     },
     "dependencies": {
-        "@gorhom/bottom-sheet": "5.2.8",
+        "@gorhom/bottom-sheet": "5.2.9",
         "@react-navigation/native": "7.1.28",
         "@reduxjs/toolkit": "2.12.0",
         "@suite-common/dependency-injection": "workspace:*",
@@ -29,9 +29,9 @@
         "@suite-native/navigation": "workspace:*",
         "@trezor/connect": "workspace:*",
         "@trezor/styles-native": "workspace:*",
-        "react": "19.2.4",
-        "react-native": "0.83.2",
-        "react-native-reanimated": "~4.2.1",
+        "react": "19.2.3",
+        "react-native": "0.85.3",
+        "react-native-reanimated": "4.3.1",
         "react-redux": "9.3.0"
     }
 }

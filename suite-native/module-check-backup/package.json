@@ -32,8 +32,8 @@
         "@trezor/device-utils": "workspace:*",
         "@trezor/styles-native": "workspace:*",
         "@trezor/urls": "workspace:*",
-        "react": "19.2.4",
-        "react-native-reanimated": "~4.2.1",
+        "react": "19.2.3",
+        "react-native-reanimated": "4.3.1",
         "react-redux": "9.3.0"
     },
     "devDependencies": {
