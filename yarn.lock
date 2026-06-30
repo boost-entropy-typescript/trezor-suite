@@ -11630,6 +11630,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     "@trezor/theme": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
     jotai: "npm:2.17.1"
     react: "npm:19.2.3"
     react-native: "npm:0.85.3"
@@ -16524,7 +16525,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     node-fetch: "npm:^3.3.2"
     socks-proxy-agent: "npm:8.0.5"
-    ts-node: "npm:^10.9.2"
+    tsx: "npm:^4.21.0"
     ws: "npm:^8.20.0"
   languageName: unknown
   linkType: soft
