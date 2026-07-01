@@ -34,11 +34,11 @@ export const messages = defineMessages({
         id: 'TR_ACCOUNT_EXCEPTION_DISCOVERY_EMPTY',
     },
     TR_DASHBOARD_ACTIVATE_ASSETS_DESC: {
-        defaultMessage: 'Add the coins you want to use.',
+        defaultMessage: 'Add the networks you want to use.',
         id: 'TR_DASHBOARD_ACTIVATE_ASSETS_DESC',
     },
     TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_TITLE: {
-        defaultMessage: 'Add your coins',
+        defaultMessage: 'Add your networks',
         id: 'TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_TITLE',
     },
     TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_DESC: {
@@ -46,7 +46,7 @@ export const messages = defineMessages({
         id: 'TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_DESC',
     },
     TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_NOTE: {
-        defaultMessage: 'Change your coins anytime in Settings.',
+        defaultMessage: 'Change your networks anytime in Settings.',
         id: 'TR_DASHBOARD_MODAL_ACTIVATE_ASSETS_NOTE',
     },
     TR_ACCOUNT_EXCEPTION_DISCOVERY_EMPTY_DESC: {
@@ -1877,7 +1877,7 @@ export const messages = defineMessages({
         id: 'TR_COIN_DISCOVERY_LOADER_DESCRIPTION',
     },
     TR_COINS: {
-        defaultMessage: 'Coins',
+        defaultMessage: 'Networks',
         id: 'TR_COINS',
     },
     TR_SEARCH_NETWORK: {
@@ -3560,7 +3560,7 @@ export const messages = defineMessages({
         id: 'TR_TESTNET_COINS',
     },
     TR_TESTNET_COINS_LABEL: {
-        defaultMessage: 'TEST COIN',
+        defaultMessage: 'TEST NETWORK',
         id: 'TR_TESTNET_COINS_LABEL',
     },
     TR_UNSUPPORTED_COINS: {
@@ -3568,7 +3568,7 @@ export const messages = defineMessages({
         id: 'TR_UNSUPPORTED_COINS',
     },
     TR_UNSUPPORTED_COINS_DESCRIPTION: {
-        defaultMessage: 'These coins are supported on Trezor Safe devices and Trezor Model T.',
+        defaultMessage: 'These networks are supported on Trezor Safe devices and Trezor Model T.',
         id: 'TR_UNSUPPORTED_COINS_DESCRIPTION',
     },
     TR_THIS_HIDDEN_WALLET_IS_EMPTY_SOURCE: {
@@ -4604,11 +4604,11 @@ export const messages = defineMessages({
     },
     TR_ACTIVATED_COINS: {
         id: 'TR_ACTIVATED_COINS',
-        defaultMessage: 'Add account to active coin',
+        defaultMessage: 'Add account to active network',
     },
     TR_INACTIVE_COINS: {
         id: 'TR_INACTIVE_COINS',
-        defaultMessage: 'Activate coin and add account',
+        defaultMessage: 'Activate network and add account',
     },
     TR_ACTIVATION_IN_PROGRESS_BANNER: {
         id: 'TR_ACTIVATION_IN_PROGRESS_BANNER',
@@ -5137,7 +5137,7 @@ export const messages = defineMessages({
     TR_SWITCH_FIRMWARE_NO_BACKUP: {
         id: 'TR_SWITCH_FIRMWARE_NO_BACKUP',
         defaultMessage:
-            "You may lose access to your coins on this wallet without a wallet backup. If you're confident that this wallet is empty, proceed, but do so at your own risk.",
+            "You may lose access to your assets on this wallet without a wallet backup. If you're confident that this wallet is empty, proceed, but do so at your own risk.",
     },
     TR_SWITCH_FIRMWARE_NO_BACKUP_2: {
         id: 'TR_SWITCH_FIRMWARE_NO_BACKUP_2',
@@ -5653,6 +5653,10 @@ export const messages = defineMessages({
     TR_TRON_TX_VOTE_WITNESS: {
         id: 'TR_TRON_TX_VOTE_WITNESS',
         defaultMessage: 'Vote witness',
+    },
+    TR_TRON_TX_VOTED_VOTES: {
+        id: 'TR_TRON_TX_VOTED_VOTES',
+        defaultMessage: 'Voted with {votes} {votes, plural, one {vote} other {votes}}',
     },
     TR_TRON_TX_FREEZE_BALANCE: {
         id: 'TR_TRON_TX_FREEZE_BALANCE',
@@ -6890,7 +6894,7 @@ export const messages = defineMessages({
     },
     TR_OTHER_COINS_USE_DEFAULT_BACKEND: {
         id: 'TR_OTHER_COINS_USE_DEFAULT_BACKEND',
-        defaultMessage: 'Other coins use their own default backend',
+        defaultMessage: 'Other networks use their own default backend',
     },
     TR_USE_DEFAULT_BACKENDS: {
         id: 'TR_USE_DEFAULT_BACKENDS',
@@ -7044,7 +7048,7 @@ export const messages = defineMessages({
     },
     TR_ENABLE_MORE_COINS: {
         id: 'TR_ENABLE_MORE_COINS',
-        defaultMessage: 'Add coins',
+        defaultMessage: 'Add networks',
     },
     TR_BACKUP_RECOVERY_SEED_FAILED_TITLE: {
         id: 'TR_BACKUP_RECOVERY_SEED_FAILED_TITLE',
@@ -8128,21 +8132,21 @@ export const messages = defineMessages({
     },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE',
-        defaultMessage: 'Turn off device authenticity check',
+        defaultMessage: 'Device authenticity check',
     },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE_DISABLED: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_TITLE_DISABLED',
-        defaultMessage: 'Turn on device authenticity check',
+        defaultMessage: 'Device authenticity check',
     },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION',
         defaultMessage:
-            "Device authenticity check is a vital security feature that keeps you safe from potentially using a fake or compromised device. We don't recommend turning it off.",
+            'Checks that your connected device is a genuine Trezor before you use it in Trezor Suite.',
     },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION_DISABLED: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_DESCRIPTION_DISABLED',
         defaultMessage:
-            'Device authenticity check is a vital security feature that keeps you safe from potentially using a fake or compromised device. We strongly recommend turning it on.',
+            'Trezor Suite will not check whether your connected device is a genuine Trezor. You could use a fake or tampered device without a warning.',
     },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON',
@@ -8177,21 +8181,21 @@ export const messages = defineMessages({
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE',
-        defaultMessage: 'Turn off firmware authenticity check',
+        defaultMessage: 'Firmware authenticity check',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE_DISABLED: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_TITLE_DISABLED',
-        defaultMessage: 'Turn on firmware authenticity check',
+        defaultMessage: 'Firmware authenticity check',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION',
         defaultMessage:
-            'Verify that installed firmware is genuine and trusted. We strongly recommend keeping this feature turned on.',
+            'Checks that your Trezor is using genuine Trezor firmware before you use it in Trezor Suite.',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION_DISABLED: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_DESCRIPTION_DISABLED',
         defaultMessage:
-            "Ensure that your firmware is legitimate. Compromised firmware won't be able to communicate with Trezor Suite.",
+            'Trezor Suite will not check whether the firmware on your Trezor is genuine. You could use modified or unofficial firmware without a warning.',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON',
@@ -8374,7 +8378,7 @@ export const messages = defineMessages({
     TR_SEEDLESS_SETUP_IS_NOT_SUPPORTED_DESCRIPTION: {
         id: 'TR_SEEDLESS_SETUP_IS_NOT_SUPPORTED_DESCRIPTION',
         defaultMessage:
-            "Devices set up in seedless mode can't access Trezor Suite to prevent irreversible coin loss, which can occur if a device is used incorrectly.",
+            "Devices set up in seedless mode can't access Trezor Suite to prevent irreversible asset loss, which can occur if a device is used incorrectly.",
     },
     TR_FORMAT: {
         id: 'TR_FORMAT',
@@ -8931,7 +8935,7 @@ export const messages = defineMessages({
     TR_UTXO_REGISTERED_IN_COINJOIN_RBF_WARNING: {
         id: 'TR_UTXO_REGISTERED_IN_COINJOIN_RBF_WARNING',
         description: 'Warning in coinjoin rbf form',
-        defaultMessage: 'Your coins are in use. Turn off the coinjoin first.',
+        defaultMessage: 'Your networks are in use. Turn off the coinjoin first.',
     },
     TR_BREAKING_ANONYMITY_CHECKBOX: {
         id: 'TR_BREAKING_ANONYMITY_CHECKBOX',
@@ -8978,12 +8982,12 @@ export const messages = defineMessages({
     TR_SEND_NOT_ANONYMIZED_COINS: {
         id: 'TR_SEND_NOT_ANONYMIZED_COINS',
         description: 'Send button text in coinjoin account when low-anonymity UTXOs are selected',
-        defaultMessage: 'Send non-private coins',
+        defaultMessage: 'Send non-private assets',
     },
     TR_SIGN_WITH_NOT_ANONYMIZED_COINS: {
         id: 'TR_SIGN_WITH_NOT_ANONYMIZED_COINS',
         description: 'Sign button text in coinjoin account when low-anonymity UTXOs are selected',
-        defaultMessage: 'Sign with non-private coins',
+        defaultMessage: 'Sign with non-private assets',
     },
     TR_YOU_SHOULD_ANONYMIZE: {
         id: 'TR_YOU_SHOULD_ANONYMIZE',
@@ -9701,7 +9705,7 @@ export const messages = defineMessages({
     },
     TR_DISCOVERY_NEW_COINS: {
         id: 'TR_DISCOVERY_NEW_COINS',
-        defaultMessage: 'Load coins',
+        defaultMessage: 'Load networks',
     },
     TR_EVM_EXPLANATION_TITLE: {
         id: 'TR_EVM_EXPLANATION_TITLE',
@@ -10106,6 +10110,10 @@ export const messages = defineMessages({
         id: 'TR_STAKING_CARD_TITLE',
         defaultMessage: 'Earn ~{apy}% APY by staking your {displaySymbol}',
     },
+    TR_STAKING_CARD_TITLE_TRON: {
+        id: 'TR_STAKING_CARD_TITLE_TRON',
+        defaultMessage: 'Earn ~{apr}% APR by staking your {displaySymbol}',
+    },
     TR_STAKING_NEW_PROVIDER_TITLE: {
         id: 'TR_STAKING_NEW_PROVIDER_TITLE',
         defaultMessage: 'Earn ~{apy}% APY with our new provider',
@@ -10181,9 +10189,38 @@ export const messages = defineMessages({
         defaultMessage:
             'Stake your full balance and start earning rewards. Your {displaySymbol} stay in your account, ready to use anytime—while helping to secure the network.',
     },
+    TR_STAKING_CARD_TEXT_TRON: {
+        id: 'TR_STAKING_CARD_TEXT_TRON',
+        defaultMessage:
+            'Freeze your TRX to earn staking rewards and get resources that reduce fees on your transactions.',
+    },
     TR_STAKING_CARD_START_STAKING: {
         id: 'TR_STAKING_CARD_START_STAKING',
         defaultMessage: 'Start staking',
+    },
+    TR_STAKING_CARD_GET_RESOURCES_TITLE: {
+        id: 'TR_STAKING_CARD_GET_RESOURCES_TITLE',
+        defaultMessage: 'Get resources',
+    },
+    TR_STAKING_CARD_GET_RESOURCES_TEXT: {
+        id: 'TR_STAKING_CARD_GET_RESOURCES_TEXT',
+        defaultMessage: 'Get additional energy or bandwidth for your transactions.',
+    },
+    TR_STAKING_CARD_FREEZE_AND_VOTE_TITLE: {
+        id: 'TR_STAKING_CARD_FREEZE_AND_VOTE_TITLE',
+        defaultMessage: 'Freeze and vote',
+    },
+    TR_STAKING_CARD_FREEZE_AND_VOTE_TEXT: {
+        id: 'TR_STAKING_CARD_FREEZE_AND_VOTE_TEXT',
+        defaultMessage: 'Freeze your funds and vote for representatives to start earning yield.',
+    },
+    TR_STAKING_CARD_UNSTAKE_ANYTIME_TITLE: {
+        id: 'TR_STAKING_CARD_UNSTAKE_ANYTIME_TITLE',
+        defaultMessage: 'Unstake anytime',
+    },
+    TR_STAKING_CARD_UNSTAKE_ANYTIME_TEXT: {
+        id: 'TR_STAKING_CARD_UNSTAKE_ANYTIME_TEXT',
+        defaultMessage: 'You can unstake anytime and withdraw your funds after 14 days.',
     },
     TR_STAKING_CARD_KEEP_EARNING_TITLE: {
         id: 'TR_STAKING_CARD_KEEP_EARNING_TITLE',
@@ -10498,6 +10535,30 @@ export const messages = defineMessages({
     TR_EARN_TRON_ASSIGN_VOTES_TOOLTIP: {
         id: 'TR_EARN_TRON_ASSIGN_VOTES_TOOLTIP',
         defaultMessage: 'Assign all votes to earn more rewards.',
+    },
+    TR_EARN_TRON_VOTE_ALLOCATION: {
+        id: 'TR_EARN_TRON_VOTE_ALLOCATION',
+        defaultMessage: 'Vote allocation',
+    },
+    TR_EARN_TRON_CHANGE_VOTES: {
+        id: 'TR_EARN_TRON_CHANGE_VOTES',
+        defaultMessage: 'Change votes',
+    },
+    TR_EARN_TRON_REPRESENTATIVE: {
+        id: 'TR_EARN_TRON_REPRESENTATIVE',
+        defaultMessage: 'Representative',
+    },
+    TR_EARN_TRON_REMAINING_VOTES_LABEL: {
+        id: 'TR_EARN_TRON_REMAINING_VOTES_LABEL',
+        defaultMessage: 'Remaining votes',
+    },
+    TR_EARN_TRON_ASSIGN_VOTES_BANNER: {
+        id: 'TR_EARN_TRON_ASSIGN_VOTES_BANNER',
+        defaultMessage: 'Assign all of your votes to earn more rewards.',
+    },
+    TR_EARN_TRON_NO_VOTES: {
+        id: 'TR_EARN_TRON_NO_VOTES',
+        defaultMessage: 'You haven’t voted for any representatives yet.',
     },
     TR_EARN_TRON_UNSTAKING: {
         id: 'TR_EARN_TRON_UNSTAKING',
@@ -12284,7 +12345,7 @@ export const messages = defineMessages({
     },
     TR_ASSET_PICKER_SEARCH_NO_RESULTS: {
         id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS',
-        defaultMessage: 'No coin or token found',
+        defaultMessage: 'No asset found',
     },
     TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION: {
         id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS_DESCRIPTION',
