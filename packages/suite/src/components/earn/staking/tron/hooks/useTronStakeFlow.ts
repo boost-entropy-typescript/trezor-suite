@@ -7,6 +7,7 @@ import { type Account } from '@suite-common/wallet-types';
 
 import { useDispatch } from 'src/hooks/suite';
 
+import { useTronAmountInput } from './useTronAmountInput';
 import { type TronStakeActions, useTronStakeActions } from './useTronStakeActions';
 import { useTronStakeForm } from './useTronStakeForm';
 import { useTronStakePendingTransactionTracking } from './useTronStakePendingTransactionTracking';
@@ -16,6 +17,7 @@ export interface TronStakeContextValues {
     representatives: UseQueryResult<TrxStats>;
     form: ReturnType<typeof useTronStakeForm>;
     actions: TronStakeActions;
+    amountInput: ReturnType<typeof useTronAmountInput>;
 }
 
 interface UseTronStakeFlowProps {
@@ -30,8 +32,12 @@ export const useTronStakeFlow = ({
     const dispatch = useDispatch();
     const { stats } = useTronStakingStats();
 
-    const form = useTronStakeForm({ account });
+    const form = useTronStakeForm({ account, flow });
     const actions = useTronStakeActions({ account, form, flow });
+
+    const { methods } = form;
+
+    const amountInput = useTronAmountInput({ account, methods });
 
     useTronStakePendingTransactionTracking({ account, flow });
 
@@ -49,5 +55,6 @@ export const useTronStakeFlow = ({
         representatives: stats,
         form,
         actions,
+        amountInput,
     };
 };

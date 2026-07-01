@@ -7,6 +7,7 @@ import type { Transport } from '@trezor/transport-common';
 import type { PartialRecord } from '@trezor/type-utils';
 import type { Logger } from '@trezor/utils';
 
+import type { CoinSymbol } from './coinInfo';
 import type { FirmwareChannel } from './firmware';
 
 export const Manifest = Type.Object({
@@ -45,7 +46,17 @@ export type CreateLogger = (prefix: string) => Logger;
 
 export type CreateLoggerDep = { createLogger?: CreateLogger };
 
-export interface ConnectSettingsPublic {
+// #23879 originally expected the permission system to extend this object with per-network
+// fields (e.g. `permissions`, `backends`). It went the other way: `EnabledNetwork` stayed a
+// minimal Core capability — it only drives `derive_cardano` at session create — orthogonal to
+// permissions, which are host-side authorization Core never reads. The two are linked by a
+// projection (the connect-popup maps a granted coin to an enabled network), not by merging
+// fields into this object.
+export interface EnabledNetwork {
+    coin: CoinSymbol;
+}
+
+export interface ConnectSettings {
     manifest?: Manifest;
     // Enables connect logs. NOTE: connect core no longer uses this to gate its COMPONENT loggers
     // (Core/Device/DeviceCommands/@trezor/transport) — those are driven by `createLogger`. It is still
@@ -67,26 +78,27 @@ export interface ConnectSettingsPublic {
     // enable firmware hash check automatically when device connects. Requires binFilesBaseUrl to be set.
     enableFirmwareHashCheck?: boolean;
     firmwareHashCheckTimeouts?: FirmwareHashCheckTimeouts;
-    thp?: ThpSettings;
-}
-
-// internal part, not to be accepted from .init()
-export interface ConnectSettingsInternal {
-    origin?: string;
-    configSrc: string;
-    popupSrc: string;
-    version: string;
-    npmVersion?: string;
-    priority: number;
-    extension?: string;
-    env: 'node' | 'web' | 'webextension' | 'electron' | 'react-native';
-    timestamp: number;
-    proxy?: Proxy;
-    localFirmwares?: LocalFirmwares;
     firmwareChannel?: FirmwareChannel;
+    localFirmwares?: LocalFirmwares;
+    thp?: ThpSettings;
+    enabledNetworks?: EnabledNetwork[];
 }
 
-export type ConnectSettings = ConnectSettingsPublic &
-    ConnectSettingsInternal &
-    // coreMode is a common parameter between these, so it is explicitly handled here for correct handling
-    { coreMode?: 'auto' | 'suite-desktop' | 'suite-web' | 'deeplink' };
+export type ConnectImplSettings = {
+    manifest: Manifest;
+    version: string;
+    env?: 'node' | 'web' | 'webextension' | 'electron' | 'react-native';
+    debug?: boolean;
+    enabledNetworks?: EnabledNetwork[];
+};
+
+export type ConnectDynamicSettings = Partial<ConnectImplSettings> & {
+    coreMode?: 'auto' | 'suite-desktop' | 'suite-web';
+};
+
+export interface ConnectMobileSettings {
+    manifest: Manifest;
+    connectSrc?: string;
+    deeplinkOpen: (url: string) => void;
+    deeplinkCallbackUrl: string;
+}

@@ -18,7 +18,11 @@ import {
     selectAccounts,
     selectDeviceAccounts,
 } from '@suite-common/wallet-core';
-import { type Account, type SelectedAccountStatus } from '@suite-common/wallet-types';
+import {
+    type Account,
+    type AccountKey,
+    type SelectedAccountStatus,
+} from '@suite-common/wallet-types';
 import { getSupportedCoins } from '@trezor/address-validator';
 import { exhaustive } from '@trezor/type-utils';
 import { unique } from '@trezor/utils';
@@ -184,7 +188,7 @@ export const selectTradingBuyInfo = createMemoizedSelector(
                 defaultAmountsOfFiatCurrencies,
             },
             supportedCryptoCurrencies: new Set(buyInfo.supportedCryptoCurrencies),
-            supportedFiatCurrencies: new Set(buyInfo.supportedFiatCurrencies as FiatCurrencyCode[]),
+            supportedFiatCurrencies: new Set(buyInfo.supportedFiatCurrencies),
         };
     },
 );
@@ -370,6 +374,18 @@ export const selectTradingSellSelectedQuote = (state: TradingRootState) =>
 
 export const selectTradingTrades = (state: TradingRootState) =>
     returnStableArrayIfEmpty(state.wallet.trading.trades);
+
+export const selectTradedAccountKeys = createMemoizedSelector([selectTradingTrades], trades =>
+    unique(
+        trades
+            .flatMap(trade => [
+                'selectedAccountKey' in trade ? trade.selectedAccountKey : undefined,
+                'receiveAccountKey' in trade ? trade.receiveAccountKey : undefined,
+                'sendAccountKey' in trade ? trade.sendAccountKey : undefined,
+            ])
+            .filter((key): key is AccountKey => !!key),
+    ),
+);
 
 export const selectTradingTradesForSelectedDevice = createMemoizedSelectorWithDeviceAndAccounts(
     [selectAccounts, state => state.wallet.selectedAccount, selectTradingTrades],

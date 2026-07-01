@@ -59,56 +59,111 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anthropic-ai/claude-code@npm:^2.1.89":
-  version: 2.1.97
-  resolution: "@anthropic-ai/claude-code@npm:2.1.97"
-  dependencies:
-    "@img/sharp-darwin-arm64": "npm:^0.34.2"
-    "@img/sharp-darwin-x64": "npm:^0.34.2"
-    "@img/sharp-linux-arm": "npm:^0.34.2"
-    "@img/sharp-linux-arm64": "npm:^0.34.2"
-    "@img/sharp-linux-x64": "npm:^0.34.2"
-    "@img/sharp-linuxmusl-arm64": "npm:^0.34.2"
-    "@img/sharp-linuxmusl-x64": "npm:^0.34.2"
-    "@img/sharp-win32-arm64": "npm:^0.34.2"
-    "@img/sharp-win32-x64": "npm:^0.34.2"
-  dependenciesMeta:
-    "@img/sharp-darwin-arm64":
-      optional: true
-    "@img/sharp-darwin-x64":
-      optional: true
-    "@img/sharp-linux-arm":
-      optional: true
-    "@img/sharp-linux-arm64":
-      optional: true
-    "@img/sharp-linux-x64":
-      optional: true
-    "@img/sharp-linuxmusl-arm64":
-      optional: true
-    "@img/sharp-linuxmusl-x64":
-      optional: true
-    "@img/sharp-win32-arm64":
-      optional: true
-    "@img/sharp-win32-x64":
-      optional: true
-  bin:
-    claude: cli.js
-  checksum: 10/f69d5c998311303c6eb84f84931ba5ca9289e8129f940cfbb70fcf3d1369e58cfc20e89d487497467971929feced9acd7e39695f3a8f3c5f47ad37a280dfc310
+"@anthropic-ai/claude-code-darwin-arm64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-darwin-arm64@npm:2.1.179"
+  conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@anthropic-ai/sdk@npm:^0.39.0":
-  version: 0.39.0
-  resolution: "@anthropic-ai/sdk@npm:0.39.0"
+"@anthropic-ai/claude-code-darwin-x64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-darwin-x64@npm:2.1.179"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-linux-arm64-musl@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-linux-arm64-musl@npm:2.1.179"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-linux-arm64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-linux-arm64@npm:2.1.179"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-linux-x64-musl@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-linux-x64-musl@npm:2.1.179"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-linux-x64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-linux-x64@npm:2.1.179"
+  conditions: os=linux & cpu=x64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-win32-arm64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-win32-arm64@npm:2.1.179"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code-win32-x64@npm:2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code-win32-x64@npm:2.1.179"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/claude-code@npm:^2.1.179":
+  version: 2.1.179
+  resolution: "@anthropic-ai/claude-code@npm:2.1.179"
   dependencies:
-    "@types/node": "npm:^18.11.18"
-    "@types/node-fetch": "npm:^2.6.4"
-    abort-controller: "npm:^3.0.0"
-    agentkeepalive: "npm:^4.2.1"
-    form-data-encoder: "npm:1.7.2"
-    formdata-node: "npm:^4.3.2"
-    node-fetch: "npm:^2.6.7"
-  checksum: 10/8f1cb2d6a797ed095503ceec4271347ba9ee101c020fe3f5080c6853a5f3a9fc874649fcd0e3ae584c33e58548368cf3fb1da167221172859a1dff1e8c3419f6
+    "@anthropic-ai/claude-code-darwin-arm64": "npm:2.1.179"
+    "@anthropic-ai/claude-code-darwin-x64": "npm:2.1.179"
+    "@anthropic-ai/claude-code-linux-arm64": "npm:2.1.179"
+    "@anthropic-ai/claude-code-linux-arm64-musl": "npm:2.1.179"
+    "@anthropic-ai/claude-code-linux-x64": "npm:2.1.179"
+    "@anthropic-ai/claude-code-linux-x64-musl": "npm:2.1.179"
+    "@anthropic-ai/claude-code-win32-arm64": "npm:2.1.179"
+    "@anthropic-ai/claude-code-win32-x64": "npm:2.1.179"
+  dependenciesMeta:
+    "@anthropic-ai/claude-code-darwin-arm64":
+      optional: true
+    "@anthropic-ai/claude-code-darwin-x64":
+      optional: true
+    "@anthropic-ai/claude-code-linux-arm64":
+      optional: true
+    "@anthropic-ai/claude-code-linux-arm64-musl":
+      optional: true
+    "@anthropic-ai/claude-code-linux-x64":
+      optional: true
+    "@anthropic-ai/claude-code-linux-x64-musl":
+      optional: true
+    "@anthropic-ai/claude-code-win32-arm64":
+      optional: true
+    "@anthropic-ai/claude-code-win32-x64":
+      optional: true
+  bin:
+    claude: bin/claude.exe
+  checksum: 10/8087c6380ca5f9c139e5ef86bb184087252d1909753079643f621b331e1e7acea76b78657bc2336e8a99af4301cab59898e463a8dd13f9be8d97229770f22788
+  languageName: node
+  linkType: hard
+
+"@anthropic-ai/sdk@npm:0.100.0":
+  version: 0.100.0
+  resolution: "@anthropic-ai/sdk@npm:0.100.0"
+  dependencies:
+    json-schema-to-ts: "npm:^3.1.1"
+    standardwebhooks: "npm:^1.0.0"
+  peerDependencies:
+    zod: ^3.25.0 || ^4.0.0
+  peerDependenciesMeta:
+    zod:
+      optional: true
+  bin:
+    anthropic-ai-sdk: bin/cli
+  checksum: 10/f7cb8a2e4bafd720dfc1b2f45760797f4e109b8173acfb2763a5c2d23ef5f20c05dfc0fd8f9d1c10c1ff3f92f62e432cf07ca679db1f7fd94ba2f6b2a6cf6e31
   languageName: node
   linkType: hard
 
@@ -4175,7 +4230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-darwin-arm64@npm:0.34.5, @img/sharp-darwin-arm64@npm:^0.34.2":
+"@img/sharp-darwin-arm64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-darwin-arm64@npm:0.34.5"
   dependencies:
@@ -4187,7 +4242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-darwin-x64@npm:0.34.5, @img/sharp-darwin-x64@npm:^0.34.2":
+"@img/sharp-darwin-x64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-darwin-x64@npm:0.34.5"
   dependencies:
@@ -4269,7 +4324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-linux-arm64@npm:0.34.5, @img/sharp-linux-arm64@npm:^0.34.2":
+"@img/sharp-linux-arm64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-linux-arm64@npm:0.34.5"
   dependencies:
@@ -4281,7 +4336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-linux-arm@npm:0.34.5, @img/sharp-linux-arm@npm:^0.34.2":
+"@img/sharp-linux-arm@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-linux-arm@npm:0.34.5"
   dependencies:
@@ -4329,7 +4384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-linux-x64@npm:0.34.5, @img/sharp-linux-x64@npm:^0.34.2":
+"@img/sharp-linux-x64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-linux-x64@npm:0.34.5"
   dependencies:
@@ -4341,7 +4396,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-linuxmusl-arm64@npm:0.34.5, @img/sharp-linuxmusl-arm64@npm:^0.34.2":
+"@img/sharp-linuxmusl-arm64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-linuxmusl-arm64@npm:0.34.5"
   dependencies:
@@ -4353,7 +4408,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-linuxmusl-x64@npm:0.34.5, @img/sharp-linuxmusl-x64@npm:^0.34.2":
+"@img/sharp-linuxmusl-x64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-linuxmusl-x64@npm:0.34.5"
   dependencies:
@@ -4374,7 +4429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-win32-arm64@npm:0.34.5, @img/sharp-win32-arm64@npm:^0.34.2":
+"@img/sharp-win32-arm64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-win32-arm64@npm:0.34.5"
   conditions: os=win32 & cpu=arm64
@@ -4388,7 +4443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@img/sharp-win32-x64@npm:0.34.5, @img/sharp-win32-x64@npm:^0.34.2":
+"@img/sharp-win32-x64@npm:0.34.5":
   version: 0.34.5
   resolution: "@img/sharp-win32-x64@npm:0.34.5"
   conditions: os=win32 & cpu=x64
@@ -4637,6 +4692,15 @@ __metadata:
   dependencies:
     "@jest/get-type": "npm:30.1.0"
   checksum: 10/766fd24f527a13004c542c2642b68b9142270801ab20bd448a559d9c2f40af079d0eb9ec9520a47f97b4d6c7d0837ba46e86284f53c939f11d9fcbda73a11e19
+  languageName: node
+  linkType: hard
+
+"@jest/expect-utils@npm:30.4.1":
+  version: 30.4.1
+  resolution: "@jest/expect-utils@npm:30.4.1"
+  dependencies:
+    "@jest/get-type": "npm:30.1.0"
+  checksum: 10/3f0337ec791d669cacd07594521f2da71b956712dfd0c0007253dd5e886ef640df510af1357878a80ac56f09d3db9fd68e3db66959f0fdb3add5f551dd7e0f35
   languageName: node
   linkType: hard
 
@@ -9938,6 +10002,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stablelib/base64@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "@stablelib/base64@npm:1.0.1"
+  checksum: 10/93f3edb05d5a828a775d23ebde49884abeb456b8946942acbe6a0815630e769c59c06c7275983031c8707bdcefc1c62917aaa99522ff1ec5f457704c83b686da
+  languageName: node
+  linkType: hard
+
 "@standard-schema/spec@npm:^1.0.0, @standard-schema/spec@npm:^1.1.0":
   version: 1.1.0
   resolution: "@standard-schema/spec@npm:1.1.0"
@@ -12493,7 +12564,6 @@ __metadata:
     react-native: "npm:0.85.3"
     react-native-reanimated: "npm:4.3.1"
     type-fest: "npm:5.5.0"
-    yup: "npm:1.7.1"
   languageName: unknown
   linkType: soft
 
@@ -15262,7 +15332,7 @@ __metadata:
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/trading": "workspace:*"
     "@suite/experimental": "workspace:*"
-    "@trezor/connect": "workspace:*"
+    "@trezor/connect-common": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/suite-desktop-api": "workspace:*"
   languageName: unknown
@@ -15815,7 +15885,7 @@ __metadata:
     "@trezor/react-utils": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/utils": "workspace:*"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/react-dom": "npm:19.2.3"
     "@vitejs/plugin-react": "npm:^6.0.1"
     date-fns: "npm:^4.1.0"
@@ -15913,7 +15983,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@trezor/utxo-lib": "workspace:*"
     "@trezor/websocket-client": "workspace:*"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
     "@types/web": "npm:^0.0.345"
     html-webpack-plugin: "npm:5.6.7"
@@ -16074,7 +16144,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@trezor/utxo-lib": "workspace:*"
     "@types/chrome": "npm:^0.1.40"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
   peerDependencies:
     tslib: ^2.6.2
@@ -16086,7 +16156,7 @@ __metadata:
   resolution: "@trezor/connect-data@workspace:packages/connect-data"
   dependencies:
     "@types/chrome": "npm:^0.1.40"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
   peerDependencies:
     "@trezor/device-utils": "workspace:*"
@@ -16230,7 +16300,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@trezor/websocket-client": "workspace:*"
     "@types/chrome": "npm:^0.1.40"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/w3c-web-usb": "npm:^1.0.14"
     "@types/web": "npm:^0.0.345"
     xvfb-maybe: "npm:^0.2.1"
@@ -16351,8 +16421,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/e2e-utils@workspace:packages/e2e-utils"
   dependencies:
-    "@anthropic-ai/claude-code": "npm:^2.1.89"
-    "@anthropic-ai/sdk": "npm:^0.39.0"
+    "@anthropic-ai/claude-code": "npm:^2.1.179"
+    "@anthropic-ai/sdk": "npm:0.100.0"
     "@currents/mcp": "npm:^2.3.2"
     "@currents/playwright": "npm:^2.1.4"
     "@octokit/rest": "npm:^21.1.1"
@@ -16548,7 +16618,7 @@ __metadata:
     "@sinclair/typebox": "npm:^0.34.49"
     "@sinclair/typebox-codegen": "npm:^0.11.1"
     "@trezor/eslint": "workspace:*"
-    "@trezor/type-utils": "workspace:*"
+    "@trezor/utils": "workspace:*"
     ts-mixer: "npm:^6.0.4"
     tsx: "npm:^4.21.0"
   peerDependencies:
@@ -17097,7 +17167,7 @@ __metadata:
     "@trezor/transport-common": "workspace:*"
     "@trezor/utils": "workspace:*"
     "@trezor/websocket-client": "workspace:*"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
     html-webpack-plugin: "npm:5.6.7"
     react: "npm:19.2.3"
@@ -17295,7 +17365,7 @@ __metadata:
   resolution: "@trezor/websocket-client@workspace:packages/websocket-client"
   dependencies:
     "@trezor/utils": "workspace:*"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
     "@types/web": "npm:^0.0.345"
     "@types/ws": "npm:^8.5.13"
@@ -17867,13 +17937,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.5.12":
-  version: 29.5.12
-  resolution: "@types/jest@npm:29.5.12"
+"@types/jest@npm:30.0.0":
+  version: 30.0.0
+  resolution: "@types/jest@npm:30.0.0"
   dependencies:
-    expect: "npm:^29.0.0"
-    pretty-format: "npm:^29.0.0"
-  checksum: 10/312e8dcf92cdd5a5847d6426f0940829bca6fe6b5a917248f3d7f7ef5d85c9ce78ef05e47d2bbabc40d41a930e0e36db2d443d2610a9e3db9062da2d5c904211
+    expect: "npm:^30.0.0"
+    pretty-format: "npm:^30.0.0"
+  checksum: 10/cdeaa924c68b5233d9ff92861a89e7042df2b0f197633729bcf3a31e65bd4e9426e751c5665b5ac2de0b222b33f100a5502da22aefce3d2c62931c715e88f209
   languageName: node
   linkType: hard
 
@@ -26810,7 +26880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expect@npm:^29.0.0, expect@npm:^29.7.0":
+"expect@npm:^29.7.0":
   version: 29.7.0
   resolution: "expect@npm:29.7.0"
   dependencies:
@@ -26820,6 +26890,20 @@ __metadata:
     jest-message-util: "npm:^29.7.0"
     jest-util: "npm:^29.7.0"
   checksum: 10/63f97bc51f56a491950fb525f9ad94f1916e8a014947f8d8445d3847a665b5471b768522d659f5e865db20b6c2033d2ac10f35fcbd881a4d26407a4f6f18451a
+  languageName: node
+  linkType: hard
+
+"expect@npm:^30.0.0":
+  version: 30.4.1
+  resolution: "expect@npm:30.4.1"
+  dependencies:
+    "@jest/expect-utils": "npm:30.4.1"
+    "@jest/get-type": "npm:30.1.0"
+    jest-matcher-utils: "npm:30.4.1"
+    jest-message-util: "npm:30.4.1"
+    jest-mock: "npm:30.4.1"
+    jest-util: "npm:30.4.1"
+  checksum: 10/f25051e5073c55369199ec3108ac01c60074bd09dad0b5a6c9fe40596438051cb52607e0e97505126422535b8d0dacab13aa29bb14e9fac71630bc710201a3f1
   languageName: node
   linkType: hard
 
@@ -27726,6 +27810,13 @@ __metadata:
   version: 2.1.1
   resolution: "fast-safe-stringify@npm:2.1.1"
   checksum: 10/dc1f063c2c6ac9533aee14d406441f86783a8984b2ca09b19c2fe281f9ff59d315298bc7bc22fd1f83d26fe19ef2f20e2ddb68e96b15040292e555c5ced0c1e4
+  languageName: node
+  linkType: hard
+
+"fast-sha256@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "fast-sha256@npm:1.3.0"
+  checksum: 10/3bef0491f10a254348ec11dcddb26e4d951cfd3b4c0662ea5843ad1be3fe184ed74d640df68565fcc60f6437548cddf49e3ac886f88a69e05b5142e862840bf9
   languageName: node
   linkType: hard
 
@@ -31907,6 +31998,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-matcher-utils@npm:30.4.1, jest-matcher-utils@npm:^30.0.5":
+  version: 30.4.1
+  resolution: "jest-matcher-utils@npm:30.4.1"
+  dependencies:
+    "@jest/get-type": "npm:30.1.0"
+    chalk: "npm:^4.1.2"
+    jest-diff: "npm:30.4.1"
+    pretty-format: "npm:30.4.1"
+  checksum: 10/4da6e5c7fe5903fae7394233ea4b892567fb027065670c03096d01be0b389f858055c5ade20d59e82fedec6f3287e6f1720de526cd9a9ad3495432320adb9194
+  languageName: node
+  linkType: hard
+
 "jest-matcher-utils@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-matcher-utils@npm:29.7.0"
@@ -31916,18 +32019,6 @@ __metadata:
     jest-get-type: "npm:^29.6.3"
     pretty-format: "npm:^29.7.0"
   checksum: 10/981904a494299cf1e3baed352f8a3bd8b50a8c13a662c509b6a53c31461f94ea3bfeffa9d5efcfeb248e384e318c87de7e3baa6af0f79674e987482aa189af40
-  languageName: node
-  linkType: hard
-
-"jest-matcher-utils@npm:^30.0.5":
-  version: 30.4.1
-  resolution: "jest-matcher-utils@npm:30.4.1"
-  dependencies:
-    "@jest/get-type": "npm:30.1.0"
-    chalk: "npm:^4.1.2"
-    jest-diff: "npm:30.4.1"
-    pretty-format: "npm:30.4.1"
-  checksum: 10/4da6e5c7fe5903fae7394233ea4b892567fb027065670c03096d01be0b389f858055c5ade20d59e82fedec6f3287e6f1720de526cd9a9ad3495432320adb9194
   languageName: node
   linkType: hard
 
@@ -31991,6 +32082,17 @@ __metadata:
     "@types/node": "npm:*"
     jest-util: "npm:30.3.0"
   checksum: 10/9d2a9e52c2aebc486e9accaf641efa5c6589666e883b5ac1987261d0e2c105a06b885c22aeeb1cd7582e421970c95e34fe0b41bc4a8c06d7e3e4c27651e76ad1
+  languageName: node
+  linkType: hard
+
+"jest-mock@npm:30.4.1":
+  version: 30.4.1
+  resolution: "jest-mock@npm:30.4.1"
+  dependencies:
+    "@jest/types": "npm:30.4.1"
+    "@types/node": "npm:*"
+    jest-util: "npm:30.4.1"
+  checksum: 10/8d0c2794130217b9030b888ce380fe57d82388eec19351bd666440ba46f1e24a7e2bdf42cbe9bcfda2b881d4c0ea09db3c80131b9ab788fb5224af2a1339b422
   languageName: node
   linkType: hard
 
@@ -32761,6 +32863,16 @@ __metadata:
     smtp-address-parser: "npm:1.0.10"
     valid-url: "npm:^1.0.9"
   checksum: 10/c78e0fb2a925767ff900081e3ff604b070d0a214be2388f241d43737b613af64ecddf0476f0752a10c10c3b56644e5062f3dac34507c6a17b4d8ae9fbf6fa823
+  languageName: node
+  linkType: hard
+
+"json-schema-to-ts@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "json-schema-to-ts@npm:3.1.1"
+  dependencies:
+    "@babel/runtime": "npm:^7.18.3"
+    ts-algebra: "npm:^2.0.0"
+  checksum: 10/9fd0490279d36ff8b4604cc10632df05e4e5f5ee1d0a77841c927623fc1e636c47eb4ace488018c4e9a2e7e5dde5520d0870e06dfc84b930d9c98c6eacd0f041
   languageName: node
   linkType: hard
 
@@ -39158,7 +39270,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.4.1, pretty-format@npm:^30.0.5":
+"pretty-format@npm:30.4.1, pretty-format@npm:^30.0.0, pretty-format@npm:^30.0.5":
   version: 30.4.1
   resolution: "pretty-format@npm:30.4.1"
   dependencies:
@@ -39193,7 +39305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^29.0.0, pretty-format@npm:^29.7.0":
+"pretty-format@npm:^29.7.0":
   version: 29.7.0
   resolution: "pretty-format@npm:29.7.0"
   dependencies:
@@ -43032,6 +43144,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"standardwebhooks@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "standardwebhooks@npm:1.0.0"
+  dependencies:
+    "@stablelib/base64": "npm:^1.0.0"
+    fast-sha256: "npm:^1.3.0"
+  checksum: 10/02b74a3e4cd131affe8bf18945360747a5a0bf81c1d62a7bbbea3d40976b4fef4bb37de71a35cdc0fdc4d6f0d951a3b6031052e78bd086dc9b09b629b82d3919
+  languageName: node
+  linkType: hard
+
 "stat-mode@npm:^1.0.0":
   version: 1.0.0
   resolution: "stat-mode@npm:1.0.0"
@@ -44507,7 +44629,7 @@ __metadata:
     "@swc/core": "npm:^1.15.40"
     "@swc/jest": "npm:^0.2.39"
     "@trezor/eslint": "workspace:*"
-    "@types/jest": "npm:29.5.12"
+    "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"
     babel-jest: "npm:30.0.0"
     depcheck: "npm:^1.4.7"
@@ -44527,6 +44649,8 @@ __metadata:
     typescript-eslint: "npm:^8.60.0"
     version-bump-prompt: "npm:^6.1.0"
   dependenciesMeta:
+    "@anthropic-ai/claude-code":
+      built: true
     "@bufbuild/buf":
       built: true
     "@parcel/watcher":
@@ -44593,6 +44717,13 @@ __metadata:
   dependencies:
     utf8-byte-length: "npm:^1.0.1"
   checksum: 10/366e47a0e22cc271d37eb4e62820453fb877784b55b37218842758b7aa1d402eedd0f8833cfb5d6f7a6cae1535d84289bd5e32c4ee962d2a86962fb7038a6983
+  languageName: node
+  linkType: hard
+
+"ts-algebra@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ts-algebra@npm:2.0.0"
+  checksum: 10/b970eef64ca9594a77337e03b9c1732c1b7a0d2c4d316638b654e921a47b40c4cc42f41821445e9e54408d5dfdf4ecca27ffa59554373033b9c92dee8b52066d
   languageName: node
   linkType: hard
 

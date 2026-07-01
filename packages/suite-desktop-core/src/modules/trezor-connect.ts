@@ -1,13 +1,12 @@
 import { ipcMain } from 'electron';
 
 import TrezorConnect, {
-    type ConnectSettings,
     type LocalFirmwares,
     UI_EVENT,
     UI_REQUEST,
     UI_RESPONSE,
 } from '@trezor/connect';
-import { initLog } from '@trezor/connect-common';
+import { type ConnectSettingsTransport, initLog } from '@trezor/connect-common';
 import { type IpcProxyHandlerOptions, createIpcProxyHandler } from '@trezor/ipc-proxy';
 import { parseElectrumUrl } from '@trezor/utils';
 
@@ -52,8 +51,8 @@ const emitOnSetCustomBackendToMainThreadToAllowDomains = ({
 // override TrezorConnect.init and TrezorConnect.updateConnectSettings params
 // add BluetoothTransport if bluetooth module is enabled
 const getTransportsParam = (
-    transports?: ConnectSettings['transports'],
-): ConnectSettings['transports'] => {
+    transports?: ConnectSettingsTransport[],
+): ConnectSettingsTransport[] | undefined => {
     const bluetooth = bluetoothModuleState.getTransport();
     if (!bluetooth) return transports;
 
@@ -120,7 +119,11 @@ export const initBackground: ModuleInitBackground = ({ mainThreadEmitter, store 
                     return response;
                 }
 
-                if (method === 'updateConnectSettings') {
+                // Only rewrite transports when the caller actually sent some. An enabledNetworks-only
+                // update (coin toggle / Cardano grant) carries no transports; injecting the bluetooth
+                // fallback here would make `newTransports` defined in Core and trigger a needless
+                // SET_TRANSPORTS → resetTransports → deviceList.init on every such update.
+                if (method === 'updateConnectSettings' && params[0].transports !== undefined) {
                     params[0].transports = getTransportsParam(params[0].transports);
                 }
 

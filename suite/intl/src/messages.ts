@@ -5605,15 +5605,6 @@ export const messages = defineMessages({
         id: 'TR_TRON_FEE_LIMIT_BELOW_RECOMMENDED',
         defaultMessage: 'Fee limit too low',
     },
-    TR_TRON_FREEZE_FEE_BANNER_ENERGY: {
-        id: 'TR_TRON_FREEZE_FEE_BANNER_ENERGY',
-        defaultMessage:
-            'Avoid paying TRX. Freeze {amount} to get enough energy for this transaction.',
-    },
-    TR_TRON_FREEZE_FEE_BANNER_CTA: {
-        id: 'TR_TRON_FREEZE_FEE_BANNER_CTA',
-        defaultMessage: 'Freeze TRX',
-    },
     TR_TRON_NOTE: {
         id: 'TR_TRON_NOTE',
         defaultMessage: 'Note',
@@ -8528,6 +8519,10 @@ export const messages = defineMessages({
         id: 'TR_EARN_CLAIM_REWARDS_BUTTON',
         defaultMessage: 'Claim',
     },
+    TR_EARN_ENTER_AMOUNT_IN: {
+        id: 'TR_EARN_ENTER_AMOUNT_IN',
+        defaultMessage: 'Enter amount in {currency}',
+    },
     TR_RECEIVING_SYMBOL: {
         id: 'TR_RECEIVING_SYMBOL',
         defaultMessage:
@@ -10302,6 +10297,10 @@ export const messages = defineMessages({
     TR_EARN_APY_APPROX: {
         id: 'TR_EARN_APY_APPROX',
         defaultMessage: '~{apyPercent}% APY',
+    },
+    TR_EARN_APR_APPROX: {
+        id: 'TR_EARN_APR_APPROX',
+        defaultMessage: '~{aprPercent}% APR',
     },
     TR_EARN_NOT_AVAILABLE: {
         id: 'TR_EARN_NOT_AVAILABLE',

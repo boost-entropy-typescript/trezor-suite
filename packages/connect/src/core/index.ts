@@ -8,6 +8,7 @@ import {
     DEVICE,
     POPUP,
     RESPONSE_EVENT,
+    SET_ENABLED_NETWORKS,
     UI_EVENT,
     UI_REQUEST,
     UI_RESPONSE,
@@ -41,6 +42,7 @@ import type { AbstractMethod } from './AbstractMethod';
 import { getMethod } from './method';
 import { onCallFirmwareUpdate } from './onCallFirmwareUpdate';
 import { dispose as disposeBackend } from '../backend/BlockchainLink';
+import * as enabledNetworksStore from '../data/enabledNetworksStore';
 import { initializeFirmwareConfig } from '../data/firmwareInfo';
 import * as firmwareReleaseStore from '../data/firmwareReleaseStore';
 import * as localFirmwareStore from '../data/localFirmwareStore';
@@ -266,7 +268,7 @@ const onCallDevice = async (
 ): Promise<void> => {
     const { deviceList, callMethods, sendCoreMessage, logger } = context;
     const responseID = message.id;
-    const { env, transports, pendingTransportEvent } = settingsStore.get();
+    const { transports, pendingTransportEvent } = settingsStore.get();
 
     if (!deviceList.isConnected() && !deviceList.pendingConnection()) {
         // transport is missing try to initialize it once again
@@ -274,31 +276,20 @@ const onCallDevice = async (
     }
     await deviceList.pendingConnection();
 
-    const shouldRetry = ['web', 'webextension'].includes(env);
     // find device
     let tempDevice: Device | undefined;
-    while (!tempDevice) {
-        try {
-            tempDevice = selectDevice(context, message.payload.device);
-        } catch (error) {
-            if (error.code === 'Transport_Missing') {
-                // show message about transport
-                sendCoreMessage(createUiMessage(UI_REQUEST.TRANSPORT));
-
-                // Retry selectDevice again
-                // NOTE: this should change after multi-transports refactor, where transport will be always alive
-                if (deviceList.pendingConnection() && shouldRetry) {
-                    while (deviceList.pendingConnection()) {
-                        await deviceList.pendingConnection();
-                    }
-                    continue;
-                }
-            }
-            // TODO: this should not be returned here before user agrees on "read" perms...
-            sendCoreMessage(createResponseMessage(responseID, false, { error }));
-            throw error;
+    try {
+        tempDevice = selectDevice(context, message.payload.device);
+    } catch (error) {
+        if (error.code === 'Transport_Missing') {
+            // show message about transport
+            sendCoreMessage(createUiMessage(UI_REQUEST.TRANSPORT));
         }
+        // TODO: this should not be returned here before user agrees on "read" perms...
+        sendCoreMessage(createResponseMessage(responseID, false, { error }));
+        throw error;
     }
+
     const device = tempDevice;
 
     method.setDevice(device);
@@ -351,6 +342,10 @@ const onCallDevice = async (
     // device is available
     // set public variables, listeners and run method
     registerDeviceEvents(context, method)(device);
+
+    // Must run here: after the `__info` early-return above, before `device.run` reads
+    // `useCardanoDerivation` below.
+    method.resolveCardanoCapability();
 
     let messageResponse: CoreEventMessage;
 
@@ -835,6 +830,10 @@ export class Core extends EventEmitter {
                 resetTransports(this.getCoreContext());
                 break;
 
+            case SET_ENABLED_NETWORKS:
+                enabledNetworksStore.add(message.payload);
+                break;
+
             case TRANSPORT.REQUEST_DEVICE:
                 /**
                  * after pairing with device is requested in native context, for example see
@@ -961,7 +960,10 @@ export class Core extends EventEmitter {
             throttlePromise.promise.then(() => onCoreEvent(message));
 
         try {
-            settingsStore.set(settings);
+            // enabledNetworks has its own store (the single source of truth); keep it out of
+            // settingsStore so no reader picks up a stale, unsanitized snapshot.
+            settingsStore.set({ ...settings, enabledNetworks: undefined });
+            enabledNetworksStore.set(settings.enabledNetworks ?? []);
             await firmwareReleaseStore.init(
                 settings.firmwareChannel,
                 false,
@@ -973,10 +975,9 @@ export class Core extends EventEmitter {
                 localFirmwareStore.set(localFirmwares);
             }
             await loadProtobufModules();
-            const { priority, manifest } = settingsStore.get();
+            const { manifest } = settingsStore.get();
 
             this._deviceList = new DeviceList({
-                priority,
                 manifest,
                 createLogger: this.createLogger,
             });
@@ -990,8 +991,7 @@ export class Core extends EventEmitter {
             throw error;
         }
 
-        const { transports, pendingTransportEvent, transportReconnect, coreMode } =
-            settingsStore.get();
+        const { transports, pendingTransportEvent, transportReconnect } = settingsStore.get();
 
         try {
             this.deviceList.init({ transports, pendingTransportEvent, transportReconnect });
@@ -1001,8 +1001,7 @@ export class Core extends EventEmitter {
             throw error;
         }
 
-        // in auto core mode, we have to wait to check if transport is available
-        if (!transportReconnect || coreMode === 'auto') {
+        if (!transportReconnect) {
             await this.deviceList.pendingConnection();
         }
 
