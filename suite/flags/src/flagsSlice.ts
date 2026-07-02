@@ -14,6 +14,7 @@ export type FlagsState = {
     showTEXDashboardPromoBanner: boolean;
     showTS7DashboardPromoBanner: boolean;
     showStablecoinYieldDashboardPromoBanner: boolean;
+    showOnboardingFeedbackBanner: boolean;
     showSettingsDesktopAppPromoBanner: boolean;
     activateAssetsBannerClosed: boolean;
     stakeEthBannerClosed: boolean;
@@ -46,6 +47,7 @@ export const flagsInitialState: FlagsState = {
     showTEXDashboardPromoBanner: true,
     showTS7DashboardPromoBanner: true,
     showStablecoinYieldDashboardPromoBanner: true,
+    showOnboardingFeedbackBanner: false,
     showSettingsDesktopAppPromoBanner: true,
     activateAssetsBannerClosed: false,
     stakeEthBannerClosed: false,
@@ -97,6 +99,8 @@ export const selectIsTS7DashboardPromoBannerShown = (state: FlagsRootState) =>
     state.flags.showTS7DashboardPromoBanner;
 export const selectIsStablecoinYieldDashboardPromoBannerShown = (state: FlagsRootState) =>
     state.flags.showStablecoinYieldDashboardPromoBanner;
+export const selectIsOnboardingFeedbackBannerShown = (state: FlagsRootState) =>
+    state.flags.showOnboardingFeedbackBanner;
 export const selectIsSettingsDesktopAppPromoBannerShown = (state: FlagsRootState) =>
     state.flags.showSettingsDesktopAppPromoBanner;
 export const selectIsActivateAssetsBannerClosed = (state: FlagsRootState) =>

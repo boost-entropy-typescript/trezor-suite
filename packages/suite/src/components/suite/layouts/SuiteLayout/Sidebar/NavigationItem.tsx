@@ -4,9 +4,19 @@ import styled, { css } from 'styled-components';
 
 import { type ExtendedMessageDescriptor, Translation, type TranslationKey } from '@suite/intl';
 import { type Route, goto, selectRouteName } from '@suite/router';
-import { Icon, type IconName, Paragraph, Tooltip } from '@trezor/components';
+import {
+    Icon,
+    type IconName,
+    Paragraph,
+    Row,
+    ShortcutBadge,
+    type ShortcutBadgeProps,
+    TOOLTIP_DELAY_LONG,
+    TOOLTIP_DELAY_SHORT,
+    Tooltip,
+} from '@trezor/components';
 import { commonFocusStyles } from '@trezor/components/src/utils/utils';
-import { borders, spacingsPx } from '@trezor/theme';
+import { borders, spacings, spacingsPx } from '@trezor/theme';
 
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useResponsiveContext } from 'src/support/suite/ResponsiveContext';
@@ -52,6 +62,7 @@ export type NavigationItemProps = {
     className?: string;
     values?: ExtendedMessageDescriptor['values'];
     onClick?: () => void;
+    shortcut?: ShortcutBadgeProps['shortcut'];
 };
 
 type TitleProps = {
@@ -72,6 +83,7 @@ const NavItem = ({
     values,
     preserveParams,
     onClick,
+    shortcut,
 }: NavigationItemProps) => {
     const activeRoute = useSelector(selectRouteName);
     const dispatch = useDispatch();
@@ -94,18 +106,31 @@ const NavItem = ({
     const isActiveRoute = routes?.some(route => route === activeRoute);
     const isItemActive = isActive || isActiveRoute;
 
+    const isTooltipActive = expanded ? shortcut !== undefined : true;
+
     return (
-        <Container
-            $isActive={isItemActive}
-            onClick={handleClick}
-            data-testid={dataTest || `@suite/menu/${goToRoute}`}
-            type="button"
+        <Tooltip
+            cursor="pointer"
+            flex="1"
+            content={
+                shortcut ? (
+                    <Row gap={spacings.sm}>
+                        <Title nameId={nameId} values={values} />
+                        <ShortcutBadge shortcut={shortcut} />
+                    </Row>
+                ) : (
+                    <Title nameId={nameId} values={values} />
+                )
+            }
+            isActive={isTooltipActive}
+            delayShow={expanded ? TOOLTIP_DELAY_LONG : TOOLTIP_DELAY_SHORT}
+            placement="right"
         >
-            <Tooltip
-                cursor="pointer"
-                content={<Title nameId={nameId} values={values} />}
-                isActive={!expanded}
-                placement="right"
+            <Container
+                $isActive={isItemActive}
+                onClick={handleClick}
+                data-testid={dataTest || `@suite/menu/${goToRoute}`}
+                type="button"
             >
                 <Icon
                     name={icon}
@@ -114,17 +139,17 @@ const NavItem = ({
                     priority={isItemActive ? 'primary' : 'secondary'}
                     pointerEvents="none"
                 />
-            </Tooltip>
-            {expanded && (
-                <Paragraph
-                    typographyStyle="body-md"
-                    intent="neutral"
-                    priority={isItemActive ? 'primary' : 'secondary'}
-                >
-                    <Translation id={nameId} values={values} />
-                </Paragraph>
-            )}
-        </Container>
+                {expanded && (
+                    <Paragraph
+                        typographyStyle="body-md"
+                        intent="neutral"
+                        priority={isItemActive ? 'primary' : 'secondary'}
+                    >
+                        <Translation id={nameId} values={values} />
+                    </Paragraph>
+                )}
+            </Container>
+        </Tooltip>
     );
 };
 

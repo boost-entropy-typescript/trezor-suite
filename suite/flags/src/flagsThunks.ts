@@ -8,6 +8,7 @@ export const initialRunCompleted = createThunk(
     (_, { dispatch, getState }) => {
         if (selectIsInitialRun(getState())) {
             dispatch(setFlag({ key: 'initialRun', value: false }));
+            dispatch(setFlag({ key: 'showOnboardingFeedbackBanner', value: true }));
         }
     },
 );

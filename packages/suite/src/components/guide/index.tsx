@@ -11,7 +11,8 @@ import { GuideNode } from './GuideNode';
 import { GuideRouter } from './GuideRouter';
 import { GuideSearch } from './GuideSearch';
 import { GuideSectionHeadline } from './GuideSectionHeadline';
-import { ContentScrolledContext, GuideViewWrapper } from './GuideViewWrapper';
+import { GuideShortcuts } from './GuideShortcuts';
+import { GuideViewWrapper } from './GuideViewWrapper';
 import { OpenGuideFromTooltip } from './OpenGuideFromTooltip';
 import { SupportFeedbackSelection } from './SupportFeedbackSelection';
 
@@ -19,13 +20,13 @@ export {
     GuideContent,
     GuideButton,
     GuideRouter,
+    GuideShortcuts,
     GuideHeader,
     GuideNode,
     GuideViewWrapper,
     GuideCategories,
     GuideSearch,
     GuideSectionHeadline,
-    ContentScrolledContext,
     Feedback,
     SupportFeedbackSelection,
     Guide,

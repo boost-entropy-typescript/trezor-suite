@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
-import styled from 'styled-components';
 
+import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { useDevice } from '@suite/device';
 import { selectFlags } from '@suite/flags';
 import { Translation } from '@suite/intl';
 import { openModal } from '@suite/modal';
 import { Anchor, SettingsAnchor } from '@suite/router';
 import { selectHasExperimentalFeature } from '@suite/settings';
+import { useServices } from '@suite-common/dependency-injection';
 import { Context } from '@suite-common/message-system';
 import { type Network, type NetworkSymbol } from '@suite-common/wallet-config';
 import {
@@ -21,13 +22,13 @@ import {
 import { Box, Button, Column, Switch, Text, Tooltip, motionEasing } from '@trezor/components';
 import { hasBitcoinOnlyFirmware, isBitcoinOnlyDevice } from '@trezor/device-utils';
 import { OutlineHighlight, SectionItem, SettingsSection } from '@trezor/product-components';
-import { breakpoints, spacingsPx } from '@trezor/theme';
+import { breakpoints } from '@trezor/theme';
 
 import { SettingsLayout } from 'src/components/settings/SettingsLayout';
 import { NetworkList } from 'src/components/suite/NetworkList/NetworkList';
 import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanners/ContextMessage';
 import { useNetworkSupport } from 'src/hooks/settings/useNetworkSupport';
-import { useDiscovery, useDispatch, useSelector } from 'src/hooks/suite';
+import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useIsContentBelowBreakpoint } from 'src/support/suite/ContentFlex';
 import { isCoinjoinSupportedSymbol } from 'src/utils/wallet/coinjoinUtils';
 
@@ -36,53 +37,20 @@ import { NetworkSettingsSearchInput } from './NetworkSettingsSearchInput';
 import { NoNetworkSearchResults } from './NoNetworkSearchResults';
 import { useNetworkSettingsSearch } from './useNetworkSettingsSearch';
 
-const DiscoveryButtonWrapper = styled.div`
-    margin-top: ${spacingsPx.xl};
-    width: fit-content;
-`;
-
-const getDiscoveryButtonAnimationConfig = (isConfirmed: boolean): MotionProps => ({
-    initial: {
-        height: 0,
-        opacity: 0,
-        translateY: 16,
-        translateX: -28,
-        scale: 0.96,
+const discoveryButtonAnimationConfig: MotionProps = {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 16 },
+    transition: {
+        ease: motionEasing.transition,
+        duration: 0.2,
+        opacity: { duration: 0.35 },
     },
-    animate: {
-        height: 'auto',
-        opacity: 1,
-        translateY: 0,
-        translateX: 0,
-        scale: 1,
-        transition: {
-            ease: motionEasing.transition,
-            duration: 0.2,
-            opacity: {
-                duration: 0.35,
-                ease: motionEasing.transition,
-            },
-        },
-    },
-    exit: {
-        height: 0,
-        opacity: 0,
-        translateY: 16,
-        translateX: isConfirmed ? 0 : -24,
-        scale: 0.96,
-        transformOrigin: 'bottom left',
-        transition: {
-            ease: motionEasing.transition,
-            duration: 0.2,
-            opacity: {
-                ease: motionEasing.enter,
-            },
-        },
-    },
-});
+};
 
 export const SettingsCoins = () => {
     const hasContentBelowTabletWidth = useIsContentBelowBreakpoint(breakpoints.tablet);
+    const { analytics } = useServices(selectDesktopAnalyticsDep);
     const dispatch = useDispatch();
     const { firmwareTypeBannerClosed } = useSelector(selectFlags);
     const enabledNetworks = useSelector(selectEnabledNetworks);
@@ -96,7 +64,6 @@ export const SettingsCoins = () => {
     const deviceSupportedNetworkSymbols = useSelector(selectDeviceSupportedNetworks);
     const { device, isLocked } = useDevice();
     const isDeviceLocked = !!device && isLocked();
-    const { isDiscoveryRunning } = useDiscovery();
     const isDiscoveryButtonVisible = useSelector(state =>
         selectShowRediscoverButton(state, device),
     );
@@ -214,10 +181,15 @@ export const SettingsCoins = () => {
     );
 
     const startDiscovery = () => {
+        analytics.report({
+            type: events.settingsLoadNetworksClickedEvent.name,
+            payload: {
+                platform: 'desktop',
+                origin: 'network-settings',
+            },
+        });
         dispatch(startOrRestartDiscoveryThunk());
     };
-
-    const animation = getDiscoveryButtonAnimationConfig(!!isDiscoveryRunning);
 
     return (
         <SettingsLayout>
@@ -332,10 +304,10 @@ export const SettingsCoins = () => {
                 </Anchor>
             </SettingsSection>
 
-            <AnimatePresence>
-                {isDiscoveryButtonVisible && (
-                    <motion.div {...animation} key="discover-button">
-                        <DiscoveryButtonWrapper>
+            <Box position={{ type: 'fixed', bottom: 16 }}>
+                <AnimatePresence>
+                    {isDiscoveryButtonVisible && (
+                        <motion.div {...discoveryButtonAnimationConfig} key="discover-button">
                             <Tooltip
                                 isActive={isDeviceLocked}
                                 content={<Translation id="TR_CONNECT_YOUR_DEVICE" />}
@@ -348,10 +320,10 @@ export const SettingsCoins = () => {
                                     <Translation id="TR_DISCOVERY_NEW_COINS" />
                                 </Button>
                             </Tooltip>
-                        </DiscoveryButtonWrapper>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </Box>
         </SettingsLayout>
     );
 };

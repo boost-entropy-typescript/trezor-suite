@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
+import { selectIsOnboardingFeedbackBannerShown, setFlag } from '@suite/flags';
 import { Translation } from '@suite/intl';
 import { goto } from '@suite/router';
 import { useServices } from '@suite-common/dependency-injection';
@@ -23,8 +24,16 @@ export const EmptyWallet = () => {
     const { analytics } = useServices(selectDesktopAnalyticsDep);
     const enabledNetworks = useSelector(selectEnabledNetworks);
     const isBitcoinOnlyFirmware = useSelector(selectHasBitcoinOnlyFirmware);
+    const isOnboardingFeedbackBannerShown = useSelector(selectIsOnboardingFeedbackBannerShown);
+
+    const clearOnboardingFeedbackBanner = () => {
+        if (isOnboardingFeedbackBannerShown) {
+            dispatch(setFlag({ key: 'showOnboardingFeedbackBanner', value: false }));
+        }
+    };
 
     const handleReceive = () => {
+        clearOnboardingFeedbackBanner();
         analytics.report({
             type: events.dashboardReceiveModalEvent.name,
             payload: { source: 'empty-wallet' },
@@ -33,6 +42,7 @@ export const EmptyWallet = () => {
     };
 
     const handleBuy = () => {
+        clearOnboardingFeedbackBanner();
         analytics.report({
             type: events.tradeNavigateEvent.name,
             payload: {

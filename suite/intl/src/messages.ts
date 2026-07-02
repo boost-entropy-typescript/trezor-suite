@@ -6848,6 +6848,14 @@ export const messages = defineMessages({
         id: 'TR_CUSTOM_BACKEND',
         defaultMessage: 'Custom backend',
     },
+    TR_MORE: {
+        id: 'TR_MORE',
+        defaultMessage: 'more',
+    },
+    TR_REPRESENTATIVE_ASSETS_ON_NETWORK: {
+        id: 'TR_REPRESENTATIVE_ASSETS_ON_NETWORK',
+        defaultMessage: 'Representative assets on this network',
+    },
     TR_BACKEND_DEFAULT_SERVERS: {
         id: 'TR_BACKEND_DEFAULT_SERVERS',
         defaultMessage: 'Trezor (default)',
@@ -7785,6 +7793,158 @@ export const messages = defineMessages({
     TR_GUIDE_SUPPORT_AND_FEEDBACK: {
         id: 'TR_GUIDE_SUPPORT_AND_FEEDBACK',
         defaultMessage: 'Support & Feedback',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS',
+        defaultMessage: 'Keyboard shortcuts',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_GENERAL: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_GENERAL',
+        defaultMessage: 'General',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_FIND: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_FIND',
+        defaultMessage: 'Find in page',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_OPEN_GUIDE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_OPEN_GUIDE',
+        defaultMessage: 'Open/close guide',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_PASSPHRASE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_PASSPHRASE',
+        defaultMessage: 'Open passphrase wallet',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SWITCH_DEVICE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SWITCH_DEVICE',
+        defaultMessage: 'Open wallet switcher',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SETTINGS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SETTINGS',
+        defaultMessage: 'Open settings',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_LOCK_APP: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_LOCK_APP',
+        defaultMessage: 'Lock app',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SWITCH_ACCOUNT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SWITCH_ACCOUNT',
+        defaultMessage: 'Switch to account 1–9',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SEND: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SEND',
+        defaultMessage: 'Send',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_RECEIVE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_RECEIVE',
+        defaultMessage: 'Receive',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SWAP: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SWAP',
+        defaultMessage: 'Swap',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_BUY: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_BUY',
+        defaultMessage: 'Buy',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SELL: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SELL',
+        defaultMessage: 'Sell',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_EARN: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_EARN',
+        defaultMessage: 'Earn',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_NETWORKS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_NETWORKS',
+        defaultMessage: 'Networks',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_ACTIVITY: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_ACTIVITY',
+        defaultMessage: 'Activity',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SECURITY: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SECURITY',
+        defaultMessage: 'Security',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_ADD_ACCOUNT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_ADD_ACCOUNT',
+        defaultMessage: 'Add account',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_DASHBOARD: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_DASHBOARD',
+        defaultMessage: 'Open dashboard',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_PREV_ACCOUNT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_PREV_ACCOUNT',
+        defaultMessage: 'Previous account',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_NEXT_ACCOUNT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_NEXT_ACCOUNT',
+        defaultMessage: 'Next account',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_OPEN_SHORTCUTS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_OPEN_SHORTCUTS',
+        defaultMessage: 'Open keyboard shortcuts',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_NAVIGATION: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_NAVIGATION',
+        defaultMessage: 'Navigation',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_OTHER: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_OTHER',
+        defaultMessage: 'Other',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_DEBUG_MODE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_DEBUG_MODE',
+        defaultMessage: 'Toggle debug mode',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_FOCUS_NEXT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_FOCUS_NEXT',
+        defaultMessage: 'Focus next element',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_FOCUS_PREVIOUS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_FOCUS_PREVIOUS',
+        defaultMessage: 'Focus previous element',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_CLOSE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_CLOSE',
+        defaultMessage: 'Close modal, drawer or guide',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_ACTIVATE: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_ACTIVATE',
+        defaultMessage: 'Activate focused item',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_TOGGLE_THEME: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_TOGGLE_THEME',
+        defaultMessage: 'Toggle dark/light theme',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_TOGGLE_BALANCES: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_TOGGLE_BALANCES',
+        defaultMessage: 'Toggle balances',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_SEARCH_ACCOUNTS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_SEARCH_ACCOUNTS',
+        defaultMessage: 'Search accounts',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_WALLETS: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_WALLETS',
+        defaultMessage: 'Wallets & accounts',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_DEBUG: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_DEBUG',
+        defaultMessage: 'Debug',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_NEXT: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_NEXT',
+        defaultMessage: 'Next language',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_PREV: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_PREV',
+        defaultMessage: 'Previous language',
+    },
+    TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_KEYS_SWITCH: {
+        id: 'TR_GUIDE_KEYBOARD_SHORTCUTS_LANGUAGE_KEYS_SWITCH',
+        defaultMessage: 'Switch language keys/values',
     },
     TR_GUIDE_VIEW_HEADLINE_LEARN_AND_DISCOVER: {
         id: 'TR_GUIDE_VIEW_HEADLINE_LEARN_AND_DISCOVER',
@@ -9585,6 +9745,18 @@ export const messages = defineMessages({
     TR_PROMO_BANNER_DASHBOARD_STABLECOIN_YIELD_BUTTON: {
         id: 'TR_PROMO_BANNER_DASHBOARD_STABLECOIN_YIELD_BUTTON',
         defaultMessage: 'Get started',
+    },
+    TR_ONBOARDING_FEEDBACK_BANNER_TITLE: {
+        id: 'TR_ONBOARDING_FEEDBACK_BANNER_TITLE',
+        defaultMessage: 'Help us improve',
+    },
+    TR_ONBOARDING_FEEDBACK_BANNER_DESCRIPTION: {
+        id: 'TR_ONBOARDING_FEEDBACK_BANNER_DESCRIPTION',
+        defaultMessage: 'Share your setup experience',
+    },
+    TR_ONBOARDING_FEEDBACK_BANNER_BUTTON: {
+        id: 'TR_ONBOARDING_FEEDBACK_BANNER_BUTTON',
+        defaultMessage: 'Give feedback',
     },
     TR_NO_DEVICE_ESHOP_BANNER_HEADING: {
         id: 'TR_NO_DEVICE_ESHOP_BANNER_HEADING',

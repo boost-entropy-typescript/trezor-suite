@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
-import { Box, Column, IconCircle } from '@trezor/components';
+import { Box, Column, IconCircle, useMediaQuery } from '@trezor/components';
 
 import { setView } from 'src/actions/suite/guideActions';
 import {
@@ -31,6 +31,13 @@ export const Guide = () => {
         });
     };
 
+    const handleShortcutsClick = () => {
+        dispatch(setView('KEYBOARD_SHORTCUTS'));
+    };
+
+    // Keyboard shortcuts are irrelevant on touch devices without a physical keyboard.
+    const isTouchDevice = useMediaQuery('(hover: none) and (pointer: coarse)');
+
     return (
         <GuideViewWrapper>
             <GuideHeader label={<Translation id="TR_GUIDE_VIEW_HEADLINE_LEARN_AND_DISCOVER" />} />
@@ -41,13 +48,21 @@ export const Guide = () => {
                         <>
                             <Box>
                                 <GuideSectionHeadline id="TR_GUIDE_HELP_TITLE" />
-                                <GuideItem
-                                    onClick={handleFeedbackButtonClick}
-                                    data-testid="@guide/button-feedback"
-                                    icon={<IconCircle name="lifebuoy" size={32} intent="neutral" />}
-                                >
-                                    <Translation id="TR_GUIDE_SUPPORT_AND_FEEDBACK" />
-                                </GuideItem>
+                                <Column gap={8}>
+                                    <GuideItem
+                                        onClick={handleFeedbackButtonClick}
+                                        data-testid="@guide/button-feedback"
+                                        icon={
+                                            <IconCircle
+                                                name="lifebuoy"
+                                                size={32}
+                                                intent="neutral"
+                                            />
+                                        }
+                                    >
+                                        <Translation id="TR_GUIDE_SUPPORT_AND_FEEDBACK" />
+                                    </GuideItem>
+                                </Column>
                             </Box>
                             <Box margin={{ top: 16 }}>
                                 <GuideSectionHeadline id="TR_GUIDE_GUIDES_TITLE" />
@@ -56,6 +71,17 @@ export const Guide = () => {
                         </>
                     )}
                 </GuideContent>
+                {!isTouchDevice && (
+                    <Box padding={16}>
+                        <GuideItem
+                            onClick={handleShortcutsClick}
+                            data-testid="@guide/button-shortcuts"
+                            icon={<IconCircle name="command" size={32} intent="neutral" />}
+                        >
+                            <Translation id="TR_GUIDE_KEYBOARD_SHORTCUTS" />
+                        </GuideItem>
+                    </Box>
+                )}
             </Column>
         </GuideViewWrapper>
     );
