@@ -10,7 +10,11 @@ import {
     type SellFiatTrade,
 } from 'invity-api';
 
-import { type DeviceRootState, selectDeviceUnavailableCapabilities } from '@suite-common/device';
+import {
+    type DeviceRootState,
+    selectDeviceFirmwareVersion,
+    selectDeviceUnavailableCapabilities,
+} from '@suite-common/device';
 import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
 import { type NetworkSymbolExtended, isNetworkSymbol } from '@suite-common/wallet-config';
 import {
@@ -25,9 +29,12 @@ import {
 } from '@suite-common/wallet-types';
 import { getSupportedCoins } from '@trezor/address-validator';
 import { exhaustive } from '@trezor/type-utils';
-import { unique } from '@trezor/utils';
+import { unique, versionUtils } from '@trezor/utils';
 
-import { TRADING_SLIP24_SUPPORTED_NETWORK_TYPES } from '../constants';
+import {
+    TRADING_SLIP24_MIN_FIRMWARE_VERSION,
+    TRADING_SLIP24_SUPPORTED_NETWORK_TYPES,
+} from '../constants';
 import {
     EMPTY_GROUPED_TRADING_EXCHANGE_QUOTES,
     type GroupedTradingExchangeQuotes,
@@ -683,6 +690,15 @@ export const selectTradingDisplayComposedFee = (
 ): string | undefined =>
     getDisplayNetworkFee(quote, state.wallet.trading.composedTransactionInfo.composed?.fee);
 
+export const selectIsTradingNetworkFeeMissing = (
+    state: TradingRootState,
+    quote?: ExchangeTrade,
+): boolean => {
+    const fee = selectTradingDisplayComposedFee(state, quote);
+
+    return fee === undefined || fee === '';
+};
+
 export const selectTradingAccountAccordingActiveSection =
     createMemoizedSelectorWithDeviceAndAccounts(
         [
@@ -894,13 +910,20 @@ export const selectTradingVerifiedAddress = (state: TradingRootState) =>
 export const selectTradingIsSlip24Allowed = createMemoizedSelectorWithDeviceAndAccounts(
     [
         state => selectDeviceUnavailableCapabilities(state),
-        (_: TradingRootState, account: Account | undefined) => account,
-        (_: TradingRootState, __: Account | undefined, isSlip24Active: boolean) => isSlip24Active,
+        state => selectDeviceFirmwareVersion(state),
+        (_: TradingRootState, account: Account | undefined | null) => account,
+        (_: TradingRootState, __: Account | undefined | null, isSlip24Active: boolean) =>
+            isSlip24Active,
     ],
-    (unavailableCapabilities, account, isSlip24Active) => {
-        if (!account) return false;
+    (unavailableCapabilities, firmwareVersion, account, isSlip24Active) => {
+        if (!account) {
+            return false;
+        }
 
-        const isFirmwareVersionSlip24Compatible = !unavailableCapabilities?.['slip24'];
+        const isFirmwareVersionSlip24Compatible =
+            !unavailableCapabilities?.['slip24'] &&
+            !!firmwareVersion &&
+            versionUtils.isNewerOrEqual(firmwareVersion, TRADING_SLIP24_MIN_FIRMWARE_VERSION);
         const isNetworkSupported = TRADING_SLIP24_SUPPORTED_NETWORK_TYPES.includes(
             account.networkType,
         );

@@ -2,6 +2,7 @@ import {
     type BuyTrade,
     type Coins,
     type CryptoId,
+    type ExchangeTrade,
     type FiatCurrenciesProps,
     type FiatCurrencyCode,
     type Platforms,
@@ -30,6 +31,7 @@ import {
     selectDeviceHasTradingTrades,
     selectDeviceTradingTradesOrderedByDate,
     selectGroupedTradingExchangeQuotes,
+    selectIsTradingNetworkFeeMissing,
     selectTradedAccountKeys,
     selectTrading,
     selectTradingAccountAccordingActiveSection,
@@ -54,6 +56,7 @@ import {
     selectTradingCoinInfoByCryptoId,
     selectTradingCoinSymbolByCryptoId,
     selectTradingComposedTransactionInfo,
+    selectTradingDisplayComposedFee,
     selectTradingExchange,
     selectTradingExchangeAmountLimits,
     selectTradingExchangeBuyCryptoIds,
@@ -345,6 +348,11 @@ describe('tradingSelectors', () => {
                     state: {
                         staticSessionId:
                             'mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q@448CCE89D32A733A1632F345:0' as StaticSessionId,
+                    },
+                    features: {
+                        major_version: 2,
+                        minor_version: 12,
+                        patch_version: 1,
                     },
                 },
             },
@@ -1264,6 +1272,54 @@ describe('tradingSelectors', () => {
         });
     });
 
+    const gaslessQuote = {
+        orderId: 'test-order',
+        exchange: '1inchfusion',
+        isDex: true,
+        signData: {
+            type: 'eip712-typed-data' as const,
+            data: { primaryType: 'Order' },
+        },
+    } as unknown as ExchangeTrade;
+
+    describe(selectTradingDisplayComposedFee.name, () => {
+        it.each([
+            ['return the composed fee for a regular quote', { fee: '12345' }, undefined, '12345'],
+            ['return undefined when there is no composed fee', undefined, undefined, undefined],
+            ['return "0" for an EIP-712-signed (gasless) quote', undefined, gaslessQuote, '0'],
+        ] as [
+            string,
+            { fee: string } | undefined,
+            ExchangeTrade | undefined,
+            string | undefined,
+        ][])('should %s', (_title, composed, quote, expected) => {
+            state.wallet.trading.composedTransactionInfo.composed = composed as any;
+
+            expect(selectTradingDisplayComposedFee(state, quote)).toBe(expected);
+        });
+    });
+
+    describe(selectIsTradingNetworkFeeMissing.name, () => {
+        it.each([
+            ['false when the composed fee is present', { fee: '12345' }, undefined, false],
+            ['true when the composed fee is undefined', undefined, undefined, true],
+            ['true when the composed fee is an empty string', { fee: '' }, undefined, true],
+            [
+                'false for an EIP-712-signed (gasless) quote even without a composed fee',
+                undefined,
+                gaslessQuote,
+                false,
+            ],
+        ] as [string, { fee: string } | undefined, ExchangeTrade | undefined, boolean][])(
+            'should be %s',
+            (_title, composed, quote, expected) => {
+                state.wallet.trading.composedTransactionInfo.composed = composed as any;
+
+                expect(selectIsTradingNetworkFeeMissing(state, quote)).toBe(expected);
+            },
+        );
+    });
+
     describe(selectTradingAccountAccordingActiveSection.name, () => {
         it('should return correct account for buy according to tradingAccountKey', () => {
             expect(
@@ -2124,6 +2180,21 @@ describe('tradingSelectors', () => {
         it('should return false when firmware has slip24 in unavailableCapabilities', () => {
             if (state.device.selectedDevice) {
                 state.device.selectedDevice.unavailableCapabilities = { slip24: 'no-support' };
+            }
+            expect(selectTradingIsSlip24Allowed(state, accountBtc as any, true)).toBe(false);
+        });
+
+        it('should return false when firmware version is older than the minimum', () => {
+            if (state.device.selectedDevice?.features) {
+                state.device.selectedDevice.features.minor_version = 12;
+                state.device.selectedDevice.features.patch_version = 0;
+            }
+            expect(selectTradingIsSlip24Allowed(state, accountBtc as any, true)).toBe(false);
+        });
+
+        it('should return false when firmware version is unknown', () => {
+            if (state.device.selectedDevice) {
+                state.device.selectedDevice.features = undefined;
             }
             expect(selectTradingIsSlip24Allowed(state, accountBtc as any, true)).toBe(false);
         });
