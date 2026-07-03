@@ -2488,6 +2488,7 @@ export const messages = {
         staking: 'Staking',
         stablecoinYield: 'Stablecoin yield',
         poweredBy: 'Powered by',
+        stakingOperatedByProviders: 'Staking is operated by independent providers',
         portfolioTracker: {
             alert: {
                 title: 'Staking is disabled in the portfolio tracker',
@@ -2726,19 +2727,23 @@ export const messages = {
         howStakeWorksScreen: {
             title: 'How {displaySymbol} staking works',
             subtitle:
-                'Grow your crypto by locking it to help secure the {networkName} network—and earn rewards in return.',
+                'Earn rewards by temporarily locking your {displaySymbol} and helping secure the network.',
             benefits: {
                 first: {
-                    title: 'Earn up to ~{potentialRewards} {displaySymbol} annually',
-                    description: 'When staking your full {displaySymbol} balance',
+                    title: '{apy}% APY with automatic compounding',
+                    description: 'Rewards are automatically restaked.',
                 },
                 second: {
-                    title: 'Compounds automatically',
-                    description: 'Rewards are automatically restaked',
+                    title: 'Staked {displaySymbol} is locked',
+                    description: "You can't send or swap it while staked.",
                 },
                 third: {
-                    title: 'Put your {displaySymbol} to work',
-                    description: 'Earn weekly rewards while you stake',
+                    title: 'Unstake to get your funds in ~{days, plural, one {# day} other {# days}}',
+                    description: {
+                        ethereum:
+                            'After entry period, you can unstake anytime. Your funds will be available within ~{days, plural, one {# day} other {# days}}.',
+                        solana: 'After warm-up period, you can unstake anytime. Your funds will be available within ~{days, plural, one {# day} other {# days}}.',
+                    },
                 },
             },
             timelineCardTitle: 'Staking timeline',

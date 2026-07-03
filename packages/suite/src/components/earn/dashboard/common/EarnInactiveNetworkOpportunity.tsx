@@ -1,27 +1,27 @@
 import { type ReactNode } from 'react';
 
-import { type NetworkSymbol } from '@suite-common/wallet-config';
+import { type NetworkSymbol, getNetworkType } from '@suite-common/wallet-config';
 import { Card, Column, Paragraph, Row, Table } from '@trezor/components';
-
-import { ApyValue } from 'src/views/wallet/staking/components/ApyValue';
 
 import { EarnAccountCell } from './EarnAccountCell';
 import { EarnActivateButton } from './EarnActivateButton';
-import { EarnRate } from './EarnRate';
+import { EarnStakingRateTooltip } from '../staking/EarnStakingRateTooltip';
 
 type EarnInactiveNetworkOpportunityProps = {
     symbol: NetworkSymbol;
-    apy: number | null;
+    rate: number | null;
     note?: ReactNode;
     isCardLayout: boolean;
 };
 
 export const EarnInactiveNetworkOpportunity = ({
     symbol,
-    apy,
+    rate,
     note,
     isCardLayout,
 }: EarnInactiveNetworkOpportunityProps) => {
+    const networkType = getNetworkType(symbol);
+
     const noteParagraph = note && (
         <Paragraph typographyStyle="body-md" intent="neutral">
             {note}
@@ -35,9 +35,7 @@ export const EarnInactiveNetworkOpportunity = ({
                     <Row justifyContent="space-between" alignItems="flex-start">
                         <EarnAccountCell symbol={symbol} />
 
-                        <EarnRate type={symbol === 'trx' ? 'apr' : 'apy'} rate={apy}>
-                            <ApyValue apy={apy} />
-                        </EarnRate>
+                        <EarnStakingRateTooltip networkType={networkType} rate={rate} />
                     </Row>
 
                     {noteParagraph}
@@ -57,9 +55,7 @@ export const EarnInactiveNetworkOpportunity = ({
             </Table.Cell>
 
             <Table.Cell>
-                <EarnRate type={symbol === 'trx' ? 'apr' : 'apy'} rate={apy}>
-                    <ApyValue apy={apy} />
-                </EarnRate>
+                <EarnStakingRateTooltip networkType={networkType} rate={rate} />
             </Table.Cell>
 
             <Table.Cell colSpan={2}>{noteParagraph}</Table.Cell>

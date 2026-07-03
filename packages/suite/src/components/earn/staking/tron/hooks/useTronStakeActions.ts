@@ -6,6 +6,7 @@ import {
     type TronStakeStepId,
     composeTronFreezeFeeLevelsThunk,
     selectTronStakeSession,
+    submitTronClaimThunk,
     submitTronFreezeThunk,
     submitTronUnstakeThunk,
     submitTronVoteThunk,
@@ -15,6 +16,7 @@ import {
 import { type Account } from '@suite-common/wallet-types';
 import {
     asAmountSubunit,
+    getTronStakingRewards,
     getTronWithdrawableBalance,
     subunitsToUnits,
 } from '@suite-common/wallet-utils';
@@ -159,6 +161,21 @@ export const useTronStakeActions = ({
                 form.methods.setValue('amount', getTronWithdrawableBalance(account));
                 dispatch(
                     submitTronWithdrawThunk({
+                        account,
+                        device,
+                        requestPushApproval: async () =>
+                            Boolean(
+                                await dispatch(openDeferredModal({ type: 'review-transaction' })),
+                            ),
+                        onSigningStart: () => dispatch(preserveModal()),
+                        onSettled: () => dispatch(closeModal()),
+                    }),
+                );
+                break;
+            case 'claim':
+                form.methods.setValue('amount', getTronStakingRewards(account));
+                dispatch(
+                    submitTronClaimThunk({
                         account,
                         device,
                         requestPushApproval: async () =>

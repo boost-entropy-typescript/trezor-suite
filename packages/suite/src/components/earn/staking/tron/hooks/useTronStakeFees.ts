@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import {
+    composeTronClaimFeeLevelsThunk,
     composeTronFreezeFeeLevelsThunk,
     composeTronUnstakeFeeLevelsThunk,
     composeTronVoteFeeLevelsThunk,
@@ -64,6 +65,11 @@ export const useTronStakeFees = (): TronStakeFees => {
             case 'withdraw':
                 return () =>
                     dispatch(composeTronWithdrawFeeLevelsThunk({ account }))
+                        .unwrap()
+                        .catch(() => undefined);
+            case 'claim':
+                return () =>
+                    dispatch(composeTronClaimFeeLevelsThunk({ account }))
                         .unwrap()
                         .catch(() => undefined);
             case 'complete':
