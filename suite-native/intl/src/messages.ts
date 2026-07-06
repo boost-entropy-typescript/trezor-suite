@@ -2651,7 +2651,6 @@ export const messages = {
             withdrawalFeesBanner:
                 "We've left {amount} {displaySymbol} in your account so you can pay for withdrawal fees.",
             estimatedRewardsLabel: 'Estimated yearly rewards',
-            estimatedRewardsPlaceholder: 'Enter amount to see rewards',
             validation: {
                 amountIsZero: 'Amount must be greater than 0.',
                 amountBelowMinimum: 'Amount must be at least {amount} {symbol}.',
@@ -2670,6 +2669,8 @@ export const messages = {
             },
         },
         unstakeFlowScreen: {
+            canClaimWarning:
+                'You can already claim {amount}. Claim now or wait until your new unstake is processed.',
             instantlyAvailable: {
                 label: 'Instantly available (est.)',
                 infoTitle: 'Instantly available (estimate)',

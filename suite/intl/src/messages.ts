@@ -5559,6 +5559,29 @@ export const messages = defineMessages({
         id: 'TR_EXPERIMENTAL_SUITE_SYNC_TITLE',
         defaultMessage: 'Suite Sync',
     },
+    TR_TRON_VOTE_CONSENT_MODAL_HEADING: {
+        id: 'TR_TRON_VOTE_CONSENT_MODAL_HEADING',
+        defaultMessage: 'Vote for {representativeName}',
+    },
+    TR_TRON_VOTE_CONSENT_MODAL_DESCRIPTION: {
+        id: 'TR_TRON_VOTE_CONSENT_MODAL_DESCRIPTION',
+        defaultMessage: 'You retain full ownership of your TRX — only your votes are delegated.',
+    },
+    TR_TRON_VOTE_CONSENT_MODAL_CONSENT_TEXT: {
+        id: 'TR_TRON_VOTE_CONSENT_MODAL_CONSENT_TEXT',
+        defaultMessage:
+            "I acknowledge <a>{representativeName}'s Terms of Service</a> and consent to delegate my votes to {representativeName}.",
+    },
+    TR_TRON_VOTE_CONSENT_MODAL_BANNER_1_TEXT: {
+        id: 'TR_TRON_VOTE_CONSENT_MODAL_BANNER_1_TEXT',
+        defaultMessage:
+            'Vote for {representativeName} to receive TRX rewards and help support the security and stability of the Tron network.',
+    },
+    TR_TRON_VOTE_CONSENT_MODAL_BANNER_2_TEXT: {
+        id: 'TR_TRON_VOTE_CONSENT_MODAL_BANNER_2_TEXT',
+        defaultMessage:
+            'With Trezor Suite, securely delegate your voting rights to {representativeName}. Enjoy competitive rewards, rely on a trusted Super Representative, and keep full ownership of your TRX at all times.',
+    },
     TR_TRON_BANDWIDTH: {
         id: 'TR_TRON_BANDWIDTH',
         defaultMessage: 'Bandwidth',
@@ -9995,11 +10018,12 @@ export const messages = defineMessages({
     },
     TR_EARN_STAKING_APY_TOOLTIP: {
         id: 'TR_EARN_STAKING_APY_TOOLTIP',
-        defaultMessage: 'Annual percentage yield (APY)',
+        defaultMessage:
+            'This is the annual percentage yield (APY). It includes compounded returns.',
     },
     TR_EARN_STAKING_APR_TOOLTIP: {
         id: 'TR_EARN_STAKING_APR_TOOLTIP',
-        defaultMessage: 'Annual percentage rate (APR)',
+        defaultMessage: "This is the annual percentage rate (APR). It doesn't include compounding.",
     },
     TR_EARN_YIELD_AMOUNT_TO_WITHDRAW: {
         id: 'TR_EARN_YIELD_AMOUNT_TO_WITHDRAW',
@@ -12610,5 +12634,13 @@ export const messages = defineMessages({
     MEMO_SWITCH: {
         id: 'MEMO_SWITCH',
         defaultMessage: 'Add memo',
+    },
+    KILLSWITCH_SCREEN_DEFAULT_TITLE: {
+        id: 'KILLSWITCH_SCREEN_DEFAULT_TITLE',
+        defaultMessage: 'Update required',
+    },
+    KILLSWITCH_SCREEN_DEFAULT_CONTENT: {
+        id: 'KILLSWITCH_SCREEN_DEFAULT_CONTENT',
+        defaultMessage: 'Update to continue using Trezor Suite. Your funds are secure.',
     },
 } as const);

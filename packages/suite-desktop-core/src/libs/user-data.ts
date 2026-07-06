@@ -8,21 +8,23 @@ import type { Result } from '@trezor/type-utils';
 
 import { setAutoStartEnabled } from './auto-start';
 
-const resolveDirectoryInUserDataDir = (directory: string): Result<{ dir: string }, string> => {
+export const resolveDirectoryInUserDataDir = (
+    directory: string,
+): Result<{ dir: string }, string> => {
     const userDataDir = path.resolve(app.getPath('userData'));
     const dir = path.resolve(path.join(userDataDir, directory));
 
-    if (!dir.startsWith(userDataDir)) {
-        return {
-            success: false,
-            error: `Path traversal attempt detected, directory: "${directory}"`,
-        };
+    if (dir.startsWith(userDataDir + path.sep) || dir === userDataDir) {
+        return { success: true, payload: { dir } };
     }
 
-    return { success: true, payload: { dir } };
+    return {
+        success: false,
+        error: `Path traversal attempt detected, directory: "${directory}"`,
+    };
 };
 
-const resolvePathInUserDataDir = (
+export const resolvePathInUserDataDir = (
     directory: string,
     filename: string,
 ): Result<{ dir: string; file: string }, string> => {

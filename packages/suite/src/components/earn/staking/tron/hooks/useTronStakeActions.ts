@@ -1,10 +1,11 @@
 import { useDevice } from '@suite/device';
 import { closeModal, openDeferredModal, preserveModal } from '@suite/modal';
+import { useTronStakingStats } from '@suite-common/earn-staking-api';
+import { TRON_REPRESENTATIVE_TERMS_OF_SERVICE_URLS } from '@suite-common/wallet-constants';
 import {
     type TronFlow,
     type TronStakeError,
     type TronStakeStepId,
-    composeTronFreezeFeeLevelsThunk,
     selectTronStakeSession,
     submitTronClaimThunk,
     submitTronFreezeThunk,
@@ -14,20 +15,14 @@ import {
     tronStakeActions,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import {
-    asAmountSubunit,
-    getTronStakingRewards,
-    getTronWithdrawableBalance,
-    subunitsToUnits,
-} from '@suite-common/wallet-utils';
+import { getTronStakingRewards, getTronWithdrawableBalance } from '@suite-common/wallet-utils';
 import { exhaustive } from '@trezor/type-utils';
-import { BigNumber } from '@trezor/utils';
 
 import { setConnectionModal, setConnectionMode } from 'src/actions/device/deviceSlice';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
-import { type useTronStakeForm } from './useTronStakeForm';
 import { resolveVotedRepresentativeAddress } from '../voteUtils';
+import { type useTronStakeForm } from './useTronStakeForm';
 
 interface UseTronStakeActionsProps {
     account: Account;
@@ -39,7 +34,6 @@ export interface TronStakeActions {
     step: TronStakeStepId;
     goToStep: (step: TronStakeStepId) => void;
     submitAction: () => void;
-    setMax: () => Promise<void>;
     isSubmitting: boolean;
     error: TronStakeError | null;
     pendingTxid: string | null;
@@ -52,6 +46,7 @@ export const useTronStakeActions = ({
 }: UseTronStakeActionsProps): TronStakeActions => {
     const dispatch = useDispatch();
     const { device } = useDevice();
+    const { stats } = useTronStakingStats();
     const { step, isSubmitting, error, pendingTxid } = useSelector(state =>
         selectTronStakeSession(state, account.key, flow),
     );
@@ -64,31 +59,6 @@ export const useTronStakeActions = ({
             dispatch(setConnectionMode('bluetooth'));
         }
         dispatch(setConnectionModal(true));
-    };
-
-    const setMax = async () => {
-        const resourceType = form.methods.getValues('resourceType');
-
-        const availableBalance = subunitsToUnits({
-            value: asAmountSubunit(new BigNumber(account.availableBalance)),
-            symbol: account.symbol,
-        }).toString();
-
-        const levels = await dispatch(
-            composeTronFreezeFeeLevelsThunk({ account, amount: availableBalance, resourceType }),
-        )
-            .unwrap()
-            .catch(() => undefined);
-
-        const feeInSun = levels?.normal?.type === 'final' ? levels.normal.fee : '0';
-        const maxInSun = BigNumber.max(new BigNumber(account.availableBalance).minus(feeInSun), 0);
-
-        const maxAmount = subunitsToUnits({
-            value: asAmountSubunit(maxInSun),
-            symbol: account.symbol,
-        }).toString();
-
-        form.methods.setValue('amount', maxAmount, { shouldValidate: true });
     };
 
     const submitAction = () => {
@@ -123,12 +93,35 @@ export const useTronStakeActions = ({
                 const representativeAddress = resolveVotedRepresentativeAddress(
                     form.methods.getValues(),
                 );
+                const representative = stats.data?.find(
+                    ({ address }) => address === representativeAddress,
+                );
+                const representativeName = representative?.name ?? representativeAddress;
+
+                const termsOfServiceUrl =
+                    TRON_REPRESENTATIVE_TERMS_OF_SERVICE_URLS[representativeAddress];
+
+                const requestVoteConsent =
+                    representative && termsOfServiceUrl
+                        ? async () =>
+                              Boolean(
+                                  await dispatch(
+                                      openDeferredModal({
+                                          type: 'tron-vote-consent',
+                                          representativeName,
+                                          termsOfServiceUrl,
+                                      }),
+                                  ),
+                              )
+                        : undefined;
+
                 dispatch(
                     submitTronVoteThunk({
                         account,
                         device,
                         flow,
                         representativeAddress,
+                        requestVoteConsent,
                         requestPushApproval: async () =>
                             Boolean(
                                 await dispatch(openDeferredModal({ type: 'review-transaction' })),
@@ -194,5 +187,12 @@ export const useTronStakeActions = ({
         }
     };
 
-    return { step, goToStep, submitAction, setMax, isSubmitting, error, pendingTxid };
+    return {
+        step,
+        goToStep,
+        submitAction,
+        isSubmitting,
+        error,
+        pendingTxid,
+    };
 };

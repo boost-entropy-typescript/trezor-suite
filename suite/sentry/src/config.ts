@@ -18,6 +18,7 @@ import { isCodesignBuild } from '@trezor/env-utils';
 import { redactUserPathFromString } from '@trezor/utils';
 
 import { ignoreErrors } from './ignoreErrors';
+import { tracesSampler } from './traces';
 
 /**
  * Full user path could be part of reported error in some cases and we want to actively filter username out.
@@ -110,12 +111,13 @@ export const SENTRY_CONFIG = {
 export const SENTRY_BROWSER_CONFIG = {
     ...SENTRY_CONFIG,
     profileSessionSampleRate: isProd ? 0.1 : 1,
-    tracesSampleRate: isProd ? 0.1 : 1,
+    // In our case, `tracesSampler` is used only to drop traces based on arbitrary condition (similarly to `beforeSend` for error events)
+    tracesSampler,
     profileLifecycle: 'trace',
     integrations: [
         captureConsoleIntegration({ levels: ['error'] }),
-        !isProd && browserProfilingIntegration(),
-        !isProd && browserTracingIntegration(),
-        !isProd && elementTimingIntegration(),
-    ].filter((item): item is Exclude<typeof item, false> => Boolean(item)),
+        browserProfilingIntegration(),
+        browserTracingIntegration(),
+        elementTimingIntegration(),
+    ],
 } satisfies BrowserOptions;
