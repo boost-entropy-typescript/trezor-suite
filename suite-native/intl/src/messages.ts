@@ -2665,6 +2665,7 @@ export const messages = {
             validation: {
                 amountIsZero: 'Amount must be greater than 0.',
                 amountExceedsMax: 'The amount exceeds the maximum allowed value of {maxAmount}.',
+                amountBelowMin: 'The minimum amount to unstake is {minAmount} {networkSymbol}.',
                 insufficientBalance: 'You don’t have enough staked balance to unstake this amount.',
                 tooManyDecimals: 'Too many decimals.',
             },
@@ -3546,9 +3547,9 @@ export const messages = {
                     buyDescription:
                         "Your transaction failed or was rejected. Your payment method hasn't been charged.",
                     sellDescription:
-                        'The transaction didn’t go through. We’re looking into it, but your funds are safe in your account.',
+                        'The transaction didn’t go through. Your funds are safe in your account.',
                     swapDescription:
-                        'The transaction didn’t go through. We’re looking into it, but your funds are safe in your account.',
+                        'The transaction didn’t go through. Your funds are safe in your account.',
                 },
                 waitingAlert: {
                     title: 'Waiting for your payment ...',
