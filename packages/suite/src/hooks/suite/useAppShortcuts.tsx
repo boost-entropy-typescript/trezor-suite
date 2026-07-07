@@ -13,7 +13,7 @@ import { isDesktop } from '@trezor/env-utils';
 import { desktopApi } from '@trezor/suite-desktop-api';
 
 import { bioAuthActions } from 'src/actions/suite/bioAuthActions';
-import { open, setView } from 'src/actions/suite/guideActions';
+import { toggleView as toggleGuideView } from 'src/actions/suite/guideActions';
 import { useDispatch } from 'src/hooks/suite/useDispatch';
 import { useSelector } from 'src/hooks/suite/useSelector';
 import { selectIsBioAuthEnabled } from 'src/reducers/bioAuth';
@@ -242,14 +242,13 @@ export const useAppShortcuts = () => {
             }
         }
 
-        // press ALT + ↑ / ↓ to step to the previous / next account in the list
-        if (
-            altOnly &&
-            (e.code === KEYBOARD_CODE.ARROW_UP || e.code === KEYBOARD_CODE.ARROW_DOWN) &&
-            orderedAccounts.length > 0
-        ) {
+        // press ALT + K / J (vim-style) to step to the previous / next account in the list
+        const isPrevAccountKey = e.code === KEYBOARD_CODE.KEY_K;
+        const isNextAccountKey = e.code === KEYBOARD_CODE.KEY_J;
+
+        if (altOnly && (isPrevAccountKey || isNextAccountKey) && orderedAccounts.length > 0) {
             e.preventDefault();
-            const offset = e.code === KEYBOARD_CODE.ARROW_DOWN ? 1 : -1;
+            const offset = isNextAccountKey ? 1 : -1;
             const currentIndex = orderedAccounts.findIndex(
                 account =>
                     selectedAccount?.symbol === account.symbol &&
@@ -269,12 +268,11 @@ export const useAppShortcuts = () => {
             toggleDebugMode();
         }
 
-        // press ? to open the keyboard shortcuts guide
-        // `?` is a printable character, so ignore it while the user is typing
-        if (e.key === '?' && !cmdOrCtrl && !altKey && !isTypingTarget(e.target)) {
+        // press "?" to toggle the keyboard shortcuts guide
+        // matched on `e.key` rather than `e.code` so it also works on non-US layouts
+        if (e.key === '?' && !cmdOrCtrl && !isTypingTarget(e.target)) {
             e.preventDefault();
-            dispatch(setView('KEYBOARD_SHORTCUTS'));
-            dispatch(open());
+            dispatch(toggleGuideView('KEYBOARD_SHORTCUTS'));
         }
     };
 
