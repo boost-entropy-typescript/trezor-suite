@@ -17,8 +17,8 @@ import { isDevEnv } from '@suite-common/suite-utils';
 import { isCodesignBuild } from '@trezor/env-utils';
 import { redactUserPathFromString } from '@trezor/utils';
 
+import { getAnalyticsConfirmedAndEnabled } from './consent';
 import { ignoreErrors } from './ignoreErrors';
-import { tracesSampler } from './traces';
 
 /**
  * Full user path could be part of reported error in some cases and we want to actively filter username out.
@@ -89,6 +89,7 @@ const beforeBreadcrumb: Options['beforeBreadcrumb'] = breadcrumb => {
 
 const isProd = isCodesignBuild();
 
+// Common Sentry config for all Suite Desktop & Web envs
 export const SENTRY_CONFIG = {
     dsn: 'https://6d91ca6e6a5d4de7b47989455858b5f6@o117836.ingest.sentry.io/5193825',
 
@@ -108,16 +109,31 @@ export const SENTRY_CONFIG = {
     },
 } satisfies Options;
 
+// Common Sentry config for Suite browser-based envs (i.e. Web & Electron Renderer, but not Electron Main)
 export const SENTRY_BROWSER_CONFIG = {
     ...SENTRY_CONFIG,
     profileSessionSampleRate: isProd ? 0.1 : 1,
-    // In our case, `tracesSampler` is used only to drop traces based on arbitrary condition (similarly to `beforeSend` for error events)
-    tracesSampler,
+    tracesSampleRate: isProd ? 0.1 : 1,
     profileLifecycle: 'trace',
-    integrations: [
-        captureConsoleIntegration({ levels: ['error'] }),
-        browserProfilingIntegration(),
-        browserTracingIntegration(),
-        elementTimingIntegration(),
-    ],
 } satisfies BrowserOptions;
+
+// Get Sentry integrations common for Suite browser-based envs, that should be added on top of the default ones.
+export const getCommonBrowserIntegrations = () => {
+    const areAnalyticsConfirmedAndEnabled = getAnalyticsConfirmedAndEnabled();
+
+    return [
+        captureConsoleIntegration({ levels: ['error'] }),
+        /*
+         Unless explicit analytics consent was persisted from before, don't start with tracing & profiling integrations.
+         This means that after you accept analytics on your first session, tracing & profiling is still off until app is
+         reloaded, but that's an acceptable cost – most important is to make sure nothing gets through rejected consent.
+        */
+        ...(areAnalyticsConfirmedAndEnabled
+            ? [
+                  browserProfilingIntegration(),
+                  browserTracingIntegration(),
+                  elementTimingIntegration(),
+              ]
+            : []),
+    ] satisfies BrowserOptions['integrations'];
+};

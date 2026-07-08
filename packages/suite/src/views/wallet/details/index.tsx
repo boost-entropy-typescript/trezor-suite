@@ -18,6 +18,7 @@ import { WalletLayout } from 'src/components/wallet';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 import { ContentFlex, useIsContentBelowBreakpoint } from 'src/support/suite/ContentFlex';
 
+import { AccountNonce } from './AccountNonce';
 import { CoinjoinLogs } from './CoinjoinLogs';
 import { CoinjoinSetup } from './CoinjoinSetup/CoinjoinSetup';
 import { RescanAccount } from './RescanAccount';
@@ -159,6 +160,14 @@ const Details = () => {
                         )
                     ) : (
                         <RescanAccount account={account} />
+                    )}
+                    {account.networkType === 'ethereum' && (
+                        <DetailsRow
+                            title="TR_ACCOUNT_DETAILS_NONCE_HEADER"
+                            description={<Translation id="TR_ACCOUNT_DETAILS_NONCE_DESC" />}
+                        >
+                            <AccountNonce account={account} />
+                        </DetailsRow>
                     )}
                     <Bip329Labels account={account} isLoading={locked} />
                 </Column>

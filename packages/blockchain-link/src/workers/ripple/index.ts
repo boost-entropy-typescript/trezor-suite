@@ -175,7 +175,7 @@ const getTransaction = async ({ connect, payload }: Request<MessageTypes.GetTran
     const client = await connect();
     const rawTx = await client.request({
         command: 'tx',
-        transaction: payload,
+        transaction: payload.txid,
         binary: false,
     });
 
@@ -183,6 +183,7 @@ const getTransaction = async ({ connect, payload }: Request<MessageTypes.GetTran
         rawTx.result.hash,
         rawTx.result.tx_json,
         rawTx.result.meta,
+        payload.descriptor,
     );
 
     return {

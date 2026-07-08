@@ -9,19 +9,28 @@ import { AccountTransactionBaseAnchor, useAnchor } from '@suite/router';
 import { type AccountType, type Network } from '@suite-common/wallet-config';
 import {
     createTargets,
+    selectAccountByKey,
     selectIsPhishingTransaction,
     useDisplayBaseCurrency,
 } from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
-import { formatNetworkAmount, isTxFeePaid } from '@suite-common/wallet-utils';
-import { Button, Link, Row, Tooltip } from '@trezor/components';
+import {
+    formatNetworkAmount,
+    getPendingEvmNonceStatus,
+    isSentTransaction,
+    isTransactionBumpable,
+    isTransactionCancellable,
+    isTxFeePaid,
+} from '@suite-common/wallet-utils';
+import { Button, Icon, Row, Tooltip } from '@trezor/components';
 import { OutlineHighlight } from '@trezor/product-components';
-import { HELP_CENTER_REPLACE_BY_FEE_ETHEREUM } from '@trezor/urls';
 
 import { SUBPAGE_NAV_HEIGHT } from 'src/constants/suite/layout';
 import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useEvmNonceInfo } from 'src/hooks/wallet/useEvmNonceInfo';
 import { type WalletAccountTransaction } from 'src/types/wallet';
 
+import { EvmBumpFeeTooltip } from './EvmBumpFeeTooltip';
 import { TransactionHeading } from './TransactionHeading';
 import { TransactionLayout } from './TransactionLayout';
 import { CoinjoinRow, DepositRow, FeeRow, WithdrawalRow } from './TransactionRow';
@@ -78,16 +87,71 @@ export const TransactionItem = memo(
         const fee = formatNetworkAmount(transaction.fee, transaction.symbol);
         const showFeeRow = isTxFeePaid(transaction);
 
-        const isTxCancellable =
-            transaction.type !== 'self' &&
-            transaction.type !== 'joint' &&
-            network.networkType === 'bitcoin';
+        const isTxCancellable = isTransactionCancellable(
+            transaction,
+            isPending,
+            network.networkType,
+        );
 
         const isTxBumpable =
-            !isActionDisabled &&
-            transaction.rbfParams &&
-            networkFeatures?.includes('rbf') &&
-            !transaction?.deadline;
+            !isActionDisabled && isTransactionBumpable(transaction, networkFeatures);
+
+        // Fetched once (on mount) from the backend rather than derived from the account's local
+        // sync state, so a stuck/gapped nonce is found using the account's real confirmed nonce as
+        // the counting base instead of local data that can itself be incomplete or stale — see
+        // useEvmNonceInfo.
+        const rawNonceAccount = useSelector(state => selectAccountByKey(state, accountKey));
+        const nonceAccount =
+            rawNonceAccount?.networkType === 'ethereum' ? rawNonceAccount : undefined;
+        const { nonceInfo: fetchedNonceInfo } = useEvmNonceInfo(nonceAccount);
+
+        const evmNonce =
+            network.networkType === 'ethereum' ? transaction.ethereumSpecific?.nonce : undefined;
+
+        // Gated on `isSentTransaction` to match the filter `getEvmNonceInfo` uses when building
+        // `fetchedNonceInfo` — a tx type it doesn't count (e.g. a pending contract deployment)
+        // isn't reflected in those bounds, so comparing its nonce against them would produce a
+        // false gap/superseded reading.
+        const pendingEvmNonce = isPending && isSentTransaction(transaction) ? evmNonce : undefined;
+
+        // A pending EVM tx can be stuck two ways: its nonce is above the next free nonce (a lower
+        // nonce is missing — a gap), or below the confirmed nonce (that slot was already mined by
+        // another tx — superseded). Either way it won't confirm; `nextNonce` is the nonce to
+        // re-send with to unblock it.
+        const nonceStatus =
+            pendingEvmNonce !== undefined && fetchedNonceInfo
+                ? getPendingEvmNonceStatus(pendingEvmNonce, fetchedNonceInfo)
+                : 'ok';
+
+        // Bumping the fee, or cancelling, both re-send at this same nonce, which does nothing when
+        // that nonce can never confirm (gapped) or already did under another tx (superseded) — a
+        // cancel attempt on a superseded nonce would just be rejected by the network as "nonce too
+        // low".
+        const isBumpFeeDisabled = disableBumpFee || nonceStatus !== 'ok';
+        const isCancelDisabled = nonceStatus !== 'ok';
+
+        const renderNonceWarning = () => {
+            if (pendingEvmNonce === undefined || !fetchedNonceInfo) return null;
+
+            const status = getPendingEvmNonceStatus(pendingEvmNonce, fetchedNonceInfo);
+            if (status === 'superseded')
+                return (
+                    <Translation
+                        id="TR_PENDING_NONCE_SUPERSEDED_WARNING"
+                        values={{ nonce: fetchedNonceInfo.nextNonce }}
+                    />
+                );
+            if (status === 'gap')
+                return (
+                    <Translation
+                        id="TR_BUMP_FEE_NONCE_GAP_WARNING"
+                        values={{ nonce: fetchedNonceInfo.nextNonce }}
+                    />
+                );
+
+            return null;
+        };
+        const nonceWarning = renderNonceWarning();
 
         const openTxDetailsModal = ({ flow }: OpenModalParams) => {
             if (isActionDisabled) return; // open explorer
@@ -115,7 +179,16 @@ export const TransactionItem = memo(
                 <OutlineHighlight shouldHighlight={shouldHighlight}>
                     <TransactionLayout
                         onClick={() => openTxDetailsModal({ flow: 'detail' })}
-                        timestamp={<TransactionTimestamp transaction={transaction} />}
+                        timestamp={
+                            <Row gap={4}>
+                                <TransactionTimestamp transaction={transaction} />
+                                {nonceWarning && (
+                                    <Tooltip content={nonceWarning}>
+                                        <Icon name="warning" size={16} intent="warning" />
+                                    </Tooltip>
+                                )}
+                            </Row>
+                        }
                         heading={
                             <TransactionHeading
                                 transaction={transaction}
@@ -133,44 +206,36 @@ export const TransactionItem = memo(
                             />
                         }
                         actions={
-                            isTxBumpable && (
+                            (isTxBumpable || isTxCancellable) && (
                                 <Row gap={12}>
-                                    <Tooltip
-                                        content={
-                                            <Translation
-                                                id="TR_BUMP_FEE_DISABLED_TOOLTIP"
-                                                values={{
-                                                    a: chunks => (
-                                                        <Link
-                                                            href={
-                                                                HELP_CENTER_REPLACE_BY_FEE_ETHEREUM
-                                                            }
-                                                        >
-                                                            {chunks}
-                                                        </Link>
-                                                    ),
-                                                }}
-                                            />
-                                        }
-                                        isActive={disableBumpFee}
-                                    >
-                                        <Button
-                                            intent="neutral"
-                                            priority="secondary"
-                                            iconLeft="gauge"
-                                            onClick={e => {
-                                                openTxDetailsModal({
-                                                    flow: 'bump-fee',
-                                                });
-                                                e.stopPropagation();
-                                            }}
-                                            isDisabled={disableBumpFee}
-                                            data-testid="@transaction-item/bump-fee-button"
-                                            size="medium"
+                                    {isTxBumpable && (
+                                        <Tooltip
+                                            content={
+                                                <EvmBumpFeeTooltip
+                                                    isDisabled={isBumpFeeDisabled}
+                                                    nonce={evmNonce}
+                                                />
+                                            }
+                                            isActive={isBumpFeeDisabled || evmNonce !== undefined}
                                         >
-                                            <Translation id="TR_BUMP_FEE" />
-                                        </Button>
-                                    </Tooltip>
+                                            <Button
+                                                intent="neutral"
+                                                priority="secondary"
+                                                iconLeft="gauge"
+                                                onClick={e => {
+                                                    openTxDetailsModal({
+                                                        flow: 'bump-fee',
+                                                    });
+                                                    e.stopPropagation();
+                                                }}
+                                                isDisabled={isBumpFeeDisabled}
+                                                data-testid="@transaction-item/bump-fee-button"
+                                                size="medium"
+                                            >
+                                                <Translation id="TR_BUMP_FEE" />
+                                            </Button>
+                                        </Tooltip>
+                                    )}
                                     {isTxCancellable && (
                                         <Button
                                             intent="neutral"
@@ -182,6 +247,7 @@ export const TransactionItem = memo(
                                                 });
                                                 e.stopPropagation();
                                             }}
+                                            isDisabled={isCancelDisabled}
                                             size="medium"
                                         >
                                             <Translation id="TR_CANCEL_TX" />

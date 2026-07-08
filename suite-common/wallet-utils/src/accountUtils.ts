@@ -264,32 +264,37 @@ export const getAccountTypeUrl = (path: string) => {
 };
 
 /**
- * Sort accounts as they are defined in `networksConfig`, by two criteria:
+ * Compare accounts as they are defined in `networksConfig`, by two criteria:
  * - primary: by network `symbol`
  * - secondary: by `accountType`
  */
+export const compareAccountsByCoin = (a: Account, b: Account) => {
+    // primary sorting: by order of network keys
+    const aSymbolIndex = networkSymbolCollection.indexOf(a.symbol);
+    const bSymbolIndex = networkSymbolCollection.indexOf(b.symbol);
+    if (aSymbolIndex !== bSymbolIndex) return aSymbolIndex - bSymbolIndex;
+
+    // when it is sorted by network, sort by order of accountType keys within the same network
+    const network = networks[a.symbol];
+    // `network` is a union over all networks (some declare `accountTypes: {}`), which would collapse
+    // `keyof` to `never`; widening to the field's declared keyset yields `AccountType[]` soundly.
+    const orderedAccountTypes = typedObjectKeys(
+        network.accountTypes as Partial<Record<AccountType, unknown>>,
+    );
+    const aAccountTypeIndex = orderedAccountTypes.indexOf(a.accountType);
+    const bAccountTypeIndex = orderedAccountTypes.indexOf(b.accountType);
+
+    if (aAccountTypeIndex !== bAccountTypeIndex) return aAccountTypeIndex - bAccountTypeIndex;
+
+    // if both are same, sort by account index
+    return a.index - b.index;
+};
+
+/**
+ * Sort accounts with `compareAccountsByCoin`. Returns a new array, the input is not mutated.
+ */
 export const sortByCoin = <T extends Account>(accounts: T[]) =>
-    accounts.sort((a, b) => {
-        // primary sorting: by order of network keys
-        const aSymbolIndex = networkSymbolCollection.indexOf(a.symbol);
-        const bSymbolIndex = networkSymbolCollection.indexOf(b.symbol);
-        if (aSymbolIndex !== bSymbolIndex) return aSymbolIndex - bSymbolIndex;
-
-        // when it is sorted by network, sort by order of accountType keys within the same network
-        const network = networks[a.symbol];
-        // `network` is a union over all networks (some declare `accountTypes: {}`), which would collapse
-        // `keyof` to `never`; widening to the field's declared keyset yields `AccountType[]` soundly.
-        const orderedAccountTypes = typedObjectKeys(
-            network.accountTypes as Partial<Record<AccountType, unknown>>,
-        );
-        const aAccountTypeIndex = orderedAccountTypes.indexOf(a.accountType);
-        const bAccountTypeIndex = orderedAccountTypes.indexOf(b.accountType);
-
-        if (aAccountTypeIndex !== bAccountTypeIndex) return aAccountTypeIndex - bAccountTypeIndex;
-
-        // if both are same, keep the original order in `accounts`
-        return a.index - b.index;
-    });
+    accounts.toSorted(compareAccountsByCoin);
 
 export const findAccountsByNetwork = <T extends Account>(symbol: NetworkSymbol, accounts: T[]) =>
     accounts.filter(a => a.symbol === symbol);
@@ -797,12 +802,21 @@ export type AccountSearchParams = {
      * When provided, replaces account.tokens so that hidden/spam tokens are excluded from search.
      */
     searchableTokens?: TokenInfo[];
+
+    /** Localized account type name as displayed in the account type badge (e.g. "Legacy SegWit"). */
+    accountTypeName?: string;
 };
 
 export const accountSearchFn = (
     account: Account,
     rawSearchString: string | undefined,
-    { coinsFilter, accountLabel, tokensMatch = true, searchableTokens }: AccountSearchParams,
+    {
+        coinsFilter,
+        accountLabel,
+        tokensMatch = true,
+        searchableTokens,
+        accountTypeName,
+    }: AccountSearchParams,
 ) => {
     let coinsFilterArray: NetworkSymbol[] = [];
 
@@ -834,6 +848,7 @@ export const accountSearchFn = (
     const symbolMatch = account.symbol.startsWith(searchString);
     const networkNameMatch = network?.name.toLowerCase().includes(searchString);
     const accountTypeMatch = account.accountType.startsWith(searchString);
+    const accountTypeNameMatch = !!accountTypeName?.toLowerCase().includes(searchString);
     const descriptorMatch = account.descriptor.toLowerCase() === searchString;
     const addressMatch = account.addresses
         ? account.addresses.used.find(matchAddressFn) ||
@@ -861,6 +876,7 @@ export const accountSearchFn = (
         symbolMatch ||
         networkNameMatch ||
         accountTypeMatch ||
+        accountTypeNameMatch ||
         descriptorMatch ||
         addressMatch ||
         matchXRPAlternativeName ||
@@ -1163,48 +1179,6 @@ export const prepareNewAccountPayload = async ({
         backendType,
     };
 };
-
-interface FiatBalanceInDescComparatorProps {
-    accountA: Account;
-    accountB: Account;
-    baseCurrencyCode: BaseCurrencyCode;
-    fiatRates: RatesByKey;
-}
-
-export function accountsFiatBalanceInDescOrderComparator({
-    accountA,
-    accountB,
-    baseCurrencyCode,
-    fiatRates,
-}: FiatBalanceInDescComparatorProps) {
-    const accountAFiatBalance =
-        getAccountFiatBalance({
-            account: accountA,
-            baseCurrencyCode,
-            rates: fiatRates,
-            shouldIncludeTokens: true,
-            shouldIncludeStaking: false,
-        }) ?? new BigNumber(0);
-
-    const accountBFiatBalance =
-        getAccountFiatBalance({
-            account: accountB,
-            baseCurrencyCode,
-            rates: fiatRates,
-            shouldIncludeTokens: true,
-            shouldIncludeStaking: false,
-        }) ?? new BigNumber(0);
-
-    if (accountBFiatBalance.gt(accountAFiatBalance)) {
-        return 1;
-    }
-
-    if (accountAFiatBalance.gt(accountBFiatBalance)) {
-        return -1;
-    }
-
-    return 0;
-}
 
 export const isProgramDerivedAccount = (data: AccountInfo) =>
     !(data?.misc?.owner === SYSTEM_PROGRAM_PUBLIC_KEY || data?.misc?.owner === undefined);

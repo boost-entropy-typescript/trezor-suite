@@ -36,7 +36,11 @@ describe('account utils', () => {
 
     fixtures.sortByCoin.forEach(f => {
         it('accountUtils.sortByCoin', () => {
-            expect(sortByCoin(f.accounts as Account[])).toEqual(f.result);
+            const input = [...(f.accounts as Account[])];
+
+            expect(sortByCoin(input)).toEqual(f.result);
+            // The input array is not mutated.
+            expect(input).toEqual(f.accounts);
         });
     });
 
@@ -224,6 +228,40 @@ describe('account utils', () => {
             ),
         ).toBe(true);
         expect(accountSearchFn(btcAcc, '#1', { accountLabel: 'Bitcoin #1' })).toBe(true);
+    });
+
+    it('accountSearchFn matches displayed account type name', () => {
+        const segwitAcc = mockWalletAccount({
+            symbol: 'btc',
+            accountType: 'segwit',
+        });
+
+        // Matched only via the displayed name, the raw account type key alone would not match.
+        expect(
+            accountSearchFn(segwitAcc, 'legacy segwit', {
+                accountLabel: '',
+                accountTypeName: 'Legacy SegWit',
+            }),
+        ).toBe(true);
+        expect(
+            accountSearchFn(segwitAcc, 'legacy', {
+                accountLabel: '',
+                accountTypeName: 'Legacy SegWit',
+            }),
+        ).toBe(true);
+        expect(
+            accountSearchFn(segwitAcc, 'LEGACY SEGWIT', {
+                accountLabel: '',
+                accountTypeName: 'Legacy SegWit',
+            }),
+        ).toBe(true);
+        expect(accountSearchFn(segwitAcc, 'legacy segwit', { accountLabel: '' })).toBe(false);
+        expect(
+            accountSearchFn(segwitAcc, 'taproot', {
+                accountLabel: '',
+                accountTypeName: 'Legacy SegWit',
+            }),
+        ).toBe(false);
     });
 
     it('accountSearchFn empty tokens', () => {
