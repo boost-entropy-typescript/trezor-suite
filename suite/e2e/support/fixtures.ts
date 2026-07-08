@@ -11,6 +11,7 @@ import { TradingMock } from './mocks/tradingMock';
 import { AnalyticsSection } from './pageObjects/analyticsSection';
 import { AssetsSection } from './pageObjects/assetsSection';
 import { ConnectPermissionsModal } from './pageObjects/connectPermissionsModal';
+import { ConnectSelectAccountModal } from './pageObjects/connectSelectAccountModal';
 import { DashboardPage } from './pageObjects/dashboardPage';
 import { DevicePrompt } from './pageObjects/devicePrompt';
 import { GuidePanel } from './pageObjects/guidePanel';
@@ -50,6 +51,7 @@ type Fixtures = {
     solanaStakingMock: SolanaStakingMock;
     tradingMock: TradingMock;
     connectPermissionsModal: ConnectPermissionsModal;
+    connectSelectAccountModal: ConnectSelectAccountModal;
     stakingSection: StakingSection;
     paginationControl: PaginationControl;
     evoluClient: EvoluClient;
@@ -117,11 +119,17 @@ const test = suiteBaseTest.extend<Fixtures>({
         await use(blockbookMock);
         blockbookMock.stop();
     },
-    solanaStakingMock: async ({ page }, use) => {
-        await use(new SolanaStakingMock(page));
+    solanaStakingMock: async ({ target }, use) => {
+        const solanaStakingMock = new SolanaStakingMock(target);
+        await solanaStakingMock.start();
+        await use(solanaStakingMock);
+        await solanaStakingMock.stop();
     },
     tradingMock: async ({ page }, use) => {
         await use(new TradingMock(page));
+    },
+    connectSelectAccountModal: async ({ page }, use) => {
+        await use(new ConnectSelectAccountModal(page));
     },
     connectPermissionsModal: async ({ page }, use) => {
         await use(new ConnectPermissionsModal(page));

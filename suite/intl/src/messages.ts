@@ -10058,6 +10058,18 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_APY_TOOLTIP_FOOTER',
         defaultMessage: 'APY can change over time',
     },
+    TR_EARN_YIELD_APY_APR_TOOLTIP_FOOTER: {
+        id: 'TR_EARN_YIELD_APY_APR_TOOLTIP_FOOTER',
+        defaultMessage: 'APY and APR rates can change over time',
+    },
+    TR_EARN_YIELD_RATE_APY: {
+        id: 'TR_EARN_YIELD_RATE_APY',
+        defaultMessage: '+{rate}% APY',
+    },
+    TR_EARN_YIELD_RATE_APR: {
+        id: 'TR_EARN_YIELD_RATE_APR',
+        defaultMessage: '+{rate}% APR',
+    },
     TR_EARN_STAKING_APY_TOOLTIP: {
         id: 'TR_EARN_STAKING_APY_TOOLTIP',
         defaultMessage: 'Annual percentage yield (APY)',
@@ -10182,6 +10194,10 @@ export const messages = defineMessages({
     TR_EARN_YIELD_ERROR_GENERIC: {
         id: 'TR_EARN_YIELD_ERROR_GENERIC',
         defaultMessage: 'Something went wrong. Try again.',
+    },
+    TR_EARN_YIELD_ERROR_PASSPHRASE_INCORRECT: {
+        id: 'TR_EARN_YIELD_ERROR_PASSPHRASE_INCORRECT',
+        defaultMessage: 'Passphrase is incorrect. Try again.',
     },
     TR_EARN_YIELD_LOAD_ERROR_TITLE: {
         id: 'TR_EARN_YIELD_LOAD_ERROR_TITLE',
@@ -11465,6 +11481,20 @@ export const messages = defineMessages({
         defaultMessage:
             'Unstaking is limited to {limit} accounts per transaction. You can unstake up to {amount} {symbol}. Repeat to unstake more.',
     },
+    TR_STAKE_SOL_INVALID_UNSTAKE_AMOUNT: {
+        id: 'TR_STAKE_SOL_INVALID_UNSTAKE_AMOUNT',
+        defaultMessage:
+            "Due to recent Solana blockchain changes, this amount can't be unstaked. Try {higher} {symbol} or more, or {lower} {symbol} or less.",
+    },
+    TR_STAKE_SOL_INVALID_UNSTAKE_AMOUNT_HIGHER_ONLY: {
+        id: 'TR_STAKE_SOL_INVALID_UNSTAKE_AMOUNT_HIGHER_ONLY',
+        defaultMessage:
+            "Due to recent Solana blockchain changes, this amount can't be unstaked. Try {higher} {symbol} or more.",
+    },
+    TR_STAKE_FIND_OUT_MORE: {
+        id: 'TR_STAKE_FIND_OUT_MORE',
+        defaultMessage: 'Find out more',
+    },
     TR_STAKE_CAN_CLAIM_FROM_ACCOUNTS: {
         id: 'TR_STAKE_CAN_CLAIM_FROM_ACCOUNTS',
         defaultMessage:
@@ -12460,6 +12490,44 @@ export const messages = defineMessages({
         id: 'TR_CONNECT_EXPORT_ACCOUNTS_DESCRIPTION',
         defaultMessage:
             'The following accounts from {passphraseWalletLabel} on {deviceLabel} will be shared with {thirdParty}. Your private keys stay secure and are never exposed.',
+    },
+    TR_CONNECT_SELECT_ACCOUNT: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT',
+        defaultMessage: 'Select account',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_DESCRIPTION: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_DESCRIPTION',
+        defaultMessage:
+            'Only the accounts you select are shared. Verify an address on your Trezor to confirm it before connecting.',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_PICK_ACCOUNT_DESCRIPTION: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_PICK_ACCOUNT_DESCRIPTION',
+        defaultMessage: 'Choose which account to pick an address from.',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_CONFIRM: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_CONFIRM',
+        defaultMessage: 'Connect',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_LABEL: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_LABEL',
+        defaultMessage: 'Account #{index}',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_ADDRESS_LABEL: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_ADDRESS_LABEL',
+        defaultMessage: 'Address #{index}',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_SELECTED: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_SELECTED',
+        defaultMessage: '{count} selected',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_EXPORTED: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_EXPORTED',
+        defaultMessage: 'Accounts shared',
+    },
+    TR_CONNECT_SELECT_ACCOUNT_EXPORTED_DESCRIPTION: {
+        id: 'TR_CONNECT_SELECT_ACCOUNT_EXPORTED_DESCRIPTION',
+        defaultMessage:
+            'You can verify the shared addresses on your Trezor to make sure they are correct.',
     },
     TR_DYK_TITLE: {
         id: 'TR_DYK_TITLE',

@@ -27,7 +27,6 @@ import {
     submitYieldRevokeThunk,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import type { StepListItemState } from '@trezor/components';
 import { useCurrentRef } from '@trezor/react-utils';
 
 import { setConnectionModal, setConnectionMode } from 'src/actions/device/deviceSlice';
@@ -37,11 +36,11 @@ import {
 } from 'src/actions/wallet/stablecoin-yield';
 import { useDispatch, useSelector } from 'src/hooks/suite';
 
+import { useEnsureYieldDeviceSession } from './useEnsureYieldDeviceSession';
 import { useResolvedYieldFlowData } from './useResolvedYieldFlowData';
 import { useYieldPendingTransactionTracking } from './useYieldPendingTransactionTracking';
 import {
     type YieldApprovalAction,
-    getStepListItemStates,
     getYieldApprovalAction,
     getYieldModifyAmountInput,
     isAmountGreaterThan,
@@ -56,8 +55,6 @@ type UseYieldFlowProps = {
 
 type UseYieldFlowStepsResult = {
     currentStep: YieldFlowStepId;
-    stepStates: Record<YieldFlowStepId, StepListItemState>;
-    goToStep: (step: YieldFlowStepId) => void;
 };
 
 export type UseYieldFlowResult = {
@@ -145,6 +142,7 @@ export const useYieldFlow = ({
         receiptToken,
     });
 
+    const ensureDeviceSession = useEnsureYieldDeviceSession({ flowType, flowKey });
     const session = useSelector(state => selectStablecoinYieldSession(state, flowType, flowKey));
     const sessionRef = useCurrentRef(session);
 
@@ -175,10 +173,6 @@ export const useYieldFlow = ({
 
         dispatch(stablecoinYieldActions.initSession({ flowType, flowKey }));
         dispatch(stablecoinYieldActions.resetSession({ flowType, flowKey }));
-
-        if (isYieldWithdrawFlow(flowType)) {
-            dispatch(stablecoinYieldActions.skipApprovalStep({ flowType, flowKey }));
-        }
 
         methodsRef.current.reset({ amountInput: '' });
 
@@ -285,21 +279,7 @@ export const useYieldFlow = ({
         prevStepRef.current = nextStep;
     }, [session.step, session.action.amount, methodsRef, maxAmount]);
 
-    const goToStep = useCallback(
-        (step: YieldFlowStepId) => {
-            dispatch(stablecoinYieldActions.goToStep({ flowType, flowKey, step }));
-        },
-        [dispatch, flowKey, flowType],
-    );
-
-    const flow = useMemo(
-        () => ({
-            currentStep: session.step,
-            stepStates: getStepListItemStates(session.step),
-            goToStep,
-        }),
-        [session.step, goToStep],
-    );
+    const flow = useMemo(() => ({ currentStep: session.step }), [session.step]);
 
     const openPendingTransaction = useCallback(
         (txid: string) => {
@@ -350,7 +330,7 @@ export const useYieldFlow = ({
 
     const isDeviceConnected = !!device?.connected && !!device?.available;
 
-    const submitApprove = useCallback(() => {
+    const submitApprove = useCallback(async () => {
         if (flowType !== 'deposit') {
             return;
         }
@@ -375,7 +355,13 @@ export const useYieldFlow = ({
 
         const amount = methodsRef.current.getValues('amountInput');
 
-        void dispatch(
+        const isSessionReady = await ensureDeviceSession();
+
+        if (!isSessionReady) {
+            return;
+        }
+
+        await dispatch(
             submitYieldApproveThunk({
                 flowKey,
                 flowType,
@@ -392,11 +378,12 @@ export const useYieldFlow = ({
         token,
         vault,
         methodsRef,
+        ensureDeviceSession,
         isDeviceConnected,
         openDeviceConnectionModal,
     ]);
 
-    const revokeAllowance = useCallback(() => {
+    const revokeAllowance = useCallback(async () => {
         if (!isDeviceConnected) {
             openDeviceConnectionModal();
 
@@ -417,16 +404,21 @@ export const useYieldFlow = ({
 
         const amount = session.approval.allowanceAmount || '0';
 
-        void dispatch(
+        const isSessionReady = await ensureDeviceSession();
+
+        if (!isSessionReady) {
+            return;
+        }
+
+        await dispatch(
             submitYieldRevokeThunk({
                 flowKey,
                 flowType,
                 flowData: { account, vault, token, receiptToken },
                 amount,
             }),
-        ).then(() => {
-            methodsRef.current.reset({ amountInput: '' });
-        });
+        );
+        methodsRef.current.reset({ amountInput: '' });
     }, [
         account,
         flowKey,
@@ -437,6 +429,7 @@ export const useYieldFlow = ({
         vault,
         methodsRef,
         session.approval.allowanceAmount,
+        ensureDeviceSession,
         isDeviceConnected,
         openDeviceConnectionModal,
     ]);
@@ -451,17 +444,17 @@ export const useYieldFlow = ({
         tokenContractAddress: token?.contractAddress,
     });
 
-    const submitApprovalAction = useCallback(() => {
+    const submitApprovalAction = useCallback(async () => {
         if (approvalAction === 'revoke') {
-            revokeAllowance();
+            await revokeAllowance();
 
             return;
         }
 
-        submitApprove();
+        await submitApprove();
     }, [approvalAction, revokeAllowance, submitApprove]);
 
-    const submitAction = useCallback(() => {
+    const submitAction = useCallback(async () => {
         if (!isDeviceConnected) {
             openDeviceConnectionModal();
 
@@ -482,8 +475,14 @@ export const useYieldFlow = ({
 
         const amount = methodsRef.current.getValues('amountInput');
 
+        const isSessionReady = await ensureDeviceSession();
+
+        if (!isSessionReady) {
+            return;
+        }
+
         if (isYieldWithdrawFlow(flowType)) {
-            void dispatch(
+            await dispatch(
                 submitYieldWithdrawThunk({
                     flowKey,
                     flowData: { account, vault, token, receiptToken },
@@ -495,7 +494,7 @@ export const useYieldFlow = ({
             return;
         }
 
-        void dispatch(
+        await dispatch(
             submitYieldDepositThunk({
                 flowKey,
                 flowData: { account, vault, token, receiptToken },
@@ -511,6 +510,7 @@ export const useYieldFlow = ({
         token,
         vault,
         methodsRef,
+        ensureDeviceSession,
         isDeviceConnected,
         openDeviceConnectionModal,
     ]);
@@ -563,7 +563,7 @@ export const useYieldFlow = ({
         actionAmount: session.action.amount,
         completedAmount: session.result.completedAmount,
         completedReceiptAmount: session.result.completedReceiptAmount,
-        errorMessage: session.error as TranslationKey | undefined,
+        errorMessage: session.error ?? undefined,
         approveModalState: session.approval.modalState,
         pendingTransaction: session.action.pendingTransaction,
         allowanceAmount,

@@ -106,6 +106,7 @@ export const YieldWithdrawScreen = () => {
     const {
         account,
         apy,
+        bonusRewardTokenName,
         flowData,
         flowKey,
         resolutionStatus,
@@ -263,14 +264,6 @@ export const YieldWithdrawScreen = () => {
 
         openPendingBottomSheet();
     }, [closePendingBottomSheet, isFocused, isWithdrawPending, openPendingBottomSheet]);
-
-    useEffect(() => {
-        if (resolutionStatus !== 'resolved' || !flowKey || session?.step !== 'approve') {
-            return;
-        }
-
-        dispatch(stablecoinYieldActions.skipApprovalStep({ flowType, flowKey }));
-    }, [dispatch, flowKey, flowType, resolutionStatus, session?.step]);
 
     useEffect(() => {
         if (session?.step === 'complete') {
@@ -589,6 +582,7 @@ export const YieldWithdrawScreen = () => {
             <YieldDepositInfoBottomSheet
                 ref={infoBottomSheetRef}
                 apy={apy}
+                bonusRewardTokenName={bonusRewardTokenName}
                 onClose={handleCloseInfoBottomSheet}
                 tokenSymbol={underlyingTokenSymbol}
                 vaultTokenSymbol={resolvedVaultTokenSymbol}

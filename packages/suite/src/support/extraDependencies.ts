@@ -43,6 +43,7 @@ import {
     selectIsSuiteSyncEnabled,
     selectSuiteSyncWalletLabel,
 } from '@suite-common/suite-sync';
+import { type ReloadAppDep } from '@suite-common/suite-types';
 import {
     type TokenDefinitionsState,
     buildTokenDefinitionsFromStorage,
@@ -60,7 +61,7 @@ import {
     selectAccountsByDeviceState,
 } from '@suite-common/wallet-core';
 import { createAccountKey } from '@suite-common/wallet-types';
-import { buildHistoricRatesFromStorage } from '@suite-common/wallet-utils';
+import { buildHistoricRatesFromStorage, sortByCoin } from '@suite-common/wallet-utils';
 import TrezorConnect, { type CreateLoggerDep, type StaticSessionId } from '@trezor/connect';
 import { isDesktop } from '@trezor/env-utils';
 
@@ -91,7 +92,11 @@ export type StoreAPIDep = {
     dispatch: Dispatch;
 };
 
-export type SuiteAppDeps = StoreAPIDep & HistoryDep & PlatformEncryptionDep & CreateLoggerDep;
+export type SuiteAppDeps = StoreAPIDep &
+    HistoryDep &
+    PlatformEncryptionDep &
+    CreateLoggerDep &
+    ReloadAppDep;
 
 export type SuiteServices = CommonServices &
     DesktopAnalyticsDep &
@@ -163,6 +168,7 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
             history: deps.history,
         }),
         reportSecurityCheck,
+        reloadApp: deps.reloadApp,
         saveAs: (data: Blob, fileName: string) => saveAs(data, fileName),
         connectInitSettings,
         connectInitHooks,
@@ -281,8 +287,11 @@ export const extraDependencies: ExtraDependenciesStatic = {
             }
         },
         storageLoadAccounts: (_, { payload }: StorageLoadAction) =>
-            payload.accounts.map(acc =>
-                acc.backendType === 'coinjoin' ? fixLoadedCoinjoinAccount(acc) : acc,
+            // Storage returns accounts in IndexedDB key order, sort them like the reducer does.
+            sortByCoin(
+                payload.accounts.map(acc =>
+                    acc.backendType === 'coinjoin' ? fixLoadedCoinjoinAccount(acc) : acc,
+                ),
             ),
         setDeviceMetadataReducer: (
             state: DeviceReducerState,
@@ -355,7 +364,16 @@ export const extraDependencies: ExtraDependenciesStatic = {
             return state;
         },
         storageLoadFlags: (state: FlagsState, { payload }: StorageLoadAction) =>
-            payload.suiteSettings?.flags ? { ...state, ...payload.suiteSettings.flags } : state,
+            payload.suiteSettings?.flags
+                ? {
+                      ...state,
+                      ...payload.suiteSettings.flags,
+                      // The onboarding feedback banner is session-only: it is enabled when onboarding
+                      // is completed and must not survive an app restart. Reset it on every load so a
+                      // returning user only sees it again after completing onboarding once more.
+                      showOnboardingFeedbackBanner: false,
+                  }
+                : state,
         storageLoadSuiteSettings: (state: SuiteSettingsState, { payload }: StorageLoadAction) => {
             if (!payload.suiteSettings?.settings) return state;
 

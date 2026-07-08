@@ -2811,6 +2811,10 @@ export const messages = {
                     title: 'Deposit {tokenSymbol} to receive {vaultTokenSymbol}',
                     description: 'This is your vault position.',
                 },
+                fourth: {
+                    title: 'You will also earn {bonusRewardTokenName} tokens as rewards.',
+                    description: 'These must be claimed separately.',
+                },
             },
             timelineCardTitle: 'Deposit timeline',
             timelineBottomSheetTitle: 'Deposit timeline',
@@ -2849,6 +2853,8 @@ export const messages = {
                     '{providerName} maintains and protects your supplied {tokenSymbol} with their smart contracts, infrastructure, and technology.',
                 secondItem:
                     "When you deposit, the responsibility for your funds' security transitions from your Trezor to {providerName}.",
+                thirdItem:
+                    'Supplying assets involves smart contract risks. {providerName} applies rigorous security measures, but cannot guarantee against all losses.',
             },
         },
         yieldDepositFlowScreen: {
@@ -2856,7 +2862,6 @@ export const messages = {
             approvalStepTitle: 'Select amount & approve',
             modalTitle: 'Deposit',
             depositTransactionStepTitle: 'Deposit transaction',
-            depositCompleteStepTitle: 'Deposit complete',
             depositPendingTitle: 'Confirming deposit',
             amountToDeposit: 'Amount to deposit',
             depositMax: 'Deposit max',

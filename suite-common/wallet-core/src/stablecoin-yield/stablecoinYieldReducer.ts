@@ -9,18 +9,25 @@ import {
 } from '@suite-common/wallet-types';
 import { isSafeObjectKey } from '@trezor/utils';
 
-import type {
-    StablecoinYieldClaimUnsignedTransaction,
-    YieldApproveModalState,
-    YieldFlowCompleteRewardItem,
-    YieldFlowStepId,
-    YieldFlowType,
-    YieldPendingTransactionState,
-    YieldPositionFlowType,
+import { STABLECOIN_YIELD_PREFIX, YIELD_FLOW_STEP_SEQUENCES } from './stablecoinYieldConstants';
+import {
+    type StablecoinYieldClaimUnsignedTransaction,
+    type YieldApproveModalState,
+    type YieldFlowCompleteRewardItem,
+    type YieldFlowStepId,
+    type YieldFlowType,
+    type YieldPendingTransactionState,
+    type YieldPositionFlowType,
 } from './stablecoinYieldTypes';
+import { getNextYieldFlowStep } from './stablecoinYieldUtils';
 import { transactionsActions } from '../transactions/transactionsActions';
 
-type StablecoinYieldTranslationKey = string;
+// Message ids must exist in the desktop `suite/intl` messages — the desktop app renders
+// `session.error` directly via `<Translation>`.
+type StablecoinYieldTranslationKey =
+    | 'TR_EARN_YIELD_ERROR_GENERIC'
+    | 'TR_EARN_YIELD_ERROR_PASSPHRASE_INCORRECT'
+    | 'TR_EARN_YIELD_ERROR_TRANSACTION_FAILED';
 
 type StablecoinYieldSerializedTx = {
     tx: string;
@@ -54,8 +61,6 @@ type StablecoinYieldStoreActionReviewDataPayload =
       });
 
 export type YieldAllowanceStatus = 'idle' | 'loading' | 'loaded' | 'error';
-
-export const STABLECOIN_YIELD_PREFIX = '@suite-common/wallet-core/stablecoin-yield';
 
 export type StablecoinYieldTxReviewState = {
     precomposedTx?: PrecomposedTransactionFinal;
@@ -146,8 +151,11 @@ export const initialStablecoinYieldState: StablecoinYieldState = {
     txReview: initialStablecoinYieldTxReviewState,
 };
 
-const createInitialStablecoinYieldSessionState = (): StablecoinYieldSessionState => ({
+const createInitialStablecoinYieldSessionState = (
+    flowType: YieldFlowType,
+): StablecoinYieldSessionState => ({
     ...initialStablecoinYieldSessionState,
+    step: YIELD_FLOW_STEP_SEQUENCES[flowType][0],
     approval: { ...initialStablecoinYieldSessionState.approval },
     action: { ...initialStablecoinYieldSessionState.action },
     result: {
@@ -190,7 +198,7 @@ export const stablecoinYieldSlice = createSlice({
             const sessionKey = getStablecoinYieldSessionKey(flowKey);
 
             if (!state[flowType][sessionKey]) {
-                state[flowType][sessionKey] = createInitialStablecoinYieldSessionState();
+                state[flowType][sessionKey] = createInitialStablecoinYieldSessionState(flowType);
             }
         },
         disposeSession(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
@@ -210,7 +218,7 @@ export const stablecoinYieldSlice = createSlice({
             }
 
             state[flowType][getStablecoinYieldSessionKey(flowKey)] =
-                createInitialStablecoinYieldSessionState();
+                createInitialStablecoinYieldSessionState(flowType);
         },
         setError(
             state,
@@ -325,12 +333,12 @@ export const stablecoinYieldSlice = createSlice({
                 session.action.amount = action.payload.amount;
                 session.action.pendingTransaction = null;
                 session.action.review = null;
-                session.step = 'action';
+                session.step = getNextYieldFlowStep(action.payload.flowType, 'approve');
             });
         },
         skipApprovalStep(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
             withSession(state, action.payload, session => {
-                session.step = 'action';
+                session.step = getNextYieldFlowStep(action.payload.flowType, 'approve');
             });
         },
         revokeSuccess(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
@@ -419,25 +427,13 @@ export const stablecoinYieldSlice = createSlice({
 
                 session.action.pendingTransaction = null;
                 session.action.review = null;
-                session.step = 'complete';
+                session.step = getNextYieldFlowStep(action.payload.flowType, 'action');
             });
         },
         transactionFailed(state, action: PayloadAction<StablecoinYieldSessionActionPayload>) {
             withSession(state, action.payload, session => {
                 session.action.pendingTransaction = null;
                 session.error = 'TR_EARN_YIELD_ERROR_TRANSACTION_FAILED';
-            });
-        },
-        goToStep(
-            state,
-            action: PayloadAction<
-                StablecoinYieldSessionActionPayload & {
-                    step: YieldFlowStepId;
-                }
-            >,
-        ) {
-            withSession(state, action.payload, session => {
-                session.step = action.payload.step;
             });
         },
         storePrecomposedTransaction(
