@@ -12,7 +12,6 @@ import type {
     TradingBuyType,
     TradingExchangeInfoSelector,
     TradingExchangeType,
-    TradingPaymentMethodType,
     TradingProviderInfo,
     TradingSellInfoSelector,
     TradingSellType,
@@ -25,12 +24,6 @@ import type {
 } from '@suite-common/trading';
 import { type Account } from '@suite-common/wallet-types';
 import { type AssetLogoProps } from '@trezor/product-components';
-
-export type TradingPageType = 'form' | 'confirm' | 'retry';
-
-export type UseTradingFormCommonProps = {
-    pageType?: TradingPageType;
-};
 
 export type TradingTradeBuySellType = Exclude<TradingType, TradingExchangeType>;
 export type TradingTradeSellExchangeType = Exclude<TradingType, TradingBuyType>;
@@ -126,11 +119,6 @@ export interface TradingGetCryptoQuoteAmountProps {
     receiveAmount: string;
     receiveCurrency: CryptoId | undefined;
     networkFee?: string | undefined;
-}
-
-export interface TradingGetPaymentMethodProps {
-    paymentMethod?: TradingPaymentMethodType;
-    paymentMethodName?: string;
 }
 
 export interface TradingCryptoAmountProps {

@@ -1,4 +1,9 @@
 import { Translation } from '@suite/intl';
+import {
+    ContextMessage,
+    MessageSystemConfigSourceSelect,
+    MessageSystemDebug,
+} from '@suite/message-system';
 import { SuiteSyncSettings, suiteSyncErrorHandler } from '@suite/suite-sync';
 import { Context } from '@suite-common/message-system';
 import { type SuiteSyncUpdateError } from '@suite-common/suite-sync-storage';
@@ -9,7 +14,6 @@ import { SettingsSection } from '@trezor/product-components';
 import { breakpoints } from '@trezor/theme';
 
 import { SettingsLayout } from 'src/components/settings/SettingsLayout';
-import { ContextMessage } from 'src/components/wallet/WalletLayout/AccountBanners/ContextMessage';
 import { useDispatch } from 'src/hooks/suite';
 import { useIsContentBelowBreakpoint } from 'src/support/suite/ContentFlex';
 
@@ -27,8 +31,6 @@ import { FirmwareUpdateEnvironmentSelect } from './FirmwareUpdateEnvironmentSele
 import { Flags } from './Flags';
 import { ForgetAllDevicesButton } from './ForgetBluetoothDevices';
 import { GithubIssue } from './GithubIssue';
-import { MessageSystemConfigSourceSelect } from './MessageSystem/MessageSystemConfigSourceSelect';
-import { MessageSystemDebug } from './MessageSystem/MessageSystemDebug';
 import { Metadata } from './Metadata';
 import { N4w1Backup } from './N4w1Backup';
 import { OAuthApi } from './OAuthApi';

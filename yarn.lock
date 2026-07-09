@@ -11413,6 +11413,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/transfer-uri@workspace:*, @suite-common/transfer-uri@workspace:suite-common/transfer-uri":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/transfer-uri@workspace:suite-common/transfer-uri"
+  dependencies:
+    "@suite-common/suite-constants": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
+    "@suite-common/wallet-config": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
+    "@trezor/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/tx-simulation@workspace:*, @suite-common/tx-simulation@workspace:^, @suite-common/tx-simulation@workspace:suite-common/tx-simulation":
   version: 0.0.0-use.local
   resolution: "@suite-common/tx-simulation@workspace:suite-common/tx-simulation"
@@ -12563,7 +12575,6 @@ __metadata:
     react-hook-form: "npm:^7.77.0"
     react-native: "npm:0.85.3"
     react-native-reanimated: "npm:4.3.1"
-    type-fest: "npm:5.5.0"
   languageName: unknown
   linkType: soft
 
@@ -13429,6 +13440,7 @@ __metadata:
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
     "@suite-common/transaction-search": "workspace:*"
+    "@suite-common/transfer-uri": "workspace:*"
     "@suite-common/validators": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-constants": "workspace:*"
@@ -15103,6 +15115,35 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite/message-system@workspace:*, @suite/message-system@workspace:suite/message-system":
+  version: 0.0.0-use.local
+  resolution: "@suite/message-system@workspace:suite/message-system"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/analytics-redux": "workspace:*"
+    "@suite-common/dependency-injection": "workspace:*"
+    "@suite-common/message-system": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/validators": "workspace:*"
+    "@suite/external-links": "workspace:*"
+    "@suite/intl": "workspace:*"
+    "@suite/router": "workspace:*"
+    "@suite/settings": "workspace:*"
+    "@suite/tor": "workspace:*"
+    "@trezor/components": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    "@trezor/dom-utils": "workspace:*"
+    "@trezor/product-components": "workspace:*"
+    "@trezor/react-utils": "workspace:*"
+    "@trezor/theme": "workspace:*"
+    "@trezor/utils": "workspace:*"
+    react: "npm:19.2.3"
+    react-redux: "npm:9.3.0"
+    redux: "npm:^5.0.1"
+    styled-components: "npm:^6.3.9"
+  languageName: unknown
+  linkType: soft
+
 "@suite/metadata-migration@workspace:*, @suite/metadata-migration@workspace:suite/metadata-migration":
   version: 0.0.0-use.local
   resolution: "@suite/metadata-migration@workspace:suite/metadata-migration"
@@ -15456,6 +15497,19 @@ __metadata:
     "@types/invity-api": "npm:^1.1.19"
     react: "npm:19.2.3"
     styled-components: "npm:^6.3.9"
+  languageName: unknown
+  linkType: soft
+
+"@suite/transfer-uri@workspace:*, @suite/transfer-uri@workspace:suite/transfer-uri":
+  version: 0.0.0-use.local
+  resolution: "@suite/transfer-uri@workspace:suite/transfer-uri"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-constants": "workspace:*"
+    "@suite-common/toast-notifications": "workspace:*"
+    "@suite-common/transfer-uri": "workspace:*"
+    "@suite/analytics": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -17034,6 +17088,7 @@ __metadata:
     "@suite-common/token-definitions": "workspace:*"
     "@suite-common/trading": "workspace:*"
     "@suite-common/transaction-search": "workspace:*"
+    "@suite-common/transfer-uri": "workspace:*"
     "@suite-common/tx-simulation": "workspace:^"
     "@suite-common/validators": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -17062,6 +17117,7 @@ __metadata:
     "@suite/labeling": "workspace:*"
     "@suite/locks": "workspace:*"
     "@suite/macos": "workspace:*"
+    "@suite/message-system": "workspace:*"
     "@suite/metadata": "workspace:*"
     "@suite/metadata-migration": "workspace:*"
     "@suite/modal": "workspace:*"
@@ -17076,6 +17132,7 @@ __metadata:
     "@suite/thp": "workspace:*"
     "@suite/tor": "workspace:*"
     "@suite/trading": "workspace:*"
+    "@suite/transfer-uri": "workspace:*"
     "@suite/tx-simulation": "workspace:^"
     "@suite/ui-animations": "workspace:*"
     "@suite/wallet": "workspace:*"
@@ -44657,6 +44714,7 @@ __metadata:
     tsx: "npm:^4.21.0"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:^8.60.0"
+    uint8array-tools: "npm:^0.0.8"
     version-bump-prompt: "npm:^6.1.0"
   dependenciesMeta:
     "@anthropic-ai/claude-code":

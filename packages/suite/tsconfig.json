@@ -135,6 +135,9 @@
             "path": "../../suite-common/transaction-search"
         },
         {
+            "path": "../../suite-common/transfer-uri"
+        },
+        {
             "path": "../../suite-common/tx-simulation"
         },
         {
@@ -186,6 +189,7 @@
         { "path": "../../suite/labeling" },
         { "path": "../../suite/locks" },
         { "path": "../../suite/macos" },
+        { "path": "../../suite/message-system" },
         { "path": "../../suite/metadata" },
         {
             "path": "../../suite/metadata-migration"
@@ -204,6 +208,7 @@
         { "path": "../../suite/thp" },
         { "path": "../../suite/tor" },
         { "path": "../../suite/trading" },
+        { "path": "../../suite/transfer-uri" },
         { "path": "../../suite/tx-simulation" },
         { "path": "../../suite/ui-animations" },
         { "path": "../../suite/wallet" },
