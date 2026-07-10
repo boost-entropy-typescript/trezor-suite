@@ -17,21 +17,20 @@ import {
 } from '@suite-native/navigation';
 
 import { useEarnPortfolioTrackerGuard } from '../components/EarnPortfolioTrackerGuard';
-import { type StablecoinYieldPromoNavigationItem } from '../types';
+import { type ChooseAccountTokenBalance, type StablecoinYieldPromoNavigationItem } from '../types';
 import { useStablecoinYieldFirmwareUpdateAlert } from './useStablecoinYieldFirmwareUpdateAlert';
 import { navigateByYieldAccountState } from '../utils/navigateByYieldAccountState';
 
 type UseStablecoinYieldPromoNavigationReturn = {
     handleStablecoinYieldPromoPress: (item: StablecoinYieldPromoNavigationItem) => void;
     handleAccountSelected: (account: Account) => void;
-    handleChooseAccountDismiss: () => void;
     handleEnableNetworkPress: () => void;
-    handleEnableNetworkDismiss: () => void;
     chosenAccounts: Account[];
     pendingEnableSymbol: NetworkSymbol | null;
     chooseAccountSheetRef: BottomSheetModalRef;
     enableNetworkSheetRef: BottomSheetModalRef;
     closeChooseAccountModal: () => void;
+    chooseAccountTokenBalance?: ChooseAccountTokenBalance;
 };
 
 export const useStablecoinYieldPromoNavigation = (): UseStablecoinYieldPromoNavigationReturn => {
@@ -60,11 +59,16 @@ export const useStablecoinYieldPromoNavigation = (): UseStablecoinYieldPromoNavi
     const [chosenYieldItem, setChosenYieldItem] =
         useState<StablecoinYieldPromoNavigationItem | null>(null);
     const [pendingEnableSymbol, setPendingEnableSymbol] = useState<NetworkSymbol | null>(null);
-
-    const handleChooseAccountDismiss = useCallback(() => {
-        setChosenAccounts([]);
-        setChosenYieldItem(null);
-    }, []);
+    const chooseAccountTokenBalance = chosenYieldItem
+        ? {
+              tokenContractAddress: chosenYieldItem.underlyingTokenContract,
+              tokenSymbol: chosenYieldItem.tokenSymbol,
+              receiptTokenContract: chosenYieldItem.receiptTokenContract,
+              token: chosenYieldItem.token,
+              outputToken: chosenYieldItem.outputToken,
+              pricePerShareState: chosenYieldItem.pricePerShareState,
+          }
+        : undefined;
 
     const handleAccountSelected = useCallback(
         (account: Account) => {
@@ -80,8 +84,6 @@ export const useStablecoinYieldPromoNavigation = (): UseStablecoinYieldPromoNavi
                 isFirmwareSupported,
                 showFirmwareUpdateAlert,
             );
-            setChosenAccounts([]);
-            setChosenYieldItem(null);
         },
         [
             chosenYieldItem,
@@ -119,10 +121,6 @@ export const useStablecoinYieldPromoNavigation = (): UseStablecoinYieldPromoNavi
         showViewOnlyAddAccountAlert,
         navigation,
     ]);
-
-    const handleEnableNetworkDismiss = useCallback(() => {
-        setPendingEnableSymbol(null);
-    }, []);
 
     const handleStablecoinYieldPromoPress = useCallback(
         (item: StablecoinYieldPromoNavigationItem) => {
@@ -175,13 +173,12 @@ export const useStablecoinYieldPromoNavigation = (): UseStablecoinYieldPromoNavi
     return {
         handleStablecoinYieldPromoPress,
         handleAccountSelected,
-        handleChooseAccountDismiss,
         handleEnableNetworkPress,
-        handleEnableNetworkDismiss,
         chosenAccounts,
         pendingEnableSymbol,
         chooseAccountSheetRef,
         enableNetworkSheetRef,
         closeChooseAccountModal,
+        chooseAccountTokenBalance,
     };
 };

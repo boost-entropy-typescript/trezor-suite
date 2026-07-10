@@ -4,6 +4,8 @@ export {
     type SuiteSync,
     type SuiteSyncDep,
 } from './SuiteSync';
+export type { GetAllDeviceSessionIdsDep } from './getAllDeviceSessionIds';
+export type { GetIsTorEnabledDep } from './getIsTorEnabled';
 
 export type {
     SuiteSyncStorageRepositoryDep,
@@ -33,6 +35,17 @@ export {
     type ChangeRelayUrlDep,
     selectChangeRelayUrlDep,
 } from './relay/changeRelayUrl';
+export {
+    type DisconnectAllRelays,
+    type DisconnectAllRelaysDep,
+    selectDisconnectAllRelaysDep,
+} from './relay/disconnectAllRelays';
+export {
+    type ReconnectAllRelays,
+    type ReconnectAllRelaysDep,
+    type ReconnectAllRelaysParams,
+    selectReconnectAllRelaysDep,
+} from './relay/reconnectAllRelays';
 
 export type {
     EnsureSuiteSyncOwnerDep,

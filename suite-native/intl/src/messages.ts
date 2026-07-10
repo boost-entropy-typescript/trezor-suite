@@ -1337,6 +1337,7 @@ export const messages = {
                 testnets: 'Testnet networks',
                 tokens: 'Including tokens',
                 tokensAndStaking: 'Including tokens & staking',
+                more: '+more',
             },
             toasts: {
                 coinEnabled: 'Connect your Trezor to load {coin}',
@@ -1960,7 +1961,8 @@ export const messages = {
                     autoCompounded: 'Automatically added and compounded.',
                     manualCompound:
                         'Claim manually, then swap to {tokenSymbol} and deposit to compound.',
-                    footer: 'APY may change over time.',
+                    footerApy: 'APY may change over time.',
+                    footerApyApr: 'APY and APR rates can change over time.',
                 },
             },
         },
@@ -2687,6 +2689,8 @@ export const messages = {
                 infoDescription:
                     'The liquidity of the staking pool can allow for instant unstake of some funds. The remaining funds will follow the unstaking period.',
             },
+            accountLimitBanner:
+                'Due to Solana transaction size restriction, you can unstake from {limit} accounts at once. In the next transaction you can unstake up to {amount} {symbol}. To unstake more, repeat the process.',
         },
         earnScreen: {
             title: 'Earn',
@@ -3017,6 +3021,7 @@ export const messages = {
             received: 'Received',
             rewards: 'Rewards',
             sent: 'Sent',
+            deposited: 'Deposited',
             withdrawalAmount: 'Withdrawal amount',
             backToOverview: 'Back to overview',
         },
@@ -3139,6 +3144,8 @@ export const messages = {
         rewardsPerEpoch: 'Next estimated reward',
         apy: 'Annual Percentage Yield',
         apr: 'Annual Percentage Return',
+        apyAbbr: 'APY',
+        aprAbbr: 'APR',
         tron: {
             votes: 'Votes',
             allVotesUsed: 'All {count} votes used',
@@ -3183,6 +3190,8 @@ export const messages = {
             reviewAndSignButton: 'Review & sign',
             amountLabel: 'Amount',
             instantClaimBanner: "You'll claim the {displaySymbol} instantly",
+            accountLimitBanner:
+                'Due to Solana transaction size restriction, you can claim from {limit} accounts at once. In the next transaction you can claim up to {amount} {symbol}. To claim more, repeat the process.',
             insufficientFeeBalance: {
                 title: 'Insufficient {displaySymbol} to cover the transaction fee.',
                 description: 'You only have {amount} available.',
