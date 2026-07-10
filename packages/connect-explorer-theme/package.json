@@ -27,6 +27,7 @@
     "dependencies": {
         "@headlessui/react": "^2.2.10",
         "@trezor/components": "workspace:*",
+        "@trezor/icons": "workspace:*",
         "@trezor/product-components": "workspace:*",
         "@trezor/theme": "workspace:*",
         "@trezor/type-utils": "workspace:*",

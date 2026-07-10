@@ -18,7 +18,7 @@ const paymentMethodLogosPath = './src/paymentMethodLogos.ts';
 const assetTypesConfig = [
     {
         name: 'icons',
-        dirname: 'assets',
+        dirname: '../../packages/icons/assets',
         typeName: 'IconName',
     },
 ];
