@@ -39,7 +39,8 @@ const update = (state: Account[], account: Account) => {
         }
     } else {
         console.warn(
-            `Tried to update account that does not exist: ${account.descriptor} (symbol: ${account.symbol})`,
+            // do not log the descriptor: it is confidential and would leak into Sentry breadcrumbs
+            `Tried to update account that does not exist (symbol: ${account.symbol}, type: ${account.accountType}, index: ${account.index})`,
         );
     }
 };
@@ -78,7 +79,10 @@ export const prepareAccountsReducer = createReducerWithExtraDeps(
                 const account = { ...action.payload, accountLabel, history };
 
                 if (state.some(accountEqualTo(account))) {
-                    console.warn('Duplicated account found, updating instead: ', account);
+                    console.warn(
+                        // do not log the whole account: descriptor/addresses/balance are confidential and would leak into Sentry breadcrumbs
+                        `Duplicated account found, updating instead (symbol: ${account.symbol}, type: ${account.accountType}, index: ${account.index})`,
+                    );
                     update(state, account);
                 } else {
                     // Keep the state sorted by coin so that consumers get the canonical order for free.

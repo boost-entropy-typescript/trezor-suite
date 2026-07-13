@@ -3,6 +3,7 @@ import { selectSelectedDevice } from '@suite-common/device';
 import { buildStablecoinYieldTransactionReview } from '@suite-common/earn-stablecoin/src/signing';
 import {
     type YieldFlowDisplayToken,
+    type YieldFlowType,
     selectAddressDisplayType,
     selectIsMevProtectionEnabled,
     stablecoinYieldActions,
@@ -30,6 +31,8 @@ export type SendYieldTransactionParams = {
     amount: string;
     token: YieldFlowDisplayToken;
     unsignedTransaction: string;
+    flowKey: string;
+    flowType: YieldFlowType;
     dispatch: Dispatch;
     getState: () => AppState;
     selectedFee: EvmSelectedFee | null;
@@ -40,6 +43,8 @@ export const sendYieldTransaction = async ({
     amount,
     token,
     unsignedTransaction,
+    flowKey,
+    flowType,
     dispatch,
     getState,
     selectedFee,
@@ -68,8 +73,15 @@ export const sendYieldTransaction = async ({
     dispatch(
         stablecoinYieldActions.storePrecomposedTransaction({
             precomposedTx: precomposedTransaction,
-            precomposedForm: formState,
+            // transactionForSigning.nonce is hex; store a decimal string so the review modal shows
+            // it like the Send flow.
+            precomposedForm: {
+                ...formState,
+                ethereumNonce: parseInt(transactionForSigning.nonce, 16).toString(),
+            },
             accountKey: account.key,
+            flowKey,
+            flowType,
         }),
     );
 
