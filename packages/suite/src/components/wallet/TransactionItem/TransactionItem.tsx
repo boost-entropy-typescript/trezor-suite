@@ -88,11 +88,7 @@ export const TransactionItem = memo(
         const fee = formatNetworkAmount(transaction.fee, transaction.symbol);
         const showFeeRow = isTxFeePaid(transaction);
 
-        const isTxCancellable = isTransactionCancellable(
-            transaction,
-            isPending,
-            network.networkType,
-        );
+        const isTxCancellable = isTransactionCancellable(transaction, isPending, networkFeatures);
 
         const isTxBumpable =
             !isActionDisabled && isTransactionBumpable(transaction, networkFeatures);
@@ -132,25 +128,13 @@ export const TransactionItem = memo(
         const isCancelDisabled = nonceStatus !== 'ok';
 
         const renderNonceWarning = () => {
-            if (pendingEvmNonce === undefined || !fetchedNonceInfo) return null;
+            if (nonceStatus === 'ok' || !fetchedNonceInfo) return null;
 
-            const status = getPendingEvmNonceStatus(pendingEvmNonce, fetchedNonceInfo);
-            if (status === 'superseded')
-                return (
-                    <Translation
-                        id="TR_PENDING_NONCE_SUPERSEDED_WARNING"
-                        values={{ nonce: fetchedNonceInfo.nextNonce }}
-                    />
-                );
-            if (status === 'gap')
-                return (
-                    <Translation
-                        id="TR_BUMP_FEE_NONCE_GAP_WARNING"
-                        values={{ nonce: fetchedNonceInfo.nextNonce }}
-                    />
-                );
+            const values = { nonce: fetchedNonceInfo.nextNonce };
+            if (nonceStatus === 'superseded')
+                return <Translation id="TR_PENDING_NONCE_SUPERSEDED_WARNING" values={values} />;
 
-            return null;
+            return <Translation id="TR_BUMP_FEE_NONCE_GAP_WARNING" values={values} />;
         };
         const nonceWarning = renderNonceWarning();
 
@@ -164,6 +148,8 @@ export const TransactionItem = memo(
                     symbol: transaction.symbol,
                     deviceState: transaction.deviceState,
                     flow,
+                    // The tx list is the only entry point that reflects a cancel; enable the button here.
+                    showCancelButton: true,
                 }),
             );
         };

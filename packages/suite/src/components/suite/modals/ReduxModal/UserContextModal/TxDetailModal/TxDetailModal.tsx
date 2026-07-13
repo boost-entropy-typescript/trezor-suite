@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Translation } from '@suite/intl';
 import { getInstantStakeType } from '@suite-common/staking';
@@ -24,7 +24,6 @@ import { Modal } from '@trezor/components';
 
 import { useSelector } from 'src/hooks/suite';
 import { useEvmNonceInfo } from 'src/hooks/wallet/useEvmNonceInfo';
-import { type AppState } from 'src/types/suite';
 import { type Account, type WalletAccountTransaction } from 'src/types/wallet';
 
 import { CancelTransactionModal } from './CancelTransaction/CancelTransactionModal';
@@ -36,14 +35,13 @@ const hasRbfParams = (
     tx: WalletAccountTransaction,
 ): tx is WalletAccountTransactionWithRequiredRbfParams => tx.rbfParams !== undefined;
 
-const selectWalletSelectedAccount = (state: AppState) => state.wallet.selectedAccount;
-
 type TxDetailModalProps = {
     txid: string;
     descriptor: Account['descriptor'];
     symbol: Account['symbol'];
     deviceState: Account['deviceState'];
     flow: 'detail' | 'bump-fee' | 'cancel-transaction';
+    showCancelButton?: boolean;
     onCancel: () => void;
 };
 
@@ -53,6 +51,7 @@ export const TxDetailModal = ({
     symbol,
     deviceState,
     flow,
+    showCancelButton,
     onCancel,
 }: TxDetailModalProps) => {
     const [section, setSection] = useState<TxDetailModalProps['flow']>(flow);
@@ -67,28 +66,39 @@ export const TxDetailModal = ({
         selectTransactionByAccountKeyAndTxid(state, accountKey, txid),
     );
 
+    // A confirming (or replaced) tx is briefly evicted from the store: fetchAndUpdateAccountThunk
+    // dispatches removeTransaction before re-adding the confirmed record, so this selector returns
+    // null for a render or two. Without retention that flashes a "Transaction not found" error when
+    // the user opens this modal just as the tx confirms. Keep the last-known copy so a transient
+    // disappearance keeps the modal alive; once the confirmed record re-appears the cancel flow
+    // shows its "already confirmed" state (see isTxConfirmed in CancelTransactionModal).
+    const lastKnownTxRef = useRef(originalTx);
+    if (originalTx) {
+        lastKnownTxRef.current = originalTx;
+    }
+    const resolvedTx = originalTx ?? lastKnownTxRef.current;
+
     // Filter out internal transfers that are instant staking transactions
     const filteredInternalTransfers = useMemo(() => {
-        if (!originalTx) return [];
+        if (!resolvedTx) return [];
 
-        return originalTx.internalTransfers.filter(t => {
+        return resolvedTx.internalTransfers.filter(t => {
             const stakeType = getInstantStakeType(t, descriptor, symbol);
 
             return stakeType !== 'stake';
         });
-    }, [originalTx, descriptor, symbol]);
+    }, [resolvedTx, descriptor, symbol]);
 
     const tx = useMemo(() => {
-        if (!originalTx) return null;
+        if (!resolvedTx) return null;
 
         return {
-            ...originalTx,
+            ...resolvedTx,
             internalTransfers: filteredInternalTransfers,
         };
-    }, [originalTx, filteredInternalTransfers]);
+    }, [resolvedTx, filteredInternalTransfers]);
 
     const account = useSelector(state => selectAccountByKey(state, accountKey));
-    const selectedAccount = useSelector(selectWalletSelectedAccount);
     const nonceAccount = account?.networkType === 'ethereum' ? account : undefined;
     const { nonceInfo: fetchedNonceInfo } = useEvmNonceInfo(nonceAccount);
 
@@ -150,8 +160,13 @@ export const TxDetailModal = ({
 
     const canReplaceTransaction = hasRbfParams(tx) && isTransactionBumpable(tx, networkFeatures);
 
+    // Cancel is only offered from the account transaction list (which reflects the cancel once
+    // it's broadcast). Other entry points open this modal without `showCancelButton`, so the
+    // Cancel button stays hidden there. Bump-fee is intentionally not gated this way.
     const canCancelTransaction =
-        isTransactionCancellable(tx, isPending(tx), network.networkType) && !isNonceStuck;
+        isTransactionCancellable(tx, isPending(tx), networkFeatures) &&
+        !isNonceStuck &&
+        !!showCancelButton;
 
     if (section === 'bump-fee' && canReplaceTransaction && !isNonceStuck) {
         return (
@@ -168,12 +183,7 @@ export const TxDetailModal = ({
         );
     }
 
-    if (
-        section === 'cancel-transaction' &&
-        canReplaceTransaction &&
-        !isNonceStuck &&
-        selectedAccount.status === 'loaded'
-    ) {
+    if (section === 'cancel-transaction' && hasRbfParams(tx) && canCancelTransaction) {
         return (
             <CancelTransactionModal
                 tx={tx}
@@ -181,7 +191,7 @@ export const TxDetailModal = ({
                 onBackClick={onBackClick}
                 onShowChained={onShowChained}
                 chainedTxs={chainedTxs}
-                selectedAccount={selectedAccount}
+                account={account}
                 nonceStatus={nonceStatus}
                 nextNonce={fetchedNonceInfo?.nextNonce}
             />

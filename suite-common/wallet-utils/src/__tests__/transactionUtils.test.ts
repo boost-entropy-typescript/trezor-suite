@@ -12,6 +12,7 @@ import {
     getEvmNonceInfo,
     getEvmNonceInfoFromConfirmedNonce,
     getEvmNonceStatus,
+    getPendingEvmNonceStatus,
     getRbfParams,
     getTargetAmount,
     getTransactionWithLowestNonce,
@@ -19,6 +20,7 @@ import {
     groupTokensTransactionsByContractAddress,
     groupTransactionsByDate,
     isPending,
+    isTransactionCancellable,
     parseTransactionDateKey,
     parseTransactionMonthKey,
 } from '../transactionUtils';
@@ -49,6 +51,59 @@ describe('transaction utils', () => {
                 const { blockHeight } = transaction;
                 expect(isPending(transaction)).toEqual(!blockHeight || blockHeight < 0);
             });
+        });
+    });
+
+    describe('isTransactionCancellable', () => {
+        // The function only checks for the presence of rbfParams, not their shape, so any valid
+        // value serves for the positive cases.
+        const rbfParams: WalletAccountTransaction['rbfParams'] = {
+            type: 'bitcoin',
+            txid: 'txid',
+            utxo: [],
+            outputs: [],
+            feeRate: '1',
+            baseFee: 144,
+        };
+
+        it('is cancellable for a pending sent tx with rbfParams on an rbf network', () => {
+            const tx = getWalletTransaction({ type: 'sent', rbfParams });
+            expect(isTransactionCancellable(tx, true, ['rbf', 'sign-verify'])).toBe(true);
+        });
+
+        it('is not cancellable for a received tx (never has rbfParams)', () => {
+            const tx = getWalletTransaction({ type: 'recv', rbfParams: undefined });
+            expect(isTransactionCancellable(tx, true, ['rbf'])).toBe(false);
+        });
+
+        it('is not cancellable for a pending tx without rbfParams (e.g. a non-replaceable swap)', () => {
+            const tx = getWalletTransaction({ type: 'sent', rbfParams: undefined });
+            expect(isTransactionCancellable(tx, true, ['rbf'])).toBe(false);
+        });
+
+        it('is not cancellable when the tx is not pending', () => {
+            const tx = getWalletTransaction({ type: 'sent', rbfParams });
+            expect(isTransactionCancellable(tx, false, ['rbf'])).toBe(false);
+        });
+
+        it('is not cancellable for a self tx', () => {
+            const tx = getWalletTransaction({ type: 'self', rbfParams });
+            expect(isTransactionCancellable(tx, true, ['rbf'])).toBe(false);
+        });
+
+        it('is not cancellable for a joint (coinjoin) tx', () => {
+            const tx = getWalletTransaction({ type: 'joint', rbfParams });
+            expect(isTransactionCancellable(tx, true, ['rbf'])).toBe(false);
+        });
+
+        it('is not cancellable on a network without the rbf feature (e.g. LTC, ETC)', () => {
+            const tx = getWalletTransaction({ type: 'sent', rbfParams });
+            expect(isTransactionCancellable(tx, true, ['sign-verify', 'graph'])).toBe(false);
+        });
+
+        it('is not cancellable when the network has no features', () => {
+            const tx = getWalletTransaction({ type: 'sent', rbfParams });
+            expect(isTransactionCancellable(tx, true, undefined)).toBe(false);
         });
     });
 
@@ -406,6 +461,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 41,
                 pendingNonces: [],
+                confirmedNonces: [],
             });
         });
 
@@ -415,6 +471,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 44,
                 pendingNonces: [41, 42, 43],
+                confirmedNonces: [],
             });
         });
 
@@ -424,6 +481,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 42,
                 pendingNonces: [41, 43],
+                confirmedNonces: [],
             });
         });
 
@@ -435,6 +493,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 42,
                 pendingNonces: [41, 43],
+                confirmedNonces: [],
             });
         });
 
@@ -445,6 +504,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 44,
                 pendingNonces: [41, 42, 43],
+                confirmedNonces: [],
             });
         });
 
@@ -455,6 +515,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 41,
                 nextNonce: 41,
                 pendingNonces: [43],
+                confirmedNonces: [],
             });
         });
 
@@ -471,6 +532,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 42,
                 nextNonce: 43,
                 pendingNonces: [42],
+                confirmedNonces: [41],
             });
         });
     });
@@ -488,6 +550,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 1418,
                 nextNonce: 1418,
                 pendingNonces: [],
+                confirmedNonces: [],
             });
         });
 
@@ -497,6 +560,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 1418,
                 nextNonce: 1420,
                 pendingNonces: [1418, 1419],
+                confirmedNonces: [],
             });
         });
 
@@ -506,6 +570,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 1418,
                 nextNonce: 1418,
                 pendingNonces: [1421],
+                confirmedNonces: [],
             });
         });
 
@@ -523,6 +588,7 @@ describe('transaction utils', () => {
                 confirmedNonce: 1418,
                 nextNonce: 1418,
                 pendingNonces: [],
+                confirmedNonces: [335753],
             });
         });
 
@@ -537,12 +603,84 @@ describe('transaction utils', () => {
                 confirmedNonce: 1419,
                 nextNonce: 1420,
                 pendingNonces: [1419],
+                confirmedNonces: [1418],
+            });
+        });
+
+        it('a locally-confirmed tx contiguous with a stale confirmedNonce bridges the just-confirmed slot', () => {
+            // Transient while a tx confirms: fetchAndUpdateAccountThunk records the lowest pending tx
+            // (nonce 1418) as confirmed in the tx list before it re-fetches account.misc.nonce, so the
+            // backend confirmedNonce still lags at 1418. The just-confirmed slot must still advance
+            // nextNonce past the contiguous pending 1419/1420, otherwise those higher pending txs
+            // would momentarily read as a nonce gap and flash a false warning in the tx list.
+            const confirmedTx1418 = getWalletTransaction({
+                blockHeight: 100,
+                type: 'sent',
+                ethereumSpecific: { nonce: 1418 } as any,
+            });
+            const transactions = [confirmedTx1418, pendingSentTx(1419), pendingSentTx(1420)];
+            expect(getEvmNonceInfoFromConfirmedNonce(1418, transactions)).toEqual({
+                confirmedNonce: 1418,
+                nextNonce: 1421,
+                pendingNonces: [1419, 1420],
+                confirmedNonces: [1418],
             });
         });
     });
 
+    describe('getPendingEvmNonceStatus', () => {
+        it('nonce below confirmedNonce with a confirmed tx at that nonce is superseded', () => {
+            // A different confirmed tx occupies 1470, so it is present in confirmedNonces.
+            const bounds = {
+                confirmedNonce: 1471,
+                nextNonce: 1472,
+                pendingNonces: [1471],
+                confirmedNonces: [1470],
+            };
+            expect(getPendingEvmNonceStatus(1470, bounds)).toBe('superseded');
+        });
+
+        it('nonce below confirmedNonce but with no confirmed tx there is ok (just-sent, list not caught up)', () => {
+            // Regression: right after sending, the live confirmed-nonce fetch already counts the nonce
+            // as confirmed while the just-broadcast tx has not landed in selectAccountTransactions yet,
+            // so nothing is confirmed at 1470 locally. Must NOT flash 'superseded' at a healthy tx.
+            const bounds = {
+                confirmedNonce: 1471,
+                nextNonce: 1471,
+                pendingNonces: [],
+                confirmedNonces: [],
+            };
+            expect(getPendingEvmNonceStatus(1470, bounds)).toBe('ok');
+        });
+
+        it('nonce above nextNonce is a gap', () => {
+            const bounds = {
+                confirmedNonce: 41,
+                nextNonce: 42,
+                pendingNonces: [],
+                confirmedNonces: [],
+            };
+            expect(getPendingEvmNonceStatus(44, bounds)).toBe('gap');
+        });
+
+        it('nonce within the pending range is ok', () => {
+            const bounds = {
+                confirmedNonce: 41,
+                nextNonce: 44,
+                pendingNonces: [41, 42, 43],
+                confirmedNonces: [],
+            };
+            expect(getPendingEvmNonceStatus(42, bounds)).toBe('ok');
+        });
+    });
+
     describe('getEvmNonceStatus', () => {
-        const bounds = { confirmedNonce: 41, nextNonce: 43, pendingNonces: [41, 42] };
+        const bounds = {
+            confirmedNonce: 41,
+            nextNonce: 43,
+            pendingNonces: [41, 42],
+            confirmedNonces: [],
+        };
 
         it('below confirmedNonce is superseded', () => {
             expect(getEvmNonceStatus(40, bounds)).toBe('superseded');
