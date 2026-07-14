@@ -8,7 +8,7 @@ import {
     BottomSheetModal,
     useBottomSheetScrollableCreator,
 } from '@gorhom/bottom-sheet';
-import { FlashList, type FlashListProps } from '@shopify/flash-list';
+import { FlashList, type FlashListProps, type FlashListRef } from '@shopify/flash-list';
 
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
@@ -30,7 +30,7 @@ export type BottomSheetFlashListProps<TItem> = {
     subtitle?: ReactNode;
     estimatedListHeight?: number;
     handleComponent?: ((props: BottomSheetFlashListHandleProps) => ReactNode) | null;
-    flashListKey?: string;
+    scrollResetKey?: string;
     renderItem: (
         info: FlashListRenderItemInfo<TItem>,
         sheetControls: BottomSheetFlashListControls,
@@ -66,7 +66,7 @@ export const BottomSheetFlashList = <TItem,>({
     subtitle,
     estimatedListHeight = 0,
     handleComponent,
-    flashListKey,
+    scrollResetKey,
     renderItem,
     ...flashListProps
 }: BottomSheetFlashListProps<TItem>) => {
@@ -74,6 +74,14 @@ export const BottomSheetFlashList = <TItem,>({
     const { bottom: insetBottom } = useSafeAreaInsets();
 
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    const flashListRef = useRef<FlashListRef<TItem>>(null);
+
+    // Imperative scroll reset.
+    useEffect(() => {
+        if (isVisible) {
+            flashListRef.current?.scrollToOffset({ offset: 0, animated: false });
+        }
+    }, [scrollResetKey, isVisible]);
 
     const dismissSheet = useCallback(() => {
         bottomSheetModalRef.current?.dismiss();
@@ -136,13 +144,14 @@ export const BottomSheetFlashList = <TItem,>({
             keyboardBehavior="fillParent"
         >
             <FlashList
+                ref={flashListRef}
+                maintainVisibleContentPosition={{ disabled: true }}
                 renderScrollComponent={BottomSheetListScrollComponent}
                 renderItem={renderFlashListItem}
-                key={flashListKey}
-                {...flashListProps}
                 contentContainerStyle={applyStyle(sheetContentContainerStyle, {
                     insetBottom,
                 })}
+                {...flashListProps}
             />
         </BottomSheetModal>
     );

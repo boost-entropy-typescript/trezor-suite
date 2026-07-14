@@ -1874,6 +1874,12 @@ export const messages = {
         },
     },
     moduleAccountManagement: {
+        discoveryFailedBanner: {
+            title: 'Account couldn’t be loaded',
+            description:
+                'Something went wrong while loading this account. Check your internet connection and try again.',
+            retryButton: 'Retry',
+        },
         accountsScreen: {
             title: 'My assets',
             networkFilter: {
@@ -2977,7 +2983,6 @@ export const messages = {
         },
         yieldDepositApprovalReviewScreen: {
             title: 'Review with Trezor',
-            successMessage: "You're all set",
             submitButton: 'Approve',
         },
         yieldDepositRevokeReviewScreen: {
@@ -2987,18 +2992,15 @@ export const messages = {
         },
         yieldDepositReviewScreen: {
             title: 'Review with Trezor',
-            successMessage: "You're all set",
             submitButton: 'Deposit',
         },
         yieldWithdrawReviewScreen: {
             title: 'Review with Trezor',
-            successMessage: "You're all set.",
             submitButton: 'Withdraw',
             redeemSubmitButton: 'Redeem',
         },
         yieldClaimReviewScreen: {
             title: 'Review with Trezor',
-            successMessage: "You're all set.",
             submitButton: 'Claim now',
         },
         yieldDepositCompleteScreen: {

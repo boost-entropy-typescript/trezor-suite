@@ -4,8 +4,7 @@ import { createRoot } from 'react-dom/client';
 
 import { useDebugLanguageShortcut } from '@suite/debug';
 import { ServicesProvider } from '@suite-common/dependency-injection';
-import TrezorConnect from '@trezor/connect';
-import { createIpcProxy } from '@trezor/ipc-proxy';
+import TrezorConnect from '@trezor/connect-electron';
 import { desktopApi } from '@trezor/suite-desktop-api';
 
 import { initBluetoothThunk } from 'src/actions/bluetooth/initBluetoothThunk';
@@ -121,13 +120,8 @@ export const init = async (container: HTMLElement) => {
 
     store.dispatch(desktopHandshake(loadModules.payload));
 
-    // create ipc-proxy for @trezor/connect
-    const proxy = await createIpcProxy<typeof TrezorConnect>('TrezorConnect');
-    // override each method of @trezor/connect using ipc-proxy
-    Object.keys(TrezorConnect).forEach(method => {
-        // @ts-expect-error key vs union of values endless problem
-        TrezorConnect[method] = proxy[method];
-    });
+    // establish ipc connection with TrezorConnect living in main process
+    await TrezorConnect.initIpcProxy();
 
     // init bluetooth module
     // TODO should it really be here instead of initAction.ts?

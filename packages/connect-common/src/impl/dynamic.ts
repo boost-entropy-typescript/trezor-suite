@@ -3,20 +3,12 @@ import { getSynchronize } from '@trezor/utils';
 import { ERRORS } from '../constants';
 import { parseManifest, parseVersion } from '../data/connectSettings';
 import { type CallMethodPayload, createErrorMessage } from '../events';
-import type { ConnectFactoryDependencies } from '../factory';
-import type { ConnectDynamicSettings, ConnectImplSettings } from '../types';
-import type { UpdateConnectSettings } from '../types/api/core/updateConnectSettings';
-import { ConnectEmitter } from '../types/emitter';
+import type { ConnectDynamicSettings, ConnectImplSettings, TrezorConnectCore } from '../types';
 import { type CancelParams } from '../utils/cancelParams';
 
 type ImplType = 'core-in-suite-desktop' | 'core-in-suite-web';
 
-export type ConnectImpl = Omit<
-    ConnectFactoryDependencies<Record<never, never>>,
-    'init' | 'eventEmitter' | 'uiResponse' | 'updateConnectSettings'
-> & {
-    init: (params: ConnectImplSettings) => Promise<void>;
-};
+export type ConnectImpl = TrezorConnectCore<ConnectImplSettings>;
 
 type TrezorConnectDynamicParams = {
     implementations: Record<ImplType, ConnectImpl>;
@@ -26,9 +18,7 @@ type TrezorConnectDynamicParams = {
  * Implementation of TrezorConnect that can dynamically switch between different implementations.
  *
  */
-export class TrezorConnectDynamic implements ConnectFactoryDependencies<Record<never, never>> {
-    public readonly eventEmitter = new ConnectEmitter();
-
+export class TrezorConnectDynamic implements TrezorConnectCore<ConnectDynamicSettings> {
     private currentTarget: ImplType;
     private readonly implementations: Record<ImplType, ConnectImpl>;
 
@@ -42,15 +32,15 @@ export class TrezorConnectDynamic implements ConnectFactoryDependencies<Record<n
         this.currentTarget = 'core-in-suite-desktop';
     }
 
-    public getTarget() {
+    private getTarget() {
         return this.implementations[this.currentTarget];
     }
 
-    public getTargetType() {
+    private getTargetType() {
         return this.currentTarget;
     }
 
-    public async switchTarget(target: ImplType) {
+    private async switchTarget(target: ImplType) {
         if (this.currentTarget === target) {
             return;
         }
@@ -105,17 +95,6 @@ export class TrezorConnectDynamic implements ConnectFactoryDependencies<Record<n
         }
     }
 
-    public updateConnectSettings(_params: UpdateConnectSettings) {
-        return Promise.resolve(
-            createErrorMessage(
-                ERRORS.TypedError(
-                    'Method_InvalidPackage',
-                    'updateConnectSettings is not supported in this implementation',
-                ),
-            ),
-        );
-    }
-
     public async call(params: CallMethodPayload) {
         try {
             // Edge case - if there are simultaneous calls, we only want to call `handleBeforeCall` once
@@ -146,7 +125,6 @@ export class TrezorConnectDynamic implements ConnectFactoryDependencies<Record<n
     }
 
     public dispose() {
-        this.eventEmitter.removeAllListeners();
         this.callPending = 0;
 
         return this.getTarget().dispose();
@@ -191,10 +169,5 @@ export class TrezorConnectDynamic implements ConnectFactoryDependencies<Record<n
         }
 
         return false;
-    }
-
-    // this shouldn't be needed, ui response should be handled in suite
-    public uiResponse() {
-        throw ERRORS.TypedError('Method_InvalidPackage');
     }
 }

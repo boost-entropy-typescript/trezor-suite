@@ -1,10 +1,11 @@
 // origin: https://github.com/trezor/connect/blob/develop/src/js/data/CoinInfo.js
+import { ERRORS } from '@trezor/connect-common/src/constants';
 import type {
     BitcoinNetworkInfo,
+    CoinSymbol,
     EthereumNetworkInfo,
     MiscNetworkInfo,
 } from '@trezor/connect-common/src/types/coinInfo';
-import type { DerivationPath } from '@trezor/connect-common/src/types/params';
 import coinsEth from '@trezor/connect-data/files/coins-eth.json';
 import coins from '@trezor/connect-data/files/coins.json';
 import { fromHardenedPathPart, toHardenedPathPart } from '@trezor/crypto-utils';
@@ -17,53 +18,46 @@ const ethereumNetworks: EthereumNetworkInfo[] = [];
 const miscNetworks: MiscNetworkInfo[] = [];
 
 export const getBitcoinNetwork = (
-    pathOrName: DerivationPath,
+    symbolOrPath: CoinSymbol | number[],
 ): Readonly<BitcoinNetworkInfo> | undefined => {
-    if (typeof pathOrName === 'string') {
-        const name = pathOrName.toLowerCase();
+    if (typeof symbolOrPath === 'string') {
+        const shortcut = symbolOrPath.toLowerCase();
 
-        return bitcoinNetworks.find(
-            n =>
-                n.name.toLowerCase() === name ||
-                n.shortcut.toLowerCase() === name ||
-                n.label.toLowerCase() === name,
-        );
+        return bitcoinNetworks.find(n => n.shortcut.toLowerCase() === shortcut);
     }
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const pathElement: number = pathOrName[1];
+    const pathElement: number = symbolOrPath[1];
     const slip44 = fromHardenedPathPart(pathElement);
 
     return bitcoinNetworks.find(n => n.slip44 === slip44);
 };
 
 export const getEthereumNetwork = (
-    pathOrNetworkSymbol: DerivationPath,
+    symbolOrPath: CoinSymbol | number[],
 ): Readonly<EthereumNetworkInfo> | undefined => {
-    if (typeof pathOrNetworkSymbol === 'string') {
-        const networkSymbol = pathOrNetworkSymbol.toLowerCase();
+    if (typeof symbolOrPath === 'string') {
+        const networkSymbol = symbolOrPath.toLowerCase();
 
         return ethereumNetworks.find(network => network.shortcut.toLowerCase() === networkSymbol);
     }
 
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const ethPathElement: number = pathOrNetworkSymbol[1];
+    const ethPathElement: number = symbolOrPath[1];
     const slip44 = fromHardenedPathPart(ethPathElement);
 
     return ethereumNetworks.find(n => n.slip44 === slip44);
 };
 
 export const getMiscNetwork = (
-    pathOrName: DerivationPath,
+    symbolOrPath: CoinSymbol | number[],
 ): Readonly<MiscNetworkInfo> | undefined => {
-    if (typeof pathOrName === 'string') {
-        const name = pathOrName.toLowerCase();
+    if (typeof symbolOrPath === 'string') {
+        const shortcut = symbolOrPath.toLowerCase();
 
-        return miscNetworks.find(
-            n => n.name.toLowerCase() === name || n.shortcut.toLowerCase() === name,
-        );
+        return miscNetworks.find(n => n.shortcut.toLowerCase() === shortcut);
     }
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const miscPathElement: number = pathOrName[1];
+    const miscPathElement: number = symbolOrPath[1];
     const slip44 = fromHardenedPathPart(miscPathElement);
 
     return miscNetworks.find(n => n.slip44 === slip44);
@@ -121,8 +115,18 @@ export const fixCoinInfoNetwork = (ci: BitcoinNetworkInfo, path: number[]) => {
     return coinInfo;
 };
 
-export const getCoinInfo = (currency: string) =>
-    getBitcoinNetwork(currency) || getEthereumNetwork(currency) || getMiscNetwork(currency);
+const getCoinInfo = (coin: CoinSymbol) =>
+    getBitcoinNetwork(coin) || getEthereumNetwork(coin) || getMiscNetwork(coin);
+
+export const getCoinInfoOrThrow = (coin: string) => {
+    // `coin` is unvalidated caller input; a non-shortcut resolves to undefined below
+    const coinInfo = getCoinInfo(coin as CoinSymbol);
+    if (!coinInfo) {
+        throw ERRORS.TypedError('Method_UnknownCoin');
+    }
+
+    return coinInfo;
+};
 
 export const getCoinName = (path: number[]) => {
     // @ts-expect-error: indexing with noUncheckedIndexedAccess

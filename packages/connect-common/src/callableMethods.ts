@@ -1,66 +1,30 @@
 import type { CallMethodKeys } from './events/call';
-import type {
-    TrezorConnectAccount,
-    TrezorConnectBitcoin,
-    TrezorConnectBlockchain,
-    TrezorConnectCardano,
-    TrezorConnectDevice,
-    TrezorConnectEthereum,
-    TrezorConnectEvolu,
-    TrezorConnectManagement,
-    TrezorConnectMonero,
-    TrezorConnectNostr,
-    TrezorConnectRipple,
-    TrezorConnectSolana,
-    TrezorConnectStellar,
-    TrezorConnectTezos,
-    TrezorConnectTron,
-} from './types/api';
 
-type AssertNever<T extends never> = T;
+const connectManagementMethods = [
+    'getFirmwareHash',
+    'resetDevice',
+    'loadDevice',
+    'recoveryDevice',
+    'wipeDevice',
+    'backupDevice',
+    'changePin',
+    'changeWipeCode',
+    'changeLanguage',
+    'applySettings',
+    'applyFlags',
+    'authenticateDevice',
+    'setBusy',
+    'setBrightness',
+    'bleUnpair',
+    'thpGetCredentials',
+    'thpRemoveCredentials',
+    'telemetryGet',
+    'pingDevice',
+    'getNonce',
+    'getSettings',
+] as const;
 
-type ConnectCallableMethodGroups = {
-    management: readonly (keyof TrezorConnectManagement)[];
-    device: readonly (keyof TrezorConnectDevice)[];
-    blockchain: readonly (keyof TrezorConnectBlockchain)[];
-    account: readonly (keyof TrezorConnectAccount)[];
-    bitcoin: readonly (keyof TrezorConnectBitcoin)[];
-    ethereum: readonly (keyof TrezorConnectEthereum)[];
-    cardano: readonly (keyof TrezorConnectCardano)[];
-    monero: readonly (keyof TrezorConnectMonero)[];
-    ripple: readonly (keyof TrezorConnectRipple)[];
-    solana: readonly (keyof TrezorConnectSolana)[];
-    stellar: readonly (keyof TrezorConnectStellar)[];
-    tezos: readonly (keyof TrezorConnectTezos)[];
-    tron: readonly (keyof TrezorConnectTron)[];
-    evolu: readonly (keyof TrezorConnectEvolu)[];
-    nostr: readonly (keyof TrezorConnectNostr)[];
-};
-
-const connectCallableMethodGroups = {
-    management: [
-        'getFirmwareHash',
-        'resetDevice',
-        'loadDevice',
-        'recoveryDevice',
-        'wipeDevice',
-        'backupDevice',
-        'changePin',
-        'changeWipeCode',
-        'changeLanguage',
-        'applySettings',
-        'applyFlags',
-        'authenticateDevice',
-        'setBusy',
-        'setBrightness',
-        'bleUnpair',
-        'thpGetCredentials',
-        'thpRemoveCredentials',
-        'telemetryGet',
-        'pingDevice',
-        'getNonce',
-        'getSettings',
-    ],
+const connectPublicCallableMethodGroups = {
     device: [
         'getFeatures',
         'getDeviceState',
@@ -140,17 +104,22 @@ const connectCallableMethodGroups = {
     tron: ['tronGetAddress', 'tronSignTransaction', 'tronComposeTransaction'],
     evolu: ['evoluGetNode', 'evoluSignRegistrationRequest', 'evoluGetDelegatedIdentityKey'],
     nostr: ['nostrGetPublicKey', 'nostrSignEvent'],
-} as const satisfies ConnectCallableMethodGroups;
+} as const;
 
-type ConnectCallableMethod =
-    (typeof connectCallableMethodGroups)[keyof typeof connectCallableMethodGroups][number];
+export const connectPublicCallableMethods = Object.values(
+    connectPublicCallableMethodGroups,
+).flat() as CallMethodKeys[];
+
+export const connectCallableMethods = [
+    ...connectPublicCallableMethods,
+    ...connectManagementMethods,
+];
+
+type AssertNever<T extends never> = T;
+type ConnectCallableMethod = (typeof connectCallableMethods)[number];
 
 export type MissingConnectCallableMethods = Exclude<CallMethodKeys, ConnectCallableMethod>;
 export type ExtraConnectCallableMethods = Exclude<ConnectCallableMethod, CallMethodKeys>;
 
 export type ConnectCallableMethodsMissingGuard = AssertNever<MissingConnectCallableMethods>;
 export type ConnectCallableMethodsExtraGuard = AssertNever<ExtraConnectCallableMethods>;
-
-export const connectCallableMethods = Object.values(
-    connectCallableMethodGroups,
-).flat() as CallMethodKeys[];
