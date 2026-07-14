@@ -1,3 +1,5 @@
+import { type YieldDtoV2 } from '@suite-common/earn-stablecoin-api';
+import { type Account } from '@suite-common/wallet-types';
 import {
     BottomSheetModal,
     type BottomSheetModalRef,
@@ -9,6 +11,7 @@ import {
 } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 
+import { useApyBreakdownAlert } from '../hooks/useApyBreakdownAlert';
 import { HowEarnWorksBenefitsSection } from './HowEarnWorks/HowEarnWorksBenefitsSection';
 import { HowEarnWorksTimelineCard } from './HowEarnWorks/HowEarnWorksTimelineCard';
 import { createHowYieldWorksPreset } from '../presets/HowEarnWorks/yieldPresets';
@@ -20,6 +23,8 @@ type YieldDepositInfoBottomSheetProps = {
     ref: BottomSheetModalRef;
     tokenSymbol: string;
     vaultTokenSymbol: string;
+    account: Account;
+    vault: YieldDtoV2;
 };
 
 export const YieldDepositInfoBottomSheet = ({
@@ -29,9 +34,14 @@ export const YieldDepositInfoBottomSheet = ({
     ref,
     tokenSymbol,
     vaultTokenSymbol,
+    account,
+    vault,
 }: YieldDepositInfoBottomSheetProps) => {
+    const apyBreakdownAlert = useApyBreakdownAlert({ account, vault, apy });
+
     const { benefitItems, timelineSections } = createHowYieldWorksPreset({
         apy,
+        onApyPress: apyBreakdownAlert.onPress,
         bonusRewardTokenName,
         tokenSymbol,
         vaultTokenSymbol,

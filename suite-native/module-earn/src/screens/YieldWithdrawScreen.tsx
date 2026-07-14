@@ -588,6 +588,8 @@ export const YieldWithdrawScreen = () => {
                 onClose={handleCloseInfoBottomSheet}
                 tokenSymbol={underlyingTokenSymbol}
                 vaultTokenSymbol={resolvedVaultTokenSymbol}
+                account={account}
+                vault={vault}
             />
         </Screen>
     );
