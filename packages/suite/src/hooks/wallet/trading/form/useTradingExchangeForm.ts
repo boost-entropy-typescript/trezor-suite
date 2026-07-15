@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import type { DexApprovalType, ExchangeTrade } from 'invity-api';
 
-import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
-import { goto } from '@suite/router';
-import { useServices } from '@suite-common/dependency-injection';
 import {
     TRADING_EXCHANGE_FORM,
     TRADING_EXCHANGE_FORM_CEX,
@@ -16,13 +13,13 @@ import {
     TRADING_FORM_PROVIDER_SELECT,
     type TradingExchangeAmountLimitProps,
     type TradingExchangeFormProps,
-    type TradingTransactionExchange,
     cryptoIdToNetwork,
     exchangeThunks,
     getDexEstimationData,
     hasEip712SignDataType,
     isSendingEvmNativeToken,
     selectTradingComposedTransactionInfo,
+    selectTradingExchangeActiveTrade,
     selectTradingExchangeAmountLimits,
     selectTradingExchangeInfo,
     selectTradingExchangeIsFromRedirect,
@@ -31,17 +28,13 @@ import {
     selectTradingExchangeQuotesRequest,
     selectTradingExchangeSelectedQuote,
     selectTradingExchangeTransactionId,
-    selectTradingTrades,
+    selectTradingSendAccount,
     selectTradingVerifiedAddress,
     tradingExchangeActions,
     tradingThunks,
 } from '@suite-common/trading';
 import { getNetwork, isAccountBasedNetwork } from '@suite-common/wallet-config';
-import {
-    ETHEREUM_ADJUST_GAS_LIMIT,
-    selectAccountByKey,
-    updateFeeInfoThunk,
-} from '@suite-common/wallet-core';
+import { ETHEREUM_ADJUST_GAS_LIMIT, updateFeeInfoThunk } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { useCurrentRef } from '@trezor/react-utils';
 
@@ -54,6 +47,7 @@ import { useTradingExchangeQuotesFilter } from 'src/hooks/wallet/trading/form/co
 import { useTradingFiatValues } from 'src/hooks/wallet/trading/form/common/useTradingFiatValues';
 import { useTradingFormActions } from 'src/hooks/wallet/trading/form/common/useTradingFormActions';
 import { useTradingExchangeFormDefaultValues } from 'src/hooks/wallet/trading/form/useTradingExchangeFormDefaultValues';
+import { useServerEnvironment } from 'src/hooks/wallet/trading/useServerEnviroment';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { type Dispatch } from 'src/types/suite';
 import {
@@ -63,12 +57,10 @@ import {
 
 import { useTradingClearStaleQuotes } from './common/useTradingClearStaleQuotes';
 import { useTradingExchangeTradeRequest } from './common/useTradingExchangeTradeRequest';
-import { useTradingInitializer } from './common/useTradingInitializer';
 import { useTradingFormAccount } from './useTradingFormAccount';
 import { useTradingReceiveAddress } from './useTradingReceiveAddress';
 
 export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
-    const { analytics } = useServices(selectDesktopAnalyticsDep);
     const type = 'exchange';
     const dispatch = useDispatch();
     const quotesRequest = useSelector(selectTradingExchangeQuotesRequest);
@@ -81,26 +73,10 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const verifiedAddress = useSelector(selectTradingVerifiedAddress);
     const exchangeInfo = useSelector(selectTradingExchangeInfo);
     const composedTransactionInfo = useSelector(selectTradingComposedTransactionInfo);
-    const {
-        account: formAccount,
-        tradingAccountKey: accountKey,
-        cryptoId,
-    } = useTradingFormAccount(type);
+    const { tradingAccountKey: accountKey, cryptoId } = useTradingFormAccount(type);
 
-    const trades = useSelector(selectTradingTrades);
-    const trade = useMemo(
-        () =>
-            trades.find(
-                (transaction): transaction is TradingTransactionExchange =>
-                    transaction.tradeType === 'exchange' &&
-                    !!transactionId &&
-                    transaction.data.orderId === transactionId,
-            ),
-        [trades, transactionId],
-    );
-
-    const tradeSendAccount = useSelector(state => selectAccountByKey(state, trade?.sendAccountKey));
-    const account = tradeSendAccount ?? formAccount;
+    const trade = useSelector(selectTradingExchangeActiveTrade);
+    const account = useSelector(state => selectTradingSendAccount(state, type));
 
     const { getTradeRequestParams } = useTradingExchangeTradeRequest(account);
 
@@ -109,7 +85,7 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const [isScheduledQuotesRefresh, setIsScheduledQuotesRefresh] = useState(false);
     const [showReserveBanner, setShowReserveBanner] = useState<boolean>(false);
 
-    const { device } = useTradingInitializer();
+    useServerEnvironment();
 
     const [isApproval, setIsApproval] = useState<boolean>(false);
     const [isLoadingQuote, setIsLoadingQuote] = useState<boolean>(false);
@@ -120,10 +96,7 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const { isBtcSatsAmountUnit: shouldSendInSats } = useBitcoinAmountUnit(symbol);
     const network = getNetwork(account.symbol);
 
-    const { defaultCurrency, defaultValues } = useTradingExchangeFormDefaultValues(
-        accountKey,
-        cryptoId,
-    );
+    const { defaultValues } = useTradingExchangeFormDefaultValues(accountKey, cryptoId);
 
     const methods = useForm<TradingExchangeFormProps>({
         mode: 'onChange',
@@ -134,7 +107,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const values = useWatch({ control }) as TradingExchangeFormProps;
     const { provider } = values;
     const {
-        rateType,
         exchangeType,
         sendCryptoSelect,
         receiveCryptoSelect,
@@ -239,42 +211,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         setShowReserveBanner,
         receiveAddress: tradingReceiveAddress.receiveAddress,
     });
-
-    const selectQuote = async (quote: ExchangeTrade) => {
-        const quoteProvider =
-            exchangeInfo?.providerInfos && quote.exchange
-                ? exchangeInfo?.providerInfos[quote.exchange]
-                : null;
-
-        analytics.report({
-            type: events.tradeExchangeEvent.name,
-            payload: {
-                action: 'continue',
-                step: 'exchange-form',
-                sendCryptoLabel: sendCryptoSelect?.displaySymbol,
-                sendCryptoNetworkSymbol: sendCryptoSelect?.networkSymbol,
-                sendCryptoContractAddress: sendCryptoSelect?.contractAddress ?? undefined,
-                receiveCryptoLabel: receiveCryptoSelect?.displaySymbol,
-                receiveCryptoNetworkSymbol: receiveCryptoSelect?.networkSymbol,
-                receiveCryptoContractAddress: receiveCryptoSelect?.contractAddress ?? undefined,
-                exchangeType,
-                exchangeName: quoteProvider?.companyName,
-                rateType,
-                fractionButton: helpers.fractionButton
-                    ? `${(100 / helpers.fractionButton).toString()}%`
-                    : undefined,
-            },
-        });
-
-        await dispatch(
-            exchangeThunks.selectQuoteThunk({
-                quote,
-                nextStep: () => {
-                    dispatch(goto({ routeName: 'wallet-trading-exchange-confirm' }));
-                },
-            }),
-        );
-    };
 
     const confirmTrade = async ({
         receiveAddress: confirmReceiveAddress,
@@ -505,7 +441,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
             helpers,
         },
         methods,
-        device,
         exchangeInfo,
         quotes,
         dexQuotes,
@@ -513,7 +448,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         quotesRequest,
         isComposing,
         composedLevels,
-        defaultCurrency,
         feeInfo,
         amountLimits,
         network,
@@ -530,7 +464,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         setAmountLimits,
         onQuoteSelected,
         verifyAddress,
-        selectQuote,
         confirmTrade,
         approveTransaction,
         revokeApproval,

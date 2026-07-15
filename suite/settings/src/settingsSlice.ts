@@ -6,17 +6,26 @@ import { type OAuthServerEnvironment } from '@suite-common/metadata-types';
 import { createSliceWithExtraDeps } from '@suite-common/redux-utils';
 import { type Locale } from '@suite-common/suite-types';
 import type { InvityServerEnvironment } from '@suite-common/trading';
-import type { ConnectSettingsTransport, DefinitionsChannel } from '@trezor/connect-common';
+import type { DefinitionsChannel } from '@trezor/connect-common';
 import { isWeb } from '@trezor/env-utils';
 import { type SuiteThemeVariant } from '@trezor/suite-desktop-api';
 
 import { SIDEBAR_WIDTH_NUMERIC } from './suiteConstants';
 
+/**
+ * String identifiers used by the debug transport switcher UI.
+ */
+export type DebugTransport =
+    | 'BridgeTransport'
+    | 'NodeUsbTransport'
+    | 'UdpTransport'
+    | 'WebUsbTransport';
+
 export interface DebugModeOptions {
     invityServerEnvironment?: InvityServerEnvironment;
     earnYieldWorkerBaseUrl?: EarnYieldWorkerBaseUrl;
     oauthServerEnvironment?: OAuthServerEnvironment;
-    transports: Extract<ConnectSettingsTransport, string>[];
+    transports: DebugTransport[];
     isUnlockedBootloaderAllowed: boolean;
     showConnectLogs: boolean;
     definitionsChannel?: DefinitionsChannel;
@@ -99,55 +108,88 @@ const suiteSettingsSlice = createSliceWithExtraDeps({
     name: 'suiteSettings',
     initialState: suiteSettingsInitialState,
     reducers: {
-        setLanguage: (state, { payload }: PayloadAction<Locale>) => {
+        setLanguage: (state: SuiteSettingsState, { payload }: PayloadAction<Locale>) => {
             state.language = payload;
         },
-        setDebugMode: (state, { payload }: PayloadAction<Partial<DebugModeOptions>>) => {
+        setDebugMode: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<Partial<DebugModeOptions>>,
+        ) => {
             state.debug = { ...state.debug, ...payload };
         },
         setExperimentalFeatures: (
-            state,
+            state: SuiteSettingsState,
             { payload }: PayloadAction<ExperimentalFeature[] | undefined>,
         ) => {
             state.experimental = payload;
         },
-        setIsTestnetNetworksEnabled: (state, { payload }: PayloadAction<boolean>) => {
+        setIsTestnetNetworksEnabled: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.isTestnetNetworksEnabled = payload;
         },
-        setIsNftSectionEnabled: (state, { payload }: PayloadAction<boolean>) => {
+        setIsNftSectionEnabled: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.isNftSectionEnabled = payload;
         },
-        setTheme: (state, { payload }: PayloadAction<SuiteSettingsState['theme']['variant']>) => {
+        setTheme: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<SuiteSettingsState['theme']['variant']>,
+        ) => {
             state.theme.variant = payload;
         },
-        setAutodetect: (state, { payload }: PayloadAction<Partial<AutodetectSettings>>) => {
+        setAutodetect: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<Partial<AutodetectSettings>>,
+        ) => {
             state.autodetect = { ...state.autodetect, ...payload };
         },
-        setSidebarWidth: (state, { payload }: PayloadAction<number>) => {
+        setSidebarWidth: (state: SuiteSettingsState, { payload }: PayloadAction<number>) => {
             state.sidebarWidth = payload;
         },
-        setIsCoinsFilterVisible: (state, { payload }: PayloadAction<boolean>) => {
+        setIsCoinsFilterVisible: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.isCoinsFilterVisible = payload;
         },
-        setOnionLinks: (state, { payload }: PayloadAction<boolean>) => {
+        setOnionLinks: (state: SuiteSettingsState, { payload }: PayloadAction<boolean>) => {
             state.torOnionLinks = payload;
         },
-        setCoinjoinReceiveWarningHidden: (state, { payload }: PayloadAction<boolean>) => {
+        setCoinjoinReceiveWarningHidden: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.isCoinjoinReceiveWarningHidden = payload;
         },
-        toggleDeviceAuthenticityCheck: (state, { payload }: PayloadAction<boolean>) => {
+        toggleDeviceAuthenticityCheck: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.enabledSecurityChecks.deviceAuthenticity = payload;
         },
-        toggleFirmwareRevisionCheck: (state, { payload }: PayloadAction<boolean>) => {
+        toggleFirmwareRevisionCheck: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.enabledSecurityChecks.firmwareRevision = payload;
         },
-        toggleFirmwareHashCheck: (state, { payload }: PayloadAction<boolean>) => {
+        toggleFirmwareHashCheck: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.enabledSecurityChecks.firmwareHash = payload;
         },
-        toggleEntropyCheck: (state, { payload }: PayloadAction<boolean>) => {
+        toggleEntropyCheck: (state: SuiteSettingsState, { payload }: PayloadAction<boolean>) => {
             state.enabledSecurityChecks.entropy = payload;
         },
-        toggleDeviceMetaChecks: (state, { payload }: PayloadAction<boolean>) => {
+        toggleDeviceMetaChecks: (
+            state: SuiteSettingsState,
+            { payload }: PayloadAction<boolean>,
+        ) => {
             state.enabledSecurityChecks.deviceMeta = payload;
         },
     },

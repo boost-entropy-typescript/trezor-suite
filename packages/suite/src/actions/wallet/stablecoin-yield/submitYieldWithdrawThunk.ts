@@ -11,7 +11,11 @@ import {
 } from '@suite-common/wallet-core';
 
 import { composeYieldWithdrawTransaction } from './composeYieldWithdrawTransaction';
-import { getYieldErrorTranslationKey, sendYieldTransaction } from './signingHelpers';
+import {
+    getYieldErrorTranslationKey,
+    getYieldSubmitErrorAnalyticsMessage,
+    sendYieldTransaction,
+} from './signingHelpers';
 
 type SubmitYieldWithdrawPayload = {
     flowKey: string;
@@ -26,6 +30,19 @@ export const submitYieldWithdrawThunk = createThunk(
         { flowKey, flowData, amount, flowType }: SubmitYieldWithdrawPayload,
         { dispatch, getState, extra },
     ) => {
+        const reportSubmitError = (errorMessage = 'submit-failed') =>
+            asTypedDesktopAnalytics(extra.services.analytics).report({
+                type: events.yieldWithdrawEvent.name,
+                payload: {
+                    type: 'error',
+                    operation: flowType,
+                    action: 'continue',
+                    networkSymbol: flowData.account.symbol,
+                    vaultId: flowData.vault.id,
+                    errorMessage,
+                },
+            });
+
         try {
             if (flowData.account.networkType !== 'ethereum') {
                 throw new Error('Yield actions currently support only EVM accounts.');
@@ -35,7 +52,7 @@ export const submitYieldWithdrawThunk = createThunk(
 
             const { account } = flowData;
 
-            const unsignedTransaction = await composeYieldWithdrawTransaction({
+            const composeResult = await composeYieldWithdrawTransaction({
                 account,
                 flowData,
                 amount,
@@ -43,6 +60,21 @@ export const submitYieldWithdrawThunk = createThunk(
                 dispatch,
                 getState,
             });
+
+            if (!composeResult.success) {
+                reportSubmitError(composeResult.error);
+                dispatch(
+                    stablecoinYieldActions.setError({
+                        flowType,
+                        flowKey,
+                        error: 'TR_EARN_YIELD_ERROR_FEE_ESTIMATION',
+                    }),
+                );
+
+                return;
+            }
+
+            const unsignedTransaction = composeResult.payload;
 
             const userAcceptedTxSimulation = await dispatch(
                 openDeferredModal({
@@ -125,17 +157,7 @@ export const submitYieldWithdrawThunk = createThunk(
             );
         } catch (error) {
             console.error(error);
-            asTypedDesktopAnalytics(extra.services.analytics).report({
-                type: events.yieldWithdrawEvent.name,
-                payload: {
-                    type: 'error',
-                    operation: flowType,
-                    action: 'continue',
-                    networkSymbol: flowData.account.symbol,
-                    vaultId: flowData.vault.id,
-                    errorMessage: 'submit-failed',
-                },
-            });
+            reportSubmitError(getYieldSubmitErrorAnalyticsMessage(error));
             dispatch(
                 stablecoinYieldActions.setError({
                     flowType,

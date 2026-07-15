@@ -88,7 +88,6 @@
         {
             "path": "../../suite-common/redux-utils"
         },
-        { "path": "../../suite-common/schemas" },
         { "path": "../../suite-common/sentry" },
         { "path": "../../suite-common/staking" },
         {
@@ -218,8 +217,6 @@
         { "path": "../blockchain-link-types" },
         { "path": "../blockchain-link-utils" },
         { "path": "../coinjoin" },
-        { "path": "../../coins/coins-solana" },
-        { "path": "../../coins/coins-stellar" },
         { "path": "../components" },
         { "path": "../connect" },
         { "path": "../connect-common" },
@@ -228,6 +225,12 @@
         { "path": "../dom-utils" },
         { "path": "../env-utils" },
         { "path": "../icons" },
+        {
+            "path": "../../networks/solana/network-solana"
+        },
+        {
+            "path": "../../networks/stellar/network-stellar"
+        },
         { "path": "../product-components" },
         { "path": "../react-utils" },
         { "path": "../styles" },
