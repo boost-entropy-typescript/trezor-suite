@@ -279,6 +279,15 @@ export const messages = defineMessages({
         defaultMessage: 'View and track your {type} in trade history.',
         id: 'TR_TRADING_HEADER_DESCRIPTION',
     },
+    TR_TRADING_HEADER_PROCESSING_TITLE: {
+        defaultMessage: 'Your {type} is being processed',
+        id: 'TR_TRADING_HEADER_PROCESSING_TITLE',
+    },
+    TR_TRADING_HEADER_PROCESSING_DESCRIPTION: {
+        defaultMessage:
+            'You can leave this screen. View your {type} status anytime in trade history.',
+        id: 'TR_TRADING_HEADER_PROCESSING_DESCRIPTION',
+    },
     TR_TRADING_CONCIERGE_TITLE: {
         defaultMessage: 'Large trades, made simple',
         id: 'TR_TRADING_CONCIERGE_TITLE',
@@ -558,10 +567,6 @@ export const messages = defineMessages({
     TR_EXCHANGE_DETAIL_TRANSACTION_SENT: {
         defaultMessage: 'Transaction sent',
         id: 'TR_EXCHANGE_DETAIL_TRANSACTION_SENT',
-    },
-    TR_EXCHANGE_HEADER_TITLE: {
-        defaultMessage: 'Your swap',
-        id: 'TR_EXCHANGE_HEADER_TITLE',
     },
     TR_EXCHANGE_COMPLETE: {
         defaultMessage: 'Swap complete',
@@ -1200,6 +1205,15 @@ export const messages = defineMessages({
     TR_TRADING_NETWORK_FEE: {
         defaultMessage: 'Network fee',
         id: 'TR_TRADING_NETWORK_FEE',
+    },
+    TR_TRADING_TREZOR_FEE: {
+        defaultMessage: 'Trezor fee (incl.)',
+        id: 'TR_TRADING_TREZOR_FEE',
+    },
+    TR_TRADING_TREZOR_FEE_TOOLTIP: {
+        defaultMessage:
+            "This is Trezor's fee to facilitate your trade—already included in your offer.",
+        id: 'TR_TRADING_TREZOR_FEE_TOOLTIP',
     },
     TR_TRADING_TRADE_HISTORY_COUNTER: {
         defaultMessage:
