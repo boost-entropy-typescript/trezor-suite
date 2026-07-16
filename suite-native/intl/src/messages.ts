@@ -2822,7 +2822,7 @@ export const messages = {
                         'Most rewards compound automatically—some must be claimed manually.',
                 },
                 third: {
-                    title: 'Deposit {tokenSymbol} to receive {vaultTokenName}',
+                    title: 'Deposit {tokenSymbol} to receive {vaultTokenSymbol}',
                     description: 'This is your vault position.',
                 },
                 fourth: {
@@ -4137,9 +4137,12 @@ export const messages = {
     networks: {
         initialSetup: {
             title: 'Add your networks',
-            subtitle: 'You can buy or receive assets on any network you enable.',
+            subtitle: 'Enable networks to buy or receive assets. Change your selection anytime.',
             banner: 'Change your networks anytime in Settings.',
         },
     },
     biometricsButton: 'Unlock with biometrics',
+    search: {
+        noResults: 'No results',
+    },
 };

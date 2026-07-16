@@ -10565,7 +10565,6 @@ __metadata:
   dependencies:
     "@mobily/ts-belt": "npm:^3.13.1"
     "@reduxjs/toolkit": "npm:2.12.0"
-    "@suite-common/device": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
@@ -11348,6 +11347,7 @@ __metadata:
     "@suite-native/intl": "workspace:*"
     "@suite-native/labeling": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/search": "workspace:*"
     "@suite-native/staking": "workspace:*"
     "@suite-native/test-utils": "workspace:*"
     "@suite-native/test-utils-store": "workspace:*"
@@ -11356,7 +11356,6 @@ __metadata:
     "@trezor/device-utils": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     "@trezor/theme": "workspace:^"
-    "@trezor/utils": "workspace:*"
     react: "npm:19.2.3"
     react-hook-form: "npm:^7.77.0"
     react-native: "npm:0.85.3"
@@ -11724,7 +11723,6 @@ __metadata:
   dependencies:
     "@gorhom/bottom-sheet": "npm:5.2.9"
     "@mobily/ts-belt": "npm:^3.13.1"
-    "@reduxjs/toolkit": "npm:2.12.0"
     "@shopify/flash-list": "npm:2.3.0"
     "@shopify/react-native-skia": "npm:2.5.1"
     "@storybook/react-native": "npm:^10.2.1"
@@ -11754,8 +11752,6 @@ __metadata:
     react-native-reanimated: "npm:4.3.1"
     react-native-safe-area-context: "npm:5.6.2"
     react-native-svg: "npm:15.15.5"
-    react-redux: "npm:9.3.0"
-    redux: "npm:^5.0.1"
     storybook: "npm:^10.3.4"
     type-fest: "npm:5.5.0"
   languageName: unknown
@@ -11881,6 +11877,7 @@ __metadata:
   dependencies:
     "@react-navigation/native": "npm:7.1.28"
     "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/analytics": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/validators": "workspace:*"
@@ -11894,6 +11891,7 @@ __metadata:
     "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/search": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     react: "npm:19.2.3"
@@ -12552,6 +12550,7 @@ __metadata:
     "@suite-common/device": "workspace:*"
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/graph": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
@@ -12608,12 +12607,15 @@ __metadata:
     "@react-navigation/native": "npm:7.1.28"
     "@react-navigation/native-stack": "npm:7.12.0"
     "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/analytics": "workspace:*"
+    "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-native/accounts": "workspace:*"
     "@suite-native/add-coin-account": "workspace:*"
+    "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/coin-enabling": "workspace:*"
     "@suite-native/discovery": "workspace:*"
@@ -12622,6 +12624,7 @@ __metadata:
     "@suite-native/link": "workspace:*"
     "@suite-native/navigation": "workspace:*"
     "@suite-native/passphrase": "workspace:*"
+    "@suite-native/search": "workspace:*"
     "@trezor/requirements": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     "@trezor/urls": "workspace:*"
@@ -13024,7 +13027,6 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/feedback": "workspace:*"
-    "@suite-common/graph": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
@@ -13032,7 +13034,6 @@ __metadata:
     "@suite-common/suite-sync-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
-    "@suite-common/wallet-types": "workspace:*"
     "@suite-native/accounts": "workspace:*"
     "@suite-native/alerts": "workspace:*"
     "@suite-native/analytics": "workspace:*"
@@ -13291,6 +13292,7 @@ __metadata:
     "@suite-native/link": "workspace:*"
     "@suite-native/module-connect-popup": "workspace:*"
     "@suite-native/navigation": "workspace:*"
+    "@suite-native/search": "workspace:*"
     "@suite-native/settings": "workspace:*"
     "@suite-native/storage": "workspace:*"
     "@suite-native/suite-sync": "workspace:*"
@@ -13604,6 +13606,19 @@ __metadata:
     "@trezor/styles-native": "workspace:*"
     react: "npm:19.2.3"
     react-native: "npm:0.85.3"
+    react-native-reanimated: "npm:4.3.1"
+  languageName: unknown
+  linkType: soft
+
+"@suite-native/search@workspace:*, @suite-native/search@workspace:suite-native/search":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/search@workspace:suite-native/search"
+  dependencies:
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
+    "@trezor/styles-native": "workspace:*"
+    react: "npm:19.2.3"
     react-native-reanimated: "npm:4.3.1"
   languageName: unknown
   linkType: soft
@@ -16616,6 +16631,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/request-manager@workspace:packages/request-manager"
   dependencies:
+    "@trezor/e2e-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
     "@trezor/node-utils": "workspace:^"
     "@trezor/utils": "workspace:*"
