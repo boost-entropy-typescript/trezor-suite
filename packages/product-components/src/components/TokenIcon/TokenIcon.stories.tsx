@@ -2,9 +2,12 @@ import { type Meta, type StoryObj } from '@storybook/react';
 
 import { getFramePropsStory } from '@trezor/components';
 
-import { AssetLogo as AssetLogoComponent } from './AssetLogo';
-import { type AssetLogoProps } from './AssetLogo';
-import { allowedAssetLogoFrameProps, allowedAssetLogoSizes } from './AssetLogoWithId';
+import { TokenIcon as TokenIconComponent } from './TokenIcon';
+import {
+    type TokenIconProps,
+    allowedTokenIconFrameProps,
+    allowedTokenIconSizes,
+} from './tokenIconTypes';
 
 const NETWORK_SYMBOLS = [
     'btc',
@@ -23,15 +26,11 @@ const NETWORK_SYMBOLS = [
     'doge',
 ] as const;
 
-const meta: Meta<AssetLogoProps> = {
-    title: 'AssetLogo',
-    component: AssetLogoComponent,
+const meta: Meta<TokenIconProps> = {
+    title: 'TokenIcon',
+    component: TokenIconComponent,
     argTypes: {
-        ...getFramePropsStory(allowedAssetLogoFrameProps).argTypes,
-        size: {
-            options: allowedAssetLogoSizes,
-            control: { type: 'select' },
-        },
+        ...getFramePropsStory(allowedTokenIconFrameProps).argTypes,
         symbol: {
             options: NETWORK_SYMBOLS,
             control: { type: 'select' },
@@ -39,13 +38,20 @@ const meta: Meta<AssetLogoProps> = {
         contractAddress: {
             control: { type: 'text' },
         },
-        placeholder: {
-            control: { type: 'text' },
+        size: {
+            options: allowedTokenIconSizes,
+            control: { type: 'select' },
         },
         showNetworkIcon: {
             control: { type: 'boolean' },
         },
         shouldTryToFetch: {
+            control: { type: 'boolean' },
+        },
+        placeholder: {
+            control: { type: 'text' },
+        },
+        placeholderWithTooltip: {
             control: { type: 'boolean' },
         },
         isBordered: {
@@ -56,7 +62,7 @@ const meta: Meta<AssetLogoProps> = {
 
 export default meta;
 
-export const NativeCoin: StoryObj<AssetLogoProps> = {
+export const NativeCoin: StoryObj<TokenIconProps> = {
     args: {
         size: 24,
         symbol: 'eth',
@@ -64,11 +70,11 @@ export const NativeCoin: StoryObj<AssetLogoProps> = {
         shouldTryToFetch: true,
         showNetworkIcon: false,
         isBordered: true,
-        ...getFramePropsStory(allowedAssetLogoFrameProps).args,
+        ...getFramePropsStory(allowedTokenIconFrameProps).args,
     },
 };
 
-export const Token: StoryObj<AssetLogoProps> = {
+export const Token: StoryObj<TokenIconProps> = {
     args: {
         size: 24,
         symbol: 'eth',
@@ -77,6 +83,6 @@ export const Token: StoryObj<AssetLogoProps> = {
         shouldTryToFetch: true,
         showNetworkIcon: true,
         isBordered: true,
-        ...getFramePropsStory(allowedAssetLogoFrameProps).args,
+        ...getFramePropsStory(allowedTokenIconFrameProps).args,
     },
 };

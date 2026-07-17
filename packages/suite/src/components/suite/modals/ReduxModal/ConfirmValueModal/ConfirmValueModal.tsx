@@ -43,7 +43,7 @@ import {
     WarningFilledIcon,
     WarningIcon,
 } from '@trezor/icons';
-import { CoinLogo, ConfirmOnDevicePill, QrCode } from '@trezor/product-components';
+import { ConfirmOnDevicePill, QrCode, TokenIcon } from '@trezor/product-components';
 import { spacings } from '@trezor/theme';
 
 import { useGuideOpenNode } from 'src/hooks/guide';
@@ -146,7 +146,7 @@ export const ConfirmValueModal = ({
                 description={
                     account && (
                         <Row gap={spacings.xxs}>
-                            <CoinLogo size={16} symbol={account.symbol} />
+                            <TokenIcon size={16} symbol={account.symbol} />
                             <AccountLabel
                                 account={account}
                                 accountTypeBadgeSize="small"

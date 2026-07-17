@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
 
 import { Image } from 'expo-image';
 
@@ -7,29 +8,27 @@ import {
     type NetworkDisplaySymbol,
     type NetworkSymbol,
     getCoingeckoId,
+    getNetworkDisplaySymbol,
     isNetworkSymbol,
 } from '@suite-common/wallet-config';
 import { getAssetLogoContractAddresses } from '@suite-common/wallet-utils';
 import { useTranslate } from '@suite-native/intl';
 import { getAssetLogoUrl } from '@trezor/asset-utils';
 import { useAsyncMemo } from '@trezor/react-utils';
-import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
+import { type NativeStyleObject, prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
-import { CryptoIconPlaceholder } from './CryptoIconPlaceholder';
+import { MAX_FONT_SIZE_MULTIPLIER } from './Icon';
+import { NetworkIcon, networkIconSizes } from './NetworkIcon';
 
-export interface CryptoIconProps {
-    symbol: NetworkSymbol | NetworkDisplaySymbol;
-    contractAddress?: string;
-    size?: CryptoIconSize | number;
-}
-
-export const cryptoIconSizes = {
+export const tokenIconSizes = {
     tiny: 16,
     extraSmall: 24,
     small: 32,
     large: 48,
     extraLarge: 64,
 } as const;
+
+export type TokenIconSize = keyof typeof tokenIconSizes;
 
 const iconStyle = prepareNativeStyle<{ width: number; height: number }>(
     (utils, { width, height }) => ({
@@ -40,13 +39,63 @@ const iconStyle = prepareNativeStyle<{ width: number; height: number }>(
     }),
 );
 
-export type CryptoIconSize = keyof typeof cryptoIconSizes;
+const networkWrapperStyle = prepareNativeStyle<{ size: TokenIconSize | number }>(
+    (utils, { size }) => ({
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        borderWidth: utils.borders.widths.small,
+        borderColor: utils.colors.borderNeutral,
+        borderRadius: typeof size === 'number' ? size : networkIconSizes[size] / 3,
+    }),
+);
 
-export const CryptoIcon = ({ symbol, contractAddress, size = 'small' }: CryptoIconProps) => {
+const tokenIconPlaceholderIconStyle = prepareNativeStyle(utils => ({
+    backgroundColor: utils.colors.surfaceFillPage,
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const tokenIconPlaceholderTextStyle = prepareNativeStyle(utils => ({
+    ...utils.typography['body-md'],
+    color: utils.colors.contentPrimary,
+    textAlign: 'center',
+}));
+
+interface TokenIconPlaceholderProps {
+    placeholder: string;
+    containerStyle: NativeStyleObject;
+}
+
+const TokenIconPlaceholder = ({ placeholder, containerStyle }: TokenIconPlaceholderProps) => {
+    const { applyStyle } = useNativeStyles();
+    const firstChar = placeholder[0] || 'T';
+
+    // due to circular deps issues we need to use Text and View comp from 'react-native' instead of 'atoms'
+    return (
+        <View style={[containerStyle, applyStyle(tokenIconPlaceholderIconStyle)]}>
+            <Text
+                style={applyStyle(tokenIconPlaceholderTextStyle)}
+                maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+            >
+                {firstChar}
+            </Text>
+        </View>
+    );
+};
+
+interface TokenIconProps {
+    symbol: NetworkSymbol | NetworkDisplaySymbol;
+    contractAddress?: string;
+    showNetworkIcon?: boolean;
+    size?: TokenIconSize | number;
+}
+
+const TokenIconComponent = ({ symbol, contractAddress, size = 'small' }: TokenIconProps) => {
     const { applyStyle } = useNativeStyles();
     const { translate } = useTranslate();
 
-    const sizeNumber = typeof size === 'number' ? size : cryptoIconSizes[size];
+    const sizeNumber = typeof size === 'number' ? size : tokenIconSizes[size];
     const iconContainerStyle = useMemo(
         () => applyStyle(iconStyle, { width: sizeNumber, height: sizeNumber }),
         [applyStyle, sizeNumber],
@@ -109,7 +158,7 @@ export const CryptoIcon = ({ symbol, contractAddress, size = 'small' }: CryptoIc
 
     if (showPlaceholder) {
         return (
-            <CryptoIconPlaceholder
+            <TokenIconPlaceholder
                 placeholder={symbol.toUpperCase()}
                 containerStyle={iconContainerStyle}
             />
@@ -119,7 +168,7 @@ export const CryptoIcon = ({ symbol, contractAddress, size = 'small' }: CryptoIc
     return (
         <Image
             source={sourceUrls[logoIndex]}
-            accessibilityHint={translate('icons.cryptoIconHint')}
+            accessibilityHint={translate('icons.tokenIconHint')}
             accessibilityLabel={key}
             recyclingKey={asyncKey}
             style={iconContainerStyle}
@@ -127,5 +176,41 @@ export const CryptoIcon = ({ symbol, contractAddress, size = 'small' }: CryptoIc
             onError={handleLoadError}
             cachePolicy="memory-disk"
         />
+    );
+};
+
+export const TokenIcon = ({
+    symbol,
+    contractAddress,
+    showNetworkIcon = false,
+    size = 'small',
+}: TokenIconProps) => {
+    const { applyStyle } = useNativeStyles();
+
+    if (!showNetworkIcon || !isNetworkSymbol(symbol)) {
+        return <TokenIconComponent symbol={symbol} contractAddress={contractAddress} size={size} />;
+    }
+
+    const displaySymbol = getNetworkDisplaySymbol(symbol) as NetworkDisplaySymbol;
+    const showForNativeToken = displaySymbol === 'ETH' && symbol !== 'eth';
+    const shouldShowNetwork = showForNativeToken || contractAddress;
+
+    const iconSymbol = contractAddress ? symbol : displaySymbol;
+    const iconSize = typeof size === 'number' ? size : tokenIconSizes[size];
+
+    return (
+        <View style={{ width: iconSize, height: iconSize }}>
+            <TokenIconComponent
+                symbol={iconSymbol}
+                contractAddress={contractAddress}
+                showNetworkIcon={showNetworkIcon}
+                size={size}
+            />
+            {shouldShowNetwork && (
+                <View style={applyStyle(networkWrapperStyle, { size: iconSize })}>
+                    <NetworkIcon symbol={symbol} size={size} />
+                </View>
+            )}
+        </View>
     );
 };

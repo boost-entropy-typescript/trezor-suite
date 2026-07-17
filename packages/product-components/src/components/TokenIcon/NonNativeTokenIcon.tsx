@@ -2,20 +2,19 @@ import { useEffect, useMemo, useState } from 'react';
 
 import styled, { css } from 'styled-components';
 
-import { isNetworkIconSymbol } from '@suite-common/icons/src/iconUtils';
-import { type NetworkSymbolExtended } from '@suite-common/wallet-config';
+import { isNetworkIconSymbol } from '@suite-common/icons';
 import { getAssetLogoContractAddresses } from '@suite-common/wallet-utils/src/tokenUtils';
 import { getAssetLogoUrl } from '@trezor/asset-utils';
 import {
-    type FrameProps,
-    type FramePropsKeys,
+    type AllowedFrameProps,
     type TransientProps,
     pickAndPrepareFrameProps,
     withFrameProps,
 } from '@trezor/components';
 import { borders } from '@trezor/theme';
 
-import { AssetInitials } from './AssetInitials';
+import { TokenInitials } from './TokenInitials';
+import { type TokenIconProps, allowedTokenIconFrameProps } from './tokenIconTypes';
 import {
     type LogoCandidate,
     ZERO_ADDRESS,
@@ -24,36 +23,8 @@ import {
     makeAddressKey,
     makeCacheKey,
     resolvedLogoCache,
-} from './assetLogoUtils';
+} from './tokenIconUtils';
 import { NetworkIconBadge } from '../NetworkIcon/NetworkIconBadge';
-
-export const allowedAssetLogoSizes = [20, 24, 32, 40] as const satisfies number[];
-export type AssetLogoSize = (typeof allowedAssetLogoSizes)[number];
-
-export const allowedAssetLogoFrameProps = ['margin'] as const satisfies FramePropsKeys[];
-export type AllowedFrameProps = Pick<FrameProps, (typeof allowedAssetLogoFrameProps)[number]>;
-
-type AssetLogoBaseProps = AllowedFrameProps & {
-    size: AssetLogoSize;
-    contractAddress?: string | null;
-    shouldTryToFetch?: boolean;
-    placeholderWithTooltip?: boolean;
-    placeholder?: string;
-    'data-testid'?: string;
-    showNetworkIcon?: boolean;
-    customLogoUrl?: string;
-    isBordered?: boolean;
-};
-
-export type AssetLogoProps = AssetLogoBaseProps & {
-    symbol: NetworkSymbolExtended;
-    coingeckoId?: string;
-};
-
-export type AssetLogoWithIdProps = AssetLogoBaseProps & {
-    coingeckoId: string;
-    symbol?: NetworkSymbolExtended;
-};
 
 const Container = styled.div<TransientProps<AllowedFrameProps> & { $size: number }>`
     ${({ $size }) => `
@@ -85,21 +56,26 @@ const Logo = styled.img<{ $size: number }>`
     background-color: ${({ theme }) => theme.elementFillElevated};
 `;
 
-export const AssetLogoWithId = ({
-    size,
-    coingeckoId,
+type NonNativeTokenIconProps = TokenIconProps & {
+    coingeckoId: string;
+};
+
+export const NonNativeTokenIcon = ({
     symbol,
-    contractAddress = null,
-    shouldTryToFetch = true,
-    placeholder = '',
-    placeholderWithTooltip = true,
+    contractAddress,
+    coingeckoId,
+    size = 32,
     showNetworkIcon = false,
+    shouldTryToFetch = true,
+    placeholderWithTooltip = true,
+    placeholder = '',
     customLogoUrl,
     isBordered = true,
-    'data-testid': dataTest,
+    'data-testid': dataTestId,
     ...rest
-}: AssetLogoWithIdProps) => {
+}: NonNativeTokenIconProps) => {
     const [contractAddressArray, setContractAddressArray] = useState<string[] | undefined>();
+
     useEffect(() => {
         getAssetLogoContractAddresses(symbol, contractAddress).then(setContractAddressArray);
     }, [symbol, contractAddress]);
@@ -222,7 +198,7 @@ export const AssetLogoWithId = ({
         setShowPlaceholder(false);
     }, [cacheKey, candidates, hasCandidates]);
 
-    const frameProps = pickAndPrepareFrameProps(rest, allowedAssetLogoFrameProps);
+    const frameProps = pickAndPrepareFrameProps(rest, allowedTokenIconFrameProps);
 
     const handleLoadError = () => {
         if (!current) return;
@@ -246,9 +222,9 @@ export const AssetLogoWithId = ({
     const logo = (
         <>
             {showPlaceholder && (
-                <AssetInitials size={size} withTooltip={placeholderWithTooltip}>
+                <TokenInitials size={size} withTooltip={placeholderWithTooltip}>
                     {placeholder}
-                </AssetInitials>
+                </TokenInitials>
             )}
             {!showPlaceholder && current && (
                 <LogoWrapper $size={size} $isBordered={isBordered}>
@@ -258,7 +234,7 @@ export const AssetLogoWithId = ({
                         loading="lazy"
                         decoding="async"
                         $size={size}
-                        data-testid={dataTest}
+                        data-testid={dataTestId}
                         alt={placeholder}
                         onLoad={handleOnLoad}
                         onError={handleLoadError}

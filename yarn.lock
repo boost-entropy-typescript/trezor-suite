@@ -11673,9 +11673,7 @@ __metadata:
     stream-browserify: "npm:^3.0.0"
     stream-http: "npm:^3.2.0"
     ts-jest: "npm:29.4.1"
-    ts-node: "npm:^10.9.2"
     tsx: "npm:^4.21.0"
-    typescript: "npm:6.0.3"
     uri-scheme: "npm:^2.0.18"
     vm-browserify: "npm:^1.1.2"
     xml2js: "npm:^0.6.2"
@@ -15709,6 +15707,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/eslint-plugin-query@npm:5.101.0":
+  version: 5.101.0
+  resolution: "@tanstack/eslint-plugin-query@npm:5.101.0"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^8.58.1"
+  peerDependencies:
+    eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+    typescript: ^5.4.0 || ^6.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10/f0b4abc774631c5ead7c33b139cb3f28782c2690f273ead4792a02c3733bdf4c4b14556aaf221bf1017116de2310302096ae8b9ff1667edcb2e801ddc86b6e36
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:5.101.2":
   version: 5.101.2
   resolution: "@tanstack/query-core@npm:5.101.2"
@@ -16442,6 +16455,7 @@ __metadata:
   resolution: "@trezor/eslint@workspace:packages/eslint"
   dependencies:
     "@eslint/js": "npm:^9.39.4"
+    "@tanstack/eslint-plugin-query": "npm:5.101.0"
     eslint: "npm:^9.39.4"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-jest: "npm:^29.15.3"
@@ -18670,7 +18684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.62.0, @typescript-eslint/utils@npm:^8.0.0":
+"@typescript-eslint/utils@npm:8.62.0, @typescript-eslint/utils@npm:^8.0.0, @typescript-eslint/utils@npm:^8.58.1":
   version: 8.62.0
   resolution: "@typescript-eslint/utils@npm:8.62.0"
   dependencies:

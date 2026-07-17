@@ -33,7 +33,7 @@ import { useYieldPendingTransaction } from '../hooks/useYieldPendingTransaction'
 import { useYieldPendingTransactionTracking } from '../hooks/useYieldPendingTransactionTracking';
 import { useYieldSession } from '../hooks/useYieldSession';
 import { getStablecoinYieldClaimRewardsSnapshot } from '../utils/stablecoinYieldClaimSummaryUtils';
-import { shouldShowClaimFeeWarning } from '../utils/yieldClaimFeeWarningUtils';
+import { getClaimFeeWarning } from '../utils/yieldClaimFeeWarningUtils';
 
 type RouteProps = RouteProp<YieldStackParamList, YieldStackRoutes.YieldClaim>;
 type NavigationProps = StackNavigationProps<YieldStackParamList, YieldStackRoutes.YieldClaim>;
@@ -87,10 +87,29 @@ export const YieldClaimScreen = () => {
         isBalance: false,
     });
     const totalFiatClaimableAmount = accountRewards?.totalFiatClaimableAmount ?? null;
-    const shouldShowFeeWarning = shouldShowClaimFeeWarning({
+
+    const claimFeeWarning = getClaimFeeWarning({
         feeFiatAmount,
         totalFiatClaimableAmount,
     });
+    const [hasClaimBeenPrepared, setHasClaimBeenPrepared] = useState(false);
+    const isClaimPrepared =
+        !isClaimRewardsLoading &&
+        !isClaimRewardsFiatLoading &&
+        !claimFee.isPreparingClaimFee &&
+        !!claimFee.preparedAction;
+
+    useEffect(() => {
+        if (isClaimPrepared) {
+            setHasClaimBeenPrepared(true);
+        }
+    }, [isClaimPrepared]);
+
+    const shouldShowFeeWarning = claimFeeWarning === 'fee-exceeds-rewards';
+
+    const shouldShowUnverifiableFeeWarning =
+        claimFeeWarning === 'unverifiable-rewards-value' && hasClaimBeenPrepared;
+
     const isContinueDisabled =
         isClaimPending ||
         isClaimSubmitting ||
@@ -131,22 +150,30 @@ export const YieldClaimScreen = () => {
     }, [claimFee.preparedAction, isContinueDisabled, openSimulationBottomSheet]);
 
     const handleConfirmSimulation = useCallback(() => {
-        if (!flowKey || !accountRewards || !simulationPreparedAction) {
+        if (!account || !flowKey || !simulationPreparedAction) {
             return;
         }
+
+        // The snapshot is built from the same frozen rewards the claim
+        // calldata was built from, so the review cannot diverge from the
+        // signed transaction when Merkl data refreshes in the background.
+        const rewardsSnapshot = getStablecoinYieldClaimRewardsSnapshot({
+            account,
+            rewards: simulationPreparedAction.rewards,
+        });
 
         dispatch(
             stablecoinYieldActions.storeActionReviewData({
                 flowKey,
                 flowType: 'claim',
-                rewards: getStablecoinYieldClaimRewardsSnapshot(accountRewards),
+                rewards: rewardsSnapshot,
                 unsignedTransaction: simulationPreparedAction.unsignedTransaction,
             }),
         );
         closeSimulationBottomSheet();
         navigation.navigate(YieldStackRoutes.YieldClaimReview, route.params);
     }, [
-        accountRewards,
+        account,
         closeSimulationBottomSheet,
         dispatch,
         flowKey,
@@ -218,6 +245,18 @@ export const YieldClaimScreen = () => {
                             title={<Translation id="earn.yieldClaimFlowScreen.feeWarning.title" />}
                             description={
                                 <Translation id="earn.yieldClaimFlowScreen.feeWarning.description" />
+                            }
+                        />
+                    )}
+
+                    {shouldShowUnverifiableFeeWarning && (
+                        <FullAlertBox
+                            intent="info"
+                            title={
+                                <Translation id="earn.yieldClaimFlowScreen.unverifiableFeeWarning.title" />
+                            }
+                            description={
+                                <Translation id="earn.yieldClaimFlowScreen.unverifiableFeeWarning.description" />
                             }
                         />
                     )}
