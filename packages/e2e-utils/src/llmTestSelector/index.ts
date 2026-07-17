@@ -8,7 +8,6 @@ import { unique } from '@trezor/utils';
 
 import { error, log, output } from '../logger';
 import type { CoverageIndex } from '../testCoverage/types';
-import { accumulateApiUsage, getAccumulatedUsage, reportTokenUsage } from '../tokenUsage';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -465,7 +464,7 @@ const selectTestsViaApi = async (
     const maxTokens = 16384;
 
     const response = await client.messages.create({
-        model: 'claude-opus-4-6',
+        model: 'claude-sonnet-5',
         max_tokens: maxTokens,
         tools: [
             {
@@ -539,8 +538,6 @@ const selectTestsViaApi = async (
             },
         ],
     });
-
-    accumulateApiUsage(response);
 
     if (response.stop_reason === 'max_tokens') {
         throw new Error(
@@ -745,21 +742,7 @@ const main = async () => {
         process.exit(1);
     }
 
-    // 6. Report token usage
-    const { input_tokens, output_tokens } = getAccumulatedUsage();
-    reportTokenUsage({
-        timestamp: new Date().toISOString(),
-        run_id: process.env.GITHUB_RUN_ID ?? 'local',
-        script: 'llmTestSelector',
-        model: 'claude-opus-4-6',
-        input_tokens: apiKey ? input_tokens : null,
-        output_tokens: apiKey ? output_tokens : null,
-        source: apiKey ? 'api' : 'cli',
-        workflow: process.env.GITHUB_WORKFLOW ?? null,
-        pr_number: process.env.GITHUB_PR_NUMBER ?? null,
-    });
-
-    // 7. Emit result
+    // 6. Emit result
     const result: SelectionResult = {
         changed_files: changedFiles,
         ...claudeResult,

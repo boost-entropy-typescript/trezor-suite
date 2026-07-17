@@ -1,4 +1,4 @@
-import { type PayloadAction, createAction, createSlice } from '@reduxjs/toolkit';
+import { type PayloadAction, type Reducer, createAction, createSlice } from '@reduxjs/toolkit';
 
 import { type LocksRootState, selectIsRouterOrUiLocked } from '@suite/locks';
 import { type ModalRootState, selectHasActiveModal } from '@suite/modal';
@@ -81,7 +81,8 @@ const routerSlice = createSlice({
     },
 });
 
-export const routerReducer = routerSlice.reducer;
+// Keep declaration emit from expanding the full RouterState route union.
+export const routerReducer: Reducer<RouterState> = routerSlice.reducer;
 export const { routerLocationChange, anchorChange } = routerSlice.actions;
 
 export const selectRouter = (state: RouterRootState) => state.router;

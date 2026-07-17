@@ -17,11 +17,12 @@ import { type BackupState, backupMiddleware, backupReducer } from '@suite/backup
 import { MODAL_OPEN_USER_CONTEXT } from '@suite/modal';
 import { type RecoveryState, recoveryReducer } from '@suite/recovery';
 import { type HistoryDep } from '@suite/router';
-import { type DesktopSuiteSyncState, suiteSyncSlice } from '@suite/suite-sync';
+import { type DesktopSuiteSyncState, prepareSuiteSyncReducer } from '@suite/suite-sync';
 import { type FirmwareUpdateState, prepareFirmwareReducer } from '@suite-common/firmware';
 import { type GeolocationState, geolocationReducer } from '@suite-common/geolocation';
 import { addLog } from '@suite-common/logger';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
+import { type ReceiveState, prepareReceiveReducer } from '@suite-common/receive';
 import {
     type ExtraDependencies,
     type ExtraDependenciesStatic,
@@ -62,7 +63,7 @@ import { type BioAuthState, prepareBioAuthReducer } from './bioAuth';
 import { type DesktopState, desktopReducer } from './desktop';
 import {
     type DesktopBluetoothState,
-    bluetoothSlice,
+    prepareDesktopBluetoothReducer,
 } from '../actions/bluetooth/desktopBluetoothReducer';
 import { type CreateConnectLoggerFactoryDep } from '../support/createConnectLoggerFactory';
 import {
@@ -73,13 +74,15 @@ import {
 
 const firmwareReducer = prepareFirmwareReducer(extraDependencies);
 const tokenDefinitionsReducer = prepareTokenDefinitionsReducer(extraDependencies);
-const bluetoothReducer = bluetoothSlice.prepareReducer(extraDependencies);
+const bluetoothReducer = prepareDesktopBluetoothReducer(extraDependencies);
 const thpReducer = prepareThpReducer(extraDependencies);
-const suiteSyncReducer = suiteSyncSlice.prepareReducer(extraDependencies);
+const suiteSyncReducer = prepareSuiteSyncReducer(extraDependencies);
 const suiteSyncQuotaManagerReducer = suiteSyncQuotaManagerSlice.prepareReducer(extraDependencies);
+const receiveReducer = prepareReceiveReducer(extraDependencies);
 
 export type AppState = SuiteReducersState & {
     onboarding: OnboardingState;
+    receive: ReceiveState;
     wallet: WalletState;
     recovery: RecoveryState;
     firmware: FirmwareUpdateState;
@@ -99,6 +102,7 @@ export type AppState = SuiteReducersState & {
 const rootReducer = combineReducers({
     ...suiteReducers,
     onboarding: onboardingReducers,
+    receive: receiveReducer,
     wallet: walletReducers,
     recovery: recoveryReducer,
     firmware: firmwareReducer,
