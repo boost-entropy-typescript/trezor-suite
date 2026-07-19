@@ -69,7 +69,7 @@ const markAddressTouched = (draft: ReceiveAccountState, path: string, address: s
     draft.currentFreshAddress = undefined;
 };
 
-export const receiveSlice = createSliceWithExtraDeps({
+const receiveSlice = createSliceWithExtraDeps({
     name: 'receive',
     initialState: receiveInitialState,
     reducers: {
