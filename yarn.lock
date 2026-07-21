@@ -10244,7 +10244,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/calldata@workspace:suite-common/calldata"
   dependencies:
-    "@trezor/blockchain-link-utils": "workspace:*"
+    "@trezor/network-tron": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     viem: "npm:^2.54.1"
@@ -10591,11 +10591,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/icons@workspace:suite-common/icons"
   dependencies:
+    "@suite-common/http-client": "workspace:^"
     chalk: "npm:^5.6.2"
     fantasticon: "npm:4.1.0"
     prettier: "npm:^3.8.4"
     sharp: "npm:^0.34.2"
     svgo: "npm:^4.0.1"
+    zod: "npm:4.3.6"
   languageName: unknown
   linkType: soft
 
@@ -11184,6 +11186,7 @@ __metadata:
     "@suite-common/wallet-constants": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/network-solana": "workspace:*"
+    "@trezor/network-tron": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
@@ -11237,6 +11240,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/network-solana": "workspace:*"
     "@trezor/network-stellar": "workspace:*"
+    "@trezor/network-tron": "workspace:*"
     "@trezor/protobuf": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -11286,6 +11290,7 @@ __metadata:
     "@trezor/device-utils": "workspace:*"
     "@trezor/network-solana": "workspace:*"
     "@trezor/network-stellar": "workspace:*"
+    "@trezor/network-tron": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -13007,6 +13012,7 @@ __metadata:
     "@suite-native/transaction-management": "workspace:*"
     "@suite-native/transactions": "workspace:*"
     "@suite-native/tx-simulation": "workspace:*"
+    "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/network-solana": "workspace:*"
@@ -13399,6 +13405,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@suite-native/accounts": "workspace:*"
     "@suite-native/add-coin-account": "workspace:*"
+    "@suite-native/address": "workspace:*"
     "@suite-native/alerts": "workspace:*"
     "@suite-native/analytics": "workspace:*"
     "@suite-native/atoms": "workspace:*"
@@ -15994,7 +16001,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/blockchain-link-utils@workspace:packages/blockchain-link-utils"
   dependencies:
-    "@noble/hashes": "npm:^2.0.1"
     "@trezor/blockchain-link-types": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
@@ -16359,6 +16365,7 @@ __metadata:
     "@trezor/network-cardano": "workspace:*"
     "@trezor/network-solana": "workspace:*"
     "@trezor/network-stellar": "workspace:*"
+    "@trezor/network-tron": "workspace:*"
     "@trezor/protobuf": "workspace:*"
     "@trezor/protocol": "workspace:*"
     "@trezor/schema-utils": "workspace:*"
@@ -16544,6 +16551,14 @@ __metadata:
   dependencies:
     "@stellar/stellar-sdk": "npm:14.5.0"
     "@trezor/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@trezor/network-tron@workspace:*, @trezor/network-tron@workspace:networks/tron/network-tron":
+  version: 0.0.0-use.local
+  resolution: "@trezor/network-tron@workspace:networks/tron/network-tron"
+  dependencies:
+    "@noble/hashes": "npm:^2.0.1"
   languageName: unknown
   linkType: soft
 

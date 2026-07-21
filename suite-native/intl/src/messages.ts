@@ -17,6 +17,7 @@ export const messages = {
             enable: 'Enable',
             gotIt: 'Got it',
             next: 'Next',
+            retry: 'Retry',
             tryAgain: 'Try again',
             edit: 'Edit',
             yes: 'Yes',
@@ -2582,11 +2583,6 @@ export const messages = {
                 stepReadyToClaim: 'Ready to claim',
             },
         },
-        stakingInsufficientBalance: {
-            title: "You don't have enough {displaySymbol}",
-            subtitle: 'Minimum amount to stake is {minAmount} {displaySymbol}.',
-            getButton: 'Get more {displaySymbol}',
-        },
         yieldInsufficientBalance: {
             title: "You don't have enough {tokenSymbol}",
             subtitle: 'Get more {tokenSymbol} in this account to start earning yield.',
@@ -2671,6 +2667,9 @@ export const messages = {
             unstakeMaxButton: 'Unstake max',
             withdrawalFeesBanner:
                 "We've left {amount} {displaySymbol} in your account so you can pay withdrawal fees.",
+            insufficientBalanceBanner:
+                'Not enough {displaySymbol}. Staking requires at least {minAmount} {displaySymbol} plus network fees.',
+            insufficientBalanceBannerButton: 'Buy {displaySymbol}',
             estimatedRewardsLabel: 'Estimated yearly rewards',
             validation: {
                 amountIsZero: 'Amount must be greater than 0.',
@@ -2687,7 +2686,10 @@ export const messages = {
             validation: {
                 amountIsZero: 'Amount must be greater than 0.',
                 amountExceedsMax: 'The amount exceeds the maximum allowed value of {maxAmount}.',
-                amountBelowMin: 'The minimum amount to unstake is {minAmount} {networkSymbol}.',
+                invalidUnstakeAmount:
+                    "Due to recent Solana blockchain changes, this amount can't be unstaked.\n\nTry {higher}{higherFiat},\n\nor {lower}{lowerFiat}.",
+                invalidUnstakeAmountHigherOnly:
+                    "Due to recent Solana blockchain changes, this amount can't be unstaked.\n\nTry {higher}{higherFiat}.",
                 insufficientBalance: 'You don’t have enough staked balance to unstake this amount.',
                 tooManyDecimals: 'Too many decimals places.',
             },
@@ -2712,6 +2714,7 @@ export const messages = {
                 networkStaking: '{networkName} staking',
                 availableRewards: 'Available rewards',
                 claimRewardsButton: 'Claim rewards',
+                incompleteFiatTotal: 'Some fiat rates couldn’t load. Total may be incomplete.',
             },
             activeSheet: {
                 stakingTitle: 'Your stakes',
@@ -3205,6 +3208,11 @@ export const messages = {
         apyPercentage: '~{apy}% APY',
         aprPercentage: '~{apy}% APR',
         notAvailableShort: 'N/A',
+        messageSystem: {
+            depositDisabled: 'Deposit is currently disabled.',
+            withdrawDisabled: 'Withdrawal is currently disabled.',
+            claimDisabled: 'Claim is currently disabled.',
+        },
         stakePendingCard: {
             totalStakePending: 'Total stake pending',
             addingToStakingPool: 'Adding to staking pool',
