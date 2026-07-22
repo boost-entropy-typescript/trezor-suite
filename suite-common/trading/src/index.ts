@@ -14,6 +14,7 @@ export * from './hooks/useExchangeFiatDeviation';
 export * from './hooks/useApprovalStep';
 export * from './hooks/useTradingExchangeWatchApproval';
 export * from './hooks/useTradingRefetchScheduler';
+export * from './hooks/useDexExchangeTxSimulation';
 export {
     type TransactionStatus,
     type UseAllowanceTxTrackingParams,
@@ -39,7 +40,9 @@ export * from './utils/tradingAccountUtils';
 export * from './utils/buy/buyUtils';
 export * from './utils/receiveAccountUtils';
 export * from './utils/tradeOperationUtils';
+export * from './utils/exchange/composeDexTxSimulationAction';
 export * from './utils/exchange/exchangeUtils';
+export * from './utils/exchange/getSimulatedReceiveAmount';
 export * from './utils/exchange/resolveExchangeTradeError';
 export * from './utils/exchange/signDataUtils';
 export * from './utils/sell/sellUtils';
