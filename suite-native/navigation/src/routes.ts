@@ -260,7 +260,13 @@ export enum YieldStackRoutes {
 
 export enum ReceiveStackRoutes {
     ReceiveAccounts = 'ReceiveAccounts',
-    ReceiveAccount = 'ReceiveAccount',
+    ReceiveAddress = 'ReceiveAddress',
+    ReceiveAddressVerification = 'ReceiveAddressVerification',
+}
+
+export enum ReceiveAddressVerificationSource {
+    Pasted = 'pasted',
+    Shared = 'shared',
 }
 
 export enum SendStackRoutes {
