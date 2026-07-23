@@ -10,6 +10,7 @@ import {
     isCountrySubdivisionRequired,
     selectTradingSellQuotes,
     selectTradingSellSupportedCryptoIds,
+    selectTradingSendAccount,
 } from '@suite-common/trading';
 import { type TokenAddress } from '@suite-common/wallet-types';
 import { asAmountSubunit, subunitsToUnits } from '@suite-common/wallet-utils';
@@ -18,6 +19,7 @@ import { useCurrentRef } from '@trezor/react-utils';
 import { BigNumber } from '@trezor/utils';
 
 import { useSelector } from 'src/hooks/suite';
+import { useSelectedTradingAsset } from 'src/hooks/wallet/trading/form/common/useSelectedTradingAsset';
 import { useTradingAssetDecimals } from 'src/hooks/wallet/trading/form/common/useTradingAssetDecimals';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { TradingBalance } from 'src/views/wallet/trading/common/TradingBalance';
@@ -44,14 +46,16 @@ export const TradingSellFormInputs = () => {
     const sellSupportedCryptoIds = useSelector(selectTradingSellSupportedCryptoIds);
 
     const {
+        type,
         feeInfo,
-        account,
         composedLevels,
         form: { helpers },
         shouldSendInSats,
         changeFeeLevel,
         showReserveBanner,
     } = context;
+    const asset = useSelectedTradingAsset(type);
+    const account = useSelector(state => selectTradingSendAccount(state, type));
 
     const { control } = useFormContext<TradingSellFormProps>();
 
@@ -103,6 +107,7 @@ export const TradingSellFormInputs = () => {
                                 name={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
                             />
                         }
+                        inputPlaceholder="TR_SELECT_TOKEN"
                         includedCryptoIds={sellSupportedCryptoIds}
                         onAssetSelect={handleSellAssetSelect}
                     />
@@ -114,13 +119,13 @@ export const TradingSellFormInputs = () => {
                             currencySelectLabel={currencySelect?.value.toUpperCase() ?? ''}
                             cryptoCurrencyLabel={sendCryptoSelect?.id}
                         />
-                        {amountInCrypto && (
+                        {amountInCrypto && asset && (
                             <Row justifyContent="space-between" alignItems="center" gap={8}>
                                 <TradingFractionButtons />
                                 <TradingBalance
                                     balance={outputAmount}
                                     displaySymbol={sendCryptoSelect?.id}
-                                    symbol={account.symbol}
+                                    symbol={asset.symbol}
                                     tokenAddress={tokenAddress}
                                     showOnlyAmount
                                     amountInCrypto={amountInCrypto}
@@ -129,9 +134,9 @@ export const TradingSellFormInputs = () => {
                             </Row>
                         )}
                     </Column>
-                    {showReserveBanner && (
+                    {showReserveBanner && asset && (
                         <TradingNetworkReserveBanner
-                            symbol={account.symbol}
+                            symbol={asset.symbol}
                             contractAddress={tokenAddress}
                         />
                     )}
@@ -145,7 +150,7 @@ export const TradingSellFormInputs = () => {
                         country={countrySelect}
                     />
                 )}
-                {!!quotes.length && (
+                {!!quotes.length && account && (
                     <>
                         <TradingFormFees
                             feeInfo={feeInfo}

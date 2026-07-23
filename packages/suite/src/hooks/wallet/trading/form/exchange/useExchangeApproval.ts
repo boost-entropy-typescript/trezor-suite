@@ -8,7 +8,7 @@ import { useTradingExchangeTradeRequest } from 'src/hooks/wallet/trading/form/co
 import { type Dispatch } from 'src/types/suite';
 
 interface UseExchangeApprovalProps {
-    account: Account;
+    account: Account | undefined;
     receiveAddress?: string;
     extraField?: string;
 }
@@ -44,8 +44,14 @@ export const useExchangeApproval = ({
         trade?: ExchangeTrade;
         receiveAddress: string;
     }) => {
+        if (!account) {
+            return undefined;
+        }
+
         const commonFunctions = await getTradeRequestParams(approvalTrade);
-        if (!commonFunctions) return undefined;
+        if (!commonFunctions) {
+            return undefined;
+        }
         const { processResponseData } = commonFunctions;
 
         return await dispatch(
@@ -73,7 +79,9 @@ export const useExchangeApproval = ({
     };
 
     const revokeApproval = async (exchangeTrade: ExchangeTrade) => {
-        if (!receiveAddress) return false;
+        if (!receiveAddress || !account) {
+            return false;
+        }
 
         const approvalType: DexApprovalType = 'ZERO';
         const updatedTrade: ExchangeTrade = {

@@ -127,7 +127,7 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
         baseToggleAmountInCrypto();
     };
 
-    useBuyQuotes({ control, getValues, setValue, account });
+    useBuyQuotes({ control, getValues, setValue });
 
     useEffect(() => {
         setValue('receiveAddress', receiveAddress);
@@ -176,7 +176,6 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
         },
         ...methods,
         methods,
-        account,
         buyInfo,
         amountLimits,
         network,

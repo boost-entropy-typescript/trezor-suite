@@ -22,6 +22,7 @@ import {
     type TradingSellFormProps,
     sellThunks,
     tradingActions,
+    tradingSellActions,
     useTradingRefetchScheduler,
 } from '@suite-common/trading';
 import { type Network } from '@suite-common/wallet-config';
@@ -33,7 +34,7 @@ type UseSellQuotesProps = {
     control: Control<TradingSellFormProps>;
     getValues: UseFormGetValues<TradingSellFormProps>;
     setValue: UseFormSetValue<TradingSellFormProps>;
-    network: Network;
+    network: Network | undefined;
     shouldSendInSats: boolean | undefined;
     composeRequestCallback: () => void;
 };
@@ -84,6 +85,15 @@ export const useSellQuotes = ({
     });
 
     const fetchQuotes = useCallback(async () => {
+        if (!network) {
+            if (previousRequest.current) {
+                previousRequest.current.abort('Request was canceled - no asset selected.');
+            }
+            dispatch(tradingSellActions.clearQuotes());
+
+            return;
+        }
+
         const formValues = getValues();
 
         if (previousRequest.current) {

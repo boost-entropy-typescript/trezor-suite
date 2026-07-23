@@ -23,7 +23,7 @@ import { type TradingSellExchangeFormProps } from 'src/types/trading/tradingForm
 import { type SendContextValues } from 'src/types/wallet/sendForm';
 
 interface UseExchangeDexQuoteProps {
-    account: Account;
+    account: Account | undefined;
     methods: UseFormReturn<TradingExchangeFormProps>;
     isFormLoading: boolean;
     isLoadingQuote: boolean;
@@ -58,17 +58,33 @@ export const useExchangeDexQuote = ({
         name: ['transactionData', TRADING_FORM_OUTPUT_ADDRESS, 'ethereumAdjustGasLimit'],
     });
 
+    const accountRef = useCurrentRef(account);
     const composeRequestRef = useCurrentRef(composeRequest);
     const fetchFeesAndCompose = useCallback(async () => {
-        await dispatch(updateFeeInfoThunk({ networkSymbol: account.symbol })).unwrap();
+        if (!account) {
+            return;
+        }
+
+        const accountKey = account.key;
+
+        await dispatch(updateFeeInfoThunk({ networkSymbol: account.symbol }));
+
+        if (accountRef.current?.key !== accountKey) {
+            return;
+        }
+
         composeRequestRef.current();
-    }, [dispatch, account.symbol, composeRequestRef]);
+    }, [dispatch, account, accountRef, composeRequestRef]);
 
     useEffect(() => {
+        if (!account) {
+            return;
+        }
+
         const fromAddress = isAccountBasedNetwork(account.symbol) ? account.descriptor : undefined;
 
         setValue('fromAddress', fromAddress);
-    }, [account.symbol, account.descriptor, setValue]);
+    }, [account, setValue]);
 
     // set transactionData from DEX quote for correct fees fetching
     useEffect(() => {

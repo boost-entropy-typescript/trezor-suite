@@ -36,7 +36,7 @@ type UseExchangeQuotesProps = {
     control: Control<TradingExchangeFormProps>;
     getValues: UseFormGetValues<TradingExchangeFormProps>;
     setValue: UseFormSetValue<TradingExchangeFormProps>;
-    network: Network;
+    network: Network | undefined;
     shouldSendInSats: boolean | undefined;
     // receiveAddress and receiveAccountKey are read from useTradingReceiveAddress
     // rather than mirrored onto the outer form, keeping the receive identity a
@@ -104,6 +104,11 @@ export const useExchangeQuotes = ({
     });
 
     const fetchQuotes = useCallback(async () => {
+        if (!network) {
+            setIsScheduledQuotesRefresh(false);
+
+            return;
+        }
         const formValues = getValues();
 
         if (previousRequest.current) {
@@ -204,6 +209,14 @@ export const useExchangeQuotes = ({
         },
         onBeforeRefetch,
     });
+
+    useEffect(() => {
+        if (!network && previousRequest.current) {
+            previousRequest.current.abort('Request is canceled - network is no longer available.');
+            previousRequest.current = null;
+            setIsScheduledQuotesRefresh(false);
+        }
+    }, [network]);
 
     useEffect(
         () => () => {
