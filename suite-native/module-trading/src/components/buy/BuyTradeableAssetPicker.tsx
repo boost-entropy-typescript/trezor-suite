@@ -4,13 +4,14 @@ import { useSelector } from 'react-redux';
 
 import { selectHasBitcoinOnlyFirmware } from '@suite-common/device';
 import { HStack } from '@suite-native/atoms';
-import { selectBuyTradeableAssets } from '@suite-native/trading-state';
+import { buyActions, selectBuyTradeableAssets } from '@suite-native/trading-state';
 import { type TradeableAsset } from '@suite-native/trading-types';
 import { noop } from '@trezor/utils';
 
 import { BuyCryptoAmountInput } from './BuyCryptoAmountInput';
 import { BuyTradeableAssetsSheet } from './BuyTradeableAssetsSheet';
 import { useBuyFormContext } from '../../hooks/buy/useBuyFormContext';
+import { useTradeableAssetChange } from '../../hooks/general/form/useTradeableAssetChange';
 import { useSheetControls } from '../../hooks/general/useSheetControls';
 import { SelectTradeableAssetButton } from '../general/SelectTradeableAssetButton';
 
@@ -27,15 +28,26 @@ export const BuyTradeableAssetPicker = () => {
 
     const btcAsset = useMemo(() => assets.find(asset => asset.cryptoId === 'bitcoin'), [assets]);
 
+    const changeAsset = useTradeableAssetChange({
+        form,
+        tradingType: 'buy',
+        selectedValue,
+        setSelectedValue,
+        analyticsParameter: 'cryptoTo',
+        amountField: 'cryptoValue',
+        getAssetChangedAction: buyActions.assetChanged,
+        getAssetTokenChangedAction: buyActions.assetTokenChanged,
+    });
+
     useEffect(() => {
-        if (hasBitcoinOnlyFirmware && selectedValue?.cryptoId !== btcAsset?.cryptoId) {
-            setSelectedValue(btcAsset);
+        if (hasBitcoinOnlyFirmware && btcAsset) {
+            changeAsset(btcAsset, undefined, { shouldReportAnalytics: false });
         }
-    }, [hasBitcoinOnlyFirmware, btcAsset, selectedValue, setSelectedValue]);
+    }, [hasBitcoinOnlyFirmware, btcAsset, changeAsset]);
 
     const onAssetSelect = useCallback(
         (asset: TradeableAsset) => {
-            setSelectedValue(asset);
+            changeAsset(asset);
             if (shouldFocusInput) {
                 setShouldFocusInput(false);
                 // CryptoAmountInput is rendered disabled allow changes to propagate
@@ -44,7 +56,7 @@ export const BuyTradeableAssetPicker = () => {
                 }, 0);
             }
         },
-        [shouldFocusInput, setSelectedValue],
+        [changeAsset, shouldFocusInput],
     );
 
     const showAssetsSheet = useCallback(() => {

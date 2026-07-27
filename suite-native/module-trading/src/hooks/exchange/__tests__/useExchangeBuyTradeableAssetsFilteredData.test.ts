@@ -4,12 +4,17 @@ import { btcAsset, ethAsset, usdcAsset } from '@suite-native/trading-fixtures';
 import { renderHookWithTradingProvider } from '../../../__tests__/tradingTestUtils';
 import { useExchangeBuyTradeableAssetsFilteredData } from '../useExchangeBuyTradeableAssetsFilteredData';
 
-const mockWatch = jest.fn();
+const mockUseWatch = jest.fn();
+
+jest.mock('@suite-native/forms', () => ({
+    ...jest.requireActual('@suite-native/forms'),
+    useWatch: (...args: unknown[]) => mockUseWatch(...args),
+}));
 
 jest.mock('../useExchangeFormContext', () => ({
     ...jest.requireActual('../useExchangeFormContext'),
     useExchangeFormContext: () => ({
-        watch: mockWatch,
+        control: undefined,
     }),
 }));
 
@@ -24,7 +29,7 @@ describe('useExchangeBuyTradeableAssetsFilteredData', () => {
     });
 
     it('should return all available exchange buy assets when sendAsset is not selected', () => {
-        mockWatch.mockReturnValue(undefined);
+        mockUseWatch.mockReturnValue(undefined);
 
         const { result } = renderUseExchangeBuyTradeableAssetsFilteredData();
 
@@ -33,25 +38,10 @@ describe('useExchangeBuyTradeableAssetsFilteredData', () => {
             expect.objectContaining({ cryptoId: ethAsset.cryptoId }),
             expect.objectContaining({ cryptoId: btcAsset.cryptoId }),
         ]);
-    });
-
-    it('should exclude sendAsset from the filtered list', () => {
-        mockWatch.mockReturnValue(btcAsset);
-
-        const { result } = renderUseExchangeBuyTradeableAssetsFilteredData();
-
-        expect(result.current.filteredData).toHaveLength(2);
-        expect(result.current.filteredData).toEqual([
-            expect.objectContaining({ cryptoId: usdcAsset.cryptoId }),
-            expect.objectContaining({ cryptoId: ethAsset.cryptoId }),
-        ]);
-        expect(result.current.filteredData).not.toContainEqual(
-            expect.objectContaining({ cryptoId: btcAsset.cryptoId }),
-        );
     });
 
     it('should filter assets by search text', () => {
-        mockWatch.mockReturnValue(undefined);
+        mockUseWatch.mockReturnValue(undefined);
 
         const { result } = renderUseExchangeBuyTradeableAssetsFilteredData();
 

@@ -16069,7 +16069,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/components@workspace:packages/components"
   dependencies:
+    "@babel/preset-env": "npm:7.29.7"
     "@babel/preset-react": "npm:^7.29.7"
+    "@babel/preset-typescript": "npm:^7.29.7"
     "@floating-ui/react": "npm:^0.27.17"
     "@storybook/addon-docs": "npm:^10.3.4"
     "@storybook/addon-links": "npm:^10.3.4"
@@ -16570,7 +16572,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@trezor/product-components@workspace:packages/product-components"
   dependencies:
+    "@babel/preset-env": "npm:7.29.7"
     "@babel/preset-react": "npm:^7.29.7"
+    "@babel/preset-typescript": "npm:^7.29.7"
     "@storybook/addon-docs": "npm:^10.3.4"
     "@storybook/addon-links": "npm:^10.3.4"
     "@storybook/react": "npm:^10.3.4"
@@ -16949,10 +16953,12 @@ __metadata:
   dependencies:
     "@currents/playwright": "npm:^2.1.4"
     "@evolu/common": "npm:8.0.0-next.5"
+    "@noble/hashes": "npm:^2.0.1"
     "@playwright/browser-chromium": "npm:1.60.0"
     "@playwright/browser-firefox": "npm:1.60.0"
     "@playwright/browser-webkit": "npm:1.60.0"
     "@playwright/test": "npm:1.60.0"
+    "@scure/base": "npm:^2.0.0"
     "@suite-common/address": "workspace:*"
     "@suite-common/analytics": "workspace:*"
     "@suite-common/device": "workspace:*"
