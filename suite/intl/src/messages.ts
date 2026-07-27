@@ -10117,6 +10117,26 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_UNWRAP_SUBMIT',
         defaultMessage: 'Unwrap {tokenSymbol}',
     },
+    TR_UNWRAP_NATIVE_TOKEN: {
+        id: 'TR_UNWRAP_NATIVE_TOKEN',
+        defaultMessage: 'Unwrap',
+    },
+    TR_WRAP_COMPLETE_HEADING: {
+        id: 'TR_WRAP_COMPLETE_HEADING',
+        defaultMessage: 'Wrapping complete',
+    },
+    TR_WRAP_COMPLETE_DESCRIPTION: {
+        id: 'TR_WRAP_COMPLETE_DESCRIPTION',
+        defaultMessage: 'Your {nativeSymbol} was wrapped to {tokenSymbol}.',
+    },
+    TR_UNWRAP_COMPLETE_HEADING: {
+        id: 'TR_UNWRAP_COMPLETE_HEADING',
+        defaultMessage: 'Unwrapping complete',
+    },
+    TR_UNWRAP_COMPLETE_DESCRIPTION: {
+        id: 'TR_UNWRAP_COMPLETE_DESCRIPTION',
+        defaultMessage: 'Your {tokenSymbol} was unwrapped to {nativeSymbol}.',
+    },
     TR_EARN_YIELD_WITHDRAW_ASSETS: {
         id: 'TR_EARN_YIELD_WITHDRAW_ASSETS',
         defaultMessage: 'Withdraw assets',
@@ -10246,6 +10266,14 @@ export const messages = defineMessages({
         id: 'TR_EARN_YIELD_PENDING_WITHDRAW',
         defaultMessage: 'Confirming withdrawal...',
     },
+    TR_EARN_YIELD_PENDING_WRAP: {
+        id: 'TR_EARN_YIELD_PENDING_WRAP',
+        defaultMessage: 'Confirming wrap...',
+    },
+    TR_EARN_YIELD_PENDING_UNWRAP: {
+        id: 'TR_EARN_YIELD_PENDING_UNWRAP',
+        defaultMessage: 'Confirming unwrap...',
+    },
     TR_EARN_YIELD_PENDING_CLAIM: {
         id: 'TR_EARN_YIELD_PENDING_CLAIM',
         defaultMessage: 'Confirming claim...',
@@ -10262,10 +10290,6 @@ export const messages = defineMessages({
     TR_EARN_YIELD_MODIFY_APPROVAL: {
         id: 'TR_EARN_YIELD_MODIFY_APPROVAL',
         defaultMessage: 'Change approval',
-    },
-    TR_MODIFY: {
-        id: 'TR_MODIFY',
-        defaultMessage: 'Change',
     },
     TR_EARN_YIELD_INCREASE_APPROVAL: {
         id: 'TR_EARN_YIELD_INCREASE_APPROVAL',
@@ -11343,18 +11367,6 @@ export const messages = defineMessages({
     TR_WRAP_NATIVE_TOKEN: {
         id: 'TR_WRAP_NATIVE_TOKEN',
         defaultMessage: 'Wrap',
-    },
-    TR_WRAP_NATIVE_TOKEN_MODAL_TITLE: {
-        id: 'TR_WRAP_NATIVE_TOKEN_MODAL_TITLE',
-        defaultMessage: 'Wrap {nativeSymbol} to {wrappedSymbol}',
-    },
-    TR_WRAP_NATIVE_TOKEN_AMOUNT_LABEL: {
-        id: 'TR_WRAP_NATIVE_TOKEN_AMOUNT_LABEL',
-        defaultMessage: 'Amount to wrap',
-    },
-    TR_WRAP_NATIVE_TOKEN_MAX: {
-        id: 'TR_WRAP_NATIVE_TOKEN_MAX',
-        defaultMessage: 'Max',
     },
     TR_STAKE_STAKE: {
         id: 'TR_STAKE_STAKE',

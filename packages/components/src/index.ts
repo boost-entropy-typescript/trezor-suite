@@ -1,3 +1,6 @@
+// Include the styled-components theme augmentation in the emitted public declarations.
+import './styled';
+
 export * as variables from './config/variables';
 export * as animations from './config/animations';
 export { motionAnimation, motionEasing } from './config/motion';
