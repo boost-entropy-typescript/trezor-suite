@@ -10155,7 +10155,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@trezor/crypto-utils": "workspace:*"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     viem: "npm:^2.54.1"
   languageName: unknown
   linkType: soft
@@ -10702,14 +10702,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-common/networks@workspace:suite-common/networks"
   dependencies:
-    "@trezor/network-bitcoin-suite": "workspace:*"
-    "@trezor/network-cardano-suite": "workspace:*"
-    "@trezor/network-ethereum-suite": "workspace:*"
-    "@trezor/network-module-suite-types": "workspace:*"
-    "@trezor/network-ripple-suite": "workspace:*"
-    "@trezor/network-solana-suite": "workspace:*"
-    "@trezor/network-stellar-suite": "workspace:*"
-    "@trezor/network-tron-suite": "workspace:*"
+    "@trezor/network-bitcoin-suite-common": "workspace:*"
+    "@trezor/network-cardano-suite-common": "workspace:*"
+    "@trezor/network-ethereum-suite-common": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
+    "@trezor/network-ripple-suite-common": "workspace:*"
+    "@trezor/network-solana-suite-common": "workspace:*"
+    "@trezor/network-stellar-suite-common": "workspace:*"
+    "@trezor/network-tron-suite-common": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -14707,6 +14707,7 @@ __metadata:
     "@suite-common/device": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite/analytics": "workspace:*"
@@ -15296,6 +15297,7 @@ __metadata:
   resolution: "@suite/tor@workspace:suite/tor"
   dependencies:
     "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/redux-utils": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
@@ -16526,23 +16528,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/network-bitcoin-suite@workspace:*, @trezor/network-bitcoin-suite@workspace:networks/bitcoin/network-bitcoin-suite":
+"@trezor/network-bitcoin-suite-common@workspace:*, @trezor/network-bitcoin-suite-common@workspace:networks/bitcoin/network-bitcoin-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-bitcoin-suite@workspace:networks/bitcoin/network-bitcoin-suite"
+  resolution: "@trezor/network-bitcoin-suite-common@workspace:networks/bitcoin/network-bitcoin-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
-"@trezor/network-cardano-suite@workspace:*, @trezor/network-cardano-suite@workspace:networks/cardano/network-cardano-suite":
+"@trezor/network-cardano-suite-common@workspace:*, @trezor/network-cardano-suite-common@workspace:networks/cardano/network-cardano-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-cardano-suite@workspace:networks/cardano/network-cardano-suite"
+  resolution: "@trezor/network-cardano-suite-common@workspace:networks/cardano/network-cardano-suite-common"
   dependencies:
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
     cbor: "npm:^10.0.12"
     crc: "npm:^4.3.2"
@@ -16558,29 +16560,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/network-ethereum-suite@workspace:*, @trezor/network-ethereum-suite@workspace:networks/ethereum/network-ethereum-suite":
+"@trezor/network-ethereum-suite-common@workspace:*, @trezor/network-ethereum-suite-common@workspace:networks/ethereum/network-ethereum-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-ethereum-suite@workspace:networks/ethereum/network-ethereum-suite"
+  resolution: "@trezor/network-ethereum-suite-common@workspace:networks/ethereum/network-ethereum-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
-"@trezor/network-module-suite-types@workspace:*, @trezor/network-module-suite-types@workspace:networks/network-module/network-module-suite-types":
+"@trezor/network-module-suite-common-types@workspace:*, @trezor/network-module-suite-common-types@workspace:networks/network-module/network-module-suite-common-types":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-module-suite-types@workspace:networks/network-module/network-module-suite-types"
+  resolution: "@trezor/network-module-suite-common-types@workspace:networks/network-module/network-module-suite-common-types"
   languageName: unknown
   linkType: soft
 
-"@trezor/network-ripple-suite@workspace:*, @trezor/network-ripple-suite@workspace:networks/ripple/network-ripple-suite":
+"@trezor/network-ripple-suite-common@workspace:*, @trezor/network-ripple-suite-common@workspace:networks/ripple/network-ripple-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-ripple-suite@workspace:networks/ripple/network-ripple-suite"
+  resolution: "@trezor/network-ripple-suite-common@workspace:networks/ripple/network-ripple-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -16593,12 +16595,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/network-solana-suite@workspace:*, @trezor/network-solana-suite@workspace:networks/solana/network-solana-suite":
+"@trezor/network-solana-suite-common@workspace:*, @trezor/network-solana-suite-common@workspace:networks/solana/network-solana-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-solana-suite@workspace:networks/solana/network-solana-suite"
+  resolution: "@trezor/network-solana-suite-common@workspace:networks/solana/network-solana-suite-common"
   dependencies:
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -16621,13 +16623,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/network-stellar-suite@workspace:*, @trezor/network-stellar-suite@workspace:networks/stellar/network-stellar-suite":
+"@trezor/network-stellar-suite-common@workspace:*, @trezor/network-stellar-suite-common@workspace:networks/stellar/network-stellar-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-stellar-suite@workspace:networks/stellar/network-stellar-suite"
+  resolution: "@trezor/network-stellar-suite-common@workspace:networks/stellar/network-stellar-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
     crc: "npm:^4.3.2"
   languageName: unknown
@@ -16642,13 +16644,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/network-tron-suite@workspace:*, @trezor/network-tron-suite@workspace:networks/tron/network-tron-suite":
+"@trezor/network-tron-suite-common@workspace:*, @trezor/network-tron-suite-common@workspace:networks/tron/network-tron-suite-common":
   version: 0.0.0-use.local
-  resolution: "@trezor/network-tron-suite@workspace:networks/tron/network-tron-suite"
+  resolution: "@trezor/network-tron-suite-common@workspace:networks/tron/network-tron-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
     "@scure/base": "npm:^2.0.0"
-    "@trezor/network-module-suite-types": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
   linkType: soft
