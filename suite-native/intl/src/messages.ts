@@ -1277,7 +1277,7 @@ export const messages = {
         networkBackends: {
             title: '{networkName} backend',
             description: 'Connect to a custom backend server for enhanced privacy.',
-            servers: {
+            server: {
                 title: 'Backend server',
                 status: {
                     connected: 'Connected',
@@ -1297,6 +1297,23 @@ export const messages = {
                     clearnet: 'Unable to connect to the server. Check the address and connection.',
                     tor: 'Can’t connect to the server. Check the address and make sure Orbot is running.',
                 },
+            },
+            explorer: {
+                title: 'Explorer',
+                badge: {
+                    default: 'Default explorer',
+                    custom: 'Custom explorer',
+                },
+                labels: {
+                    base: 'Root URL',
+                    tx: 'Transaction path',
+                    address: 'Address path',
+                    nft: 'NFT path',
+                    token: 'Address path',
+                    queryString: 'Query string',
+                },
+                setToDefaultButton: 'Set to default',
+                invalidValue: 'Invalid value',
             },
             closeAction: {
                 title: 'Discard changes?',
