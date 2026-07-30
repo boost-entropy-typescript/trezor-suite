@@ -3454,6 +3454,26 @@ export const messages = {
         transactionSimulation: {
             title: 'Simulation powered by Blockaid',
             simulating: 'Simulating transaction',
+            continueAnyway: 'Continue anyway',
+            backToTradeForm: 'Back to trade form',
+            issues: {
+                priceImpact: {
+                    title: "You'll lose {percent} in value",
+                    bullet: "You'll lose {percent} in value.",
+                    description:
+                        'Low market liquidity is affecting this swap. Try another provider or wait for the market to stabilize.',
+                },
+                highRisk: {
+                    title: 'High-risk swap detected',
+                    description:
+                        "This swap was flagged as unsafe. The provider's contract interaction may put your funds at risk. Choose another provider.",
+                },
+                slippageTooLow: {
+                    title: 'Slippage is too low',
+                    description:
+                        'This swap might fail with your current slippage. Your funds are safe, but the network fee won’t be refunded. Increase slippage or choose another provider.',
+                },
+            },
         },
         tradingExchangePreviewScreen: {
             title: 'Swap',
@@ -3472,7 +3492,6 @@ export const messages = {
                 bullet3:
                     'Your swap may be completed in multiple parts, depending on market conditions',
             },
-            fiatDeviationWarning: 'Receiving {percent} less in estimated value.',
         },
         tradingSellPreviewScreen: {
             title: 'Sell',
@@ -3565,6 +3584,29 @@ export const messages = {
             },
             button: {
                 title: 'Trade history',
+            },
+            tabs: {
+                all: 'All trades',
+                exchange: 'Swaps',
+                buy: 'Buys',
+                sell: 'Sells',
+            },
+            filteredEmptyState: {
+                exchange: 'No swaps yet',
+                buy: 'No buys yet',
+                sell: 'No sells yet',
+                showAll: 'Show all trades',
+            },
+            emptyState: {
+                title: 'No trades yet',
+                description: 'Your trades will appear here and you can track their status.',
+                button: 'Back to trade form',
+            },
+            statusIcon: {
+                success: 'Successful trade',
+                error: 'Failed trade',
+                warning: 'Trade requires attention',
+                pending: 'Trade in progress',
             },
             timeAt: '{date} at {time}',
             status: {

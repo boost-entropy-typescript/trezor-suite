@@ -8,7 +8,6 @@ import type {
     ExchangeTrade,
     ExchangeTradeQuoteRequest,
     FiatCurrencyCode,
-    SellFiatTrade,
     SellFiatTradeQuoteRequest,
 } from 'invity-api';
 
@@ -109,7 +108,6 @@ export interface TradingBuyFormContextProps
     type: TradingBuyType;
     buyInfo?: TradingBuyInfoSelector;
     quotesRequest: BuyTradeQuoteRequest | undefined;
-    quotes: BuyTrade[];
     trade?: TradingTransactionBuy;
     // form - additional helpers for form
     form: {
@@ -118,7 +116,6 @@ export interface TradingBuyFormContextProps
     tradingReceiveAddress: ReturnType<typeof useTradingReceiveAddress>;
     isAmountEmpty: boolean;
 
-    onQuoteSelected: (quote: BuyTrade) => void;
     setAmountLimits: (limits?: AmountLimitProps) => void;
     methods: UseFormReturn<TradingBuyFormProps>;
     clearQuotesAndParams: () => void;
@@ -136,8 +133,6 @@ export interface TradingSellFormContextProps
     composedTransactionInfo: TradingComposedTransactionInfo;
     quotesRequest: SellFiatTradeQuoteRequest | undefined;
     feeInfo: FeeInfo;
-    quotes: SellFiatTrade[];
-    selectedQuote?: SellFiatTrade;
     trade?: TradingTransactionSell;
     suiteReceiveAccounts?: AppState['wallet']['accounts'];
     // form - additional helpers for form
@@ -151,7 +146,6 @@ export interface TradingSellFormContextProps
     composeRequest: SendContextValues<TradingSellExchangeFormProps>['composeTransaction'];
     setAmountLimits: (limits?: AmountLimitProps) => void;
 
-    onQuoteSelected: (quote: SellFiatTrade) => void;
     methods: UseFormReturn<TradingSellFormProps>;
     showReserveBanner: boolean;
     setShowReserveBanner: (showReserveBanner: boolean) => void;
@@ -174,7 +168,6 @@ export interface TradingExchangeFormContextProps
         helpers: TradingUseFormActionsReturnProps;
     };
 
-    selectedQuote?: ExchangeTrade;
     trade?: TradingTransactionExchange;
     suiteReceiveAccounts?: AccountsState;
     feeInfo: FeeInfo;
@@ -184,9 +177,6 @@ export interface TradingExchangeFormContextProps
     isComposing: boolean;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
     composedTransactionInfo: TradingComposedTransactionInfo;
-    quotes: ExchangeTrade[];
-    cexQuotes: ExchangeTrade[];
-    dexQuotes: ExchangeTrade[];
     quotesRequest: ExchangeTradeQuoteRequest | undefined;
     receiveAccount?: Account;
     verifiedAddress: TradingVerifiedAddress;
@@ -202,7 +192,6 @@ export interface TradingExchangeFormContextProps
         extraField,
         trade,
     }: TradingExchangeConfirmTradeProps) => Promise<ExchangeTrade | undefined>;
-    onQuoteSelected: (quote: ExchangeTrade) => void;
     verifyAddress: TradingVerifyAccountProps;
     approveTransaction: (trade: ExchangeTrade) => Promise<boolean>;
     revokeApproval: (trade: ExchangeTrade) => Promise<boolean>;

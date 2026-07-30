@@ -14,13 +14,16 @@ import { type HandshakeElectron } from '@trezor/suite-desktop-api';
 import { bytesToHumanReadable, serializeError } from '@trezor/utils';
 
 import { type ModuleInit, mainThreadEmitter } from './module';
+import { parseCustomFeedURL } from '../libs/parseCustomFeedURL';
 import { getSwitchValue, hasSwitch } from '../libs/process-switches';
 import { getSignatureFile, verifySignature } from '../libs/update-checker';
 import { b2t } from '../libs/utils';
 import { app, ipcMain } from '../typed-electron';
 
-const defaultFeedURL = {
-    // This should correspond with the value in electron-builder-config.js file.
+export const SERVICE_NAME = 'auto-updater';
+
+const defaultFeedURLs = {
+    // This should correspond with the publish.url value in electron-builder-config.js file.
     latest: 'https://data.trezor.io/suite/releases/desktop/latest',
     preRelease: 'https://data.trezor.io/suite/releases/desktop/canary',
 };
@@ -29,9 +32,14 @@ const defaultFeedURL = {
 const enableUpdater = hasSwitch('enable-updater');
 const disableUpdater = hasSwitch('disable-updater');
 const preReleaseFlag = hasSwitch('pre-release');
-const updaterURL = getSwitchValue('updater-url');
+const customFeedURL = getSwitchValue('updater-url');
 
-export const SERVICE_NAME = 'auto-updater';
+const getFeedURL = ({ allowPrerelease = false }) => {
+    const defaultFeedURL = defaultFeedURLs[allowPrerelease ? 'preRelease' : 'latest'];
+    const warn = (message: string) => global.logger.warn(SERVICE_NAME, message);
+
+    return parseCustomFeedURL({ customFeedURL, defaultFeedURL, warn });
+};
 
 export const init: ModuleInit = ({ mainWindowProxy, store }) => {
     const { logger } = global;
@@ -85,7 +93,7 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
     const updateSettings = store.getUpdateSettings();
     let allowPrerelease = preReleaseFlag || updateSettings.allowPrerelease;
     let { isAutomaticUpdateEnabled } = updateSettings;
-    let feedURL = updaterURL || defaultFeedURL[allowPrerelease ? 'preRelease' : 'latest'];
+    let feedURL = getFeedURL({ allowPrerelease });
 
     autoUpdater.logger = null;
 
@@ -311,7 +319,7 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         store.setUpdateSettings({ ...settings, allowPrerelease: value });
         allowPrerelease = value;
 
-        feedURL = value ? defaultFeedURL.preRelease : defaultFeedURL.latest;
+        feedURL = getFeedURL({ allowPrerelease });
         autoUpdater.setFeedURL(feedURL);
         logger.info(SERVICE_NAME, `New feed url: ${feedURL}`);
     });

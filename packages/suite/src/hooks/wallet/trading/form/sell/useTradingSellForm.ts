@@ -1,13 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-
-import type { SellFiatTrade } from 'invity-api';
 
 import {
     TRADING_FORM_OUTPUT_AMOUNT,
     TRADING_FORM_OUTPUT_FIAT,
-    TRADING_FORM_PAYMENT_METHOD_SELECT,
-    TRADING_FORM_PROVIDER_SELECT,
     type TradingAmountLimitProps,
     type TradingSellFormProps,
     selectTradingComposedTransactionInfo,
@@ -16,9 +12,7 @@ import {
     selectTradingSellInfo,
     selectTradingSellIsFromRedirect,
     selectTradingSellIsLoading,
-    selectTradingSellQuotesByPaymentMethod,
     selectTradingSellQuotesRequest,
-    selectTradingSellSelectedQuote,
     selectTradingSellTransactionId,
     selectTradingSendAccount,
     tradingSellActions,
@@ -48,7 +42,6 @@ export const useTradingSellForm = (): TradingSellFormContextProps => {
     const quotesRequest = useSelector(selectTradingSellQuotesRequest);
     const isFromRedirect = useSelector(selectTradingSellIsFromRedirect);
     const transactionId = useSelector(selectTradingSellTransactionId);
-    const selectedQuote = useSelector(selectTradingSellSelectedQuote);
     const sellInfo = useSelector(selectTradingSellInfo);
     const amountLimits = useSelector(selectTradingSellAmountLimits);
 
@@ -77,11 +70,11 @@ export const useTradingSellForm = (): TradingSellFormContextProps => {
         mode: 'onChange',
         defaultValues: redirectValues ?? defaultValues,
     });
-    const { register, setValue, reset, getValues, control, formState } = methods;
+    const { register, reset, control, formState } = methods;
     // Watch only those values that are relevant in the render function
-    const [outputAmount, paymentMethod] = useWatch({
+    const [outputAmount] = useWatch({
         control,
-        name: [TRADING_FORM_OUTPUT_AMOUNT, TRADING_FORM_PAYMENT_METHOD_SELECT],
+        name: [TRADING_FORM_OUTPUT_AMOUNT],
     });
 
     const formIsValid = Object.keys(formState.errors).length === 0;
@@ -89,10 +82,6 @@ export const useTradingSellForm = (): TradingSellFormContextProps => {
     const isAmountEmpty = outputAmount === '';
     const noProviders = Object.keys(sellInfo?.providerInfos ?? {}).length === 0;
     const isInitialDataLoading = !sellInfo?.providerInfos;
-
-    const quotesByPaymentMethod = useSelector(state =>
-        selectTradingSellQuotesByPaymentMethod(state, paymentMethod?.value),
-    );
 
     const setAmountLimits = (limits: TradingAmountLimitProps | undefined) => {
         dispatch(tradingSellActions.setAmountLimits(limits));
@@ -153,27 +142,6 @@ export const useTradingSellForm = (): TradingSellFormContextProps => {
         setShowReserveBanner,
     });
 
-    const onQuoteSelected = useCallback(
-        (quote: SellFiatTrade) => {
-            const quoteProvider = quote.exchange;
-            const quotePaymentMethod = quote.paymentMethod;
-            const provider = getValues(TRADING_FORM_PROVIDER_SELECT);
-            const selectedPaymentMethod = getValues(TRADING_FORM_PAYMENT_METHOD_SELECT);
-
-            if (quoteProvider && quoteProvider !== provider) {
-                setValue(TRADING_FORM_PROVIDER_SELECT, quoteProvider);
-            }
-
-            if (quotePaymentMethod && selectedPaymentMethod?.value !== quotePaymentMethod) {
-                setValue(TRADING_FORM_PAYMENT_METHOD_SELECT, {
-                    value: quotePaymentMethod,
-                    label: quote.paymentMethodName ?? quotePaymentMethod,
-                });
-            }
-        },
-        [getValues, setValue],
-    );
-
     // react-hook-form auto register custom form fields (without HTMLElement)
     useEffect(() => {
         register('options');
@@ -208,21 +176,18 @@ export const useTradingSellForm = (): TradingSellFormContextProps => {
         methods,
         sellInfo,
         quotesRequest,
-        quotes: quotesByPaymentMethod,
         composedLevels,
         composedTransactionInfo,
         feeInfo,
         isComposing,
         amountLimits,
         network,
-        selectedQuote,
         shouldSendInSats,
         trade,
         isAmountEmpty,
         changeFeeLevel,
         composeRequest,
         setAmountLimits,
-        onQuoteSelected,
         showReserveBanner,
         setShowReserveBanner,
         clearQuotesAndParams: () => {

@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import type { ExchangeTrade } from 'invity-api';
-
 import {
     TRADING_EXCHANGE_FORM,
-    TRADING_EXCHANGE_FORM_CEX,
-    TRADING_EXCHANGE_FORM_DEX,
     TRADING_FORM_OUTPUT_AMOUNT,
     TRADING_FORM_OUTPUT_CURRENCY,
     TRADING_FORM_OUTPUT_FIAT,
-    TRADING_FORM_PROVIDER_SELECT,
     TRADING_FORM_RECEIVE_CRYPTO_CURRENCY_SELECT,
     TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT,
     type TradingExchangeAmountLimitProps,
@@ -22,7 +17,6 @@ import {
     selectTradingExchangeInfo,
     selectTradingExchangeIsFromRedirect,
     selectTradingExchangeIsLoading,
-    selectTradingExchangeQuotes,
     selectTradingExchangeQuotesRequest,
     selectTradingExchangeSelectedQuote,
     selectTradingExchangeTransactionId,
@@ -58,7 +52,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const dispatch = useDispatch();
     const quotesRequest = useSelector(selectTradingExchangeQuotesRequest);
     const isFromRedirect = useSelector(selectTradingExchangeIsFromRedirect);
-    const quotes = useSelector(selectTradingExchangeQuotes);
     const transactionId = useSelector(selectTradingExchangeTransactionId);
     const selectedQuote = useSelector(selectTradingExchangeSelectedQuote);
     const amountLimits = useSelector(selectTradingExchangeAmountLimits);
@@ -89,7 +82,7 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         defaultValues,
     });
 
-    const { reset, register, getValues, setValue, clearErrors, formState, control } = methods;
+    const { reset, register, setValue, clearErrors, formState, control } = methods;
 
     // Watch only the values the orchestrator itself renders with; each atomic hook
     // owns its own narrow named subscription. Replaces the former broad useWatch.
@@ -161,7 +154,7 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         },
     });
 
-    const { cexQuotes, dexQuotes, isScheduledQuotesRefresh, refreshQuotes } = useExchangeQuotes({
+    const { dexQuotes, isScheduledQuotesRefresh, refreshQuotes } = useExchangeQuotes({
         methods,
         network,
         shouldSendInSats,
@@ -227,26 +220,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         defaultValues,
     });
 
-    const onQuoteSelected = useCallback(
-        (quote: ExchangeTrade) => {
-            const quoteProvider = quote.exchange;
-            const provider = getValues(TRADING_FORM_PROVIDER_SELECT);
-            const currentExchangeType = getValues(TRADING_EXCHANGE_FORM);
-
-            if (quoteProvider && quoteProvider !== provider) {
-                setValue(TRADING_FORM_PROVIDER_SELECT, quoteProvider);
-            }
-
-            const quoteFormType = quote.isDex
-                ? TRADING_EXCHANGE_FORM_DEX
-                : TRADING_EXCHANGE_FORM_CEX;
-            if (quoteFormType !== currentExchangeType) {
-                setValue(TRADING_EXCHANGE_FORM, quoteFormType);
-            }
-        },
-        [getValues, setValue],
-    );
-
     // Subscribe to blocks for Solana, since they are not fetched globally
     useSolanaSubscribeBlocks(account);
 
@@ -272,9 +245,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         },
         methods,
         exchangeInfo,
-        quotes,
-        dexQuotes,
-        cexQuotes,
         quotesRequest,
         isComposing,
         composedLevels,
@@ -282,7 +252,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         amountLimits,
         network,
         receiveAccount,
-        selectedQuote,
         verifiedAddress,
         shouldSendInSats,
         trade,
@@ -292,7 +261,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         composedTransactionInfo,
         changeFeeLevel,
         setAmountLimits,
-        onQuoteSelected,
         verifyAddress,
         confirmTrade,
         approveTransaction,

@@ -40,7 +40,8 @@ describe('MiscFeeLevels – Solana', () => {
         const feeLevels = new MiscFeeLevels(SOL_COIN_INFO);
         const backend = makeBackend(HAPPY_RESPONSE);
 
-        const levels = await feeLevels.load(backend, REQUEST);
+        await feeLevels.load(backend, REQUEST);
+        const { levels } = feeLevels;
 
         expect(levels).toHaveLength(1);
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
@@ -50,7 +51,6 @@ describe('MiscFeeLevels – Solana', () => {
             feePerUnit: '8000',
             feeLimit: '1234',
         });
-        expect(feeLevels.wasFetchedSuccessfully).toBe(true);
         expect(backend.estimateFee).toHaveBeenCalledWith(REQUEST);
     });
 
@@ -80,9 +80,8 @@ describe('MiscFeeLevels – Solana', () => {
         const feeLevels = new MiscFeeLevels(SOL_COIN_INFO);
         const original = [...feeLevels.levels];
 
-        const after = await feeLevels.load(backend, REQUEST);
+        await feeLevels.load(backend, REQUEST);
 
-        expect(after).toEqual(original);
-        expect(feeLevels.wasFetchedSuccessfully).toBe(false);
+        expect(feeLevels.levels).toEqual(original);
     });
 });

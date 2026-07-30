@@ -52,7 +52,8 @@ describe('BitcoinFeeLevels', () => {
         // returns preloaded values from coins.json
         expect(feeLevelsInstance.levels.map(l => l.feePerUnit)).toEqual(['222', '111', '77', '22']);
 
-        const result = await feeLevelsInstance.load(backend);
+        await feeLevelsInstance.load(backend);
+        const result = feeLevelsInstance.levels;
         // linear mock of requested blocks
         expect(result.map(l => l.feePerUnit)).toEqual(['9.9', '9', '6', '2']);
     });
@@ -69,36 +70,10 @@ describe('BitcoinFeeLevels', () => {
         const backend = await initBlockchain(coinInfoMock, () => {});
         const feeLevelsInstance = new BitcoinFeeLevels(coinInfoMock);
 
-        const result = await feeLevelsInstance.load(backend);
+        await feeLevelsInstance.load(backend);
+        const result = feeLevelsInstance.levels;
         // linear mock of requested blocks, or preloaded values if not fetched successfully
         expect(result.map(l => l.feePerUnit)).toEqual(['9.9', '9', '6', '22']);
-    });
-
-    it('fetches Bitcoin smart FeeLevels with custom fee level', async () => {
-        const coinInfo = getBitcoinNetwork('btc');
-        if (!coinInfo) throw new Error('coinInfo is missing');
-        const coinInfoMock = { ...coinInfo, defaultFees: defaultFeesMock };
-
-        const spy = jest
-            .spyOn(BlockchainLink.prototype, 'estimateFee')
-            .mockImplementation(estimateFeeMockOK);
-
-        const backend = await initBlockchain(coinInfoMock, () => {});
-        const feeLevelsInstance = new BitcoinFeeLevels(coinInfoMock);
-
-        // 'custom' level is appended at the end
-        feeLevelsInstance.updateBitcoinCustomFee('7.6');
-        expect(feeLevelsInstance.levels.at(-1)).toMatchObject({
-            label: 'custom',
-            feePerUnit: '7.6',
-        });
-
-        const result = await feeLevelsInstance.load(backend);
-        // 'custom' level is excluded from the query
-        expect(spy).toHaveBeenCalledWith({ blocks: [1, 10, 40, 80] });
-
-        // but the 'custom' level is still present, unchanged
-        expect(result.map(l => l.feePerUnit)).toEqual(['9.9', '9', '6', '2', '7.6']);
     });
 
     it('fetches Testnet smart FeeLevels with some unknown results in response', async () => {
@@ -120,7 +95,8 @@ describe('BitcoinFeeLevels', () => {
         // returns preloaded values from coins.json
         expect(feeLevelsInstance.levels.map(l => l.feePerUnit)).toEqual(['111']);
 
-        const result = await feeLevelsInstance.load(backend);
+        await feeLevelsInstance.load(backend);
+        const result = feeLevelsInstance.levels;
         expect(result?.map(l => l.feePerUnit)).toEqual(['9']);
     });
 });

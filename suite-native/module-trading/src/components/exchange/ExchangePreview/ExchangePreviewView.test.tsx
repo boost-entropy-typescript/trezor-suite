@@ -11,13 +11,42 @@ import {
 
 import { ExchangePreviewView, type ExchangePreviewViewProps } from './ExchangePreviewView';
 import { renderWithTradingProvider } from '../../../__tests__/tradingTestUtils';
+import { useDexExchangeTxSimulation } from '../../../hooks/exchange/useDexExchangeTxSimulation';
+import { useExchangeIssue } from '../../../hooks/exchange/useExchangeIssue';
+
+jest.mock('../../../hooks/exchange/useDexExchangeTxSimulation', () => ({
+    useDexExchangeTxSimulation: jest.fn(),
+}));
+
+jest.mock('../../../hooks/exchange/useExchangeIssue', () => ({
+    useExchangeIssue: jest.fn(),
+}));
+
+const mockUseDexExchangeTxSimulation = jest.mocked(useDexExchangeTxSimulation);
+const mockUseExchangeIssue = jest.mocked(useExchangeIssue);
 
 describe('ExchangePreviewView', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockUseDexExchangeTxSimulation.mockReturnValue({
+            isEnabled: false,
+            isLoading: false,
+            error: null,
+            data: undefined,
+        });
+        mockUseExchangeIssue.mockReturnValue({
+            isSimulationEnabled: false,
+            isSimulationLoading: false,
+            issue: null,
+        });
+    });
+
     const renderExchangePreviewView = (props: Partial<ExchangePreviewViewProps> = {}) =>
         renderWithTradingProvider(
             <ExchangePreviewView
                 quote={mercuryoFixedWorstQuote}
                 txnErrorString={null}
+                onSignTransactionNavigation={jest.fn()}
                 {...props}
             />,
             {
