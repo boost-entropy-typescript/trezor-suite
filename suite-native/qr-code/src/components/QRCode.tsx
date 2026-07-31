@@ -58,7 +58,7 @@ const qrCodeCenterIconStyle = prepareNativeStyle(utils => ({
     padding: QR_CENTER_ICON_PADDING,
     borderRadius: utils.borders.radii.round,
     overflow: 'hidden',
-    backgroundColor: utils.colors.surfaceFillRaised,
+    backgroundColor: colorVariants.standard.surfaceFillRaised,
 }));
 
 export const QRCode = ({

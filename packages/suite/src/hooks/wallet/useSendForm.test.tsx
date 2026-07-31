@@ -16,19 +16,19 @@ import {
 import { type FormState } from '@suite-common/wallet-types';
 import { type PROTO } from '@trezor/connect';
 
-import { extraDependenciesDesktopMock } from 'src/support/tests/extraDependenciesDesktop.mock';
 import {
     type UserAction,
     actionSequence,
     findByTestId,
     renderWithProviders,
     waitForLoader,
-} from 'src/support/tests/hooksHelper';
+} from 'src/support/test-utils/hooksHelper';
 import { type SendContextValues } from 'src/types/wallet/sendForm';
 import SendIndex from 'src/views/wallet/send';
 
 import * as fixtures from './__fixtures__/useSendForm';
 import { useSendFormContext } from './useSendForm';
+import { extraDependenciesDesktopMock } from '../../../mocks/extraDependenciesDesktopMock';
 
 const TEST_TIMEOUT = 35000;
 

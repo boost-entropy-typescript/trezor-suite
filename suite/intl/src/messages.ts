@@ -5073,6 +5073,10 @@ export const messages = defineMessages({
         id: 'TR_NOTIFICATIONS',
         defaultMessage: 'Activity',
     },
+    TR_NEW: {
+        id: 'TR_NEW',
+        defaultMessage: 'New',
+    },
     TR_PERSONALIZATION: {
         id: 'TR_PERSONALIZATION',
         defaultMessage: 'Customization',
@@ -11637,6 +11641,14 @@ export const messages = defineMessages({
     TOAST_TX_YIELD_CLAIM: {
         id: 'TOAST_TX_YIELD_CLAIM',
         defaultMessage: 'Claim transaction from {account} has been broadcast',
+    },
+    TOAST_TX_WRAP: {
+        id: 'TOAST_TX_WRAP',
+        defaultMessage: 'Wrap transaction from {account} has been broadcast',
+    },
+    TOAST_TX_UNWRAP: {
+        id: 'TOAST_TX_UNWRAP',
+        defaultMessage: 'Unwrap transaction from {account} has been broadcast',
     },
     TOAST_SUCCESSFUL_CLAIM: {
         id: 'TOAST_SUCCESSFUL_CLAIM',

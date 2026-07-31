@@ -9,16 +9,16 @@ import TrezorConnect from '@trezor/connect';
 
 import { ChangeFee } from 'src/components/suite/modals/ReduxModal/UserContextModal/TxDetailModal/ChangeFee/ChangeFee';
 import { ReplaceTxButton } from 'src/components/suite/modals/ReduxModal/UserContextModal/TxDetailModal/ChangeFee/ReplaceTxButton';
-import { extraDependenciesDesktopMock } from 'src/support/tests/extraDependenciesDesktop.mock';
 import {
     actionSequence,
     findByTestId,
     renderWithProviders,
     waitForLoader,
-} from 'src/support/tests/hooksHelper';
+} from 'src/support/test-utils/hooksHelper';
 
 import * as fixtures from './__fixtures__/useRbfForm';
 import { RbfContext, useRbf, useRbfContext } from './useRbfForm';
+import { extraDependenciesDesktopMock } from '../../../mocks/extraDependenciesDesktopMock';
 
 global.ResizeObserver = class MockedResizeObserver {
     observe = jest.fn();
