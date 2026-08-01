@@ -32,8 +32,6 @@ const addKnownViolationFailureGuidance = (error: string, correction: string) =>
 const LEGIT_BIG_FILES = new Set<string>([
     'packages/connect-data/libDev/src/map-releases.d.ts',
     'packages/connect/libDev/e2e/__fixtures__/cardanoSignTransaction.d.ts',
-    // Runtime schemas intentionally export their complete inferred static types.
-    'packages/device-authenticity/libDev/src/authenticateDeviceParams.d.ts',
     'packages/icons/libDev/src/index.d.ts',
     'packages/protobuf/libDev/src/definitions/index.d.ts',
     'packages/protobuf/libDev/src/definitions/messages-bitcoin.d.ts',
@@ -180,13 +178,21 @@ const getViolation = (context: DeclarationFileContext) => {
     );
 };
 
-const verifyDeclarationFile = (context: DeclarationFileContext) => {
+type CreateRequireTypeDeclarationSizeParams = {
+    legitBigFiles: ReadonlySet<string>;
+    knownDeclarationSizeViolations: ReadonlySet<string>;
+};
+
+const verifyDeclarationFile = (
+    context: DeclarationFileContext,
+    { legitBigFiles, knownDeclarationSizeViolations }: CreateRequireTypeDeclarationSizeParams,
+) => {
     const declarationPath = normalizePath(relative(context.repoRoot, context.declarationFile));
 
-    if (LEGIT_BIG_FILES.has(declarationPath)) return undefined;
+    if (legitBigFiles.has(declarationPath)) return undefined;
 
     const violation = getViolation(context);
-    const isKnownViolation = KNOWN_DECLARATION_SIZE_VIOLATIONS.has(declarationPath);
+    const isKnownViolation = knownDeclarationSizeViolations.has(declarationPath);
 
     if (isKnownViolation && violation === undefined) {
         return addKnownViolationFailureGuidance(
@@ -200,7 +206,12 @@ const verifyDeclarationFile = (context: DeclarationFileContext) => {
     return violation;
 };
 
-export const requireTypeDeclarationSize: Requirement<'repo'> = {
+// Creator pattern is used to separate the static snapshots LEGIT_BIG_FILES and KNOWN_DECLARATION_SIZE_VIOLATIONS
+// from unit tests, because the snapshots may change and break the tests.
+export const createRequireTypeDeclarationSize = ({
+    legitBigFiles,
+    knownDeclarationSizeViolations,
+}: CreateRequireTypeDeclarationSizeParams): Requirement<'repo'> => ({
     name: 'type-declaration-size',
     scope: 'repo',
     runByDefault: false,
@@ -226,10 +237,15 @@ export const requireTypeDeclarationSize: Requirement<'repo'> = {
                 normalizePath(relative(repoRoot, declarationOutputDirectory)),
         );
         const errors = declarationFiles
-            .map(declarationFile => verifyDeclarationFile({ repoRoot, ...declarationFile }))
+            .map(declarationFile =>
+                verifyDeclarationFile(
+                    { repoRoot, ...declarationFile },
+                    { legitBigFiles, knownDeclarationSizeViolations },
+                ),
+            )
             .filter(error => error !== undefined);
 
-        for (const declarationPath of KNOWN_DECLARATION_SIZE_VIOLATIONS) {
+        for (const declarationPath of knownDeclarationSizeViolations) {
             const isWorkspaceBuilt = builtDeclarationOutputPaths.some(outputPath =>
                 declarationPath.startsWith(`${outputPath}/`),
             );
@@ -246,4 +262,9 @@ export const requireTypeDeclarationSize: Requirement<'repo'> = {
 
         return Promise.resolve(errors.sort());
     },
-};
+});
+
+export const requireTypeDeclarationSize = createRequireTypeDeclarationSize({
+    legitBigFiles: LEGIT_BIG_FILES,
+    knownDeclarationSizeViolations: KNOWN_DECLARATION_SIZE_VIOLATIONS,
+});
