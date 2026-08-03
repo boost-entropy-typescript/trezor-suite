@@ -2581,6 +2581,14 @@ export const messages = {
                 stepWithdrawalPeriod:
                     'Withdrawal period (~{days, plural, one {# day} other {# days}})',
                 stepReadyToClaim: 'Ready to claim',
+                sol: {
+                    stepWarmUpPeriod:
+                        'Warm-up period (~{days, plural, one {# day} other {# days}})',
+                    stepStakedReceivingRewards: 'Staked & receiving rewards',
+                    stepCoolDownPeriod:
+                        'Cool-down period (~{days, plural, one {# day} other {# days}})',
+                    stepUnstakedReadyToClaim: 'Unstaked and ready to claim',
+                },
             },
         },
         yieldInsufficientBalance: {
@@ -2665,8 +2673,8 @@ export const messages = {
             amountLabel: 'Amount',
             stakeMaxButton: 'Stake max',
             unstakeMaxButton: 'Unstake max',
-            withdrawalFeesBanner:
-                "We've left {amount} {displaySymbol} in your account so you can pay withdrawal fees.",
+            withdrawalFeesRecommendation:
+                "It's recommended to leave {amount} {displaySymbol} so you can pay for withdrawal fees.",
             insufficientBalanceBanner:
                 'Not enough {displaySymbol}. Staking requires at least {minAmount} {displaySymbol} plus network fees.',
             insufficientBalanceBannerButton: 'Buy {displaySymbol}',
