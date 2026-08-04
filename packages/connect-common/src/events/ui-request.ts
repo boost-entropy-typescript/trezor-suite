@@ -9,7 +9,7 @@ import type { DeviceButtonRequest, DeviceThpPairingPayload } from './device';
 import type { DiscoveryAccount, DiscoveryAccountType } from '../types/account';
 import type { BitcoinNetworkInfo, CoinInfo } from '../types/coinInfo';
 import type { Device } from '../types/device';
-import type { SelectFeeLevel } from '../types/fees';
+import type { FeeLevel } from '../types/fees';
 import { type MessageFactoryFn } from '../types/utils';
 
 export const UI_EVENT = 'UI_EVENT';
@@ -46,7 +46,6 @@ export const UI_REQUEST = {
     REQUEST_THP_PAIRING: 'ui-request_thp_pairing',
     SELECT_ACCOUNT: 'ui-select_account',
     SELECT_FEE: 'ui-select_fee',
-    UPDATE_CUSTOM_FEE: 'ui-update_custom_fee',
     INSUFFICIENT_FUNDS: 'ui-insufficient_funds',
     REQUEST_BUTTON: 'ui-button',
     REQUEST_WORD: 'ui-request_word',
@@ -223,15 +222,7 @@ export interface UiRequestSelectFee {
     type: typeof UI_REQUEST.SELECT_FEE;
     payload: {
         coinInfo: BitcoinNetworkInfo;
-        feeLevels: SelectFeeLevel[];
-    };
-}
-
-export interface UpdateCustomFee {
-    type: typeof UI_REQUEST.UPDATE_CUSTOM_FEE;
-    payload: {
-        coinInfo: BitcoinNetworkInfo;
-        feeLevels: SelectFeeLevel[];
+        feeLevels: FeeLevel[];
     };
 }
 
@@ -297,7 +288,6 @@ export type UiEvent =
     | UiRequestSelectAccount
     | UiRequestSelectFee
     | UiRequestThpPairing
-    | UpdateCustomFee
     | BundleProgress<any>
     | FirmwareProgress
     | FirmwareProgressUnexpectedDelay

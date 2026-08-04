@@ -2,10 +2,11 @@
 
 import {
     type BitcoinNetworkInfo,
-    type ComposeResult,
+    type ComposeResultFinal,
     DEFAULT_SORTING_STRATEGY,
     type DiscoveryAccount,
     ERRORS,
+    type FeeLevel,
     type PermissionRequest,
     type PrecomposeParams,
     type PrecomposedResult,
@@ -28,7 +29,7 @@ import { requestExistingAccounts } from './common/requestExistingAccounts';
 import { fixCoinInfoNetwork, getBitcoinNetwork } from '../data/coinInfo';
 import { formatAmount } from '../utils/formatUtils';
 import * as pathUtils from '../utils/pathUtils';
-import { TransactionComposer } from './bitcoin/TransactionComposer';
+import { createComposer } from './bitcoin/TransactionComposer';
 import { enhanceSignTx } from './bitcoin/enhanceSignTx';
 import { inputToTrezor } from './bitcoin/inputs';
 import { outputToTrezor, validateHDOutput } from './bitcoin/outputs';
@@ -158,28 +159,18 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
         const { coinInfo, outputs, baseFee, sortingStrategy } = this.params;
         const address_n = pathUtils.validatePath(account.path);
 
-        const composer = new TransactionComposer({
-            account: {
-                type: pathUtils.getAccountType(address_n),
-                label: 'Account',
-                descriptor: account.path,
-                address_n,
-                addresses: account.addresses,
-            },
+        const compose = createComposer({
+            txType: pathUtils.getAccountType(address_n),
+            addresses: account.addresses,
             utxos: account.utxo,
             coinInfo,
             outputs,
             baseFee,
-            feeLevels: [], // Not needed for composeCustomFee
             sortingStrategy: sortingStrategy ?? DEFAULT_SORTING_STRATEGY,
         });
 
         const levels = feeLevels.map(level => {
-            composer.composeCustomFee(level.feePerUnit);
-            const { composed } = composer;
-            // @ts-expect-error: noUncheckedIndexedAccess
-            const composedCustom: ComposeResult = composed['custom'];
-            const tx = { ...composedCustom }; // needs to spread otherwise flow has a problem with ComposeResult vs PrecomposedTransaction (max could be undefined)
+            const tx = compose(level.feePerUnit);
             if (tx.type === 'final') {
                 return {
                     ...tx,
@@ -219,57 +210,63 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
         const feeLevels = getOrInitFeeLevels(coinInfo);
         await feeLevels.load(blockchain);
 
-        const composer = new TransactionComposer({
-            account,
+        const compose = createComposer({
+            txType: account.type,
+            addresses: account.addresses,
             utxos,
             coinInfo,
             outputs,
-            feeLevels: feeLevels.levels,
             sortingStrategy: sortingStrategy ?? DEFAULT_SORTING_STRATEGY,
         });
 
+        const levels: FeeLevel[] = [];
+        const transactions = new Map<FeeLevel['label'], ComposeResultFinal>();
+        const composed = { levels, transactions };
+
         // try to compose multiple transactions with different fee levels
         // check if any of composed transactions is valid
-        const hasFunds = composer.composeAllFeeLevels();
-        if (!hasFunds) {
-            // show error view
-            context.sendCoreMessage(createUiMessage(UI_REQUEST.INSUFFICIENT_FUNDS));
-            // wait few seconds...
-            await resolveAfter(2000);
-
-            // and go back to discovery
-            return this.interactiveFlow(context);
+        for (const level of feeLevels.levels) {
+            if (level.feePerUnit === '0') continue;
+            const tx = compose(level.feePerUnit);
+            if (tx.type !== 'final') continue;
+            composed.levels.push(level);
+            composed.transactions.set(level.label, tx);
         }
 
-        // set select account view
-        // this view will be updated from discovery events
-        context.sendCoreMessage(
-            createUiMessage(UI_REQUEST.SELECT_FEE, {
-                feeLevels: composer.getFeeLevelList(),
-                coinInfo: this.params.coinInfo,
-            }),
-        );
+        if (!composed.levels.length) {
+            const feePerUnit = String(coinInfo.minFee);
+            const minFeeTx = compose(feePerUnit);
+
+            if (minFeeTx.type === 'final') {
+                context.sendCoreMessage(
+                    createUiMessage(UI_REQUEST.SELECT_FEE, {
+                        feeLevels: [{ label: 'custom', blocks: -1, feePerUnit }],
+                        coinInfo: this.params.coinInfo,
+                    }),
+                );
+            } else {
+                // show error view
+                context.sendCoreMessage(createUiMessage(UI_REQUEST.INSUFFICIENT_FUNDS));
+                // wait few seconds...
+                await resolveAfter(2000);
+
+                // and go back to discovery
+                return this.interactiveFlow(context);
+            }
+        } else {
+            // set select account view
+            // this view will be updated from discovery events
+            context.sendCoreMessage(
+                createUiMessage(UI_REQUEST.SELECT_FEE, {
+                    feeLevels: composed.levels,
+                    coinInfo: this.params.coinInfo,
+                }),
+            );
+        }
 
         // wait for fee selection
-        let resp = await context.createUiPromise(UI_RESPONSE.RECEIVE_FEE, this.getDevice()).promise;
-
-        while (resp.payload.type === 'compose-custom') {
-            // recompose custom fee level with requested value
-            composer.composeCustomFee(resp.payload.value);
-            context.sendCoreMessage(
-                createUiMessage(
-                    UI_REQUEST.UPDATE_CUSTOM_FEE,
-                    {
-                        feeLevels: composer.getFeeLevelList(),
-                        coinInfo: this.params.coinInfo,
-                    },
-                    { requestId: resp.requestId },
-                ),
-            );
-
-            // wait for user action
-            resp = await context.createUiPromise(UI_RESPONSE.RECEIVE_FEE, this.getDevice()).promise;
-        }
+        const resp = await context.createUiPromise(UI_RESPONSE.RECEIVE_FEE, this.getDevice())
+            .promise;
 
         if (resp.payload.type === 'change-account') {
             // check for interruption
@@ -284,10 +281,14 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
             return this.interactiveFlow(context);
         }
 
-        const { composed } = composer;
-        const composedKey = resp.payload.value;
-        // @ts-expect-error: noUncheckedIndexedAccess
-        const tx: ComposeResult = composed[composedKey];
+        const tx =
+            resp.payload.type === 'select-fee-custom'
+                ? compose(resp.payload.value) // recompose custom fee level with requested value
+                : composed.transactions.get(resp.payload.value);
+
+        if (tx?.type !== 'final') {
+            throw ERRORS.TypedError('Runtime', 'ComposeTransaction: Trying to sign unfinished tx');
+        }
 
         const response = await this._sign(tx, context.sendCoreMessage);
 
@@ -457,12 +458,9 @@ export default class ComposeTransaction extends AbstractMethod<'composeTransacti
         return { account, utxo };
     }
 
-    private async _sign(tx: ComposeResult, sendCoreMessage: MethodContext['sendCoreMessage']) {
+    private async _sign(tx: ComposeResultFinal, sendCoreMessage: MethodContext['sendCoreMessage']) {
         const device = this.getDevice();
         const { params } = this;
-
-        if (tx.type !== 'final')
-            throw ERRORS.TypedError('Runtime', 'ComposeTransaction: Trying to sign unfinished tx');
 
         const { coinInfo } = params;
 

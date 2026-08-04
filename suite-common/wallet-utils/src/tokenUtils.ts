@@ -4,8 +4,10 @@ import {
     type NetworkSymbolExtended,
     type NetworkType,
     getExplorerUrl,
+    getNetworkDisplaySymbol,
     getNetworkType,
 } from '@suite-common/wallet-config';
+import { type WalletAccountTransaction } from '@suite-common/wallet-types';
 import {
     type EthereumSpecific,
     type TokenInfo,
@@ -108,10 +110,37 @@ export const isTokenMatchesSearch = (token: TokenInfo, rawSearch: string) => {
     );
 };
 
+const isTokenNameMatchesSearch = (name: string | undefined, search: string) =>
+    name
+        ?.toLowerCase()
+        .split(/\s+/)
+        .some(word => word.startsWith(search)) ?? false;
+
 export const isTokenTransferMatchesSearch = (token: TokenTransfer, search: string) =>
     token.symbol?.toLowerCase().includes(search) ||
-    token.name?.toLowerCase().includes(search) ||
+    isTokenNameMatchesSearch(token.name, search) ||
     token.contract.toLowerCase().includes(search);
+
+export const isNativeDisplaySymbolSearch = (symbol: NetworkSymbol, search: string) =>
+    getNetworkDisplaySymbol(symbol).toLowerCase() === search;
+
+export const isNativeTransferMatchesSearch = (
+    transaction: WalletAccountTransaction,
+    search: string,
+) => {
+    if (!isNativeDisplaySymbolSearch(transaction.symbol, search)) {
+        return false;
+    }
+
+    const hasNativeInternalTransfer = transaction.internalTransfers.some(
+        transfer => transfer.type === 'sent' || transfer.type === 'recv',
+    );
+    const hasNativeAmount =
+        ['sent', 'recv', 'joint', 'contract'].includes(transaction.type) &&
+        transaction.amount !== '0';
+
+    return hasNativeInternalTransfer || hasNativeAmount;
+};
 
 export const isNftMatchesSearch = (token: TokenInfo, search: string) =>
     token.symbol?.toLowerCase().includes(search) ||

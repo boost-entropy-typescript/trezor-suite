@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
 import { Translation } from '@suite/intl';
+import { isTransactionNotification } from '@suite-common/toast-notifications';
 import { Card, CollapsibleBox, Column, Dot, Row } from '@trezor/components';
 
 import {
@@ -13,7 +14,6 @@ import { NotificationGroup } from 'src/components/suite/notifications/Notificati
 import { ReleaseNotes } from 'src/components/suite/notifications/ReleaseNotes/ReleaseNotes';
 import { TriggerActivityNotification } from 'src/components/suite/notifications/TriggerActivityNotification/TriggerActivityNotification';
 import { useLayout, useSelector } from 'src/hooks/suite';
-import { isTransactionNotification } from 'src/utils/suite/notification';
 
 type ActivityTab = 'transactions' | 'release-notes' | 'all';
 

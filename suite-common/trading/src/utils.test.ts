@@ -19,7 +19,7 @@ import {
     addIdsToQuotes,
     cryptoIdToNetwork,
     cryptoIdToNetworkAndContractAddress,
-    cryptoIdToSymbol,
+    cryptoIdToNetworkSymbol,
     filterQuotesAccordingTags,
     getDefaultCountry,
     getDefaultCountrySubdivision,
@@ -27,6 +27,7 @@ import {
     getTradingQuotesByPaymentMethod,
     getTradingQuotesDedupedByProvider,
     getUnusedAddressFromAccount,
+    isCrossChainTrade,
     isCryptoIdForNativeToken,
     isFinalStatus,
     mapTestnetSymbol,
@@ -175,7 +176,7 @@ describe('getTradingQuotesDedupedByProvider', () => {
     });
 });
 
-describe('cryptoIdToSymbol', () => {
+describe('cryptoIdToNetworkSymbol', () => {
     it.each([
         ['bitcoin', 'btc'],
         ['ethereum', 'eth'],
@@ -183,7 +184,7 @@ describe('cryptoIdToSymbol', () => {
     ] as [CryptoId, NetworkSymbol][])(
         'should return correct symbol for %s',
         (cryptoId, expectedSymbol) => {
-            expect(cryptoIdToSymbol(cryptoId)).toBe(expectedSymbol);
+            expect(cryptoIdToNetworkSymbol(cryptoId)).toBe(expectedSymbol);
         },
     );
 });
@@ -222,6 +223,12 @@ describe('cryptoIdToNetwork', () => {
             expect(cryptoIdToNetwork(cryptoId)?.symbol).toBe(expectedSymbol);
         },
     );
+});
+
+describe('isCrossChainTrade', () => {
+    it('should return true when send and receive assets are on different networks', () => {
+        expect(isCrossChainTrade('ethereum' as CryptoId, 'bitcoin' as CryptoId)).toBe(true);
+    });
 });
 
 describe('toTokenCryptoId', () => {

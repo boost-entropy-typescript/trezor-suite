@@ -18,7 +18,7 @@ import {
     type TradingTransaction,
     type TradingType,
     type TradingTypeWithConcierge,
-    cryptoIdToSymbol,
+    cryptoIdToNetworkSymbol,
     isFinalStatus,
     selectDeviceTradingTrades,
     selectTradingIsSlip24Allowed,
@@ -132,6 +132,9 @@ export const selectIsTradingSellEnabled = (state: MessageSystemRootState & Featu
 export const selectIsTradingConciergeEnabled = (
     state: MessageSystemRootState & FeatureFlagsRootState,
 ) => selectIsFeatureEnabled(state, Feature.trading.concierge, true);
+
+export const selectIsTradingTxSimulationEnabled = (state: MessageSystemRootState) =>
+    selectIsFeatureEnabled(state, Feature.trading.txSimulation, true);
 
 export const selectIsTradingSlip24Enabled = (
     state: MessageSystemRootState & FeatureFlagsRootState & TradingRootStateWithDeviceAndAccounts,
@@ -465,7 +468,7 @@ export const selectAccountLabelWithNetworkFallback = (
     }
 
     if (cryptoId) {
-        const networkSymbol = cryptoIdToSymbol(cryptoId);
+        const networkSymbol = cryptoIdToNetworkSymbol(cryptoId);
         if (networkSymbol) {
             return getNetwork(networkSymbol).name;
         }
