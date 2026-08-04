@@ -4,7 +4,8 @@ import { Translation, type TranslationKey } from '@suite/intl';
 import { selectRecoveryWordRequestInputType } from '@suite/modal';
 import { OnboardingCard } from '@suite/onboarding-components';
 import {
-    isStandardRecoveryDisabled,
+    type RecoveryInputType,
+    isRecoveryInputTypeDisabled,
     recoverDeviceThunk,
     recoveryActions,
     selectRecoveryError,
@@ -81,14 +82,14 @@ export const RecoveryStep = () => {
                             dispatch(recoveryActions.setWordsCount(number));
                             // For T1B1 with 12 or 18 words, skip recovery type selection and use Advanced recovery
                             // For 24 words, show the recovery type selection
-                            const shouldSkipSelection = isStandardRecoveryDisabled(
+                            const shouldSkipSelection = isRecoveryInputTypeDisabled(
                                 deviceModelInternal,
                                 number,
                                 'standard',
                             );
 
                             if (shouldSkipSelection) {
-                                dispatch(recoveryActions.setAdvancedRecovery(true));
+                                dispatch(recoveryActions.setRecoveryInputType('advanced'));
                                 dispatch(updateAnalytics({ recoveryType: 'advanced' }));
                                 dispatch(recoverDeviceThunk());
                             } else {
@@ -140,8 +141,8 @@ export const RecoveryStep = () => {
 
     if (status === 'select-recovery-type') {
         // 2. step: Standard recovery (user enters recovery seed word by word on host) or Advanced recovery (user types words on a device)
-        const handleSelect = (type: 'standard' | 'advanced') => {
-            dispatch(recoveryActions.setAdvancedRecovery(type === 'advanced'));
+        const handleSelect = (type: RecoveryInputType) => {
+            dispatch(recoveryActions.setRecoveryInputType(type));
             dispatch(updateAnalytics({ recoveryType: type }));
             dispatch(recoverDeviceThunk());
         };

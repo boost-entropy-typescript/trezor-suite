@@ -19,13 +19,16 @@ import { BigNumber } from '@trezor/utils';
 
 import { submitUnwrapNativeTokenThunk } from 'src/actions/wallet/unwrapNativeTokenThunks';
 import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useMessageSystemWrappedNative } from 'src/hooks/suite/useMessageSystemWrappedNative';
 
 import { WrappedNativeFlowComplete } from '../common/WrappedNativeFlowComplete';
 import { YieldActionStepWarning } from '../common/YieldActionStepWarning';
+import { YieldDisabledBanner } from '../common/YieldDisabledBanner';
 import { YieldFlowTransferRow } from '../common/YieldFlowTransferRow';
 import { YieldUnwrapStep } from '../common/YieldUnwrapStep';
 import { useWrappedNativeDeviceGuard } from '../common/useWrappedNativeDeviceGuard';
 import { useWrappedNativePendingTx } from '../common/useWrappedNativePendingTx';
+import { useYieldFiatInput } from '../hooks/useYieldFiatInput';
 
 type UnwrapNativeTokenProps = {
     account: Account;
@@ -49,12 +52,24 @@ export const UnwrapNativeToken = ({
 }: UnwrapNativeTokenProps) => {
     const dispatch = useDispatch();
     const ensureDeviceReady = useWrappedNativeDeviceGuard();
+    const {
+        isDisabled,
+        content: disabledContent,
+        variant: disabledVariant,
+    } = useMessageSystemWrappedNative('unwrap');
     const [broadcast, setBroadcast] = useState<BroadcastUnwrap | null>(null);
     const methods = useForm<YieldFlowFormValues>({
         mode: 'onChange',
         defaultValues: {
             amountInput: tokenBalance,
+            fiatInput: '',
         },
+    });
+
+    const { fiatToggle, setMaxAmount } = useYieldFiatInput({
+        methods,
+        symbol: account.symbol,
+        decimals: tokenDecimals,
     });
 
     const pendingTxStatus = useWrappedNativePendingTx(account, broadcast?.txid ?? null, 'unwrap');
@@ -99,7 +114,7 @@ export const UnwrapNativeToken = ({
             }),
         );
         setBroadcast(null);
-        methods.reset({ amountInput: tokenBalance });
+        methods.reset({ amountInput: tokenBalance, fiatInput: '' });
     }, [pendingTxStatus, dispatch, methods, tokenBalance]);
 
     const unwrapMutation = useMutation({
@@ -158,6 +173,17 @@ export const UnwrapNativeToken = ({
             );
         }
 
+        // An unwrap already broadcast keeps rendering the form, so its pending transaction stays visible.
+        if (isDisabled && !broadcast) {
+            return (
+                <YieldDisabledBanner
+                    type="unwrap"
+                    content={disabledContent}
+                    variant={disabledVariant}
+                />
+            );
+        }
+
         return (
             <>
                 <Text typographyStyle="headline-md">
@@ -185,11 +211,8 @@ export const UnwrapNativeToken = ({
                                 ? { type: 'unwrap', txid: broadcast.txid, amount: broadcast.amount }
                                 : undefined
                         }
-                        onMaxClick={() =>
-                            methods.setValue('amountInput', tokenBalance, {
-                                shouldValidate: true,
-                            })
-                        }
+                        fiatToggle={fiatToggle}
+                        onMaxClick={() => setMaxAmount(tokenBalance)}
                         onSubmit={handleSubmit}
                         onPendingTxClick={openTxDetail}
                     />

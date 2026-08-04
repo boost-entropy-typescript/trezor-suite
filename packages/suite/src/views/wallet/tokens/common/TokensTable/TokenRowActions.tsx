@@ -30,6 +30,7 @@ import {
 } from '@suite-common/trading';
 import { type Explorer, type Network } from '@suite-common/wallet-config';
 import {
+    getYieldVaultContractAddress,
     getYieldVaultForOutputToken,
     selectExplorer,
     sendFormActions,
@@ -71,6 +72,7 @@ import { SUITE } from 'src/actions/suite/constants';
 import { setSendFormPrefill } from 'src/actions/suite/suiteActions';
 import { getEarnRouteParams } from 'src/components/earn/utils/getEarnRouteParams';
 import { useDispatch, useLayoutSize, useSelector } from 'src/hooks/suite';
+import { useMessageSystemWrappedNative } from 'src/hooks/suite/useMessageSystemWrappedNative';
 import { getTokenAddressTranslationId } from 'src/utils/wallet/tokenUtils';
 
 import type { TokensTableType } from './types';
@@ -137,9 +139,14 @@ const TokenRowBasicActions = ({
             }),
         [yieldOpportunities, account.symbol, token.contract, token.symbol, token.decimals],
     );
+    const availableVaultAddress = availableVault
+        ? getYieldVaultContractAddress(availableVault)
+        : null;
 
     const isDepositButtonDisabled = !availableVault?.status.enter;
     const isWithdrawButtonDisabled = !availableVault?.status.exit;
+
+    const { isDisabled: isUnwrapDisabled } = useMessageSystemWrappedNative('unwrap');
 
     if (!unusedAddress || !device) return null;
 
@@ -154,10 +161,7 @@ const TokenRowBasicActions = ({
     };
 
     const navigateToYieldDeposit = () => {
-        if (!availableVault) return;
-
-        const yieldId = availableVault.id;
-        const contractAddress = availableVault.token.address;
+        if (!availableVault || !availableVaultAddress) return;
 
         analytics.report({
             type: sharedEvents.yieldNavigateEvent.name,
@@ -166,7 +170,7 @@ const TokenRowBasicActions = ({
                 from: 'account-defi-tokens',
                 to: 'deposit-form',
                 networkSymbol: account.symbol,
-                vaultId: yieldId,
+                vaultId: availableVault.id,
             },
         });
 
@@ -175,18 +179,14 @@ const TokenRowBasicActions = ({
                 routeName: 'earn-yield-deposit',
                 params: getEarnRouteParams({
                     account,
-                    yieldId,
-                    contractAddress,
+                    vaultAddress: availableVaultAddress,
                 }),
             }),
         );
     };
 
     const navigateToYieldWithdraw = () => {
-        if (!availableVault) return;
-
-        const yieldId = availableVault.id;
-        const contractAddress = availableVault.token.address;
+        if (!availableVault || !availableVaultAddress) return;
 
         analytics.report({
             type: sharedEvents.yieldNavigateEvent.name,
@@ -195,7 +195,7 @@ const TokenRowBasicActions = ({
                 from: 'account-defi-tokens',
                 to: 'withdraw-form',
                 networkSymbol: account.symbol,
-                vaultId: yieldId,
+                vaultId: availableVault.id,
             },
         });
 
@@ -204,8 +204,7 @@ const TokenRowBasicActions = ({
                 routeName: 'earn-yield-withdraw',
                 params: getEarnRouteParams({
                     account,
-                    yieldId,
-                    contractAddress,
+                    vaultAddress: availableVaultAddress,
                 }),
             }),
         );
@@ -346,6 +345,7 @@ const TokenRowBasicActions = ({
     return (
         <Row gap={8}>
             <Dropdown
+                data-testid="@trading/tokens/more-button"
                 placement={{ position: 'bottom', alignment: 'start' }}
                 tooltip={{ content: <Translation id="TR_SHOW_MORE" />, placement: 'left' }}
                 content={
@@ -440,7 +440,7 @@ const TokenRowBasicActions = ({
                                     },
                                 }),
                             ),
-                        isDisabled: token.balance === '0',
+                        isDisabled: token.balance === '0' || isUnwrapDisabled,
                         isHidden: !isWrappedNativeToken(account.symbol, token.contract),
                     },
                     {
@@ -500,6 +500,7 @@ const TokenRowBasicActions = ({
                     priority="secondary"
                     icon={RepeatIcon}
                     onClick={onSwapButtonClick}
+                    data-testid="@trading/tokens/swap-button"
                     tooltip={{
                         content: canSwapToken ? (
                             <Translation id="TR_TRADING_SWAP" />
@@ -533,6 +534,7 @@ const TokenRowBasicActions = ({
                         }
                         intent="neutral"
                         priority="secondary"
+                        data-testid="@trading/tokens/unhide-button"
                     >
                         <Translation id="TR_UNHIDE" />
                     </Button>
@@ -544,6 +546,7 @@ const TokenRowBasicActions = ({
                                     icon={PlusIcon}
                                     isDisabled={isDepositButtonDisabled}
                                     onClick={navigateToYieldDeposit}
+                                    data-testid="@trading/tokens/yield-deposit-button"
                                     tooltip={{
                                         content: isDepositButtonDisabled ? (
                                             <Translation id="TR_DEFI_NO_VAULT_TOOLTIP" />
@@ -557,6 +560,7 @@ const TokenRowBasicActions = ({
                                     icon={MinusIcon}
                                     isDisabled={isWithdrawButtonDisabled}
                                     onClick={navigateToYieldWithdraw}
+                                    data-testid="@trading/tokens/yield-withdraw-button"
                                     tooltip={{
                                         content: isWithdrawButtonDisabled ? (
                                             <Translation id="TR_DEFI_NO_VAULT_TOOLTIP" />
@@ -573,6 +577,7 @@ const TokenRowBasicActions = ({
                                     icon={ArrowDownIcon}
                                     isDisabled={!canReceiveToken}
                                     onClick={onReceiveButtonClick}
+                                    data-testid="@trading/tokens/receive-button"
                                     tooltip={{
                                         content: (
                                             <Translation
@@ -591,6 +596,7 @@ const TokenRowBasicActions = ({
                                     key="token-send"
                                     icon={ArrowUpIcon}
                                     onClick={onSendButtonClick}
+                                    data-testid="@trading/tokens/send-button"
                                     tooltip={{
                                         content: <Translation id="TR_NAV_SEND" />,
                                     }}

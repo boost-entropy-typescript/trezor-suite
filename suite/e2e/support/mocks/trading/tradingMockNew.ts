@@ -7,6 +7,8 @@ import { TradingChainBackend, createTradingChainBackend } from './tradingChainBa
 import { tradeEndpoint } from '../../../fixtures/trading';
 import { step } from '../../common';
 
+export type CapturedLiveTrade = ExchangeTrade & { sendAddress: string; exchange: string };
+
 type TradeFlow = 'buy' | 'sell' | 'swap';
 type TradeEndpoints = {
     readonly trade: string;
@@ -22,6 +24,10 @@ const TRADE_ENDPOINTS: Record<TradeFlow, TradeEndpoints> = {
 const WATCH_POLL_PERIOD = '00:30';
 const WATCH_POLL_TIMEOUT = 35_000;
 const ADVANCE_ATTEMPTS = 5;
+
+const MOCK_PROVIDER_STATUS_ORIGIN = 'https://mocked.partner.site/orders';
+const mockProviderStatusPageHtml = (orderId: string) =>
+    `<!DOCTYPE html><html><head><title>Mocked Provider Support</title></head><body><h1>Mocked Provider Support Page</h1><p>Order ID: ${orderId}</p></body></html>`;
 
 const assertPassphraseEnv = () => {
     if (!process.env.PASSPHRASE) {
@@ -41,13 +47,12 @@ const assertPassphraseEnv = () => {
 export class TradingMockNew {
     private flow?: TradeFlow;
     private backend?: TradingChainBackend;
-    private liveTrade: ExchangeTrade | null = null;
+    private capturedTrade: CapturedLiveTrade | null = null;
 
     constructor(private page: Page) {
         assertPassphraseEnv();
     }
 
-    // Required; call once in beforeEach — the status/redirect/backend methods guard on it.
     setTradeFlow(flow: TradeFlow) {
         this.flow = flow;
     }
@@ -66,7 +71,7 @@ export class TradingMockNew {
         return TRADE_ENDPOINTS[this.tradeFlow];
     }
 
-    // Sell + swap only (buy has no on-chain send); blocks the broadcast. Call before discovery.
+    // Sell + swap only; call before discovery.
     @step()
     async startBackend(symbol: NetworkSymbol): Promise<{ type: BackendType; url: string }> {
         this.backend = createTradingChainBackend(symbol);
@@ -76,7 +81,6 @@ export class TradingMockNew {
         return { type: this.backend.backendType, url: this.backend.url };
     }
 
-    // Buy + sell only (swap has no provider redirect); rewrites the live redirect back into Suite.
     @step()
     async rewriteTradeRedirect() {
         if (this.tradeFlow === 'swap') {
@@ -93,29 +97,52 @@ export class TradingMockNew {
         });
     }
 
-    // Capture the live trade (real deposit address); arm before the request, await after.
-    async waitForLiveTrade(): Promise<ExchangeTrade> {
-        const response = await this.page.waitForResponse(this.endpoints.trade);
-        this.liveTrade = (await response.json()) as ExchangeTrade;
+    @step()
+    async mockProviderStatusPage() {
+        if (this.tradeFlow !== 'swap') {
+            throw new Error('mockProviderStatusPage is swap only');
+        }
 
-        return this.liveTrade;
+        await this.page.route(this.endpoints.trade, async route => {
+            const response = await route.fetch();
+            const body = await response.json();
+            body.statusUrl = `${MOCK_PROVIDER_STATUS_ORIGIN}/${body.orderId}`;
+            await route.fulfill({ response, json: body });
+        });
+
+        await this.page.context().route(`${MOCK_PROVIDER_STATUS_ORIGIN}/*`, async route => {
+            const orderId = route.request().url().split('/').pop() ?? '';
+            await route.fulfill({
+                status: 200,
+                contentType: 'text/html',
+                body: mockProviderStatusPageHtml(orderId),
+            });
+        });
     }
 
-    get liveTradeSendAddress() {
-        if (!this.liveTrade?.sendAddress) {
+    async waitForLiveTrade() {
+        const response = await this.page.waitForResponse(this.endpoints.trade);
+        const trade = (await response.json()) as ExchangeTrade;
+        if (!trade.sendAddress || !trade.exchange) {
+            throw new Error('Live trade response is missing sendAddress or exchange');
+        }
+
+        this.capturedTrade = trade as CapturedLiveTrade;
+    }
+
+    get liveTrade(): CapturedLiveTrade {
+        if (!this.capturedTrade) {
             throw new Error('Live trade response was not captured yet');
         }
 
-        return this.liveTrade.sendAddress;
+        return this.capturedTrade;
     }
 
-    // Pin the status the app sees now (the baseline, set at/just before the send).
     @step()
     async setStatus(status: string) {
         await this.routeWatch(status);
     }
 
-    // Fast-forward the clock until a poll returns the target status; retry past stale polls.
     @step()
     async advanceStatus(status: string) {
         await this.routeWatch(status);
@@ -141,7 +168,7 @@ export class TradingMockNew {
 
     private async routeWatch(status: string) {
         await this.page.route(this.endpoints.watch, async route => {
-            await route.fulfill({ json: { status, sendAddress: this.liveTrade?.sendAddress } });
+            await route.fulfill({ json: { status, sendAddress: this.liveTrade.sendAddress } });
         });
     }
 }
