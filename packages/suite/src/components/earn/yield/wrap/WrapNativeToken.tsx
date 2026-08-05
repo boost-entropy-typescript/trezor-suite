@@ -35,6 +35,8 @@ import { useYieldFiatInput } from '../hooks/useYieldFiatInput';
 type WrapNativeTokenProps = {
     account: Account;
     token: YieldFlowDisplayToken & { contractAddress: string };
+    /** Reported upward because the page header lives outside this subtree, in the layout. */
+    onFlowCompleteChange?: (isComplete: boolean) => void;
 };
 
 type BroadcastWrap = {
@@ -42,7 +44,7 @@ type BroadcastWrap = {
     amount: string;
 };
 
-export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
+export const WrapNativeToken = ({ account, token, onFlowCompleteChange }: WrapNativeTokenProps) => {
     const dispatch = useDispatch();
     const ensureDeviceReady = useWrappedNativeDeviceGuard();
     const {
@@ -60,6 +62,11 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
     });
 
     const pendingTxStatus = useWrappedNativePendingTx(account, broadcast?.txid ?? null, 'wrap');
+    const isFlowComplete = !!broadcast && pendingTxStatus === 'confirmed';
+
+    useEffect(() => {
+        onFlowCompleteChange?.(isFlowComplete);
+    }, [isFlowComplete, onFlowCompleteChange]);
 
     const { reportSubmit, reportMaxClick } = useWrappedNativeFlowAnalytics({
         flowType: 'wrap',
@@ -118,6 +125,13 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
     });
 
     const handleSubmit = methods.handleSubmit(async ({ amountInput: wrapAmount }) => {
+        // The form stays mounted while a wrap is pending so its transaction remains visible, which
+        // leaves this path reachable after the feature has been disabled remotely. Checked before
+        // reporting so a blocked submit is not counted as one.
+        if (isDisabled) {
+            return;
+        }
+
         reportSubmit();
 
         if (!(await ensureDeviceReady())) {
@@ -166,7 +180,7 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
     };
 
     const renderContent = () => {
-        if (broadcast && pendingTxStatus === 'confirmed') {
+        if (broadcast && isFlowComplete) {
             return (
                 <WrappedNativeFlowComplete
                     account={account}
@@ -216,7 +230,7 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
                         availableAmount={account.formattedBalance}
                         shouldShowReceivingRow={false}
                         isSubmitting={wrapMutation.isPending}
-                        isSubmitDisabled={!isAmountValid}
+                        isSubmitDisabled={!isAmountValid || isDisabled}
                         warning={renderWrapWarning()}
                         pendingTransaction={
                             broadcast

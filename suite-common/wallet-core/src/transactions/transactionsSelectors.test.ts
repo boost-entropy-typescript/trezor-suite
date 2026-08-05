@@ -7,7 +7,10 @@ import {
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
 
 import { type TransactionsRootState } from './transactionsReducerTypes';
-import { selectTransactionsWithMissingRates } from './transactionsSelectors';
+import {
+    selectEvmPrivatePendingHint,
+    selectTransactionsWithMissingRates,
+} from './transactionsSelectors';
 import { type AccountsRootState } from '../accounts/accountsReducer';
 import { type FiatRatesRootState } from '../fiat-rates/fiatRatesTypes';
 
@@ -70,5 +73,45 @@ describe('selectTransactionsWithMissingRates', () => {
         );
 
         expect(result).toHaveLength(0);
+    });
+});
+
+describe('selectEvmPrivatePendingHint', () => {
+    const HINT_ACCOUNT_KEY = 'account-hint' as AccountKey;
+
+    const HINT_DESCRIPTOR = '0x37567E60ab231b7D7f26B5b34FDD719098E4Ee1b';
+
+    // The hint declares the account's *own* pending txs, which is decided by authorship (an input
+    // belonging to the account), not by the display type — see isSignedByAccount.
+    const pendingSentTx = (nonce: number): WalletAccountTransaction =>
+        ({
+            txid: `pending-${nonce}`,
+            type: 'sent',
+            blockHeight: -1,
+            descriptor: HINT_DESCRIPTOR,
+            ethereumSpecific: { nonce },
+            details: { vin: [{ addresses: [HINT_DESCRIPTOR], isAccountOwned: true }] },
+        }) as unknown as WalletAccountTransaction;
+
+    const getHintState = (
+        transactions: WalletAccountTransaction[],
+    ): TransactionsRootState & AccountsRootState =>
+        ({
+            wallet: {
+                transactions: { transactions: { [HINT_ACCOUNT_KEY]: transactions } },
+            },
+        }) as unknown as TransactionsRootState & AccountsRootState;
+
+    it('returns the sorted nonces and txids of all local pending sent txs', () => {
+        const state = getHintState([pendingSentTx(7), pendingSentTx(6)]);
+        expect(selectEvmPrivatePendingHint(state, HINT_ACCOUNT_KEY)).toEqual({
+            nonces: [6, 7],
+            txids: ['pending-6', 'pending-7'],
+        });
+    });
+
+    it('returns undefined when the account has no transactions', () => {
+        const state = getHintState([pendingSentTx(7)]);
+        expect(selectEvmPrivatePendingHint(state, 'missing-account' as AccountKey)).toBeUndefined();
     });
 });

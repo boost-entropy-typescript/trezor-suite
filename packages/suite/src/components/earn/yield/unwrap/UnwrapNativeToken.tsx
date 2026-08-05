@@ -37,6 +37,8 @@ type UnwrapNativeTokenProps = {
     tokenDecimals: number;
     tokenBalance: string;
     tokenContractAddress: string;
+    /** Reported upward because the page header lives outside this subtree, in the layout. */
+    onFlowCompleteChange?: (isComplete: boolean) => void;
 };
 
 type BroadcastUnwrap = {
@@ -50,6 +52,7 @@ export const UnwrapNativeToken = ({
     tokenDecimals,
     tokenBalance,
     tokenContractAddress,
+    onFlowCompleteChange,
 }: UnwrapNativeTokenProps) => {
     const dispatch = useDispatch();
     const ensureDeviceReady = useWrappedNativeDeviceGuard();
@@ -74,6 +77,11 @@ export const UnwrapNativeToken = ({
     });
 
     const pendingTxStatus = useWrappedNativePendingTx(account, broadcast?.txid ?? null, 'unwrap');
+    const isFlowComplete = !!broadcast && pendingTxStatus === 'confirmed';
+
+    useEffect(() => {
+        onFlowCompleteChange?.(isFlowComplete);
+    }, [isFlowComplete, onFlowCompleteChange]);
 
     const { reportSubmit, reportMaxClick } = useWrappedNativeFlowAnalytics({
         flowType: 'unwrap',
@@ -138,6 +146,13 @@ export const UnwrapNativeToken = ({
     });
 
     const handleSubmit = methods.handleSubmit(async ({ amountInput: unwrapAmount }) => {
+        // The form stays mounted while an unwrap is pending so its transaction remains visible,
+        // which leaves this path reachable after the feature has been disabled remotely. Checked
+        // before reporting so a blocked submit is not counted as one.
+        if (isDisabled) {
+            return;
+        }
+
         reportSubmit();
 
         if (!(await ensureDeviceReady())) {
@@ -167,7 +182,7 @@ export const UnwrapNativeToken = ({
     };
 
     const renderContent = () => {
-        if (broadcast && pendingTxStatus === 'confirmed') {
+        if (broadcast && isFlowComplete) {
             return (
                 <WrappedNativeFlowComplete
                     account={account}
@@ -217,7 +232,7 @@ export const UnwrapNativeToken = ({
                         tokenBalance={tokenBalance}
                         approxFiat={{ symbol: account.symbol, tokenContractAddress }}
                         isSubmitting={unwrapMutation.isPending}
-                        isSubmitDisabled={!isAmountValid}
+                        isSubmitDisabled={!isAmountValid || isDisabled}
                         warning={
                             isAmountTooHigh ? (
                                 <YieldActionStepWarning isInsufficientFunds />

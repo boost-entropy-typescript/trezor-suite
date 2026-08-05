@@ -9,7 +9,6 @@ import { FirmwareUpgradeNeededModal } from '@suite/firmware-upgrade';
 import { selectIsCopyAddressModalShown, selectIsUnhideTokenModalShown } from '@suite/flags';
 import { Translation, useTranslation } from '@suite/intl';
 import { openModal } from '@suite/modal';
-import { showAddressThunk } from '@suite/receive';
 import { goto } from '@suite/router';
 import { events as sharedEvents } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
@@ -110,7 +109,7 @@ const TokenRowBasicActions = ({
     const shouldShowCopyAddressModal = useSelector(selectIsCopyAddressModalShown);
     const shouldShowUnhideTokenModal = useSelector(selectIsUnhideTokenModalShown);
 
-    const { address: unusedAddress, path } = getUnusedAddressFromAccount(account);
+    const { address: unusedAddress } = getUnusedAddressFromAccount(account);
 
     const { coins } = useSelector(selectTradingInfo);
     const isDeviceLocked = isLocked(true);
@@ -168,6 +167,10 @@ const TokenRowBasicActions = ({
         dispatch(goto(payload));
     };
 
+    // This table renders on both the Tokens and the DeFi tab, so the reported origin has to follow
+    // the tab it was rendered for. Unwrap in particular is offered on the Tokens tab.
+    const analyticsFrom = type === 'defi' ? 'account-defi-tokens' : 'account-tokens';
+
     const navigateToYieldDeposit = () => {
         if (!availableVault || !availableVaultAddress) return;
 
@@ -175,7 +178,7 @@ const TokenRowBasicActions = ({
             type: sharedEvents.yieldNavigateEvent.name,
             payload: {
                 action: 'continue',
-                from: 'account-defi-tokens',
+                from: analyticsFrom,
                 to: 'deposit-form',
                 networkSymbol: account.symbol,
                 vaultId: availableVault.id,
@@ -200,7 +203,7 @@ const TokenRowBasicActions = ({
             type: sharedEvents.yieldNavigateEvent.name,
             payload: {
                 action: 'continue',
-                from: 'account-defi-tokens',
+                from: analyticsFrom,
                 to: 'withdraw-form',
                 networkSymbol: account.symbol,
                 vaultId: availableVault.id,
@@ -280,11 +283,7 @@ const TokenRowBasicActions = ({
     };
 
     const onReceiveButtonClick = () => {
-        if (network.networkType === 'cardano') {
-            goToWithAnalytics({ routeName: 'wallet-receive', preserveParams: true });
-        } else {
-            dispatch(showAddressThunk({ path, address: unusedAddress }));
-        }
+        goToWithAnalytics({ routeName: 'wallet-receive', preserveParams: true });
     };
 
     const onShowHideButtonClick = () => {
@@ -325,7 +324,7 @@ const TokenRowBasicActions = ({
             type: sharedEvents.yieldNavigateEvent.name,
             payload: {
                 action: 'continue',
-                from: 'account-defi-tokens',
+                from: analyticsFrom,
                 to: 'unwrap-form',
                 networkSymbol: account.symbol,
             },
@@ -480,14 +479,14 @@ const TokenRowBasicActions = ({
                     {
                         label: <Translation id="TR_EARN_YIELD_DEPOSIT" />,
                         icon: PlusIcon,
-                        onClick: () => {},
+                        onClick: navigateToYieldDeposit,
                         isDisabled: type === 'defi' ? isDepositButtonDisabled : true,
                         isHidden: type === 'defi' ? !isBelowTablet : !isErc4626(token),
                     },
                     {
                         label: <Translation id="TR_EARN_YIELD_WITHDRAW" />,
                         icon: MinusIcon,
-                        onClick: () => {},
+                        onClick: navigateToYieldWithdraw,
                         isDisabled: type === 'defi' ? isWithdrawButtonDisabled : true,
                         isHidden: type === 'defi' ? !isBelowTablet : !isErc4626(token),
                     },
