@@ -2743,7 +2743,7 @@ export const messages = defineMessages({
     },
     TR_NETWORK_RESERVE_DESCRIPTION: {
         defaultMessage:
-            'Reserve a small amount of the native token on {supportedNetworks} to cover any extra network fees when you send, swap, or sell your assets.',
+            'Reserve a small amount of the native token to cover any extra network fees when you send, swap, or sell your assets.',
         id: 'TR_NETWORK_RESERVE_DESCRIPTION',
     },
     TR_SETTINGS_ADVANCED: {
@@ -9841,18 +9841,6 @@ export const messages = defineMessages({
         id: 'TR_DASHBOARD_REFERRAL_BUTTON',
         defaultMessage: 'Earn $20 per referral',
     },
-    TR_PROMO_BANNER_DASHBOARD_TEX_TITLE: {
-        id: 'TR_PROMO_BANNER_DASHBOARD_TEX_TITLE',
-        defaultMessage: '<rest>Trezor Expert</rest> <underline>Consultation</underline>',
-    },
-    TR_PROMO_BANNER_DASHBOARD_TEX_DESCRIPTION: {
-        id: 'TR_PROMO_BANNER_DASHBOARD_TEX_DESCRIPTION',
-        defaultMessage: 'Unlock the full potential of your hardware wallet.',
-    },
-    TR_PROMO_BANNER_DASHBOARD_TEX_BUTTON: {
-        id: 'TR_PROMO_BANNER_DASHBOARD_TEX_BUTTON',
-        defaultMessage: 'Learn more',
-    },
     TR_PROMO_BANNER_DASHBOARD_TS7_TITLE: {
         id: 'TR_PROMO_BANNER_DASHBOARD_TS7_TITLE',
         defaultMessage: 'Introducing Trezor Safe 7',
@@ -9864,6 +9852,30 @@ export const messages = defineMessages({
     TR_PROMO_BANNER_DASHBOARD_TS7_BUTTON: {
         id: 'TR_PROMO_BANNER_DASHBOARD_TS7_BUTTON',
         defaultMessage: 'Learn more',
+    },
+    TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_TITLE: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_TITLE',
+        defaultMessage: 'A new way to earn with ETH',
+    },
+    TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_DESCRIPTION: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_DESCRIPTION',
+        defaultMessage: 'The new ETH vault is now available in DeFi Yield.',
+    },
+    TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_BUTTON: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_ETH_VAULT_BUTTON',
+        defaultMessage: 'Explore vault',
+    },
+    TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_TITLE: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_TITLE',
+        defaultMessage: 'Put your assets to work securely',
+    },
+    TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_DESCRIPTION: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_DESCRIPTION',
+        defaultMessage: 'Earn DeFi yield on ETH, USDC and USDT with Trezor-grade security.',
+    },
+    TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_BUTTON: {
+        id: 'TR_PROMO_BANNER_DASHBOARD_DEFI_YIELD_BUTTON',
+        defaultMessage: 'Get started',
     },
     TR_PROMO_BANNER_DASHBOARD_STABLECOIN_YIELD_TITLE: {
         id: 'TR_PROMO_BANNER_DASHBOARD_STABLECOIN_YIELD_TITLE',
@@ -11456,11 +11468,11 @@ export const messages = defineMessages({
     },
     TR_TX_WRAP: {
         id: 'TR_TX_WRAP',
-        defaultMessage: 'Wrap {nativeSymbol} into {wrappedAmount}',
+        defaultMessage: 'Wrap {nativeAmount} into {wrappedAmount}',
     },
     TR_TX_UNWRAP: {
         id: 'TR_TX_UNWRAP',
-        defaultMessage: 'Unwrap {wrappedAmount} to {nativeSymbol}',
+        defaultMessage: 'Unwrap {wrappedAmount} into {nativeAmount}',
     },
     TR_WRAP_NATIVE_TOKEN: {
         id: 'TR_WRAP_NATIVE_TOKEN',
@@ -12541,7 +12553,7 @@ export const messages = defineMessages({
     },
     TR_FW_UPDATE_REQUIRED_MODAL_DESCRIPTION: {
         id: 'TR_FW_UPDATE_REQUIRED_MODAL_DESCRIPTION',
-        defaultMessage: 'Update firmware on the device {name} to use {featureName}.',
+        defaultMessage: 'Update firmware on the device {name} to continue.',
     },
     TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE: {
         id: 'TR_TURN_ON_SECURE_SYNC_FW_UPDATE_MODAL_UPGRADE',

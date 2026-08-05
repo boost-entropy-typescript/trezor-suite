@@ -1,4 +1,5 @@
 import { openDeferredModal } from '@suite/modal';
+import { events } from '@suite-common/analytics';
 import { type StablecoinYieldTxSimulationParams } from '@suite-common/earn-stablecoin/src/tx-simulation';
 import { createThunk } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
@@ -6,11 +7,16 @@ import { getNetwork, getNetworkDisplaySymbol } from '@suite-common/wallet-config
 import {
     type YieldFlowDisplayToken,
     composeYieldWrapTransactionThunk,
+    setYieldError,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { type TokenInfo } from '@trezor/connect';
 
-import { sendYieldTransaction } from './stablecoin-yield/signingHelpers';
+import {
+    getYieldErrorTranslationKey,
+    getYieldSubmitErrorAnalyticsMessage,
+    sendYieldTransaction,
+} from './stablecoin-yield/signingHelpers';
 import { addToken } from './tokenActions';
 
 const WRAP_NATIVE_TOKEN_PREFIX = '@wallet/wrap-native-token';
@@ -29,20 +35,43 @@ export const submitWrapNativeTokenThunk = createThunk(
     `${WRAP_NATIVE_TOKEN_PREFIX}/submit`,
     async (
         { account, token, wrapAmount, yieldFlow }: WrapNativeTokenPayload,
-        { dispatch, getState },
+        { dispatch, getState, extra },
     ) => {
+        // In-flow wraps are already tracked as yield/deposit type:'wrap', so reporting here too
+        // would double-count them.
+        const reportError = (errorMessage: string) => {
+            if (yieldFlow) return;
+
+            extra.services.analytics.report({
+                type: events.yieldWrapEvent.name,
+                payload: {
+                    type: 'error',
+                    action: 'continue',
+                    networkSymbol: account.symbol,
+                    errorMessage,
+                },
+            });
+        };
+
         try {
             const result = await dispatch(
                 composeYieldWrapTransactionThunk({ account, token, wrapAmount }),
             ).unwrap();
 
             if (result.type === 'error') {
+                reportError(result.reason);
                 dispatch(
                     notificationsActions.addToast({
                         type: 'sign-tx-error',
                         error: `Failed to compose wrap transaction (${result.reason}).`,
                     }),
                 );
+
+                // A wrap started from the deposit flow needs the failure on the step itself; the
+                // toast alone leaves the flow looking idle.
+                if (yieldFlow) {
+                    setYieldError({ dispatch, ...yieldFlow });
+                }
 
                 return undefined;
             }
@@ -57,6 +86,17 @@ export const submitWrapNativeTokenThunk = createThunk(
                     } satisfies StablecoinYieldTxSimulationParams,
                 }),
             );
+
+            if (!yieldFlow) {
+                extra.services.analytics.report({
+                    type: events.yieldWrapEvent.name,
+                    payload: {
+                        type: 'tx-simulation-modal',
+                        action: userAcceptedTxSimulation?.value === false ? 'cancel' : 'continue',
+                        networkSymbol: account.symbol,
+                    },
+                });
+            }
 
             if (userAcceptedTxSimulation?.value === false) {
                 return undefined;
@@ -84,7 +124,20 @@ export const submitWrapNativeTokenThunk = createThunk(
             userAcceptedTxSimulation?.resolve();
 
             if (!sendResult) {
+                reportError('submit-failed');
+
                 return undefined;
+            }
+
+            if (!yieldFlow) {
+                extra.services.analytics.report({
+                    type: events.yieldWrapEvent.name,
+                    payload: {
+                        type: 'sent',
+                        action: 'continue',
+                        networkSymbol: account.symbol,
+                    },
+                });
             }
 
             // Make sure re-wrapping doesn't create a duplicate
@@ -111,6 +164,7 @@ export const submitWrapNativeTokenThunk = createThunk(
             dispatch(
                 notificationsActions.addToast({
                     type: 'tx-wrap',
+                    isYieldFlowStep: !!yieldFlow,
                     descriptor: account.descriptor,
                     symbol: account.symbol,
                     txid: sendResult.txid,
@@ -135,12 +189,23 @@ export const submitWrapNativeTokenThunk = createThunk(
             return sendResult;
         } catch (error) {
             console.error(error);
+            reportError(getYieldSubmitErrorAnalyticsMessage(error));
             dispatch(
                 notificationsActions.addToast({
                     type: 'sign-tx-error',
                     error: error instanceof Error ? error.message : String(error),
                 }),
             );
+            // Same reasoning as the compose failure above. A push failure in particular means the
+            // transaction was already signed, which is worth saying rather than leaving the step
+            // looking idle.
+            if (yieldFlow) {
+                setYieldError({
+                    dispatch,
+                    ...yieldFlow,
+                    error: getYieldErrorTranslationKey(error),
+                });
+            }
 
             return undefined;
         }

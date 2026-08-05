@@ -11,7 +11,7 @@ import { WETH_WRAP_GAS_RESERVE } from '@suite-common/wallet-constants';
 import {
     type YieldFlowDisplayToken,
     type YieldFlowFormValues,
-    getWrappableNativeBalance,
+    getMaxWrapAmount,
     shouldRecommendWrapReserve,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
@@ -28,6 +28,7 @@ import { YieldDisabledBanner } from '../common/YieldDisabledBanner';
 import { YieldFlowTransferRow } from '../common/YieldFlowTransferRow';
 import { YieldWrapStep } from '../common/YieldWrapStep';
 import { useWrappedNativeDeviceGuard } from '../common/useWrappedNativeDeviceGuard';
+import { useWrappedNativeFlowAnalytics } from '../common/useWrappedNativeFlowAnalytics';
 import { useWrappedNativePendingTx } from '../common/useWrappedNativePendingTx';
 import { useYieldFiatInput } from '../hooks/useYieldFiatInput';
 
@@ -60,6 +61,13 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
 
     const pendingTxStatus = useWrappedNativePendingTx(account, broadcast?.txid ?? null, 'wrap');
 
+    const { reportSubmit, reportMaxClick } = useWrappedNativeFlowAnalytics({
+        flowType: 'wrap',
+        status: pendingTxStatus,
+        txid: broadcast?.txid ?? null,
+        networkSymbol: account.symbol,
+    });
+
     const nativeSymbol = getNetworkDisplaySymbol(account.symbol);
     const nativeToken: YieldFlowDisplayToken = {
         networkSymbol: account.symbol,
@@ -67,9 +75,10 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
         decimals: token.decimals,
     };
 
-    // Max leaves the gas reserve aside, but the field shows the full balance and the user may wrap
-    // up to it; eating into the reserve only triggers a non-blocking recommendation.
-    const maxWrapAmount = getWrappableNativeBalance(account.formattedBalance);
+    // Max leaves the gas reserve aside while the balance covers it, otherwise it fills the whole
+    // balance. The field shows the full balance and the user may wrap up to it; eating into the
+    // reserve only triggers a non-blocking recommendation.
+    const maxWrapAmount = getMaxWrapAmount(account.formattedBalance);
 
     const { fiatToggle, setMaxAmount } = useYieldFiatInput({
         methods,
@@ -109,12 +118,20 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
     });
 
     const handleSubmit = methods.handleSubmit(async ({ amountInput: wrapAmount }) => {
+        reportSubmit();
+
         if (!(await ensureDeviceReady())) {
             return;
         }
 
         wrapMutation.mutate(wrapAmount);
     });
+
+    const handleMaxClick = () => {
+        reportMaxClick();
+
+        setMaxAmount(maxWrapAmount);
+    };
 
     const openTxDetail = (txid: string) => {
         dispatch(
@@ -153,6 +170,7 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
             return (
                 <WrappedNativeFlowComplete
                     account={account}
+                    flow="wrap"
                     heading={<Translation id="TR_WRAP_COMPLETE_HEADING" />}
                     description={
                         <Translation
@@ -206,7 +224,7 @@ export const WrapNativeToken = ({ account, token }: WrapNativeTokenProps) => {
                                 : undefined
                         }
                         fiatToggle={fiatToggle}
-                        onMaxClick={() => setMaxAmount(maxWrapAmount)}
+                        onMaxClick={handleMaxClick}
                         onSubmit={handleSubmit}
                         onPendingTxClick={openTxDetail}
                     />

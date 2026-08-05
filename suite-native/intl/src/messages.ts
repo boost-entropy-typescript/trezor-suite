@@ -971,6 +971,8 @@ export const messages = {
             alert: {
                 longCardanoAddress:
                     "This Cardano (ADA) address is too long to fit on your Trezor's screen. Scroll on both screens to view and confirm it.",
+                sharedAssetsAndTokens:
+                    'The receive address is the same for all assets and tokens within this account.',
                 token: 'Your receive address is your {networkName} address',
                 success: 'The receive address has been confirmed on your Trezor.',
             },
@@ -1521,7 +1523,7 @@ export const messages = {
             networkReserve: {
                 title: 'Network reserve',
                 subtitle:
-                    'Reserve a small amount of the native token on {supportedNetworks} to cover any extra network fees when you send, swap, or sell your assets.',
+                    'Reserve a small amount of the native token to cover any extra network fees when you send, swap, or sell your assets.',
             },
             addressDisplay: {
                 title: 'Spaced address formatting',

@@ -18,7 +18,7 @@ import {
     type YieldFlowToken,
     type YieldPendingTransactionState,
     type YieldPositionFlowType,
-    getWrappableNativeBalance,
+    getMaxWrapAmount,
     handleYieldApproveCancelThunk,
     handleYieldApproveSuccessTxidThunk,
     initYieldAllowanceThunk,
@@ -52,6 +52,7 @@ import {
     getYieldModifyAmountInput,
     getYieldUnwrapDefaultAmount,
     isAmountGreaterThan,
+    shouldInitializeYieldAllowance,
 } from '../yieldFlowUtils';
 
 type UseYieldFlowProps = {
@@ -188,14 +189,16 @@ export const useYieldFlow = ({
         symbol: rateToken?.symbol,
         tokenAddress: rateToken?.tokenAddress,
         decimals: token?.decimals ?? getNetwork(account.symbol).decimals,
+        vaultId: vault.id,
     });
 
     const getMaxAmount = () => {
         if (flowType === 'deposit') {
             if (session.step === 'wrap') {
-                // Max leaves the gas reserve aside; the field still shows the full balance and the
-                // user may wrap up to it (see `amountTooHighThreshold`), with a recommendation.
-                return getWrappableNativeBalance(account.formattedBalance);
+                // Max leaves the gas reserve aside while the balance covers it, otherwise it fills
+                // the whole balance. Either way the field shows the full balance and the user may
+                // wrap up to it (see `amountTooHighThreshold`), with a recommendation.
+                return getMaxWrapAmount(account.formattedBalance);
             }
 
             return token?.balance ?? '';
@@ -277,6 +280,9 @@ export const useYieldFlow = ({
                     token: currentToken,
                     receiptToken: currentReceiptToken,
                 },
+                // Only the approve step may auto-advance on a sufficient allowance; from the
+                // action step this would undo a "modify approval" click made mid-read.
+                shouldSkipApprovalStep: sessionRef.current.step === 'approve',
             }),
         );
 
@@ -298,15 +304,20 @@ export const useYieldFlow = ({
                     initAllowancePromiseRef.current = null;
                 }
             });
-    }, [allowanceFlowDataRef, analytics, dispatch, flowKey, flowType]);
+    }, [allowanceFlowDataRef, analytics, dispatch, flowKey, flowType, sessionRef]);
 
     useEffect(() => {
-        const canInitializeAllowance =
-            !isWrappedNativeVault || (session.isWrappedNativeVault && session.step === 'approve');
-
-        if (allowanceStatus !== 'idle' || !canInitializeAllowance) {
+        if (
+            !shouldInitializeYieldAllowance({
+                isWrappedNativeVault,
+                hasWrappedNativeSession: session.isWrappedNativeVault,
+                step: session.step,
+                allowanceStatus,
+            })
+        ) {
             return;
         }
+
         runInitAllowance();
     }, [
         allowanceStatus,
@@ -825,9 +836,9 @@ export const useYieldFlow = ({
         !liveAmount || !isAmountGreaterThan({ amount: liveAmount, threshold: '0' });
     const allowanceAmount = session.approval.allowanceAmount ?? '0';
     const canRevokeAllowance = isAmountGreaterThan({ amount: allowanceAmount, threshold: '0' });
-    // On the wrap step the hard cap is the full native balance: `maxAmount` only holds the gas
-    // reserve aside for the Max button, and manually eating into it is a non-blocking
-    // recommendation rather than an "insufficient funds" error.
+    // On the wrap step the hard cap is the full native balance: `maxAmount` holds the gas reserve
+    // aside for the Max button only while the balance covers it, and manually eating into the
+    // reserve is a non-blocking recommendation rather than an "insufficient funds" error.
     const amountTooHighThreshold =
         flowType === 'deposit' && session.step === 'wrap' ? account.formattedBalance : maxAmount;
     const isAmountTooHigh = isAmountGreaterThan({
