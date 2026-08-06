@@ -112,6 +112,10 @@ export const messages = {
             quotaManagerCommunicationFailed: 'Quota Manager communication failed.',
         },
     },
+    feedbackForm: {
+        title: 'How was your experience?',
+        description: 'Your feedback helps us improve-tell us what you think.',
+    },
     moduleHome: {
         graphIgnoredNetworks:
             "{networksString} and all related tokens are included in your portfolio balance, but aren't currently supported in the graph.",
@@ -1030,6 +1034,7 @@ export const messages = {
         addressVerificationScreen: {
             pastedTitle: 'Compare the pasted address against your Trezor',
             sharedTitle: 'Compare the shared address against your Trezor',
+            verifiedTitle: 'Check the address on your Trezor',
         },
         bottomSheets: {
             addressMismatch: {
@@ -3171,6 +3176,7 @@ export const messages = {
             deposited: 'Deposited',
             withdrawalAmount: 'Withdrawal amount',
             backToOverview: 'Back to overview',
+            sendAndBackToOverview: 'Send & back to overview',
         },
         yieldReview: {
             outputs: {
@@ -4342,6 +4348,15 @@ export const messages = {
             title: 'Add your networks',
             subtitle: 'You can buy or receive assets on any network you enable.',
             banner: 'Change your networks anytime in Settings.',
+        },
+    },
+    moduleActivityCenter: {
+        title: 'Activity',
+        screenHeader: 'Activity Center',
+        tabs: {
+            notifications: 'Notifications',
+            system: 'System',
+            releaseNotes: 'Release notes',
         },
     },
     biometricsButton: 'Unlock with biometrics',

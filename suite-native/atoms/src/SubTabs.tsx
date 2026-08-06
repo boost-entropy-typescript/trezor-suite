@@ -16,6 +16,7 @@ export type SubTabItem<TValue> = {
     value: TValue;
     icon?: IconName;
     testID?: string;
+    accessory?: ReactNode;
 };
 
 export type SubTabsProps<TValue> = {
@@ -51,7 +52,6 @@ const iconSizeBySize = {
 
 const tabsStyle = prepareNativeStyle(({ spacings }) => ({
     gap: spacings.sp12,
-    paddingHorizontal: spacings.sp16,
 }));
 
 const tabStyle = prepareNativeStyle<SubTabStyleProps>((utils, { isActive, size }) => ({
@@ -117,6 +117,7 @@ const SubTab = ({ isActive, item, onPress, size }: SubTabProps) => {
             >
                 {item.label}
             </Text>
+            {item.accessory}
         </PressableOpacity>
     );
 };

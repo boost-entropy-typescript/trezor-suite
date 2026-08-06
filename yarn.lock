@@ -10633,6 +10633,7 @@ __metadata:
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
+    "@suite-common/wallet-config": "workspace:^"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
@@ -10748,6 +10749,7 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.12.0"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
+    "@suite-common/wallet-config": "workspace:^"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
   languageName: unknown
@@ -11152,6 +11154,7 @@ __metadata:
   resolution: "@suite-common/transaction-search@workspace:suite-common/transaction-search"
   dependencies:
     "@suite-common/test-utils": "workspace:*"
+    "@suite-common/wallet-config": "workspace:^"
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@trezor/blockchain-link": "workspace:*"
@@ -11417,9 +11420,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/activity-center@workspace:suite-native/activity-center"
   dependencies:
+    "@react-navigation/native": "npm:7.1.28"
+    "@react-navigation/native-stack": "npm:7.12.0"
     "@suite-native/atoms": "workspace:*"
     "@suite-native/icons": "workspace:*"
-    "@suite-native/toasts": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     react: "npm:19.2.3"
     react-native: "npm:0.85.3"
@@ -11611,6 +11616,7 @@ __metadata:
     "@suite-native/message-system": "workspace:*"
     "@suite-native/module-accounts-import": "workspace:*"
     "@suite-native/module-accounts-management": "workspace:*"
+    "@suite-native/module-activity-center": "workspace:*"
     "@suite-native/module-add-accounts": "workspace:*"
     "@suite-native/module-authenticity-checks": "workspace:*"
     "@suite-native/module-authorize-device": "workspace:*"
@@ -12073,6 +12079,7 @@ __metadata:
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
+    "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:^"
     "@suite-native/activity-center": "workspace:*"
@@ -12660,6 +12667,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-native/module-activity-center@workspace:*, @suite-native/module-activity-center@workspace:suite-native/module-activity-center":
+  version: 0.0.0-use.local
+  resolution: "@suite-native/module-activity-center@workspace:suite-native/module-activity-center"
+  dependencies:
+    "@react-navigation/native-stack": "npm:7.12.0"
+    "@suite-common/toast-notifications": "workspace:*"
+    "@suite-native/activity-center": "workspace:*"
+    "@suite-native/atoms": "workspace:*"
+    "@suite-native/intl": "workspace:*"
+    "@suite-native/navigation": "workspace:*"
+    react: "npm:19.2.3"
+    react-redux: "npm:9.3.0"
+  languageName: unknown
+  linkType: soft
+
 "@suite-native/module-add-accounts@workspace:*, @suite-native/module-add-accounts@workspace:suite-native/module-add-accounts":
   version: 0.0.0-use.local
   resolution: "@suite-native/module-add-accounts@workspace:suite-native/module-add-accounts"
@@ -13020,6 +13042,7 @@ __metadata:
     "@suite-common/earn-stablecoin": "workspace:*"
     "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/earn-staking-api": "workspace:*"
+    "@suite-common/feedback": "workspace:*"
     "@suite-common/formatters": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/mev": "workspace:*"
@@ -13044,6 +13067,7 @@ __metadata:
     "@suite-native/confirm-on-trezor": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
     "@suite-native/device-mutex": "workspace:*"
+    "@suite-native/feature-feedback": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/forms": "workspace:*"
     "@suite-native/helpers": "workspace:*"
@@ -13228,6 +13252,7 @@ __metadata:
     "@suite-native/atoms": "workspace:*"
     "@suite-native/clipboard": "workspace:*"
     "@suite-native/device": "workspace:*"
+    "@suite-native/device-authorization": "workspace:*"
     "@suite-native/device-mutex": "workspace:*"
     "@suite-native/formatters": "workspace:*"
     "@suite-native/icons": "workspace:*"
@@ -15440,6 +15465,7 @@ __metadata:
     "@suite-common/networks": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/transfer-uri": "workspace:*"
+    "@suite-common/wallet-config": "workspace:^"
     "@suite/analytics": "workspace:*"
     "@trezor/network-module-suite-common-types": "workspace:*"
   languageName: unknown

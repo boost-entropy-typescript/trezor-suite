@@ -2,6 +2,9 @@ import { Alert, Share } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
+import { useServices } from '@suite-common/dependency-injection';
+import { type AccountKey } from '@suite-common/wallet-types';
+import { events, selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { Button, HStack, VStack, useBottomSheetModal } from '@suite-native/atoms';
 import { useCopyToClipboard } from '@suite-native/clipboard';
 import { Translation, useTranslate } from '@suite-native/intl';
@@ -15,13 +18,19 @@ import {
 import { ReceiveAddressVerificationBottomSheet } from './ReceiveAddressVerificationBottomSheet';
 
 type ReceiveAddressActionsProps = {
+    accountKey: AccountKey;
     address: string;
-    onVerifyAddress: () => Promise<void>;
+    addressPath: string;
 };
 
 type NavigationProp = StackNavigationProps<ReceiveStackParamList, ReceiveStackRoutes>;
 
-export const ReceiveAddressActions = ({ address, onVerifyAddress }: ReceiveAddressActionsProps) => {
+export const ReceiveAddressActions = ({
+    accountKey,
+    address,
+    addressPath,
+}: ReceiveAddressActionsProps) => {
+    const { analytics } = useServices(selectNativeAnalyticsDep);
     const copyToClipboard = useCopyToClipboard();
     const navigation = useNavigation<NavigationProp>();
     const { translate } = useTranslate();
@@ -38,12 +47,17 @@ export const ReceiveAddressActions = ({ address, onVerifyAddress }: ReceiveAddre
 
     const handleCopyAddress = async () => {
         await copyToClipboard(address, translate('qrCode.addressCopied'));
+        analytics.report({ type: events.receiveCopyAddressEvent.name });
         openCopiedAddressBottomSheet();
     };
 
     const handleVerifyAddress = (source: ReceiveAddressVerificationSource) => {
-        navigation.navigate(ReceiveStackRoutes.ReceiveAddressVerification, { source });
-        void onVerifyAddress();
+        analytics.report({ type: events.receiveStartVerificationEvent.name });
+        navigation.navigate(ReceiveStackRoutes.ReceiveAddressVerification, {
+            accountKey,
+            addressPath,
+            source,
+        });
     };
 
     const handleVerifyCopiedAddress = () => {
@@ -66,6 +80,7 @@ export const ReceiveAddressActions = ({ address, onVerifyAddress }: ReceiveAddre
                 return;
             }
 
+            analytics.report({ type: events.receiveShareAddressEvent.name });
             openSharedAddressBottomSheet();
         } catch (error) {
             Alert.alert('Something went wrong.', error.message);
@@ -92,7 +107,9 @@ export const ReceiveAddressActions = ({ address, onVerifyAddress }: ReceiveAddre
                         iconLeft="trezorDevices"
                         intent="neutral"
                         priority="secondary"
-                        onPress={() => handleVerifyAddress(ReceiveAddressVerificationSource.Pasted)}
+                        onPress={() =>
+                            handleVerifyAddress(ReceiveAddressVerificationSource.Verified)
+                        }
                         flex={1}
                     >
                         <Translation id="moduleReceive.addressActions.verify" />
