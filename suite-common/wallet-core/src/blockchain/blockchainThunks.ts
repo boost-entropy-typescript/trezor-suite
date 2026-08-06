@@ -27,6 +27,7 @@ import TrezorConnect, {
     type BlockchainError,
     type BlockchainNotification,
 } from '@trezor/connect';
+import { asCoinSymbol } from '@trezor/connect-common';
 import type { TimerId } from '@trezor/type-utils';
 import { arrayDistinct, arrayToDictionary } from '@trezor/utils';
 
@@ -64,7 +65,7 @@ export const reconnectBlockchainThunk = createThunk(
     `${BLOCKCHAIN_MODULE_PREFIX}/reconnectBlockchainThunk`,
     (payload: { symbol: NetworkSymbol; identity?: string }) =>
         TrezorConnect.blockchainUnsubscribeFiatRates({
-            coin: payload.symbol,
+            coin: asCoinSymbol(payload.symbol),
             identity: payload.identity,
         }),
 );
@@ -73,7 +74,7 @@ const setBackendsToConnect = (backends: CustomBackend[]) =>
     Promise.all(
         backends.map(({ symbol, type, urls }) =>
             TrezorConnect.blockchainSetCustomBackend({
-                coin: symbol,
+                coin: asCoinSymbol(symbol),
                 blockchainLink: {
                     type,
                     url: urls,
@@ -140,7 +141,7 @@ export const subscribeBlockchainThunk = createThunk(
         const blocks = shouldSubscribeBlocks(symbol);
 
         if (onConnect && useIdentities) {
-            await TrezorConnect.blockchainSubscribe({ coin: symbol, blocks });
+            await TrezorConnect.blockchainSubscribe({ coin: asCoinSymbol(symbol), blocks });
         }
 
         // do NOT subscribe if there are no accounts
@@ -155,12 +156,12 @@ export const subscribeBlockchainThunk = createThunk(
             ? Object.entries(arrayToDictionary(accountsToSubscribe, getAccountIdentity, true)).map(
                   ([identity, accounts]) => ({
                       accounts,
-                      coin: symbol,
+                      coin: asCoinSymbol(symbol),
                       identity,
                       blocks: false,
                   }),
               )
-            : [{ accounts: accountsToSubscribe, coin: symbol, blocks }];
+            : [{ accounts: accountsToSubscribe, coin: asCoinSymbol(symbol), blocks }];
 
         return Promise.all(paramsArray.map(params => TrezorConnect.blockchainSubscribe(params)));
     },
@@ -210,7 +211,7 @@ export const unsubscribeBlockchainThunk = createThunk(
         return Promise.all(
             paramsArray.map(({ accounts, symbol, identity, blocks }) => {
                 const params = {
-                    coin: symbol,
+                    coin: asCoinSymbol(symbol),
                     identity,
                     blocks,
                 };
@@ -235,9 +236,9 @@ export const syncAccountsWithBlockchainThunk = createThunk(
         const accounts = selectAccounts(getState());
         const blockchain = selectBlockchainState(getState());
         const {
-            selectors: { selectIsWindowVisible },
+            services: { getIsWindowVisible },
         } = extra;
-        const isWindowVisible = selectIsWindowVisible(getState());
+        const isWindowVisible = getIsWindowVisible();
 
         // First clear, to cancel last planned sync
         tryClearTimeout(blockchain[symbol].syncTimeout);
@@ -366,8 +367,8 @@ export const onBlockchainNotificationThunk = createThunk(
         // with N accounts on the same network, hammering blockbook at ~10k connections.
         // Periodic background sync still runs on its own timer chain (seeded by
         // onBlockchainConnectThunk), so unrelated accounts stay up to date.
-        const { selectIsWindowVisible } = extra.selectors;
-        if (!selectIsWindowVisible(getState())) return;
+        const { getIsWindowVisible } = extra.services;
+        if (!getIsWindowVisible()) return;
 
         accounts.forEach(matchedAccount =>
             dispatch(fetchAndUpdateAccountThunk({ accountKey: matchedAccount.key })),

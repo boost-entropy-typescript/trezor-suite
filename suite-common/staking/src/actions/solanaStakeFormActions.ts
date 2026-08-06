@@ -12,11 +12,13 @@ import {
     networkAmountToSmallestUnit,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, { type FeeLevel } from '@trezor/connect';
+import { asCoinSymbol } from '@trezor/connect-common';
 import {
     MIN_SOL_AMOUNT_FOR_STAKING,
     MIN_SOL_BALANCE_FOR_STAKING,
     MIN_SOL_FOR_WITHDRAWALS,
     SOL_STAKING_OPERATION_FEE,
+    type SolanaNetworkSymbol,
 } from '@trezor/network-solana/constants';
 import solana from '@trezor/network-solana/runtime';
 import type {
@@ -24,7 +26,6 @@ import type {
     Fee,
     PrepareStakeSolTxResponse,
     SolanaTxMeta,
-    SupportedSolanaNetworkSymbols,
 } from '@trezor/network-solana/types';
 import { BigNumber } from '@trezor/utils';
 
@@ -111,7 +112,7 @@ const estimateSolanaStakeFee = async (
     const createsStakeAccount = txData.solanaTxMeta.rentLamports !== '0';
 
     const estimatedFee = await TrezorConnect.blockchainEstimateFee({
-        coin: symbol,
+        coin: asCoinSymbol(symbol),
         request: {
             specific: {
                 data: txData.txShim.serialize(),
@@ -130,7 +131,7 @@ const estimateSolanaStakeFee = async (
 
 type PrepareSolanaStakeTxDataParams = {
     from: string;
-    symbol: SupportedSolanaNetworkSymbols;
+    symbol: SolanaNetworkSymbol;
     amount: string;
     stakeType: StakeType;
     blockchainUrl: string;

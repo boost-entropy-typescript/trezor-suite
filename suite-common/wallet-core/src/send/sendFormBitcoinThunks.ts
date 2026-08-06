@@ -29,6 +29,7 @@ import TrezorConnect, {
 } from '@trezor/connect';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- temporary diagnostic
 import { __btcUnknownTxDebug__ } from '@trezor/connect/src/utils/pathUtils';
+import { asCoinSymbol } from '@trezor/connect-common';
 import { BigNumber, isArrayMember } from '@trezor/utils';
 
 import { SEND_MODULE_PREFIX } from './sendFormConstants';
@@ -118,7 +119,6 @@ export const composeBitcoinTransactionFeeLevelsThunk = createThunk<
             : account.addresses.change;
 
         const params: Parameters<typeof TrezorConnect.composeTransaction>[0] = {
-            // needs to be present in order to correct resolve of @trezor/connect params overload
             account: {
                 path: account.path,
                 addresses: {
@@ -132,7 +132,7 @@ export const composeBitcoinTransactionFeeLevelsThunk = createThunk<
             sequence,
             outputs: composeOutputs,
             sortingStrategy: formState.rbfParams !== undefined ? 'none' : DEFAULT_SORTING_STRATEGY,
-            coin: account.symbol,
+            coin: asCoinSymbol(account.symbol),
         };
 
         const response = await TrezorConnect.composeTransaction(params);
@@ -192,7 +192,6 @@ export const composeBitcoinTransactionFeeLevelsThunk = createThunk<
                 customLevels.length > 0
                     ? await TrezorConnect.composeTransaction({
                           ...params,
-                          account: params.account, // needs to be present in order to correct resolve type of @trezor/connect params overload
                           feeLevels: customLevels,
                       })
                     : ({ success: false } as const);
@@ -357,7 +356,7 @@ export const signBitcoinSendFormTransactionThunk = createThunk<
                 addresses: selectedAccount.addresses!,
                 transactions: refTxs,
             },
-            coin: selectedAccount.symbol,
+            coin: asCoinSymbol(selectedAccount.symbol),
             chunkify: addressDisplayType === AddressDisplayOptions.CHUNKED,
             ...signEnhancement,
             paymentRequests,

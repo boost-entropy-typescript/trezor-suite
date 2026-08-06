@@ -43,7 +43,8 @@ import {
     type SelectAccountCandidate,
     isUtxoNetwork,
 } from './connectPopupTypes';
-import { postCallHooks, preCallHooks } from './methodHooks';
+import { compatibilityHooks, postCallHooks, preCallHooks, validateCallHooks } from './methodHooks';
+import type { DistributiveOmit } from './methodHooks/types';
 import {
     deriveCardanoEnabledNetworks,
     mergePermissions,
@@ -52,8 +53,6 @@ import {
 } from './permissions';
 
 const CONNECT_POPUP_MODULE = '@common/connect-popup';
-
-type DistributiveOmit<T, K extends keyof T> = T extends T ? Omit<T, K> : never;
 
 type ConnectPopupCallThunkParams<M extends CallMethodKeys> = {
     method: M;
@@ -66,8 +65,10 @@ export const connectPopupCallThunkInner = createThunk<
     ConnectPopupCallThunkParams<CallMethodKeys>
 >(
     `${CONNECT_POPUP_MODULE}/callThunk`,
-    async ({ method, payload, source }, { dispatch, getState, extra }) => {
+    async ({ source, ...params }, { dispatch, getState, extra }) => {
         try {
+            const { method, payload } = compatibilityHooks(params);
+
             if (!connectCallableMethods.includes(method)) throw TypedError('Method_Unsupported');
 
             const methodInfo = await TrezorConnect.call({
@@ -115,6 +116,10 @@ export const connectPopupCallThunkInner = createThunk<
                     source,
                 }),
             );
+
+            // Reject a call this host cannot fulfil (e.g. selectAccount for a coin Suite can't render)
+            // before asking for permissions, so the user doesn't approve access only to hit an error.
+            validateCallHooks({ method, payload });
 
             // Check if permission remembered (permission, coin). Keyed on THIS call's required
             // permissions (not the declared superset) so a call is silent whenever its own needs are
@@ -253,7 +258,7 @@ export const connectPopupCallThunkInner = createThunk<
             extra.services.analytics.report({
                 type: events.connectPopupErrorEvent.name,
                 payload: {
-                    method,
+                    method: params.method,
                     origin: source.origin,
                     error: error?.code,
                     appName: source.manifest.appName,
