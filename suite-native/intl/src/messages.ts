@@ -112,10 +112,6 @@ export const messages = {
             quotaManagerCommunicationFailed: 'Quota Manager communication failed.',
         },
     },
-    feedbackForm: {
-        title: 'How was your experience?',
-        description: 'Your feedback helps us improve-tell us what you think.',
-    },
     moduleHome: {
         graphIgnoredNetworks:
             "{networksString} and all related tokens are included in your portfolio balance, but aren't currently supported in the graph.",
@@ -2038,7 +2034,6 @@ export const messages = {
                 defiYieldInfoText:
                     'This token represents your deposit and all rewards in DeFi Yield.',
                 vault: 'Vault',
-                apy: 'Annual Percentage Yield',
                 deposited: 'Deposited',
                 depositMore: 'Deposit more',
                 withdraw: 'Withdraw',
@@ -2049,7 +2044,6 @@ export const messages = {
                     secondaryButtonTitle: 'Not now',
                 },
                 apyBreakdown: {
-                    apyLabel: '{apy} APY',
                     autoCompounded: 'Automatically added and compounded.',
                     manualCompound:
                         'Claim manually, then swap to {tokenSymbol} and deposit to compound.',
@@ -2681,6 +2675,9 @@ export const messages = {
             subtitle: 'Get more {tokenSymbol} in this account to start earning yield.',
             getButton: 'Get more {tokenSymbol}',
         },
+        wrappedNativeToken: {
+            maxButton: 'Max',
+        },
         wrapNativeToken: {
             entryButton: 'Wrap',
             title: 'Wrap {nativeSymbol} to {wrappedSymbol}',
@@ -3008,7 +3005,7 @@ export const messages = {
                 },
                 third: {
                     title: 'Earn rewards as your assets grow in value',
-                    description: '~{apy}% APY',
+                    description: '~{apy}% Rate',
                 },
             },
             withdrawTimelineTitle: 'Withdraw',
@@ -3061,6 +3058,7 @@ export const messages = {
             approvalLimit: 'Approval limit',
             increaseApprovalLimit: 'Increase approval limit',
             revokeApproval: 'Revoke approval',
+            skipApproval: 'Skip',
             perDeposit: 'Per deposit',
             estimatedRewardsLabel: 'Estimated yearly rewards',
             approvalLimitSheet: {
@@ -3396,6 +3394,7 @@ export const messages = {
         fullBalance: 'Full balance',
         rewards: 'Rewards',
         rewardsPerEpoch: 'Next estimated reward',
+        rate: 'Rate',
         apy: 'Annual Percentage Yield',
         apr: 'Annual Percentage Return',
         apyAbbr: 'APY',
@@ -3431,6 +3430,7 @@ export const messages = {
         apyNotAvailable: 'APY not available',
         apyPercentage: '~{apy}% APY',
         aprPercentage: '~{apy}% APR',
+        ratePercentage: '~{apy}% Rate',
         notAvailableShort: 'N/A',
         messageSystem: {
             depositDisabled: 'Deposits currently disabled.',
@@ -4001,6 +4001,13 @@ export const messages = {
                 inputLabel: 'Slippage',
             },
         },
+    },
+    feedbackForm: {
+        title: 'How was your trading experience?',
+        description: 'Your feedback helps us improve – tell us what you think.',
+        submitButton: 'Send feedback',
+        successTitle: 'Thanks!',
+        successDescription: 'We value your feedback.',
     },
     firmware: {
         title: 'Firmware',

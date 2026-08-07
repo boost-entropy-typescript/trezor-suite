@@ -34,6 +34,9 @@
         },
         { "path": "../../suite-common/receive" },
         {
+            "path": "../../suite-common/redux-extra-dependencies"
+        },
+        {
             "path": "../../suite-common/redux-utils"
         },
         {
@@ -44,6 +47,9 @@
         },
         {
             "path": "../../suite-common/suite-sync-quota-manager"
+        },
+        {
+            "path": "../../suite-common/suite-sync-types"
         },
         { "path": "../../suite-common/thp" },
         {
@@ -85,6 +91,7 @@
         { "path": "../trading-state" },
         { "path": "../transaction-management" },
         { "path": "../../packages/connect" },
+        { "path": "../../packages/env-utils" },
         {
             "path": "../../packages/transport-common"
         },

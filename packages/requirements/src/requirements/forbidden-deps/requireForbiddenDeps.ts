@@ -2,10 +2,11 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { type PackageJson, readPackageJson } from '@trezor/node-utils';
 import { typedObjectKeys } from '@trezor/utils';
 
 import type { AllowedOnlyInRule, ForbiddenDepsConfig } from './forbiddenDepsTypes';
-import { getWorkspaceDirectoryMap, readPackageJson } from '../../workspaces';
+import { getWorkspaceDirectoryMap } from '../../workspaces';
 import type { Requirement } from '../Requirement';
 
 const FORBIDDEN_DEPS_CONFIG_FILE = 'forbiddenDeps.config.ts';
@@ -20,13 +21,6 @@ const DEPENDENCY_FIELDS = [
 ] as const;
 
 type DependencyField = (typeof DEPENDENCY_FIELDS)[number];
-
-type PackageJson = {
-    readonly dependencies?: Record<string, string>;
-    readonly devDependencies?: Record<string, string>;
-    readonly optionalDependencies?: Record<string, string>;
-    readonly peerDependencies?: Record<string, string>;
-};
 
 type DependencyOccurrence = {
     readonly field: DependencyField;

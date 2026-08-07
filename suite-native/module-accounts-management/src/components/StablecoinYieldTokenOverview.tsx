@@ -74,7 +74,7 @@ export const StablecoinYieldTokenOverview = ({
         });
     const apyValueText = apy && isApyAvailable(apy) ? `~${apy.toFixed(2)}%` : null;
 
-    const apyBreakdownAlert = useApyBreakdownAlert({ account, vault, apy });
+    const apyBreakdownAlert = useApyBreakdownAlert({ account, vault });
 
     const vaultContractAddress = vault ? getYieldVaultContractAddress(vault) : undefined;
     const depositMessageSystem = useMessageSystemYield('deposit', { vaultContractAddress });
@@ -241,7 +241,7 @@ export const StablecoinYieldTokenOverview = ({
                     >
                         <HStack justifyContent="space-between" alignItems="center">
                             <Text variant="body-sm" color="contentSecondary">
-                                <Translation id="moduleAccounts.accountDetail.stablecoinYield.apy" />
+                                <Translation id="earn.rate" />
                             </Text>
                             <Text variant="body-sm" color={apyColor} style={applyStyle(abbrStyle)}>
                                 {apyValue}
