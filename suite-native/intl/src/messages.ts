@@ -165,7 +165,7 @@ export const messages = {
             },
             onboardingFeedbackBanner: {
                 title: 'Help us improve',
-                subtitle: 'Share onboarding feedback, get a 50 USD e-shop voucher',
+                subtitle: 'Share onboarding feedback and get a 50 USD e-shop voucher',
                 button: 'Give feedback',
             },
         },
@@ -1069,8 +1069,8 @@ export const messages = {
             subtitle:
                 'Secure your crypto offline and unlock its full potential with Trezor hardware wallets.',
             bullets: {
-                security: 'Advanced open-source security',
-                app: 'Powerful crypto app for mobile & desktop',
+                security: '100% open-source code & design',
+                app: 'Secure crypto app for mobile & desktop',
                 setup: 'Easy to set up & simple to recover',
             },
             button: 'Get Trezor',
@@ -1355,9 +1355,9 @@ export const messages = {
                     hint: 'Format: {example}',
                 },
                 connectButton: 'Connect',
-                invalidFormat: "Server address format isn't valid.",
+                invalidFormat: 'Invalid server address format.',
                 unableToConnect: {
-                    clearnet: 'Unable to connect to the server. Check the address and connection.',
+                    clearnet: "Can't connect to the server. Check the address and connection.",
                     tor: 'Can’t connect to the server. Check the address and make sure Orbot is running.',
                 },
             },
@@ -2681,6 +2681,53 @@ export const messages = {
             subtitle: 'Get more {tokenSymbol} in this account to start earning yield.',
             getButton: 'Get more {tokenSymbol}',
         },
+        wrapNativeToken: {
+            entryButton: 'Wrap',
+            title: 'Wrap {nativeSymbol} to {wrappedSymbol}',
+            amountToWrap: 'Amount to wrap',
+            reserveRecommendation:
+                "It's recommended to leave {amount} {nativeSymbol} so you can pay for transaction fees.",
+            submitButton: 'Wrap',
+            closeButton: 'Close',
+            pendingTransactionTitle: 'Wrapping in progress',
+            review: {
+                title: 'Confirm wrap',
+                submitButton: 'Wrap now',
+            },
+            complete: {
+                title: 'Wrapping complete',
+                subtitle: '{nativeSymbol} was wrapped and {wrappedSymbol} is now in your account.',
+                failedTitle: 'Wrap transaction failed',
+                failedSubtitle:
+                    'The transaction was not confirmed. Check the account history and try again.',
+            },
+            errors: {
+                deviceNotConnected: 'Connect your Trezor to continue.',
+            },
+        },
+        unwrapNativeToken: {
+            entryButton: 'Unwrap',
+            title: 'Unwrap',
+            amountToUnwrap: 'Amount to unwrap',
+            submitButton: 'Unwrap',
+            closeButton: 'Close',
+            pendingTransactionTitle: 'Unwrapping in progress',
+            review: {
+                title: 'Confirm unwrap',
+                submitButton: 'Unwrap now',
+            },
+            complete: {
+                title: 'Unwrapping complete',
+                subtitle:
+                    '{wrappedSymbol} was unwrapped and {nativeSymbol} is now in your account.',
+                failedTitle: 'Unwrap transaction failed',
+                failedSubtitle:
+                    'The transaction was not confirmed. Check the account history and try again.',
+            },
+            errors: {
+                deviceNotConnected: 'Connect your Trezor to continue.',
+            },
+        },
         earnConsentsScreen: {
             title: 'Before you continue',
             entryPeriodCard: {
@@ -2784,6 +2831,8 @@ export const messages = {
                 tooManyDecimals: 'Too many decimal places.',
             },
             estimatedRewardsPlaceholder: 'Enter amount to see rewards',
+            withdrawalFeesBanner:
+                "We've left {amount} {displaySymbol} in your account so you can pay withdrawal fees.",
         },
         unstakeFormScreen: {
             validation: {
@@ -3124,7 +3173,7 @@ export const messages = {
                 reviewMismatch: {
                     title: "Claim couldn't be verified",
                     description:
-                        "The rewards to claim didn't match the transaction details, so nothing was signed and no funds moved. Tap Continue to try again with refreshed data. If the issue persists, contact Trezor Support.",
+                        "Reward details didn't match the transaction, so nothing was signed and no funds were moved. Tap Continue to retry with updated info. If the issue persists, contact Trezor Support.",
                 },
             },
         },
@@ -3185,6 +3234,8 @@ export const messages = {
                 depositDescription: 'Review details to deposit to vault.',
                 depositTitle: 'Deposit',
                 depositTo: 'Deposit to',
+                intentTitle: 'Intent',
+                providerTitle: 'Provider',
                 redeemAmount: 'Redeem amount',
                 redeemDescription: 'Review details to redeem from vault.',
                 redeemFrom: 'Redeem from',
@@ -3194,9 +3245,51 @@ export const messages = {
                 withdrawDescription: 'Review details to withdraw from vault.',
                 withdrawFrom: 'Withdraw from',
                 withdrawTitle: 'Withdraw',
+                wrapAmount: 'Wrap amount',
+                wrapDescription: 'Review details to wrap the native coin.',
+                wrapIntent: 'Wrap {nativeSymbol} to {tokenSymbol}',
+                wrapTitle: 'Wrap',
+                wrapTo: 'Wrap via',
+                unwrapAmount: 'Unwrap amount',
+                unwrapDescription: 'Review details to unwrap back to the native coin.',
+                unwrapFrom: 'Unwrap via',
+                unwrapIntent: 'Unwrap {tokenSymbol} to {nativeSymbol}',
+                unwrapTitle: 'Unwrap',
             },
             alerts: {
                 primaryButton: 'Go to homepage',
+                wrap: {
+                    signTransactionFailed: {
+                        title: 'Transaction was not signed',
+                        description: 'Review the transaction and sign it again.',
+                    },
+                    pushTransactionFailed: {
+                        title: 'Wrap was not submitted',
+                        description:
+                            'The wrap transaction was signed but could not be submitted to the network.',
+                    },
+                    pendingTransactionConflict: {
+                        title: 'Wrap was not submitted',
+                        description:
+                            'A transaction is already pending for this account. Wait for it to finish before trying again.',
+                    },
+                },
+                unwrap: {
+                    signTransactionFailed: {
+                        title: 'Transaction was not signed',
+                        description: 'Review the transaction and sign it again.',
+                    },
+                    pushTransactionFailed: {
+                        title: 'Unwrap was not submitted',
+                        description:
+                            'The unwrap transaction was signed but could not be submitted to the network.',
+                    },
+                    pendingTransactionConflict: {
+                        title: 'Unwrap was not submitted',
+                        description:
+                            'A transaction is already pending for this account. Wait for it to finish before trying again.',
+                    },
+                },
                 approval: {
                     signTransactionFailed: {
                         title: 'Transaction was not signed',
@@ -3343,6 +3436,8 @@ export const messages = {
             depositDisabled: 'Deposits currently disabled.',
             withdrawDisabled: 'Withdrawals currently disabled.',
             claimDisabled: 'Claims currently disabled.',
+            wrapDisabled: 'Wrapping currently disabled.',
+            unwrapDisabled: 'Unwrapping currently disabled.',
         },
         stakePendingCard: {
             totalStakePending: 'Total stake pending',

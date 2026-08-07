@@ -136,6 +136,56 @@ export const getYieldWithdrawCompleteRows = ({
         : []),
 ];
 
+type GetWrappedNativeCompleteRowsParams = {
+    accountSymbol: NetworkSymbol;
+    receivedAmount: string;
+    receivedTokenContract?: string;
+    sentAmount: string;
+    sentTokenContract?: string;
+};
+
+export const getWrappedNativeCompleteRows = ({
+    accountSymbol,
+    receivedAmount,
+    receivedTokenContract,
+    sentAmount,
+    sentTokenContract,
+}: GetWrappedNativeCompleteRowsParams): YieldCompleteSummaryRow[] => [
+    getYieldCompleteStatusRow(),
+    {
+        key: 'sent',
+        label: <Translation id="earn.yieldCompleteScreen.sent" />,
+        value: (
+            <HStack spacing="sp4" alignItems="center" flexShrink={1}>
+                <TokenIcon
+                    symbol={accountSymbol}
+                    contractAddress={sentTokenContract}
+                    size="extraSmall"
+                />
+                <Text variant="body-md-strong" color="contentPrimary" numberOfLines={1}>
+                    -{sentAmount}
+                </Text>
+            </HStack>
+        ),
+    },
+    {
+        key: 'received',
+        label: <Translation id="earn.yieldCompleteScreen.received" />,
+        value: (
+            <HStack spacing="sp4" alignItems="center" flexShrink={1}>
+                <TokenIcon
+                    symbol={accountSymbol}
+                    contractAddress={receivedTokenContract}
+                    size="extraSmall"
+                />
+                <Text variant="body-md-strong" color="contentPrimary" numberOfLines={1}>
+                    {receivedAmount}
+                </Text>
+            </HStack>
+        ),
+    },
+];
+
 export const getYieldClaimCompleteRows = (
     rewards: YieldFlowCompleteRewardItem[],
 ): YieldCompleteSummaryRow[] => [
