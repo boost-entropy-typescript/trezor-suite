@@ -1,5 +1,6 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
+import { type DeviceConnectActionPayload } from '@suite-common/device';
 import { DEVICE } from '@trezor/connect';
 
 export interface BannerFlagsState {
@@ -8,6 +9,9 @@ export interface BannerFlagsState {
     isGetTrezorBannerClosed: boolean; // promo banner on Home dashboard nudging users without a device to the eShop
     areGetTrezorPromoBannersDisabled: boolean; // permanently disabled once a physical device has ever been connected
     isOnboardingFeedbackBannerEnabled: boolean; // feedback banner on Home dashboard shown after completing device onboarding
+    isDefiYieldPromoBannerClosed: boolean; // promo banner on Home dashboard nudging users to earn yield on their assets
+    isEthVaultPromoBannerClosed: boolean; // promo banner on Home dashboard nudging users to earn with ETH
+    isTs7PromoBannerClosed: boolean; // promo banner on Home dashboard nudging users to buy Trezor Safe 7
 }
 
 export type BannerFlagsSliceRootState = {
@@ -20,6 +24,9 @@ export const bannerFlagsInitialState: BannerFlagsState = {
     isGetTrezorBannerClosed: false,
     areGetTrezorPromoBannersDisabled: false,
     isOnboardingFeedbackBannerEnabled: false,
+    isDefiYieldPromoBannerClosed: false,
+    isEthVaultPromoBannerClosed: false,
+    isTs7PromoBannerClosed: false,
 };
 
 export const bannerFlagsSlice = createSlice({
@@ -38,11 +45,26 @@ export const bannerFlagsSlice = createSlice({
         setIsOnboardingFeedbackBannerEnabled: (state, action: PayloadAction<boolean>) => {
             state.isOnboardingFeedbackBannerEnabled = action.payload;
         },
+        setIsDefiYieldPromoBannerClosed: state => {
+            state.isDefiYieldPromoBannerClosed = true;
+        },
+        setIsEthVaultPromoBannerClosed: state => {
+            state.isEthVaultPromoBannerClosed = true;
+        },
+        setIsTs7PromoBannerClosed: state => {
+            state.isTs7PromoBannerClosed = true;
+        },
     },
     extraReducers: builder => {
         builder
-            .addCase(DEVICE.CONNECT, state => {
+            .addCase(DEVICE.CONNECT, (state, action) => {
                 state.areGetTrezorPromoBannersDisabled = true;
+
+                const { device } = (action as PayloadAction<DeviceConnectActionPayload>).payload;
+                if (device?.features?.internal_model === 'T3W1') {
+                    // No reason to promote TS7 if already connected.
+                    state.isTs7PromoBannerClosed = true;
+                }
             })
             .addCase(DEVICE.CONNECT_UNACQUIRED, state => {
                 state.areGetTrezorPromoBannersDisabled = true;
@@ -56,6 +78,9 @@ export const bannerFlagsPersistWhitelist: Array<keyof BannerFlagsState> = [
     'isGetTrezorBannerClosed',
     'areGetTrezorPromoBannersDisabled',
     'isOnboardingFeedbackBannerEnabled',
+    'isDefiYieldPromoBannerClosed',
+    'isEthVaultPromoBannerClosed',
+    'isTs7PromoBannerClosed',
 ];
 
 export const selectIsStellarLimitedHistoryBannerClosed = (state: BannerFlagsSliceRootState) =>
@@ -73,11 +98,23 @@ export const selectAreGetTrezorPromoBannersDisabled = (state: BannerFlagsSliceRo
 export const selectIsOnboardingFeedbackBannerEnabled = (state: BannerFlagsSliceRootState) =>
     state.bannerFlags.isOnboardingFeedbackBannerEnabled;
 
+export const selectIsDefiYieldPromoBannerClosed = (state: BannerFlagsSliceRootState) =>
+    state.bannerFlags.isDefiYieldPromoBannerClosed;
+
+export const selectIsEthVaultPromoBannerClosed = (state: BannerFlagsSliceRootState) =>
+    state.bannerFlags.isEthVaultPromoBannerClosed;
+
+export const selectIsTs7PromoBannerClosed = (state: BannerFlagsSliceRootState) =>
+    state.bannerFlags.isTs7PromoBannerClosed;
+
 export const {
     setIsStellarLimitedHistoryBannerClosed,
     setIsSolanaLimitedHistoryBannerClosed,
     setIsGetTrezorBannerClosed,
     setIsOnboardingFeedbackBannerEnabled,
+    setIsDefiYieldPromoBannerClosed,
+    setIsEthVaultPromoBannerClosed,
+    setIsTs7PromoBannerClosed,
 } = bannerFlagsSlice.actions;
 
 export const bannerFlagsReducer = bannerFlagsSlice.reducer;
