@@ -11,9 +11,10 @@ import {
     toTokenAddress,
 } from '@suite-common/wallet-types';
 import { asAmountSubunit, subunitsToUnits } from '@suite-common/wallet-utils';
+import { type YieldClaimVaultParams } from '@suite-native/navigation';
 import { BigNumber } from '@trezor/utils';
 
-import { type StablecoinYieldClaimSummary } from '../types';
+import { type StablecoinYieldClaimSummary, type StablecoinYieldEarnItem } from '../types';
 
 type BuildStablecoinYieldClaimSummariesParams = {
     accounts: Account[];
@@ -157,8 +158,6 @@ export const buildStablecoinYieldClaimSummaries = ({
             {
                 type: 'stablecoin-yield',
                 accountKey: account.key,
-                accountLabel: account.accountLabel,
-                accountDescriptor: account.descriptor,
                 networkSymbol: account.symbol,
                 claimableRewardsCount: accountRewards.rewards.length,
                 fiatClaimableAmount: accountRewards.totalFiatClaimableAmount,
@@ -166,6 +165,30 @@ export const buildStablecoinYieldClaimSummaries = ({
         ];
     });
 };
+
+export type StablecoinYieldClaimItem = {
+    summary: StablecoinYieldClaimSummary;
+    vaults: YieldClaimVaultParams[];
+};
+
+// Rewards are claimed per account, so one item covers all of the account's vault positions
+// — and rewards outlive a fully withdrawn position, which leaves an item with no vaults.
+export const buildStablecoinYieldClaimItems = ({
+    stablecoinYieldClaimSummaries,
+    stablecoinYieldActiveItems,
+}: {
+    stablecoinYieldClaimSummaries: StablecoinYieldClaimSummary[];
+    stablecoinYieldActiveItems: StablecoinYieldEarnItem[];
+}): StablecoinYieldClaimItem[] =>
+    stablecoinYieldClaimSummaries.map(summary => ({
+        summary,
+        vaults: stablecoinYieldActiveItems
+            .filter(item => item.accountKey === summary.accountKey && item.vaultName)
+            .map(item => ({
+                name: item.vaultName,
+                tokenContract: item.tokenContractAddress,
+            })),
+    }));
 
 export const getTotalFiatClaimableAmount = (
     stablecoinYieldClaimSummaries: StablecoinYieldClaimSummary[],

@@ -5,23 +5,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useNavigation } from '@react-navigation/native';
 
-import { selectSelectedDevice } from '@suite-common/device';
+import { selectIsPortfolioTrackerDevice } from '@suite-common/device';
 import {
     DefinitionType,
     type TokenDefinitionsRootState,
     TokenManagementAction,
     tokenDefinitionsActions,
 } from '@suite-common/token-definitions';
-import {
-    getDisplaySymbol,
-    getNetwork,
-    getWrappedNativeAddress,
-    isWrappedNativeToken,
-} from '@suite-common/wallet-config';
+import { getDisplaySymbol, getNetwork } from '@suite-common/wallet-config';
 import {
     type AccountsRootState,
     type TokensRootState,
-    isWrappedNativeFlowSupported,
     selectAccountByKey,
     selectAccountHiddenTokens,
     selectAccountNetworkSymbol,
@@ -47,7 +41,11 @@ import {
 } from '@suite-native/formatters';
 import { TokenIcon } from '@suite-native/icons';
 import { Translation } from '@suite-native/intl';
-import { useStablecoinYieldFirmwareUpdateAlert } from '@suite-native/module-earn';
+import {
+    YieldDisabledAlert,
+    useMessageSystemWrappedNative,
+    useWrappedNativeFirmwareUpdateAlert,
+} from '@suite-native/module-earn';
 import {
     type RootStackParamList,
     RootStackRoutes,
@@ -61,6 +59,7 @@ import {
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
 import { selectIsUnrecognizedToken } from '../selectors';
+import { getWrappedNativeTokenEntries } from '../wrappedNativeTokenEntryUtils';
 
 const detailRowStyle = prepareNativeStyle(({ spacings }) => ({
     flexDirection: 'row',
@@ -126,8 +125,19 @@ export const TokenSettingsBottomSheet = forwardRef(
         const isUnrecognized = useSelector((state: TokenDefinitionsRootState & AccountsRootState) =>
             selectIsUnrecognizedToken(state, accountKey, tokenContract),
         );
-        const device = useSelector(selectSelectedDevice);
-        const { showFirmwareUpdateAlert } = useStablecoinYieldFirmwareUpdateAlert();
+        const isPortfolioTrackerDevice = useSelector(selectIsPortfolioTrackerDevice);
+        const { isFirmwareSupported, showFirmwareUpdateAlert } =
+            useWrappedNativeFirmwareUpdateAlert();
+        const {
+            isDisabled: isWrapDisabled,
+            content: wrapDisabledContent,
+            variant: wrapDisabledVariant,
+        } = useMessageSystemWrappedNative('wrap');
+        const {
+            isDisabled: isUnwrapDisabled,
+            content: unwrapDisabledContent,
+            variant: unwrapDisabledVariant,
+        } = useMessageSystemWrappedNative('unwrap');
 
         if (!account || !symbol) return null;
 
@@ -153,21 +163,20 @@ export const TokenSettingsBottomSheet = forwardRef(
             );
         };
 
-        const isUnwrapDisplayed =
-            account.networkType === 'ethereum' &&
-            isWrappedNativeToken(account.symbol, tokenContract);
-        const isWrapDisplayed =
-            isDevelopOrDebugEnv() &&
-            !tokenContract &&
-            account.networkType === 'ethereum' &&
-            !!getWrappedNativeAddress(account.symbol);
-
-        const isWrappedNativeFirmwareSupported = isWrappedNativeFlowSupported(device);
+        const { unwrap: unwrapEntry, wrap: wrapEntry } = getWrappedNativeTokenEntries({
+            isDebugEnvironment: isDevelopOrDebugEnv(),
+            isPortfolioTrackerDevice,
+            isUnwrapDisabled,
+            isWrapDisabled,
+            networkType: account.networkType,
+            symbol: account.symbol,
+            tokenContract,
+        });
 
         const handleUnwrapPress = () => {
             onNavigateAway?.();
 
-            if (!isWrappedNativeFirmwareSupported) {
+            if (!isFirmwareSupported) {
                 showFirmwareUpdateAlert();
 
                 return;
@@ -182,7 +191,7 @@ export const TokenSettingsBottomSheet = forwardRef(
         const handleWrapPress = () => {
             onNavigateAway?.();
 
-            if (!isWrappedNativeFirmwareSupported) {
+            if (!isFirmwareSupported) {
                 showFirmwareUpdateAlert();
 
                 return;
@@ -280,24 +289,44 @@ export const TokenSettingsBottomSheet = forwardRef(
                             testID="@token-detail/hide-token-switch"
                         />
                     )}
-                    {isUnwrapDisplayed && (
-                        <Button
-                            intent="neutral"
-                            priority="secondary"
-                            onPress={handleUnwrapPress}
-                            testID="@token-detail/unwrap-native-token-button"
-                        >
-                            <Translation id="earn.unwrapNativeToken.entryButton" />
-                        </Button>
+                    {unwrapEntry.isDisplayed && (
+                        <VStack spacing="sp12">
+                            {unwrapEntry.isDisabled && (
+                                <YieldDisabledAlert
+                                    type="unwrap"
+                                    content={unwrapDisabledContent}
+                                    variant={unwrapDisabledVariant}
+                                />
+                            )}
+                            <Button
+                                intent="neutral"
+                                priority="secondary"
+                                isDisabled={unwrapEntry.isDisabled}
+                                onPress={handleUnwrapPress}
+                                testID="@token-detail/unwrap-native-token-button"
+                            >
+                                <Translation id="earn.unwrapNativeToken.entryButton" />
+                            </Button>
+                        </VStack>
                     )}
-                    {isWrapDisplayed && (
-                        <Button
-                            intent="accentViolet"
-                            onPress={handleWrapPress}
-                            testID="@account-detail/wrap-native-token-button"
-                        >
-                            <Translation id="earn.wrapNativeToken.entryButton" />
-                        </Button>
+                    {wrapEntry.isDisplayed && (
+                        <VStack spacing="sp12">
+                            {wrapEntry.isDisabled && (
+                                <YieldDisabledAlert
+                                    type="wrap"
+                                    content={wrapDisabledContent}
+                                    variant={wrapDisabledVariant}
+                                />
+                            )}
+                            <Button
+                                intent="accentViolet"
+                                isDisabled={wrapEntry.isDisabled}
+                                onPress={handleWrapPress}
+                                testID="@account-detail/wrap-native-token-button"
+                            >
+                                <Translation id="earn.wrapNativeToken.entryButton" />
+                            </Button>
+                        </VStack>
                     )}
                 </VStack>
             </BottomSheetModal>

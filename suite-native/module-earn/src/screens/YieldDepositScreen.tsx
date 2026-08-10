@@ -27,23 +27,23 @@ import {
     YieldStackRoutes,
     useNavigateToInitialScreen,
 } from '@suite-native/navigation';
-import { FeeSelector } from '@suite-native/transaction-management';
 import { BigNumber } from '@trezor/utils';
 
-import { YieldDepositAmountInputCard } from '../components/YieldDepositAmountInputCard';
+import { YieldAmountInputCard } from '../components/YieldAmountInputCard';
 import { YieldDepositApprovedAmountCard } from '../components/YieldDepositApprovedAmountCard';
 import { YieldDepositFlowFooter } from '../components/YieldDepositFlowFooter';
 import { YieldDepositFlowScreenHeader } from '../components/YieldDepositFlowScreenHeader';
 import { YieldDepositInfoBottomSheet } from '../components/YieldDepositInfoBottomSheet';
 import { YieldDepositStepCard } from '../components/YieldDepositStepCard';
 import { YieldDisabledAlert } from '../components/YieldDisabledAlert';
-import { YieldFeeEstimationErrorAlert } from '../components/YieldFeeEstimationErrorAlert';
+import { YieldFeeSection } from '../components/YieldFeeSection';
 import { YieldPendingTransactionModal } from '../components/YieldPendingTransactionModal';
 import { YieldTxSimulationBottomSheet } from '../components/YieldTxSimulationBottomSheet';
 import { useMessageSystemYield } from '../hooks/useMessageSystemYield';
 import { useNavigateBackAnalytics } from '../hooks/useNavigateBackAnalytics';
 import { useRefreshYieldDepositAllowanceOnIdle } from '../hooks/useRefreshYieldDepositAllowanceOnIdle';
 import { useResolvedYieldFlowData } from '../hooks/useResolvedYieldFlowData';
+import { useReturnToYieldDepositWrapStep } from '../hooks/useReturnToYieldDepositWrapStep';
 import { useShowYieldTransactionFailureAlert } from '../hooks/useShowYieldTransactionFailureAlert';
 import { useYieldApprovedAmountDisplay } from '../hooks/useYieldApprovedAmountDisplay';
 import { type PreparedYieldDepositAction, useYieldDepositFees } from '../hooks/useYieldDepositFees';
@@ -116,6 +116,7 @@ export const YieldDepositScreen = () => {
     const session = useYieldSession({
         flowKey,
         flowType: 'deposit',
+        isWrappedNativeVault: resolvedFlowData.isWrappedNativeVault,
     });
     const depositAmount = session?.action.amount;
     const allowanceAmount = session?.approval.allowanceAmount;
@@ -196,6 +197,11 @@ export const YieldDepositScreen = () => {
     useRefreshYieldDepositAllowanceOnIdle({
         allowanceStatus,
         resolvedFlowData,
+    });
+
+    const returnToWrapStep = useReturnToYieldDepositWrapStep({
+        flowKey,
+        routeParams: route.params,
     });
 
     useEffect(() => {
@@ -313,12 +319,20 @@ export const YieldDepositScreen = () => {
                 type: 'deposit',
                 networkSymbol: account?.symbol,
                 vaultId: resolvedFlowData.vault?.id,
+                wrappedNative: resolvedFlowData.isWrappedNativeVault,
                 ...(apyBreakdown && { apyBreakdown }),
             },
         });
 
         handleSubmitDeposit();
-    }, [account?.symbol, analytics, handleSubmitDeposit, isSubmitDisabled, resolvedFlowData.vault]);
+    }, [
+        account?.symbol,
+        analytics,
+        handleSubmitDeposit,
+        isSubmitDisabled,
+        resolvedFlowData.isWrappedNativeVault,
+        resolvedFlowData.vault,
+    ]);
 
     const handleMaxChangeWithAnalytics = useCallback(
         (value: boolean) => {
@@ -411,7 +425,17 @@ export const YieldDepositScreen = () => {
                             />
                         </Box>
                     )}
-                    <YieldDepositStepCard currentStepIndex={1} />
+                    <YieldDepositStepCard
+                        currentStepId="deposit"
+                        hasWrapStep={resolvedFlowData.isWrappedNativeVault}
+                        isApprovalStepSkipped={!!session?.approval.isSkipped}
+                        isWrapStepSkipped={!session?.result.wrappedAmount}
+                        networkSymbol={account.symbol}
+                        onEditStep={{
+                            wrap: returnToWrapStep,
+                            approval: handleGoBackToApproval,
+                        }}
+                    />
 
                     <Box paddingHorizontal="sp16">
                         <YieldDepositApprovedAmountCard
@@ -426,9 +450,15 @@ export const YieldDepositScreen = () => {
 
                     <Box paddingHorizontal="sp16">
                         <Form form={form}>
-                            <YieldDepositAmountInputCard
+                            <YieldAmountInputCard
+                                amountLabel={
+                                    <Translation id="earn.yieldDepositFlowScreen.amountToDeposit" />
+                                }
                                 balance={token.balance}
                                 isMaxSelected={isMaxSelected}
+                                maxLabel={
+                                    <Translation id="earn.yieldDepositFlowScreen.depositMax" />
+                                }
                                 onAmountChange={handleAmountChange}
                                 onMaxChange={handleMaxChangeWithAnalytics}
                                 tokenSymbol={tokenSymbol}
@@ -453,21 +483,11 @@ export const YieldDepositScreen = () => {
 
                     {shouldShowDepositFee && (
                         <Box paddingHorizontal="sp16">
-                            {depositFee.hasFeeEstimationError ? (
-                                <YieldFeeEstimationErrorAlert
-                                    onRetry={depositFee.retryFeeEstimation}
-                                />
-                            ) : (
-                                <FeeSelector
-                                    accountKey={account.key}
-                                    tokenContract={route.params.tokenContract}
-                                    updateThunk={depositFee.updateFeeLevelThunk}
-                                    selectedFee={depositFee.selectedFee}
-                                    selectedFeePerUnit={depositFee.formDraft?.feePerUnit}
-                                    formDraft={depositFee.formDraft}
-                                    formDraftKey={depositFee.formDraftKey}
-                                />
-                            )}
+                            <YieldFeeSection
+                                accountKey={account.key}
+                                fees={depositFee}
+                                tokenContract={route.params.tokenContract}
+                            />
                         </Box>
                     )}
                 </VStack>

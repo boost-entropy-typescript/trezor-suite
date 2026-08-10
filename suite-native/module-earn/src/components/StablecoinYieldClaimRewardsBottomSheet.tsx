@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
-import { AccountTypeBadge } from '@suite-native/accounts';
+import { parseAccountKey } from '@suite-common/wallet-utils';
+import { AccountTypeBadge, selectAccountLabel } from '@suite-native/accounts';
 import {
     BottomSheetModal,
     type BottomSheetModalRef,
@@ -15,9 +17,10 @@ import {
 import { AddressFormatter, BaseCurrencyAmountFormatter } from '@suite-native/formatters';
 import { Icon, TokenIcon } from '@suite-native/icons';
 import { Translation } from '@suite-native/intl';
+import { type CombinedLabelingState } from '@suite-native/labeling';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
-import { type StablecoinYieldClaimSummary } from '../types';
+import { type StablecoinYieldClaimItem } from '../utils/stablecoinYieldClaimSummaryUtils';
 
 const itemCardStyle = prepareNativeStyle(utils => ({
     marginBottom: utils.spacings.sp16,
@@ -45,47 +48,72 @@ const itemValueStyle = prepareNativeStyle(utils => ({
 }));
 
 type StablecoinYieldClaimRewardsItemProps = {
-    claimReward: StablecoinYieldClaimSummary;
-    onPress: (claimReward: StablecoinYieldClaimSummary) => void;
+    claimItem: StablecoinYieldClaimItem;
+    onPress: (claimItem: StablecoinYieldClaimItem) => void;
 };
 
 const StablecoinYieldClaimRewardsItem = ({
-    claimReward,
+    claimItem,
     onPress,
 }: StablecoinYieldClaimRewardsItemProps) => {
     const { applyStyle } = useNativeStyles();
+    const { summary, vaults } = claimItem;
+
+    const { accountDescriptor, deviceStaticSessionId } = parseAccountKey(summary.accountKey);
+    const customAccountLabel = useSelector((state: CombinedLabelingState) =>
+        selectAccountLabel(state, deviceStaticSessionId, accountDescriptor, summary.networkSymbol),
+    );
 
     const handlePress = useCallback(() => {
-        onPress(claimReward);
-    }, [claimReward, onPress]);
+        onPress(claimItem);
+    }, [claimItem, onPress]);
 
-    const title =
-        claimReward.accountLabel ?? getNetworkDisplaySymbolName(claimReward.networkSymbol);
+    const accountTitle = customAccountLabel ?? getNetworkDisplaySymbolName(summary.networkSymbol);
+    const hasVaults = vaults.length > 0;
+    const singleVault = vaults.length === 1 ? vaults[0] : undefined;
+    const vaultsTitle = vaults.map(vault => vault.name).join(', ');
 
     return (
         <Card borderColor="borderNeutral" noPadding style={applyStyle(itemCardStyle)}>
             <PressableOpacity onPress={handlePress} style={applyStyle(itemRowStyle)}>
                 <Box marginRight="sp12">
-                    <TokenIcon symbol={claimReward.networkSymbol} size="small" />
+                    <TokenIcon
+                        symbol={summary.networkSymbol}
+                        contractAddress={singleVault?.tokenContract}
+                        size="small"
+                        showNetworkIcon={!!singleVault}
+                        wrappedTokenIcon="network"
+                    />
                 </Box>
 
                 <VStack spacing="sp2" style={applyStyle(itemContentStyle)}>
                     <Text numberOfLines={1} ellipsizeMode="tail">
-                        {title}
+                        {hasVaults ? vaultsTitle : accountTitle}
                     </Text>
-                    <AddressFormatter
-                        value={claimReward.accountDescriptor}
-                        format="short"
-                        variant="body-sm"
-                        color="contentSecondary"
-                        numberOfLines={1}
-                    />
-                    <AccountTypeBadge accountKey={claimReward.accountKey} alignSelf="flex-start" />
+                    {hasVaults ? (
+                        <Text
+                            variant="body-sm"
+                            color="contentSecondary"
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {accountTitle}
+                        </Text>
+                    ) : (
+                        <AddressFormatter
+                            value={accountDescriptor}
+                            format="short"
+                            variant="body-sm"
+                            color="contentSecondary"
+                            numberOfLines={1}
+                        />
+                    )}
+                    <AccountTypeBadge accountKey={summary.accountKey} alignSelf="flex-start" />
                 </VStack>
 
                 <HStack alignItems="center" spacing="sp8" style={applyStyle(itemValueStyle)}>
                     <BaseCurrencyAmountFormatter
-                        value={claimReward.fiatClaimableAmount}
+                        value={summary.fiatClaimableAmount}
                         variant="body-md"
                         isDiscreetText={false}
                         numberOfLines={1}
@@ -100,21 +128,21 @@ const StablecoinYieldClaimRewardsItem = ({
 
 type StablecoinYieldClaimRewardsBottomSheetProps = {
     ref: BottomSheetModalRef;
-    claimRewards: StablecoinYieldClaimSummary[];
-    onClaimRewardPress: (claimReward: StablecoinYieldClaimSummary) => void;
+    claimItems: StablecoinYieldClaimItem[];
+    onClaimRewardPress: (claimItem: StablecoinYieldClaimItem) => void;
     onClose: () => void;
 };
 
 export const StablecoinYieldClaimRewardsBottomSheet = ({
     ref,
-    claimRewards,
+    claimItems,
     onClaimRewardPress,
     onClose,
 }: StablecoinYieldClaimRewardsBottomSheetProps) => {
     const handleClaimRewardsSelect = useCallback(
-        (claimReward: StablecoinYieldClaimSummary) => {
+        (claimItem: StablecoinYieldClaimItem) => {
             onClose();
-            onClaimRewardPress(claimReward);
+            onClaimRewardPress(claimItem);
         },
         [onClaimRewardPress, onClose],
     );
@@ -122,15 +150,15 @@ export const StablecoinYieldClaimRewardsBottomSheet = ({
     return (
         <BottomSheetModal
             ref={ref}
-            title={<Translation id="earn.earnScreen.claimRewards.title" />}
+            title={<Translation id="earn.earnScreen.activeSheet.stablecoinYieldTitle" />}
             isCloseDisplayed
             onClose={onClose}
         >
             <Box paddingTop="sp16">
-                {claimRewards.map(claimReward => (
+                {claimItems.map(claimItem => (
                     <StablecoinYieldClaimRewardsItem
-                        key={claimReward.accountKey}
-                        claimReward={claimReward}
+                        key={claimItem.summary.accountKey}
+                        claimItem={claimItem}
                         onPress={handleClaimRewardsSelect}
                     />
                 ))}

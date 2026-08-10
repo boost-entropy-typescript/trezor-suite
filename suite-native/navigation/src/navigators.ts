@@ -95,8 +95,14 @@ export type YieldFlowParams = {
     yieldId?: string;
 };
 
+export type YieldClaimVaultParams = {
+    name: string;
+    tokenContract: TokenAddress;
+};
+
 export type YieldClaimParams = {
     accountKey: AccountKey;
+    vault?: YieldClaimVaultParams;
 };
 
 export type WrappedNativeTokenPendingTxParams = {
@@ -137,6 +143,8 @@ export type YieldStackParamList = {
     [YieldStackRoutes.YieldClaim]: YieldClaimParams;
     [YieldStackRoutes.YieldClaimReview]: YieldClaimParams;
     [YieldStackRoutes.YieldClaimComplete]: YieldClaimParams;
+    [YieldStackRoutes.YieldDepositWrap]: YieldFlowParams;
+    [YieldStackRoutes.YieldDepositWrapReview]: YieldFlowParams;
     [YieldStackRoutes.YieldDepositApproval]: YieldFlowParams;
     [YieldStackRoutes.YieldDeposit]: YieldFlowParams;
     [YieldStackRoutes.YieldDepositRevoke]: YieldDepositRevokeParams;
@@ -144,6 +152,8 @@ export type YieldStackParamList = {
     [YieldStackRoutes.YieldDepositApprovalReview]: YieldDepositApprovalReviewParams;
     [YieldStackRoutes.YieldDepositRevokeReview]: YieldDepositRevokeReviewParams;
     [YieldStackRoutes.YieldDepositReview]: YieldFlowParams;
+    [YieldStackRoutes.YieldWithdrawUnwrap]: YieldWithdrawParams;
+    [YieldStackRoutes.YieldWithdrawUnwrapReview]: YieldWithdrawParams;
     [YieldStackRoutes.YieldWithdrawReview]: YieldWithdrawParams;
     [YieldStackRoutes.YieldDepositComplete]: YieldFlowParams;
     [YieldStackRoutes.YieldWithdrawComplete]: YieldWithdrawParams;

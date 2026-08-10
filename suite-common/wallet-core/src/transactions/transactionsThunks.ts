@@ -70,7 +70,9 @@ interface ReplaceTransactionThunkParams {
     precomposedTransaction: PrecomposedTransactionFinalBumpFeeRbf;
     newTxid: string;
 }
-type ReplaceTransactionThunkState = AccountsRootState & SendRootState & TransactionsRootState;
+export type ReplaceTransactionThunkState = AccountsRootState &
+    SendRootState &
+    TransactionsRootState;
 
 export const replaceTransactionThunk = createThunk<
     void,
@@ -792,7 +794,7 @@ type FetchTransactionsFromNowUntilTimestampParams = {
     accountKey: AccountKey;
     timestamp: Timestamp | null;
 };
-type FetchTransactionsFromNowUntilTimestampState = AccountsRootState &
+export type FetchTransactionsFromNowUntilTimestampState = AccountsRootState &
     TransactionsRootState &
     FetchAllTransactionsForAccountThunkState &
     FetchTransactionsPageThunkState;

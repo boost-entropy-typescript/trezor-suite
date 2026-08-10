@@ -10,6 +10,7 @@ import {
     type TransactionsRootState,
     type YieldFlowType,
     type YieldPendingTransactionState,
+    type YieldWithdrawFlowType,
     fetchAndUpdateAccountThunk,
     selectConvertedNetworkFeeInfo,
     selectTransactionByAccountKeyAndTxid,
@@ -43,7 +44,11 @@ type ReportYieldTransactionResolutionParams = {
     pendingTransactionType: YieldPendingTransactionState['type'];
     submittedAt: number | undefined;
     vault: YieldDtoV2 | null | undefined;
+    withdrawOperation?: YieldWithdrawFlowType;
 };
+
+const getWithdrawOperation = (flowType: YieldFlowType): YieldWithdrawFlowType | undefined =>
+    flowType === 'withdraw' || flowType === 'redeem' ? flowType : undefined;
 
 const reportYieldTransactionResolution = ({
     analytics,
@@ -52,6 +57,7 @@ const reportYieldTransactionResolution = ({
     pendingTransactionType,
     submittedAt,
     vault,
+    withdrawOperation,
 }: ReportYieldTransactionResolutionParams) => {
     const durationMs = submittedAt ? Date.now() - submittedAt : undefined;
     const errorMessage = outcome === 'error' ? { errorMessage: 'on-chain-failure' } : {};
@@ -59,11 +65,13 @@ const reportYieldTransactionResolution = ({
     switch (pendingTransactionType) {
         case 'approve':
         case 'revoke':
-        case 'deposit': {
+        case 'deposit':
+        case 'wrap': {
             const successType = {
                 approve: 'approve-success',
                 revoke: 'revoke-success',
                 deposit: 'success',
+                wrap: 'wrap-success',
             } as const;
 
             const apyBreakdown =
@@ -121,10 +129,22 @@ const reportYieldTransactionResolution = ({
 
             return;
         }
-        case 'wrap':
-        case 'unwrap':
-            // Intermediate steps of the deposit/withdraw flows; they carry no analytics event of their own.
+        case 'unwrap': {
+            analytics.report({
+                type: events.yieldWithdrawEvent.name,
+                payload: {
+                    action: 'continue',
+                    type: outcome === 'success' ? 'unwrap-success' : outcome,
+                    operation: withdrawOperation,
+                    networkSymbol,
+                    vaultId: vault?.id,
+                    durationMs,
+                    ...errorMessage,
+                },
+            });
+
             return;
+        }
         default:
             exhaustive(pendingTransactionType);
     }
@@ -177,6 +197,7 @@ export const useYieldPendingTransactionTracking = ({
                   pendingTransactionType: pendingTransaction.type,
                   submittedAt: pendingTransaction.submittedAt,
                   vault,
+                  withdrawOperation: getWithdrawOperation(flowType),
               }
             : null;
 
@@ -237,6 +258,7 @@ export const useYieldPendingTransactionTracking = ({
                 pendingTransactionType: pendingTransaction.type,
                 submittedAt: pendingTransaction.submittedAt,
                 vault,
+                withdrawOperation: getWithdrawOperation(flowType),
             });
         };
 
@@ -285,6 +307,19 @@ export const useYieldPendingTransactionTracking = ({
             };
 
             void completeClaimAction();
+
+            return;
+        }
+
+        if (pendingTransaction.type === 'wrap' || pendingTransaction.type === 'unwrap') {
+            reportResolution('success');
+            dispatch(
+                stablecoinYieldActions.resolveWrappedNativeStep({
+                    ...sessionParams,
+                    step: pendingTransaction.type,
+                    amount: pendingTransaction.amount,
+                }),
+            );
 
             return;
         }

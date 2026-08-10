@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { type RouteProp, useRoute } from '@react-navigation/native';
 
+import { Context } from '@suite-common/message-system';
 import { WRAPPED_NATIVE, getNetwork, getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import { WETH_WRAP_GAS_RESERVE } from '@suite-common/wallet-constants';
 import {
@@ -14,17 +15,17 @@ import { toTokenSymbol } from '@suite-common/wallet-types';
 import { Box, Button, FullAlertBox, VStack } from '@suite-native/atoms';
 import { Form } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
+import { ContextMessage } from '@suite-native/message-system';
 import {
     Screen,
     type WrappedNativeTokenStackParamList,
     type WrappedNativeTokenStackRoutes,
 } from '@suite-native/navigation';
-import { FeeSelector } from '@suite-native/transaction-management';
 
 import { WrappedNativeTokenAmountInputCard } from '../components/WrappedNativeTokenAmountInputCard';
 import { WrappedNativeTokenScreenHeader } from '../components/WrappedNativeTokenScreenHeader';
 import { YieldDisabledAlert } from '../components/YieldDisabledAlert';
-import { YieldFeeEstimationErrorAlert } from '../components/YieldFeeEstimationErrorAlert';
+import { YieldFeeSection } from '../components/YieldFeeSection';
 import { YieldPendingTransactionModal } from '../components/YieldPendingTransactionModal';
 import { YieldTxSimulationBottomSheet } from '../components/YieldTxSimulationBottomSheet';
 import { useMessageSystemWrappedNative } from '../hooks/useMessageSystemWrappedNative';
@@ -80,6 +81,7 @@ export const WrapNativeTokenScreen = () => {
         accountKey,
         amountValue,
         flowType: 'wrap',
+        isDisabled: isWrapDisabled,
         pendingParam: pendingTransaction,
         preparedAction: wrapFee.preparedAction,
     });
@@ -112,6 +114,7 @@ export const WrapNativeTokenScreen = () => {
         >
             <Box marginTop="sp16" pointerEvents={isWrapPending ? 'none' : 'auto'}>
                 <VStack spacing="sp16">
+                    <ContextMessage context={Context.getWrappedNative('wrap')} />
                     {isWrapDisabled && (
                         <YieldDisabledAlert
                             type="wrap"
@@ -142,25 +145,21 @@ export const WrapNativeTokenScreen = () => {
                             }
                         />
                     )}
-                    {isFeeSectionDisplayed &&
-                        (wrapFee.hasFeeEstimationError ? (
-                            <YieldFeeEstimationErrorAlert onRetry={wrapFee.retryFeeEstimation} />
-                        ) : (
-                            <FeeSelector
-                                accountKey={account.key}
-                                updateThunk={wrapFee.updateFeeLevelThunk}
-                                selectedFee={wrapFee.selectedFee}
-                                selectedFeePerUnit={wrapFee.formDraft?.feePerUnit}
-                                formDraft={wrapFee.formDraft}
-                                formDraftKey={wrapFee.formDraftKey}
-                            />
-                        ))}
+                    {isFeeSectionDisplayed && (
+                        <YieldFeeSection accountKey={account.key} fees={wrapFee} />
+                    )}
                     {flow.isDeviceNotConnectedVisible && (
                         <FullAlertBox
                             intent="critical"
                             title={
                                 <Translation id="earn.wrapNativeToken.errors.deviceNotConnected" />
                             }
+                        />
+                    )}
+                    {flow.isFirmwareOutdatedVisible && (
+                        <FullAlertBox
+                            intent="critical"
+                            title={<Translation id="earn.wrappedNativeToken.firmwareOutdated" />}
                         />
                     )}
                     {flow.hasFlowFailed && (

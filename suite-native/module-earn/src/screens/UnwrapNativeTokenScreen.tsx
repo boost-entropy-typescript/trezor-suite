@@ -2,23 +2,24 @@ import { useSelector } from 'react-redux';
 
 import { type RouteProp, useRoute } from '@react-navigation/native';
 
+import { Context } from '@suite-common/message-system';
 import { WRAPPED_NATIVE, getNetwork } from '@suite-common/wallet-config';
 import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 import { toTokenAddress, toTokenSymbol } from '@suite-common/wallet-types';
 import { Box, Button, FullAlertBox, VStack } from '@suite-native/atoms';
 import { Form } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
+import { ContextMessage } from '@suite-native/message-system';
 import {
     Screen,
     type WrappedNativeTokenStackParamList,
     type WrappedNativeTokenStackRoutes,
 } from '@suite-native/navigation';
-import { FeeSelector } from '@suite-native/transaction-management';
 
 import { WrappedNativeTokenAmountInputCard } from '../components/WrappedNativeTokenAmountInputCard';
 import { WrappedNativeTokenScreenHeader } from '../components/WrappedNativeTokenScreenHeader';
 import { YieldDisabledAlert } from '../components/YieldDisabledAlert';
-import { YieldFeeEstimationErrorAlert } from '../components/YieldFeeEstimationErrorAlert';
+import { YieldFeeSection } from '../components/YieldFeeSection';
 import { YieldPendingTransactionModal } from '../components/YieldPendingTransactionModal';
 import { YieldTxSimulationBottomSheet } from '../components/YieldTxSimulationBottomSheet';
 import { useMessageSystemWrappedNative } from '../hooks/useMessageSystemWrappedNative';
@@ -78,6 +79,7 @@ export const UnwrapNativeTokenScreen = () => {
         accountKey,
         amountValue,
         flowType: 'unwrap',
+        isDisabled: isUnwrapDisabled,
         pendingParam: pendingTransaction,
         preparedAction: unwrapFee.preparedAction,
     });
@@ -102,6 +104,7 @@ export const UnwrapNativeTokenScreen = () => {
         >
             <Box marginTop="sp16" pointerEvents={isUnwrapPending ? 'none' : 'auto'}>
                 <VStack spacing="sp16">
+                    <ContextMessage context={Context.getWrappedNative('unwrap')} />
                     {isUnwrapDisabled && (
                         <YieldDisabledAlert
                             type="unwrap"
@@ -119,26 +122,25 @@ export const UnwrapNativeTokenScreen = () => {
                             tokenSymbol={wrappedTokenSymbol}
                         />
                     </Form>
-                    {isFeeSectionDisplayed &&
-                        (unwrapFee.hasFeeEstimationError ? (
-                            <YieldFeeEstimationErrorAlert onRetry={unwrapFee.retryFeeEstimation} />
-                        ) : (
-                            <FeeSelector
-                                accountKey={account.key}
-                                tokenContract={toTokenAddress(wrappedNative.address)}
-                                updateThunk={unwrapFee.updateFeeLevelThunk}
-                                selectedFee={unwrapFee.selectedFee}
-                                selectedFeePerUnit={unwrapFee.formDraft?.feePerUnit}
-                                formDraft={unwrapFee.formDraft}
-                                formDraftKey={unwrapFee.formDraftKey}
-                            />
-                        ))}
+                    {isFeeSectionDisplayed && (
+                        <YieldFeeSection
+                            accountKey={account.key}
+                            fees={unwrapFee}
+                            tokenContract={toTokenAddress(wrappedNative.address)}
+                        />
+                    )}
                     {flow.isDeviceNotConnectedVisible && (
                         <FullAlertBox
                             intent="critical"
                             title={
                                 <Translation id="earn.unwrapNativeToken.errors.deviceNotConnected" />
                             }
+                        />
+                    )}
+                    {flow.isFirmwareOutdatedVisible && (
+                        <FullAlertBox
+                            intent="critical"
+                            title={<Translation id="earn.wrappedNativeToken.firmwareOutdated" />}
                         />
                     )}
                     {flow.hasFlowFailed && (

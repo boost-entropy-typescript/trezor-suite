@@ -2603,6 +2603,17 @@ export const messages = {
             unstakedTitle: '{amount} {displaySymbol} unstaked instantly',
             claimedTitle: '{amount} {displaySymbol} claimed',
         },
+        promoStakeBanner: {
+            eth: {
+                title: 'Earn up to {apy}% on your ETH',
+                description: 'Stake ETH for network rewards, or deposit it in a yield vault.',
+            },
+            sol: {
+                title: 'Earn ~{apy}% APY by staking your SOL',
+                description: 'Make your SOL work for you. Start staking to earn rewards.',
+            },
+            exploreButton: 'Explore',
+        },
         stakingDetailScreen: {
             title: 'Staking',
         },
@@ -2677,6 +2688,9 @@ export const messages = {
         },
         wrappedNativeToken: {
             maxButton: 'Max',
+            featureName: 'wrapping and unwrapping',
+            firmwareOutdated:
+                'Update the firmware on your Trezor to continue with this transaction.',
         },
         wrapNativeToken: {
             entryButton: 'Wrap',
@@ -2734,10 +2748,18 @@ export const messages = {
             },
             delegatingCard: {
                 title: 'Delegate to Everstake',
-                firstItem:
-                    'Everstake maintains and protects your staked {displaySymbol} with their smart contracts, infrastructure, and technology.',
-                secondItem:
-                    "When you stake, the responsibility for your funds' security transitions from your Trezor to Everstake.",
+                eth: {
+                    firstItem:
+                        'Everstake maintains and protects your staked {displaySymbol} with their smart contracts, infrastructure, and technology.',
+                    secondItem:
+                        "When you stake, the responsibility for your funds' security transitions from your Trezor to Everstake.",
+                },
+                sol: {
+                    firstItem:
+                        "Stake your {displaySymbol} to receive rewards and help enhance the network's security and stability.",
+                    secondItem:
+                        'With Trezor Suite, easily and securely delegate your {displaySymbol} voting rights to the Everstake validator node. Enjoy competitive rewards, rely on a trusted validator, and retain full ownership of your assets.',
+                },
             },
         },
         earnTransactionDataReviewScreen: {
@@ -2870,9 +2892,6 @@ export const messages = {
                 stakingTitle: 'Your stakes',
                 stablecoinYieldTitle: 'Your yields',
             },
-            claimRewards: {
-                title: 'Claim rewards from an account',
-            },
             stablecoinYieldLoadError: {
                 title: 'Unable to load yield opportunities',
                 description:
@@ -2972,6 +2991,11 @@ export const messages = {
         howYieldWorksScreen: {
             defiYieldTitle: 'How DeFi Yield works',
             defiYieldSubtitle: 'Put your assets to work and earn rewards.',
+            wrappedNativeVault: {
+                defiYieldTitle: 'How {nativeSymbol} vaults work',
+                defiYieldSubtitle:
+                    'You deposit {nativeSymbol}, other people borrow it, and the interest they pay becomes your earnings.',
+            },
             benefits: {
                 first: {
                     title: 'The deposited amount of {tokenSymbol} is always available.',
@@ -2990,11 +3014,36 @@ export const messages = {
                     title: 'You will also earn {bonusRewardTokenName} tokens as rewards.',
                     description: 'These must be claimed separately.',
                 },
+                wrappedNativeVault: {
+                    first: {
+                        title: 'This vault takes wrapped {nativeSymbol}',
+                        description: 'You can wrap your {nativeSymbol} during the deposit.',
+                    },
+                    second: {
+                        title: 'You put in {nativeSymbol} and get {vaultTokenSymbol} back',
+                        description:
+                            'Your receipt for the position. Value builds up in the position, not in the token count.',
+                    },
+                    third: {
+                        title: 'Return the {vaultTokenSymbol} to withdraw',
+                        description:
+                            'Any time you like. This is how earnings become {nativeSymbol} you can spend.',
+                    },
+                    fourth: {
+                        title: 'Bonus rewards you claim yourself',
+                        description:
+                            '{bonusRewardTokenSymbol} tokens, for a limited time, in the Earn tab.',
+                    },
+                },
             },
             timelineCardTitle: 'Deposit timeline',
             timelineBottomSheetTitle: 'Deposit timeline',
             depositTimelineTitle: 'Deposit',
             depositTimeline: {
+                wrap: {
+                    title: 'Wrap {nativeSymbol} to {tokenSymbol}',
+                    description: 'Network fee',
+                },
                 first: {
                     title: 'Approve spending transaction',
                     description: 'Network fee',
@@ -3012,6 +3061,10 @@ export const messages = {
             withdrawTimeline: {
                 first: {
                     title: 'Sign withdrawal transaction',
+                    description: 'Network fee',
+                },
+                unwrap: {
+                    title: 'Unwrap {tokenSymbol} to {nativeSymbol}',
                     description: 'Network fee',
                 },
                 second: {
@@ -3050,6 +3103,10 @@ export const messages = {
             approvalStepTitle: 'Select amount & approve',
             modalTitle: 'Deposit',
             depositTransactionStepTitle: 'Deposit transaction',
+            wrapStepTitle: 'Wrap {nativeSymbol} to {tokenSymbol}',
+            wrapSubmitButton: 'Wrap {nativeSymbol}',
+            wrapSkipButton: 'Skip',
+            wrapReceivingLabel: 'Receiving',
             depositPendingTitle: 'Confirming deposit',
             amountToDeposit: 'Amount to deposit',
             depositMax: 'Deposit max',
@@ -3137,6 +3194,14 @@ export const messages = {
             withdrawMax: 'Withdraw max',
             deposited: 'Deposited:',
             withdrawPendingTitle: 'Confirming withdrawal',
+            modalTitle: 'Withdraw',
+            withdrawStepTitle: 'Withdraw assets',
+            unwrapStepTitle: 'Unwrap {tokenSymbol} to {nativeSymbol}',
+            unwrapStepDescription:
+                'You can also unwrap {tokenSymbol} anytime from the {networkName} account screen.',
+            unwrapSubmitButton: 'Unwrap {tokenSymbol}',
+            unwrapSkipButton: 'Skip',
+            unwrapPendingTitle: 'Unwrapping in progress',
             amountToWithdraw: 'Amount to withdraw',
             amountExceedsDeposited: 'The amount exceeds your deposited balance.',
             networkFeeWarning:
