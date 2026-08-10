@@ -2,7 +2,10 @@ import { useState } from 'react';
 
 import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
 import { Translation } from '@suite/intl';
-import { isTransactionNotification } from '@suite-common/toast-notifications';
+import {
+    isTransactionNotification,
+    selectHasUnseenTransactionNotifications,
+} from '@suite-common/toast-notifications';
 import { Card, CollapsibleBox, Column, Dot, Row } from '@trezor/components';
 
 import {
@@ -18,16 +21,14 @@ import { useLayout, useSelector } from 'src/hooks/suite';
 type ActivityTab = 'transactions' | 'release-notes' | 'all';
 
 const NotificationsView = () => {
-    const notifications = useSelector(state => state.notifications);
     const isDebugModeActive = useSelector(selectIsDebugModeActive);
     const [selectedTab, setSelectedTab] = useState<ActivityTab>('transactions');
 
+    const notifications = useSelector(state => state.notifications);
+    const hasUnseenNotifications = useSelector(selectHasUnseenTransactionNotifications);
     const transactionNotifications = notifications.filter(isTransactionNotification);
     const activityNotifications = notifications.filter(
         notification => !isTransactionNotification(notification),
-    );
-    const hasUnseenNotifications = transactionNotifications.some(
-        notification => !notification.seen,
     );
 
     const activitySubpages: NavigationItem<ActivityTab>[] = [

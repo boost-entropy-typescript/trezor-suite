@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { type RouteProp, useRoute } from '@react-navigation/native';
 
 import { Context } from '@suite-common/message-system';
-import { WRAPPED_NATIVE, getNetwork } from '@suite-common/wallet-config';
+import { WRAPPED_NATIVE, getNetwork, getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
 import { toTokenAddress, toTokenSymbol } from '@suite-common/wallet-types';
 import { Box, Button, FullAlertBox, VStack } from '@suite-native/atoms';
@@ -17,7 +17,7 @@ import {
 } from '@suite-native/navigation';
 
 import { WrappedNativeTokenAmountInputCard } from '../components/WrappedNativeTokenAmountInputCard';
-import { WrappedNativeTokenScreenHeader } from '../components/WrappedNativeTokenScreenHeader';
+import { YieldDepositFlowScreenHeader } from '../components/YieldDepositFlowScreenHeader';
 import { YieldDisabledAlert } from '../components/YieldDisabledAlert';
 import { YieldFeeSection } from '../components/YieldFeeSection';
 import { YieldPendingTransactionModal } from '../components/YieldPendingTransactionModal';
@@ -96,9 +96,19 @@ export const UnwrapNativeTokenScreen = () => {
     return (
         <Screen
             header={
-                <WrappedNativeTokenScreenHeader
-                    accountLabel={accountLabel}
-                    title={<Translation id="earn.unwrapNativeToken.title" />}
+                <YieldDepositFlowScreenHeader
+                    account={account}
+                    closeActionType="back"
+                    title={
+                        <Translation
+                            id="earn.unwrapNativeToken.title"
+                            values={{
+                                nativeSymbol: getNetworkDisplaySymbol(account.symbol),
+                                wrappedSymbol: wrappedNative.symbol,
+                            }}
+                        />
+                    }
+                    tokenContract={toTokenAddress(wrappedNative.address)}
                 />
             }
         >
