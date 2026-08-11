@@ -6,18 +6,15 @@ import { type RouteProp, useNavigation, useRoute } from '@react-navigation/nativ
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
 import { buildUserFeedbackData, sendFeedbackAction } from '@suite-common/feedback';
-import { useFormatters } from '@suite-common/formatters';
-import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
     type StablecoinYieldRootState,
-    getConvertedOutputTokenBalanceToInputTokenAmount,
+    getYieldWithdrawCompletedValues,
     selectStablecoinYieldSessionByFlowKey,
     stablecoinYieldActions,
 } from '@suite-common/wallet-core';
-import { toTokenSymbol } from '@suite-common/wallet-types';
 import { selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { useFeedbackForm } from '@suite-native/feature-feedback';
-import { Translation } from '@suite-native/intl';
+import { Translation, selectSupportedLanguageLocale } from '@suite-native/intl';
 import {
     type StackNavigationProps,
     type YieldStackParamList,
@@ -28,6 +25,7 @@ import {
 import { YieldCompleteScreenContent } from '../components/YieldCompleteScreenContent';
 import { getYieldWithdrawCompleteRows } from '../components/YieldCompleteScreenPresets';
 import { useResolvedYieldFlowData } from '../hooks/useResolvedYieldFlowData';
+import { formatEarnTokenAmount } from '../utils/earnAmountUtils';
 
 type RouteProps = RouteProp<YieldStackParamList, YieldStackRoutes.YieldWithdrawComplete>;
 type NavigationProps = StackNavigationProps<
@@ -40,13 +38,13 @@ export const YieldWithdrawCompleteScreen = () => {
     const navigation = useNavigation<NavigationProps>();
     const dispatch = useDispatch();
     const navigateToInitialScreen = useNavigateToInitialScreen();
-    const { CryptoAmountFormatter } = useFormatters();
-    const { account, flowKey, resolutionStatus, vault } = useResolvedYieldFlowData(route.params);
+    const locale = useSelector(selectSupportedLanguageLocale);
+    const { account, flowKey, receiptToken, resolutionStatus, token, vault } =
+        useResolvedYieldFlowData(route.params);
     const flowType = route.params.withdrawFlowType ?? 'withdraw';
     const session = useSelector((state: StablecoinYieldRootState) =>
         selectStablecoinYieldSessionByFlowKey(state, flowType, flowKey),
     );
-    const isSharesInput = flowType === 'redeem';
     const { analytics } = useServices(selectNativeAnalyticsDep);
 
     const feedbackForm = useFeedbackForm();
@@ -115,56 +113,38 @@ export const YieldWithdrawCompleteScreen = () => {
     }, [navigation, navigateToInitialScreen, resolutionStatus, route.params, session]);
 
     const rows = useMemo(() => {
-        if (resolutionStatus !== 'resolved' || !session || !vault.outputToken) {
+        if (resolutionStatus !== 'resolved' || !session) {
             return [];
         }
 
         const { completedAmount, unwrappedAmount } = session.result;
 
-        const hasUnwrappedOutput = unwrappedAmount !== null;
-        const underlyingSymbol = hasUnwrappedOutput
-            ? toTokenSymbol(getNetworkDisplaySymbol(account.symbol))
-            : toTokenSymbol(vault.token.symbol);
-        const vaultTokenSymbol = toTokenSymbol(vault.outputToken.symbol);
-        const withdrawnUnderlyingAmount = isSharesInput
-            ? getConvertedOutputTokenBalanceToInputTokenAmount({
-                  networkSymbol: account.symbol,
-                  token: vault.token,
-                  outputToken: vault.outputToken,
-                  outputTokenBalance: completedAmount,
-                  pricePerShareState: vault.state?.pricePerShareState,
-              })
-            : completedAmount;
-        const receivedUnderlyingAmount = unwrappedAmount ?? withdrawnUnderlyingAmount;
-
-        const receivedAmount = CryptoAmountFormatter.format(receivedUnderlyingAmount, {
-            symbol: underlyingSymbol,
-            isBalance: true,
-            withSymbol: true,
-            isEllipsisAppended: false,
-            maxDisplayedDecimals: 8,
+        const { input, output } = getYieldWithdrawCompletedValues({
+            networkSymbol: account.symbol,
+            flowType,
+            completedAmount,
+            unwrappedAmount,
+            token,
+            receiptToken,
+            pricePerShareState: vault.state?.pricePerShareState,
         });
-
-        const withdrawalAmount = isSharesInput
-            ? CryptoAmountFormatter.format(completedAmount, {
-                  symbol: vaultTokenSymbol,
-                  isBalance: true,
-                  withSymbol: true,
-                  isEllipsisAppended: false,
-                  maxDisplayedDecimals: 8,
-              })
-            : undefined;
 
         return getYieldWithdrawCompleteRows({
             accountSymbol: account.symbol,
-            receivedAmount,
-            receivedTokenContract: hasUnwrappedOutput
-                ? undefined
-                : (vault.token.address ?? undefined),
-            withdrawalAmount,
-            withdrawalTokenContract: vault.outputToken.address ?? undefined,
+            receivedAmount: formatEarnTokenAmount({
+                amount: output.amount,
+                locale,
+                symbol: output.token.symbol,
+            }),
+            receivedTokenContract: output.token.contractAddress ?? undefined,
+            withdrawalAmount: formatEarnTokenAmount({
+                amount: input.amount,
+                locale,
+                symbol: input.token.symbol,
+            }),
+            withdrawalTokenContract: input.token.contractAddress ?? undefined,
         });
-    }, [CryptoAmountFormatter, account, isSharesInput, resolutionStatus, session, vault]);
+    }, [account, flowType, locale, receiptToken, resolutionStatus, session, token, vault]);
 
     if (resolutionStatus !== 'resolved' || session?.step !== 'complete') {
         return null;
