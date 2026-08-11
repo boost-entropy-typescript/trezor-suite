@@ -30,6 +30,8 @@ export { deviceDisconnectEvent } from './deviceDisconnectEvent';
 export { deviceSetupCompletedEvent } from './deviceSetupCompletedEvent';
 export { deviceSetupStartedEvent } from './deviceSetupStartedEvent';
 export { deviceUpdateFirmwareEvent } from './deviceUpdateFirmwareEvent';
+export { feedbackRatingSelectedEvent } from './feedbackRatingSelectedEvent';
+export { feedbackSentEvent } from './feedbackSentEvent';
 export { guideFeedbackNavigationEvent } from './guideFeedbackNavigationEvent';
 export { guideFeedbackSubmitEvent } from './guideFeedbackSubmitEvent';
 export { guideHeaderNavigationEvent } from './guideHeaderNavigationEvent';

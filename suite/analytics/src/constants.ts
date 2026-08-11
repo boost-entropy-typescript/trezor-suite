@@ -45,6 +45,8 @@ export enum EventType {
     DeviceSetupStarted = 'device-setup-started',
     // eslint-disable-next-line local-rules/analytics-event-name
     DeviceUpdateFirmware = 'device-update-firmware',
+    FeedbackRatingSelected = 'feedback/rating-selected',
+    FeedbackSent = 'feedback/sent',
     GuideFeedbackNavigation = 'guide/feedback/navigation',
     GuideFeedbackSubmit = 'guide/feedback/submit',
     GuideHeaderNavigation = 'guide/header/navigation',

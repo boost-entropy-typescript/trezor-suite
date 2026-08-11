@@ -27,6 +27,8 @@ export { earnStablecoinYieldTilePressedEvent } from './earnStablecoinYieldTilePr
 export { earnStakeTilePressedEvent } from './earnStakeTilePressedEvent';
 export { ejectDeviceClickEvent } from './ejectDeviceClickEvent';
 export { emptyDashboardActionEvent } from './emptyDashboardActionEvent';
+export { feedbackRatingSelectedEvent } from './feedbackRatingSelectedEvent';
+export { feedbackSentEvent } from './feedbackSentEvent';
 export { firmwareFirmwareUpdateCancelEvent } from './firmwareFirmwareUpdateCancelEvent';
 export { firmwareFirmwareUpdateFinishedEvent } from './firmwareFirmwareUpdateFinishedEvent';
 export { firmwareFirmwareUpdateStartedEvent } from './firmwareFirmwareUpdateStartedEvent';

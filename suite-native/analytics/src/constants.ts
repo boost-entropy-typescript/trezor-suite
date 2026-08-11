@@ -57,6 +57,8 @@ export enum EventType {
     EjectDeviceClick = 'eject_device/click',
     // eslint-disable-next-line local-rules/analytics-event-name
     EmptyDashboardAction = 'empty_dashboard/action',
+    FeedbackRatingSelected = 'feedback/rating-selected',
+    FeedbackSent = 'feedback/sent',
     // eslint-disable-next-line local-rules/analytics-event-name
     FirmwareFirmwareUpdateCancel = 'firmware/firmware_update_cancel',
     // eslint-disable-next-line local-rules/analytics-event-name

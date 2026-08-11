@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useServices } from '@suite-common/dependency-injection';
 import { selectSelectedDevice } from '@suite-common/device';
 import { type Rating, buildUserFeedbackData, sendFeedbackAction } from '@suite-common/feedback';
 import { selectCountryCode } from '@suite-common/geolocation';
@@ -8,6 +9,7 @@ import {
     selectActiveExperimentsWithVariants,
 } from '@suite-common/message-system';
 import { type TradingType } from '@suite-common/trading';
+import { events, selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { FeedbackCard } from '@suite-native/feedback-form';
 import { Translation } from '@suite-native/intl';
 
@@ -34,6 +36,14 @@ export const TradingDetailFeedback = ({
     const device = useSelector(selectSelectedDevice);
     const geolocation = useSelector(selectCountryCode);
     const activeExperimentsWithVariants = useSelector(selectActiveExperimentsWithVariants);
+    const { analytics } = useServices(selectNativeAnalyticsDep);
+
+    const handleRatingSelect = (rating: Rating) => {
+        analytics.report({
+            type: events.feedbackRatingSelectedEvent.name,
+            payload: { rating, category: 'trade', context: type, provider },
+        });
+    };
 
     const handleSubmit = (rating: Rating, description: string) => {
         const userData = buildUserFeedbackData(device);
@@ -60,6 +70,11 @@ export const TradingDetailFeedback = ({
                 },
             }),
         );
+
+        analytics.report({
+            type: events.feedbackSentEvent.name,
+            payload: { category: 'trade', context: type, provider },
+        });
     };
 
     return (
@@ -71,6 +86,7 @@ export const TradingDetailFeedback = ({
             successDescription={<Translation id="feedbackForm.successDescription" />}
             closeLabel={<Translation id="generic.buttons.close" />}
             onSubmit={handleSubmit}
+            onRatingSelect={handleRatingSelect}
         />
     );
 };
