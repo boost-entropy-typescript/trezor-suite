@@ -1,11 +1,18 @@
 import { A, D, pipe } from '@mobily/ts-belt';
 
+import { type DeviceRootState } from '@suite-common/device';
 import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/redux-utils';
+import {
+    type NotificationsRootState,
+    type TransactionNotification,
+    selectTransactionNotifications,
+} from '@suite-common/toast-notifications';
 import {
     type TokenDefinitionsRootState,
     createPhishingResult,
     isPhishingTransaction,
     selectNetworkTokenDefinitions,
+    selectTokenDefinitions,
 } from '@suite-common/token-definitions';
 import { type NetworkSymbol } from '@suite-common/wallet-config';
 import type {
@@ -27,6 +34,7 @@ import {
     isStakeTx,
     isStakeTypeTx,
     isUnstakeTx,
+    isYieldTypeTx,
     roundTimestampToNearestPastHour,
 } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode } from '@trezor/blockchain-link-types';
@@ -34,7 +42,7 @@ import { isNotNullOrUndefined, typedObjectKeys } from '@trezor/utils';
 
 import type { TransactionsByAccount, TransactionsRootState } from './transactionsReducerTypes';
 import type { AccountsRootState } from '../accounts/accountsReducer';
-import { selectAccountByKey } from '../accounts/accountsSelectors';
+import { selectAccountByKey, selectDeviceAccounts } from '../accounts/accountsSelectors';
 import {
     type BlockchainRootState,
     selectBlockchainHeightBySymbol,
@@ -185,6 +193,9 @@ export const selectAccountTransactionsMarkedAsNotScam = (
     accountKey: AccountKey,
 ) => state.wallet.transactions.phishing[accountKey] ?? EMPTY_STABLE_TXIDS_ARRAY;
 
+export const selectPhishingTransactions = (state: TransactionsRootState) =>
+    state.wallet.transactions.phishing;
+
 export const selectPhishingTransactionsContext = createPhishingContextMemoizedSelector(
     [
         selectHistoricFiatRates,
@@ -237,6 +248,11 @@ export const selectAccountStakeTypeTransactions = createMemoizedSelector(
                     isCardanoStakingTx(tx),
             ),
         ),
+);
+
+export const selectAccountYieldTypeTransactions = createMemoizedSelector(
+    [selectAccountTransactions],
+    transactions => returnStableArrayIfEmpty(transactions.filter(isYieldTypeTx)),
 );
 
 export const selectAccountPendingStakeTypeTransactions = createMemoizedSelector(
@@ -414,3 +430,57 @@ export const selectTransactionsWithMissingRates = (
         txs: WalletAccountTransaction[];
     }[];
 };
+
+const createPhishingNotificationsSelector = createWeakMapSelector.withTypes<
+    NotificationsRootState &
+        TokenDefinitionsRootState &
+        TransactionsRootState &
+        AccountsRootState &
+        FiatRatesRootState &
+        PhishingRootState &
+        DeviceRootState
+>();
+
+// Returns a stable predicate; recomputed only when phishing-relevant slices change.
+const selectIsNotificationPhishing = createPhishingNotificationsSelector(
+    [
+        selectDeviceAccounts,
+        selectTransactions,
+        selectPhishingTransactions,
+        selectHistoricFiatRates,
+        selectTokenDefinitions,
+        selectActiveDustPhishingThreshold,
+    ],
+    (deviceAccounts, transactions, phishingMap, historicRates, tokenDefinitions, dustThreshold) =>
+        (notification: TransactionNotification): boolean => {
+            const account = deviceAccounts.find(
+                a => a.descriptor === notification.descriptor && a.symbol === notification.symbol,
+            );
+            if (!account) return false;
+
+            const transaction = transactions[account.key]?.find(
+                tx => tx?.txid === notification.txid,
+            );
+            if (!transaction) return false;
+
+            return isPhishingTransaction({
+                transaction,
+                tokenDefinitions: tokenDefinitions?.[transaction.symbol],
+                historicRates,
+                txsMarkedAsNotScam: phishingMap[account.key] ?? [],
+                dustThreshold,
+            }).isPhishing;
+        },
+);
+
+export const selectNonPhishingTransactionNotifications = createPhishingNotificationsSelector(
+    [selectTransactionNotifications, selectIsNotificationPhishing],
+    (notifications, isNotificationPhishing) =>
+        returnStableArrayIfEmpty(notifications.filter(n => !isNotificationPhishing(n))),
+);
+
+export const selectHasUnseenNonPhishingTransactionNotifications =
+    createPhishingNotificationsSelector(
+        [selectNonPhishingTransactionNotifications],
+        notifications => notifications.some(n => !n.seen),
+    );

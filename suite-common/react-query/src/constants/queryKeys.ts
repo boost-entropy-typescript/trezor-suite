@@ -26,13 +26,6 @@ export const commonQueryKeys = {
     ],
     merklRewards: (...args: any[]) => ['merkl-rewards', ...args],
     missingRateTickers: (...args: any[]) => ['missing-rate-tickers', ...args],
-} as const satisfies Record<string, AllowedQueryKey>;
-
-export const desktopQueryKeys = {
-    defaultUrls: (symbol: string) => ['default-urls', symbol],
-    proxyImage: (src?: string) => ['proxy-image', src],
-    inactiveTokens: (symbol: string, accountKey?: string) =>
-        accountKey ? ['inactive-tokens', symbol, accountKey] : ['inactive-tokens', symbol],
     // `lastKnownNonce` (account.misc.nonce) is part of the key, not just an input to the fetcher —
     // when it changes (e.g. a delayed accountsActions.updateAccount lands after a tx was already
     // added to the store), the query must be treated as brand new and refetched, rather than
@@ -43,6 +36,9 @@ export const desktopQueryKeys = {
         descriptor,
         lastKnownNonce,
     ],
+} as const satisfies Record<string, AllowedQueryKey>;
+
+export const desktopQueryKeys = {
     // The fetched graph data is stored in redux (`wallet.graph`), the query itself only drives the
     // fetching — `newestConfirmedTxids` is what makes it refetch once a transaction the graph data
     // doesn't include yet gets mined. See `useTransactionGraphUpdater`.
@@ -51,6 +47,15 @@ export const desktopQueryKeys = {
         accountKey,
         newestConfirmedTxids,
     ],
+    composeEvmCancelTx: (accountKey: string, txid: string) => [
+        'compose-evm-cancel-tx',
+        accountKey,
+        txid,
+    ],
+    defaultUrls: (symbol: string) => ['default-urls', symbol],
+    proxyImage: (src?: string) => ['proxy-image', src],
+    inactiveTokens: (symbol: string, accountKey?: string) =>
+        accountKey ? ['inactive-tokens', symbol, accountKey] : ['inactive-tokens', symbol],
 } as const satisfies Record<string, AllowedQueryKey>;
 
 export const tradingQueryKeys = {

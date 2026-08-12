@@ -15,6 +15,8 @@ import {
     type WrappedNativeTokenStackRoutes,
 } from '@suite-native/navigation';
 
+import { useWrappedNativeFlowAnalytics } from './useWrappedNativeFlowAnalytics';
+import { useWrappedNativeFlowResolutionAnalytics } from './useWrappedNativeFlowResolutionAnalytics';
 import { type PreparedWrappedNativeTokenAction } from './useWrappedNativeTokenFees';
 import { useWrappedNativeTxSimulation } from './useWrappedNativeTxSimulation';
 import { useYieldPendingTransaction } from './useYieldPendingTransaction';
@@ -49,7 +51,21 @@ export const useStandaloneWrappedNativeFlow = ({
 
     const [hasFlowFailed, setHasFlowFailed] = useState(false);
 
+    const networkSymbol = account?.symbol;
+    const { reportMaxSelected, reportSimulation, reportSubmit } = useWrappedNativeFlowAnalytics({
+        flowType,
+        networkSymbol,
+    });
+
     const pendingStatus = useWrappedNativePendingTx(account, pendingParam?.txid ?? null, flowType);
+
+    useWrappedNativeFlowResolutionAnalytics({
+        flowType,
+        networkSymbol,
+        status: pendingStatus,
+        txid: pendingParam?.txid ?? null,
+    });
+
     const pendingTransaction: YieldPendingTransactionState | null = useMemo(
         () =>
             pendingParam
@@ -91,9 +107,10 @@ export const useStandaloneWrappedNativeFlow = ({
         }
     }, [accountKey, flowType, navigation, pendingParam, pendingStatus]);
 
-    const handleFlowRetry = useCallback(() => {
+    const handleSubmitStart = useCallback(() => {
         setHasFlowFailed(false);
-    }, []);
+        reportSubmit();
+    }, [reportSubmit]);
 
     const handleSimulationConfirmed = useCallback(
         (preparedTx: PreparedWrappedNativeTokenAction) => {
@@ -106,25 +123,44 @@ export const useStandaloneWrappedNativeFlow = ({
         [accountKey, flowType, navigation],
     );
 
-    const simulation = useWrappedNativeTxSimulation({
+    const {
+        handleCancelSimulation: cancelSimulation,
+        handleConfirmSimulation: confirmSimulation,
+        handleSubmit,
+        isDeviceNotConnectedVisible,
+        isFirmwareOutdatedVisible,
+        preparedTx,
+        simulationBottomSheetRef,
+    } = useWrappedNativeTxSimulation({
         amountValue,
         isDisabled,
         onConfirm: handleSimulationConfirmed,
-        onSubmit: handleFlowRetry,
+        onSubmit: handleSubmitStart,
         preparedAction,
     });
 
+    const handleConfirmSimulation = useCallback(() => {
+        reportSimulation('continue');
+        confirmSimulation();
+    }, [confirmSimulation, reportSimulation]);
+
+    const handleCancelSimulation = useCallback(() => {
+        reportSimulation('cancel');
+        cancelSimulation();
+    }, [cancelSimulation, reportSimulation]);
+
     return {
-        handleCancelSimulation: simulation.handleCancelSimulation,
-        handleConfirmSimulation: simulation.handleConfirmSimulation,
-        handleSubmit: simulation.handleSubmit,
+        handleCancelSimulation,
+        handleConfirmSimulation,
+        handleSubmit,
         hasFlowFailed,
-        isDeviceNotConnectedVisible: simulation.isDeviceNotConnectedVisible,
-        isFirmwareOutdatedVisible: simulation.isFirmwareOutdatedVisible,
+        isDeviceNotConnectedVisible,
+        isFirmwareOutdatedVisible,
         isPending: !!pendingParam,
         pendingBottomSheetRef,
         pendingModalProps,
-        preparedTx: simulation.preparedTx,
-        simulationBottomSheetRef: simulation.simulationBottomSheetRef,
+        preparedTx,
+        reportMaxSelected,
+        simulationBottomSheetRef,
     };
 };

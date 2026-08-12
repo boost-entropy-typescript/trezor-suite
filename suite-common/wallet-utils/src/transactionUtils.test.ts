@@ -1,5 +1,5 @@
 import { testMocks } from '@suite-common/test-utils';
-import { asNetworkSymbol } from '@suite-common/wallet-config';
+import { type NetworkFeature, asNetworkSymbol } from '@suite-common/wallet-config';
 import { type WalletAccountTransaction, asAccountDescriptor } from '@suite-common/wallet-types';
 
 import * as fixtures from './__fixtures__/transactionUtils';
@@ -23,6 +23,7 @@ import {
     groupTransactionsByDate,
     isPending,
     isSignedByAccount,
+    isTransactionBumpable,
     isTransactionCancellable,
     parseTransactionDateKey,
     parseTransactionMonthKey,
@@ -77,6 +78,17 @@ const getOwnEvmTransaction = (params: EvmTransactionParams) =>
 const getForeignEvmTransaction = (params: EvmTransactionParams) =>
     getEvmTransaction(FOREIGN_SIGNER, params);
 
+// isTransactionCancellable/isTransactionBumpable only check for the presence of rbfParams, not
+// their shape, so any valid value serves for the positive cases.
+const rbfParams: WalletAccountTransaction['rbfParams'] = {
+    type: 'bitcoin',
+    txid: 'txid',
+    utxo: [],
+    outputs: [],
+    feeRate: '1',
+    baseFee: 144,
+};
+
 describe('transaction utils', () => {
     describe('parseTransactionDateKey', () => {
         it('parses date key correctly', () => {
@@ -105,17 +117,6 @@ describe('transaction utils', () => {
     });
 
     describe('isTransactionCancellable', () => {
-        // The function only checks for the presence of rbfParams, not their shape, so any valid
-        // value serves for the positive cases.
-        const rbfParams: WalletAccountTransaction['rbfParams'] = {
-            type: 'bitcoin',
-            txid: 'txid',
-            utxo: [],
-            outputs: [],
-            feeRate: '1',
-            baseFee: 144,
-        };
-
         it('is cancellable for a pending sent tx with rbfParams on an rbf network', () => {
             const tx = getWalletTransaction({ type: 'sent', rbfParams });
             expect(isTransactionCancellable(tx, true, ['rbf', 'sign-verify'])).toBe(true);
@@ -901,6 +902,37 @@ describe('transaction utils', () => {
 
         it('equal to nextNonce with no colliding pending tx is ok', () => {
             expect(getEvmNonceStatus(43, bounds)).toBe('ok');
+        });
+    });
+
+    describe('isTransactionBumpable', () => {
+        const rbfFeatures: NetworkFeature[] = ['rbf'];
+        const bumpableTx = (overrides?: Partial<WalletAccountTransaction>) =>
+            getWalletTransaction({ type: 'sent', rbfParams, ...overrides });
+
+        it('is true with rbfParams, the rbf network feature, no deadline and a non-joint tx', () => {
+            expect(isTransactionBumpable(bumpableTx(), rbfFeatures)).toBe(true);
+        });
+
+        it('is false without rbfParams', () => {
+            expect(isTransactionBumpable(bumpableTx({ rbfParams: undefined }), rbfFeatures)).toBe(
+                false,
+            );
+        });
+
+        it('is false when the network has no rbf feature', () => {
+            expect(isTransactionBumpable(bumpableTx(), [])).toBe(false);
+            expect(isTransactionBumpable(bumpableTx(), undefined)).toBe(false);
+        });
+
+        it('is false when the tx has a deadline (e.g. a time-boxed swap)', () => {
+            expect(isTransactionBumpable(bumpableTx({ deadline: 123456 }), rbfFeatures)).toBe(
+                false,
+            );
+        });
+
+        it("is false for a 'joint' (coinjoin) tx", () => {
+            expect(isTransactionBumpable(bumpableTx({ type: 'joint' }), rbfFeatures)).toBe(false);
         });
     });
 

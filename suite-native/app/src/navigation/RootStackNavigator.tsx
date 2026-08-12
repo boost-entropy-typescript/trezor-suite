@@ -41,6 +41,7 @@ import {
     UnstakeTransactionDataReviewScreen,
     WrappedNativeTokenStackNavigator,
     YieldInsufficientBalanceScreen,
+    YieldManagementScreen,
     YieldStackNavigator,
 } from '@suite-native/module-earn';
 import { FeatureFeedbackModalScreen } from '@suite-native/module-home';
@@ -61,6 +62,7 @@ import {
     TradingReceiveAccountsPickerScreen,
     TradingSellOutputsReviewScreen,
     TradingSellPreviewScreen,
+    TradingTradeableAssetScreen,
 } from '@suite-native/module-trading';
 import { TransactionDetailStackNavigator } from '@suite-native/module-transactions';
 import {
@@ -135,6 +137,11 @@ export const RootStackNavigator = () => {
                 options={{ title: RootStackRoutes.StakingManagement }}
                 name={RootStackRoutes.StakingManagement}
                 component={StakingManagementScreen}
+            />
+            <RootStack.Screen
+                options={{ title: RootStackRoutes.YieldManagement }}
+                name={RootStackRoutes.YieldManagement}
+                component={YieldManagementScreen}
             />
             <RootStack.Screen
                 options={{ title: RootStackRoutes.UnstakeFlow }}
@@ -227,6 +234,11 @@ export const RootStackNavigator = () => {
                     options={{ title: RootStackRoutes.TradingExchangeOutputsReview }}
                     name={RootStackRoutes.TradingExchangeOutputsReview}
                     component={TradingExchangeOutputsReviewScreen}
+                />
+                <RootStack.Screen
+                    options={{ title: RootStackRoutes.TradingTradeableAsset }}
+                    name={RootStackRoutes.TradingTradeableAsset}
+                    component={TradingTradeableAssetScreen}
                 />
                 <RootStack.Screen
                     options={{ title: RootStackRoutes.ReceiveAccounts }}

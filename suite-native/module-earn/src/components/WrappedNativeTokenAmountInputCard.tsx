@@ -5,7 +5,15 @@ import { type NetworkSymbol } from '@suite-common/wallet-config';
 import { selectBaseCurrency, selectIsBaseCurrencyInSats } from '@suite-common/wallet-core';
 import { type TokenAddress, type TokenSymbol } from '@suite-common/wallet-types';
 import { getDecimalsForBaseCurrency } from '@suite-common/wallet-utils';
-import { BaseAmountInputs, Button, Card, HStack, Text, VStack } from '@suite-native/atoms';
+import {
+    type ActiveView,
+    BaseAmountInputs,
+    Button,
+    Card,
+    HStack,
+    Text,
+    VStack,
+} from '@suite-native/atoms';
 import { TokenAmountFormatter, useCryptoFiatConverters } from '@suite-native/formatters';
 import { useFormContext } from '@suite-native/forms';
 import { Translation } from '@suite-native/intl';
@@ -22,6 +30,8 @@ type WrappedNativeTokenAmountInputCardProps = {
     balance: string;
     defaultAmount?: string;
     maxAmount?: string;
+    onCurrencyChange?: (activeView: ActiveView) => void;
+    onMaxPress?: () => void;
     symbol: NetworkSymbol;
     tokenContract?: TokenAddress;
     tokenDecimals?: number;
@@ -33,6 +43,8 @@ export const WrappedNativeTokenAmountInputCard = ({
     balance,
     defaultAmount,
     maxAmount,
+    onCurrencyChange,
+    onMaxPress,
     symbol,
     tokenContract,
     tokenDecimals,
@@ -78,6 +90,7 @@ export const WrappedNativeTokenAmountInputCard = ({
     }, [defaultAmount, setAmountWithFiat]);
 
     const handleMaxPress = () => {
+        onMaxPress?.();
         setAmountWithFiat(maxAmount ?? balance);
     };
 
@@ -86,6 +99,7 @@ export const WrappedNativeTokenAmountInputCard = ({
             <VStack spacing="sp12">
                 <BaseAmountInputs
                     symbol={symbol}
+                    onInputSwitch={onCurrencyChange}
                     unfocusedOffset={AMOUNT_INPUT_UNFOCUSED_OFFSET}
                     wrapperHeight={AMOUNT_INPUT_WRAPPER_HEIGHT}
                     renderTopRow={() => <Text variant="body-sm">{amountLabel}</Text>}
