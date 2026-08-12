@@ -50,6 +50,7 @@ import { useYieldPendingTransaction } from '../hooks/useYieldPendingTransaction'
 import { useYieldPendingTransactionTracking } from '../hooks/useYieldPendingTransactionTracking';
 import { useYieldSession } from '../hooks/useYieldSession';
 import { getYieldApprovalAnalyticsType } from '../utils/yieldAnalyticsUtils';
+import { getYieldTokenContract } from '../utils/yieldFiatAmountUtils';
 import { isYieldApprovalAllowanceUnlimited } from '../yieldApprovalUtils';
 
 type RouteProps = RouteProp<YieldStackParamList, YieldStackRoutes.YieldDepositApproval>;
@@ -135,8 +136,9 @@ export const YieldDepositApprovalScreen = () => {
             session?.approval.isModifyMode || hasWrappedAmount ? session?.action.amount : undefined,
         token,
         tokenSymbol,
+        wrappedAmount: session?.result.wrappedAmount,
     });
-    const { amountValue, form, handleAmountChange, handleMaxChange, isMaxSelected } = depositForm;
+    const { amountValue, availableBalance, form, handleMaxPress } = depositForm;
     const {
         formState: { isValid },
     } = form;
@@ -423,15 +425,13 @@ export const YieldDepositApprovalScreen = () => {
                                     <Translation id="earn.yieldDepositFlowScreen.amountToDeposit" />
                                 }
                                 approvalLimitTitle={approvalLimitTitle}
-                                balance={token.balance}
+                                balance={availableBalance}
                                 isApprovalLimitDisabled={isAllowanceAmountUnlimited}
-                                isMaxSelected={isMaxSelected}
-                                maxLabel={
-                                    <Translation id="earn.yieldDepositFlowScreen.depositMax" />
-                                }
-                                onAmountChange={handleAmountChange}
                                 onApprovalLimitPress={openApprovalLimitBottomSheet}
-                                onMaxChange={handleMaxChange}
+                                onMaxPress={handleMaxPress}
+                                symbol={account.symbol}
+                                tokenContract={getYieldTokenContract(token)}
+                                tokenDecimals={token.decimals}
                                 tokenSymbol={tokenSymbol}
                             />
                         </Box>

@@ -52,6 +52,7 @@ import { useYieldDepositSubmit } from '../hooks/useYieldDepositSubmit';
 import { useYieldPendingTransaction } from '../hooks/useYieldPendingTransaction';
 import { useYieldPendingTransactionTracking } from '../hooks/useYieldPendingTransactionTracking';
 import { useYieldSession } from '../hooks/useYieldSession';
+import { getYieldTokenContract } from '../utils/yieldFiatAmountUtils';
 import { isYieldApprovalAllowanceUnlimited } from '../yieldApprovalUtils';
 
 type RouteProps = RouteProp<YieldStackParamList, YieldStackRoutes.YieldDeposit>;
@@ -147,8 +148,9 @@ export const YieldDepositScreen = () => {
         defaultAmount: depositAmount,
         token,
         tokenSymbol,
+        wrappedAmount: session?.result.wrappedAmount,
     });
-    const { amountValue, form, handleAmountChange, handleMaxChange, isMaxSelected } = depositForm;
+    const { amountValue, availableBalance, form, handleMaxPress } = depositForm;
     const {
         formState: { isValid },
     } = form;
@@ -335,23 +337,18 @@ export const YieldDepositScreen = () => {
         resolvedFlowData.vault,
     ]);
 
-    const handleMaxChangeWithAnalytics = useCallback(
-        (value: boolean) => {
-            if (value) {
-                analytics.report({
-                    type: events.yieldInteractionEvent.name,
-                    payload: {
-                        element: 'deposit-max',
-                        networkSymbol: account?.symbol,
-                        vaultId: resolvedFlowData.vault?.id,
-                    },
-                });
-            }
+    const handleMaxPressWithAnalytics = useCallback(() => {
+        analytics.report({
+            type: events.yieldInteractionEvent.name,
+            payload: {
+                element: 'deposit-max',
+                networkSymbol: account?.symbol,
+                vaultId: resolvedFlowData.vault?.id,
+            },
+        });
 
-            handleMaxChange(value);
-        },
-        [account?.symbol, analytics, handleMaxChange, resolvedFlowData.vault?.id],
-    );
+        handleMaxPress();
+    }, [account?.symbol, analytics, handleMaxPress, resolvedFlowData.vault?.id]);
 
     const handleOpenInfoBottomSheet = useCallback(() => {
         analytics.report({
@@ -455,13 +452,11 @@ export const YieldDepositScreen = () => {
                                 amountLabel={
                                     <Translation id="earn.yieldDepositFlowScreen.amountToDeposit" />
                                 }
-                                balance={token.balance}
-                                isMaxSelected={isMaxSelected}
-                                maxLabel={
-                                    <Translation id="earn.yieldDepositFlowScreen.depositMax" />
-                                }
-                                onAmountChange={handleAmountChange}
-                                onMaxChange={handleMaxChangeWithAnalytics}
+                                balance={availableBalance}
+                                onMaxPress={handleMaxPressWithAnalytics}
+                                symbol={account.symbol}
+                                tokenContract={getYieldTokenContract(token)}
+                                tokenDecimals={token.decimals}
                                 tokenSymbol={tokenSymbol}
                             />
                         </Form>
