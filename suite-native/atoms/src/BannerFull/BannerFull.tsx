@@ -20,7 +20,7 @@ const containerStyle = prepareNativeStyle<Pick<AlertBoxStyles, 'backgroundColor'
     }),
 );
 
-export type FullAlertBoxProps = {
+export type BannerFullProps = {
     title: React.ReactNode;
     description?: React.ReactNode;
     primaryButtonLabel?: string | React.ReactNode;
@@ -31,10 +31,9 @@ export type FullAlertBoxProps = {
     secondaryButtonProps?: Partial<ButtonProps>;
     intent?: AlertBoxIntent;
     iconName?: IconName;
-    verticalAlignment?: 'flex-start' | 'center';
 } & BoxProps;
 
-export const FullAlertBox = ({
+export const BannerFull = ({
     title,
     description,
     children,
@@ -46,21 +45,22 @@ export const FullAlertBox = ({
     secondaryButtonProps,
     intent = 'neutral',
     iconName,
-    verticalAlignment = 'flex-start',
     ...restProps
-}: PropsWithChildren<FullAlertBoxProps>) => {
+}: PropsWithChildren<BannerFullProps>) => {
     const { applyStyle } = useNativeStyles();
     const { backgroundColor, borderColor, textColor } = intentToColorMap[intent];
 
     return (
         <Box style={applyStyle(containerStyle, { backgroundColor, borderColor })} {...restProps}>
             <VStack spacing="sp12">
-                <HStack spacing="sp12" alignItems={verticalAlignment}>
-                    <Icon
-                        name={iconName ?? intentToIconName[intent]}
-                        color={textColor}
-                        size="mediumLarge"
-                    />
+                <HStack spacing="sp12" alignItems="flex-start">
+                    <Box paddingTop="sp1">
+                        <Icon
+                            name={iconName ?? intentToIconName[intent]}
+                            color={textColor}
+                            size="mediumLarge"
+                        />
+                    </Box>
                     <VStack spacing="sp12" flex={1}>
                         <VStack spacing="sp2">
                             <Text color={textColor}>{title}</Text>
