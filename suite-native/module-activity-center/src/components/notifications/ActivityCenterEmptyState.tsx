@@ -7,7 +7,7 @@ type Props = {
 };
 
 export const ActivityCenterEmptyState = ({ titleId, subtitleId }: Props) => (
-    <VStack spacing="sp16" alignItems="center">
+    <VStack alignItems="center" spacing="sp16">
         <Pictogram variant="info" icon="bellZ" />
         <VStack spacing="sp4" alignItems="center">
             <Text variant="headline-md" textAlign="center">
