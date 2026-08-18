@@ -225,25 +225,53 @@ export const useYieldFlow = ({
             return;
         }
 
+        // A session left with an pending transaction survives disposal (see `disposeSession`),
+        // so re-entering the flow rehydrates it: keep its step and pending state so tracking can
+        // resume/reconcile the transaction, instead of starting the flow over.
+        const preservedPendingTransaction = sessionRef.current.action.pendingTransaction;
+
         dispatch(stablecoinYieldActions.initSession({ flowType, flowKey, isWrappedNativeVault }));
-        dispatch(stablecoinYieldActions.resetSession({ flowType, flowKey, isWrappedNativeVault }));
 
-        if (flowType === 'deposit' && isWrappedNativeVault && hasWrappedTokenBalanceRef.current) {
+        if (preservedPendingTransaction) {
+            // The amount card is disabled while a transaction is pending — show its amount.
+            methodsRef.current.reset({
+                amountInput: preservedPendingTransaction.amount,
+                fiatInput: '',
+            });
+        } else {
             dispatch(
-                stablecoinYieldActions.resolveWrappedNativeStep({
-                    flowType,
-                    flowKey,
-                    step: 'wrap',
-                }),
+                stablecoinYieldActions.resetSession({ flowType, flowKey, isWrappedNativeVault }),
             );
-        }
 
-        methodsRef.current.reset({ amountInput: '', fiatInput: '' });
+            if (
+                flowType === 'deposit' &&
+                isWrappedNativeVault &&
+                hasWrappedTokenBalanceRef.current
+            ) {
+                dispatch(
+                    stablecoinYieldActions.resolveWrappedNativeStep({
+                        flowType,
+                        flowKey,
+                        step: 'wrap',
+                    }),
+                );
+            }
+
+            methodsRef.current.reset({ amountInput: '', fiatInput: '' });
+        }
 
         return () => {
             dispatch(stablecoinYieldActions.disposeSession({ flowType, flowKey }));
         };
-    }, [flowKey, flowType, dispatch, isWrappedNativeVault, hasWrappedTokenBalanceRef, methodsRef]);
+    }, [
+        flowKey,
+        flowType,
+        dispatch,
+        isWrappedNativeVault,
+        hasWrappedTokenBalanceRef,
+        methodsRef,
+        sessionRef,
+    ]);
 
     const { allowanceStatus } = session.approval;
 
@@ -537,7 +565,7 @@ export const useYieldFlow = ({
                             account,
                             token: wrappedToken,
                             wrapAmount: amount,
-                            yieldFlow: { flowType: 'deposit', flowKey },
+                            yieldFlow: { flowType: 'deposit', flowKey, vaultId: vault.id },
                         }),
                     ).unwrap();
                     txid = result?.txid;
@@ -547,7 +575,7 @@ export const useYieldFlow = ({
                             account,
                             token: wrappedToken,
                             unwrapAmount: amount,
-                            yieldFlow: { flowType, flowKey },
+                            yieldFlow: { flowType, flowKey, vaultId: vault.id },
                         }),
                     ).unwrap();
                     txid = result?.txid;
@@ -592,6 +620,7 @@ export const useYieldFlow = ({
             openDeviceConnectionModal,
             resolveWrappedNativeStep,
             token,
+            vault.id,
         ],
     );
 

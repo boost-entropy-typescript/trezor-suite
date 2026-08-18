@@ -64,6 +64,7 @@ import { useMessageSystemYield } from '../hooks/useMessageSystemYield';
 import { useNavigateBackAnalytics } from '../hooks/useNavigateBackAnalytics';
 import { useResolvedYieldFlowData } from '../hooks/useResolvedYieldFlowData';
 import { useShowYieldTransactionFailureAlert } from '../hooks/useShowYieldTransactionFailureAlert';
+import { useYieldPendingSheet } from '../hooks/useYieldPendingSheet';
 import { useYieldPendingTransactionTracking } from '../hooks/useYieldPendingTransactionTracking';
 import { useYieldSession } from '../hooks/useYieldSession';
 import { useYieldWithdrawFees } from '../hooks/useYieldWithdrawFees';
@@ -272,9 +273,11 @@ export const YieldWithdrawScreen = () => {
     const pendingTransaction = session?.action.pendingTransaction ?? null;
     const { actionPendingTransaction } = splitYieldPendingTransaction(pendingTransaction, flowType);
     const isWithdrawPending = !!actionPendingTransaction;
+    const { displayedPendingTransaction, isSheetPresented, handleSheetDismissed } =
+        useYieldPendingSheet(actionPendingTransaction);
     const { explorerUrl, openInBlockchain } = useTransactionDetails({
         accountKey: account?.key ?? null,
-        txid: actionPendingTransaction?.txid ?? null,
+        txid: displayedPendingTransaction?.txid ?? null,
     });
     const isSubmitDisabled =
         !amount ||
@@ -312,6 +315,12 @@ export const YieldWithdrawScreen = () => {
     }, [closePendingBottomSheet, isFocused, isWithdrawPending, openPendingBottomSheet]);
 
     useEffect(() => {
+        // Replacing the screen while the sheet is still dismissing crashes Fabric — see
+        // `useYieldPendingSheet`.
+        if (isSheetPresented) {
+            return;
+        }
+
         if (session?.step === 'unwrap') {
             navigation.replace(YieldStackRoutes.YieldWithdrawUnwrap, {
                 ...route.params,
@@ -327,7 +336,7 @@ export const YieldWithdrawScreen = () => {
                 withdrawFlowType: flowType,
             });
         }
-    }, [flowType, navigation, route.params, session?.step]);
+    }, [flowType, isSheetPresented, navigation, route.params, session?.step]);
 
     const getSharesAmountFromAssetAmount = useCallback(
         (value: string) => {
@@ -572,7 +581,11 @@ export const YieldWithdrawScreen = () => {
                 <>
                     <ScreenFooterGradient />
                     <Box style={applyStyle(screenFooterStyle)}>
-                        <Button isDisabled={isSubmitDisabled} onPress={handleContinue}>
+                        <Button
+                            isDisabled={isSubmitDisabled}
+                            isLoading={isComposingWithdrawFee}
+                            onPress={handleContinue}
+                        >
                             <Translation id="generic.buttons.continue" />
                         </Button>
                     </Box>
@@ -717,7 +730,7 @@ export const YieldWithdrawScreen = () => {
                         <YieldFeeEstimationErrorAlert onRetry={retryFeeEstimation} />
                     )}
 
-                    {isWithdrawReviewReady && (
+                    {!!withdrawFeeFormDraft && (
                         <FeeSelector
                             accountKey={account.key}
                             tokenContract={route.params.tokenContract}
@@ -739,19 +752,20 @@ export const YieldWithdrawScreen = () => {
                     />
                 </VStack>
             </VStack>
-            {actionPendingTransaction && (
+            {displayedPendingTransaction && (
                 <YieldPendingTransactionModal
                     ref={pendingBottomSheetRef}
                     accountLabel={accountLabel}
                     accountSymbol={account.symbol}
-                    amount={actionPendingTransaction.amount}
+                    amount={displayedPendingTransaction.amount}
                     amountLabel={<Translation id="earn.yieldWithdrawFlowScreen.amountToWithdraw" />}
                     amountTokenContract={activeUnitTokenContract}
                     amountTokenSymbol={activeUnitSymbol}
-                    fee={actionPendingTransaction.fee}
+                    fee={displayedPendingTransaction.fee}
                     isExploreDisabled={!explorerUrl}
+                    onDismiss={handleSheetDismissed}
                     onExplorePress={openInBlockchain}
-                    submittedAt={new Date(actionPendingTransaction.submittedAt ?? 0)}
+                    submittedAt={new Date(displayedPendingTransaction.submittedAt ?? 0)}
                     title={<Translation id="earn.yieldWithdrawFlowScreen.withdrawPendingTitle" />}
                     vaultName={vaultTokenName}
                     vaultTokenContract={vaultTokenContract}
