@@ -1126,9 +1126,48 @@ export const messages = defineMessages({
         defaultMessage: 'You get',
         id: 'TR_TRADING_YOU_GET',
     },
-    TR_TRADING_FIAT_DEVIATION_WARNING: {
-        defaultMessage: 'Receiving over {percentage} less in estimated fiat value.',
-        id: 'TR_TRADING_FIAT_DEVIATION_WARNING',
+    TR_TRADING_REVIEW_SWAP: {
+        defaultMessage: 'Review your swap',
+        id: 'TR_TRADING_REVIEW_SWAP',
+    },
+    TR_TRADING_SIMULATING: {
+        defaultMessage: 'Simulating transaction',
+        id: 'TR_TRADING_SIMULATING',
+    },
+    TR_TRADING_CONTINUE_ANYWAY: {
+        defaultMessage: 'Continue anyway',
+        id: 'TR_TRADING_CONTINUE_ANYWAY',
+    },
+    TR_TRADING_BACK_TO_TRADE_FORM: {
+        defaultMessage: 'Back to trade form',
+        id: 'TR_TRADING_BACK_TO_TRADE_FORM',
+    },
+    TR_TRADING_PRICE_IMPACT_TITLE: {
+        defaultMessage: "You'll lose {percent} in value",
+        id: 'TR_TRADING_PRICE_IMPACT_TITLE',
+    },
+    TR_TRADING_PRICE_IMPACT_DESCRIPTION: {
+        defaultMessage:
+            'Low market liquidity is affecting this swap. Try another provider or wait for the market to stabilize.',
+        id: 'TR_TRADING_PRICE_IMPACT_DESCRIPTION',
+    },
+    TR_TRADING_HIGH_RISK_SWAP_TITLE: {
+        defaultMessage: 'High-risk swap detected',
+        id: 'TR_TRADING_HIGH_RISK_SWAP_TITLE',
+    },
+    TR_TRADING_HIGH_RISK_SWAP_DESCRIPTION: {
+        defaultMessage:
+            "This swap was flagged as unsafe. The provider's contract interaction may put your funds at risk. Choose another provider.",
+        id: 'TR_TRADING_HIGH_RISK_SWAP_DESCRIPTION',
+    },
+    TR_TRADING_SLIPPAGE_TOO_LOW_TITLE: {
+        defaultMessage: 'Slippage is too low',
+        id: 'TR_TRADING_SLIPPAGE_TOO_LOW_TITLE',
+    },
+    TR_TRADING_SLIPPAGE_TOO_LOW_DESCRIPTION: {
+        defaultMessage:
+            'This swap might fail with your current slippage. Your funds are safe, but the network fee won’t be refunded. Increase slippage or choose another provider.',
+        id: 'TR_TRADING_SLIPPAGE_TOO_LOW_DESCRIPTION',
     },
     TR_TRADING_COUNTRY: {
         defaultMessage: 'Country of residence',
@@ -6789,6 +6828,10 @@ export const messages = defineMessages({
         defaultMessage: 'This is a change address created from a previous send.',
         description: 'Tooltip over an icon in Coin control section',
     },
+    TR_ACCOUNT_TOKENS_COUNT: {
+        id: 'TR_ACCOUNT_TOKENS_COUNT',
+        defaultMessage: '{count, plural, one {+{count} token} other {+{count} tokens}}',
+    },
     TR_IN_PENDING_TRANSACTION: {
         id: 'TR_IN_PENDING_TRANSACTION',
         defaultMessage: 'In pending transaction',
@@ -10446,11 +10489,11 @@ export const messages = defineMessages({
     },
     TR_EARN_YIELD_REVIEW_WITHDRAW_TITLE: {
         id: 'TR_EARN_YIELD_REVIEW_WITHDRAW_TITLE',
-        defaultMessage: 'Redeem',
+        defaultMessage: 'Withdraw',
     },
     TR_EARN_YIELD_REVIEW_WITHDRAW_DESCRIPTION: {
         id: 'TR_EARN_YIELD_REVIEW_WITHDRAW_DESCRIPTION',
-        defaultMessage: 'Review details to redeem from vault.',
+        defaultMessage: 'Review details to withdraw from vault.',
     },
     TR_EARN_YIELD_REVIEW_REDEEM_TITLE: {
         id: 'TR_EARN_YIELD_REVIEW_REDEEM_TITLE',
@@ -10478,7 +10521,7 @@ export const messages = defineMessages({
     },
     TR_EARN_YIELD_REVIEW_WITHDRAW_AMOUNT: {
         id: 'TR_EARN_YIELD_REVIEW_WITHDRAW_AMOUNT',
-        defaultMessage: 'Redeem amount',
+        defaultMessage: 'Withdraw amount',
     },
     TR_EARN_YIELD_REVIEW_REDEEM_AMOUNT: {
         id: 'TR_EARN_YIELD_REVIEW_REDEEM_AMOUNT',

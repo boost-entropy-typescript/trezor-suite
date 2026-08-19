@@ -1987,6 +1987,9 @@ export const messages = {
                     'Proceed with caution. This transaction may include hidden or unrecognized tokens.',
                 emptyTitle: 'No hidden tokens',
             },
+            defiTokensSection: {
+                emptyTitle: 'No DeFi tokens',
+            },
         },
         tokenSettings: {
             contractAddress: 'Contract address',
@@ -2991,11 +2994,17 @@ export const messages = {
                     description: 'Network fee',
                 },
                 second: {
-                    title: 'Entry period',
+                    title: {
+                        ethereum: 'Enter staking pool',
+                        solana: 'Enter warm-up period',
+                    },
                     description: '~{entryPeriod} days',
                 },
                 third: {
-                    title: 'Receive weekly rewards',
+                    title: {
+                        ethereum: 'Receive weekly rewards',
+                        solana: 'Receive rewards every ~{days} days',
+                    },
                     description: '~{apy}% yearly',
                 },
             },
@@ -3006,7 +3015,10 @@ export const messages = {
                     description: 'Network fee',
                 },
                 second: {
-                    title: 'Leave staking pool',
+                    title: {
+                        ethereum: 'Leave staking pool',
+                        solana: 'Enter cool-down period',
+                    },
                     description: '~{unstakingPeriod} days',
                 },
                 third: {
@@ -3014,7 +3026,7 @@ export const messages = {
                     description: 'Network fee',
                 },
                 fourth: {
-                    title: 'Receive {symbol} in your account',
+                    title: 'Receive {symbol} in account',
                     description: 'Instantly',
                 },
             },
