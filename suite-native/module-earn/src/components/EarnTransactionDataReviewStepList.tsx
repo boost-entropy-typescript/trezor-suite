@@ -3,11 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { type NetworkSymbol } from '@suite-common/wallet-config';
 import { type AccountKey } from '@suite-common/wallet-types';
-import {
-    asAmountUnit,
-    isSupportedSolStakingNetworkSymbol,
-    unitsToSubunits,
-} from '@suite-common/wallet-utils';
+import { isSupportedSolStakingNetworkSymbol } from '@suite-common/wallet-utils';
 import { VStack } from '@suite-native/atoms';
 import {
     LIST_VERTICAL_SPACING,
@@ -17,11 +13,12 @@ import {
     selectReviewSummaryOutput,
     useActiveStepOffset,
 } from '@suite-native/transaction-management';
-import { BigNumber } from '@trezor/utils';
 
 import { EarnStakeOutputItem } from './EarnStakeOutputItem';
 import { EarnSummaryOutputItem } from './EarnSummaryOutputItem';
 import { useEarnSelectedPrecomposedTransaction } from '../hooks/useEarnSelectedPrecomposedTransaction';
+import { getAmountInBaseUnits } from '../utils/getAmountInBaseUnits';
+import { getEarnPendingAmountInBaseUnits } from '../utils/getEarnPendingAmountInBaseUnits';
 
 type EarnTransactionDataReviewStepListProps = {
     accountKey: AccountKey;
@@ -49,18 +46,12 @@ export const EarnTransactionDataReviewStepList = ({
 
     const { activeStepBottomOffset, handleReadListItemHeight } = useActiveStepOffset(activeStep);
 
-    const amountInBaseUnits = unitsToSubunits({
-        value: asAmountUnit(new BigNumber(amount)),
-        symbol: accountSymbol,
-    }).toString();
-
     const isSolanaStake = isSupportedSolStakingNetworkSymbol(accountSymbol);
-    const displayedAmountInBaseUnits =
-        isSolanaStake && selectedPrecomposed
-            ? new BigNumber(selectedPrecomposed.totalSpent)
-                  .minus(selectedPrecomposed.fee)
-                  .toFixed(0)
-            : amountInBaseUnits;
+    const displayedAmountInBaseUnits = getEarnPendingAmountInBaseUnits({
+        fallbackAmountInBaseUnits: getAmountInBaseUnits(amount, accountSymbol),
+        isSolanaStaking: isSolanaStake,
+        precomposedTransaction: selectedPrecomposed,
+    });
 
     return (
         <View>
