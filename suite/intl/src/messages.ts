@@ -490,6 +490,10 @@ export const messages = defineMessages({
         defaultMessage: 'All networks',
         id: 'TR_ALL_NETWORKS',
     },
+    TR_ASSET_PICKER_NETWORK_FILTER: {
+        defaultMessage: 'Network',
+        id: 'TR_ASSET_PICKER_NETWORK_FILTER',
+    },
     TR_SELECT_TOKEN: {
         defaultMessage: 'Select asset',
         id: 'TR_SELECT_TOKEN',
@@ -2568,9 +2572,9 @@ export const messages = defineMessages({
         defaultMessage: 'Rate not available',
         id: 'TR_FIAT_RATES_NOT_AVAILABLE',
     },
-    TR_FIAT_RATES_NOT_AVAILABLE_TOOLTIP: {
-        defaultMessage: 'The 7D change rate is currently not available.',
-        id: 'TR_FIAT_RATES_NOT_AVAILABLE_TOOLTIP',
+    TR_EXCHANGE_RATE_NOT_AVAILABLE_TOOLTIP: {
+        defaultMessage: 'The exchange rate is currently not available.',
+        id: 'TR_EXCHANGE_RATE_NOT_AVAILABLE_TOOLTIP',
     },
     TR_FIRMWARE: {
         defaultMessage: 'Firmware',
@@ -6831,6 +6835,15 @@ export const messages = defineMessages({
     TR_ACCOUNT_TOKENS_COUNT: {
         id: 'TR_ACCOUNT_TOKENS_COUNT',
         defaultMessage: '{count, plural, one {+{count} token} other {+{count} tokens}}',
+    },
+    TR_OWN_ADDRESS_TOOLTIP: {
+        id: 'TR_OWN_ADDRESS_TOOLTIP',
+        defaultMessage: 'This is your address.',
+    },
+    TR_CHANGE_OUTPUT_TOOLTIP: {
+        id: 'TR_CHANGE_OUTPUT_TOOLTIP',
+        defaultMessage:
+            'A change address of this account. The remainder of a send normally returns here.',
     },
     TR_IN_PENDING_TRANSACTION: {
         id: 'TR_IN_PENDING_TRANSACTION',
@@ -13010,14 +13023,6 @@ export const messages = defineMessages({
     TR_ASSET_PICKER_SEARCH_PLACEHOLDER: {
         id: 'TR_ASSET_PICKER_SEARCH_PLACEHOLDER',
         defaultMessage: 'Search coin or token',
-    },
-    TR_ASSET_PICKER_YOUR_ASSETS: {
-        id: 'TR_ASSET_PICKER_YOUR_ASSETS',
-        defaultMessage: 'Your assets',
-    },
-    TR_ASSET_PICKER_ALL_ASSETS: {
-        id: 'TR_ASSET_PICKER_ALL_ASSETS',
-        defaultMessage: 'All assets',
     },
     TR_ASSET_PICKER_SEARCH_NO_RESULTS: {
         id: 'TR_ASSET_PICKER_SEARCH_NO_RESULTS',
