@@ -57,23 +57,25 @@ import {
     selectBitcoinAmountUnit,
 } from '../settings/walletSettingsReducer';
 
-export const DEFAULT_ACCOUNT_SYNC_INTERVAL = 60 * 1000; // 1 minute
+export const DEFAULT_NETWORK_SYNC_INTERVAL = 60 * 1000; // 1 minute
 
-const CUSTOM_ACCOUNT_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
-    bsc: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    pol: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    op: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    base: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    arb: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    avax: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    trx: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    rhc: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    hype: DEFAULT_ACCOUNT_SYNC_INTERVAL / 1.5,
-    sol: DEFAULT_ACCOUNT_SYNC_INTERVAL * 5,
+const NETWORK_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
+    bsc: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    pol: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    op: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    base: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    arb: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    avax: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    trx: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    rhc: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    hype: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
+    sol: DEFAULT_NETWORK_SYNC_INTERVAL * 5,
 };
 
-const getAccountSyncInterval = (symbol: NetworkSymbol) =>
-    CUSTOM_ACCOUNT_SYNC_INTERVALS[symbol] || DEFAULT_ACCOUNT_SYNC_INTERVAL;
+const getNetworkSyncInterval = (
+    symbol: NetworkSymbol,
+    defaultInterval: number = DEFAULT_NETWORK_SYNC_INTERVAL,
+) => NETWORK_SYNC_INTERVALS[symbol] ?? defaultInterval;
 
 type ReconnectBlockchainThunkParams = {
     symbol: NetworkSymbol;
@@ -319,7 +321,7 @@ export const syncAccountsWithBlockchainThunk = createThunk<
 
         const timeout = setTimeout(
             () => dispatch(syncAccountsWithBlockchainThunk(symbol)),
-            getAccountSyncInterval(symbol),
+            getNetworkSyncInterval(symbol),
         );
 
         dispatch(blockchainActions.synced({ symbol, timeout }));
@@ -452,6 +454,11 @@ export const onBlockchainNotificationThunk = createThunk<
     // with N accounts on the same network, hammering blockbook at ~10k connections.
     // Periodic background sync still runs on its own timer chain (seeded by
     // onBlockchainConnectThunk), so unrelated accounts stay up to date.
+    //
+    // While the window is hidden, the refetch is skipped and the notification is thereby
+    // dropped for good (it is a one-shot push event, nothing queues or replays it) — the
+    // suite walletMiddleware compensates by refetching accounts with pending transactions
+    // when the window becomes visible again.
     const { getIsWindowVisible } = extra.services;
     if (!getIsWindowVisible()) return;
 
@@ -460,18 +467,55 @@ export const onBlockchainNotificationThunk = createThunk<
     );
 });
 
-type OnBlockchainDisconnectThunkState = BlockchainRootState;
+type OnBlockchainDisconnectThunkState = SyncAccountsWithBlockchainThunkState;
+type OnBlockchainDisconnectThunkDeps = {
+    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
+};
 
 export const onBlockchainDisconnectThunk = createThunk<
     void,
     BlockchainError,
-    { state: OnBlockchainDisconnectThunkState }
->(`${BLOCKCHAIN_MODULE_PREFIX}/onBlockchainDisconnectThunk`, (error, { getState }) => {
+    {
+        state: OnBlockchainDisconnectThunkState;
+        extra: OnBlockchainDisconnectThunkDeps;
+    }
+>(`${BLOCKCHAIN_MODULE_PREFIX}/onBlockchainDisconnectThunk`, (error, { dispatch, getState }) => {
     const network = getNetworkOptional(error.coin.shortcut.toLowerCase());
     if (!network) return;
 
-    const blockchain = selectBlockchainState(getState());
-    const { syncTimeout } = blockchain[network.symbol];
-    // reset previous timeout
-    tryClearTimeout(syncTimeout);
+    const { symbol } = network;
+    const blockchain = selectBlockchainState(getState())[symbol];
+    const hasAccounts = findAccountsByNetwork(symbol, selectAccounts(getState())).length > 0;
+
+    /**
+     * Without accounts there is nothing to sync, so stop the chain (coin disabled, last account removed).
+     * BLOCKCHAIN.CONNECT re-seeds it when the network is used again.
+     */
+    if (!hasAccounts) {
+        if (blockchain.syncTimeout) {
+            tryClearTimeout(blockchain.syncTimeout);
+            dispatch(blockchainActions.synced({ symbol, timeout: undefined }));
+        }
+
+        return;
+    }
+
+    /**
+     * While accounts exist, an error must never kill the sync chain.
+     * - EVM networks keep one websocket per wallet identity plus a default one,
+     *   and each of them posts a coin-level BLOCKCHAIN.ERROR when it drops — including terminal disconnects
+     *   that are never followed by a CONNECT that would re-seed the chain
+     * - An armed timer re-arms itself in syncAccountsWithBlockchainThunk,
+     *   and its account fetches fail harmlessly while the backend is down
+     *   and drive the lazy reconnection once it is back — so keep it,
+     *   and arm a new one only when none is left
+     *   (also guards against repeated errors from a failing reconnection loop endlessly deferring the next sync).
+     */
+    if (!blockchain.syncTimeout) {
+        const timeout = setTimeout(
+            () => dispatch(syncAccountsWithBlockchainThunk(symbol)),
+            getNetworkSyncInterval(symbol),
+        );
+        dispatch(blockchainActions.synced({ symbol, timeout }));
+    }
 });
