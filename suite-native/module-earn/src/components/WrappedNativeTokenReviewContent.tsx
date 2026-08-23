@@ -1,7 +1,7 @@
 import { type WrappedNativeFlowType, type YieldFlowDisplayToken } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { Button } from '@suite-native/atoms';
-import { Translation, type TxKeyPath } from '@suite-native/intl';
+import { Translation } from '@suite-native/intl';
 
 import { YieldReviewScreenLayout } from './YieldReviewScreenLayout';
 import { YieldTransactionReviewOutputList } from './YieldTransactionReviewOutputList';
@@ -12,11 +12,13 @@ import {
     useYieldReviewSheetAutoStart,
 } from '../hooks/useYieldReviewScreenControls';
 import { type YieldBroadcastTransaction } from '../types';
+import { wrappedNativeFlowMessages } from '../utils/wrappedNativeFlowMessages';
 import { type YieldReviewPreview } from '../utils/yieldReviewOutputUtils';
 
 type WrappedNativeTokenReviewContentProps = {
     account: Account;
     amount: string;
+    flowContext: 'standalone' | 'in-flow';
     flowType: WrappedNativeFlowType;
     onBroadcast?: (broadcast: YieldBroadcastTransaction) => void;
     preview: YieldReviewPreview;
@@ -24,20 +26,10 @@ type WrappedNativeTokenReviewContentProps = {
     unsignedTransaction: string;
 };
 
-const flowMessages = {
-    wrap: {
-        submitButton: 'earn.wrapNativeToken.review.submitButton',
-        title: 'earn.wrapNativeToken.review.title',
-    },
-    unwrap: {
-        submitButton: 'earn.unwrapNativeToken.review.submitButton',
-        title: 'earn.unwrapNativeToken.review.title',
-    },
-} satisfies Record<WrappedNativeFlowType, { submitButton: TxKeyPath; title: TxKeyPath }>;
-
 export const WrappedNativeTokenReviewContent = ({
     account,
     amount,
+    flowContext,
     flowType,
     onBroadcast,
     preview,
@@ -54,6 +46,7 @@ export const WrappedNativeTokenReviewContent = ({
     const { handleSubmitted, leaveReviewFromDeviceCancel, startReview, status } =
         useWrappedNativeTokenReview({
             account,
+            flowContext,
             flowType,
             token: spentToken,
             amount,
@@ -77,11 +70,11 @@ export const WrappedNativeTokenReviewContent = ({
     return (
         <YieldReviewScreenLayout
             confirmOnTrezorRef={confirmOnTrezorRef}
-            titleTranslationId={flowMessages[flowType].title}
+            titleTranslationId={wrappedNativeFlowMessages[flowType].review.title}
             submitButton={
                 isSigned && (
                     <Button isLoading={status === 'sending'} onPress={handleSubmitted}>
-                        <Translation id={flowMessages[flowType].submitButton} />
+                        <Translation id={wrappedNativeFlowMessages[flowType].review.submitButton} />
                     </Button>
                 )
             }

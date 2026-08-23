@@ -27,6 +27,7 @@ import {
 
 type UseWrappedNativeTokenReviewParams = {
     account: Account;
+    flowContext: 'standalone' | 'in-flow';
     flowType: WrappedNativeFlowType;
     token: YieldFlowDisplayToken;
     amount: string;
@@ -51,6 +52,7 @@ type NavigationProps = StackNavigationProps<
 
 export const useWrappedNativeTokenReview = ({
     account,
+    flowContext,
     flowType,
     token,
     amount,
@@ -63,9 +65,9 @@ export const useWrappedNativeTokenReview = ({
     const [signedTransaction, setSignedTransaction] =
         useState<SignedWrappedNativeTokenTransaction | null>(null);
 
-    // The in-flow wrap step (onBroadcast set) is already tracked as yield/deposit type:'wrap', so
-    // reporting yield/wrap|yield/unwrap here too would double-count it.
-    const isStandaloneFlow = !onBroadcast;
+    // The in-flow wrap step is already tracked as yield/deposit type:'wrap', so reporting
+    // yield/wrap|yield/unwrap here too would double-count it.
+    const isStandaloneFlow = flowContext === 'standalone';
     const { reportError, reportSent } = useWrappedNativeFlowAnalytics({
         flowType,
         networkSymbol: account.symbol,
