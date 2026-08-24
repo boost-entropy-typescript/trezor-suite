@@ -30,19 +30,22 @@ import {
 import { DeviceSettingsStackNavigator } from '@suite-native/module-device-settings';
 import {
     ClaimReviewScreen,
+    ClaimTransactionCompleteScreen,
     ClaimTransactionDataReviewScreen,
     EarnConsentsScreen,
     EarnFormScreen,
+    EarnTransactionCompleteScreen,
     EarnTransactionDataReviewScreen,
     HowStakeWorksScreen,
     StakingDetailScreen,
     StakingManagementScreen,
     UnstakeFlowScreen,
+    UnstakeTransactionCompleteScreen,
     UnstakeTransactionDataReviewScreen,
     WrappedNativeTokenStackNavigator,
     YieldInsufficientBalanceScreen,
-    YieldManagementScreen,
     YieldStackNavigator,
+    YieldVaultDetailScreen,
 } from '@suite-native/module-earn';
 import { FeatureFeedbackModalScreen } from '@suite-native/module-home';
 import { OnboardingStackNavigator } from '@suite-native/module-onboarding';
@@ -140,9 +143,9 @@ export const RootStackNavigator = () => {
                 component={StakingManagementScreen}
             />
             <RootStack.Screen
-                options={{ title: RootStackRoutes.YieldManagement }}
-                name={RootStackRoutes.YieldManagement}
-                component={YieldManagementScreen}
+                options={{ title: RootStackRoutes.YieldVaultDetail }}
+                name={RootStackRoutes.YieldVaultDetail}
+                component={YieldVaultDetailScreen}
             />
             <RootStack.Screen
                 options={{ title: RootStackRoutes.UnstakeFlow }}
@@ -185,9 +188,19 @@ export const RootStackNavigator = () => {
                 component={EarnTransactionDataReviewScreen}
             />
             <RootStack.Screen
+                options={{ title: RootStackRoutes.EarnTransactionComplete }}
+                name={RootStackRoutes.EarnTransactionComplete}
+                component={EarnTransactionCompleteScreen}
+            />
+            <RootStack.Screen
                 options={{ title: RootStackRoutes.UnstakeTransactionDataReview }}
                 name={RootStackRoutes.UnstakeTransactionDataReview}
                 component={UnstakeTransactionDataReviewScreen}
+            />
+            <RootStack.Screen
+                options={{ title: RootStackRoutes.UnstakeTransactionComplete }}
+                name={RootStackRoutes.UnstakeTransactionComplete}
+                component={UnstakeTransactionCompleteScreen}
             />
             <RootStack.Screen
                 options={{ title: RootStackRoutes.ClaimReview }}
@@ -198,6 +211,11 @@ export const RootStackNavigator = () => {
                 options={{ title: RootStackRoutes.ClaimTransactionDataReview }}
                 name={RootStackRoutes.ClaimTransactionDataReview}
                 component={ClaimTransactionDataReviewScreen}
+            />
+            <RootStack.Screen
+                options={{ title: RootStackRoutes.ClaimTransactionComplete }}
+                name={RootStackRoutes.ClaimTransactionComplete}
+                component={ClaimTransactionCompleteScreen}
             />
             {/* Trading screens */}
             <RootStack.Group>

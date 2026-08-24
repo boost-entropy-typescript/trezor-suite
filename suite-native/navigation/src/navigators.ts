@@ -515,7 +515,7 @@ export type RootStackParamList = {
     [RootStackRoutes.AccountDetail]: AccountDetailParams;
     [RootStackRoutes.StakingDetail]: { accountKey: AccountKey };
     [RootStackRoutes.StakingManagement]: { accountKey: AccountKey };
-    [RootStackRoutes.YieldManagement]: { accountKey: AccountKey; tokenContract: TokenAddress };
+    [RootStackRoutes.YieldVaultDetail]: { accountKey: AccountKey; tokenContract: TokenAddress };
     [RootStackRoutes.HowStakeWorksScreen]: {
         accountKey?: AccountKey;
         symbol: NetworkSymbol;
@@ -535,10 +535,18 @@ export type RootStackParamList = {
         accountKey: AccountKey;
         amount: string;
     };
+    [RootStackRoutes.EarnTransactionComplete]: {
+        accountKey: AccountKey;
+        amountInBaseUnits: string;
+    };
     [RootStackRoutes.UnstakeFlow]: { accountKey: AccountKey };
     [RootStackRoutes.UnstakeTransactionDataReview]: {
         accountKey: AccountKey;
         amount: string;
+    };
+    [RootStackRoutes.UnstakeTransactionComplete]: {
+        accountKey: AccountKey;
+        amountInBaseUnits: string;
     };
     [RootStackRoutes.ClaimReview]: {
         accountKey: AccountKey;
@@ -546,6 +554,10 @@ export type RootStackParamList = {
     };
     [RootStackRoutes.ClaimTransactionDataReview]: {
         accountKey: AccountKey;
+    };
+    [RootStackRoutes.ClaimTransactionComplete]: {
+        accountKey: AccountKey;
+        amountInBaseUnits: string;
     };
     [RootStackRoutes.DeviceSettingsStack]: NavigatorScreenParams<DeviceSettingsStackParamList>;
     [RootStackRoutes.AddCoinAccountStack]: NavigatorScreenParams<AddCoinAccountStackParamList>;

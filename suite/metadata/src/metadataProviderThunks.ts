@@ -1,6 +1,6 @@
 import { type Dispatch } from '@reduxjs/toolkit';
 
-import { type DesktopAnalyticsDep, asTypedDesktopAnalytics, events } from '@suite/analytics';
+import { type DesktopAnalyticsDep, events } from '@suite/analytics';
 import { selectOAuthServerEnvironment } from '@suite/settings';
 import {
     type DataType,
@@ -11,7 +11,6 @@ import {
     ProviderErrorAction,
     type Tokens,
 } from '@suite-common/metadata-types';
-import { type ExtraDependencies } from '@suite-common/redux-extra-dependencies';
 import { triggerWebDownloadFile } from '@suite-common/suite-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { exhaustive } from '@trezor/type-utils';
@@ -243,9 +242,11 @@ type ConnectProviderParams = {
     clientId?: string;
 };
 
+export type ConnectProviderDeps = { services: DesktopAnalyticsDep };
+
 export const connectProvider =
     ({ type, dataType = 'labels', clientId }: ConnectProviderParams) =>
-    async (dispatch: Dispatch, getState: () => MetadataRootState, extra: ExtraDependencies) => {
+    async (dispatch: Dispatch, getState: () => MetadataRootState, extra: ConnectProviderDeps) => {
         const providerInstance = createProviderInstance(
             type,
             {},
@@ -282,7 +283,7 @@ export const connectProvider =
             },
         });
 
-        asTypedDesktopAnalytics(extra.services.analytics).report({
+        extra.services.analytics.report({
             type: events.settingsGeneralLabelingProviderEvent.name,
             payload: {
                 provider: providerDetails.payload.type,

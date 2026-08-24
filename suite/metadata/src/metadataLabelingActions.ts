@@ -1,6 +1,6 @@
 import { type Dispatch } from '@reduxjs/toolkit';
 
-import { asTypedDesktopAnalytics, events } from '@suite/analytics';
+import { type DesktopAnalyticsDep, events } from '@suite/analytics';
 import {
     selectDeviceByStaticSessionId,
     selectDevices,
@@ -15,7 +15,6 @@ import {
     ProviderErrorAction,
     type WalletLabels,
 } from '@suite-common/metadata-types';
-import { type ExtraDependencies } from '@suite-common/redux-extra-dependencies';
 import { type TrezorDevice } from '@suite-common/suite-types';
 import { type Account } from '@suite-common/wallet-types';
 import TrezorConnect, { type StaticSessionId } from '@trezor/connect';
@@ -562,6 +561,8 @@ export const addMetadata =
         return result.success;
     };
 
+export type InitMetadataDeps = { services: DesktopAnalyticsDep };
+
 /**
  * init - prepare everything needed to load + decrypt and upload + decrypt metadata. Note that this method
  * consists of number of steps of which not all have to necessarily happen. For example
@@ -573,7 +574,7 @@ export const addMetadata =
  */
 export const init =
     (force: boolean, deviceStateArg?: StaticSessionId) =>
-    async (dispatch: Dispatch, getState: () => MetadataRootState, extra: ExtraDependencies) => {
+    async (dispatch: Dispatch, getState: () => MetadataRootState, extra: InitMetadataDeps) => {
         let device = deviceStateArg
             ? selectDeviceByStaticSessionId(getState(), deviceStateArg)
             : selectSelectedDevice(getState());
@@ -642,7 +643,7 @@ export const init =
         if (!selectSelectedProviderForLabels(getState())) {
             const providerResult = await dispatch(metadataProviderActions.initProvider());
             if (!providerResult) {
-                asTypedDesktopAnalytics(extra.services.analytics).report({
+                extra.services.analytics.report({
                     type: events.settingsGeneralLabelingProviderEvent.name,
                     payload: {
                         provider: 'missing-provider',

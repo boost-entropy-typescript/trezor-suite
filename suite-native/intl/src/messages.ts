@@ -2842,6 +2842,10 @@ export const messages = {
             title: 'Confirm on Trezor',
             pendingTitle: 'Confirming stake',
             amountLabel: 'Staking amount',
+            completeTitle: 'Staking complete',
+            completeAmountLabel: 'Staked',
+            completeDescription:
+                'You will earn rewards after the {days, plural, one {# day} other {# days}} warm-up period',
             viewTransactionButton: 'Stake now',
             pushTransactionFailedAlert: {
                 title: 'Transaction failed',
@@ -2865,6 +2869,8 @@ export const messages = {
             title: 'Confirm on Trezor',
             pendingTitle: 'Confirming unstake',
             amountLabel: 'Unstaking amount',
+            completeTitle: 'Unstaking complete',
+            completeAmountLabel: 'Unstaked',
             viewTransactionButton: 'Unstake now',
             pushTransactionFailedAlert: {
                 title: 'Transaction failed',
@@ -3384,6 +3390,17 @@ export const messages = {
             backToOverview: 'Back to overview',
             sendAndBackToOverview: 'Send & go back to overview',
         },
+        transactionCompleteScreen: {
+            doneButton: 'Done',
+            stakeTitle: 'Staking complete',
+            stakeAmountLabel: 'Staked',
+            stakeDescription:
+                'You will earn rewards after the {days, plural, one {# day} other {# days}} warm-up period',
+            unstakeTitle: 'Unstaking complete',
+            unstakeAmountLabel: 'Unstaked',
+            claimTitle: 'Claim complete',
+            claimAmountLabel: 'Claimed',
+        },
         yieldReview: {
             outputs: {
                 claimTitle: 'Claim rewards from',
@@ -3626,6 +3643,8 @@ export const messages = {
             title: 'Confirm on Trezor',
             pendingTitle: 'Confirming claim',
             amountLabel: 'Claiming amount',
+            completeTitle: 'Claim complete',
+            completeAmountLabel: 'Claimed',
             viewTransactionButton: 'Claim now',
             pushTransactionFailedAlert: {
                 title: 'Transaction failed',

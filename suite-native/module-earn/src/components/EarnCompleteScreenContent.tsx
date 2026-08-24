@@ -3,7 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { useServices } from '@suite-common/dependency-injection';
 import { selectSelectedDevice } from '@suite-common/device';
-import { type Rating, buildUserFeedbackData, sendFeedbackAction } from '@suite-common/feedback';
+import {
+    type FeedbackCategory,
+    type Rating,
+    buildUserFeedbackData,
+    sendFeedbackAction,
+} from '@suite-common/feedback';
 import { type WrappedNativeFlowType, type YieldFlowType } from '@suite-common/wallet-core';
 import { events, selectNativeAnalyticsDep } from '@suite-native/analytics';
 import {
@@ -21,6 +26,8 @@ import { FeedbackCard } from '@suite-native/feedback-form';
 import { Translation, type TxKeyPath } from '@suite-native/intl';
 import { Screen } from '@suite-native/navigation';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
+
+import { type EarnFormDraftPrefix } from '../types';
 
 const contentStyle = prepareNativeStyle(utils => ({
     marginTop: utils.spacings.sp48,
@@ -48,7 +55,7 @@ const footerStyle = prepareNativeStyle(utils => ({
     marginTop: utils.spacings.sp36,
 }));
 
-export type YieldCompleteSummaryRow = {
+export type EarnCompleteSummaryRow = {
     key: string;
     label: ReactNode;
 } & (
@@ -62,27 +69,31 @@ export type YieldCompleteSummaryRow = {
       }
 );
 
-type YieldCompleteScreenType = YieldFlowType | WrappedNativeFlowType;
+type EarnCompleteScreenType = YieldFlowType | WrappedNativeFlowType | EarnFormDraftPrefix;
 
-type YieldCompleteScreenContentProps = {
+type EarnCompleteFeedbackCategory = Extract<FeedbackCategory, 'yield' | 'staking'>;
+
+type EarnCompleteScreenContentProps = {
     buttonTranslationId: TxKeyPath;
     onButtonPress: () => void;
-    rows: YieldCompleteSummaryRow[];
-    subtitle: ReactNode;
+    rows: EarnCompleteSummaryRow[];
+    subtitle?: ReactNode;
     title: ReactNode;
-    type: YieldCompleteScreenType;
+    type: EarnCompleteScreenType;
+    feedbackCategory?: EarnCompleteFeedbackCategory;
     vaultId?: string;
 };
 
-export const YieldCompleteScreenContent = ({
+export const EarnCompleteScreenContent = ({
     buttonTranslationId,
     onButtonPress,
     rows,
     subtitle,
     title,
     type,
+    feedbackCategory = 'yield',
     vaultId,
-}: YieldCompleteScreenContentProps) => {
+}: EarnCompleteScreenContentProps) => {
     const { applyStyle } = useNativeStyles();
     const { analytics } = useServices(selectNativeAnalyticsDep);
     const device = useSelector(selectSelectedDevice);
@@ -91,7 +102,7 @@ export const YieldCompleteScreenContent = ({
     const onFeedbackRatingSelect = (rating: Rating) => {
         analytics.report({
             type: events.feedbackRatingSelectedEvent.name,
-            payload: { rating, category: 'yield', context: type },
+            payload: { rating, category: feedbackCategory, context: type },
         });
     };
 
@@ -102,7 +113,7 @@ export const YieldCompleteScreenContent = ({
             sendFeedbackAction({
                 type: 'SUGGESTION',
                 payload: {
-                    category: 'yield',
+                    category: feedbackCategory,
                     feature: type,
                     description,
                     rating,
@@ -114,7 +125,7 @@ export const YieldCompleteScreenContent = ({
 
         analytics.report({
             type: events.feedbackSentEvent.name,
-            payload: { category: 'yield', context: type },
+            payload: { category: feedbackCategory, context: type },
         });
     };
 
