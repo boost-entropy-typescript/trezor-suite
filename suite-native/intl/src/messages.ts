@@ -204,7 +204,6 @@ export const messages = {
     accountList: {
         numberOfTokens: '+{numberOfTokens, plural, one{1 Token} other{# Tokens}}',
         staking: 'Staking',
-        rewardsReduced: 'Rewards reduced',
         stakingDisabled: 'Staking is currently unavailable.',
     },
     assets: {
@@ -2015,9 +2014,22 @@ export const messages = {
                 xpub: {
                     title: 'Public key (XPUB)',
                     showButton: 'Show public key (XPUB)',
+                    confirmOnTrezorButton: 'Confirm on Trezor',
                     copyMessage: 'XPUB copied',
                 },
                 copyButton: 'Copy',
+                viewOnlyWarning: {
+                    title: 'Your Trezor isn’t connected',
+                    description:
+                        'To prevent phishing attacks, verify the public key on your Trezor. Connect it to continue with the verification process.',
+                    primaryButton: 'Show unverified public key',
+                    secondaryButton: 'Back',
+                },
+                unverifiedWarning: {
+                    title: 'Public key not verified',
+                    subtitle:
+                        'To prevent phishing attacks, verify the public key on your Trezor once it’s connected.',
+                },
             },
             renameForm: {
                 title: 'Rename account',
@@ -2663,7 +2675,29 @@ export const messages = {
             totalRewardsLabel: 'Total rewards',
             autoRestakedBadge: 'Automatically restaked',
             nextRewardLabel: 'Next reward in ~{value, plural, one {# day} other {# days}}',
-            solRewardsFrequencyLabel: 'Rewards every ~{value, plural, one {# day} other {# days}}',
+            rewardsFrequencyLabel: 'Rewards every ~{value, plural, one {# day} other {# days}}',
+            cardanoDesktopOnlyBanner:
+                'Staking {symbol} can only be managed in Trezor Suite on desktop.',
+            cardanoAutoStakedBadge: 'Auto-staked',
+            cardanoLearnMoreLink: 'learn more',
+            cardanoNotEarningBanner: {
+                title: 'Your Cardano is no longer earning',
+                description:
+                    'Use Trezor Suite on desktop to switch your provider and start earning again.',
+                button: 'Learn more',
+            },
+            cardanoDelegatedOutsideBanner: {
+                title: 'Delegated outside Trezor Suite',
+                description:
+                    "Your full balance is delegated to a pool that isn't managed in Trezor Suite.",
+            },
+            cardanoAutoStakedModal: {
+                title: 'Your whole balance earns',
+                delegationDescription:
+                    'On Cardano you delegate your entire balance, not a set amount. Everything in this account earns rewards automatically, including {symbol} you receive later.',
+                accessibilityDescription:
+                    'Nothing gets locked. You can send or spend at any time and your stake adjusts on its own.',
+            },
             unstakeButton: 'Unstake',
             stakeButton: 'Stake',
             stakeMoreButton: 'Stake more',
@@ -2935,8 +2969,8 @@ export const messages = {
                 incompleteFiatTotal: 'Some fiat rates couldn’t load. Total may be incomplete.',
             },
             activeSheet: {
-                stakingTitle: 'Your stakes',
-                stablecoinYieldTitle: 'Your yields',
+                stakingPositionsTitle: 'Your staking positions',
+                yieldPositionsTitle: 'Your yield positions',
             },
             stablecoinYieldLoadError: {
                 title: 'Unable to load yield opportunities',
@@ -3515,14 +3549,13 @@ export const messages = {
             },
         },
         staked: 'Stake',
-        stakedAutomatically: 'Staked automatically',
-        fullBalance: 'Full balance',
         rewards: 'Rewards',
         rewardsPerEpoch: 'Next estimated reward',
         rate: 'Rate',
         apy: 'Annual Percentage Yield',
         apr: 'Annual Percentage Return',
         apyAbbr: 'APY',
+        apyValueWithLabel: '{value} APY',
         aprAbbr: 'APR',
         tron: {
             votes: 'Votes',
@@ -3540,17 +3573,6 @@ export const messages = {
         },
         stakingCanBeManaged: 'Manage your staking accounts in the',
         trezorDesktop: 'Trezor Suite desktop app.',
-        adaStaysFullyAccessuble: 'Your ADA stays fully accessible while earning rewards.',
-        infoBanner: {
-            updateProviderTitle: 'Save your ADA rewards by updating your staking provider',
-            newProviderTitle: 'Earn ~{apy}% APY with our new provider',
-            updateProviderButton: 'Update provider',
-            providerReducingRewards:
-                "You're earning nearly 0% in ADA rewards right now. Switch to Everstake to earn up to {apy}% APY. Your funds and past rewards are safe.",
-            updateToNewProvider:
-                'Update to our new provider, Everstake, and earn ~{apy}% APY. Your {symbol} with our previous provider is safe, and your rewards stay intact, though rates aren’t guaranteed.',
-            rewardsReduced: 'Cardano staking rewards reduced',
-        },
         notAvailable: 'Not available',
         apyNotAvailable: 'APY not available',
         apyPercentage: '~{apy}% APY',
@@ -3573,6 +3595,7 @@ export const messages = {
             upToApr: 'up to {value}% APR',
             upToRate: 'up to {value}% Rate',
         },
+        zeroApyBadge: '0% APY',
         messageSystem: {
             depositDisabled: 'Deposits currently disabled.',
             withdrawDisabled: 'Withdrawals currently disabled.',

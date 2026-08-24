@@ -1,5 +1,6 @@
 import { selectSelectedDevice } from '@suite-common/device';
 import { buildStablecoinYieldTransactionReview } from '@suite-common/earn-stablecoin';
+import { selectIsMevProtectionFeatureEnabled } from '@suite-common/mev';
 import { createThunk } from '@suite-common/redux-utils';
 import {
     type YieldFlowDisplayToken,
@@ -7,7 +8,9 @@ import {
     type YieldPositionFlowType,
     isStablecoinYieldSupported,
     isYieldTxReviewForFlow,
+    isYieldWithdrawFlow,
     selectAddressDisplayType,
+    selectIsMevProtectionEnabled,
     selectStablecoinYieldSession,
     selectStablecoinYieldTxReview,
     stablecoinYieldActions,
@@ -67,7 +70,7 @@ export const signYieldActionReviewThunk = createThunk<
             });
         }
 
-        if (flowType === 'withdraw' && !selectedFee) {
+        if (isYieldWithdrawFlow(flowType) && !selectedFee) {
             return rejectWithValue({
                 error: 'sign-transaction-failed',
                 message: 'Fee information is missing for the transaction.',
@@ -193,6 +196,9 @@ export const pushYieldActionReviewThunk = createThunk<
         const pushResponse = await pushYieldTransaction({
             tx: serializedTx.tx,
             account: flowData.account,
+            isMevProtectionEnabled:
+                selectIsMevProtectionEnabled(getState()) &&
+                selectIsMevProtectionFeatureEnabled(getState()),
         });
 
         dispatch(stablecoinYieldActions.discardTransaction());
