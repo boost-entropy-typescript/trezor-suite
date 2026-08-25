@@ -3846,16 +3846,16 @@ export const messages = {
         },
         accountScreen: {
             accountEmpty: {
+                title: 'No account',
+                activate: 'Activate {network}',
                 viewOnly: {
-                    title: 'Account not found',
                     description: 'You need to connect your device to add a new account.',
                 },
                 networkNotEnabled: {
-                    title: 'Account not found',
-                    description: 'No account found for selected asset.',
+                    noAccountDescription:
+                        'It seems that you don’t have any account matching selected asset.',
                 },
                 portfolioTracker: {
-                    title: 'Account not found',
                     description:
                         "You don't have an account for this asset imported in the Portfolio Tracker.",
                 },
@@ -3865,6 +3865,8 @@ export const messages = {
                 description: 'Check the spelling or browse the list to select an option.',
             },
             titleStep1: 'Select account',
+            receiveAddressTitle: 'Receive address',
+            searchPlaceholder: 'Search',
             newAddress: 'New address',
             usedAddresses: 'Used addresses',
             step2Hint: 'Select to display account addresses',
@@ -4094,6 +4096,65 @@ export const messages = {
             },
             transactionId: 'Trans. ID: {orderId}',
             detail: {
+                header: {
+                    unknownProviderName: 'the provider',
+                    buy: {
+                        processing: {
+                            title: 'Your buy is being processed',
+                            description:
+                                'You can leave this screen. View your buy status anytime in trade history.',
+                        },
+                        completed: {
+                            title: 'Buy complete',
+                            description:
+                                'Funds are in your account. View your buy in trade history.',
+                        },
+                        failed: {
+                            title: 'Buy failed',
+                            description:
+                                "Your transaction failed or was rejected. Your payment method hasn't been charged.",
+                        },
+                    },
+                    sell: {
+                        processing: {
+                            title: 'Your sell is being processed',
+                            description:
+                                'You can leave this screen. View your sell status anytime in trade history.',
+                        },
+                        completed: {
+                            title: 'Sell complete',
+                            description:
+                                'Funds are in your account. View your sell in trade history.',
+                        },
+                        failed: {
+                            title: 'Sell failed',
+                            description:
+                                'Your transaction failed or was rejected. Funds are in your account.',
+                        },
+                    },
+                    exchange: {
+                        processing: {
+                            title: 'Your swap is being processed',
+                            description:
+                                'You can leave this screen. View your swap status anytime in trade history.',
+                        },
+                        completed: {
+                            title: 'Swap complete',
+                            description:
+                                'Funds are in your account. View your swap in trade history.',
+                        },
+                        kyc: {
+                            title: 'KYC requested',
+                            description:
+                                'The provider has marked this transaction as “suspicious” and you may be required to complete their KYC process to finish the trade. Contact {providerName}’s support to proceed.',
+                        },
+                        returned: {
+                            title: 'Your swap returned',
+                            description:
+                                'Your funds have been returned to your account. Reach out to {providerName}’s support if you have any issues.',
+                        },
+                    },
+                },
                 paid: 'You paid',
                 received: 'You get',
                 toAccount: 'To',
