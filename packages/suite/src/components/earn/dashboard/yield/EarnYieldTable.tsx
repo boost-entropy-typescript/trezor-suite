@@ -177,6 +177,7 @@ export const EarnYieldTable = () => {
                 heading={<Translation id="TR_EARN_DEFI_YIELD_TITLE" />}
                 subheading={<Translation id="TR_EARN_DEFI_YIELD_DASHBOARD_TEXT" />}
                 actions={<PoweredByBadge provider="morpho" />}
+                areActionsBelowSubheading={isCardLayout}
                 ref={anchorRef}
             >
                 <Column gap={16} alignItems="center">
@@ -184,6 +185,7 @@ export const EarnYieldTable = () => {
                         <>
                             <EarnYieldClaimRewardsBanner
                                 rewards={merklRewardsQuery}
+                                isFiatRateLoading={missingRateTickersQuery.isLoading}
                                 isClaimDisabled={isClaimDisabled}
                                 claimDisabledTooltip={
                                     claimMessageSystem.isDisabled

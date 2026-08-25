@@ -8879,23 +8879,19 @@ export const messages = defineMessages({
     },
     TR_EARN_CLAIM_REWARDS_LABEL: {
         id: 'TR_EARN_CLAIM_REWARDS_LABEL',
-        defaultMessage: 'Available bonus rewards',
+        defaultMessage: 'Bonus rewards to claim',
     },
     TR_EARN_CLAIM_REWARDS_BUTTON: {
         id: 'TR_EARN_CLAIM_REWARDS_BUTTON',
         defaultMessage: 'Claim',
     },
-    TR_EARN_CLAIM_REWARDS_TOKEN_LABEL: {
-        id: 'TR_EARN_CLAIM_REWARDS_TOKEN_LABEL',
-        defaultMessage: 'in {symbol}',
-    },
     TR_EARN_CLAIM_REWARDS_TOKENS_LABEL: {
         id: 'TR_EARN_CLAIM_REWARDS_TOKENS_LABEL',
-        defaultMessage: 'in {tokens} tokens',
+        defaultMessage: '{tokens, plural, one {# token} other {# tokens}}',
     },
     TR_EARN_CLAIM_REWARDS_ACCOUNTS_LABEL: {
         id: 'TR_EARN_CLAIM_REWARDS_ACCOUNTS_LABEL',
-        defaultMessage: 'on {accounts} accounts',
+        defaultMessage: '{accounts, plural, one {# account} other {# accounts}}',
     },
     TR_EARN_ENTER_AMOUNT_IN: {
         id: 'TR_EARN_ENTER_AMOUNT_IN',
@@ -10815,7 +10811,7 @@ export const messages = defineMessages({
     },
     TR_STAKE_REWARDS_BADGE: {
         id: 'TR_STAKE_REWARDS_BADGE',
-        defaultMessage: 'Epoch number {count}',
+        defaultMessage: '{count} Epoch',
     },
     TR_EARN_REWARDS_ARE_EMPTY: {
         id: 'TR_EARN_REWARDS_ARE_EMPTY',
