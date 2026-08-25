@@ -1,15 +1,7 @@
 import type React from 'react';
 import type { FieldPath, UseFormReturn } from 'react-hook-form';
 
-import type {
-    BuyTrade,
-    BuyTradeQuoteRequest,
-    CryptoId,
-    ExchangeTrade,
-    ExchangeTradeQuoteRequest,
-    FiatCurrencyCode,
-    SellFiatTradeQuoteRequest,
-} from 'invity-api';
+import type { BuyTrade, CryptoId, ExchangeTrade, FiatCurrencyCode } from 'invity-api';
 
 import type { TranslationKey } from '@suite/intl';
 import type {
@@ -21,20 +13,14 @@ import type {
     TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT,
     TradingAssetSellOption,
     TradingBuyFormProps,
-    TradingBuyInfoSelector,
     TradingBuyType,
     TradingComposedTransactionInfo,
     TradingExchangeFormProps,
-    TradingExchangeInfoSelector,
     TradingExchangeType,
     TradingPaymentMethodType,
     TradingSellFormProps,
-    TradingSellInfoSelector,
     TradingSellType,
     TradingTradeType,
-    TradingTransactionBuy,
-    TradingTransactionExchange,
-    TradingTransactionSell,
     TradingType,
     TradingVerifiedAddress,
 } from '@suite-common/trading';
@@ -104,9 +90,6 @@ export interface TradingBuyFormContextProps
         TradingCommonFormProps,
         TradingCommonFormBuySellProps {
     type: TradingBuyType;
-    buyInfo?: TradingBuyInfoSelector;
-    quotesRequest: BuyTradeQuoteRequest | undefined;
-    trade?: TradingTransactionBuy;
     // form - additional helpers for form
     form: {
         state: TradingFormStateProps;
@@ -116,7 +99,6 @@ export interface TradingBuyFormContextProps
 
     setAmountLimits: (limits?: AmountLimitProps) => void;
     methods: UseFormReturn<TradingBuyFormProps>;
-    clearQuotesAndParams: () => void;
 }
 
 export interface TradingSellFormContextProps
@@ -126,12 +108,8 @@ export interface TradingSellFormContextProps
         TradingCommonFormBuySellProps {
     type: TradingSellType;
     isComposing: boolean;
-    sellInfo?: TradingSellInfoSelector;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
-    composedTransactionInfo: TradingComposedTransactionInfo;
-    quotesRequest: SellFiatTradeQuoteRequest | undefined;
     feeInfo: FeeInfo;
-    trade?: TradingTransactionSell;
     suiteReceiveAccounts?: AppState['wallet']['accounts'];
     // form - additional helpers for form
     form: {
@@ -147,7 +125,6 @@ export interface TradingSellFormContextProps
     methods: UseFormReturn<TradingSellFormProps>;
     showReserveBanner: boolean;
     setShowReserveBanner: (showReserveBanner: boolean) => void;
-    clearQuotesAndParams: () => void;
 }
 
 export type TradingExchangeConfirmTradeProps = {
@@ -166,16 +143,12 @@ export interface TradingExchangeFormContextProps
         helpers: TradingUseFormActionsReturnProps;
     };
 
-    trade?: TradingTransactionExchange;
     suiteReceiveAccounts?: AccountsState;
     feeInfo: FeeInfo;
 
-    exchangeInfo?: TradingExchangeInfoSelector;
     amountLimits?: CryptoAmountLimitProps;
     isComposing: boolean;
     composedLevels?: PrecomposedLevels | PrecomposedLevelsCardano;
-    composedTransactionInfo: TradingComposedTransactionInfo;
-    quotesRequest: ExchangeTradeQuoteRequest | undefined;
     receiveAccount?: Account;
     verifiedAddress: TradingVerifiedAddress;
     shouldSendInSats: boolean | undefined;
