@@ -83,6 +83,7 @@ export const TokenSpecificBalanceDetailsRow = ({
                             const value = isNftTokenTransfer(transfer) ? (
                                 <FormattedNftAmount
                                     transfer={transfer}
+                                    networkSymbol={tx.symbol}
                                     isWithLink
                                     alignMultitoken="flex-start"
                                     linkTypographyStyle="body-xs"
@@ -94,7 +95,8 @@ export const TokenSpecificBalanceDetailsRow = ({
                             return (
                                 <IOGroup
                                     key={index}
-                                    tx={{ ...tx, symbol: transfer.symbol || '' }}
+                                    tx={tx}
+                                    tokenSymbol={transfer.symbol || ''}
                                     contractAddress={transfer.contract}
                                     inputs={
                                         [{ addresses: [transfer.from], value }] as IODetailsType[]

@@ -1,4 +1,6 @@
 import { type ReactNode } from 'react';
+import { type ViewProps } from 'react-native';
+import { type AnimatedProps } from 'react-native-reanimated';
 
 import { type NativeSpacing } from '@trezor/theme';
 
@@ -6,6 +8,7 @@ import { useDynamicHeader } from './DynamicScreenHeaderContext';
 import { ScreenHeader, type ScreenHeaderProps } from '../ScreenHeader';
 
 export type DynamicScreenHeaderProps = {
+    subtitleVariant?: 'body-sm' | 'body-md';
     subtitle?: ReactNode;
     isCompactOnly?: boolean;
     marginBottom?: NativeSpacing;
@@ -13,6 +16,7 @@ export type DynamicScreenHeaderProps = {
     compactContent?: ReactNode;
     expandedContent?: ReactNode;
     scrollThreshold?: number;
+    contentEnteringAnimation?: AnimatedProps<ViewProps>['entering'];
 } & ScreenHeaderProps;
 
 export const DynamicScreenHeader = ({

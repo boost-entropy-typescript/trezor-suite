@@ -1,10 +1,13 @@
 import { type ReactNode } from 'react';
 
-import { selectFullSelectedAccount } from '@suite/account';
 import { Address } from '@suite/address';
 import { useExternalLink } from '@suite/external-links';
 import { Translation } from '@suite/intl';
-import { type NetworkSymbolExtended, isNetworkSymbol } from '@suite-common/wallet-config';
+import {
+    type NetworkSymbol,
+    type NetworkSymbolExtended,
+    isNetworkSymbol,
+} from '@suite-common/wallet-config';
 import { getExplorerUrl } from '@suite-common/wallet-config/src/getExplorerUrls';
 import { selectExplorer } from '@suite-common/wallet-core';
 import { formatNetworkAmount } from '@suite-common/wallet-utils';
@@ -25,8 +28,9 @@ const ownershipIcon = {
 
 export type AddressOwnership = keyof typeof ownershipIcon;
 
-type IOItem = {
+type IOItemProps = {
     anonymitySet?: AnonymitySet;
+    networkSymbol: NetworkSymbol;
     symbol?: NetworkSymbolExtended;
     contractAddress?: string;
     value?: string;
@@ -38,14 +42,14 @@ type IOItem = {
 export const IOItem = ({
     anonymitySet,
     value,
+    networkSymbol,
     symbol,
     contractAddress,
     amount,
     isPhishingTransaction,
     ownership,
-}: IOItem) => {
-    const { network } = useSelector(selectFullSelectedAccount);
-    const explorer = useSelector(state => selectExplorer(state, network?.symbol));
+}: IOItemProps) => {
+    const explorer = useSelector(state => selectExplorer(state, networkSymbol));
     const explorerUrl = getExplorerUrl(explorer, 'address');
     const explorerLink = useExternalLink(`${explorerUrl}${value}${explorer?.queryString ?? ''}`);
     const anonymity = value && anonymitySet?.[value];

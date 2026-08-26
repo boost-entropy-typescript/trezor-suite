@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
-import { selectFullSelectedAccount } from '@suite/account';
 import { Translation } from '@suite/intl';
 import { type NetworkSymbolExtended } from '@suite-common/wallet-config';
-import { type WalletAccountTransaction } from '@suite-common/wallet-types';
+import { selectAccountByKey } from '@suite-common/wallet-core';
+import { type WalletAccountTransaction, createAccountKey } from '@suite-common/wallet-types';
 import { Column, Icon, InfoSegments, Row, Text } from '@trezor/components';
 import { ArrowRightIcon } from '@trezor/icons';
 
@@ -13,10 +13,8 @@ import { type IODetailsType } from './IODetailsType';
 import { type AddressOwnership, IOItem } from './IOItem';
 
 export type IOGroupProps = {
-    /**
-     * Transaction details can be passed also token's details so NetworkSymbolExtended is necessary
-     */
-    tx: Omit<WalletAccountTransaction, 'symbol'> & { symbol: NetworkSymbolExtended };
+    tx: WalletAccountTransaction;
+    tokenSymbol?: NetworkSymbolExtended;
     contractAddress?: string;
     inputs: IODetailsType[];
     outputs: IODetailsType[];
@@ -27,6 +25,7 @@ export type IOGroupProps = {
 
 export const IOGroup = ({
     tx,
+    tokenSymbol,
     contractAddress,
     inputs,
     outputs,
@@ -34,9 +33,16 @@ export const IOGroup = ({
     isUtxoBased = false,
     isPhishingTransaction,
 }: IOGroupProps) => {
-    const selectedAccount = useSelector(selectFullSelectedAccount);
-    const accountAddresses = selectedAccount?.account?.addresses;
-    const accountDescriptor = selectedAccount?.account?.descriptor;
+    const accountKey = createAccountKey({
+        accountDescriptor: tx.descriptor,
+        networkSymbol: tx.symbol,
+        deviceStaticSessionId: tx.deviceState,
+    });
+    const account = useSelector(state => selectAccountByKey(state, accountKey));
+    const accountAddresses = account?.addresses;
+    const accountDescriptor = account?.descriptor;
+
+    const displaySymbol = tokenSymbol ?? tx.symbol;
 
     const ownershipByAddress = useMemo(() => {
         if (!accountAddresses) return undefined;
@@ -90,7 +96,8 @@ export const IOGroup = ({
                         <IOItem
                             key={`input-${input.n}`}
                             anonymitySet={anonymitySet}
-                            symbol={tx.symbol}
+                            networkSymbol={tx.symbol}
+                            symbol={displaySymbol}
                             contractAddress={contractAddress}
                             value={input.addresses?.[0]}
                             amount={input.value}
@@ -123,7 +130,8 @@ export const IOGroup = ({
                         <IOItem
                             key={`output-${output.n}`}
                             anonymitySet={anonymitySet}
-                            symbol={tx.symbol}
+                            networkSymbol={tx.symbol}
+                            symbol={displaySymbol}
                             contractAddress={contractAddress}
                             value={output.addresses?.[0]}
                             amount={output.value}
