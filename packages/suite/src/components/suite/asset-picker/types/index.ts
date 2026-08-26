@@ -1,3 +1,5 @@
+import { type ReactNode } from 'react';
+
 import { type Account } from '@suite-common/wallet-types';
 
 import { type TokensWithRates } from 'src/utils/wallet/tokenUtils';
@@ -9,25 +11,40 @@ export type AccountWithTokensOption =
     | {
           type: 'account';
           account: AccountWithOptionalLabel;
-          height: number;
       }
     | {
           type: 'token';
           account: AccountWithOptionalLabel;
           token: TokensWithRates;
-          height: number;
       }
     | {
           type: 'hidden-tokens';
           account: AccountWithOptionalLabel;
           tokens: TokensWithRates[];
-          height: number;
           expanded: boolean;
+      };
+
+export type AssetRowOption = Extract<AccountWithTokensOption, { type: 'account' | 'token' }>;
+
+type AssetGroupOptionShape = {
+    account: AccountWithOptionalLabel;
+    items: AssetRowOption[];
+    expanded: boolean;
+};
+
+export type AssetGroupOption =
+    | ({ type: 'low-balance-group' } & AssetGroupOptionShape)
+    | ({ type: 'non-tradable-group' } & AssetGroupOptionShape);
+
+export type AssetPickerOption = AccountWithTokensOption | AssetGroupOption;
+
+export type AssetPickerListItem =
+    | AssetPickerOption
+    | {
+          type: 'group-label';
+          label: ReactNode;
       }
     | {
-          type: 'non-tradable-tokens';
-          account: AccountWithOptionalLabel;
-          tokens: TokensWithRates[];
-          height: number;
-          expanded: boolean;
+          type: 'group-space';
+          size: AssetGroupSpaceSize;
       };

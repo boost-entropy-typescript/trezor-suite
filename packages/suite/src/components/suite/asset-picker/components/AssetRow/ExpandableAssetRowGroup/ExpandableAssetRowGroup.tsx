@@ -1,15 +1,19 @@
+import { Fragment, type ReactNode } from 'react';
+
 import styled from 'styled-components';
 
 import { Translation, type TranslationKey } from '@suite/intl';
-import { type Account, type AccountKey } from '@suite-common/wallet-types';
 import { Box, Card, Collapsible, Row, Text } from '@trezor/components';
 import { CaretUpDownIcon, CaretUpDownReverseIcon } from '@trezor/icons';
-import { TokenIconSet } from '@trezor/product-components';
+import { TokenIconSet, type TokenIconSetToken } from '@trezor/product-components';
 
-import { type TokensWithRates } from 'src/utils/wallet/tokenUtils';
+import { type AccountWithOptionalLabel, type AssetRowOption } from '../../../types';
+import {
+    getExpandableGroupContentHeight,
+    getExpandableGroupHeight,
+} from '../../../utils/assetPickerItemHeights';
 
-import { getExpandableTokensContentHeight } from '../../../utils';
-import { AssetRowToken } from '../AssetRowToken/AssetRowToken';
+const GROUP_VISIBLE_ICON_COUNT = 2;
 
 // Don't use `Collapsible.Content`, it's not optimized for larger content.
 // Use this custom component, thanks to 'will-change' it acts as single layer.
@@ -22,44 +26,47 @@ const CollapsibleContent = styled.div<{ $contentHeight: number; $expanded: boole
     opacity: ${({ $expanded }) => ($expanded ? 1 : 0)};
 `;
 
-export interface ExpandableAssetRowTokensProps {
-    label: TranslationKey;
-    account: Account;
-    tokens: TokensWithRates[];
-    expanded: boolean;
-    onExpandToggle: (accountKey: AccountKey, expanded: boolean) => void;
-    onTokenClick?: (token: TokensWithRates, account: Account) => void;
-    height: number;
-    dataTestId?: string;
-    showTokensPreview?: boolean;
-    showNoTradingPairText?: boolean;
-}
+const getIconSetToken = (item: AssetRowOption): TokenIconSetToken =>
+    item.type === 'token'
+        ? { contract: item.token.contract, symbol: item.token.symbol }
+        : { symbol: item.account.symbol };
 
-export function ExpandableAssetRowTokens({
+const getItemKey = (item: AssetRowOption) =>
+    item.type === 'token' ? `${item.account.key}/${item.token.contract}` : item.account.key;
+
+export type ExpandableAssetRowGroupProps = {
+    label: TranslationKey;
+    account: AccountWithOptionalLabel;
+    items: AssetRowOption[];
+    renderItem: (item: AssetRowOption) => ReactNode;
+    expanded: boolean;
+    onExpandToggle: (expanded: boolean) => void;
+    dataTestId?: string;
+};
+
+export function ExpandableAssetRowGroup({
     label,
     account,
-    tokens,
+    items,
+    renderItem,
     expanded,
     onExpandToggle,
-    onTokenClick,
-    height,
     dataTestId,
-    showTokensPreview = false,
-    showNoTradingPairText = false,
-}: ExpandableAssetRowTokensProps) {
-    const tokensContentHeight = expanded ? getExpandableTokensContentHeight(tokens.length) : 0;
+}: ExpandableAssetRowGroupProps) {
+    const contentHeight = expanded ? getExpandableGroupContentHeight(items.length) : 0;
 
     return (
         <Collapsible isOpen={expanded} data-testid={dataTestId}>
-            <Box padding={2} height={height}>
+            <Box padding={2} height={getExpandableGroupHeight(expanded, items.length)}>
                 <Card type="contrast" paddingType="none">
                     <Collapsible.Toggle
                         onClick={() => {
                             // The operation will be probably expensive. Ask for fresh frame before switching the state.
                             requestAnimationFrame(() => {
-                                onExpandToggle(account.key, !expanded);
+                                onExpandToggle(!expanded);
                             });
                         }}
+                        data-testid={dataTestId ? `${dataTestId}/toggle` : undefined}
                     >
                         <Row
                             alignItems="center"
@@ -75,12 +82,13 @@ export function ExpandableAssetRowTokens({
                             </Text>
 
                             <Row alignItems="center" gap={12}>
-                                {showTokensPreview && (
+                                {!expanded && (
                                     <TokenIconSet
                                         symbol={account.symbol}
-                                        tokens={tokens}
+                                        tokens={items.map(getIconSetToken)}
                                         size={24}
                                         gap={20}
+                                        maxVisibleIcons={GROUP_VISIBLE_ICON_COUNT}
                                         isCentered={false}
                                         isCountVisible
                                         isReversed={false}
@@ -94,17 +102,10 @@ export function ExpandableAssetRowTokens({
                         </Row>
                     </Collapsible.Toggle>
 
-                    <CollapsibleContent $contentHeight={tokensContentHeight} $expanded={expanded}>
+                    <CollapsibleContent $contentHeight={contentHeight} $expanded={expanded}>
                         {expanded &&
-                            tokens.map(token => (
-                                <AssetRowToken
-                                    key={token.contract}
-                                    token={token}
-                                    account={account}
-                                    onClick={onTokenClick}
-                                    isHiddenToken={true}
-                                    showNoTradingPairText={showNoTradingPairText}
-                                />
+                            items.map(item => (
+                                <Fragment key={getItemKey(item)}>{renderItem(item)}</Fragment>
                             ))}
                     </CollapsibleContent>
                 </Card>

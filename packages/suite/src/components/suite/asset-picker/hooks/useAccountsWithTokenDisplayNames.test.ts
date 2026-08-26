@@ -74,11 +74,10 @@ describe('useAccountsWithTokenDisplayNames', () => {
     const accountOption: AccountWithTokensOption = {
         type: 'account',
         account: ethereumAccount,
-        height: 1,
     };
     const token = createToken('0x1', 'Discovered One');
     const hiddenToken = createToken('0x2', 'Discovered Two');
-    const nonTradableToken = createToken('0x3', 'Discovered Three');
+    const unknownNameToken = createToken('0x3', 'Discovered Three');
 
     const accountsWithTokens: AccountWithTokensOption[] = [
         accountOption,
@@ -86,20 +85,17 @@ describe('useAccountsWithTokenDisplayNames', () => {
             type: 'token',
             account: ethereumAccount,
             token,
-            height: 1,
         },
         {
             type: 'hidden-tokens',
             account: ethereumAccount,
             tokens: [hiddenToken],
-            height: 1,
             expanded: true,
         },
         {
-            type: 'non-tradable-tokens',
+            type: 'hidden-tokens',
             account: polygonAccount,
-            tokens: [nonTradableToken],
-            height: 1,
+            tokens: [unknownNameToken],
             expanded: false,
         },
     ];
@@ -108,7 +104,7 @@ describe('useAccountsWithTokenDisplayNames', () => {
         expect(getTokenDisplayNameSources(accountsWithTokens)).toEqual([
             { account: ethereumAccount, token },
             { account: ethereumAccount, token: hiddenToken },
-            { account: polygonAccount, token: nonTradableToken },
+            { account: polygonAccount, token: unknownNameToken },
         ]);
     });
 
@@ -131,7 +127,7 @@ describe('useAccountsWithTokenDisplayNames', () => {
             tokens: [{ name: 'Canonical Two' }],
         });
         expect(accountsWithDisplayNames[3]).toMatchObject({
-            type: 'non-tradable-tokens',
+            type: 'hidden-tokens',
             tokens: [{ name: 'Discovered Three' }],
         });
     });
@@ -159,7 +155,7 @@ describe('useAccountsWithTokenDisplayNames', () => {
             tokens: [{ name: 'Canonical Two' }],
         });
         expect(result.current[3]).toMatchObject({
-            type: 'non-tradable-tokens',
+            type: 'hidden-tokens',
             tokens: [{ name: 'Discovered Three' }],
         });
     });

@@ -8,19 +8,18 @@ import {
     filterTradeableAssetsBySearch,
     orderTradeableAssetsByOwnership,
     usePreferredCurrencyUsdThreshold,
+    useTradingAssets,
 } from '@suite-common/trading';
 import { type NetworkSymbol, networkSymbolCollection } from '@suite-common/wallet-config';
 
-import { ASSET_ROW_HEIGHT } from 'src/components/suite/asset-picker/constants';
 import { useSelector } from 'src/hooks/suite';
 import { selectTradeableAssetBalances } from 'src/selectors/wallet/tradeableAssetBalancesSelectors';
 
-import { useAssetsContext } from '../../AssetOptionsContext';
+import { useAssetsContext } from '../../../TradingFormInputAssetPicker';
 
 export type TradingAssetListItem = {
     asset: TradingAssetOption;
     balance: TradeableAssetBalance | undefined;
-    height: number;
 };
 
 const getAssetCryptoId = (asset: TradingAssetOption) => asset.id;
@@ -42,14 +41,16 @@ export function useBuildTradingAssetOptions({
     search,
     networkSymbol,
 }: UseBuildTradingAssetOptionsProps) {
-    const { assets, excludedCryptoIds } = useAssetsContext();
+    const { includedCryptoIds, excludedCryptoIds } = useAssetsContext();
+    const { buildAssetOptions } = useTradingAssets();
     const balances = useSelector(selectTradeableAssetBalances);
     const preferredCurrencyUsdThreshold = usePreferredCurrencyUsdThreshold();
 
-    const includedAssets = useMemo(
-        () => assets.filter(asset => !excludedCryptoIds.has(asset.id)),
-        [assets, excludedCryptoIds],
-    );
+    const includedAssets = useMemo(() => {
+        const { assets } = buildAssetOptions({ includedCryptoIds });
+
+        return assets.filter(asset => !excludedCryptoIds.has(asset.id));
+    }, [buildAssetOptions, includedCryptoIds, excludedCryptoIds]);
 
     const searchIndex = useMemo(
         () =>
@@ -89,7 +90,6 @@ export function useBuildTradingAssetOptions({
         }).map((asset): TradingAssetListItem => ({
             asset,
             balance: balances.get(asset.id),
-            height: ASSET_ROW_HEIGHT,
         }));
     }, [orderedAssets, networkSymbol, searchIndex, search, balances]);
 
