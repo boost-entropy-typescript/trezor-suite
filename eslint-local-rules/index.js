@@ -5,4 +5,16 @@ require('ts-node').register({
     project: path.join(__dirname, 'tsconfig.json'),
 });
 
-module.exports = require('./rules').rules;
+const { analyticsEventNameRule } = require('./analytics-event-name/rule');
+const { noOverrideDsComponentRule } = require('./no-override-ds-component/rule');
+const { noPackageDeepImportsRule } = require('./no-package-deep-imports/rule');
+const { noSuiteImportsInSuiteCommonRule } = require('./no-suite-imports-in-suite-common/rule');
+const { noUnusedIntersectionMembersRule } = require('./no-unused-intersection-members/rule');
+
+module.exports = {
+    'analytics-event-name': analyticsEventNameRule,
+    'no-override-ds-component': noOverrideDsComponentRule,
+    'no-package-deep-imports': noPackageDeepImportsRule,
+    'no-suite-imports-in-suite-common': noSuiteImportsInSuiteCommonRule,
+    'no-unused-intersection-members': noUnusedIntersectionMembersRule,
+};

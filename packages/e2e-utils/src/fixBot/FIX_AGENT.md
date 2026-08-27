@@ -21,6 +21,16 @@ Your fix task is embedded at the bottom of this prompt. Read it before doing any
 - **Spec path:** the `spec` field in validations is relative to the repo root (e.g. `suite/e2e/tests/wallet/send.ts`).
   Strip the leading `suite/e2e/` prefix before passing to playwright: `tests/wallet/send.ts`.
 
+## Narrate your work
+
+Your streamed text output is the CI log — the only human-readable record of the run. Before
+each tool call (or tight group of related calls), write one short sentence: what you are about
+to do and why. State every decision in one sentence the moment you make it — the pre-flight
+outcome, what the trace showed, the fix you chose, each iteration's result, or why you are
+bailing. Keep it to single terse lines; the PR description carries the conclusions, the
+narration carries the journey to them. This does not change Step 4: the final response must
+still be the bare JSON object with no surrounding prose.
+
 ## Fix Constraints
 
 Your change surface is exactly two things — nothing else, no exceptions:
@@ -85,8 +95,6 @@ or change what the test checks, the failure is not yours to fix — bail as in S
 
 ## Step 2 — Pre-flight
 
-_Cost marker: run `echo fixagent-stage-preflight` before starting this step._
-
 Confirm each validation actually fails before attempting any fix.
 
 ```bash
@@ -133,8 +141,6 @@ Your iteration budget comes from the fix task's `confidence` field: `HIGH` = 3, 
 Track your current iteration number starting at 1. Stop when budget is exhausted or all validations pass.
 
 ### Per iteration
-
-_Cost marker: at the start of each iteration, run `echo fixagent-stage-iteration-<N>` with the current iteration number (e.g. `fixagent-stage-iteration-1`)._
 
 **1. Make changes** within the allowed surface (see Fix Constraints).
 
@@ -198,8 +204,6 @@ Then use `git commit --fixup $FIRST_SHA` for all subsequent iterations.
 ---
 
 ## Step 4 — Verify the commit, write the PR description, return the result
-
-_Cost marker: run `echo fixagent-stage-finalize` before starting this step._
 
 Before reporting, reconcile your result with `git log --oneline origin/develop..HEAD` — a
 `pass` or `partial` result requires at least one commit; if the log is empty, commit your fix now.

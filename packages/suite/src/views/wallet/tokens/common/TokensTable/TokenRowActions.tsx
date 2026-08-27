@@ -41,7 +41,6 @@ import {
     getContractAddressForNetworkSymbol,
     getTokenExplorerUrl,
     isErc4626,
-    isWrappedNativeToken,
 } from '@suite-common/wallet-utils';
 import {
     Button,
@@ -68,9 +67,9 @@ import {
     RepeatIcon,
     XIcon,
 } from '@trezor/icons';
+import { isWrappedNativeToken } from '@trezor/network-ethereum-suite-common';
 
-import { SUITE } from 'src/actions/suite/constants';
-import { setSendFormPrefill } from 'src/actions/suite/suiteActions';
+import { setSendFormPrefill, setTransactionHistoryPrefill } from 'src/actions/suite/suiteActions';
 import { getEarnRouteParams } from 'src/components/earn/utils/getEarnRouteParams';
 import { useDispatch, useLayoutSize, useSelector } from 'src/hooks/suite';
 import { useFirmwareUpgradeModal } from 'src/hooks/suite/useFirmwareUpgradeModal';
@@ -298,10 +297,7 @@ const TokenRowBasicActions = ({
     };
 
     const onViewAllTransactionsButtonClick = () => {
-        dispatch({
-            type: SUITE.SET_TRANSACTION_HISTORY_PREFILL,
-            payload: token.contract,
-        });
+        dispatch(setTransactionHistoryPrefill(token.contract));
 
         goToWithAnalytics({
             routeName: 'wallet-index',

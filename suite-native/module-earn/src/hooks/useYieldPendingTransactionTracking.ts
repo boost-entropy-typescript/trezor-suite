@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
 import { type YieldDtoV2 } from '@suite-common/earn-stablecoin-api';
-import { type NetworkSymbol, isWrappedNativeToken } from '@suite-common/wallet-config';
+import { type NetworkSymbol } from '@suite-common/wallet-config';
 import {
-    type AccountsRootState,
     type FeesRootState,
     type TransactionsRootState,
     type YieldFlowType,
@@ -21,9 +20,10 @@ import {
 import { type Account } from '@suite-common/wallet-types';
 import { getApyBreakdown, getPollIntervalMs, isPending } from '@suite-common/wallet-utils';
 import { type NativeAnalyticsDep, selectNativeAnalyticsDep } from '@suite-native/analytics';
+import { isWrappedNativeToken } from '@trezor/network-ethereum-suite-common';
 import { exhaustive } from '@trezor/type-utils';
 
-type YieldPendingTrackingRootState = TransactionsRootState & AccountsRootState & FeesRootState;
+type YieldPendingTrackingRootState = TransactionsRootState;
 
 type UseYieldPendingTransactionTrackingParams = {
     account: Account | null;
