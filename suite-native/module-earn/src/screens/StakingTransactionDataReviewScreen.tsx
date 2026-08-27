@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
@@ -9,7 +9,7 @@ import {
     useConfirmOnTrezorController,
 } from '@suite-native/confirm-on-trezor';
 import { CryptoAmountFormatter } from '@suite-native/formatters';
-import { Translation } from '@suite-native/intl';
+import { Translation, type TxKeyPath } from '@suite-native/intl';
 import {
     type RootStackParamList,
     type RootStackRoutes,
@@ -18,11 +18,15 @@ import {
 } from '@suite-native/navigation';
 import { ScrollToEndOnMount } from '@suite-native/scrollview';
 import {
+    selectClaimableAmountByAccountKey,
+    useSelector as useNativeStakingSelector,
+} from '@suite-native/staking';
+import {
     TxValidityTimer,
     selectIsTransactionAlreadySigned,
 } from '@suite-native/transaction-management';
 
-import { EarnTransactionDataReviewStepList } from '../components/EarnTransactionDataReviewStepList';
+import { StakingTransactionDataReviewStepList } from '../components/StakingTransactionDataReviewStepList';
 import { YieldPendingTransactionModal } from '../components/YieldPendingTransactionModal';
 import { useEarnAccountLabel } from '../hooks/useEarnAccountLabel';
 import { useEarnPendingTransactionSheet } from '../hooks/useEarnPendingTransactionSheet';
@@ -31,47 +35,116 @@ import { useEarnSelectedPrecomposedTransaction } from '../hooks/useEarnSelectedP
 import { useEarnTxValidityFlow } from '../hooks/useEarnTxValidityFlow';
 import { useHandleOnEarnTransactionReview } from '../hooks/useHandleOnEarnTransactionReview';
 import { useNavigateAfterPushedTransaction } from '../hooks/useNavigateAfterPushedTransaction';
+import { type EarnFormDraftPrefix } from '../types';
 import { getAmountInBaseUnits } from '../utils/getAmountInBaseUnits';
 import { getEarnPendingAmountInBaseUnits } from '../utils/getEarnPendingAmountInBaseUnits';
 
-export const EarnTransactionDataReviewScreen = ({
-    route,
-}: StackProps<RootStackParamList, RootStackRoutes.EarnTransactionDataReview>) => {
-    const { confirmOnTrezorRef, revealConfirmOnTrezorSheet, closeSheet } =
-        useConfirmOnTrezorController();
-    const { accountKey, amount } = route.params;
-    const [isPushing, setIsPushing] = useState(false);
+const screenHeaderTranslationId: Record<EarnFormDraftPrefix, TxKeyPath> = {
+    stake: 'earn.earnTransactionDataReviewScreen.title',
+    unstake: 'earn.unstakeTransactionDataReviewScreen.title',
+    claim: 'earn.claimTransactionDataReviewScreen.title',
+};
 
-    const isTransactionAlreadySigned = useSelector(selectIsTransactionAlreadySigned);
+const actionButtonTranslationId: Record<EarnFormDraftPrefix, TxKeyPath> = {
+    stake: 'earn.earnTransactionDataReviewScreen.viewTransactionButton',
+    unstake: 'earn.unstakeTransactionDataReviewScreen.viewTransactionButton',
+    claim: 'earn.claimTransactionDataReviewScreen.viewTransactionButton',
+};
+
+const actionButtonDataTestId: Record<EarnFormDraftPrefix, string> = {
+    stake: '@earn/stake-now',
+    unstake: '@earn/unstake-now',
+    claim: '@earn/claim-now',
+};
+
+const pendingTxModalTitleTranslationId: Record<EarnFormDraftPrefix, TxKeyPath> = {
+    stake: 'earn.earnTransactionDataReviewScreen.pendingTitle',
+    unstake: 'earn.unstakeTransactionDataReviewScreen.pendingTitle',
+    claim: 'earn.claimTransactionDataReviewScreen.pendingTitle',
+};
+
+const pendingTxModalAmountLabelTranslationId: Record<EarnFormDraftPrefix, TxKeyPath> = {
+    stake: 'earn.earnTransactionDataReviewScreen.amountLabel',
+    unstake: 'earn.unstakeTransactionDataReviewScreen.amountLabel',
+    claim: 'earn.claimTransactionDataReviewScreen.amountLabel',
+};
+
+type StakingTransactionDataReviewScreenProps = StackProps<
+    RootStackParamList,
+    RootStackRoutes.StakingTransactionDataReview
+>;
+
+export const StakingTransactionDataReviewScreen = ({
+    route,
+}: StakingTransactionDataReviewScreenProps) => {
+    const { accountKey, stakeType, amount } = route.params;
 
     const account = useSelector((state: AccountsRootState) =>
         selectAccountByKey(state, accountKey),
     );
-
     const accountLabel = useEarnAccountLabel(account);
 
-    const precomposedTransaction = useEarnSelectedPrecomposedTransaction('stake', accountKey);
+    const [isPushing, setIsPushing] = useState(false);
+    const [frozenClaimableAmount, setFrozenClaimableAmount] = useState<string | null>(null);
 
-    const isSolanaStake = !!account && isSupportedSolStakingNetworkSymbol(account.symbol);
+    const isTransactionAlreadySigned = useSelector(selectIsTransactionAlreadySigned);
+    const precomposedTransaction = useEarnSelectedPrecomposedTransaction(stakeType, accountKey);
 
-    const pendingAmountInBaseUnits = getEarnPendingAmountInBaseUnits({
-        fallbackAmountInBaseUnits: account ? getAmountInBaseUnits(amount, account.symbol) : '0',
-        isSolanaStaking: isSolanaStake,
+    const { confirmOnTrezorRef, revealConfirmOnTrezorSheet, closeSheet } =
+        useConfirmOnTrezorController();
+
+    const isSolanaAccount = account?.networkType === 'solana';
+    const isSolanaStaking = !!account && isSupportedSolStakingNetworkSymbol(account.symbol);
+
+    const isReadyToContinue = isTransactionAlreadySigned && !!account;
+
+    const claimableAmount = useNativeStakingSelector(state =>
+        stakeType === 'claim' ? selectClaimableAmountByAccountKey(state, accountKey) : undefined,
+    );
+
+    const pendingAmountInBaseUnits = useMemo(() => {
+        if (!account) return '0';
+
+        switch (stakeType) {
+            case 'stake':
+                return getEarnPendingAmountInBaseUnits({
+                    fallbackAmountInBaseUnits: amount
+                        ? getAmountInBaseUnits(amount, account.symbol)
+                        : '0',
+                    isSolanaStaking,
+                    precomposedTransaction,
+                });
+            case 'unstake':
+                return amount ? getAmountInBaseUnits(amount, account.symbol) : '0';
+            case 'claim':
+                return getEarnPendingAmountInBaseUnits({
+                    fallbackAmountInBaseUnits: getAmountInBaseUnits(
+                        frozenClaimableAmount ?? claimableAmount ?? '0',
+                        account.symbol,
+                    ),
+                    isSolanaStaking,
+                    precomposedTransaction,
+                });
+        }
+    }, [
+        account,
+        amount,
+        stakeType,
+        isSolanaStaking,
         precomposedTransaction,
-    });
+        frozenClaimableAmount,
+        claimableAmount,
+    ]);
 
     const { handleSign, handlePush, closeReview, markReviewNavigationSuccess } =
-        useHandleOnEarnTransactionReview({
-            accountKey,
-            stakeType: 'stake',
-        });
+        useHandleOnEarnTransactionReview({ accountKey, stakeType });
 
     const { trackPushedTransaction, pendingTxid, isPending, submittedAt } =
         useNavigateAfterPushedTransaction({
             accountKey,
             amountInBaseUnits: pendingAmountInBaseUnits,
             markReviewNavigationSuccess,
-            stakeType: 'stake',
+            stakeType,
         });
 
     const { pendingBottomSheetRef, isExploreDisabled, openInBlockchain } =
@@ -80,14 +153,10 @@ export const EarnTransactionDataReviewScreen = ({
     const { showTimer, secondsLeft, isPastDeadline, isBroadcasting, onRetry, isRetryDisabled } =
         useEarnTxValidityFlow({
             accountKey,
-            stakeType: 'stake',
+            stakeType,
             revealConfirmOnTrezorSheet,
             isPushing,
         });
-
-    const isSolanaAccount = account?.networkType === 'solana';
-
-    const isReadyToStake = isTransactionAlreadySigned && !!account;
 
     useEarnReviewAutoStart({
         handleSign,
@@ -98,13 +167,16 @@ export const EarnTransactionDataReviewScreen = ({
     });
 
     useEffect(() => {
-        if (isTransactionAlreadySigned) {
-            closeSheet();
-        }
+        if (!isTransactionAlreadySigned) return;
+        closeSheet();
     }, [closeSheet, isTransactionAlreadySigned]);
 
-    const handleStakeNow = useCallback(async () => {
+    const onButtonPress = useCallback(async () => {
         setIsPushing(true);
+
+        if (stakeType === 'claim') {
+            setFrozenClaimableAmount(claimableAmount ?? null);
+        }
 
         const pushedTxid = await handlePush();
 
@@ -115,7 +187,7 @@ export const EarnTransactionDataReviewScreen = ({
         }
 
         setIsPushing(false);
-    }, [handlePush, trackPushedTransaction]);
+    }, [stakeType, claimableAmount, handlePush, trackPushedTransaction]);
 
     return (
         <ConfirmOnTrezorWrapper
@@ -127,7 +199,7 @@ export const EarnTransactionDataReviewScreen = ({
                 <ScreenHeader
                     customContent={
                         <Text variant="body-md-strong">
-                            <Translation id="earn.earnTransactionDataReviewScreen.title" />
+                            <Translation id={screenHeaderTranslationId[stakeType]} />
                         </Text>
                     }
                     closeActionType="close"
@@ -146,23 +218,25 @@ export const EarnTransactionDataReviewScreen = ({
                             isRetryDisabled={isRetryDisabled}
                         />
                     )}
+
                     {account && (
-                        <EarnTransactionDataReviewStepList
-                            accountKey={accountKey}
-                            amount={amount}
-                            accountSymbol={account.symbol}
+                        <StakingTransactionDataReviewStepList
+                            account={account}
+                            stakeType={stakeType}
+                            amountInBaseUnits={pendingAmountInBaseUnits}
                         />
                     )}
                 </VStack>
-                {isReadyToStake && (
+
+                {isReadyToContinue && (
                     <ScrollToEndOnMount>
                         <Button
                             isLoading={isPushing}
                             isDisabled={isSolanaAccount && isPastDeadline}
-                            onPress={handleStakeNow}
-                            testID="@earn/stake-now"
+                            onPress={onButtonPress}
+                            testID={actionButtonDataTestId[stakeType]}
                         >
-                            <Translation id="earn.earnTransactionDataReviewScreen.viewTransactionButton" />
+                            <Translation id={actionButtonTranslationId[stakeType]} />
                         </Button>
                     </ScrollToEndOnMount>
                 )}
@@ -182,14 +256,12 @@ export const EarnTransactionDataReviewScreen = ({
                             isDiscreetText={false}
                         />
                     }
-                    amountLabel={
-                        <Translation id="earn.earnTransactionDataReviewScreen.amountLabel" />
-                    }
+                    amountLabel={<Translation id={pendingTxModalTitleTranslationId[stakeType]} />}
                     fee={precomposedTransaction?.fee}
                     isExploreDisabled={isExploreDisabled}
                     onExplorePress={openInBlockchain}
                     submittedAt={submittedAt}
-                    title={<Translation id="earn.earnTransactionDataReviewScreen.pendingTitle" />}
+                    title={<Translation id={pendingTxModalAmountLabelTranslationId[stakeType]} />}
                     txid={pendingTxid}
                 />
             )}

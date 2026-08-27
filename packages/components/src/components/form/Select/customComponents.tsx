@@ -65,7 +65,8 @@ export const Control = ({
     const {
         isDisabled,
         hasValue,
-        selectProps: { isLoading, placeholder, isSearchable },
+        isFocused,
+        selectProps: { isLoading, placeholder },
     } = props;
 
     return (
@@ -78,7 +79,7 @@ export const Control = ({
             >
                 {label && !isLoading && !isClean && (
                     <SelectFloatingLabel
-                        $isActive={hasValue || !!placeholder || !!isSearchable}
+                        $isActive={hasValue || !!placeholder || isFocused}
                         $isDisabled={isDisabled}
                         $size={size}
                     >

@@ -3415,10 +3415,6 @@ export const messages = defineMessages({
         description: 'Sign button in Sign and Verify form',
         id: 'TR_SIGN',
     },
-    TR_SIGNED: {
-        defaultMessage: 'Signed',
-        id: 'TR_SIGNED',
-    },
     TR_SIGN_MESSAGE: {
         defaultMessage: 'Sign message',
         description: 'Header for the Sign and Verify form',
@@ -3432,6 +3428,11 @@ export const messages = defineMessages({
     TR_SIGNATURE_AFTER_SIGNING_PLACEHOLDER: {
         defaultMessage: 'Generated after signing',
         id: 'TR_SIGNATURE_AFTER_SIGNING_PLACEHOLDER',
+    },
+    TR_SIGNED_MESSAGE_BADGE: {
+        defaultMessage: 'Message signed',
+        description: 'Badge shown in the Sign and Verify form after a message was signed',
+        id: 'TR_SIGNED_MESSAGE_BADGE',
     },
     TR_SKIP: {
         defaultMessage: 'Skip',
@@ -5310,7 +5311,9 @@ export const messages = defineMessages({
     },
     TR_HEX_FORMAT: {
         id: 'TR_HEX_FORMAT',
-        defaultMessage: 'Hex format',
+        defaultMessage: 'Hex',
+        description:
+            'Label of the switch reading the message as hex instead of text in Sign and Verify form',
     },
     TR_YOUR_DEVICE_IS_SEEDLESS: {
         id: 'TR_YOUR_DEVICE_IS_SEEDLESS',
@@ -8524,6 +8527,10 @@ export const messages = defineMessages({
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_BUTTON_DISABLED',
         defaultMessage: 'Turn on',
     },
+    TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_TITLE: {
+        id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_TITLE',
+        defaultMessage: 'Device authenticity check',
+    },
     TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_BUTTON: {
         id: 'TR_DEVICE_AUTHENTICITY_OPT_OUT_MODAL_BUTTON',
         defaultMessage: 'Turn off',
@@ -8572,6 +8579,10 @@ export const messages = defineMessages({
     TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON_DISABLED: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_BUTTON_DISABLED',
         defaultMessage: 'Turn on',
+    },
+    TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_TITLE: {
+        id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_TITLE',
+        defaultMessage: 'Firmware authenticity check',
     },
     TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_BUTTON: {
         id: 'TR_DEVICE_FIRMWARE_REVISION_CHECK_MODAL_BUTTON',
@@ -8755,19 +8766,31 @@ export const messages = defineMessages({
     TR_FORMAT_TOOLTIP: {
         id: 'TR_FORMAT_TOOLTIP',
         defaultMessage:
-            '<FormatDescription> <span>Trezor</span> – standard signature format according to BIP137 </FormatDescription> <FormatDescription> <span>Electrum</span> – compatibility signature format </FormatDescription>',
+            '<FormatDescription> <span>BIP-137</span> – standard signature format according to BIP137 </FormatDescription> <FormatDescription> <span>Electrum</span> – compatibility signature format </FormatDescription>',
     },
     TR_BIP_SIG_FORMAT: {
         id: 'TR_BIP_SIG_FORMAT',
-        defaultMessage: 'Trezor',
+        defaultMessage: 'BIP-137',
     },
     TR_COMPATIBILITY_SIG_FORMAT: {
         id: 'TR_COMPATIBILITY_SIG_FORMAT',
         defaultMessage: 'Electrum',
     },
-    TR_COPY_SIGNED_MESSAGE: {
-        id: 'TR_COPY_SIGNED_MESSAGE',
-        defaultMessage: 'Copy signed message',
+    TR_VERIFIED_MESSAGE_BADGE: {
+        id: 'TR_VERIFIED_MESSAGE_BADGE',
+        defaultMessage: 'Message verified',
+        description: 'Badge shown in the Sign and Verify form after a signature was verified',
+    },
+    TR_VERIFICATION_FAILED_BADGE: {
+        id: 'TR_VERIFICATION_FAILED_BADGE',
+        defaultMessage: 'Verification failed',
+        description:
+            'Badge shown in the Sign and Verify form when a signature did not match the message',
+    },
+    TR_CLEAR: {
+        id: 'TR_CLEAR',
+        defaultMessage: 'Clear',
+        description: 'Button resetting the Sign and Verify form after signing or verifying',
     },
     TR_NAV_STAKING: {
         defaultMessage: 'Staking',
@@ -12959,10 +12982,6 @@ export const messages = defineMessages({
     TR_PUBLIC_KEY: {
         id: 'TR_PUBLIC_KEY',
         defaultMessage: 'Public key',
-    },
-    TR_PUBLIC_KEY_FORMAT: {
-        id: 'TR_PUBLIC_KEY_FORMAT',
-        defaultMessage: 'Public key format',
     },
     TR_PUBLIC_KEY_RAW: {
         id: 'TR_PUBLIC_KEY_RAW',
