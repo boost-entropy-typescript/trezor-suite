@@ -5816,15 +5816,6 @@ export const messages = defineMessages({
         id: 'TR_FEE_LIMIT',
         defaultMessage: 'Fee limit',
     },
-    TR_TRON_ACCOUNT_ACTIVATION_FEE: {
-        id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE',
-        defaultMessage: 'Activation fee',
-    },
-    TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP: {
-        id: 'TR_TRON_ACCOUNT_ACTIVATION_FEE_TOOLTIP',
-        defaultMessage:
-            'New TRON accounts require a one-time 1 {networkDisplaySymbol} network fee to activate.',
-    },
     TR_TRON_TX_CREATE_ACCOUNT: {
         id: 'TR_TRON_TX_CREATE_ACCOUNT',
         defaultMessage: 'Create account',
@@ -11529,6 +11520,15 @@ export const messages = defineMessages({
         id: 'TR_STELLAR_FEE_DESC',
         defaultMessage:
             "The maximum fee you're willing to pay for the transaction. You'll only pay what's necessary—typically the minimum fee during light network traffic. Higher fees help prioritize your transaction during network congestion.",
+    },
+    TR_TRON_FEE_DESC: {
+        id: 'TR_TRON_FEE_DESC',
+        defaultMessage: 'The fee charged by the Tron network to process your transaction.',
+    },
+    TR_TRON_FEE_ACTIVATION_DESC: {
+        id: 'TR_TRON_FEE_ACTIVATION_DESC',
+        defaultMessage:
+            'The fee charged by the Tron network to process your transaction. This also covers a 1 {networkDisplaySymbol} charge to activate an unused receiving address.',
     },
     TR_STELLAR_LIMIT_HISTORY_TITLE: {
         id: 'TR_STELLAR_LIMIT_HISTORY_TITLE',
