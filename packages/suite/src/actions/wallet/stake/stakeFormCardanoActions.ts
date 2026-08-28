@@ -1,10 +1,14 @@
+import { type Dispatch, type UnknownAction } from '@reduxjs/toolkit';
+
+import { type SelectedAccountRootState } from '@suite/account';
 import {
     type DesktopAnalyticsDep,
     type StakingCardanoPoolDelegationPayload,
     events,
 } from '@suite/analytics';
-import { selectSelectedDevice } from '@suite-common/device';
+import { type DeviceRootState, selectSelectedDevice } from '@suite-common/device';
 import { type AdaPools } from '@suite-common/earn-staking-api';
+import { type WithServices } from '@suite-common/redux-utils';
 import {
     calculate,
     composeStakingTransaction,
@@ -18,7 +22,11 @@ import {
     MIN_CARDANO_BALANCE_FOR_STAKING,
     MIN_CARDANO_FOR_WITHDRAWALS,
 } from '@suite-common/wallet-constants';
-import { type VotingDelegationOption, selectCardanoPoolsInfo } from '@suite-common/wallet-core';
+import {
+    type StakeRootState,
+    type VotingDelegationOption,
+    selectCardanoPoolsInfo,
+} from '@suite-common/wallet-core';
 import {
     type Account,
     type CardanoAction,
@@ -52,8 +60,6 @@ import {
 import TrezorConnect, { type FeeLevel, PROTO } from '@trezor/connect';
 import type { EstimatedFee } from '@trezor/network-solana/types'; // TODO should be Cardano instead?
 import { BigNumber } from '@trezor/utils';
-
-import { type Dispatch, type GetState } from 'src/types/suite';
 
 const calculateTransaction = (
     availableBalance: string,
@@ -241,9 +247,11 @@ export const calculateOutputAmount = (
     }).toString();
 };
 
+type ComposeTransactionThunkState = SelectedAccountRootState & StakeRootState;
+
 export const composeTransaction =
     (formValues: StakeFormState, formState: ComposeActionContext) =>
-    async (_: Dispatch, getState: GetState) => {
+    async (_: Dispatch<UnknownAction>, getState: () => ComposeTransactionThunkState) => {
         const { selectedAccount, stake } = getState().wallet;
         const cardanoPools = selectCardanoPoolsInfo(getState());
 
@@ -332,11 +340,16 @@ const getPoolDelegation = (
     };
 };
 
-type SignTransactionThunkDeps = { services: DesktopAnalyticsDep };
+type SignTransactionThunkState = DeviceRootState & SelectedAccountRootState & StakeRootState;
+type SignTransactionThunkDeps = WithServices<DesktopAnalyticsDep>;
 
 export const signTransaction =
     (formValues: StakeFormState, transactionInfo: PrecomposedTransactionFinal) =>
-    async (dispatch: Dispatch, getState: GetState, extra: SignTransactionThunkDeps) => {
+    async (
+        dispatch: Dispatch<UnknownAction>,
+        getState: () => SignTransactionThunkState,
+        extra: SignTransactionThunkDeps,
+    ) => {
         const { selectedAccount, stake } = getState().wallet;
         const cardanoPools = selectCardanoPoolsInfo(getState());
         if (!selectedAccount?.account) return;

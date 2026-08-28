@@ -1,6 +1,6 @@
 import { type AnalyticsDep } from '@suite-common/analytics';
 import { type DeviceRootState, selectDevices } from '@suite-common/device';
-import { createThunk } from '@suite-common/redux-utils';
+import { type WithServices, createThunk } from '@suite-common/redux-utils';
 import { type GetIsWindowVisibleDep } from '@suite-common/suite-types';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
@@ -111,19 +111,20 @@ export const setCustomBackendThunk = createThunk<
     unknown,
     NetworkSymbol,
     { state: SetCustomBackendThunkState }
->(`${BLOCKCHAIN_MODULE_PREFIX}/setCustomBackendThunk`, (symbol, { getState }) => {
+>(`${BLOCKCHAIN_MODULE_PREFIX}/setCustomBackendThunk`, async (symbol, { dispatch, getState }) => {
     const blockchain = selectBlockchainState(getState());
     const backends = [getBackendFromSettings(symbol, blockchain[symbol].backends)];
+    const result = await setBackendsToConnect(backends);
 
-    return setBackendsToConnect(backends);
+    await dispatch(reconnectBlockchainThunk({ symbol }));
+
+    return result;
 });
 
 export type InitBlockchainThunkState = AccountsRootState &
     BlockchainRootState &
     WalletSettingsRootState;
-export type InitBlockchainThunkDeps = {
-    services: AnalyticsDep;
-};
+export type InitBlockchainThunkDeps = WithServices<AnalyticsDep>;
 
 export const initBlockchainThunk = createThunk<
     void,
@@ -274,9 +275,9 @@ const tryClearTimeout = (timeout?: TimerId) => {
     if (timeout) clearTimeout(timeout);
 };
 
-export type SyncAccountsWithBlockchainThunkDeps = {
-    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
-};
+export type SyncAccountsWithBlockchainThunkDeps = WithServices<
+    AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
+>;
 export type SyncAccountsWithBlockchainThunkState = BlockchainRootState &
     FetchAndUpdateAccountThunkState;
 
@@ -330,9 +331,9 @@ export const syncAccountsWithBlockchainThunk = createThunk<
 
 type OnBlockchainConnectThunkState = SyncAccountsWithBlockchainThunkState &
     GetOrFetchRawFeeInfoThunkState;
-type OnBlockchainConnectThunkDeps = {
-    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
-};
+type OnBlockchainConnectThunkDeps = WithServices<
+    AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
+>;
 
 export const onBlockchainConnectThunk = createThunk<
     void,
@@ -356,9 +357,9 @@ export const onBlockchainConnectThunk = createThunk<
 });
 
 type OnBlockMinedThunkState = SyncAccountsWithBlockchainThunkState;
-type OnBlockMinedThunkDeps = {
-    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
-};
+type OnBlockMinedThunkDeps = WithServices<
+    AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
+>;
 
 export const onBlockMinedThunk = createThunk<
     unknown,
@@ -391,9 +392,9 @@ export const onBlockMinedThunk = createThunk<
 type OnBlockchainNotificationThunkState = DeviceRootState &
     SyncAccountsWithBlockchainThunkState &
     WalletSettingsRootState;
-type OnBlockchainNotificationThunkDeps = {
-    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
-};
+type OnBlockchainNotificationThunkDeps = WithServices<
+    AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
+>;
 
 export const onBlockchainNotificationThunk = createThunk<
     void,
@@ -468,9 +469,9 @@ export const onBlockchainNotificationThunk = createThunk<
 });
 
 type OnBlockchainDisconnectThunkState = SyncAccountsWithBlockchainThunkState;
-type OnBlockchainDisconnectThunkDeps = {
-    services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
-};
+type OnBlockchainDisconnectThunkDeps = WithServices<
+    AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
+>;
 
 export const onBlockchainDisconnectThunk = createThunk<
     void,

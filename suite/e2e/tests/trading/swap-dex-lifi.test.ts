@@ -1,4 +1,3 @@
-import { messages } from '@suite/intl';
 import { getCryptoId } from '@suite-common/trading';
 import { fromGwei, localizeNumber } from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils';
@@ -11,9 +10,8 @@ const sendAmount = '0.03';
 const formattedSendAmount = `${localizeNumber(sendAmount)} ETH`;
 const accountLabel = 'Ethereum #1';
 const usdcCryptoId = getCryptoId('eth', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+const usdcDecimals = 6;
 const dexProvider = getCompanyNameFromList('lifi', 'swapList');
-
-const gasLimitPattern = new RegExp(`^${messages.TR_GAS_LIMIT.defaultMessage}: (\\d+)$`);
 
 // A DEX swap broadcasts the swap itself, so there is no CONFIRMING deposit phase.
 const dexStatusFlow = swapStatusFlow.filter(phase => phase.status !== 'CONFIRMING');
@@ -73,6 +71,7 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
             });
         });
 
+        let reviewedGasLimit: string;
         let maxFeePerGas: string;
         let feeRate: string;
         let priorityFeeRate: string;
@@ -99,6 +98,8 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
         let formattedReceiveAmount: string;
         let minimumReceived: BigNumber;
         let formattedMinimumReceived: string;
+        let promptMinimumReceived: string;
+        let displayedMinimumReceived: string;
         let slippagePercent: string;
 
         await test.step('Verify DEX details on the Confirm & send screen', async () => {
@@ -109,6 +110,9 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
             const guaranteedShare = new BigNumber(100).minus(swapSlippage!).div(100);
             minimumReceived = new BigNumber(receiveStringAmount).times(guaranteedShare);
             formattedMinimumReceived = `${localizeNumber(minimumReceived.toFixed(4))} USDC`;
+            promptMinimumReceived = `${minimumReceived.toFixed()} USDC`;
+            // The device renders the amount at USDC's own precision, rounded and zero-trimmed.
+            displayedMinimumReceived = `${minimumReceived.decimalPlaces(usdcDecimals).toFixed()} USDC`;
 
             await expect(tradingPage.confirmation.dexExchangeType).toHaveTranslation(
                 'TR_EXCHANGE_DEX',
@@ -148,8 +152,6 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
             await tradingPage.confirmation.openConfirmAndSendModal();
         });
 
-        let gasLimitWithLabel: string;
-
         await test.step('Confirm the DEX transaction on device', async () => {
             await devicePrompt.confirmOnDevicePromptIsShown();
 
@@ -179,7 +181,7 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
                 `- ${formattedSendAmount}`,
             );
             await expect(devicePrompt.assetsReceiveCryptoAmount).toHaveText(
-                `+ ${minimumReceived.toFixed()} USDC`,
+                `+ ${promptMinimumReceived}`,
             );
             // The recipient is the user's own receive address, not the LI.FI router (dexTx.to).
             await expect(devicePrompt.assetsReceiveAddress).toHaveText(
@@ -192,23 +194,16 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
                         [deviceReview.sendLabel],
                         device.wrapText(formattedSendAmount, { isAmount: true }),
                         [deviceReview.receiveLabel],
-                        device.wrapText(`${minimumReceived.toFixed(6)} USDC`, { isAmount: true }),
+                        device.wrapText(displayedMinimumReceived, { isAmount: true }),
                     ],
                     actions: { right_button: deviceReview.confirmButton },
                 },
             });
             await devicePrompt.waitForPromptAndConfirm();
 
-            await expect(devicePrompt.ethereumFeeRate).toHaveText(feeRate);
-            await expect(devicePrompt.ethereumPriorityFeeRate).toHaveText(priorityFeeRate);
-
-            await expect(devicePrompt.ethereumGasLimit).toHaveText(gasLimitPattern);
-            gasLimitWithLabel = await devicePrompt.ethereumGasLimit.innerText();
-            const reviewedGasLimit = gasLimitWithLabel.match(gasLimitPattern)?.[1];
-            if (!reviewedGasLimit) {
-                throw new Error(`Unexpected gas limit format: ${gasLimitWithLabel}`);
-            }
-
+            await expect(devicePrompt.header.feePerGasRate).toHaveText(feeRate);
+            await expect(devicePrompt.header.priorityFeeRate).toHaveText(priorityFeeRate);
+            reviewedGasLimit = await devicePrompt.header.gasLimitValue.innerText();
             const maximumFeeInGwei = new BigNumber(maxFeePerGas).times(reviewedGasLimit).toFixed();
             const maximumFee = `${localizeNumber(fromGwei(maximumFeeInGwei).toEther())} ETH`;
             await expect(devicePrompt.cryptoAmountWithSymbolOf('fee')).toHaveText(maximumFee);
@@ -234,12 +229,12 @@ test.describe('Trading - DEX swap (LI.FI)', { tag: ['@T3T1', '@T3W1'] }, () => {
                 `- ${formattedSendAmount}`,
             );
             await expect(devicePrompt.assetsReceiveCryptoAmount).toHaveText(
-                `+ ${minimumReceived.toFixed()} USDC`,
+                `+ ${promptMinimumReceived}`,
             );
             await expect(devicePrompt.assetsReceiveAddress).toHaveText(
                 tradingMockNew.liveTrade.receiveAddress!,
             );
-            await expect(devicePrompt.ethereumGasLimit).toHaveText(gasLimitWithLabel);
+            await expect(devicePrompt.header.gasLimitValue).toHaveText(reviewedGasLimit);
         });
 
         await test.step('Send the DEX transaction (broadcast blocked by mock)', async () => {

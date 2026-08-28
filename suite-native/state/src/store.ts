@@ -9,9 +9,9 @@ import {
 import { type Persistor, persistStore } from 'redux-persist';
 
 import { logsMiddleware } from '@suite-common/logger';
-import { type ExtraDependenciesStatic } from '@suite-common/redux-extra-dependencies';
 import {
     type ReducerState,
+    type WithServices,
     castExtraStore,
     createStoreWithExtraStoreMiddleware,
 } from '@suite-common/redux-utils';
@@ -27,7 +27,6 @@ import { deviceConnectionMiddleware, prepareDeviceMiddleware } from '@suite-nati
 import { prepareDiscoveryMiddleware } from '@suite-native/discovery';
 import { messageSystemMiddleware } from '@suite-native/message-system';
 import { sendFormMiddleware } from '@suite-native/send';
-import { type NativeServices } from '@suite-native/services';
 import { createEnsureEncryptionKey, createMMKVStorage } from '@suite-native/storage';
 import {
     prepareTradingLastErrorSentryMiddleware,
@@ -35,7 +34,12 @@ import {
 } from '@suite-native/trading-state';
 import { type DeepPartial } from '@trezor/type-utils';
 
-import { createNativeCompositionRoot, extraDependencies } from './extraDependencies';
+import {
+    type ExtraDependenciesNative,
+    type NativeServices,
+    createNativeCompositionRoot,
+    extraDependencies,
+} from './extraDependencies';
 import { prepareRootReducers } from './reducers';
 
 type RootReducerShape = ReturnType<typeof prepareRootReducers>;
@@ -64,7 +68,7 @@ export type PreloadedState = DeepPartial<FullPersistedAppState> | undefined;
 
 export type StoreWithExtra = ReturnType<
     typeof castExtraStore<
-        ExtraDependenciesStatic & { services: NativeServices },
+        ExtraDependenciesNative,
         EnhancedStore<FullPersistedAppState, UnknownAction>
     >
 > & {
@@ -75,9 +79,7 @@ export type StoreWithExtra = ReturnType<
 const ENABLE_REDUX_LOGGER = false;
 const enhancers: Array<StoreEnhancer<any, any>> = [];
 
-type GetMiddlewaresDeps = {
-    services: NativeAnalyticsDep & SuiteSyncDep;
-};
+type GetMiddlewaresDeps = WithServices<NativeAnalyticsDep & SuiteSyncDep>;
 
 const getMiddlewares = (getExtra: () => GetMiddlewaresDeps | null) => {
     const middlewares: Middleware[] = [

@@ -1,5 +1,6 @@
-import type { Dispatch, PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction, UnknownAction } from '@reduxjs/toolkit';
 import { saveAs } from 'file-saver';
+import { type ThunkDispatch } from 'redux-thunk';
 
 import { type DesktopAnalyticsDep, createAnalytics } from '@suite/analytics';
 import { selectShouldRetryFirmwareRevisionCheckError } from '@suite/authenticity-checks';
@@ -52,6 +53,7 @@ import {
     type CommonServices,
     type ExtraDependenciesStatic,
 } from '@suite-common/redux-extra-dependencies';
+import { type WithServices } from '@suite-common/redux-utils';
 import { createMigrateSuiteSyncLabelsForRbfTransactionCompositionRoot } from '@suite-common/suite-rbf-labels-migrations';
 import {
     createSuiteSyncWriteLabels,
@@ -105,9 +107,19 @@ const connectInitSettings: ConnectInitSettings = {
     firmwareHashCheckTimeouts: FW_HASH_CHECK_DEFAULT_TIMEOUTS,
 };
 
+export type SuiteServices = CommonServices &
+    DesktopAnalyticsDep &
+    MetadataMigrationDep &
+    SuiteRouterHistoryDep &
+    TransportsDep;
+
+export type ExtraDependenciesSuite = ExtraDependenciesStatic &
+    TokenDefinitionsMiddlewareDeps &
+    WithServices<SuiteServices>;
+
 export type StoreAPIDep = {
-    getState: () => any;
-    dispatch: Dispatch;
+    getState: () => AppState;
+    dispatch: ThunkDispatch<AppState, ExtraDependenciesSuite, UnknownAction>;
 };
 
 export type SuiteAppDeps = StoreAPIDep &
@@ -118,15 +130,6 @@ export type SuiteAppDeps = StoreAPIDep &
     ReloadAppDep &
     ThpHostNameDep &
     GetTransportsFactoriesDep;
-
-export type SuiteServices = CommonServices &
-    DesktopAnalyticsDep &
-    MetadataMigrationDep &
-    SuiteRouterHistoryDep &
-    TransportsDep;
-
-export type SuiteExtra = ExtraDependenciesStatic &
-    TokenDefinitionsMiddlewareDeps & { services: SuiteServices };
 
 export const selectSuiteServices = (services: any): SuiteServices => services;
 

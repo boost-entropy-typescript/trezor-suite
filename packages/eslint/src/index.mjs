@@ -1,3 +1,4 @@
+import { fixupConfigRules } from '@eslint/compat';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import playwright from 'eslint-plugin-playwright';
 import globals from 'globals';
@@ -71,7 +72,8 @@ export const eslint = [
     ...jestConfig,
     ...localRulesConfig,
 
-    jsxA11y.flatConfigs.recommended,
+    // TODO: Remove the compatibility wrapper when eslint-plugin-jsx-a11y supports ESLint 10.
+    ...fixupConfigRules(jsxA11y.flatConfigs.recommended),
 
     // Tests
     {
