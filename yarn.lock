@@ -3936,9 +3936,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/ui@npm:56.0.24":
-  version: 56.0.24
-  resolution: "@expo/ui@npm:56.0.24"
+"@expo/ui@npm:57.0.10":
+  version: 57.0.10
+  resolution: "@expo/ui@npm:57.0.10"
   dependencies:
     sf-symbols-typescript: "npm:^2.1.0"
     vaul: "npm:^1.1.2"
@@ -3956,7 +3956,7 @@ __metadata:
       optional: true
     react-native-worklets:
       optional: true
-  checksum: 10/ca8cdc4825ab1a905291409794e027908167425bbe75395873bc1dd998387948f870ff2956bc47fed600a9b33089ebc65dcd303005dd7f9c23f07a73e8dab978
+  checksum: 10/d9f3e50ef11db54991e07613eab9a9a4a8a6e7c04bca6203d5d34923480ac0046f8633ddb4553fe9c49df7faf563de393acf9ae28ca9f604244f534ae7c4c709
   languageName: node
   linkType: hard
 
@@ -11374,6 +11374,7 @@ __metadata:
   resolution: "@suite-common/test-utils@workspace:suite-common/test-utils"
   dependencies:
     "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -11588,6 +11589,7 @@ __metadata:
     "@suite-common/fiat-services": "workspace:*"
     "@suite-common/firmware": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
+    "@suite-common/networks": "workspace:*"
     "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/schemas": "workspace:*"
@@ -11613,11 +11615,13 @@ __metadata:
     "@trezor/device-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
     "@trezor/network-ethereum-suite-common": "workspace:*"
+    "@trezor/network-module-suite-common-types": "workspace:*"
     "@trezor/network-ripple": "workspace:*"
     "@trezor/network-solana": "workspace:*"
     "@trezor/network-stellar": "workspace:*"
     "@trezor/network-tron": "workspace:*"
     "@trezor/protobuf": "workspace:*"
+    "@trezor/react-utils": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     lodash: "npm:^4.18.1"
@@ -12297,7 +12301,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/clipboard@workspace:suite-native/clipboard"
   dependencies:
-    "@expo/ui": "npm:56.0.24"
+    "@expo/ui": "npm:57.0.10"
     "@suite-native/intl": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     expo-clipboard: "npm:~57.0.1"
@@ -12899,8 +12903,6 @@ __metadata:
     "@suite-common/analytics": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-native/analytics": "workspace:*"
-    "@suite-native/atoms": "workspace:*"
-    "@suite-native/icons": "workspace:*"
     "@suite-native/toasts": "workspace:*"
     "@trezor/styles-native": "workspace:*"
     "@trezor/theme": "workspace:*"
@@ -15839,7 +15841,7 @@ __metadata:
     "@suite/router": "workspace:*"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.1"
+    "@testing-library/user-event": "npm:^14.6.4"
     "@trezor/suite": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     history: "npm:^5.3.0"
@@ -16472,7 +16474,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:6.9.1, @testing-library/jest-dom@npm:^6.9.1":
+"@testing-library/jest-dom@npm:7.0.1":
+  version: 7.0.1
+  resolution: "@testing-library/jest-dom@npm:7.0.1"
+  dependencies:
+    "@adobe/css-tools": "npm:^4.4.0"
+    aria-query: "npm:^5.0.0"
+    css.escape: "npm:^1.5.1"
+    dom-accessibility-api: "npm:^0.6.3"
+    picocolors: "npm:^1.1.1"
+    redent: "npm:^3.0.0"
+  peerDependencies:
+    "@testing-library/dom": ">=10 <11"
+    vitest: ">= 0.32"
+  peerDependenciesMeta:
+    vitest:
+      optional: true
+  checksum: 10/0770454b47da9370e59cda691f797c0442e53caefcd412c504b33c7a9bee099c8a9e7d1f07f7eae8d380ea52c34a5d70139e875480a57f729588068edc78f57b
+  languageName: node
+  linkType: hard
+
+"@testing-library/jest-dom@npm:^6.9.1":
   version: 6.9.1
   resolution: "@testing-library/jest-dom@npm:6.9.1"
   dependencies:
@@ -16526,12 +16548,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.6.1":
-  version: 14.6.1
-  resolution: "@testing-library/user-event@npm:14.6.1"
+"@testing-library/user-event@npm:^14.6.1, @testing-library/user-event@npm:^14.6.4":
+  version: 14.6.4
+  resolution: "@testing-library/user-event@npm:14.6.4"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 10/34b74fff56a0447731a94b40d4cf246deb8dbc1c1e3aec93acd1c3377a760bb062e979f1572bb34ec164ad28ee2a391744b42d0d6d6cc16c4ce527e5e09610e1
+  checksum: 10/cf0406382327c6751bf282f6acebfc68d08cffc5a01d9cb808f4130a4b713962b32bd5d38c9ff351c3d13495134af72cf2efb330f711e1afa1f6750d3ed2dc68
   languageName: node
   linkType: hard
 
@@ -16730,9 +16752,9 @@ __metadata:
     "@suite-common/illustrations": "workspace:*"
     "@tanstack/react-virtual": "npm:^3.13.9"
     "@testing-library/dom": "npm:^10.4.1"
-    "@testing-library/jest-dom": "npm:6.9.1"
+    "@testing-library/jest-dom": "npm:7.0.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.1"
+    "@testing-library/user-event": "npm:^14.6.4"
     "@trezor/env-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
     "@trezor/icons": "workspace:*"
@@ -17208,8 +17230,12 @@ __metadata:
   resolution: "@trezor/network-ethereum-suite-common@workspace:networks/ethereum/network-ethereum-suite-common"
   dependencies:
     "@noble/hashes": "npm:^2.0.1"
+    "@suite-common/calldata": "workspace:*"
+    "@trezor/connect": "workspace:*"
     "@trezor/network-ethereum": "workspace:*"
     "@trezor/network-module-suite-common-types": "workspace:*"
+    "@trezor/utils": "workspace:*"
+    viem: "npm:^2.54.1"
   languageName: unknown
   linkType: soft
 
@@ -17360,7 +17386,7 @@ __metadata:
     "@suite-common/wallet-utils": "workspace:*"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.1"
+    "@testing-library/user-event": "npm:^14.6.4"
     "@trezor/asset-utils": "workspace:*"
     "@trezor/components": "workspace:*"
     "@trezor/device-utils": "workspace:*"
@@ -17961,9 +17987,9 @@ __metadata:
     "@suite/ui-animations": "workspace:*"
     "@suite/wallet": "workspace:*"
     "@tanstack/react-query": "npm:5.101.2"
-    "@testing-library/jest-dom": "npm:6.9.1"
+    "@testing-library/jest-dom": "npm:7.0.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.1"
+    "@testing-library/user-event": "npm:^14.6.4"
     "@trezor/analytics-uploader": "workspace:*"
     "@trezor/asset-utils": "workspace:*"
     "@trezor/blockchain-link-types": "workspace:*"

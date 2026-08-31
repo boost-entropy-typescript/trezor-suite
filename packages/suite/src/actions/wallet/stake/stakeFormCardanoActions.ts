@@ -49,6 +49,7 @@ import {
     getStakingPath,
     getUnusedChangeAddress,
     getVotingCertificates,
+    hasCardanoLiveVoteDelegation,
     isCardanoStakedWithEverstake,
     isTestnet,
     networkAmountToSmallestUnit,
@@ -100,12 +101,19 @@ const calculateTransaction = (
     );
 };
 
-export const prepareTxPlan = async (
-    account: Account,
-    action: CardanoAction,
-    cardanoPools: AdaPools['pools'],
-    votingDelegation?: VotingDelegationOption,
-) => {
+type PrepareTxPlanParams = {
+    account: Account;
+    action: CardanoAction;
+    cardanoPools: AdaPools['pools'];
+    votingDelegation?: VotingDelegationOption;
+};
+
+export const prepareTxPlan = async ({
+    account,
+    action,
+    cardanoPools,
+    votingDelegation,
+}: PrepareTxPlanParams) => {
     if (account?.networkType !== 'cardano') return;
 
     const changeAddress = getUnusedChangeAddress(account);
@@ -141,10 +149,15 @@ export const prepareTxPlan = async (
         );
     }
 
-    if (action === 'delegate' || action === 'voteDelegate') {
-        const isVotingToAnotherDrep =
-            votingDelegation?.type === 'another_drep' &&
-            validateCardanoDrep(votingDelegation.drepId);
+    const isKeepingCurrentVote =
+        votingDelegation?.type === 'current' && hasCardanoLiveVoteDelegation(account);
+
+    if ((action === 'delegate' || action === 'voteDelegate') && !isKeepingCurrentVote) {
+        const isVotingToAnotherDrep = votingDelegation?.type === 'another_drep';
+
+        if (isVotingToAnotherDrep && !validateCardanoDrep(votingDelegation.drepId)) {
+            return null;
+        }
 
         const drepBech32 = isVotingToAnotherDrep
             ? votingDelegation.drepId
@@ -173,6 +186,10 @@ export const prepareTxPlan = async (
                   },
               ]
             : [];
+
+    if (certificates.length === 0 && withdrawals.length === 0) {
+        return null;
+    }
 
     const response = await TrezorConnect.cardanoComposeTransaction({
         account: {
@@ -206,19 +223,19 @@ const getTransactionData = (
     const { account } = selectedAccount;
 
     if (stakeType === 'stake') {
-        return prepareTxPlan(account, 'delegate', cardanoPools, votingDelegation);
+        return prepareTxPlan({ account, action: 'delegate', cardanoPools, votingDelegation });
     }
 
     if (stakeType === 'unstake') {
-        return prepareTxPlan(account, 'deregister', cardanoPools, votingDelegation);
+        return prepareTxPlan({ account, action: 'deregister', cardanoPools, votingDelegation });
     }
 
     if (stakeType === 'claim') {
-        return prepareTxPlan(account, 'withdrawal', cardanoPools, votingDelegation);
+        return prepareTxPlan({ account, action: 'withdrawal', cardanoPools, votingDelegation });
     }
 
     if (stakeType === 'change-delegate') {
-        return prepareTxPlan(account, 'voteDelegate', cardanoPools, votingDelegation);
+        return prepareTxPlan({ account, action: 'voteDelegate', cardanoPools, votingDelegation });
     }
 };
 

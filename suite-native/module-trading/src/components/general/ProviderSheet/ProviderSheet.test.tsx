@@ -1,11 +1,8 @@
-import {
-    EMPTY_GROUPED_TRADING_EXCHANGE_QUOTES,
-    type TradingTradeType,
-    type TradingType,
-} from '@suite-common/trading';
+import { type TradingTradeType, type TradingType } from '@suite-common/trading';
 import { getTranslation } from '@suite-native/intl';
 import { screen } from '@suite-native/test-utils-store';
 import { cexdirectFloatingQuote, mercuryoApplePayBuyQuote } from '@suite-native/trading-fixtures';
+import { EMPTY_GROUPED_EXCHANGE_QUOTES_BY_RATE_TYPE } from '@suite-native/trading-state';
 
 import { ProviderSheet, type ProviderSheetProps } from './ProviderSheet';
 import {
@@ -41,35 +38,42 @@ describe('ProviderSheet', () => {
         expect(
             getByText(getTranslation('moduleTrading.providerSheet.noProviders')),
         ).toBeOnTheScreen();
-        expect(queryByText(getTranslation('moduleTrading.providerSheet.fixed.title'))).toBeNull();
+        expect(
+            queryByText(getTranslation('moduleTrading.providerSheet.fixed.titleOffers')),
+        ).toBeNull();
     });
 
     it('should render section header and empty placeholder for exchange', async () => {
-        const { getByText } = await renderProviderSheet({ tradingType: 'exchange' }, {});
+        const { getByText, getAllByText, queryByText } = await renderProviderSheet(
+            { tradingType: 'exchange' },
+            {},
+        );
 
         expect(
-            getByText(getTranslation('moduleTrading.providerSheet.noProviders')),
+            getAllByText(getTranslation('moduleTrading.providerSheet.noProviders')).length,
+        ).toBeGreaterThan(0);
+        expect(
+            getByText(getTranslation('moduleTrading.providerSheet.fixed.titleOffers')),
         ).toBeOnTheScreen();
         expect(
-            getByText(getTranslation('moduleTrading.providerSheet.fixed.title')),
+            getByText(getTranslation('moduleTrading.providerSheet.float.titleOffers')),
         ).toBeOnTheScreen();
+        expect(queryByText(getTranslation('moduleTrading.providerSheet.dex.title'))).toBeNull();
     });
 
-    it('should render all section headers for exchange', async () => {
-        const { getByText } = await renderProviderSheet({
+    it('should render fixed and float section headers for exchange without DEX section', async () => {
+        const { getByText, queryByText } = await renderProviderSheet({
             tradingType: 'exchange',
-            quotes: EMPTY_GROUPED_TRADING_EXCHANGE_QUOTES,
+            quotes: EMPTY_GROUPED_EXCHANGE_QUOTES_BY_RATE_TYPE,
         });
 
         expect(
-            getByText(getTranslation('moduleTrading.providerSheet.fixed.title')),
+            getByText(getTranslation('moduleTrading.providerSheet.fixed.titleOffers')),
         ).toBeOnTheScreen();
         expect(
-            getByText(getTranslation('moduleTrading.providerSheet.float.title')),
+            getByText(getTranslation('moduleTrading.providerSheet.float.titleOffers')),
         ).toBeOnTheScreen();
-        expect(
-            getByText(getTranslation('moduleTrading.providerSheet.dex.title')),
-        ).toBeOnTheScreen();
+        expect(queryByText(getTranslation('moduleTrading.providerSheet.dex.title'))).toBeNull();
     });
 
     it('should render provided quotes', async () => {
