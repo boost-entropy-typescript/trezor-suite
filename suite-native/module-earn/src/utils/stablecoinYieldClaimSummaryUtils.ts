@@ -8,13 +8,18 @@ import {
     type AccountKey,
     type BaseCurrencyAmount,
     asBaseCurrencyAmount,
+    toTokenAddress,
+    toTokenSymbol,
 } from '@suite-common/wallet-types';
+import { asAmountSubunit, subunitsToUnits } from '@suite-common/wallet-utils';
 import { type YieldClaimVaultParams } from '@suite-native/navigation';
 import { BigNumber } from '@trezor/utils';
 
 import {
     type EarnDepositsCardActiveItem,
+    type StablecoinYieldClaimRewardToken,
     type StablecoinYieldClaimSummary,
+    type StablecoinYieldClaimToken,
     type StablecoinYieldPositionItem,
 } from '../types';
 
@@ -138,6 +143,28 @@ export const buildStablecoinYieldClaimSummaries = ({
             return [];
         }
 
+        const tokensByContract = new Map<string, StablecoinYieldClaimRewardToken>();
+
+        for (const reward of accountRewards.rewards) {
+            const contractAddress = toTokenAddress(reward.token.address);
+            const tokenKey = `${account.symbol}:${contractAddress.toLowerCase()}`;
+            const claimableAmount = subunitsToUnits({
+                value: asAmountSubunit(new BigNumber(reward.claimable)),
+                decimals: reward.token.decimals,
+            });
+            const previousToken = tokensByContract.get(tokenKey);
+
+            tokensByContract.set(tokenKey, {
+                networkSymbol: account.symbol,
+                contractAddress,
+                symbol: toTokenSymbol(reward.token.symbol),
+                decimals: reward.token.decimals,
+                claimableAmount: previousToken
+                    ? new BigNumber(previousToken.claimableAmount).plus(claimableAmount).toString()
+                    : claimableAmount.toString(),
+            });
+        }
+
         return [
             {
                 type: 'stablecoin-yield',
@@ -145,14 +172,33 @@ export const buildStablecoinYieldClaimSummaries = ({
                 networkSymbol: account.symbol,
                 claimableRewardsCount: accountRewards.rewards.length,
                 fiatClaimableAmount: accountRewards.totalFiatClaimableAmount,
+                tokens: [...tokensByContract.values()],
             },
         ];
     });
 };
 
+export const getUniqueStablecoinYieldClaimTokens = (
+    summaries: StablecoinYieldClaimSummary[],
+): StablecoinYieldClaimToken[] => {
+    const tokensByContract = new Map<string, StablecoinYieldClaimToken>();
+
+    for (const summary of summaries) {
+        for (const token of summary.tokens) {
+            const tokenKey = `${token.networkSymbol}:${token.contractAddress.toLowerCase()}`;
+            tokensByContract.set(tokenKey, {
+                networkSymbol: token.networkSymbol,
+                contractAddress: token.contractAddress,
+                symbol: token.symbol,
+            });
+        }
+    }
+
+    return [...tokensByContract.values()];
+};
+
 export type StablecoinYieldClaimItem = {
     summary: StablecoinYieldClaimSummary;
-    positions: StablecoinYieldPositionItem[];
     vaults: YieldClaimVaultParams[];
 };
 
@@ -178,7 +224,6 @@ export const buildStablecoinYieldClaimItems = ({
 
         return {
             summary,
-            positions,
             vaults: positions.flatMap(position =>
                 position.title
                     ? [{ name: position.title, tokenContract: position.tokenContractAddress }]

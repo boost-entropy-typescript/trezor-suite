@@ -18,6 +18,7 @@ import {
     type WalletSettingsRootState,
     selectEnabledNetworks,
 } from '../settings/walletSettingsReducer';
+
 type PreloadFeeInfoThunkState = WalletSettingsRootState;
 
 // Conditionally subscribe to blockchain backend
@@ -75,6 +76,7 @@ type UpdateFeeInfoThunkProps = {
     networkSymbol: NetworkSymbol;
     artificialDelay?: number;
 };
+
 export type UpdateFeeInfoThunkState = BlockchainRootState & DeviceRootState & FeesRootState;
 
 /**
@@ -123,11 +125,11 @@ export const updateFeeInfoThunk = createThunk<
     },
 );
 
-export type GetOrFetchRawFeeInfoThunkState = UpdateFeeInfoThunkState;
-
 interface GetOrFetchRawFeeInfoThunkProps {
     networkSymbol: NetworkSymbol;
 }
+
+export type GetOrFetchRawFeeInfoThunkState = UpdateFeeInfoThunkState;
 
 export const getOrFetchRawFeeInfoThunk = createThunk<
     FeeInfo | undefined,

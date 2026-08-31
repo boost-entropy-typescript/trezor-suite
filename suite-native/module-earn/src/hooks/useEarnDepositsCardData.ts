@@ -90,6 +90,8 @@ export const useEarnDepositsCardData = ({
         missingStakingRateTickers,
         missingStablecoinYieldRateTickers,
         missingRateTickers,
+        stakingFiatAmount,
+        stablecoinYieldFiatAmount,
         totalDepositedFiatAmount,
         hasStakingFiatRate,
         hasStablecoinYieldFiatRate: hasStablecoinFiatRate,
@@ -160,7 +162,7 @@ export const useEarnDepositsCardData = ({
         () =>
             createSummaryRow({
                 activeItems: stakingRows,
-                title: translate('earn.staking'),
+                title: translate('earn.earnScreen.depositsCard.stakingPositions'),
             }),
         [stakingRows, translate],
     );
@@ -169,7 +171,7 @@ export const useEarnDepositsCardData = ({
         () =>
             createSummaryRow({
                 activeItems: stablecoinRows,
-                title: translate('earn.defiYield'),
+                title: translate('earn.earnScreen.depositsCard.defiYieldPositions'),
             }),
         [stablecoinRows, translate],
     );
@@ -178,6 +180,8 @@ export const useEarnDepositsCardData = ({
         stakingRow,
         stablecoinYieldRow,
         totalDepositedFiatAmount,
+        stakingFiatAmount,
+        stablecoinYieldFiatAmount,
         isFiatRatesLoading,
         isFiatTotalIncomplete,
         isFiatTotalUnavailable,

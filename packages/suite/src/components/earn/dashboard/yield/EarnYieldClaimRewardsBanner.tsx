@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 import { selectDesktopAnalyticsDep } from '@suite/analytics';
 import { HiddenPlaceholder } from '@suite/discreet-mode';
 import { Translation } from '@suite/intl';
@@ -14,6 +16,17 @@ import { EarnYieldClaimRewardsBannerAccountsTooltip } from './EarnYieldClaimRewa
 import { EarnYieldClaimRewardsBannerTokensTooltip } from './EarnYieldClaimRewardsBannerTokensTooltip';
 import { useYieldClaimRewardsData } from './hooks/useYieldClaimRewardsData';
 import { type useMerklRewards } from '../../yield/claim/hooks';
+
+const Summary = styled.span`
+    color: ${({ theme }) => theme.contentSecondary};
+
+    > span {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+`;
 
 type EarnYieldClaimRewardsBannerProps = {
     rewards: ReturnType<typeof useMerklRewards>['merklRewardsQuery'];
@@ -40,6 +53,14 @@ export const EarnYieldClaimRewardsBanner = ({
 
     const { accountRewards, tokenRewards } = useYieldClaimRewardsData({ rewards });
     const areRewardsLoading = isLoading || isFiatRateLoading || isDiscoveryRunning;
+    const amountContent = (
+        <HiddenPlaceholder>
+            <Text typographyStyle="body-md-strong" intent="neutral" priority="primary">
+                {!isClaimDisabled && '≈ '}
+                <BaseCurrencyAmountFormatter value={value} currency={currency} />
+            </Text>
+        </HiddenPlaceholder>
+    );
 
     const handleOnClaim = () => {
         analytics.report({
@@ -61,38 +82,63 @@ export const EarnYieldClaimRewardsBanner = ({
             isIconVerticallyCentered
             contentGap={8}
             title={
-                <Row gap={8} flexWrap="wrap">
-                    <Text intent="neutral" priority="secondary">
-                        <Translation id="TR_EARN_CLAIM_REWARDS_LABEL" />
-                    </Text>
-
-                    {areRewardsLoading ? (
-                        <Skeleton width={50} height={16} animate />
-                    ) : (
-                        <HiddenPlaceholder>
-                            <Text typographyStyle="body-md-strong">
-                                {!isClaimDisabled && '≈ '}
-                                <BaseCurrencyAmountFormatter value={value} currency={currency} />
-                            </Text>
-                        </HiddenPlaceholder>
-                    )}
-                </Row>
+                <Text intent="neutral" priority="secondary">
+                    <Translation id="TR_EARN_CLAIM_REWARDS_LABEL" />
+                </Text>
             }
             description={
-                !areRewardsLoading && (
-                    <Row gap={16} alignItems="center" flexWrap="wrap">
-                        {tokenRewards.length > 1 && (
-                            <EarnYieldClaimRewardsBannerTokensTooltip
-                                rewards={tokenRewards}
-                                currency={currency}
-                            />
-                        )}
-
-                        {accountRewards.length > 1 && (
-                            <EarnYieldClaimRewardsBannerAccountsTooltip
-                                rewards={accountRewards}
-                                currency={currency}
-                            />
+                areRewardsLoading ? (
+                    <Skeleton width={140} height={20} animate />
+                ) : (
+                    <Row gap={8} alignItems="center" flexWrap="wrap">
+                        {tokenRewards.length === 0 ? (
+                            amountContent
+                        ) : (
+                            <Summary>
+                                {accountRewards.length > 1 ? (
+                                    <Translation
+                                        id="TR_EARN_CLAIM_REWARDS_SUMMARY_WITH_ACCOUNTS"
+                                        values={{
+                                            amount: amountContent,
+                                            tokens: (
+                                                <EarnYieldClaimRewardsBannerTokensTooltip
+                                                    rewards={tokenRewards}
+                                                    currency={currency}
+                                                />
+                                            ),
+                                            accounts: (
+                                                <EarnYieldClaimRewardsBannerAccountsTooltip
+                                                    rewards={accountRewards}
+                                                    currency={currency}
+                                                />
+                                            ),
+                                            text: chunks => (
+                                                <Text intent="neutral" priority="secondary">
+                                                    {chunks}
+                                                </Text>
+                                            ),
+                                        }}
+                                    />
+                                ) : (
+                                    <Translation
+                                        id="TR_EARN_CLAIM_REWARDS_SUMMARY"
+                                        values={{
+                                            amount: amountContent,
+                                            tokens: (
+                                                <EarnYieldClaimRewardsBannerTokensTooltip
+                                                    rewards={tokenRewards}
+                                                    currency={currency}
+                                                />
+                                            ),
+                                            text: chunks => (
+                                                <Text intent="neutral" priority="secondary">
+                                                    {chunks}
+                                                </Text>
+                                            ),
+                                        }}
+                                    />
+                                )}
+                            </Summary>
                         )}
                     </Row>
                 )

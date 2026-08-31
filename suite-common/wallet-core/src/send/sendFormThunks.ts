@@ -117,13 +117,14 @@ import {
     signTronSendFormTransactionThunk,
 } from './tron/sendFormTronThunks';
 
-type ConvertSendFormDraftsBtcAmountUnitsThunkState = AccountsRootState &
-    SendRootState &
-    WalletSettingsRootState;
 type ConvertSendFormDraftsBtcAmountUnitsThunkParams = {
     selectedAccountKey?: AccountKey;
     isOnSendPage?: boolean;
 };
+
+type ConvertSendFormDraftsBtcAmountUnitsThunkState = AccountsRootState &
+    SendRootState &
+    WalletSettingsRootState;
 
 export const convertSendFormDraftsBtcAmountUnitsThunk = createThunk<
     void,
@@ -185,6 +186,7 @@ type CoinSpecificComposeResponse = ActionsFromAsyncThunk<
     | typeof composeSolanaTransactionFeeLevelsThunk
     | typeof composeTronTransactionFeeLevelsThunk
 >;
+
 export type ComposeSendFormTransactionFeeLevelsThunkState = BlockchainRootState &
     DeviceRootState &
     WalletSettingsRootState;
@@ -260,10 +262,11 @@ export const composeSendFormTransactionFeeLevelsThunk = createThunk<
     },
 );
 
+export type CancelSignSendFormTransactionThunkState = SendRootState;
+
 export type CancelSignSendFormTransactionThunkDeps = {
     actions: OnModalCancelDep;
 };
-export type CancelSignSendFormTransactionThunkState = SendRootState;
 
 export const cancelSignSendFormTransactionThunk = createThunk<
     void,
@@ -304,9 +307,11 @@ type SynchronizeSentTransactionThunkParams = {
     // account.misc.nonce (which reads one too high until the backend picks up the real tx).
     ethereumNonce?: string;
 };
+
 export type SynchronizeSentTransactionThunkState = FeesRootState &
     SendRootState &
     SyncAccountsWithBlockchainThunkState;
+
 export type SynchronizeSentTransactionThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
@@ -399,6 +404,7 @@ export const synchronizeSentTransactionThunk = createThunk<
 );
 
 export type PushSendFormTransactionThunkState = SynchronizeSentTransactionThunkState;
+
 export type PushSendFormTransactionThunkDeps = {
     actions: OnModalCancelDep;
     services: AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep;
@@ -580,7 +586,9 @@ type PushSendFormRawTransactionThunkParams = {
     identity?: string;
     isMevProtectionEnabled: boolean;
 };
+
 type PushSendFormRawTransactionThunkState = DeviceRootState & SyncAccountsWithBlockchainThunkState;
+
 type PushSendFormRawTransactionThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
@@ -652,6 +660,7 @@ type SignTransactionThunkParams = {
     selectedAccount: Account;
     paymentRequests?: PROTO.PaymentRequest[];
 };
+
 export type SignTransactionThunkState = AccountsRootState &
     DeviceRootState &
     TransactionsRootState &

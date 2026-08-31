@@ -40,7 +40,9 @@ const shouldRefetchAccount = ({
 };
 
 type SyncAccountsWithBlockchainThunkParams = { symbol: NetworkSymbol };
+
 export type SyncAccountsWithBlockchainThunkState = FetchAndUpdateAccountThunkState;
+
 export type SyncAccountsWithBlockchainThunkDeps = FetchAndUpdateAccountThunkDeps;
 
 export const syncAccountsWithBlockchainThunk = createThunk<
@@ -69,6 +71,7 @@ export const syncAccountsWithBlockchainThunk = createThunk<
 });
 
 export type SyncAllAccountsWithBlockchainThunkState = SyncAccountsWithBlockchainThunkState;
+
 export type SyncAllAccountsWithBlockchainThunkDeps = SyncAccountsWithBlockchainThunkDeps;
 
 export const syncAllAccountsWithBlockchainThunk = createThunk<
@@ -89,8 +92,10 @@ export const syncAllAccountsWithBlockchainThunk = createThunk<
 });
 
 type OnBlockchainConnectThunkParams = { symbol: string };
+
 export type OnBlockchainConnectThunkState = SubscribeBlockchainThunkState &
     SyncAccountsWithBlockchainThunkState;
+
 export type OnBlockchainConnectThunkDeps = SyncAccountsWithBlockchainThunkDeps;
 
 export const onBlockchainConnectThunk = createThunk<
@@ -111,6 +116,7 @@ export const onBlockchainConnectThunk = createThunk<
 });
 
 export type OnBlockchainNotificationThunkState = FetchAndUpdateAccountThunkState;
+
 export type OnBlockchainNotificationThunkDeps = FetchAndUpdateAccountThunkDeps;
 
 export const onBlockchainNotificationThunk = createThunk<

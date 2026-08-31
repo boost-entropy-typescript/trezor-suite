@@ -67,11 +67,13 @@ type ClaimMerklRewardsParams = {
     flowKey: string;
     rewards: ClaimMerklReward[];
 };
+
 type ClaimMerklRewardsThunkState = DeviceRootState &
     EthereumGetCurrentNonceThunkState &
     MessageSystemRootState &
     SynchronizeSentTransactionThunkState &
     WalletSettingsRootState;
+
 type ClaimMerklRewardsThunkDeps = SynchronizeSentTransactionThunkDeps & {
     services: DesktopAnalyticsDep;
 };

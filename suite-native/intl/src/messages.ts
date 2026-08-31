@@ -2961,18 +2961,21 @@ export const messages = {
                 'Due to Solana transaction size restrictions, you can unstake from {limit} accounts at once. In the next transaction you can unstake up to {amount} {symbol}. To unstake more, repeat the process.',
         },
         earnScreen: {
-            title: 'Earn',
             otherOpportunities: 'Other opportunities',
             depositsCard: {
-                title: 'Your deposits',
+                title: 'Earning balance',
                 networkStaking: '{networkName} staking',
-                availableRewards: 'Bonus rewards',
-                claimRewardsButton: 'Claim rewards',
+                stakingPositions: 'Staking positions',
+                defiYieldPositions: 'DeFi Yield positions',
+                availableRewards: 'Available bonus rewards',
+                claimRewardsButton: 'Claim',
+                rewardsSummary:
+                    '{tokenCount, plural, one {<text>in</text><tokenIcons></tokenIcons><text>{tokenSymbol}</text>} other {<text>in</text><tokenIcons></tokenIcons><text># tokens</text>}}{accountCount, plural, one {} other {<text>across</text><accountIcon></accountIcon><text># accounts</text>}}',
                 incompleteFiatTotal: 'Some fiat rates couldn’t load. Total may be incomplete.',
             },
             activeSheet: {
-                stakingPositionsTitle: 'Your staking positions',
-                yieldPositionsTitle: 'Your yield positions',
+                stakingPositionsTitle: 'Staking positions',
+                yieldPositionsTitle: 'Yield positions',
             },
             stablecoinYieldLoadError: {
                 title: 'Unable to load yield opportunities',
@@ -3011,7 +3014,8 @@ export const messages = {
             },
             adaInfo: 'Your ADA stays fully accessible while earning rewards.',
             claimRewards: {
-                title: 'Claim rewards from an account',
+                title: 'Bonus rewards to claim',
+                subtitle: 'Select an account to claim bonus rewards.',
             },
         },
         howStakeWorksScreen: {

@@ -128,6 +128,7 @@ type CleanupSendFormThunkParams = {
     tokenContract?: TokenAddress;
     shouldDeleteDraft?: boolean;
 };
+
 export type CleanupSendFormThunkState = DeviceRootState;
 
 export const cleanupSendFormThunk = createThunk<
@@ -209,6 +210,7 @@ export type SendTransactionThunkState = MevProtectionRootState &
     TokensRootState &
     PushSendFormTransactionThunkState &
     AddTransactionLabelingThunkState;
+
 export type SendTransactionThunkDeps = PushSendFormTransactionThunkDeps &
     AddTransactionLabelingThunkDeps &
     WithServices<NativeAnalyticsDep>;

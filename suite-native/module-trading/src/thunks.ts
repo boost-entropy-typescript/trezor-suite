@@ -112,7 +112,7 @@ type PushTradingTxnThunkParams = {
 export const pushTradingTxnThunk = createThunk<
     Ok<{ txid: string }>,
     PushTradingTxnThunkParams,
-    { rejectValue: SerializedError | string; state: void }
+    { rejectValue: SerializedError | string }
 >(
     `${NATIVE_TRADING_EXCHANGE_THUNK_PREFIX}/pushTransaction`,
     async ({ serializedTx, account }, { rejectWithValue, fulfillWithValue }) => {
@@ -148,6 +148,7 @@ type ComposeTradingTransactionThunkParams = {
     maxPriorityFeePerGas?: string;
     isSlip24Active?: boolean;
 };
+
 export type ComposeTradingTransactionThunkState = TradingRootState &
     ComposeSendFormTransactionFeeLevelsThunkState &
     EnhancePrecomposedTransactionThunkState;
@@ -301,6 +302,7 @@ type ComposeEvmApprovalFeeLevelsThunkParams = {
     };
     approvalTypeOverride?: DexApprovalType;
 };
+
 export type ComposeEvmApprovalFeeLevelsThunkState = TokensRootState & FormDraftRootState;
 
 export const composeEvmApprovalFeeLevelsThunk = createThunk<
@@ -485,11 +487,13 @@ export const signTradingTransactionThunk = createThunk<
 type SignAndPushSendFormTransactionThunkParams = TradingSignAndPushSendFormTransactionProps & {
     waitForPushApprovalPromise: () => Promise<boolean>;
 };
+
 export type SignAndPushSendFormTransactionThunkState = MevProtectionRootState &
     EnhancePrecomposedTransactionThunkState &
     SignTradingTransactionThunkState &
     PushSendFormTransactionThunkState &
     AddTransactionLabelingThunkState;
+
 export type SignAndPushSendFormTransactionThunkDeps = PushSendFormTransactionThunkDeps &
     AddTransactionLabelingThunkDeps;
 

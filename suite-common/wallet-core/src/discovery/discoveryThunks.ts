@@ -89,6 +89,7 @@ const deviceStateEqualTo = (first: DeviceState) => {
     return (second?: DeviceState) =>
         firstParsed ? firstParsed === second?.staticSessionId?.split(':')[0] : false;
 };
+
 type ApplyDeviceStatesThunkState = DeviceRootState & WalletSettingsRootState;
 
 export const applyDeviceStatesThunk = createThunk<
@@ -231,6 +232,7 @@ type ApplyDeviceStateErrorThunkProps = {
     code: string | undefined;
     devicePath: DeviceUniquePath;
 };
+
 type ApplyDeviceStateErrorThunkState = DiscoveryRootState;
 
 const applyDeviceStateErrorThunk = createThunk<
@@ -307,10 +309,11 @@ type RunDiscoveryParams = {
     callId?: string;
 };
 
+export type RunDiscoveryThunkState = DiscoveryReportingThunkState;
+
 export type RunDiscoveryThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep> & {
     thunks: FetchAndSaveMetadataDep;
 };
-export type RunDiscoveryThunkState = DiscoveryReportingThunkState;
 
 export const runDiscoveryThunk = createThunk<
     void,
@@ -623,7 +626,9 @@ type StartDiscoveryThunkParams = {
     isAddingExistingWallet?: boolean;
     useScopedCallIds?: boolean;
 };
+
 export type StartDiscoveryThunkState = RunDiscoveryThunkState;
+
 export type StartDiscoveryThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep> & {
     thunks: FetchAndSaveMetadataDep;
 };
@@ -667,6 +672,7 @@ export const startDiscoveryThunk = createThunk<
 );
 
 type RunAdditionalDiscoveryThunkState = RunDiscoveryThunkState;
+
 type RunAdditionalDiscoveryThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep>;
 
 export const runAdditionalDiscoveryThunk = createThunk<
@@ -794,13 +800,14 @@ export const runAdditionalDiscoveryThunk = createThunk<
     },
 );
 
-type SubmitPassphraseThunkState = DiscoveryRootState;
 type SubmitPassphraseThunkParams = {
     device: TrezorDevice;
     passphrase: string;
     passphraseOnDevice?: boolean;
     requestId?: string;
 };
+
+type SubmitPassphraseThunkState = DiscoveryRootState;
 
 export const submitPassphrase = createThunk<
     void,
@@ -837,6 +844,7 @@ export const submitPassphrase = createThunk<
 );
 
 type StartOrRestartDiscoveryThunkState = RunDiscoveryThunkState;
+
 type StartOrRestartDiscoveryThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep> & {
     thunks: FetchAndSaveMetadataDep;
 };

@@ -28,8 +28,10 @@ type SubmitYieldWithdrawPayload = {
     amount: string;
     flowType: YieldWithdrawFlowType;
 };
+
 type SubmitYieldWithdrawThunkState = ComposeYieldWithdrawTransactionThunkState &
     SendYieldTransactionState;
+
 type SubmitYieldWithdrawThunkDeps = SendYieldTransactionDeps & {
     services: DesktopAnalyticsDep;
 };

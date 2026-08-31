@@ -124,6 +124,7 @@ export const setCustomBackendThunk = createThunk<
 export type InitBlockchainThunkState = AccountsRootState &
     BlockchainRootState &
     WalletSettingsRootState;
+
 export type InitBlockchainThunkDeps = WithServices<AnalyticsDep>;
 
 export const initBlockchainThunk = createThunk<
@@ -162,12 +163,13 @@ export const initBlockchainThunk = createThunk<
 const isAccountSubscribable = (account: Account) =>
     !account.failed && isTrezorConnectBackendType(account.backendType);
 
-export type SubscribeBlockchainThunkState = AccountsRootState;
 type SubscribeBlockchainThunkParams = {
     symbol: NetworkSymbol;
     fiatRates?: boolean;
     onConnect?: boolean;
 };
+
+export type SubscribeBlockchainThunkState = AccountsRootState;
 
 // called from WalletMiddleware after ACCOUNT.ADD/UPDATE action
 // or after BLOCKCHAIN.CONNECT event (blockchainActions.onConnect)
@@ -275,11 +277,12 @@ const tryClearTimeout = (timeout?: TimerId) => {
     if (timeout) clearTimeout(timeout);
 };
 
+export type SyncAccountsWithBlockchainThunkState = BlockchainRootState &
+    FetchAndUpdateAccountThunkState;
+
 export type SyncAccountsWithBlockchainThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
-export type SyncAccountsWithBlockchainThunkState = BlockchainRootState &
-    FetchAndUpdateAccountThunkState;
 
 export const syncAccountsWithBlockchainThunk = createThunk<
     void,
@@ -331,6 +334,7 @@ export const syncAccountsWithBlockchainThunk = createThunk<
 
 type OnBlockchainConnectThunkState = SyncAccountsWithBlockchainThunkState &
     GetOrFetchRawFeeInfoThunkState;
+
 type OnBlockchainConnectThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
@@ -357,6 +361,7 @@ export const onBlockchainConnectThunk = createThunk<
 });
 
 type OnBlockMinedThunkState = SyncAccountsWithBlockchainThunkState;
+
 type OnBlockMinedThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
@@ -392,6 +397,7 @@ export const onBlockMinedThunk = createThunk<
 type OnBlockchainNotificationThunkState = DeviceRootState &
     SyncAccountsWithBlockchainThunkState &
     WalletSettingsRootState;
+
 type OnBlockchainNotificationThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;
@@ -469,6 +475,7 @@ export const onBlockchainNotificationThunk = createThunk<
 });
 
 type OnBlockchainDisconnectThunkState = SyncAccountsWithBlockchainThunkState;
+
 type OnBlockchainDisconnectThunkDeps = WithServices<
     AnalyticsDep & GetIsWindowVisibleDep & GetTradedAccountKeysDep
 >;

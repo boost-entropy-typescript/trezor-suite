@@ -20,16 +20,18 @@ import {
 } from '@suite-common/wallet-core';
 import { AddressDisplayOptions } from '@suite-common/wallet-types';
 
+type ShowAddressThunkState = DeviceRootState &
+    WalletSettingsRootState &
+    SelectedAccountRootState &
+    ReceiveRootState;
+
 type ShowAddressThunkDeps = WithServices<DesktopAnalyticsDep>;
 
 export const showAddressThunk =
     ({ path }: { path: string }) =>
     async (
         dispatch: Dispatch,
-        getState: () => DeviceRootState &
-            WalletSettingsRootState &
-            SelectedAccountRootState &
-            ReceiveRootState,
+        getState: () => ShowAddressThunkState,
         extra: ShowAddressThunkDeps,
     ) => {
         const device = selectSelectedDevice(getState());

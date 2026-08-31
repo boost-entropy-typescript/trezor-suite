@@ -57,6 +57,7 @@ import {
 } from '../../labels/moveLabelsForRbfThunk';
 
 type SaveSendFormDraftThunkParams = { formState: FormState };
+
 type SaveSendFormDraftThunkState = SelectedAccountRootState;
 
 export const saveSendFormDraftThunk = createThunk<
@@ -116,6 +117,7 @@ type UpdateRbfLabelsThunkParams = {
 };
 
 type UpdateRbfLabelsThunkState = MoveLabelsForRbfThunkState & ReplaceTransactionThunkState;
+
 type UpdateRbfLabelsThunkDeps = MoveLabelsForRbfThunkDeps;
 
 const updateRbfLabelsThunk = createThunk<
@@ -154,11 +156,13 @@ type ApplySendFormMetadataLabelsThunkParams = {
     precomposedTransaction: GeneralPrecomposedTransactionFinal;
     txid: string;
 };
+
 type ApplySendFormMetadataLabelsThunkState = DeviceRootState &
     MessageSystemRootState &
     MetadataRootState &
     SendRootState &
     WithSuiteSyncState;
+
 type ApplySendFormMetadataLabelsThunkDeps = WithServices<SuiteSyncDep>;
 
 const applySendFormMetadataLabelsThunk = createThunk<
@@ -248,6 +252,7 @@ type SignAndPushSendFormTransactionThunkState = ApplySendFormMetadataLabelsThunk
     PushSendFormTransactionThunkState &
     SignTransactionThunkState &
     UpdateRbfLabelsThunkState;
+
 type SignAndPushSendFormTransactionThunkDeps = ApplySendFormMetadataLabelsThunkDeps &
     CancelSignSendFormTransactionThunkDeps &
     PushSendFormTransactionThunkDeps &

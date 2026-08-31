@@ -71,6 +71,7 @@ interface ReplaceTransactionThunkParams {
     precomposedTransaction: PrecomposedTransactionFinalBumpFeeRbf;
     newTxid: string;
 }
+
 export type ReplaceTransactionThunkState = AccountsRootState &
     SendRootState &
     TransactionsRootState;
@@ -148,6 +149,7 @@ interface AddFakePendingTransactionParams {
     precomposedTransaction: PrecomposedTransactionFinal;
     account: Account;
 }
+
 type AddFakePendingTxThunkState = AccountsRootState & BlockchainRootState & SendRootState;
 
 export const addFakePendingTxThunk = createThunk<
@@ -378,6 +380,7 @@ type AddFakePendingEvmTxThunkParams = {
     // correct it yet.
     ethereumNonce?: string;
 };
+
 type AddFakePendingEvmTxThunkState = BlockchainRootState & FeesRootState & TransactionsRootState;
 
 export const addFakePendingEvmTxThunk = createThunk<
@@ -449,6 +452,7 @@ type AddFakePendingCardanoTxThunkParams = {
     account: Account;
     cardanoSpecific?: WalletAccountTransaction['cardanoSpecific'];
 };
+
 type AddFakePendingCardanoTxThunkState = BlockchainRootState;
 
 export const addFakePendingCardanoTxThunk = createThunk<
@@ -500,6 +504,7 @@ interface AddFakePendingTronTxThunkParams {
     target?: { addresses: string[]; amount: string };
     tronSpecific?: WalletAccountTransaction['tronSpecific'];
 }
+
 export type AddFakePendingTronTxThunkState = BlockchainRootState & FeesRootState;
 
 export const addFakePendingTronTxThunk = createThunk<
@@ -566,6 +571,7 @@ type FetchTransactionsPageThunkParams = {
     noLoading?: boolean;
     forceRefetch?: boolean;
 };
+
 type FetchTransactionsPageThunkState = AccountsRootState &
     BlockchainRootState &
     TransactionsRootState;
@@ -654,6 +660,7 @@ export const fetchTransactionsPageThunk = createThunk<
 type FetchUtxoTransactionsForAccountThunkParams = {
     accountKey: AccountKey;
 };
+
 type FetchUtxoTransactionsForAccountThunkState = AccountsRootState & TransactionsRootState;
 
 export const fetchUtxoTransactionsForAccountThunk = createSingleInstanceThunk<
@@ -707,6 +714,7 @@ type FetchAllTransactionsForAccountThunkParams = {
     accountKey: AccountKey;
     noLoading?: boolean;
 };
+
 type FetchAllTransactionsForAccountThunkState = AccountsRootState &
     TransactionsRootState &
     FetchTransactionsPageThunkState;
@@ -794,7 +802,8 @@ type FetchTransactionsFromNowUntilTimestampParams = {
     accountKey: AccountKey;
     timestamp: Timestamp | null;
 };
-export type FetchTransactionsFromNowUntilTimestampState = AccountsRootState &
+
+export type FetchTransactionsFromNowUntilTimestampThunkState = AccountsRootState &
     TransactionsRootState &
     FetchAllTransactionsForAccountThunkState &
     FetchTransactionsPageThunkState;
@@ -802,7 +811,7 @@ export type FetchTransactionsFromNowUntilTimestampState = AccountsRootState &
 export const fetchTransactionsFromNowUntilTimestamp = createSingleInstanceThunk<
     FetchTransactionsFromNowUntilTimestampParams,
     WalletAccountTransaction[],
-    { state: FetchTransactionsFromNowUntilTimestampState }
+    { state: FetchTransactionsFromNowUntilTimestampThunkState }
 >(
     `${TRANSACTIONS_MODULE_PREFIX}/fetchTransactionsForAccount`,
     async ({ accountKey, timestamp }, { dispatch, getState }) => {

@@ -18,7 +18,9 @@ type SelectExchangeQuoteThunkProps = {
     rateType?: string;
     fractionButton?: number;
 };
+
 type SelectExchangeQuoteThunkState = GotoThunkState & TradingRootState;
+
 type SelectExchangeQuoteThunkDeps = GotoThunkDeps & WithServices<DesktopAnalyticsDep>;
 
 export const selectExchangeQuoteThunk = createThunk<

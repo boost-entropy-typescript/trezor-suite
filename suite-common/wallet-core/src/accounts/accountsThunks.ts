@@ -2,11 +2,7 @@ import { type AnalyticsDep, events } from '@suite-common/analytics';
 import { type DeviceRootState, selectDevices } from '@suite-common/device';
 import { type WithServices, createThunk } from '@suite-common/redux-utils';
 import { getTxsPerPage } from '@suite-common/suite-utils';
-import {
-    type NotificationsRootState,
-    notificationsActions,
-    selectTransactionBroadcastNotificationByTxid,
-} from '@suite-common/toast-notifications';
+import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     type TokenDefinitionsRootState,
     selectCoinDefinitions,
@@ -102,8 +98,9 @@ const fetchAccountTokens = async (account: Account, payloadTokens: AccountInfo['
     return tokens;
 };
 
-export type ReportWalletBalanceThunkDeps = WithServices<AnalyticsDep>;
 export type ReportWalletBalanceThunkState = AccountsRootState;
+
+export type ReportWalletBalanceThunkDeps = WithServices<AnalyticsDep>;
 
 export const reportWalletBalanceThunk = createThunk<
     void,
@@ -116,8 +113,9 @@ export const reportWalletBalanceThunk = createThunk<
     });
 });
 
-export type ReportAccountInfoThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep>;
 export type ReportAccountInfoThunkState = AccountsRootState & TokenDefinitionsRootState;
+
+export type ReportAccountInfoThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep>;
 
 export const reportAccountInfoThunk = createThunk<
     void,
@@ -145,17 +143,18 @@ export const reportAccountInfoThunk = createThunk<
 
 // Left here for clarity, but shouldn't be called anywhere but in blockchainActions.syncAccounts
 // as we usually want to update all accounts for a single coin at once
-export type FetchAndUpdateAccountThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep>;
-export type FetchAndUpdateAccountThunkState = AccountsRootState &
-    BlockchainRootState &
-    DeviceRootState &
-    NotificationsRootState &
-    TokenDefinitionsRootState &
-    TransactionsRootState &
-    WalletSettingsRootState;
 type FetchAndUpdateAccountThunkParams = {
     accountKey: AccountKey;
 };
+
+export type FetchAndUpdateAccountThunkState = AccountsRootState &
+    BlockchainRootState &
+    DeviceRootState &
+    TokenDefinitionsRootState &
+    TransactionsRootState &
+    WalletSettingsRootState;
+
+export type FetchAndUpdateAccountThunkDeps = WithServices<AnalyticsDep & GetTradedAccountKeysDep>;
 
 export const fetchAndUpdateAccountThunk = createThunk<
     void,
@@ -281,29 +280,15 @@ export const fetchAndUpdateAccountThunk = createThunk<
                 const formattedAmount = token
                     ? formatTokenAmount(token)
                     : formatNetworkAmount(tx.amount, account.symbol, true, areSatoshisUsed);
-                const sourceNotification = selectTransactionBroadcastNotificationByTxid(
-                    getState(),
-                    tx.txid,
-                );
-
-                if (
-                    sourceNotification !== undefined &&
-                    sourceNotification.descriptor !== account.descriptor
-                ) {
-                    return;
-                }
 
                 dispatch(
-                    notificationsActions.addToast({
+                    notificationsActions.addEvent({
                         type: 'tx-confirmed',
-                        sourceType: sourceNotification?.type,
                         formattedAmount,
                         device: accountDevice,
-                        token,
                         descriptor: account.descriptor,
                         symbol: account.symbol,
                         txid: tx.txid,
-                        style: { maxWidth: 'auto' },
                     }),
                 );
             });

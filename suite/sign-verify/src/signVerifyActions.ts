@@ -23,10 +23,6 @@ import * as SIGN_VERIFY from './signVerifyConstants';
 
 export type SignVerifyRootState = DeviceRootState & WalletSettingsRootState;
 
-type GetState = () => SignVerifyRootState;
-
-type SignVerifyThunkDeps = WithServices<DesktopAnalyticsDep>;
-
 const CANCEL_ERROR_CODES: ErrorCode[] = ['Method_Cancel', 'Failure_ActionCancelled'];
 
 const getFailureAttributes = ({ code }: SerializedError) => ({
@@ -52,7 +48,10 @@ const throwWhenFailed = <T>(response: Result<T, SerializedError>) =>
         ? Promise.resolve(response.payload)
         : Promise.reject(new Error(response.error.message));
 
-const getStateParams = (account: Account, getState: GetState): Promise<StateParams> => {
+const getStateParams = (
+    account: Account,
+    getState: () => SignVerifyRootState,
+): Promise<StateParams> => {
     const device = selectSelectedDevice(getState());
     const addressDisplayType = selectAddressDisplayType(getState());
 
@@ -211,12 +210,19 @@ const onError =
         return false as const;
     };
 
+type ShowAddressThunkState = SignVerifyRootState;
+
 export const showAddress =
-    (account: Account, address: string, path: string) => (dispatch: Dispatch, getState: GetState) =>
+    (account: Account, address: string, path: string) =>
+    (dispatch: Dispatch, getState: () => ShowAddressThunkState) =>
         getStateParams(account, getState)
             .then(showAddressByNetwork(dispatch, address, path))
             .then(throwWhenFailed)
             .catch(onError(dispatch, 'verify-address-error'));
+
+type SignThunkState = SignVerifyRootState;
+
+type SignThunkDeps = WithServices<DesktopAnalyticsDep>;
 
 export const sign =
     (
@@ -227,7 +233,7 @@ export const sign =
         isElectrum = false,
         isCose = false,
     ) =>
-    async (dispatch: Dispatch, getState: GetState, extra: SignVerifyThunkDeps) => {
+    async (dispatch: Dispatch, getState: () => SignThunkState, extra: SignThunkDeps) => {
         const { analytics } = extra.services;
         const signatureFormat = isElectrum ? 'electrum' : 'trezor';
 
@@ -277,9 +283,13 @@ export const sign =
         }
     };
 
+type VerifyThunkState = SignVerifyRootState;
+
+type VerifyThunkDeps = WithServices<DesktopAnalyticsDep>;
+
 export const verify =
     (account: Account, address: string, message: string, signature: string, hex = false) =>
-    async (dispatch: Dispatch, getState: GetState, extra: SignVerifyThunkDeps) => {
+    async (dispatch: Dispatch, getState: () => VerifyThunkState, extra: VerifyThunkDeps) => {
         const { analytics } = extra.services;
 
         try {

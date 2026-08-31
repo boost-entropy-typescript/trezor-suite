@@ -18,14 +18,16 @@ import {
 import { defaultTrezorUIEventHandlerThunk } from '../uiEvent/defaultTrezorUIEventHandlerThunk';
 import { registerScopedCallId, unregisterScopedCallId } from '../uiEvent/scopedCallIdRegistry';
 
+type RunPassphraseWalletAddingDiscoveryThunkParams = {
+    device: TrezorDevice;
+};
+
+type RunPassphraseWalletAddingDiscoveryThunkState = RunDiscoveryThunkState;
+
 type RunPassphraseWalletAddingDiscoveryThunkDeps = WithServices<
     AnalyticsDep & ConnectInitHooksDeps & GetTradedAccountKeysDep
 > & {
     thunks: FetchAndSaveMetadataDep;
-};
-type RunPassphraseWalletAddingDiscoveryThunkState = RunDiscoveryThunkState;
-type RunPassphraseWalletAddingDiscoveryThunkParams = {
-    device: TrezorDevice;
 };
 
 // The "run" step. Exported because for a *new* hidden wallet the run is deferred from
@@ -69,7 +71,9 @@ type StartDiscoveryOfExistingPassphraseWalletThunkPayload = {
     isAddingHiddenWallet?: boolean;
     useScopedCallIds?: boolean;
 };
+
 type StartDiscoveryOfExistingPassphraseWalletThunkState = RunDiscoveryThunkState;
+
 type StartDiscoveryOfExistingPassphraseWalletThunkDeps = WithServices<
     AnalyticsDep & ConnectInitHooksDeps & GetTradedAccountKeysDep
 > & {
@@ -121,8 +125,10 @@ type StartAddWalletDiscoveryThunkParams = {
     isAddingHiddenWallet?: boolean;
     isAddingExistingWallet?: boolean;
 };
+
 type StartAddWalletDiscoveryThunkState = StartDiscoveryOfExistingPassphraseWalletThunkState &
     StartDiscoveryThunkState;
+
 type StartAddWalletDiscoveryThunkDeps = StartDiscoveryOfExistingPassphraseWalletThunkDeps &
     StartDiscoveryThunkDeps;
 

@@ -117,6 +117,7 @@ type PushTransactionThunkState = DeviceRootState &
     StakeRootState &
     SyncAccountsWithBlockchainThunkState &
     WalletSettingsRootState;
+
 type PushTransactionThunkDeps = WithServices<DesktopAnalyticsDep> &
     SyncAccountsWithBlockchainThunkDeps;
 
@@ -166,7 +167,6 @@ const pushTransaction =
                 descriptor: account.descriptor,
                 symbol: account.symbol,
                 txid,
-                ...(isRbfBumpFeeTransaction(precomposedTx) ? { isFeeBump: true } : {}),
             };
 
             if (cardanoPoolDelegation) {
@@ -282,6 +282,7 @@ type SignTransactionThunkState = DeviceRootState &
     StakeRootState &
     SyncAccountsWithBlockchainThunkState &
     WalletSettingsRootState;
+
 type SignTransactionThunkDeps = PushTransactionThunkDeps;
 
 export const signTransaction =

@@ -91,6 +91,14 @@ export const localRulesConfig = [
             'local-rules/no-suite-imports-in-suite-common': 'error',
         },
     },
+    {
+        files: ['**/src/**/*.{ts,tsx}'],
+        ignores: ['**/__fixtures__/**', '**/*.test.{ts,tsx}', '**/*.type-test.ts'],
+        rules: {
+            'local-rules/enforce-di-factory-contracts': 'error',
+            'local-rules/enforce-thunk-contracts': 'error',
+        },
+    },
     ...(areExpensiveChecksEnabled
         ? [
               {
