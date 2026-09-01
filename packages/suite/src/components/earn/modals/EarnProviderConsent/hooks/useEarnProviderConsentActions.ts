@@ -1,3 +1,5 @@
+import { useDispatch } from 'react-redux';
+
 import { selectDesktopAnalyticsDep } from '@suite/analytics';
 import { openModal } from '@suite/modal';
 import { goto } from '@suite/router';
@@ -8,17 +10,13 @@ import {
     type EarnYieldContext,
 } from '@suite-common/suite-types/src/staking';
 import { type NetworkSymbol } from '@suite-common/wallet-config';
-import {
-    DEFAULT_VOTING_OPTION,
-    selectVotingDelegationOption,
-    stakeActions,
-} from '@suite-common/wallet-core';
+import { selectVotingDelegationOption, stakeActions } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { exhaustive } from '@trezor/type-utils';
 
 import { getEarnRouteParams } from 'src/components/earn/utils/getEarnRouteParams';
 import { earnFlowToEventTypeMap } from 'src/constants/suite/staking';
-import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useSelector } from 'src/hooks/suite';
 
 interface UseEarnProviderConsentActionsProps {
     flow: EarnFlow;
@@ -39,7 +37,9 @@ export const useEarnProviderConsentActions = ({
 }: UseEarnProviderConsentActionsProps) => {
     const dispatch = useDispatch();
     const { analytics } = useServices(selectDesktopAnalyticsDep);
-    const selectedVotingDelegation = useSelector(selectVotingDelegationOption);
+    const selectedVotingDelegation = useSelector(state =>
+        selectVotingDelegationOption(state, account.key),
+    );
 
     const report = (action: EarnModalAction) => {
         if (flow === EarnFlow.Yield) return;
@@ -94,7 +94,7 @@ export const useEarnProviderConsentActions = ({
     const onCancelClick = () => {
         onCancel();
 
-        dispatch(stakeActions.setVotingDelegationOption(DEFAULT_VOTING_OPTION));
+        dispatch(stakeActions.clearAccountVotingDelegation());
         report('cancel');
     };
 

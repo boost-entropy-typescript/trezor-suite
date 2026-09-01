@@ -1,15 +1,13 @@
 import { useMemo } from 'react';
 import { FormProvider } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
+import { selectFullSelectedAccount } from '@suite/account';
 import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
 import { CARDANO_EVERSTAKE_DREP } from '@suite-common/wallet-constants';
-import {
-    DEFAULT_VOTING_OPTION,
-    selectVotingDelegationOption,
-    stakeActions,
-} from '@suite-common/wallet-core';
+import { selectVotingDelegationOption, stakeActions } from '@suite-common/wallet-core';
 import { type SelectedAccountLoaded } from '@suite-common/wallet-types';
 import { getCardanoAccountDrepId, validateCardanoDrep } from '@suite-common/wallet-utils';
 import { Card, Column, Modal, Tooltip } from '@trezor/components';
@@ -17,7 +15,7 @@ import { Card, Column, Modal, Tooltip } from '@trezor/components';
 import { VotingDelegationsOptions } from 'src/components/earn';
 import { Fees } from 'src/components/wallet/Fees/Fees';
 import { useSeededCardanoVotingDelegation } from 'src/hooks/earn/useCardanoAccountVotingDelegation';
-import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useSelector } from 'src/hooks/suite';
 import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking';
 import {
     ChangeDelegateFormContext,
@@ -35,11 +33,14 @@ export const StakeChangeDelegateModalLoaded = ({
     onCancel,
     selectedAccount,
 }: StakeChangeDelegateModalProps) => {
+    const { account } = selectedAccount;
+
     const dispatch = useDispatch();
     const { analytics } = useServices(selectDesktopAnalyticsDep);
-    const selectedVotingDelegation = useSelector(selectVotingDelegationOption);
 
-    const { account } = selectedAccount;
+    const selectedVotingDelegation = useSelector(state =>
+        selectVotingDelegationOption(state, account.key),
+    );
 
     const { isVotingDisabled, votingMessageContent } = useMessageSystemStaking(account.symbol);
 
@@ -54,7 +55,7 @@ export const StakeChangeDelegateModalLoaded = ({
     const drepIdOptionValue = useSeededCardanoVotingDelegation(account);
 
     const handleCancel = () => {
-        dispatch(stakeActions.setVotingDelegationOption(DEFAULT_VOTING_OPTION));
+        dispatch(stakeActions.clearAccountVotingDelegation());
 
         onCancel?.();
 
@@ -145,7 +146,7 @@ export const StakeChangeDelegateModalLoaded = ({
                         <Column gap={20} hasDivider>
                             <CurrentDelegate account={account} />
                             <VotingDelegationsOptions
-                                networkType={account.networkType}
+                                account={account}
                                 hasTitle
                                 hasKeepCurrentOption={!!drepIdOptionValue}
                             />
@@ -168,7 +169,7 @@ export const StakeChangeDelegateModalLoaded = ({
 export const StakeChangeDelegateModal = ({
     onCancel,
 }: Omit<StakeChangeDelegateModalProps, 'selectedAccount'>) => {
-    const selectedAccount = useSelector(state => state.wallet.selectedAccount);
+    const selectedAccount = useSelector(selectFullSelectedAccount);
 
     if (selectedAccount.status !== 'loaded' || !selectedAccount.account) {
         onCancel?.();

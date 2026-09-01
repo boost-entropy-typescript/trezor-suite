@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 
+import { selectSelectedAccount } from '@suite/account';
 import {
     hasPendingStakeTypeTransaction,
     selectCardanoPoolsInfo,
-    selectVotingDelegationOption,
+    selectStakeVotingDelegation,
 } from '@suite-common/wallet-core';
 import {
     type ActionAvailability,
@@ -11,16 +12,19 @@ import {
     type CardanoStaking,
 } from '@suite-common/wallet-types';
 
-import { prepareTxPlan } from 'src/actions/wallet/stake/stakeFormCardanoActions';
+import {
+    CardanoComposeError,
+    prepareTxPlan,
+} from 'src/actions/wallet/stake/stakeFormCardanoActions';
 import { useSelector } from 'src/hooks/suite';
 
 export const useCardanoStaking = (): CardanoStaking => {
-    const account = useSelector(state => state.wallet.selectedAccount.account);
+    const account = useSelector(selectSelectedAccount);
 
     const isCardano = account?.networkType === 'cardano';
 
     const cardanoPools = useSelector(selectCardanoPoolsInfo);
-    const votingDelegation = useSelector(selectVotingDelegationOption);
+    const votingDelegation = useSelector(selectStakeVotingDelegation);
     const hasPendingTx = useSelector(state =>
         account ? hasPendingStakeTypeTransaction(state, account.key) : false,
     );
@@ -83,7 +87,9 @@ export const useCardanoStaking = (): CardanoStaking => {
                 // Deserialization failed in Ed25519KeyHash because: Invalid cbor: expected tuple 'hash length' of length 28 but got length Len(0).
                 const actionAvailability: ActionAvailability = {
                     status: false,
-                    reason: err.message,
+                    // A TrezorConnect failure is kept as its code only, never as its message, which
+                    // may embed the composed account payload.
+                    reason: err instanceof CardanoComposeError ? err.code : err.message,
                 };
                 setDelegatingAvailable(actionAvailability);
                 seWithdrawingAvailable(actionAvailability);

@@ -1,6 +1,6 @@
 import { type Dispatch, type UnknownAction } from '@reduxjs/toolkit';
 
-import { type SelectedAccountRootState } from '@suite/account';
+import { type SelectedAccountRootState, selectFullSelectedAccount } from '@suite/account';
 import {
     type DesktopAnalyticsDep,
     type StakingCardanoPoolDelegationPayload,
@@ -23,9 +23,10 @@ import {
     MIN_CARDANO_FOR_WITHDRAWALS,
 } from '@suite-common/wallet-constants';
 import {
+    type AccountVotingDelegation,
     type StakeRootState,
-    type VotingDelegationOption,
     selectCardanoPoolsInfo,
+    selectStakeVotingDelegation,
 } from '@suite-common/wallet-core';
 import {
     type Account,
@@ -59,8 +60,26 @@ import {
     validateCardanoDrep,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, { type FeeLevel, PROTO } from '@trezor/connect';
+import { type ErrorCode } from '@trezor/connect-common/src/constants/errors';
 import type { EstimatedFee } from '@trezor/network-solana/types'; // TODO should be Cardano instead?
 import { BigNumber } from '@trezor/utils';
+
+/**
+ * TrezorConnect error messages may embed the rejected payload verbatim — `@trezor/schema-utils`
+ * builds `Invalid parameter "account.utxo" (= [{"txid":…,"address":…}])` out of the params it
+ * validates. Such a message must never travel any further, because an uncaught rejection ends up
+ * in Sentry through its global unhandled-rejection handler. Only the error code, a fixed enum,
+ * is safe to carry.
+ */
+export class CardanoComposeError extends Error {
+    readonly code: ErrorCode;
+
+    constructor(code: ErrorCode) {
+        super(`cardanoComposeTransaction failed (${code})`);
+        this.name = 'CardanoComposeError';
+        this.code = code;
+    }
+}
 
 const calculateTransaction = (
     availableBalance: string,
@@ -105,7 +124,7 @@ type PrepareTxPlanParams = {
     account: Account;
     action: CardanoAction;
     cardanoPools: AdaPools['pools'];
-    votingDelegation?: VotingDelegationOption;
+    votingDelegation?: AccountVotingDelegation;
 };
 
 export const prepareTxPlan = async ({
@@ -149,18 +168,24 @@ export const prepareTxPlan = async ({
         );
     }
 
+    // The signing path reads the selection straight from the store, so a selection left over from
+    // another account must never reach the certificates. Everything below derives from the option
+    // confirmed for this very account, falling back to Everstake.
+    const confirmedOption =
+        votingDelegation?.accountKey === account.key ? votingDelegation.option : undefined;
+
     const isKeepingCurrentVote =
-        votingDelegation?.type === 'current' && hasCardanoLiveVoteDelegation(account);
+        confirmedOption?.type === 'current' && hasCardanoLiveVoteDelegation(account);
 
     if ((action === 'delegate' || action === 'voteDelegate') && !isKeepingCurrentVote) {
-        const isVotingToAnotherDrep = votingDelegation?.type === 'another_drep';
+        const isVotingToAnotherDrep = confirmedOption?.type === 'another_drep';
 
-        if (isVotingToAnotherDrep && !validateCardanoDrep(votingDelegation.drepId)) {
+        if (isVotingToAnotherDrep && !validateCardanoDrep(confirmedOption.drepId)) {
             return null;
         }
 
         const drepBech32 = isVotingToAnotherDrep
-            ? votingDelegation.drepId
+            ? confirmedOption.drepId
             : CARDANO_EVERSTAKE_DREP.bech32;
 
         const dRep = parseDrepBech32(drepBech32);
@@ -203,7 +228,7 @@ export const prepareTxPlan = async ({
         testnet: isTestnet(account.symbol),
     });
 
-    if (!response.success) throw new Error(response.error.message);
+    if (!response.success) throw new CardanoComposeError(response.error.code);
 
     return { txPlan: response.payload[0], certificates, withdrawals, selectedPool };
 };
@@ -212,7 +237,7 @@ const getTransactionData = (
     formValues: StakeFormState,
     selectedAccount: SelectedAccountStatus,
     cardanoPools: AdaPools['pools'],
-    votingDelegation?: VotingDelegationOption,
+    votingDelegation?: AccountVotingDelegation,
 ) => {
     const { stakeType } = formValues;
 
@@ -269,8 +294,9 @@ type ComposeTransactionThunkState = SelectedAccountRootState & StakeRootState;
 export const composeTransaction =
     (formValues: StakeFormState, formState: ComposeActionContext) =>
     async (_: Dispatch<UnknownAction>, getState: () => ComposeTransactionThunkState) => {
-        const { selectedAccount, stake } = getState().wallet;
+        const selectedAccount = selectFullSelectedAccount(getState());
         const cardanoPools = selectCardanoPoolsInfo(getState());
+        const votingDelegation = selectStakeVotingDelegation(getState());
 
         if (!selectedAccount.account) return;
 
@@ -280,7 +306,7 @@ export const composeTransaction =
             formValues,
             selectedAccount,
             cardanoPools,
-            stake.votingDelegation,
+            votingDelegation,
         );
         const { txPlan } = txData || {};
         if (txPlan?.type !== 'final') return;
@@ -368,8 +394,9 @@ export const signTransaction =
         getState: () => SignTransactionThunkState,
         extra: SignTransactionThunkDeps,
     ) => {
-        const { selectedAccount, stake } = getState().wallet;
+        const selectedAccount = selectFullSelectedAccount(getState());
         const cardanoPools = selectCardanoPoolsInfo(getState());
+        const votingDelegation = selectStakeVotingDelegation(getState());
         if (!selectedAccount?.account) return;
 
         const device = selectSelectedDevice(getState());
@@ -386,7 +413,7 @@ export const signTransaction =
             formValues,
             selectedAccount,
             cardanoPools,
-            stake.votingDelegation,
+            votingDelegation,
         );
 
         if (!txData) {

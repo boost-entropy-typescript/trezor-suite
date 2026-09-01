@@ -144,7 +144,7 @@ export const messages = defineMessages({
         id: 'TR_SHOW_UNBLURRED',
     },
     TR_SHOW_UNBLURRED_TRANSACTIONS_DESCRIPTION: {
-        defaultMessage: "Suspicious transactions stay flagged but aren't blurred.",
+        defaultMessage: "Suspicious transactions stay flagged but details aren't blurred.",
         id: 'TR_SHOW_UNBLURRED_TRANSACTIONS_DESCRIPTION',
     },
     TR_ACCOUNT_IS_EMPTY_TITLE: {
@@ -5367,7 +5367,7 @@ export const messages = defineMessages({
     },
     TR_HEX_FORMAT: {
         id: 'TR_HEX_FORMAT',
-        defaultMessage: 'Hex',
+        defaultMessage: 'Hex format',
         description:
             'Label of the switch reading the message as hex instead of text in Sign and Verify form',
     },
@@ -8817,11 +8817,11 @@ export const messages = defineMessages({
     TR_FORMAT_TOOLTIP: {
         id: 'TR_FORMAT_TOOLTIP',
         defaultMessage:
-            '<FormatDescription> <span>BIP-137</span> – standard signature format according to BIP137 </FormatDescription> <FormatDescription> <span>Electrum</span> – compatibility signature format </FormatDescription>',
+            '<FormatDescription> <span>Trezor</span> – standard signature format according to BIP137 </FormatDescription> <FormatDescription> <span>Electrum</span> – compatibility signature format </FormatDescription>',
     },
     TR_BIP_SIG_FORMAT: {
         id: 'TR_BIP_SIG_FORMAT',
-        defaultMessage: 'BIP-137',
+        defaultMessage: 'Trezor',
     },
     TR_COMPATIBILITY_SIG_FORMAT: {
         id: 'TR_COMPATIBILITY_SIG_FORMAT',
@@ -10328,7 +10328,7 @@ export const messages = defineMessages({
     TR_EARN_YIELD_UNWRAP_DESCRIPTION: {
         id: 'TR_EARN_YIELD_UNWRAP_DESCRIPTION',
         defaultMessage:
-            'You can also unwrap {tokenSymbol} anytime from the {networkName} account screen.',
+            "You can also unwrap {tokenSymbol} anytime in your {networkName} account's tokens list.",
     },
     TR_EARN_YIELD_UNWRAP_AMOUNT: {
         id: 'TR_EARN_YIELD_UNWRAP_AMOUNT',
@@ -12828,6 +12828,22 @@ export const messages = defineMessages({
     TR_SIMULATION_NO_ASSETS: {
         id: 'TR_SIMULATION_NO_ASSETS',
         defaultMessage: 'No changes to your assets were detected.',
+    },
+    TR_SIMULATION_SENDING_ASSET: {
+        id: 'TR_SIMULATION_SENDING_ASSET',
+        defaultMessage: 'Sending {amount}',
+        description: 'An outgoing asset in a transaction simulation, e.g. "Sending 1 USDC".',
+    },
+    TR_SIMULATION_RECEIVING_ASSET: {
+        id: 'TR_SIMULATION_RECEIVING_ASSET',
+        defaultMessage: 'Receiving {amount}',
+        description: 'An incoming asset in a transaction simulation, e.g. "Receiving 0.003 TSLAx".',
+    },
+    TR_SIMULATION_CROSS_CHAIN_ASSET: {
+        id: 'TR_SIMULATION_CROSS_CHAIN_ASSET',
+        defaultMessage: '{amount} on {chain}',
+        description:
+            'An asset moving on another chain as part of a bridge, e.g. "1 USDC on Arbitrum".',
     },
     TR_NETWORK_RESERVE_BANNER: {
         id: 'TR_NETWORK_RESERVE_BANNER',

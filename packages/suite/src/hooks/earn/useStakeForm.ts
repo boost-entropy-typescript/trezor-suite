@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
 import useDebounce from 'react-use/lib/useDebounce';
 
@@ -25,7 +26,7 @@ import { isChanged, throwError } from '@trezor/utils';
 import { BigNumber } from '@trezor/utils/src/bigNumber';
 
 import { signTransaction } from 'src/actions/wallet/stakeActions';
-import { useDispatch, useSelector } from 'src/hooks/suite';
+import { useSelector } from 'src/hooks/suite';
 import { CRYPTO_INPUT, FIAT_INPUT, OUTPUT_AMOUNT } from 'src/types/earn/earnFormFields';
 import type { AmountLimitProps } from 'src/utils/suite/validation';
 
@@ -351,11 +352,21 @@ export const useStakeForm = ({ account }: UseStakeFormProps): StakeContextValues
         const composedTx = composedLevels ? composedLevels[selectedFee] : undefined;
         if (composedTx?.type === 'final') {
             setIsLoading(true);
-            const result = await dispatch(signTransaction(values, composedTx));
+            try {
+                const result = await dispatch(signTransaction(values, composedTx));
 
-            setIsLoading(false);
-            if (result?.success) {
-                clearForm();
+                if (result?.success) {
+                    clearForm();
+                }
+            } catch (error) {
+                // The sign thunk reaches TrezorConnect, whose rejection messages may embed the
+                // composed account payload, and `signTx` is also called fire-and-forget from
+                // `onSubmit`. Handling the rejection here keeps it from being reported verbatim by
+                // Sentry's global unhandled-rejection handler. Only the error name, never its
+                // message, is safe to log.
+                console.warn('Stake signing failed', error instanceof Error ? error.name : error);
+            } finally {
+                setIsLoading(false);
             }
         }
     }, [getValues, composedLevels, dispatch, clearForm, selectedFee]);

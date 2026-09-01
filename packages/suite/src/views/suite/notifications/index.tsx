@@ -1,8 +1,11 @@
 import { useState } from 'react';
 
 import { DebugOnlyBadge, selectIsDebugModeActive } from '@suite/debug';
-import { Translation } from '@suite/intl';
-import { isTransactionNotification } from '@suite-common/toast-notifications';
+import { Translation, type TranslationKey } from '@suite/intl';
+import {
+    type NotificationsState,
+    isTransactionNotification,
+} from '@suite-common/toast-notifications';
 import {
     selectHasUnseenNonPhishingTransactionNotifications,
     selectNonPhishingTransactionNotifications,
@@ -21,11 +24,17 @@ import { useLayout, useSelector } from 'src/hooks/suite';
 
 type ActivityTab = 'transactions' | 'release-notes' | 'all';
 
+type NotificationsViewState = {
+    notifications: NotificationsState<TranslationKey>;
+};
+
+const selectSuiteNotifications = (state: NotificationsViewState) => state.notifications;
+
 const NotificationsView = () => {
     const isDebugModeActive = useSelector(selectIsDebugModeActive);
     const [selectedTab, setSelectedTab] = useState<ActivityTab>('transactions');
 
-    const notifications = useSelector(state => state.notifications);
+    const notifications = useSelector(selectSuiteNotifications);
     const hasUnseenNotifications = useSelector(selectHasUnseenNonPhishingTransactionNotifications);
     const transactionNotifications = useSelector(selectNonPhishingTransactionNotifications);
     const activityNotifications = notifications.filter(
@@ -38,20 +47,30 @@ const NotificationsView = () => {
             title: (
                 <Row gap={4} alignItems="center">
                     <Translation id="NOTIFICATIONS_IMPORTANT_TITLE" />
-                    {hasUnseenNotifications && <Dot isAnimated intent="critical" size={8} />}
+                    {hasUnseenNotifications && (
+                        <Dot
+                            isAnimated
+                            intent="critical"
+                            size={8}
+                            data-testid="@notifications/menu/unseen-dot"
+                        />
+                    )}
                 </Row>
             ),
             callback: () => setSelectedTab('transactions'),
+            'data-testid': '@notifications/menu/transactions',
         },
         {
             id: 'all',
             title: <Translation id="NOTIFICATIONS_SYSTEM_TITLE" />,
             callback: () => setSelectedTab('all'),
+            'data-testid': '@notifications/menu/all',
         },
         {
             id: 'release-notes',
             title: <Translation id="TR_RELEASE_NOTES" />,
             callback: () => setSelectedTab('release-notes'),
+            'data-testid': '@notifications/menu/release-notes',
         },
     ];
 
@@ -87,6 +106,7 @@ const NotificationsView = () => {
 
             {isDebugModeActive && (
                 <CollapsibleBox
+                    data-testid="@activity/debug/box"
                     heading={
                         <Row gap={8}>
                             Debug activity
