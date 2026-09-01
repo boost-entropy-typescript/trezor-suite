@@ -2,17 +2,22 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
-import { isSupportedSolStakingNetworkSymbol } from '@suite-common/wallet-utils';
+import {
+    isDeviceReviewOnlyTransaction,
+    isSupportedSolStakingNetworkSymbol,
+} from '@suite-common/wallet-utils';
 import { Button, Text, VStack } from '@suite-native/atoms';
 import {
     ConfirmOnTrezorWrapper,
     useConfirmOnTrezorController,
 } from '@suite-native/confirm-on-trezor';
+import { FollowDeviceScreenContent } from '@suite-native/device';
 import { CryptoAmountFormatter } from '@suite-native/formatters';
 import { Translation, type TxKeyPath } from '@suite-native/intl';
 import {
     type RootStackParamList,
     type RootStackRoutes,
+    Screen,
     ScreenHeader,
     type StackProps,
 } from '@suite-native/navigation';
@@ -189,37 +194,110 @@ export const StakingTransactionDataReviewScreen = ({
         setIsPushing(false);
     }, [stakeType, claimableAmount, handlePush, trackPushedTransaction]);
 
+    const isFollowDeviceReview =
+        stakeType === 'unstake' && isDeviceReviewOnlyTransaction(precomposedTransaction);
+
+    const timer = showTimer && (
+        <TxValidityTimer
+            secondsLeft={secondsLeft}
+            isPastDeadline={isPastDeadline}
+            isBroadcasting={isBroadcasting}
+            onRetry={onRetry}
+            isRetryDisabled={isRetryDisabled}
+            retryTestID={isFollowDeviceReview ? '@earn/follow-device-retry' : undefined}
+        />
+    );
+
+    const header = (
+        <ScreenHeader
+            customContent={
+                <Text variant="body-md-strong">
+                    <Translation id={screenHeaderTranslationId[stakeType]} />
+                </Text>
+            }
+            closeActionType="close"
+            closeAction={closeReview}
+        />
+    );
+
+    const button = isReadyToContinue && (
+        <ScrollToEndOnMount>
+            <Button
+                isLoading={isPushing}
+                isDisabled={isSolanaAccount && isPastDeadline}
+                onPress={onButtonPress}
+                testID={actionButtonDataTestId[stakeType]}
+            >
+                <Translation id={actionButtonTranslationId[stakeType]} />
+            </Button>
+        </ScrollToEndOnMount>
+    );
+
+    const pendingTxModal = isPending && !!pendingTxid && !!submittedAt && !!account && (
+        <YieldPendingTransactionModal
+            ref={pendingBottomSheetRef}
+            accountLabel={accountLabel}
+            accountSymbol={account.symbol}
+            amount={
+                <CryptoAmountFormatter
+                    value={pendingAmountInBaseUnits}
+                    symbol={account.symbol}
+                    color="contentPrimary"
+                    isBalance={false}
+                    isDiscreetText={false}
+                />
+            }
+            amountLabel={<Translation id={pendingTxModalTitleTranslationId[stakeType]} />}
+            fee={precomposedTransaction?.fee}
+            isExploreDisabled={isExploreDisabled}
+            onExplorePress={openInBlockchain}
+            submittedAt={submittedAt}
+            title={<Translation id={pendingTxModalAmountLabelTranslationId[stakeType]} />}
+            txid={pendingTxid}
+        />
+    );
+
+    if (isFollowDeviceReview) {
+        return (
+            <>
+                <Screen
+                    isScrollable={false}
+                    header={
+                        <ScreenHeader
+                            closeActionType="back"
+                            closeAction={closeReview}
+                            rightIcon={timer}
+                        />
+                    }
+                >
+                    <VStack flex={1} justifyContent="center" spacing="sp24">
+                        <FollowDeviceScreenContent
+                            titleTxKey="earn.unstakeTransactionDataReviewScreen.followDeviceInstructions"
+                            isTxSigned={isTransactionAlreadySigned}
+                        />
+
+                        {button}
+                    </VStack>
+                </Screen>
+
+                {pendingTxModal}
+            </>
+        );
+    }
+
     return (
         <ConfirmOnTrezorWrapper
             isManualControlEnabled
             controlRef={confirmOnTrezorRef}
             closeActionType="close"
             closeAction={closeReview}
-            defaultHeader={
-                <ScreenHeader
-                    customContent={
-                        <Text variant="body-md-strong">
-                            <Translation id={screenHeaderTranslationId[stakeType]} />
-                        </Text>
-                    }
-                    closeActionType="close"
-                    closeAction={closeReview}
-                />
-            }
+            defaultHeader={header}
         >
             <VStack flex={1} justifyContent="space-between">
                 <VStack justifyContent="center" spacing="sp24">
-                    {showTimer && (
-                        <TxValidityTimer
-                            secondsLeft={secondsLeft}
-                            isPastDeadline={isPastDeadline}
-                            isBroadcasting={isBroadcasting}
-                            onRetry={onRetry}
-                            isRetryDisabled={isRetryDisabled}
-                        />
-                    )}
+                    {timer}
 
-                    {account && (
+                    {!isFollowDeviceReview && account && (
                         <StakingTransactionDataReviewStepList
                             account={account}
                             stakeType={stakeType}
@@ -228,43 +306,10 @@ export const StakingTransactionDataReviewScreen = ({
                     )}
                 </VStack>
 
-                {isReadyToContinue && (
-                    <ScrollToEndOnMount>
-                        <Button
-                            isLoading={isPushing}
-                            isDisabled={isSolanaAccount && isPastDeadline}
-                            onPress={onButtonPress}
-                            testID={actionButtonDataTestId[stakeType]}
-                        >
-                            <Translation id={actionButtonTranslationId[stakeType]} />
-                        </Button>
-                    </ScrollToEndOnMount>
-                )}
+                {button}
             </VStack>
 
-            {isPending && !!pendingTxid && !!submittedAt && !!account && (
-                <YieldPendingTransactionModal
-                    ref={pendingBottomSheetRef}
-                    accountLabel={accountLabel}
-                    accountSymbol={account.symbol}
-                    amount={
-                        <CryptoAmountFormatter
-                            value={pendingAmountInBaseUnits}
-                            symbol={account.symbol}
-                            color="contentPrimary"
-                            isBalance={false}
-                            isDiscreetText={false}
-                        />
-                    }
-                    amountLabel={<Translation id={pendingTxModalTitleTranslationId[stakeType]} />}
-                    fee={precomposedTransaction?.fee}
-                    isExploreDisabled={isExploreDisabled}
-                    onExplorePress={openInBlockchain}
-                    submittedAt={submittedAt}
-                    title={<Translation id={pendingTxModalAmountLabelTranslationId[stakeType]} />}
-                    txid={pendingTxid}
-                />
-            )}
+            {pendingTxModal}
         </ConfirmOnTrezorWrapper>
     );
 };

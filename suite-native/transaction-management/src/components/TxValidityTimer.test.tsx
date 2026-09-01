@@ -86,4 +86,17 @@ describe('TxValidityTimer', () => {
             expect(onRetry).not.toHaveBeenCalled();
         });
     });
+
+    describe('compact layout', () => {
+        it('should keep the countdown and a working retry button', async () => {
+            const onRetry = jest.fn();
+            const { getByText } = await renderTimer({ isCompact: true, onRetry });
+
+            expect(getByText(getCountdownLabel(42))).toBeOnTheScreen();
+
+            await fireEvent.press(getByText(tryAgainLabel));
+
+            expect(onRetry).toHaveBeenCalledTimes(1);
+        });
+    });
 });

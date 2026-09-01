@@ -7,29 +7,20 @@ import { AbstractMethod } from '../core/AbstractMethod';
 import { EvmRpcWorker } from '../workers/workers';
 import { validateParams } from './common/paramsValidator';
 
-type Params = {
-    url: string;
-    chainId: number;
-};
+type Params = { url: string };
 
-type ValidateEvmRpc = ResponseTypes.ValidateEvmRpc;
+type GetEvmChainId = ResponseTypes.GetEvmChainId;
 
-export default class BlockchainValidateEvmRpcUrl extends AbstractMethod<
-    'blockchainValidateEvmRpcUrl',
+export default class BlockchainEvmRpcGetChainId extends AbstractMethod<
+    'blockchainEvmRpcGetChainId',
     Params
 > {
-    constructor(message: MethodMessage<'blockchainValidateEvmRpcUrl'>) {
+    constructor(message: MethodMessage<'blockchainEvmRpcGetChainId'>) {
         const { payload } = message;
 
-        validateParams(payload, [
-            { name: 'url', type: 'string', required: true },
-            { name: 'chainId', type: 'number', required: true },
-        ]);
+        validateParams(payload, [{ name: 'url', type: 'string', required: true }]);
 
-        const params = {
-            url: payload.url,
-            chainId: payload.chainId,
-        };
+        const params = { url: payload.url };
 
         super(message, params);
         this.useDevice = false;
@@ -41,7 +32,7 @@ export default class BlockchainValidateEvmRpcUrl extends AbstractMethod<
     }
 
     get info() {
-        return 'Validate EVM RPC URL';
+        return 'Get EVM RPC Chain ID';
     }
 
     async run() {
@@ -53,15 +44,12 @@ export default class BlockchainValidateEvmRpcUrl extends AbstractMethod<
         });
 
         try {
-            const response = await link.sendMessage<ValidateEvmRpc['payload']>({
-                type: MESSAGES.VALIDATE_EVM_RPC,
-                payload: {
-                    url: this.params.url,
-                    chainId: this.params.chainId,
-                },
+            const chainId = await link.sendMessage<GetEvmChainId['payload']>({
+                type: MESSAGES.GET_EVM_CHAIN_ID,
+                payload: { url: this.params.url },
             });
 
-            return response;
+            return { chainId };
         } finally {
             link.dispose();
         }

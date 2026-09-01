@@ -13,7 +13,7 @@ import {
     type YieldFlowFormValues,
     getMaxWrapAmount,
     shouldRecommendWrapReserve,
-    useWrappedNativePendingTx,
+    useEvmPendingTxStatus,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { Column, Text } from '@trezor/components';
@@ -61,7 +61,11 @@ export const WrapNativeToken = ({ account, token, onFlowCompleteChange }: WrapNa
         },
     });
 
-    const pendingTxStatus = useWrappedNativePendingTx(account, broadcast?.txid ?? null, 'wrap');
+    const { status: pendingTxStatus } = useEvmPendingTxStatus(
+        account,
+        broadcast?.txid ?? null,
+        'wrap',
+    );
     const isFlowComplete = !!broadcast && pendingTxStatus === 'confirmed';
 
     useEffect(() => {
@@ -158,6 +162,7 @@ export const WrapNativeToken = ({ account, token, onFlowCompleteChange }: WrapNa
                 symbol: account.symbol,
                 deviceState: account.deviceState,
                 flow: 'detail',
+                showCancelButton: true,
             }),
         );
     };
