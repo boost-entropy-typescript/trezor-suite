@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
+import { useDispatch } from '@suite-common/redux-utils';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
-    type StablecoinYieldRootState,
-    selectStablecoinYieldSessionByFlowKey,
-    stablecoinYieldActions,
+    type YieldRootState,
+    selectYieldSessionByFlowKey,
+    yieldActions,
 } from '@suite-common/wallet-core';
 import { selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { Text } from '@suite-native/atoms';
@@ -26,7 +27,7 @@ import { ApyDottedUnderline } from '../components/ApyDottedUnderline';
 import { ApyValue } from '../components/ApyValue';
 import { EarnCompleteScreenContent } from '../components/EarnCompleteScreenContent';
 import { getYieldDepositCompleteRows } from '../components/YieldCompleteScreenPresets';
-import { useApyBreakdownAlert } from '../hooks/useApyBreakdownAlert';
+import { useYieldApyBreakdownAlert } from '../hooks/useYieldApyBreakdownAlert';
 import { useYieldFlowData } from '../hooks/useYieldFlowData';
 import { formatEarnTokenAmount } from '../utils/earnAmountUtils';
 
@@ -46,11 +47,11 @@ export const YieldDepositCompleteScreen = () => {
     const yieldFlowData = useYieldFlowData(route.params);
     const { vault, account, apy, flowData, flowKey, resolutionStatus, tokenSymbol } = yieldFlowData;
 
-    const session = useSelector((state: StablecoinYieldRootState) =>
-        selectStablecoinYieldSessionByFlowKey(state, 'deposit', flowKey),
+    const session = useSelector((state: YieldRootState) =>
+        selectYieldSessionByFlowKey(state, 'deposit', flowKey),
     );
 
-    const apyBreakdownAlert = useApyBreakdownAlert({ account, vault });
+    const { show: showYieldApyBreakdownAlert } = useYieldApyBreakdownAlert({ account, vault });
     const { analytics } = useServices(selectNativeAnalyticsDep);
 
     const handleExit = useCallback(() => {
@@ -66,7 +67,7 @@ export const YieldDepositCompleteScreen = () => {
         });
 
         if (flowKey) {
-            dispatch(stablecoinYieldActions.disposeSession({ flowType: 'deposit', flowKey }));
+            dispatch(yieldActions.disposeSession({ flowType: 'deposit', flowKey }));
         }
 
         navigateToInitialScreen();
@@ -111,7 +112,7 @@ export const YieldDepositCompleteScreen = () => {
         return getYieldDepositCompleteRows({
             accountSymbol: account.symbol,
             apyValue: (
-                <ApyDottedUnderline onPress={apyBreakdownAlert.onPress}>
+                <ApyDottedUnderline onPress={showYieldApyBreakdownAlert}>
                     <Text variant="body-md" color="contentPrimary">
                         <ApyValue apy={apy} />
                     </Text>
@@ -125,7 +126,7 @@ export const YieldDepositCompleteScreen = () => {
                 : (flowData.token.contractAddress ?? undefined),
         });
     }, [
-        apyBreakdownAlert.onPress,
+        showYieldApyBreakdownAlert,
         account,
         apy,
         flowData,

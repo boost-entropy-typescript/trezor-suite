@@ -1,5 +1,3 @@
-import { useDispatch } from 'react-redux';
-
 import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { FirmwareUpgradeNeededModal } from '@suite/firmware-upgrade';
 import { useTranslation } from '@suite/intl';
@@ -9,16 +7,14 @@ import { events as sharedEvents } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
 import { selectSelectedDevice } from '@suite-common/device';
 import { useFormatters } from '@suite-common/formatters';
+import { useDispatch } from '@suite-common/redux-utils';
 import { EarnFlow, EarnProvider } from '@suite-common/suite-types/src/staking';
 import {
     getTradingPrefilledFromAccountData,
     toTokenCryptoId,
     tradingActions,
 } from '@suite-common/trading';
-import {
-    getYieldVaultContractAddress,
-    isStablecoinYieldSupported,
-} from '@suite-common/wallet-core';
+import { getYieldVaultContractAddress, isYieldSupported } from '@suite-common/wallet-core';
 import { getContractAddressForNetworkSymbol } from '@suite-common/wallet-utils';
 import { Card, Column, Icon, Row, Table } from '@trezor/components';
 import { ArrowDownIcon, ArrowRightIcon } from '@trezor/icons';
@@ -54,7 +50,7 @@ export const EarnYieldAccountOpportunity = ({
     const { translationString } = useTranslation();
     const { isBelowMobile } = useLayoutSize();
     const selectedDevice = useSelector(selectSelectedDevice);
-    const isFirmwareOutdated = !isStablecoinYieldSupported(selectedDevice, {
+    const isFirmwareOutdated = !isYieldSupported(selectedDevice, {
         vaultToken: {
             networkSymbol: opportunity.networkSymbol,
             contractAddress: opportunity.vault.token.address,

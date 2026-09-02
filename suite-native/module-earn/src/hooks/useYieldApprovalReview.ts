@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { isRejected } from '@reduxjs/toolkit';
@@ -7,14 +7,15 @@ import { isRejected } from '@reduxjs/toolkit';
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
 import { selectIsMevProtectionFeatureEnabled } from '@suite-common/mev';
+import { useDispatch } from '@suite-common/redux-utils';
 import {
-    type StablecoinYieldRootState,
     type YieldFlowResolvedData,
+    type YieldRootState,
     formDraftActions,
     handleYieldApproveSuccessTxidThunk,
     pushSendFormTransactionThunk,
     selectIsMevProtectionEnabled,
-    selectStablecoinYieldSession,
+    selectYieldSession,
     sendFormActions,
     signTransactionThunk,
 } from '@suite-common/wallet-core';
@@ -117,8 +118,8 @@ export const useYieldApprovalReview = ({
     const isApprovalSigned = useSelector(selectIsTransactionAlreadySigned);
     const isMevProtectionEnabled = useSelector(selectIsMevProtectionEnabled);
     const isMevProtectionFeatureEnabled = useSelector(selectIsMevProtectionFeatureEnabled);
-    const session = useSelector((state: StablecoinYieldRootState) =>
-        selectStablecoinYieldSession(state, 'deposit', flowKey),
+    const session = useSelector((state: YieldRootState) =>
+        selectYieldSession(state, 'deposit', flowKey),
     );
     const { approval } = session;
 

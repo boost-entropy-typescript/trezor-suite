@@ -32,8 +32,8 @@ import {
     prepareStakeReducer,
     prepareTransactionsReducer,
     prepareWalletSettingsReducer,
-    stablecoinYieldReducer,
     walletSettingsPersistedWhitelist,
+    yieldReducer,
 } from '@suite-common/wallet-core';
 // Suite Native has circular in @suite-native/test-utils -> @suite-native/state -> ... -> @suite-native/test-utils
 // This is causing problems handling types in WalletConnect, so we import the reducer directly instead of the whole module
@@ -81,7 +81,7 @@ import { tradingInitialState, tradingSlice } from '@suite-native/trading-state';
 import { prepareSendFormReducer } from '@suite-native/transaction-management';
 
 import { appReducer } from './appSlice';
-import { extraDependencies } from './extraDependencies';
+import { extraDependencies } from './createNativeExtraDependencies';
 import { receivePersistTransform } from './receivePersistTransform';
 
 const transactionsReducer = prepareTransactionsReducer(extraDependencies);
@@ -276,7 +276,7 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
         send: sendFormReducer,
         fees: feesReducer,
         stake: stakeReducer,
-        stablecoinYield: stablecoinYieldReducer,
+        stablecoinYield: yieldReducer,
         trading: tradingPersistedReducer,
         settings: walletSettingsPersistedReducer,
         formDrafts: formDraftReducer,

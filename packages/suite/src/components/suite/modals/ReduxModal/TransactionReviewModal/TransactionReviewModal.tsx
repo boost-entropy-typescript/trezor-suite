@@ -1,15 +1,14 @@
-import { useDispatch } from 'react-redux';
-
 import { selectFullSelectedAccount } from '@suite/account';
 import { goto } from '@suite/router';
+import { useDispatch } from '@suite-common/redux-utils';
 import {
     cancelSignSendFormTransactionThunk,
     selectPrecomposedSendForm,
     selectSend,
-    selectStablecoinYieldTxReview,
     selectStake,
     selectStakePrecomposedForm,
     selectTronStakeTxReview,
+    selectYieldTxReview,
     sendFormActions,
     stakeActions,
 } from '@suite-common/wallet-core';
@@ -38,7 +37,7 @@ import { type TxInfoState } from './utils';
 export const TransactionReviewModal = ({ type, decision }: TransactionReviewModalProps) => {
     const send = useSelector(selectSend);
     const stake = useSelector(selectStake);
-    const yieldTxReview = useSelector(selectStablecoinYieldTxReview);
+    const yieldTxReview = useSelector(selectYieldTxReview);
     const tronStakeTxReview = useSelector(selectTronStakeTxReview);
     const sendPrecomposedForm = useSelector(selectPrecomposedSendForm);
     const stakePrecomposedForm = useSelector(selectStakePrecomposedForm);

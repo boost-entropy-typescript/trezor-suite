@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { type RouteProp, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
 import { Context } from '@suite-common/message-system';
+import { useDispatch } from '@suite-common/redux-utils';
 import { getNetwork } from '@suite-common/wallet-config';
 import {
     type YieldWithdrawFlowType,
@@ -15,7 +16,7 @@ import {
     getYieldVaultContractAddress,
     getYieldWithdrawInputToken,
     splitYieldPendingTransaction,
-    stablecoinYieldActions,
+    yieldActions,
 } from '@suite-common/wallet-core';
 import { toTokenAddress, toTokenSymbol } from '@suite-common/wallet-types';
 import { asAmountSubunit, getApyBreakdown, subunitsToUnits } from '@suite-common/wallet-utils';
@@ -473,9 +474,9 @@ export const YieldWithdrawScreen = () => {
             },
         });
 
-        dispatch(stablecoinYieldActions.discardTransaction());
+        dispatch(yieldActions.discardTransaction());
         dispatch(
-            stablecoinYieldActions.storeActionReviewData({
+            yieldActions.storeActionReviewData({
                 amount: preparedAction.amount,
                 flowKey,
                 flowType,

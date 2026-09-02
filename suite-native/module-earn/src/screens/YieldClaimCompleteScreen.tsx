@@ -1,16 +1,17 @@
 import { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { events } from '@suite-common/analytics';
 import { useServices } from '@suite-common/dependency-injection';
+import { useDispatch } from '@suite-common/redux-utils';
 import {
     type AccountsRootState,
-    type StablecoinYieldRootState,
+    type YieldRootState,
     selectAccountNetworkSymbol,
-    selectStablecoinYieldSessionByFlowKey,
-    stablecoinYieldActions,
+    selectYieldSessionByFlowKey,
+    yieldActions,
 } from '@suite-common/wallet-core';
 import { selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { Translation } from '@suite-native/intl';
@@ -37,8 +38,8 @@ export const YieldClaimCompleteScreen = () => {
     const dispatch = useDispatch();
     const navigateToInitialScreen = useNavigateToInitialScreen();
     const { accountKey } = route.params;
-    const session = useSelector((state: StablecoinYieldRootState) =>
-        selectStablecoinYieldSessionByFlowKey(state, 'claim', accountKey),
+    const session = useSelector((state: YieldRootState) =>
+        selectYieldSessionByFlowKey(state, 'claim', accountKey),
     );
     const networkSymbol = useSelector((state: AccountsRootState) =>
         selectAccountNetworkSymbol(state, accountKey),
@@ -57,7 +58,7 @@ export const YieldClaimCompleteScreen = () => {
         });
 
         navigateToInitialScreen();
-        dispatch(stablecoinYieldActions.disposeSession({ flowType: 'claim', flowKey: accountKey }));
+        dispatch(yieldActions.disposeSession({ flowType: 'claim', flowKey: accountKey }));
     }, [accountKey, analytics, dispatch, navigateToInitialScreen, networkSymbol]);
 
     useInterceptNativeNavigation({ onPress: handleExit });

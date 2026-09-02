@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
+import { useDispatch } from '@suite-common/redux-utils';
 import {
-    type StablecoinYieldRootState,
-    selectStablecoinYieldSessionByFlowKey,
-    stablecoinYieldActions,
+    type YieldRootState,
+    selectYieldSessionByFlowKey,
+    yieldActions,
 } from '@suite-common/wallet-core';
 import {
     type StackNavigationProps,
@@ -33,8 +34,8 @@ export const YieldDepositWrapReviewScreen = () => {
     const yieldFlowData = useYieldFlowData(route.params);
     const { account, flowKey, resolutionStatus } = yieldFlowData;
 
-    const session = useSelector((state: StablecoinYieldRootState) =>
-        selectStablecoinYieldSessionByFlowKey(state, 'deposit', flowKey),
+    const session = useSelector((state: YieldRootState) =>
+        selectYieldSessionByFlowKey(state, 'deposit', flowKey),
     );
 
     const actionReview = session?.action.review;
@@ -64,7 +65,7 @@ export const YieldDepositWrapReviewScreen = () => {
             }
 
             dispatch(
-                stablecoinYieldActions.setPendingTx({
+                yieldActions.setPendingTx({
                     flowType: 'deposit',
                     flowKey,
                     tx: {

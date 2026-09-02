@@ -1,17 +1,17 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { type TranslationKey } from '@suite/intl';
 import { type EarnParams, goto } from '@suite/router';
 import { selectSelectedDevice } from '@suite-common/device';
 import { type YieldDtoV2, useGetVaultByAddress } from '@suite-common/earn-stablecoin-api';
+import { useDispatch } from '@suite-common/redux-utils';
 import { type TrezorDevice } from '@suite-common/suite-types';
 import { type EarnAnalyticsStep } from '@suite-common/suite-types/src/staking';
 import { getNetworkByYieldXyzId, getNetworkOptional } from '@suite-common/wallet-config';
 import {
     type YieldPositionFlowType,
     getYieldVaultContractAddress,
-    isStablecoinYieldSupported,
+    isYieldSupported,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { getContractAddressForNetworkSymbol } from '@suite-common/wallet-utils';
@@ -135,7 +135,7 @@ const getEarnLayoutResult = ({
 
     if (
         device &&
-        !isStablecoinYieldSupported(device, {
+        !isYieldSupported(device, {
             flowType: type,
             vaultToken: { networkSymbol: account.symbol, contractAddress: vault.token.address },
         })
