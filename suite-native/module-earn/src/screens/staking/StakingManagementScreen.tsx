@@ -7,9 +7,10 @@ import {
     type AccountsRootState,
     fetchAllTransactionsForAccountThunk,
     initStakeDataThunk,
+    isSupportedSolStakingNetworkSymbol,
     selectAccountByKey,
 } from '@suite-common/wallet-core';
-import { isSupportedSolStakingNetworkSymbol, parseAccountKey } from '@suite-common/wallet-utils';
+import { parseAccountKey } from '@suite-common/wallet-utils';
 import { type RootStackParamList, type RootStackRoutes, Screen } from '@suite-native/navigation';
 import { useSelector } from '@suite-native/staking';
 import { TransactionList } from '@suite-native/transactions';

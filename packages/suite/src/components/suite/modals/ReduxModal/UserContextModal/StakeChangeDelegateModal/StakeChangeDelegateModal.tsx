@@ -6,14 +6,15 @@ import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
 import { useDispatch } from '@suite-common/redux-utils';
-import { CARDANO_EVERSTAKE_DREP } from '@suite-common/wallet-constants';
 import {
+    CARDANO_EVERSTAKE_DREP,
     DEFAULT_VOTING_OPTION,
+    getCardanoAccountDrepId,
     selectVotingDelegationOption,
     stakeActions,
+    validateCardanoDrep,
 } from '@suite-common/wallet-core';
 import { type SelectedAccountLoaded } from '@suite-common/wallet-types';
-import { getCardanoAccountDrepId, validateCardanoDrep } from '@suite-common/wallet-utils';
 import { Card, Column, Modal, Tooltip } from '@trezor/components';
 
 import { VotingDelegationsOptions } from 'src/components/earn';

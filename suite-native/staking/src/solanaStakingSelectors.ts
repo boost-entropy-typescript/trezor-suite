@@ -3,15 +3,13 @@ import type { NetworkSymbol } from '@suite-common/wallet-config';
 import {
     type AccountsRootState,
     type StakeRootState,
+    calculateSolanaStakingReward,
+    getSolStakingAccountsInfo,
     selectAccountByKey,
     selectDeviceAccounts,
     selectPoolStatsApy,
 } from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
-import {
-    calculateSolanaStakingReward,
-    getSolStakingAccountsInfo,
-} from '@suite-common/wallet-utils';
 import { BigNumber } from '@trezor/utils';
 
 import { type NativeStakingRootState } from './types';

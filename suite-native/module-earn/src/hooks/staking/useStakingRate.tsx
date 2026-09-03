@@ -6,9 +6,12 @@ import {
     useTronStakingStats,
 } from '@suite-common/earn-staking-api';
 import { type NetworkSymbol } from '@suite-common/wallet-config';
-import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
+import {
+    type AccountsRootState,
+    getTronVotes,
+    selectAccountByKey,
+} from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
-import { getTronVotes } from '@suite-common/wallet-utils';
 import { selectApy, useSelector as useStakingSelector } from '@suite-native/staking';
 
 interface UseStakingRateProps {

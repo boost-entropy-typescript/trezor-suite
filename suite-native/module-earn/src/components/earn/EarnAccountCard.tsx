@@ -7,7 +7,8 @@ import {
     useTronStakingStats,
 } from '@suite-common/earn-staking-api';
 import { getNetworkDisplaySymbolName } from '@suite-common/wallet-config';
-import { isApyAvailable, isSupportedStakingNetworkSymbol } from '@suite-common/wallet-utils';
+import { isSupportedStakingNetworkSymbol } from '@suite-common/wallet-core';
+import { isApyAvailable } from '@suite-common/wallet-utils';
 import { ZeroApyBadge } from '@suite-native/accounts';
 import { Text } from '@suite-native/atoms';
 import { TokenIcon } from '@suite-native/icons';

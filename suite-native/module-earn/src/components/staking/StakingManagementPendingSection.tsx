@@ -1,9 +1,9 @@
-import { selectAccountNetworkSymbol } from '@suite-common/wallet-core';
-import { type AccountKey } from '@suite-common/wallet-types';
 import {
-    isPositiveBalance,
     isSupportedNativeStakingManagementSymbol,
-} from '@suite-common/wallet-utils';
+    selectAccountNetworkSymbol,
+} from '@suite-common/wallet-core';
+import { type AccountKey } from '@suite-common/wallet-types';
+import { isPositiveBalance } from '@suite-common/wallet-utils';
 import { Text, VStack, useBottomSheetModal } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import {

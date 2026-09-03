@@ -2,8 +2,7 @@ import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { useDevice } from '@suite/device';
 import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
-import { selectHasRunningDiscovery } from '@suite-common/wallet-core';
-import { getTronWithdrawableBalance } from '@suite-common/wallet-utils';
+import { getTronWithdrawableBalance, selectHasRunningDiscovery } from '@suite-common/wallet-core';
 import { Button, Tooltip } from '@trezor/components';
 import { BigNumber } from '@trezor/utils';
 

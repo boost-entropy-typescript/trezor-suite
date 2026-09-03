@@ -4,9 +4,12 @@ import { useForm, useWatch } from 'react-hook-form';
 import useDebounce from 'react-use/lib/useDebounce';
 
 import { useDispatch } from '@suite-common/redux-utils';
-import { getStakeFormsDefaultValues, getStakingContractAddress } from '@suite-common/staking';
 import { getNetwork } from '@suite-common/wallet-config';
 import {
+    getMaxStakeAmount,
+    getStakeFormsDefaultValues,
+    getStakingContractAddress,
+    getStakingLimitsByNetworkSymbol,
     selectBaseCurrency,
     selectFiatRatesByFiatRateKey,
     selectRawNetworkFeeInfo,
@@ -18,8 +21,6 @@ import {
     fromWei,
     getConvertedOrDefaultFeeInfo,
     getFiatRateKey,
-    getMaxStakeAmount,
-    getStakingLimitsByNetworkSymbol,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
 import { isChanged, throwError } from '@trezor/utils';

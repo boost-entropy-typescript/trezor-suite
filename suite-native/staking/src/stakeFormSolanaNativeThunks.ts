@@ -1,13 +1,15 @@
 import { type DeviceRootState, selectSelectedDevice } from '@suite-common/device';
 import { createThunk } from '@suite-common/redux-utils';
-import { composeSolanaStakingTransaction, prepareSolanaStakeTxData } from '@suite-common/staking';
 import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
-import { WALLET_SDK_SOURCE_MOBILE } from '@suite-common/wallet-constants';
 import {
     type AccountsRootState,
     type BlockchainRootState,
     type FeesRootState,
+    WALLET_SDK_SOURCE_MOBILE,
     type WalletSettingsRootState,
+    composeSolanaStakingTransaction,
+    isSupportedSolStakingNetworkSymbol,
+    prepareSolanaStakeTxData,
     selectAccountByKey,
     selectAddressDisplayType,
     selectConvertedNetworkFeeInfo,
@@ -21,10 +23,7 @@ import {
     type PrecomposedTransactionFinal,
     type StakeFormState,
 } from '@suite-common/wallet-types';
-import {
-    formatNetworkAmount,
-    isSupportedSolStakingNetworkSymbol,
-} from '@suite-common/wallet-utils';
+import { formatNetworkAmount } from '@suite-common/wallet-utils';
 import { requestPrioritizedDeviceAccess } from '@suite-native/device-mutex';
 import TrezorConnect from '@trezor/connect';
 import { asCoinSymbol } from '@trezor/connect-common';

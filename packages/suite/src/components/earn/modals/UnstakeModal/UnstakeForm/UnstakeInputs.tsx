@@ -3,7 +3,7 @@ import { selectLanguage } from '@suite/settings';
 import { useFormatters } from '@suite-common/formatters';
 import { formInputsMaxLength } from '@suite-common/validators';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
-import { getStakingDataForNetwork } from '@suite-common/wallet-utils';
+import { getStakingDataForNetwork } from '@suite-common/wallet-core';
 import { Column, type FractionButtonProps, Text } from '@trezor/components';
 import { InputWithOptions } from '@trezor/product-components';
 

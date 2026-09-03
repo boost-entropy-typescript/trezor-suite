@@ -6,9 +6,9 @@ import {
     type VotingDelegationOption,
     selectVotingDelegationOption,
     stakeActions,
+    validateCardanoDrep,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { validateCardanoDrep } from '@suite-common/wallet-utils';
 import { Column, Input, Radio, Text } from '@trezor/components';
 
 import { useSelector } from 'src/hooks/suite';

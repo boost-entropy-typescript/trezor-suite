@@ -1,6 +1,6 @@
 import { Translation } from '@suite/intl';
 import { type NetworkSymbol, getNetwork } from '@suite-common/wallet-config';
-import { getStakingLimitsByNetworkSymbol } from '@suite-common/wallet-utils';
+import { getStakingLimitsByNetworkSymbol } from '@suite-common/wallet-core';
 
 import { useStakingRate } from 'src/hooks/earn/useStakingRate';
 import { useMessageSystemStaking } from 'src/hooks/suite/useMessageSystemStaking';

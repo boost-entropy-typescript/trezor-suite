@@ -3,9 +3,8 @@ import { openModal } from '@suite/modal';
 import { useDispatch } from '@suite-common/redux-utils';
 import { EarnFlow, EarnProvider } from '@suite-common/suite-types/src/staking';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
-import { selectPoolStatsApy } from '@suite-common/wallet-core';
+import { isCardanoStakedWithFiveBinaries, selectPoolStatsApy } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { isCardanoStakedWithFiveBinaries } from '@suite-common/wallet-utils';
 import { Banner, Tooltip } from '@trezor/components';
 import { InfoIcon } from '@trezor/icons';
 

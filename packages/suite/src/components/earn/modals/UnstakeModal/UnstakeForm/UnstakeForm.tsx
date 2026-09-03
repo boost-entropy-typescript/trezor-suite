@@ -6,7 +6,7 @@ import {
     getSolanaUnstakeAmountBounds,
     getStakingDataForNetwork,
     getStakingHelpCenterLink,
-} from '@suite-common/wallet-utils';
+} from '@suite-common/wallet-core';
 import { Banner, Card, Column, InfoItem, Link, Tooltip } from '@trezor/components';
 import { BigNumber } from '@trezor/utils';
 

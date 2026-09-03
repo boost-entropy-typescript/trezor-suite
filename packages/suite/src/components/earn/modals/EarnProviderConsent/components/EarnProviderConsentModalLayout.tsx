@@ -1,9 +1,8 @@
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { Translation } from '@suite/intl';
-import { selectVotingDelegationOption } from '@suite-common/wallet-core';
+import { selectVotingDelegationOption, validateCardanoDrep } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { validateCardanoDrep } from '@suite-common/wallet-utils';
 import { Card, Checkbox, Column, Modal } from '@trezor/components';
 
 import { useSelector } from 'src/hooks/suite';

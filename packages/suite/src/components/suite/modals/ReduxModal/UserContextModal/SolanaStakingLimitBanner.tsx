@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 
 import { Translation } from '@suite/intl';
 import { getDisplaySymbol } from '@suite-common/wallet-config';
-import { selectBlockchainState } from '@suite-common/wallet-core';
-import { type Account, type PrecomposedLevels } from '@suite-common/wallet-types';
 import {
     type SolanaStakingLimit,
     estimateSolanaStakingLimit,
-    formatNetworkAmount,
     getOutputTxAmount,
     getSolanaDeactivatedRentReserves,
-} from '@suite-common/wallet-utils';
+    selectBlockchainState,
+} from '@suite-common/wallet-core';
+import { type Account, type PrecomposedLevels } from '@suite-common/wallet-types';
+import { formatNetworkAmount } from '@suite-common/wallet-utils';
 import { Banner } from '@trezor/components';
 import { getSuiteVersion } from '@trezor/env-utils';
 import { MAX_DEACTIVATE_ACCOUNTS_WITH_SPLIT } from '@trezor/network-solana/constants';

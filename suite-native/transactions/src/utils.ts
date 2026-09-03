@@ -1,13 +1,14 @@
 import { A, F, pipe } from '@mobily/ts-belt';
 
 import { type SignValue } from '@suite-common/suite-types';
-import { type Target as ProcessedTarget, createSimpleTargetId } from '@suite-common/wallet-core';
-import { type TransactionType, type WalletAccountTransaction } from '@suite-common/wallet-types';
 import {
-    getTxStakeNameByDataHex,
+    type Target as ProcessedTarget,
+    createSimpleTargetId,
     getTxStakeType,
     getUnstakeAmountByEthereumDataHex,
-} from '@suite-common/wallet-utils';
+} from '@suite-common/wallet-core';
+import { type TransactionType, type WalletAccountTransaction } from '@suite-common/wallet-types';
+import { getTxStakeNameByDataHex } from '@suite-common/wallet-utils';
 import { type EnhancedVinVout, type Target } from '@trezor/blockchain-link-types';
 import { BigNumber, isNotNullOrUndefined } from '@trezor/utils';
 

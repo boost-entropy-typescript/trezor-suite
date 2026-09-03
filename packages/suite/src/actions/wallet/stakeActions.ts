@@ -25,6 +25,9 @@ import {
     type SyncAccountsWithBlockchainThunkState,
     type WalletSettingsRootState,
     addFakePendingCardanoTxThunk,
+    isSupportedAdaStakingNetworkSymbol,
+    isSupportedEthStakingNetworkSymbol,
+    isSupportedSolStakingNetworkSymbol,
     replaceTransactionThunk,
     selectIsMevProtectionEnabled,
     selectStake,
@@ -43,9 +46,6 @@ import {
     formatNetworkAmount,
     getMevProtectedTxData,
     isRbfBumpFeeTransaction,
-    isSupportedAdaStakingNetworkSymbol,
-    isSupportedEthStakingNetworkSymbol,
-    isSupportedSolStakingNetworkSymbol,
     tryGetAccountIdentity,
 } from '@suite-common/wallet-utils';
 import TrezorConnect from '@trezor/connect';

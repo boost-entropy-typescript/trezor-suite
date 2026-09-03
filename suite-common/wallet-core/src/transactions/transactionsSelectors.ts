@@ -27,7 +27,6 @@ import {
     getErc4626Contracts,
     getEvmPrivatePendingHint,
     getFiatRateKey,
-    isCardanoStakingTx,
     isClaimTx,
     isNftTokenTransfer,
     isPending,
@@ -51,7 +50,8 @@ import { selectHistoricFiatRates } from '../fiat-rates/fiatRatesSelectors';
 import type { FiatRatesRootState } from '../fiat-rates/fiatRatesTypes';
 import { type PhishingRootState } from '../phishing/phishingReducerTypes';
 import { selectActiveDustPhishingThreshold } from '../phishing/phishingSelectors';
-import { isAccountStakingActive } from '../stake/stakeUtils';
+import { isCardanoStakingTx } from '../staking/cardano/cardanoStakingUtils';
+import { isAccountStakingActive } from '../staking/shared/stakingUtils';
 
 const createMemoizedSelector = createWeakMapSelector.withTypes<
     TransactionsRootState & AccountsRootState

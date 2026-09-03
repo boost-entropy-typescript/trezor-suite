@@ -8,11 +8,11 @@ import {
     type PhishingRootState,
     type TransactionsRootState,
     createTargets,
+    getTxStakeType,
     selectAccountByKey,
     selectIsPhishingTransaction,
 } from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
-import { getTxStakeType } from '@suite-common/wallet-utils';
 import { EmptyAmountText } from '@suite-native/formatters';
 import { type WalletAccountTransaction } from '@suite-native/tokens';
 

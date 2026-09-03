@@ -14,6 +14,9 @@ import {
     isNetworkSymbol,
 } from '@suite-common/wallet-config';
 import {
+    isSupportedEthStakingNetworkSymbol,
+    isSupportedSolStakingNetworkSymbol,
+    isSupportedTronStakingNetworkSymbol,
     selectAllAccountsToList,
     selectBaseCurrency,
     selectCurrentFiatRates,
@@ -25,9 +28,6 @@ import {
     BASE_CURRENCY_ZERO,
     asAmountUnit,
     getFiatRateKey,
-    isSupportedEthStakingNetworkSymbol,
-    isSupportedSolStakingNetworkSymbol,
-    isSupportedTronStakingNetworkSymbol,
     toFiatCurrency,
 } from '@suite-common/wallet-utils';
 import type { BaseCurrencyCode, TokenInfo } from '@trezor/blockchain-link-types';

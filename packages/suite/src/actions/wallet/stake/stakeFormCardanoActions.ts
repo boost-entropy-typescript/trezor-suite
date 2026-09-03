@@ -9,24 +9,25 @@ import {
 import { type DeviceRootState, selectSelectedDevice } from '@suite-common/device';
 import { type AdaPools } from '@suite-common/earn-staking-api';
 import { type WithServices } from '@suite-common/redux-utils';
-import {
-    calculate,
-    composeStakingTransaction,
-} from '@suite-common/staking/src/actions/stakeFormActions';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { type NetworkSymbol } from '@suite-common/wallet-config';
+import { EVERSTAKE_POOL_NAMES, type NetworkSymbol } from '@suite-common/wallet-config';
 import {
+    type AccountVotingDelegation,
     CARDANO_EVERSTAKE_DREP,
-    EVERSTAKE_POOL_NAMES,
     MIN_CARDANO_AMOUNT_FOR_STAKING,
     MIN_CARDANO_BALANCE_FOR_STAKING,
     MIN_CARDANO_FOR_WITHDRAWALS,
-} from '@suite-common/wallet-constants';
-import {
-    type AccountVotingDelegation,
     type StakeRootState,
+    calculateStakeFormTransaction,
+    composeStakingTransaction,
+    getCardanoAccountPoolId,
+    hasCardanoLiveVoteDelegation,
+    isCardanoStakedWithEverstake,
+    parseDrepBech32,
+    selectBestCardanoPool,
     selectCardanoPoolsInfo,
     selectStakeVotingDelegation,
+    validateCardanoDrep,
 } from '@suite-common/wallet-core';
 import {
     type Account,
@@ -42,7 +43,6 @@ import {
 import {
     asAmountSubunit,
     getAddressParameters,
-    getCardanoAccountPoolId,
     getDelegationCertificates,
     getDerivationType,
     getNetworkId,
@@ -50,14 +50,9 @@ import {
     getStakingPath,
     getUnusedChangeAddress,
     getVotingCertificates,
-    hasCardanoLiveVoteDelegation,
-    isCardanoStakedWithEverstake,
     isTestnet,
     networkAmountToSmallestUnit,
-    parseDrepBech32,
-    selectBestCardanoPool,
     subunitsToUnits,
-    validateCardanoDrep,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, { type FeeLevel, PROTO } from '@trezor/connect';
 import { type ErrorCode } from '@trezor/connect-common/src/constants/errors';
@@ -109,7 +104,7 @@ const calculateTransaction = (
 
     const estimatedFeeLevel = { ...feeLevel, ...estimatedFee?.payload };
 
-    return calculate(
+    return calculateStakeFormTransaction(
         availableBalance,
         output,
         estimatedFeeLevel,

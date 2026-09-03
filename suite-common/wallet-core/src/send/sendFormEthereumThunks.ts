@@ -11,7 +11,6 @@ import {
     ETH_CONTRACT_CALL_BACKUP_GAS_LIMIT,
     ETH_SPEED_UP_TX_MULTIPLIER,
     ETH_TRANSFER_BACKUP_GAS_LIMIT,
-    STAKE_GAS_LIMIT_RESERVE,
 } from '@suite-common/wallet-constants';
 import {
     type AccountWithNetworkType,
@@ -66,6 +65,7 @@ import {
     type WalletSettingsRootState,
     selectAddressDisplayType,
 } from '../settings/walletSettingsReducer';
+import { STAKE_GAS_LIMIT_RESERVE } from '../staking/ethereum/ethereumStakingConstants';
 import { type TransactionsRootState } from '../transactions/transactionsReducerTypes';
 import {
     selectAccountTransactions,

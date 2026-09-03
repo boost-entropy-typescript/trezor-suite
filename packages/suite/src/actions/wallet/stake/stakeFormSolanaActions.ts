@@ -4,11 +4,13 @@ import { type SelectedAccountRootState, selectFullSelectedAccount } from '@suite
 import { type DesktopAnalyticsDep, events } from '@suite/analytics';
 import { type DeviceRootState, selectSelectedDevice } from '@suite-common/device';
 import { type WithServices } from '@suite-common/redux-utils';
-import { composeSolanaStakingTransaction, prepareSolanaStakeTxData } from '@suite-common/staking';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import {
     type BlockchainRootState,
     type WalletSettingsRootState,
+    composeSolanaStakingTransaction,
+    isSupportedSolStakingNetworkSymbol,
+    prepareSolanaStakeTxData,
     selectAddressDisplayType,
     selectBlockchainState,
 } from '@suite-common/wallet-core';
@@ -18,7 +20,6 @@ import {
     type PrecomposedTransactionFinal,
     type StakeFormState,
 } from '@suite-common/wallet-types';
-import { isSupportedSolStakingNetworkSymbol } from '@suite-common/wallet-utils';
 import TrezorConnect from '@trezor/connect';
 import { getSuiteVersion } from '@trezor/env-utils';
 import solana from '@trezor/network-solana/runtime';

@@ -5,27 +5,21 @@ import { type SelectedAccountRootState, selectFullSelectedAccount } from '@suite
 import { type DesktopAnalyticsDep, events } from '@suite/analytics';
 import { type DeviceRootState, selectSelectedDevice } from '@suite-common/device';
 import { type WithServices } from '@suite-common/redux-utils';
-import {
-    getStakeTxGasLimit,
-    prepareClaimEthTx,
-    prepareStakeEthTx,
-    prepareUnstakeEthTx,
-} from '@suite-common/staking';
-import {
-    calculate,
-    composeStakingTransaction,
-} from '@suite-common/staking/src/actions/stakeFormActions';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { type NetworkSymbol } from '@suite-common/wallet-config';
 import {
+    type EthereumGetCurrentNonceThunkState,
     MIN_ETH_AMOUNT_FOR_STAKING,
     MIN_ETH_BALANCE_FOR_STAKING,
     MIN_ETH_FOR_WITHDRAWALS,
     UNSTAKE_INTERCHANGES,
-} from '@suite-common/wallet-constants';
-import {
-    type EthereumGetCurrentNonceThunkState,
     type WalletSettingsRootState,
+    calculateStakeFormTransaction,
+    composeStakingTransaction,
+    getStakeTxGasLimit,
+    prepareClaimEthTx,
+    prepareStakeEthTx,
+    prepareUnstakeEthTx,
     selectAddressDisplayType,
     stakeActions,
 } from '@suite-common/wallet-core';
@@ -65,7 +59,14 @@ const calculateStakingTransaction = (
         minAmountForWithdrawalInBaseUnits: fromEther(MIN_ETH_FOR_WITHDRAWALS.toString()).toWei(),
     };
 
-    return calculate(availableBalance, output, feeLevel, compareWithAmount, symbol, stakingParams);
+    return calculateStakeFormTransaction(
+        availableBalance,
+        output,
+        feeLevel,
+        compareWithAmount,
+        symbol,
+        stakingParams,
+    );
 };
 
 export const composeTransaction =

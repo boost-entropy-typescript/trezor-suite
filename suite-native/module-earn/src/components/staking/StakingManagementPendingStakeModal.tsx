@@ -1,13 +1,13 @@
 import { BASE_CRYPTO_MAX_DISPLAYED_DECIMALS } from '@suite-common/formatters';
-import { useStakingEntryPeriodEstimateInDays } from '@suite-common/staking';
 import {
+    isSupportedSolStakingNetworkSymbol,
     selectAccountByKey,
     selectAccountNetworkSymbol,
     selectAccountStakeTransactions,
     useAccountsSelector,
+    useStakingEntryPeriodEstimateInDays,
 } from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
-import { isSupportedSolStakingNetworkSymbol } from '@suite-common/wallet-utils';
 import {
     BottomSheetModal,
     type BottomSheetModalRef,

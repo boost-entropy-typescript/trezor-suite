@@ -1,10 +1,14 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { buildStakeData, getEthereumStakingAddressByType } from '@suite-common/staking';
 import { getNetwork } from '@suite-common/wallet-config';
-import { WALLET_SDK_SOURCE_MOBILE } from '@suite-common/wallet-constants';
-import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet-core';
+import {
+    type AccountsRootState,
+    WALLET_SDK_SOURCE_MOBILE,
+    buildStakeData,
+    getEthereumStakingAddressByType,
+    selectAccountByKey,
+} from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
 import { formatNetworkAmount } from '@suite-common/wallet-utils';
 import { useForm, useWatch } from '@suite-native/forms';

@@ -3,9 +3,8 @@ import { useSelector } from 'react-redux';
 
 import type { DeviceRootState } from '@suite-common/device';
 import { type NetworkSymbol } from '@suite-common/wallet-config';
-import { type AccountsRootState } from '@suite-common/wallet-core';
+import { type AccountsRootState, isCardanoStakedWithFiveBinaries } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { isCardanoStakedWithFiveBinaries } from '@suite-common/wallet-utils';
 import { CompoundRoundedIcon } from '@suite-native/atoms';
 import { type IconName, type IconSize } from '@suite-native/icons';
 import { selectFirstCardanoAccountStakedWithFiveBinaries } from '@suite-native/staking';

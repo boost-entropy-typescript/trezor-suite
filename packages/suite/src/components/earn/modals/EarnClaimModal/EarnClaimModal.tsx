@@ -7,9 +7,12 @@ import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
 import { useDispatch } from '@suite-common/redux-utils';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
-import { selectAreFeesLoading, selectHasRunningDiscovery } from '@suite-common/wallet-core';
+import {
+    getStakingDataForNetwork,
+    selectAreFeesLoading,
+    selectHasRunningDiscovery,
+} from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { getStakingDataForNetwork } from '@suite-common/wallet-utils';
 import { Banner, Card, Column, InfoItem, Modal, Paragraph, Row, Tooltip } from '@trezor/components';
 import { InfoIcon, WarningIcon } from '@trezor/icons';
 import { BigNumber } from '@trezor/utils';

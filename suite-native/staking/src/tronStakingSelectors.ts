@@ -2,11 +2,6 @@ import { createWeakMapSelector, returnStableArrayIfEmpty } from '@suite-common/r
 import { type NetworkSymbol } from '@suite-common/wallet-config';
 import {
     type AccountsRootState,
-    selectAccountByKey,
-    selectDeviceAccounts,
-} from '@suite-common/wallet-core';
-import { type AccountKey } from '@suite-common/wallet-types';
-import {
     getStakingDataForNetwork,
     getTronAvailableVotingPower,
     getTronPendingUnstakeBalance,
@@ -14,7 +9,10 @@ import {
     getTronVotes,
     getTronWithdrawableBalance,
     isTronStakingActive,
-} from '@suite-common/wallet-utils';
+    selectAccountByKey,
+    selectDeviceAccounts,
+} from '@suite-common/wallet-core';
+import { type AccountKey } from '@suite-common/wallet-types';
 
 import { type NativeStakingRootState } from './types';
 

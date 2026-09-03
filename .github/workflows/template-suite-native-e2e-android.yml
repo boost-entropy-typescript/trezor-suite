@@ -37,7 +37,7 @@ on:
 
 jobs:
   run_android_e2e_tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -152,7 +152,10 @@ jobs:
           ram-size: 4096M
           force-avd-creation: true
           avd-name: ${{ steps.device.outputs.AVD_NAME }}
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save -noaudio -no-boot-anim -grpc 8554 -memory 4096
+          emulator-port: 5554
+          emulator-options: -no-window -gpu lavapipe -accel on -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-spellchecker: true
+          disable-linux-hw-accel: false
           disable-animations: true
           cores: 4
           heap-size: 512M

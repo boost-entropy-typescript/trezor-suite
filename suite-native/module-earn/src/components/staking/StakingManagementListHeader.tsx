@@ -1,12 +1,12 @@
 import { Context } from '@suite-common/message-system';
-import { type AccountsRootState, selectAdaAccountHasStaked } from '@suite-common/wallet-core';
-import { type AccountKey } from '@suite-common/wallet-types';
 import {
-    isStakingSymbol,
+    type AccountsRootState,
     isSupportedEthStakingNetworkSymbol,
     isSupportedSolStakingNetworkSymbol,
-    parseAccountKey,
-} from '@suite-common/wallet-utils';
+    selectAdaAccountHasStaked,
+} from '@suite-common/wallet-core';
+import { type AccountKey } from '@suite-common/wallet-types';
+import { isStakingSymbol, parseAccountKey } from '@suite-common/wallet-utils';
 import { Text, VStack } from '@suite-native/atoms';
 import { Translation, type TxKeyPath } from '@suite-native/intl';
 import { ContextMessage } from '@suite-native/message-system';

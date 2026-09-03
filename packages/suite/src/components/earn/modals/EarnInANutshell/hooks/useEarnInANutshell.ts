@@ -8,9 +8,12 @@ import {
     type EarnProvider,
     type EarnYieldContext,
 } from '@suite-common/suite-types/src/staking';
-import { selectEthValidatorsQueue, selectPoolStatsApy } from '@suite-common/wallet-core';
+import {
+    getUnstakingPeriodInDays,
+    selectEthValidatorsQueue,
+    selectPoolStatsApy,
+} from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { getUnstakingPeriodInDays } from '@suite-common/wallet-utils';
 
 import { earnFlowToEventTypeMap } from 'src/constants/suite/staking';
 import { useSelector } from 'src/hooks/suite';

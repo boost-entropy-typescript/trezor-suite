@@ -7,16 +7,14 @@ import { useDispatch } from '@suite-common/redux-utils';
 import { EarnFlow } from '@suite-common/suite-types/src/staking';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
+    getStakingDataForNetwork,
+    isCardanoStakedWithEverstake,
     selectAccountIsStakingActive,
     selectAccountStakeTypeTransactions,
     selectCardanoPoolsInfo,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import {
-    getStakingDataForNetwork,
-    isCardanoStakedWithEverstake,
-    isPending,
-} from '@suite-common/wallet-utils';
+import { isPending } from '@suite-common/wallet-utils';
 import {
     Badge,
     Button,
