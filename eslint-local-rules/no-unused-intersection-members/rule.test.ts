@@ -23,6 +23,7 @@ const typeAwareTestFilename = path.join(__dirname, '../..', 'unused-intersection
 typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMembersRule, {
     valid: [
         {
+            name: 'accepts when every direct intersection member is used',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: (message: string) => void } };
@@ -36,6 +37,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'accepts when every member contributes through a shared services path',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDep = { services: { logger: { log: () => void } } };
@@ -49,6 +51,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'accepts when every WithServices dependency is used',
             filename: typeAwareTestFilename,
             code: `
                     type WithServices<Services extends object> = { services: Services };
@@ -63,6 +66,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'combines state requirements from a selector and direct access',
             filename: typeAwareTestFilename,
             code: `
                     type AccountsRootState = { accounts: { selected: string } };
@@ -78,6 +82,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'combines dependency requirements from a consumer and direct access',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: () => void } };
@@ -93,6 +98,48 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'accepts when every nested intersection member is used',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunDeps = { services: LoggerDep & StorageDep };
+
+                    const run = (deps: RunDeps) => {
+                        deps.services.logger.log();
+                        deps.services.storage.save();
+                    };
+                `,
+        },
+        {
+            name: 'accepts when every object contract member is used',
+            filename: typeAwareTestFilename,
+            code: `
+                    type RunDeps = {
+                        logger: { log: () => void };
+                        storage: { save: () => void };
+                    };
+
+                    const run = (deps: RunDeps) => {
+                        deps.logger.log();
+                        deps.storage.save();
+                    };
+                `,
+        },
+        {
+            name: 'ignores object-shaped State aliases without state-role usage',
+            filename: typeAwareTestFilename,
+            code: `
+                    type SendState = {
+                        drafts: Record<string, unknown>;
+                        serializedTransaction?: string;
+                    };
+
+                    const getDrafts = (state: SendState) => state.drafts;
+                `,
+        },
+        {
+            name: 'ignores aliases without a recognized suffix or usage role',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: () => void } };
@@ -103,6 +150,35 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'ignores custom suffixes unless configured or discovered from usage',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunContext = LoggerDep & StorageDep;
+
+                    const run = (context: RunContext) => context.logger.log();
+                `,
+        },
+        {
+            name: 'preserves contracts consumed in type-level positions',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunDeps = LoggerDep & StorageDep;
+                    type RunKeys = keyof RunDeps;
+                    type RunStorage = RunDeps['storage'];
+                    type PublicRunContract = RunDeps;
+
+                    const run = (deps: RunDeps) => deps.logger.log();
+                    declare const key: RunKeys;
+                    declare const storage: RunStorage;
+                    declare const publicDeps: PublicRunContract;
+                `,
+        },
+        {
+            name: 'preserves contracts accessed through dynamic keys',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: () => void } };
@@ -113,6 +189,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'preserves ambiguous members with overlapping properties',
             filename: typeAwareTestFilename,
             code: `
                     type FirstDeps = { logger: { log: () => void } };
@@ -123,6 +200,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'preserves contracts wrapped by an unknown generic',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: () => void } };
@@ -136,6 +214,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'preserves state contracts passed as generic arguments',
             filename: typeAwareTestFilename,
             code: `
                     type AccountsRootState = { accounts: { selected: string } };
@@ -150,6 +229,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'combines direct thunk usage with dispatched child requirements',
             filename: typeAwareTestFilename,
             code: `
                     type LocalState = { local: { ready: boolean } };
@@ -188,6 +268,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'accounts for WithServices requirements of dispatched child thunks',
             filename: typeAwareTestFilename,
             code: `
                     type WithServices<Services extends object> = { services: Services };
@@ -222,6 +303,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 `,
         },
         {
+            name: 'accounts for dispatched child requirements in vanilla thunks',
             filename: typeAwareTestFilename,
             code: `
                     type WithServices<Services extends object> = { services: Services };
@@ -247,9 +329,24 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                         };
                 `,
         },
+        {
+            name: 'preserves members captured by rest destructuring',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDeps = { logger: { log: () => void } };
+                    type StorageDeps = { storage: { save: () => void } };
+                    type RunDeps = LoggerDeps & StorageDeps;
+
+                    const run = ({ logger, ...remainingDeps }: RunDeps) => {
+                        logger.log();
+                        return remainingDeps;
+                    };
+                `,
+        },
     ],
     invalid: [
         {
+            name: 'reports an unused direct intersection member',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDeps = { logger: { log: () => void } };
@@ -266,6 +363,26 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
             ],
         },
         {
+            name: 'reports an unused nested intersection member after destructuring',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunDeps = { services: LoggerDep & StorageDep };
+
+                    declare const deps: RunDeps;
+                    const { logger } = deps.services;
+                    logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports a state member not required by a narrower selector',
             filename: typeAwareTestFilename,
             code: `
                     type AccountsRootState = { accounts: { selected: string } };
@@ -284,6 +401,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
             ],
         },
         {
+            name: 'reports multiple unused members under a shared services path',
             filename: typeAwareTestFilename,
             code: `
                     type LoggerDep = { services: { logger: { log: () => void } } };
@@ -305,6 +423,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
             ],
         },
         {
+            name: 'reports an unused WithServices dependency',
             filename: typeAwareTestFilename,
             code: `
                     type WithServices<Services extends object> = { services: Services };
@@ -322,6 +441,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
             ],
         },
         {
+            name: 'reports an unused WithServices dependency beside root members',
             filename: typeAwareTestFilename,
             code: `
                     type WithServices<Services extends object> = { services: Services };
@@ -344,6 +464,7 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
             ],
         },
         {
+            name: 'reports parent state unused by both parent and child thunks',
             filename: typeAwareTestFilename,
             code: `
                     type LocalState = { local: { ready: boolean } };
@@ -379,6 +500,260 @@ typeAwareRuleTester.run('no-unused-intersection-members', noUnusedIntersectionMe
                 {
                     messageId: 'unusedIntersectionMember',
                     data: { memberName: 'UnusedState', typeName: 'ParentState' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused member with parameter destructuring',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDeps = { logger: { log: () => void } };
+                    type StorageDeps = { storage: { save: () => void } };
+                    type RunDeps = LoggerDeps & StorageDeps;
+
+                    const run = ({ logger }: RunDeps) => logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDeps', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused member with nested parameter destructuring',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { services: { logger: { log: () => void } } };
+                    type StorageDep = { services: { storage: { save: () => void } } };
+                    type RunDeps = LoggerDep & StorageDep;
+
+                    declare const deps: RunDeps;
+                    const { services: { logger: serviceLogger } } = deps;
+                    serviceLogger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused nested intersection member after property access',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunDeps = { services: LoggerDep & StorageDep };
+
+                    const run = (deps: RunDeps) => deps.services.logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports a nested member not required by a narrower consumer',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunDeps = { services: LoggerDep & StorageDep };
+
+                    declare const useLogger: (deps: { services: LoggerDep }) => void;
+                    const run = (deps: RunDeps) => useLogger(deps);
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused object contract member',
+            filename: typeAwareTestFilename,
+            code: `
+                    type RunDeps = {
+                        logger: { log: () => void };
+                        storage: { save: () => void };
+                    };
+
+                    const run = (deps: RunDeps) => deps.logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedContractMember',
+                    data: { memberName: 'storage', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused nested object member after destructuring',
+            filename: typeAwareTestFilename,
+            code: `
+                    type RunDeps = {
+                        services: {
+                            logger: { log: () => void };
+                            storage: { save: () => void };
+                        };
+                    };
+
+                    const run = ({ services: { logger } }: RunDeps) => logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedContractMember',
+                    data: { memberName: 'storage', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an object member not required by a narrower consumer',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDeps = { logger: { log: () => void } };
+                    type RunDeps = {
+                        logger: { log: () => void };
+                        storage: { save: () => void };
+                    };
+
+                    declare const useLogger: (deps: LoggerDeps) => void;
+                    const run = (deps: RunDeps) => useLogger(deps);
+                `,
+            errors: [
+                {
+                    messageId: 'unusedContractMember',
+                    data: { memberName: 'storage', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'reports an unused inline object intersection member',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDeps = { logger: { log: () => void } };
+                    type RunDeps = LoggerDeps & {
+                        storage: { save: () => void };
+                    };
+
+                    const run = (deps: RunDeps) => deps.logger.log();
+            `,
+            errors: [{ messageId: 'unusedIntersectionMember' }],
+        },
+        {
+            name: 'reports only provably unused extras when dispatch escapes',
+            filename: typeAwareTestFilename,
+            code: `
+                    type ServiceDeps = { services: { logger: { log: () => void } } };
+                    type RunDeps = {
+                        services: { logger: { log: () => void } };
+                        thunks: { run: () => void };
+                        storage: { save: () => void };
+                    };
+                    type ChildAction = (
+                        dispatch: unknown,
+                        getState: () => unknown,
+                        extra: ServiceDeps,
+                    ) => void;
+
+                    declare const complete: (api: {
+                        dispatch: (action: ChildAction) => unknown;
+                    }) => void;
+                    declare const createThunk: <Result, Payload, Config>(
+                        name: string,
+                        callback: (
+                            payload: Payload,
+                            api: {
+                                dispatch: (action: ChildAction) => unknown;
+                                extra: Config extends { extra: infer Deps } ? Deps : never;
+                            },
+                        ) => Result,
+                    ) => unknown;
+
+                    createThunk<void, void, { extra: RunDeps }>(
+                        'run',
+                        (_, { dispatch, extra }) => {
+                            complete({ dispatch });
+                            extra.thunks.run();
+                        },
+                    );
+                `,
+            errors: [
+                {
+                    messageId: 'unusedContractMember',
+                    data: { memberName: 'storage', typeName: 'RunDeps' },
+                },
+            ],
+        },
+        {
+            name: 'supports configured contract name suffixes',
+            filename: typeAwareTestFilename,
+            options: [{ additionalTypeNameSuffixes: ['Context'] }],
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type RunContext = LoggerDep & StorageDep;
+
+                    const run = (context: RunContext) => context.logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'RunContext' },
+                },
+            ],
+        },
+        {
+            name: 'discovers dependency contracts from service factory parameters',
+            filename: typeAwareTestFilename,
+            code: `
+                    type LoggerDep = { logger: { log: () => void } };
+                    type StorageDep = { storage: { save: () => void } };
+                    type ServiceContext = LoggerDep & StorageDep;
+
+                    const createService = (deps: ServiceContext) => () => deps.logger.log();
+                `,
+            errors: [
+                {
+                    messageId: 'unusedIntersectionMember',
+                    data: { memberName: 'StorageDep', typeName: 'ServiceContext' },
+                },
+            ],
+        },
+        {
+            name: 'discovers dependency contracts from createThunk extra configuration',
+            filename: typeAwareTestFilename,
+            code: `
+                    type ExtraContext = {
+                        logger: { log: () => void };
+                        storage: { save: () => void };
+                    };
+
+                    declare const createThunk: <Result, Payload, Config>(
+                        name: string,
+                        callback: (
+                            payload: Payload,
+                            api: {
+                                dispatch: (action: unknown) => unknown;
+                                extra: Config extends { extra: infer Deps } ? Deps : never;
+                            },
+                        ) => Result,
+                    ) => unknown;
+
+                    createThunk<void, void, { extra: ExtraContext }>(
+                        'run',
+                        (_, { extra }) => extra.logger.log(),
+                    );
+                `,
+            errors: [
+                {
+                    messageId: 'unusedContractMember',
+                    data: { memberName: 'storage', typeName: 'ExtraContext' },
                 },
             ],
         },

@@ -18,16 +18,36 @@ type ContractUsage = {
     requiredType?: ts.Type;
 };
 
-type IntersectionContract = {
-    isOpaque: boolean;
+type IntersectionGroup = {
     members: IntersectionMember[];
+    path: string[];
+};
+
+type ContractProperty = {
     name: string;
+    node: ts.PropertySignature;
+};
+
+type PropertyGroup = {
+    members: ContractProperty[];
+    path: string[];
+};
+
+type IntersectionContract = {
+    groups: IntersectionGroup[];
+    isOpaque: boolean;
+    name: string;
+    propertyGroups: PropertyGroup[];
     rootPath: string[];
     symbol: ts.Symbol;
     usages: ContractUsage[];
 };
 
-const contractTypeNamePattern = /(?:State|Deps)$/;
+type RuleOptions = {
+    additionalTypeNameSuffixes?: string[];
+};
+
+const defaultTypeNameSuffixes = ['State', 'Deps'];
 
 const isInsideTypeNode = (node: ts.Node) => {
     let currentNode: ts.Node | undefined = node.parent;
@@ -46,6 +66,20 @@ const isInsideTypeNode = (node: ts.Node) => {
 const isNodeDeclarationName = (node: ts.Node) =>
     !ts.isShorthandPropertyAssignment(node.parent) &&
     (node.parent as ts.Node & { name?: ts.Node }).name === node;
+
+const hasAncestorInSet = (node: ts.Node, ancestors: ReadonlySet<ts.Node>) => {
+    let currentNode: ts.Node | undefined = node.parent;
+
+    while (currentNode !== undefined) {
+        if (ancestors.has(currentNode)) {
+            return true;
+        }
+
+        currentNode = currentNode.parent;
+    }
+
+    return false;
+};
 
 const getAliasedContracts = (
     node: ts.Expression,
@@ -166,6 +200,59 @@ const recordContractUsage = (
     }
 };
 
+const getBindingPropertyName = (name: ts.PropertyName | ts.BindingName) => {
+    if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) {
+        return name.text;
+    }
+
+    if (
+        ts.isComputedPropertyName(name) &&
+        (ts.isStringLiteralLike(name.expression) || ts.isNumericLiteral(name.expression))
+    ) {
+        return name.expression.text;
+    }
+
+    return undefined;
+};
+
+const addBindingPatternUsages = (
+    pattern: ts.ObjectBindingPattern,
+    contract: IntersectionContract,
+    checker: ts.TypeChecker,
+    parentPath: readonly string[] = [],
+) => {
+    if (pattern.elements.length === 0 && parentPath.length > 0) {
+        recordContractUsage({ path: [...parentPath] }, contract, checker);
+
+        return;
+    }
+
+    for (const element of pattern.elements) {
+        if (element.dotDotDotToken !== undefined) {
+            // A rest binding can read every property not explicitly destructured.
+            contract.isOpaque = true;
+
+            return;
+        }
+
+        const propertyName = getBindingPropertyName(element.propertyName ?? element.name);
+
+        if (propertyName === undefined || ts.isArrayBindingPattern(element.name)) {
+            contract.isOpaque = true;
+
+            return;
+        }
+
+        const path = [...parentPath, propertyName];
+
+        if (ts.isObjectBindingPattern(element.name)) {
+            addBindingPatternUsages(element.name, contract, checker, path);
+        } else {
+            recordContractUsage({ path }, contract, checker);
+        }
+    }
+};
+
 const addContractUsage = (
     rootExpression: ts.Expression,
     contract: IntersectionContract,
@@ -237,6 +324,16 @@ const addContractUsage = (
     if (
         ts.isVariableDeclaration(parent) &&
         parent.initializer === terminalExpression &&
+        ts.isObjectBindingPattern(parent.name)
+    ) {
+        addBindingPatternUsages(parent.name, contract, checker, path);
+
+        return;
+    }
+
+    if (
+        ts.isVariableDeclaration(parent) &&
+        parent.initializer === terminalExpression &&
         ts.isIdentifier(parent.name)
     ) {
         const variableType = checker.getTypeAtLocation(parent.name);
@@ -289,8 +386,66 @@ const getTypesAtPath = (
     return currentTypes;
 };
 
+const isPathPrefix = (prefix: readonly string[], path: readonly string[]) =>
+    prefix.every((part, index) => path[index] === part);
+
+const getGroupUsages = (
+    contract: IntersectionContract,
+    group: { path: readonly string[] },
+    checker: ts.TypeChecker,
+) =>
+    contract.usages.flatMap(usage => {
+        if (isPathPrefix(group.path, usage.path)) {
+            return [{ ...usage, path: usage.path.slice(group.path.length) }];
+        }
+
+        if (!isPathPrefix(usage.path, group.path)) {
+            return [];
+        }
+
+        if (usage.requiredType === undefined) {
+            // Accessing a parent value without a narrower expected type may consume every nested
+            // member.
+            return [{ path: [] }];
+        }
+
+        return getTypesAtPath(
+            [usage.requiredType],
+            group.path.slice(usage.path.length),
+            checker,
+        ).map(requiredType => ({ path: [], requiredType }));
+    });
+
 const isOptionalProperty = (property: ts.Symbol) =>
     (property.flags & ts.SymbolFlags.Optional) !== 0;
+
+const isPropertyUsed = (
+    property: ContractProperty,
+    usages: readonly ContractUsage[],
+    checker: ts.TypeChecker,
+) =>
+    usages.some(usage => {
+        const [firstPathPart] = usage.path;
+
+        if (firstPathPart !== undefined) {
+            return firstPathPart === property.name;
+        }
+
+        if (usage.requiredType === undefined) {
+            return true;
+        }
+
+        if (
+            (usage.requiredType.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0 ||
+            checker.getIndexInfosOfType(usage.requiredType).length > 0
+        ) {
+            return true;
+        }
+
+        const requiredProperty = checker.getPropertyOfType(usage.requiredType, property.name);
+
+        return requiredProperty !== undefined && !isOptionalProperty(requiredProperty);
+    });
 
 // Different intersection members can collectively satisfy a target even when none is assignable
 // on its own. Compare their properties recursively to account for requirements split across members.
@@ -395,14 +550,96 @@ const isUsageSatisfied = (
 const isCreateThunkCall = (node: ts.CallExpression) =>
     ts.isIdentifier(node.expression) && node.expression.text === 'createThunk';
 
-// Generic consumers may use a contract through constraints or inference without an observable
-// property path. createThunk is excluded because its state and extra contracts are handled below.
-const markContractsUsedByGenericCallsAsOpaque = (
+// Type-level consumers may depend on members without producing an observable runtime property path.
+// Supported contract composition and thunk configuration remain transparent; derivation and generic
+// contexts keep the source contract intact.
+const markContractsUsedByOpaqueTypePositions = (
     sourceFile: ts.SourceFile,
     contractsBySymbol: ReadonlyMap<ts.Symbol, IntersectionContract[]>,
     checker: ts.TypeChecker,
 ) => {
-    const visitTypeNode = (node: ts.Node) => {
+    const supportedThunkConfigProperties = new Set<ts.Declaration>();
+    const collectThunkConfigProperties = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && isCreateThunkCall(node)) {
+            const configTypeNode = node.typeArguments?.[2];
+
+            if (configTypeNode !== undefined) {
+                const configType = checker.getTypeFromTypeNode(configTypeNode);
+
+                for (const propertyName of ['state', 'extra']) {
+                    checker
+                        .getPropertyOfType(configType, propertyName)
+                        ?.declarations?.forEach(declaration =>
+                            supportedThunkConfigProperties.add(declaration),
+                        );
+                }
+            }
+        }
+
+        ts.forEachChild(node, collectThunkConfigProperties);
+    };
+    ts.forEachChild(sourceFile, collectThunkConfigProperties);
+
+    const isInsideSupportedThunkConfig = (node: ts.Node) => {
+        let currentNode: ts.Node | undefined = node.parent;
+
+        while (currentNode !== undefined && !ts.isStatement(currentNode)) {
+            if (
+                ts.isPropertySignature(currentNode) &&
+                supportedThunkConfigProperties.has(currentNode)
+            ) {
+                return true;
+            }
+
+            currentNode = currentNode.parent;
+        }
+
+        return false;
+    };
+
+    const isOpaqueTypePosition = (node: ts.TypeReferenceNode) => {
+        if (isInsideSupportedThunkConfig(node)) {
+            return false;
+        }
+
+        let currentNode: ts.Node = node;
+        let { parent }: { parent: ts.Node | undefined } = node;
+
+        while (parent !== undefined && !ts.isStatement(parent)) {
+            if (
+                ts.isTypeOperatorNode(parent) ||
+                ts.isIndexedAccessTypeNode(parent) ||
+                ts.isConditionalTypeNode(parent) ||
+                ts.isMappedTypeNode(parent)
+            ) {
+                return true;
+            }
+
+            if (
+                (ts.isTypeReferenceNode(parent) || ts.isCallExpression(parent)) &&
+                parent.typeArguments?.includes(currentNode as ts.TypeNode)
+            ) {
+                return true;
+            }
+
+            if (ts.isTypeAliasDeclaration(parent)) {
+                const containingSymbol = checker.getSymbolAtLocation(parent.name);
+
+                return containingSymbol === undefined || !contractsBySymbol.has(containingSymbol);
+            }
+
+            if (ts.isParameter(parent) || ts.isVariableDeclaration(parent)) {
+                return false;
+            }
+
+            currentNode = parent;
+            parent = currentNode.parent;
+        }
+
+        return ts.isInterfaceDeclaration(parent);
+    };
+
+    const visitNode = (node: ts.Node) => {
         if (ts.isTypeReferenceNode(node)) {
             const type = checker.getTypeFromTypeNode(node);
             const contracts =
@@ -410,21 +647,11 @@ const markContractsUsedByGenericCallsAsOpaque = (
                     ? []
                     : (contractsBySymbol.get(type.aliasSymbol) ?? []);
 
-            for (const contract of contracts) {
-                contract.isOpaque = true;
+            if (isOpaqueTypePosition(node)) {
+                for (const contract of contracts) {
+                    contract.isOpaque = true;
+                }
             }
-        }
-
-        ts.forEachChild(node, visitTypeNode);
-    };
-
-    const visitNode = (node: ts.Node) => {
-        if (ts.isCallExpression(node) && !isCreateThunkCall(node)) {
-            node.typeArguments?.forEach(visitTypeNode);
-        }
-
-        if (ts.isTypeReferenceNode(node)) {
-            node.typeArguments?.forEach(visitTypeNode);
         }
 
         ts.forEachChild(node, visitNode);
@@ -433,38 +660,181 @@ const markContractsUsedByGenericCallsAsOpaque = (
     ts.forEachChild(sourceFile, visitNode);
 };
 
+const getConfigPropertyType = (
+    createThunkCall: ts.CallExpression,
+    propertyName: 'extra' | 'state',
+    checker: ts.TypeChecker,
+) => {
+    const configTypeNode = createThunkCall.typeArguments?.[2];
+
+    if (configTypeNode === undefined) {
+        return undefined;
+    }
+
+    const configType = checker.getTypeFromTypeNode(configTypeNode);
+    const property = checker.getPropertyOfType(configType, propertyName);
+
+    if (property === undefined) {
+        return undefined;
+    }
+
+    const declaration = property.valueDeclaration ?? property.declarations?.[0] ?? configTypeNode;
+
+    return checker.getTypeOfSymbolAtLocation(property, declaration);
+};
+
 const getConfigContracts = (
     createThunkCall: ts.CallExpression,
     propertyName: 'extra' | 'state',
     contractsBySymbol: ReadonlyMap<ts.Symbol, IntersectionContract[]>,
     checker: ts.TypeChecker,
 ) => {
-    const configTypeNode = createThunkCall.typeArguments?.[2];
+    const propertyType = getConfigPropertyType(createThunkCall, propertyName, checker);
 
-    if (configTypeNode === undefined || !ts.isTypeLiteralNode(configTypeNode)) {
-        return [];
-    }
-
-    const property = configTypeNode.members.find(
-        member =>
-            ts.isPropertySignature(member) &&
-            member.type !== undefined &&
-            member.name.getText() === propertyName,
-    );
-
-    if (
-        property === undefined ||
-        !ts.isPropertySignature(property) ||
-        property.type === undefined
-    ) {
-        return [];
-    }
-
-    const propertyType = checker.getTypeFromTypeNode(property.type);
-
-    return propertyType.aliasSymbol === undefined
+    return propertyType?.aliasSymbol === undefined
         ? []
         : (contractsBySymbol.get(propertyType.aliasSymbol) ?? []);
+};
+
+const collectIntersectionGroups = (
+    node: ts.TypeNode,
+    sourceFile: ts.SourceFile,
+    checker: ts.TypeChecker,
+    path: readonly string[] = [],
+): IntersectionGroup[] => {
+    if (ts.isIntersectionTypeNode(node)) {
+        const group = {
+            members: node.types.map(memberNode => ({
+                name: memberNode.getText(sourceFile),
+                node: memberNode,
+                type: checker.getTypeFromTypeNode(memberNode),
+            })),
+            path: [...path],
+        };
+        const nestedGroups = node.types.flatMap(memberNode =>
+            ts.isTypeLiteralNode(memberNode)
+                ? collectIntersectionGroups(memberNode, sourceFile, checker, path)
+                : [],
+        );
+
+        return [group, ...nestedGroups];
+    }
+
+    if (!ts.isTypeLiteralNode(node)) {
+        return [];
+    }
+
+    return node.members.flatMap(member => {
+        if (!ts.isPropertySignature(member) || member.type === undefined) {
+            return [];
+        }
+
+        const propertyName = getBindingPropertyName(member.name);
+
+        return propertyName === undefined
+            ? []
+            : collectIntersectionGroups(member.type, sourceFile, checker, [...path, propertyName]);
+    });
+};
+
+const collectPropertyGroups = (
+    node: ts.TypeNode,
+    path: readonly string[] = [],
+): PropertyGroup[] => {
+    if (ts.isIntersectionTypeNode(node)) {
+        return node.types.flatMap(memberNode => collectPropertyGroups(memberNode, path));
+    }
+
+    if (!ts.isTypeLiteralNode(node)) {
+        return [];
+    }
+
+    const members = node.members.flatMap(member => {
+        if (!ts.isPropertySignature(member) || member.type === undefined) {
+            return [];
+        }
+
+        const propertyName = getBindingPropertyName(member.name);
+
+        return propertyName === undefined
+            ? []
+            : [
+                  {
+                      name: propertyName,
+                      node: member,
+                  },
+              ];
+    });
+    const nestedGroups = node.members.flatMap(member => {
+        if (!ts.isPropertySignature(member) || member.type === undefined) {
+            return [];
+        }
+
+        const propertyName = getBindingPropertyName(member.name);
+
+        return propertyName === undefined
+            ? []
+            : collectPropertyGroups(member.type, [...path, propertyName]);
+    });
+
+    return members.length === 0 ? nestedGroups : [{ members, path: [...path] }, ...nestedGroups];
+};
+
+const getDependencyFactoryFunction = (node: ts.Node) => {
+    if (
+        ts.isFunctionDeclaration(node) &&
+        node.name !== undefined &&
+        /^create[A-Z]/.test(node.name.text)
+    ) {
+        return node;
+    }
+
+    if (
+        (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) &&
+        ts.isVariableDeclaration(node.parent) &&
+        ts.isIdentifier(node.parent.name) &&
+        /^create[A-Z]/.test(node.parent.name.text)
+    ) {
+        return node;
+    }
+
+    return undefined;
+};
+
+const collectRoleContractSymbols = (sourceFile: ts.SourceFile, checker: ts.TypeChecker) => {
+    const symbols = new Set<ts.Symbol>();
+    const addTypeAliasSymbol = (type: ts.Type | undefined) => {
+        if (type?.aliasSymbol !== undefined) {
+            symbols.add(type.aliasSymbol);
+        }
+    };
+    const visitNode = (node: ts.Node) => {
+        if (ts.isCallExpression(node) && isCreateThunkCall(node)) {
+            addTypeAliasSymbol(getConfigPropertyType(node, 'state', checker));
+            addTypeAliasSymbol(getConfigPropertyType(node, 'extra', checker));
+        }
+
+        const dependencyFactory = getDependencyFactoryFunction(node);
+        const depsParameter = dependencyFactory?.parameters[0];
+
+        if (
+            depsParameter !== undefined &&
+            ts.isIdentifier(depsParameter.name) &&
+            depsParameter.name.text === 'deps'
+        ) {
+            addTypeAliasSymbol(
+                depsParameter.type === undefined
+                    ? checker.getTypeAtLocation(depsParameter)
+                    : checker.getTypeFromTypeNode(depsParameter.type),
+            );
+        }
+
+        ts.forEachChild(node, visitNode);
+    };
+
+    ts.forEachChild(sourceFile, visitNode);
+
+    return symbols;
 };
 
 const getObjectBindingIdentifier = (parameter: ts.ParameterDeclaration, propertyName: string) => {
@@ -479,17 +849,45 @@ const getObjectBindingIdentifier = (parameter: ts.ParameterDeclaration, property
     return binding !== undefined && ts.isIdentifier(binding.name) ? binding.name : undefined;
 };
 
-const getDispatchedThunkRequirements = (action: ts.Expression, checker: ts.TypeChecker) => {
-    const actionType = checker.getTypeAtLocation(action);
+const getDispatchSymbol = (parameter: ts.ParameterDeclaration, checker: ts.TypeChecker) => {
+    const bindingIdentifier = getObjectBindingIdentifier(parameter, 'dispatch');
 
-    return checker.getSignaturesOfType(actionType, ts.SignatureKind.Call).flatMap(signature => {
+    if (bindingIdentifier !== undefined) {
+        return checker.getSymbolAtLocation(bindingIdentifier);
+    }
+
+    if (!ts.isIdentifier(parameter.name)) {
+        return undefined;
+    }
+
+    return checker.getPropertyOfType(checker.getTypeAtLocation(parameter.name), 'dispatch');
+};
+
+const getCalledSymbol = (expression: ts.LeftHandSideExpression, checker: ts.TypeChecker) => {
+    if (ts.isIdentifier(expression)) {
+        return checker.getSymbolAtLocation(expression);
+    }
+
+    if (ts.isPropertyAccessExpression(expression)) {
+        return checker.getSymbolAtLocation(expression.name);
+    }
+
+    return undefined;
+};
+
+const getThunkActionRequirements = (
+    actionType: ts.Type,
+    location: ts.Node,
+    checker: ts.TypeChecker,
+) =>
+    checker.getSignaturesOfType(actionType, ts.SignatureKind.Call).flatMap(signature => {
         const parameters = signature.getParameters();
         const getStateParameter = parameters[1];
         const extraParameter = parameters[2];
         const getStateType =
             getStateParameter === undefined
                 ? undefined
-                : checker.getTypeOfSymbolAtLocation(getStateParameter, action);
+                : checker.getTypeOfSymbolAtLocation(getStateParameter, location);
         const stateType = getStateType
             ? checker
                   .getSignaturesOfType(getStateType, ts.SignatureKind.Call)
@@ -498,16 +896,64 @@ const getDispatchedThunkRequirements = (action: ts.Expression, checker: ts.TypeC
         const extraType =
             extraParameter === undefined
                 ? undefined
-                : checker.getTypeOfSymbolAtLocation(extraParameter, action);
+                : checker.getTypeOfSymbolAtLocation(extraParameter, location);
 
         return [{ extraType, stateType }];
     });
+
+const getDispatchedThunkRequirements = (action: ts.Expression, checker: ts.TypeChecker) =>
+    getThunkActionRequirements(checker.getTypeAtLocation(action), action, checker);
+
+const getContextualShorthandType = (node: ts.Identifier, checker: ts.TypeChecker) => {
+    const shorthand = node.parent;
+
+    if (!ts.isShorthandPropertyAssignment(shorthand)) {
+        return undefined;
+    }
+
+    const objectLiteral = shorthand.parent;
+
+    if (!ts.isObjectLiteralExpression(objectLiteral)) {
+        return undefined;
+    }
+
+    const contextualType =
+        checker.getContextualType(objectLiteral) ??
+        (ts.isCallExpression(objectLiteral.parent) &&
+        objectLiteral.parent.arguments.includes(objectLiteral)
+            ? getExpectedArgumentType(objectLiteral.parent, objectLiteral, checker)
+            : undefined);
+    const property =
+        contextualType === undefined
+            ? undefined
+            : checker.getPropertyOfType(contextualType, shorthand.name.text);
+
+    return property === undefined
+        ? undefined
+        : checker.getTypeOfSymbolAtLocation(property, shorthand);
 };
 
 const getContractsForType = (
     type: ts.Type | undefined,
     contractsBySymbol: ReadonlyMap<ts.Symbol, IntersectionContract[]>,
 ) => (type?.aliasSymbol === undefined ? [] : (contractsBySymbol.get(type.aliasSymbol) ?? []));
+
+const getDispatchTypeRequirements = (
+    dispatchType: ts.Type,
+    location: ts.Node,
+    checker: ts.TypeChecker,
+) =>
+    checker.getSignaturesOfType(dispatchType, ts.SignatureKind.Call).flatMap(signature => {
+        const actionParameter = signature.getParameters()[0];
+
+        if (actionParameter === undefined) {
+            return [];
+        }
+
+        const actionType = checker.getTypeOfSymbolAtLocation(actionParameter, location);
+
+        return getThunkActionRequirements(actionType, location, checker);
+    });
 
 const addRequirementsFromDispatches = (
     body: ts.Node,
@@ -516,36 +962,51 @@ const addRequirementsFromDispatches = (
     depsContracts: readonly IntersectionContract[],
     checker: ts.TypeChecker,
 ) => {
+    const addRequirements = (requirements: ReturnType<typeof getDispatchedThunkRequirements>) => {
+        for (const requirement of requirements) {
+            if (requirement.stateType !== undefined) {
+                for (const stateContract of stateContracts) {
+                    recordContractUsage(
+                        { path: [], requiredType: requirement.stateType },
+                        stateContract,
+                        checker,
+                    );
+                }
+            }
+
+            if (requirement.extraType !== undefined) {
+                for (const depsContract of depsContracts) {
+                    recordContractUsage(
+                        { path: [], requiredType: requirement.extraType },
+                        depsContract,
+                        checker,
+                    );
+                }
+            }
+        }
+    };
     const visitNode = (node: ts.Node) => {
         if (
             ts.isCallExpression(node) &&
-            ts.isIdentifier(node.expression) &&
-            checker.getSymbolAtLocation(node.expression) === dispatchSymbol
+            getCalledSymbol(node.expression, checker) === dispatchSymbol
         ) {
             const action = node.arguments[0];
 
             if (action !== undefined) {
-                for (const requirement of getDispatchedThunkRequirements(action, checker)) {
-                    if (requirement.stateType !== undefined) {
-                        for (const stateContract of stateContracts) {
-                            recordContractUsage(
-                                { path: [], requiredType: requirement.stateType },
-                                stateContract,
-                                checker,
-                            );
-                        }
-                    }
+                addRequirements(getDispatchedThunkRequirements(action, checker));
+            }
+        }
 
-                    if (requirement.extraType !== undefined) {
-                        for (const depsContract of depsContracts) {
-                            recordContractUsage(
-                                { path: [], requiredType: requirement.extraType },
-                                depsContract,
-                                checker,
-                            );
-                        }
-                    }
-                }
+        if (
+            ts.isIdentifier(node) &&
+            (ts.isShorthandPropertyAssignment(node.parent)
+                ? checker.getShorthandAssignmentValueSymbol(node.parent)
+                : checker.getSymbolAtLocation(node)) === dispatchSymbol
+        ) {
+            const contextualDispatchType = getContextualShorthandType(node, checker);
+
+            if (contextualDispatchType !== undefined) {
+                addRequirements(getDispatchTypeRequirements(contextualDispatchType, node, checker));
             }
         }
 
@@ -625,16 +1086,14 @@ const addDispatchedThunkUsages = (
                     ? callback
                     : undefined;
             const apiParameter = callbackFunction?.parameters[1];
-            const dispatchIdentifier =
-                apiParameter === undefined
-                    ? undefined
-                    : getObjectBindingIdentifier(apiParameter, 'dispatch');
             const dispatchSymbol =
-                dispatchIdentifier === undefined
-                    ? undefined
-                    : checker.getSymbolAtLocation(dispatchIdentifier);
+                apiParameter === undefined ? undefined : getDispatchSymbol(apiParameter, checker);
 
-            if (callbackFunction !== undefined && dispatchSymbol !== undefined) {
+            if (
+                callbackFunction?.body !== undefined &&
+                apiParameter !== undefined &&
+                dispatchSymbol !== undefined
+            ) {
                 addRequirementsFromDispatches(
                     callbackFunction.body,
                     dispatchSymbol,
@@ -693,7 +1152,7 @@ const getWrappedServicesIntersections = (node: ts.TypeNode, checker: ts.TypeChec
 };
 
 /**
- * Reports confidently unused members of local State and Deps intersection contracts.
+ * Reports confidently unused members of recognized local contracts.
  * See `README.md` for the analysis principles and conservative fallbacks.
  */
 export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
@@ -701,15 +1160,29 @@ export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
         type: 'suggestion',
         docs: {
             description:
-                'Reports State and Deps intersection members that are not required by their local implementation.',
+                'Reports contract members that are not required by their local implementation.',
             category: 'Best Practices',
             recommended: false,
         },
         messages: {
+            unusedContractMember:
+                "'{{memberName}}' is not required by the implementation using '{{typeName}}'. Remove it from the contract.",
             unusedIntersectionMember:
                 "'{{memberName}}' is not required by the implementation using '{{typeName}}'. Remove it from the intersection.",
         },
-        schema: [],
+        schema: [
+            {
+                type: 'object',
+                properties: {
+                    additionalTypeNameSuffixes: {
+                        type: 'array',
+                        items: { type: 'string', minLength: 1 },
+                        uniqueItems: true,
+                    },
+                },
+                additionalProperties: false,
+            },
+        ],
     },
     create(context) {
         const parserServices = getTypeScriptParserServices(context);
@@ -720,6 +1193,11 @@ export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
 
         const checker = parserServices.program.getTypeChecker();
         const report = createTypeScriptNodeReporter(context, parserServices);
+        const options = context.options[0] as RuleOptions | undefined;
+        const typeNameSuffixes = [
+            ...defaultTypeNameSuffixes,
+            ...(options?.additionalTypeNameSuffixes ?? []),
+        ];
 
         return {
             'Program:exit': programNode => {
@@ -730,68 +1208,62 @@ export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
                 }
 
                 const contractsBySymbol = new Map<ts.Symbol, IntersectionContract[]>();
+                const roleContractSymbols = collectRoleContractSymbols(sourceFile, checker);
 
+                // Restrict candidates to local aliases with explicit intersections so each proof is
+                // tied to a concrete member list that can be reported and edited reliably.
                 for (const statement of sourceFile.statements) {
-                    if (
-                        !ts.isTypeAliasDeclaration(statement) ||
-                        !contractTypeNamePattern.test(statement.name.text)
-                    ) {
+                    if (!ts.isTypeAliasDeclaration(statement)) {
                         continue;
                     }
 
                     const symbol = checker.getSymbolAtLocation(statement.name);
 
-                    if (symbol === undefined) {
+                    if (
+                        symbol === undefined ||
+                        (!typeNameSuffixes.some(suffix => statement.name.text.endsWith(suffix)) &&
+                            !roleContractSymbols.has(symbol))
+                    ) {
                         continue;
                     }
 
-                    const contracts: IntersectionContract[] = [];
+                    const allGroups = [
+                        ...collectIntersectionGroups(statement.type, sourceFile, checker),
+                        ...getWrappedServicesIntersections(statement.type, checker).map(
+                            servicesIntersection => ({
+                                members: servicesIntersection.types.map(memberNode => ({
+                                    name: memberNode.getText(sourceFile),
+                                    node: memberNode,
+                                    type: checker.getTypeFromTypeNode(memberNode),
+                                })),
+                                path: ['services'],
+                            }),
+                        ),
+                    ];
+                    const isNonRoleStateContract =
+                        statement.name.text.endsWith('State') && !roleContractSymbols.has(symbol);
+                    const groups = isNonRoleStateContract
+                        ? allGroups.filter(group => group.path.length === 0).slice(0, 1)
+                        : allGroups;
+                    const propertyGroups = isNonRoleStateContract
+                        ? []
+                        : collectPropertyGroups(statement.type);
 
-                    // Direct intersections remain independently editable top-level members.
-                    if (ts.isIntersectionTypeNode(statement.type)) {
-                        contracts.push({
+                    if (groups.length === 0 && propertyGroups.length === 0) {
+                        continue;
+                    }
+
+                    contractsBySymbol.set(symbol, [
+                        {
+                            groups,
                             isOpaque: false,
-                            members: statement.type.types.map(memberNode => ({
-                                name: memberNode.getText(sourceFile),
-                                node: memberNode,
-                                type: checker.getTypeFromTypeNode(memberNode),
-                            })),
                             name: statement.name.text,
+                            propertyGroups,
                             rootPath: [],
                             symbol,
                             usages: [],
-                        });
-                    }
-
-                    const wrappedServicesIntersections = getWrappedServicesIntersections(
-                        statement.type,
-                        checker,
-                    );
-                    const wrappedServiceMembers = wrappedServicesIntersections.flatMap(
-                        intersection => intersection.types,
-                    );
-
-                    if (wrappedServiceMembers.length > 0) {
-                        // WithServices moves a dependency intersection below the `services` key.
-                        // Analyze those inner members as another local contract while retaining the
-                        // outer contract above for any non-service intersection members.
-                        contracts.push({
-                            isOpaque: false,
-                            members: wrappedServiceMembers.map(memberNode => ({
-                                name: memberNode.getText(sourceFile),
-                                node: memberNode,
-                                type: checker.getTypeFromTypeNode(memberNode),
-                            })),
-                            name: statement.name.text,
-                            rootPath: ['services'],
-                            symbol,
-                            usages: [],
-                        });
-                    }
-
-                    if (contracts.length > 0) {
-                        contractsBySymbol.set(symbol, contracts);
-                    }
+                        },
+                    ]);
                 }
 
                 if (contractsBySymbol.size === 0) {
@@ -800,10 +1272,22 @@ export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
 
                 // Record ambiguous escapes and hidden child-thunk requirements before evaluating
                 // ordinary expression and property-path usages.
-                markContractsUsedByGenericCallsAsOpaque(sourceFile, contractsBySymbol, checker);
+                markContractsUsedByOpaqueTypePositions(sourceFile, contractsBySymbol, checker);
                 addDispatchedThunkUsages(sourceFile, contractsBySymbol, checker);
 
                 const visitNode = (node: ts.Node) => {
+                    if (ts.isParameter(node) && ts.isObjectBindingPattern(node.name)) {
+                        const parameterType =
+                            node.type === undefined
+                                ? checker.getTypeAtLocation(node)
+                                : checker.getTypeFromTypeNode(node.type);
+                        const contracts = getContractsForType(parameterType, contractsBySymbol);
+
+                        for (const contract of contracts) {
+                            addBindingPatternUsages(node.name, contract, checker);
+                        }
+                    }
+
                     if (
                         ts.isExpression(node) &&
                         !isNodeDeclarationName(node) &&
@@ -826,25 +1310,59 @@ export const noUnusedIntersectionMembersRule: Rule.RuleModule = {
                         continue;
                     }
 
-                    contract.members.forEach((member, memberIndex) => {
-                        const remainingTypes = contract.members
-                            .filter((_, index) => index !== memberIndex)
-                            .map(remainingMember => remainingMember.type);
-                        // Keep overlapping providers instead of choosing one arbitrarily. Otherwise,
-                        // a member is necessary when removing it leaves any usage unsatisfied.
-                        const isMemberUsed = contract.usages.some(
-                            usage =>
-                                isUsageSatisfied(usage, [member.type], checker) ||
-                                !isUsageSatisfied(usage, remainingTypes, checker),
-                        );
+                    const reportedIntersectionMembers = new Set<ts.TypeNode>();
 
-                        if (isMemberUsed) return;
+                    for (const group of contract.groups) {
+                        const groupUsages = getGroupUsages(contract, group, checker);
 
-                        report(member.node, 'unusedIntersectionMember', {
-                            memberName: member.name,
-                            typeName: contract.name,
+                        if (groupUsages.length === 0) {
+                            continue;
+                        }
+
+                        group.members.forEach((member, memberIndex) => {
+                            const remainingTypes = group.members
+                                .filter((_, index) => index !== memberIndex)
+                                .map(remainingMember => remainingMember.type);
+                            // Keep overlapping providers instead of choosing one arbitrarily.
+                            // Otherwise, a member is necessary when removing it leaves any usage
+                            // unsatisfied.
+                            const isMemberUsed = groupUsages.some(
+                                usage =>
+                                    isUsageSatisfied(usage, [member.type], checker) ||
+                                    !isUsageSatisfied(usage, remainingTypes, checker),
+                            );
+
+                            if (isMemberUsed) return;
+
+                            reportedIntersectionMembers.add(member.node);
+                            report(member.node, 'unusedIntersectionMember', {
+                                memberName: member.name,
+                                typeName: contract.name,
+                            });
                         });
-                    });
+                    }
+
+                    for (const group of contract.propertyGroups) {
+                        const groupUsages = getGroupUsages(contract, group, checker);
+
+                        if (groupUsages.length === 0) {
+                            continue;
+                        }
+
+                        for (const member of group.members) {
+                            if (
+                                hasAncestorInSet(member.node, reportedIntersectionMembers) ||
+                                isPropertyUsed(member, groupUsages, checker)
+                            ) {
+                                continue;
+                            }
+
+                            report(member.node, 'unusedContractMember', {
+                                memberName: member.name,
+                                typeName: contract.name,
+                            });
+                        }
+                    }
                 }
             },
         };

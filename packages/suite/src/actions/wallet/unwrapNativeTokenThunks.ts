@@ -40,7 +40,7 @@ type SubmitUnwrapNativeTokenThunkDeps = SendYieldTransactionDeps & {
 };
 
 export const submitUnwrapNativeTokenThunk = createThunk<
-    { txid: string } | undefined,
+    { txid: string; fee: string } | undefined,
     UnwrapNativeTokenPayload,
     { state: SubmitUnwrapNativeTokenThunkState; extra: SubmitUnwrapNativeTokenThunkDeps }
 >(
@@ -136,7 +136,9 @@ export const submitUnwrapNativeTokenThunk = createThunk<
 
             userAcceptedTxSimulation?.resolve();
 
-            if (!sendResult) {
+            // Unlike the main yield transactions, a cancelled unwrap is reported: the unwrap-step
+            // failure values documented on the withdraw event include user rejections.
+            if (sendResult.status === 'cancelled') {
                 reportError('submit-failed');
 
                 return undefined;
@@ -178,7 +180,7 @@ export const submitUnwrapNativeTokenThunk = createThunk<
                 }),
             );
 
-            return sendResult;
+            return { txid: sendResult.txid, fee: sendResult.fee };
         } catch (error) {
             console.error(error);
             reportError(getYieldSubmitErrorAnalyticsMessage(error));

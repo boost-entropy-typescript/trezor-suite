@@ -1,7 +1,7 @@
 import { type TradeExchangeAction, events, selectDesktopAnalyticsDep } from '@suite/analytics';
 import { useDevice } from '@suite/device';
 import { Translation } from '@suite/intl';
-import { goto } from '@suite/router';
+import { gotoThunk } from '@suite/router';
 import { useServices } from '@suite-common/dependency-injection';
 import { Feature, selectIsFeatureEnabled } from '@suite-common/message-system';
 import { useDispatch } from '@suite-common/redux-utils';
@@ -89,7 +89,6 @@ export const TradingOfferExchange = () => {
         simulationResult,
         selectedTrade.receive,
     );
-    const hasIssueToResolve = isSimulationEnabled && issue !== null;
 
     const reportConfirmAndSendStep = (action: TradeExchangeAction) => {
         analytics.report({
@@ -117,7 +116,7 @@ export const TradingOfferExchange = () => {
 
     const onBackToTradeFormClick = () => {
         reportConfirmAndSendStep('cancel');
-        dispatch(goto({ routeName: 'wallet-trading-exchange', preserveParams: true }));
+        dispatch(gotoThunk({ routeName: 'wallet-trading-exchange', preserveParams: true }));
     };
 
     return (
@@ -164,14 +163,13 @@ export const TradingOfferExchange = () => {
                     {issue && (
                         <TradingOfferExchangeIssueBanner
                             issue={issue}
-                            isSimulationEnabled={isSimulationEnabled}
                             isContinueDisabled={isConfirmDisabled || disabled}
                             isContinueLoading={isLoading || disabled}
                             onContinueAnywayClick={() => handleClick(() => onConfirmAndSendClick())}
                         />
                     )}
 
-                    {hasIssueToResolve ? (
+                    {issue ? (
                         <Button
                             data-testid="@trading/offer/back-to-trade-form"
                             intent="neutral"
