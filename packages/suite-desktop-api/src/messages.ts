@@ -113,8 +113,6 @@ export type Status = {
 // todo: duplicate, see prev comment
 export type BridgeSettings = {
     doNotStartOnStartup: boolean;
-    legacy?: boolean;
-    newBridgeRollout?: number;
 };
 
 export type BioAuthSettings = {

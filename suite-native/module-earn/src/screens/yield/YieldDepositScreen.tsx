@@ -44,7 +44,6 @@ import { useMessageSystemYield } from '../../hooks/yield/useMessageSystemYield';
 import { useRefreshYieldDepositAllowanceOnIdle } from '../../hooks/yield/useRefreshYieldDepositAllowanceOnIdle';
 import { useReturnToYieldDepositWrapStep } from '../../hooks/yield/useReturnToYieldDepositWrapStep';
 import { useShowYieldTransactionFailureAlert } from '../../hooks/yield/useShowYieldTransactionFailureAlert';
-import { useYieldApprovedAmountDisplay } from '../../hooks/yield/useYieldApprovedAmountDisplay';
 import { useYieldCurrencyToggleAnalytics } from '../../hooks/yield/useYieldCurrencyToggleAnalytics';
 import {
     type PreparedYieldDepositAction,
@@ -141,11 +140,6 @@ export const YieldDepositScreen = () => {
     const isDepositPending = !!actionPendingTransaction;
     const isActionSubmitting = session?.action.isSubmitting ?? false;
     const isApprovedAmountUnlimited = isYieldApprovalAllowanceUnlimited({ session, token });
-    const { formattedApprovedAmount } = useYieldApprovedAmountDisplay({
-        allowanceAmount,
-        isApprovedAmountUnlimited,
-        tokenSymbol,
-    });
     const isAllowanceLoaded = allowanceStatus === 'loaded';
     const isDepositSessionReady = session?.step === 'action';
     const depositForm = useYieldDepositForm({
@@ -388,6 +382,11 @@ export const YieldDepositScreen = () => {
 
     const accountLabel = account.accountLabel ?? getNetwork(account.symbol).name;
     const shouldShowDepositFee = isValid && !!amountValue && !isApprovalInsufficient;
+    // Wrapped-native vault estimates should be displayed as native crypto, so
+    // omit token contract to keep EarnEstimatedRewards on the crypto formatter.
+    const estimatedRewardsTokenContract = yieldFlowData.isWrappedNativeVault
+        ? undefined
+        : route.params.tokenContract;
 
     return (
         <Screen
@@ -403,13 +402,15 @@ export const YieldDepositScreen = () => {
             }
             footer={
                 <YieldDepositFlowFooter
+                    accountKey={account.key}
                     amountValue={amountValue}
                     apy={apy}
                     isDisabled={isSubmitDisabled}
                     isLoading={isActionSubmitting || depositFee.isPreparingDepositFee}
+                    networkSymbol={account.symbol}
                     onPress={handleContinue}
                     shouldKeepEstimatedRewardsVisible={isApprovalInsufficient}
-                    tokenSymbol={wrappedNativeSymbol ?? tokenSymbol}
+                    tokenContract={estimatedRewardsTokenContract}
                 />
             }
         >
@@ -443,11 +444,13 @@ export const YieldDepositScreen = () => {
                     <Box paddingHorizontal="sp16">
                         <YieldDepositApprovedAmountCard
                             actionType="edit"
-                            approvedAmount={formattedApprovedAmount}
+                            approvedAmount={allowanceAmount ?? null}
                             isApprovedAmountUnlimited={isApprovedAmountUnlimited}
                             networkSymbol={account.symbol}
                             onActionPress={handleGoBackToApproval}
+                            tokenDecimals={token.decimals}
                             tokenContract={route.params.tokenContract}
+                            tokenSymbol={tokenSymbol}
                         />
                     </Box>
 

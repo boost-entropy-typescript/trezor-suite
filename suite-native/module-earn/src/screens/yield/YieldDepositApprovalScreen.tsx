@@ -42,7 +42,6 @@ import { useReturnToYieldDepositWrapStep } from '../../hooks/yield/useReturnToYi
 import { useShowYieldTransactionFailureAlert } from '../../hooks/yield/useShowYieldTransactionFailureAlert';
 import { useYieldApprovalFees } from '../../hooks/yield/useYieldApprovalFees';
 import { useYieldApprovalLimit } from '../../hooks/yield/useYieldApprovalLimit';
-import { useYieldApprovedAmountDisplay } from '../../hooks/yield/useYieldApprovedAmountDisplay';
 import { useYieldCurrencyToggleAnalytics } from '../../hooks/yield/useYieldCurrencyToggleAnalytics';
 import { useYieldDepositApprovalSubmit } from '../../hooks/yield/useYieldDepositApprovalSubmit';
 import { useYieldDepositForm } from '../../hooks/yield/useYieldDepositForm';
@@ -129,11 +128,10 @@ export const YieldDepositApprovalScreen = () => {
         transactionType: 'approve',
     });
     const isApprovalPending = !!approvalPendingTransaction;
-    const { formattedApprovedAmount, hasApprovedAmount } = useYieldApprovedAmountDisplay({
-        allowanceAmount,
-        isApprovedAmountUnlimited: isAllowanceAmountUnlimited,
-        tokenSymbol,
-    });
+    const hasApprovedAmount =
+        allowanceAmount !== null && allowanceAmount !== undefined
+            ? isPositiveBalance(allowanceAmount)
+            : false;
     const shouldShowApprovedAmountCard = allowanceStatus === 'loaded' && hasApprovedAmount;
 
     const hasWrappedAmount = !!session?.result.wrappedAmount;
@@ -368,6 +366,11 @@ export const YieldDepositApprovalScreen = () => {
     const pendingModalAmountTokenSymbol = approvalPendingTransaction?.isAmountUnlimited
         ? undefined
         : tokenSymbol;
+    // Wrapped-native vault estimates should be displayed as native crypto, so
+    // omit token contract to keep EarnEstimatedRewards on the crypto formatter.
+    const estimatedRewardsTokenContract = yieldFlowData.isWrappedNativeVault
+        ? undefined
+        : route.params.tokenContract;
 
     return (
         <Screen
@@ -383,15 +386,17 @@ export const YieldDepositApprovalScreen = () => {
             }
             footer={
                 <YieldDepositFlowFooter
+                    accountKey={account.key}
                     amountValue={amountValue}
                     approvalAction={footerApprovalAction}
                     apy={apy}
                     isDisabled={isSubmitDisabled}
                     isLoading={isCheckingApproval}
                     isSkipDisabled={isApprovalPending || isCheckingApproval}
+                    networkSymbol={account.symbol}
                     onPress={handleSubmit}
                     onSkipPress={canSkipApproval ? handleSkipApproval : undefined}
-                    tokenSymbol={wrappedNativeSymbol ?? tokenSymbol}
+                    tokenContract={estimatedRewardsTokenContract}
                 />
             }
         >
@@ -423,11 +428,13 @@ export const YieldDepositApprovalScreen = () => {
                             <Box paddingHorizontal="sp16">
                                 <YieldDepositApprovedAmountCard
                                     actionType="revoke"
-                                    approvedAmount={formattedApprovedAmount}
+                                    approvedAmount={allowanceAmount ?? null}
                                     isApprovedAmountUnlimited={isAllowanceAmountUnlimited}
                                     networkSymbol={account.symbol}
                                     onActionPress={handleNavigateToRevoke}
+                                    tokenDecimals={token.decimals}
                                     tokenContract={route.params.tokenContract}
+                                    tokenSymbol={tokenSymbol}
                                 />
                             </Box>
                         )}

@@ -121,14 +121,6 @@ declare type BridgeSettings = {
      * Force suite not to start bridge on application startup
      */
     doNotStartOnStartup: boolean;
-    /**
-     * Should run trezord-go
-     */
-    legacy?: boolean;
-    /**
-     * Should run the new bridge?
-     */
-    newBridgeRollout?: number;
 };
 
 declare type TraySettings = {
