@@ -20,6 +20,7 @@ export type FirmwareCapability =
     | 'amountUnit'
     | 'decreaseOutput'
     | 'eip1559'
+    | 'eip7702'
     | 'taproot'
     | 'signMessageNoScriptType'
     | 'eip712-domain-only'
@@ -97,6 +98,7 @@ export type FirmwareChannel =
     | 'production-early-access'
     | 'test-unsigned'
     | 'test-unsigned-stable'
+    | 'test-unsigned-nightly'
     | 'test-signed'
     | 'localhost-unsigned'
     | 'localhost-signed';

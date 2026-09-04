@@ -200,3 +200,36 @@ never read.
 A ledger match is never re-attempted. A `not_duplicated` result records nothing (failure not
 reproduced — flaky or resolved). `buildLedger()` is pure and deterministic; matching is the agent's
 judgment at Step 7, not a computed key (the same spec can fail for different reasons across runs).
+
+---
+
+## Partial runs, missing summaries, and error passing
+
+The aggregation after the fix matrix is **fail-open per task, by design**. Fix jobs are independent
+and unreliable by assumption — a matrix job can be cancelled or die at any point of its up-to-210-minute
+run — so `notify` and `update-ledger` must degrade per task, never all-or-nothing. All their artifact
+downloads carry `continue-on-error: true`: the Slack message goes out even on a night where analyze
+failed or zero fix jobs completed.
+
+Per-task results travel in `slack-fix-summary-<task-id>.json`, harness problems in the separate
+`fixbot-errors-<task-id>.txt` artifact (see `errors.ts`):
+
+- **Agent completed, publish succeeded** — the summary carries the result and `prUrl`.
+- **Agent completed, publish failed** (push, `gh pr create`, or project assignment) — `publish.ts`
+  appends a fixed message to the error artifact and still writes the summary; `notify` renders the
+  message in that task's `⚠️ Errors:` block. The step exits non-zero so the job is red, but the
+  night's aggregation is unaffected.
+- **Agent/job died before publish** — no summary exists. `notify` renders the task as
+  `job did not complete`; `buildLedger()` logs a warning and writes **no ledger entry** for it.
+  Errors reported before the agent died still reach Slack, which is why they do not ride the
+  summary.
+- **Summary unreadable** — invalid JSON from a truncated write, or a shape that fails schema
+  validation after a schema change. `readSummaries()` warns, skips the file, and returns a problem
+  keyed by the task id from its filename, which `notify` renders in that task's `⚠️ Errors:` block.
+  One unreadable file therefore costs neither the other tasks their Slack line and ledger entry,
+  nor the notification itself.
+
+**Why dropping unknown outcomes is safe:** absence from the ledger means "re-attempt next night".
+The only alternatives would be recording `FIX_FAILED` or `FIX_DELIVERED` — and both _suppress_
+future attempts, so a wrong guess silences a real failure permanently, while a drop costs at most
+one duplicate attempt. Drop-what-you-can't-verify is strictly safer than any recorded guess.

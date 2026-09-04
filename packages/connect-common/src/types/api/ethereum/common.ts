@@ -4,41 +4,6 @@ import { Type } from '@trezor/schema-utils';
 
 import { DerivationPath } from '../../params';
 
-// ethereumSignAuth7702
-
-/**
- * EIP-7702 authorization tuple to be signed by the device.
- */
-export type EthereumSignAuth7702 = Static<typeof EthereumSignAuth7702>;
-export const EthereumSignAuth7702 = Type.Object({
-    path: DerivationPath,
-    /** Chain id the authorization is valid on. `0` makes it valid on every EVM chain. */
-    chainId: Type.Integer({ minimum: 0, maximum: Number.MAX_SAFE_INTEGER }),
-    /**
-     * Address of the contract the account delegates to. Authorizing the zero address
-     * revokes an existing delegation.
-     */
-    delegate: Type.String(),
-    /**
-     * Account nonce the authorization is valid for. Both fields are `uint64` on the wire, but
-     * are capped at `Number.MAX_SAFE_INTEGER` so a value JavaScript cannot represent exactly is
-     * rejected instead of being silently rounded into a different authorization.
-     */
-    nonce: Type.Integer({ minimum: 0, maximum: Number.MAX_SAFE_INTEGER }),
-});
-
-/**
- * Signature of an EIP-7702 authorization tuple. Together with the `chainId`, `delegate`
- * and `nonce` that were signed it forms an entry of a transaction `authorizationList`.
- */
-export type EthereumSignedAuth7702 = Static<typeof EthereumSignedAuth7702>;
-export const EthereumSignedAuth7702 = Type.Object({
-    /** Parity of the signature `y` coordinate, `0` or `1`. Legacy `v` is `yParity + 27`. */
-    yParity: Type.Number(),
-    r: Type.String(),
-    s: Type.String(),
-});
-
 // ethereumSignMessage
 
 export type EthereumSignMessage = Static<typeof EthereumSignMessage>;
@@ -71,6 +36,20 @@ export const EthereumAccessList = Type.Object({
     storageKeys: Type.Array(Type.String()),
 });
 
+/**
+ * EIP-7702 authorization to attach to an EIP-1559 transaction. The device signs it for the
+ * signing account, deriving `chainId` from the transaction and setting the authorization
+ * `nonce` to the transaction `nonce + 1`.
+ */
+export type EthereumAuthorization = Static<typeof EthereumAuthorization>;
+export const EthereumAuthorization = Type.Object({
+    /**
+     * Address of the contract the account delegates to. Authorizing the zero address
+     * revokes an existing delegation.
+     */
+    address: Type.String(),
+});
+
 export type EthereumTransactionEIP1559 = Static<typeof EthereumTransactionEIP1559>;
 export const EthereumTransactionEIP1559 = Type.Object({
     to: Type.Union([Type.String(), Type.Null()]),
@@ -83,6 +62,14 @@ export const EthereumTransactionEIP1559 = Type.Object({
     maxFeePerGas: Type.String(),
     maxPriorityFeePerGas: Type.String(),
     accessList: Type.Optional(Type.Array(EthereumAccessList)),
+    /**
+     * EIP-7702 authorization list. When set, the device signs the authorization and embeds it into
+     * a type-4 (set-code) transaction. Firmware supports exactly one authorization, so the list must
+     * hold a single entry. This is an experimental feature and requires the `__experimental` opt-in.
+     */
+    authorizationList: Type.Optional(
+        Type.Array(EthereumAuthorization, { minItems: 1, maxItems: 1 }),
+    ),
     payment_req: Type.Optional(PROTO.PaymentRequest),
 });
 
@@ -93,12 +80,30 @@ export const EthereumSignTransaction = Type.Object({
     chunkify: Type.Optional(Type.Boolean()),
 });
 
+/**
+ * Signed EIP-7702 authorization returned by the device. Together with the `chainId`,
+ * `address` (delegate) and `nonce` that were signed it forms an entry of the transaction
+ * `authorizationList`, and is also embedded into the returned `serializedTx`.
+ */
+export type EthereumSignedAuthorization = Static<typeof EthereumSignedAuthorization>;
+export const EthereumSignedAuthorization = Type.Object({
+    chainId: Type.Number(),
+    address: Type.String(),
+    nonce: Type.Number(),
+    /** Parity of the signature `y` coordinate, `0` or `1`. */
+    yParity: Type.Number(),
+    r: Type.String(),
+    s: Type.String(),
+});
+
 export type EthereumSignedTx = Static<typeof EthereumSignedTx>;
 export const EthereumSignedTx = Type.Object({
     v: Type.String(),
     r: Type.String(),
     s: Type.String(),
     serializedTx: Type.String(),
+    /** Present only for EIP-7702 transactions (when `authorizationList` was provided). */
+    authorizationList: Type.Optional(Type.Array(EthereumSignedAuthorization)),
 });
 
 // ethereumSignTypedData

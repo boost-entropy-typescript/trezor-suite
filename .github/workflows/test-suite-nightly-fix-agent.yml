@@ -40,7 +40,11 @@ jobs:
         run: yarn workspaces focus @trezor/e2e-utils
 
       - name: Install Playwright trace skill
-        run: yarn workspace @trezor/e2e-utils exec playwright trace install-skill
+        # Must run from the repo root — the skill installs to <cwd>/.claude/skills and the agent's cwd is the root
+        run: npx playwright trace install-skill
+
+      - name: Install Playwright headless shell for trace snapshot inspection
+        run: npx playwright install chromium-headless-shell
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6
@@ -203,7 +207,8 @@ jobs:
         run: yarn workspace @trezor/suite-e2e exec playwright install chromium --with-deps
 
       - name: Install Playwright trace skill
-        run: yarn workspace @trezor/suite-e2e exec playwright trace install-skill
+        # Must run from the repo root — the skill installs to <cwd>/.claude/skills and the agent's cwd is the root
+        run: npx playwright trace install-skill
 
       - name: Build message system config
         run: yarn message-system-sign-config 1>/dev/null
@@ -289,6 +294,7 @@ jobs:
         if: ${{ !cancelled() && steps.run-fix-agent.outcome != 'skipped' }}
         env:
           GH_TOKEN: ${{ steps.trezor-bot-token.outputs.token }}
+          TASK_ID: ${{ matrix.task-id }}
         run: yarn workspace @trezor/e2e-utils fix-bot:publish
 
       - name: Upload Slack fix summary artifact
@@ -298,6 +304,14 @@ jobs:
           name: slack-fix-summary-${{ matrix.task-id }}
           path: slack-fix-summary-${{ matrix.task-id }}.json
           if-no-files-found: warn
+
+      - name: Upload errors artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: fix-errors-${{ matrix.task-id }}
+          path: fixbot-errors-${{ matrix.task-id }}.txt
+          if-no-files-found: ignore
 
       - name: Docker Compose Down
         if: always()
@@ -351,10 +365,19 @@ jobs:
           merge-multiple: true
         continue-on-error: true
 
+      - name: Download fix errors artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: fix-errors-*
+          path: fix-errors/
+          merge-multiple: true
+        continue-on-error: true
+
       - name: Send Slack notification
         env:
           REPORT_PATH: ${{ github.workspace }}/report-download/report.json
           SUMMARIES_DIR: ${{ github.workspace }}/summaries
+          FIX_ERRORS_DIR: ${{ github.workspace }}/fix-errors
           ANALYZE_COST_FILE: ${{ github.workspace }}/analyze-cost-download/llm-token-usage.json
           SLACK_FIX_AGENT_WEBHOOK: ${{ secrets.SLACK_FIX_AGENT_WEBHOOK }}
         run: yarn workspace @trezor/e2e-utils fix-bot:notify

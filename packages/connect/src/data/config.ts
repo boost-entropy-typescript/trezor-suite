@@ -80,6 +80,23 @@ export const config: Config = {
             comment: ['new eth transaction pricing mechanism (EIP1559) since 1.10.4/2.4.2'],
         },
         {
+            capabilities: ['eip7702'],
+            // T1B1 min '0' marks it unsupported; Core signs EIP-7702 authorizations since 2.12.5.
+            min: {
+                T1B1: '0',
+                T2T1: '2.12.5',
+                T2B1: '2.12.5',
+                T3B1: '2.12.5',
+                T3T1: '2.12.5',
+                T3W1: '2.12.5',
+            },
+            comment: [
+                'EIP-7702 (set-code) authorization signing added to Core in 2.12.5; T1B1 unsupported.',
+                'Required so older firmware, which would ignore the experimental auth7702 field and',
+                'sign a plain EIP-1559 transaction, is rejected before signing.',
+            ],
+        },
+        {
             capabilities: ['taproot', 'signMessageNoScriptType'],
             min: { T1B1: '1.10.4', T2T1: '2.4.3' },
             comment: [
@@ -266,22 +283,6 @@ export const config: Config = {
                 T3W1: '2.12.1',
             },
             comment: ['Ethereum clear signing for known contracts/function selectors since 2.12.1'],
-        },
-        {
-            methods: ['ethereumSignAuth7702'],
-            min: {
-                T1B1: '0',
-                T2T1: '2.12.4',
-                T2B1: '2.12.4',
-                T3B1: '2.12.4',
-                T3T1: '2.12.4',
-                T3W1: '2.12.4',
-            },
-            comment: [
-                'EIP-7702 authorization/revocation since 2.12.4, T1B1 does not support it at all.',
-                'The message is experimental - the device additionally requires experimental features',
-                'to be enabled, and authorization (unlike revocation) requires safety checks to be lowered.',
-            ],
         },
     ],
 };
