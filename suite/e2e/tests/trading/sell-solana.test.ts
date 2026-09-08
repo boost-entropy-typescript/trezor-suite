@@ -14,7 +14,9 @@ import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
 
 // Expected values based on our mocked responses
-const fiatAmount = localizeNumber(sellQuotesSolana[0]?.fiatStringAmount ?? '', 'en-US', 2, 2);
+const fiatStringAmount = sellQuotesSolana[0]?.fiatStringAmount ?? '';
+const fiatAmount = localizeNumber(fiatStringAmount, 'en-US', 2, 2);
+const detailFiatAmount = localizeNumber(fiatStringAmount, 'en-US', 0, 2);
 const cryptoAmount = sellQuotesSolana[0]?.cryptoStringAmount ?? '';
 const provider = getCompanyNameFromList(sellQuotesSolana[0]?.exchange ?? '', 'sellList');
 const selectedPaymentMethod = sellQuotesSolana[0]?.paymentMethod ?? '';
@@ -125,7 +127,7 @@ test.describe('Trading - Sell Solana', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, 
                 await page.clock.install();
                 await devicePrompt.sendButton.click();
                 await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                    'TR_SELL_DETAIL_SENDING_TRANSACTION',
+                    'TR_TRADING_DETAIL_SENDING_TRANSACTION',
                 );
                 await expect(page.getByTestId('@toast/tx-sent')).toContainTranslation(
                     'TOAST_TX_SENT',
@@ -141,14 +143,15 @@ test.describe('Trading - Sell Solana', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, 
                 });
                 await page.clock.fastForward(tradingMock.watchPeriod);
                 await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                    'TR_TRADING_DETAIL_PROCESSING',
-                    { values: { providerName: provider, type: 'sell' } },
+                    'TR_SELL_DETAIL_COMPLETE_TITLE',
                 );
-                await expect(tradingPage.confirmation.fiatAmount).toHaveText(formattedFiatAmount);
-                await expect(tradingPage.confirmation.cryptoAmount).toHaveText(
+                await expect(tradingPage.transactionDetailSidebar.fiatAmount).toHaveText(
+                    detailFiatAmount,
+                );
+                await expect(tradingPage.transactionDetailSidebar.sendAmount).toHaveText(
                     formattedCryptoAmount,
                 );
-                await expect(tradingPage.confirmation.provider).toHaveText(provider);
+                await expect(tradingPage.transactionDetailSidebar.provider).toHaveText(provider);
                 const supportLink = page.locator('a[href*="support.moonpay.com"]');
                 await expect(supportLink).toBeVisible({ timeout: 10000 });
             });

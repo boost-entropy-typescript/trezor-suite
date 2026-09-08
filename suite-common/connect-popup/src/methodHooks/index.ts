@@ -4,8 +4,8 @@ import { addressConfirmationModalHooks } from './addressConfirmation';
 import { bitcoinSignTransaction } from './bitcoinSignTransaction';
 import { cardanoGetPublicKeyCompat } from './cardanoGetPublicKeyCompat';
 import { composeTransaction } from './composeTransaction';
-import { ethereumGetPublicKeyCompat } from './ethereumGetPublicKeyCompat';
 import { ethereumSignTransaction } from './ethereumSignTransaction';
+import { getPublicKeyV9Compat } from './getPublicKeyV9Compat';
 import { requestLoginHooks } from './requestLogin';
 import { selectAccountHooks } from './selectAccount';
 import { solanaSignTransaction } from './solanaSignTransaction';
@@ -25,7 +25,7 @@ export const compatibilityHooks = <M extends CallMethodKeys>(
     params: CompatibilityHookParams<M>,
 ): CompatibilityHookResult<M> =>
     composeTransaction.compatibilityHook(params) ??
-    ethereumGetPublicKeyCompat.compatibilityHook(params) ??
+    getPublicKeyV9Compat.compatibilityHook(params) ??
     params;
 
 // Runs before the permissions modal, so a call the host cannot fulfil is rejected up front.

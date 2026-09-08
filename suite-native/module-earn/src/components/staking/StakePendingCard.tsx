@@ -1,7 +1,15 @@
 import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
 import { type NetworkSymbol } from '@suite-common/wallet-config';
-import { selectAccountNetworkSymbol, useAccountsSelector } from '@suite-common/wallet-core';
+import {
+    type StakeRootState,
+    selectAccountNetworkSymbol,
+    selectIsStakeConfirmingByAccountKey,
+    selectIsStakePendingByAccountKey,
+    selectTotalStakePendingByAccountKey,
+    useAccountsSelector,
+} from '@suite-common/wallet-core';
 import { type AccountKey } from '@suite-common/wallet-types';
 import { type BannerInlineProps, Box, Card, PressableOpacity, Text } from '@suite-native/atoms';
 import {
@@ -9,13 +17,6 @@ import {
     CryptoToFiatAmountFormatter,
 } from '@suite-native/formatters';
 import { Translation } from '@suite-native/intl';
-import {
-    type NativeStakingRootState,
-    selectIsStakeConfirmingByAccountKey,
-    selectIsStakePendingByAccountKey,
-    selectTotalStakePendingByAccountKey,
-    useSelector as useNativeStakingSelector,
-} from '@suite-native/staking';
 import { prepareNativeStyle, useNativeStyles } from '@trezor/styles-native';
 
 type StakePendingCardProps = {
@@ -82,13 +83,14 @@ export const StakePendingCard = ({
     const symbol = useAccountsSelector(state => selectAccountNetworkSymbol(state, accountKey));
 
     const totalStakePending =
-        useNativeStakingSelector(state => selectTotalStakePendingByAccountKey(state, accountKey)) ??
-        null;
+        useSelector((state: StakeRootState) =>
+            selectTotalStakePendingByAccountKey(state, accountKey),
+        ) ?? null;
 
-    const isStakePending = useNativeStakingSelector((state: NativeStakingRootState) =>
+    const isStakePending = useSelector((state: StakeRootState) =>
         selectIsStakePendingByAccountKey(state, accountKey),
     );
-    const isStakeConfirming = useNativeStakingSelector((state: NativeStakingRootState) =>
+    const isStakeConfirming = useSelector((state: StakeRootState) =>
         selectIsStakeConfirmingByAccountKey(state, accountKey),
     );
 

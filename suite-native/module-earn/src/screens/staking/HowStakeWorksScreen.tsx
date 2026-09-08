@@ -1,13 +1,21 @@
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { type RouteProp, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 
 import { useServices } from '@suite-common/dependency-injection';
 import type { DeviceRootState } from '@suite-common/device';
 import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
     type AccountsRootState,
+    type EarnOnboardingRootState,
+    type StakeRootState,
+    getEarnOpportunityKey,
+    selectApy,
     selectDeviceAccountsByNetworkSymbol,
+    selectEntryPeriodInDaysBySymbol,
+    selectIsEarnOnboardingConfirmed,
+    selectUnstakingPeriodInDaysBySymbol,
 } from '@suite-common/wallet-core';
 import { events, selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { BannerInline, Button, TimelineDetailsCard, VStack } from '@suite-native/atoms';
@@ -19,13 +27,8 @@ import {
     ScreenHeader,
     type StackNavigationProps,
 } from '@suite-native/navigation';
-import {
-    type NativeStakingRootState,
-    selectApy,
-    selectEntryPeriodInDaysBySymbol,
-    selectUnstakingPeriodInDaysBySymbol,
-} from '@suite-native/staking';
 
+import { EarnLoadingScreen } from '../../components/earn/EarnLoadingScreen';
 import { HowEarnWorksBenefitsSection } from '../../components/earn/HowEarnWorks/HowEarnWorksBenefitsSection';
 import { HowEarnWorksHeaderSection } from '../../components/earn/HowEarnWorks/HowEarnWorksHeaderSection';
 import { HowEarnWorksTimelineCard } from '../../components/earn/HowEarnWorks/HowEarnWorksTimelineCard';
@@ -46,6 +49,35 @@ export const HowStakeWorksScreen = () => {
     );
 
     const resolvedAccountKey = accountKey || accounts[0]?.key;
+    const isFocused = useIsFocused();
+    const isOnboardingConfirmed = useSelector((state: EarnOnboardingRootState) =>
+        selectIsEarnOnboardingConfirmed(
+            state,
+            resolvedAccountKey,
+            getEarnOpportunityKey({ type: 'staking', provider: 'everstake' }),
+        ),
+    );
+    const { isStakingDisabled, stakingMessageContent } = useMessageSystemStaking(symbol);
+
+    const [hasShownOnboarding, setHasShownOnboarding] = useState(false);
+    const shouldSkipToEarnForm =
+        isOnboardingConfirmed &&
+        !route.params.isInfoOnly &&
+        !isStakingDisabled &&
+        !hasShownOnboarding &&
+        !!resolvedAccountKey;
+
+    useEffect(() => {
+        if (!shouldSkipToEarnForm && !hasShownOnboarding) {
+            setHasShownOnboarding(true);
+        }
+    }, [shouldSkipToEarnForm, hasShownOnboarding]);
+
+    useEffect(() => {
+        if (isFocused && shouldSkipToEarnForm && resolvedAccountKey) {
+            navigation.replace(RootStackRoutes.EarnForm, { accountKey: resolvedAccountKey });
+        }
+    }, [isFocused, shouldSkipToEarnForm, resolvedAccountKey, navigation]);
 
     const { analytics } = useServices(selectNativeAnalyticsDep);
     const registerNavigateBackAnalytics = useNavigateBackAnalytics({
@@ -58,6 +90,12 @@ export const HowStakeWorksScreen = () => {
     });
 
     const handleContinue = () => {
+        if (route.params.isInfoOnly) {
+            registerNavigateBackAnalytics();
+            navigation.goBack();
+
+            return;
+        }
         if (!resolvedAccountKey) {
             return;
         }
@@ -74,27 +112,28 @@ export const HowStakeWorksScreen = () => {
         navigation.navigate(RootStackRoutes.EarnForm, { accountKey: resolvedAccountKey });
     };
 
-    const unstakingPeriodInDays = useSelector((state: NativeStakingRootState) =>
+    const unstakingPeriodInDays = useSelector((state: StakeRootState) =>
         selectUnstakingPeriodInDaysBySymbol(state, symbol),
     );
 
-    const entryPeriodInDays = useSelector((state: NativeStakingRootState) =>
+    const entryPeriodInDays = useSelector((state: StakeRootState) =>
         selectEntryPeriodInDaysBySymbol(state, symbol),
     );
 
-    const apy = useSelector((state: NativeStakingRootState) =>
-        selectApy(state, { networkSymbol: symbol }),
-    );
+    const apy = useSelector((state: StakeRootState) => selectApy(state, { networkSymbol: symbol }));
 
     const displaySymbol = getNetworkDisplaySymbol(symbol);
 
-    const { isStakingDisabled, stakingMessageContent } = useMessageSystemStaking(symbol);
     const { benefitItems, timelineSections } = createHowStakeWorksPreset({
         symbol,
         entryPeriodInDays,
         unstakingPeriodInDays,
         apy,
     });
+
+    if (shouldSkipToEarnForm) {
+        return <EarnLoadingScreen />;
+    }
 
     return (
         <Screen header={<ScreenHeader closeActionType="back" />}>
@@ -137,9 +176,17 @@ export const HowStakeWorksScreen = () => {
                 )}
                 <Button
                     onPress={handleContinue}
-                    isDisabled={!resolvedAccountKey || isStakingDisabled}
+                    isDisabled={
+                        !route.params.isInfoOnly && (!resolvedAccountKey || isStakingDisabled)
+                    }
                 >
-                    <Translation id="generic.buttons.continue" />
+                    <Translation
+                        id={
+                            route.params.isInfoOnly
+                                ? 'generic.buttons.close'
+                                : 'generic.buttons.continue'
+                        }
+                    />
                 </Button>
             </VStack>
         </Screen>

@@ -21,6 +21,7 @@ const bestBuyProviderCompanyName = getCompanyNameFromList(
 );
 const bestBuyCryptoAmount = `${buyQuotesBTC[0]?.receiveStringAmount} BTC`;
 const formattedFiatAmount = `CZK ${localizeNumber(fiatAmount, 'en-US', 2)}`;
+const detailFiatAmount = localizeNumber(fiatAmount, 'en-US', 0, 2);
 const { receiveAddress } = buyTradeBTC.trade;
 const secondOfferQuote = buyQuotesBTC[5];
 
@@ -124,18 +125,24 @@ test.describe('Trading - Buy BTC', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =
                 await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
                     'TR_BUY_DETAIL_WAITING_FOR_USER_TITLE',
                 );
-                await expect(tradingPage.proceedToPayButton).toBeVisible();
+                await expect(tradingPage.transactionDetailStatusLink).toBeVisible();
             });
 
             await test.step('Wait 30s for watch refresh and status change to Approved', async () => {
                 await tradingMock.changeBuyWatchResponseTo('SUCCESS');
                 await page.clock.fastForward(tradingMock.watchPeriod);
                 await expect(tradingPage.transactionDetailStatus).toHaveTranslation(
-                    'TR_BUY_DETAIL_SUCCESS_TITLE',
+                    'TR_BUY_DETAIL_COMPLETE_TITLE',
                 );
-                await expect(tradingPage.confirmation.fiatAmount).toHaveText(formattedFiatAmount);
-                await expect(tradingPage.confirmation.cryptoAmount).toHaveText(bestBuyCryptoAmount);
-                await expect(tradingPage.confirmation.provider).toHaveText(bestBuyProvider);
+                await expect(tradingPage.transactionDetailSidebar.fiatAmount).toHaveText(
+                    detailFiatAmount,
+                );
+                await expect(tradingPage.transactionDetailSidebar.receiveAmount).toHaveText(
+                    bestBuyCryptoAmount,
+                );
+                await expect(tradingPage.transactionDetailSidebar.provider).toHaveText(
+                    bestBuyProvider,
+                );
             });
 
             await test.step('Return to account buy form', async () => {
