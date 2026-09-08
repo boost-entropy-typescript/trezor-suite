@@ -2495,6 +2495,12 @@ export const messages = {
             recipients: {
                 title: 'Recipient & amount',
                 addressLabel: 'Recipient address',
+                addressOrEnsLabel: 'Recipient address or ENS',
+                ens: {
+                    resolving: 'Resolving name…',
+                    walletAddress: 'Wallet address: {address}',
+                    primaryName: 'Wallet: {name}',
+                },
                 autocorrect: {
                     convertedToLowercase: 'The address has been converted to lowercase.',
                     addedBitcoincashPrefix:
@@ -2609,6 +2615,8 @@ export const messages = {
                 step1: 'Go to the app or website where you originally got the address.',
                 step2: "Compare the original address with what's on your Trezor.",
                 step3: 'If they match exactly, confirm on your Trezor.',
+                ensSendingTo: 'Sending to {ensName}',
+                ensWalletAddress: 'Wallet address: {address}',
                 originBottomSheet: {
                     title: "What's the place of origin?",
                     subtitle: 'Think how you initially retrieved the address.',
@@ -2671,6 +2679,7 @@ export const messages = {
         staking: 'Staking',
         defiYield: 'DeFi Yield',
         poweredBy: 'Powered by',
+        max: 'Max',
         feeEstimationFailed:
             "The network fee couldn't be estimated, so the transaction can't be prepared. Try again later.",
         stakingOperatedByProviders: 'Staking is operated by independent providers',
@@ -2873,7 +2882,7 @@ export const messages = {
         },
         earnTransactionDataReviewScreen: {
             title: 'Confirm on Trezor',
-            pendingTitle: 'Confirming stake',
+            pendingTitle: 'Confirming stake…',
             amountLabel: 'Staking amount',
             completeTitle: 'Staking complete',
             completeAmountLabel: 'Staked',
@@ -2900,7 +2909,7 @@ export const messages = {
         },
         unstakeTransactionDataReviewScreen: {
             title: 'Confirm on Trezor',
-            pendingTitle: 'Confirming unstake',
+            pendingTitle: 'Confirming unstake…',
             amountLabel: 'Unstaking amount',
             completeTitle: 'Unstaking complete',
             completeAmountLabel: 'Unstaked',
@@ -3012,10 +3021,8 @@ export const messages = {
                 incompleteFiatTotal: 'Some fiat rates couldn’t load. Total may be incomplete.',
             },
             activeSheet: {
-                stakingPositionsTitle: 'Staking positions',
-                yieldPositionsTitle: 'Yield positions',
-                stakingTitle: 'Your stakes',
-                stablecoinYieldTitle: 'Your yields',
+                stakingPositionsTitle: 'Your staking positions',
+                yieldPositionsTitle: 'Your DeFi yield positions',
             },
             stablecoinYieldLoadError: {
                 title: 'Unable to load yield opportunities',
@@ -3023,7 +3030,8 @@ export const messages = {
                     'This may be due to a network or connectivity issue. Check your connection and try again.',
             },
             chooseAccountSheet: {
-                title: 'Choose account',
+                stakingTitle: 'Choose account to stake',
+                yieldTitle: 'Choose account to yield',
             },
             earnItem: {
                 rewards: 'Rewards',
@@ -3059,8 +3067,7 @@ export const messages = {
             },
             adaInfo: 'Your ADA stays fully accessible while earning rewards.',
             claimRewards: {
-                title: 'Claim rewards from an account',
-                subtitle: 'Select an account to claim bonus rewards.',
+                title: 'Bonus rewards to claim',
             },
             title: 'Earn',
         },
@@ -3095,8 +3102,8 @@ export const messages = {
                     description: 'Network fee',
                 },
                 second: {
-                    titleEthereum: 'Enter staking pool',
-                    titleSolana: 'Enter warm-up period',
+                    titleEthereum: 'Staking activation',
+                    titleSolana: 'Staking activation',
                     description: '~{entryPeriod} days',
                     title: 'Staking activation',
                 },
@@ -3319,7 +3326,6 @@ export const messages = {
                 },
             },
             depositCompleteStepTitle: 'Deposit complete',
-            depositMax: 'Deposit max',
         },
         yieldDepositRevokeScreen: {
             title: 'Revoke {tokenSymbol} spending',
@@ -3359,7 +3365,6 @@ export const messages = {
                 amountIsZero: 'Amount must be greater than 0.',
                 tooManyDecimals: 'Too many decimal places.',
             },
-            withdrawMax: 'Withdraw max',
         },
         yieldClaimFlowScreen: {
             title: 'Claim rewards',
@@ -3438,7 +3443,7 @@ export const messages = {
             stakeTitle: 'Staking complete',
             stakeAmountLabel: 'Staked',
             stakeDescription:
-                'You will earn rewards after the {days, plural, one {# day} other {# days}} warm-up period',
+                "You'll earn rewards after staking activation ({days, plural, one {# day} other {# days}}).",
             unstakeTitle: 'Unstaking complete',
             unstakeAmountLabel: 'Unstaked',
             claimTitle: 'Claim complete',
@@ -3683,7 +3688,7 @@ export const messages = {
         },
         claimTransactionDataReviewScreen: {
             title: 'Confirm on Trezor',
-            pendingTitle: 'Confirming claim',
+            pendingTitle: 'Confirming claim…',
             amountLabel: 'Claiming amount',
             completeTitle: 'Claim complete',
             completeAmountLabel: 'Claimed',
@@ -4176,6 +4181,41 @@ export const messages = {
             },
             transactionId: 'Trans. ID: {orderId}',
             detail: {
+                info: {
+                    youPay: 'You pay',
+                    youGet: 'You get',
+                    fromAccount: 'from {accountLabel}',
+                    toAccount: 'to {accountLabel}',
+                    tradeId: 'Trade ID',
+                    paymentMethod: 'Payment method',
+                    payoutMethod: 'Payout method',
+                    provider: 'Provider',
+                    placed: 'Placed',
+                    rate: 'Rate',
+                    fixed: 'Fixed',
+                    floating: 'Floating',
+                    mevProtection: 'MEV protection',
+                    maximumSlippage: 'Maximum slippage',
+                    minimumReceivedAmount: 'Minimum received amount',
+                    explanation: {
+                        fixedRate: {
+                            title: 'Fixed-rate offer',
+                            description: 'The final amount won’t change as the market moves.',
+                        },
+                        floatingRate: {
+                            title: 'Floating-rate offer',
+                            description: 'The final amount can change as the market moves.',
+                        },
+                        mevProtection: {
+                            description:
+                                'Helps protect your swap from manipulation and unfair price changes.',
+                        },
+                        maximumSlippage: {
+                            description:
+                                'The most the rate can change before the swap fails. Network fees still apply.',
+                        },
+                    },
+                },
                 actionButton: {
                     contactProvider: 'Contact {providerName}',
                     startNew: {
@@ -4186,7 +4226,11 @@ export const messages = {
                 },
                 paymentInterruptionBanner: {
                     title: "Left the provider's website before paying?",
-                    description: "You haven't been charged. Go back and create a new trade.",
+                    description:
+                        "No worries – you haven't been charged. Just go back and create a new trade.",
+                },
+                supportBanner: {
+                    title: 'Need help with your trade?',
                 },
                 statusStepper: {
                     estimatedTime: 'Estimated time',
@@ -4291,49 +4335,6 @@ export const messages = {
                         },
                     },
                 },
-                paid: 'You paid',
-                received: 'You get',
-                toAccount: 'To',
-                fromAccount: 'From',
-                issued: 'Issued',
-                provider: 'Provider',
-                method: 'Via',
-                orderId: 'Order ID:',
-                errorAlert: {
-                    title: 'Transaction failed',
-                    buyDescription:
-                        "Your transaction failed or was rejected. Your payment method hasn't been charged.",
-                    sellDescription:
-                        'The transaction didn’t go through. Your funds are safe in your account.',
-                    swapDescription:
-                        'The transaction didn’t go through. Your funds are safe in your account.',
-                    description:
-                        "Your transaction failed or was rejected. Your payment method hasn't been charged.",
-                },
-                waitingAlert: {
-                    title: 'Waiting for your payment ...',
-                    description: "Click to complete your details on the provider's site.",
-                    button: 'Proceed to pay',
-                },
-                convertingAlert: {
-                    title: 'Converting your crypto...',
-                    description: 'Your swap is being processed. This may take a few minutes.',
-                },
-                kycAlert: {
-                    title: 'KYC is required',
-                    description:
-                        'Complete the identity verification process to continue with your transaction.',
-                    button: 'Go to provider support',
-                },
-                sendingAlert: {
-                    title: 'Sending your crypto...',
-                    description: 'Your transaction is being processed. Wait for confirmation.',
-                },
-                buy: 'Buy',
-                exchange: 'Swap',
-                sell: 'Sell',
-                checkOrderStatus: 'Check your order status on the provider’s website.',
-                providerSupport: 'Go to provider support',
             },
         },
         error: {
