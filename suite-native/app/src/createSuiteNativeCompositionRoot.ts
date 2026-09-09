@@ -1,3 +1,4 @@
+import { getSupportedNetworks } from '@suite-common/wallet-config';
 import { launchArguments } from '@suite-native/config';
 import {
     type PreloadedState,
@@ -23,7 +24,12 @@ export const createSuiteNativeCompositionRoot = (
     const ensureEncryptionKey = createEnsureEncryptionKey();
     const mmkvStorage = createMMKVStorage({ ensureEncryptionKey });
     const { store, injectServicesIntoReduxExtra } = createReduxStore({
-        reducer: prepareRootReducers({ mmkvStorage }),
+        // Passing runtime dependencies into reducer setup is an anti-pattern: reducers should
+        // remain pure and receive runtime data through action payloads, not services or extra.
+        // This is a temporary workaround for redux-persist coupling storage and the network
+        // whitelist to reducer construction, not a pattern to follow for other reducers.
+        // See https://github.com/trezor/trezor-suite/issues/32215.
+        reducer: prepareRootReducers({ mmkvStorage, getSupportedNetworks }),
         extraDependencies,
         preloadedState,
     });
