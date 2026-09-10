@@ -51,6 +51,7 @@ export class TradingPage {
 
     // Send fields and buttons
     readonly sendAddressInput: Locator;
+    readonly sendAddressHint: Locator;
     readonly sendAmountInput: Locator;
     readonly sendButton: Locator;
     readonly sendBalance: Locator;
@@ -103,6 +104,7 @@ export class TradingPage {
 
         // Swap
         this.sendAddressInput = this.page.getByTestId('outputs.0.address');
+        this.sendAddressHint = this.page.getByTestId('outputs.0.address/bottom-text');
         this.sendAmountInput = this.page.getByTestId('outputs.0.amount');
         this.sendButton = this.page.getByTestId('@send/review-button');
         this.sendBalance = this.page.getByTestId('outputs.0.token');
@@ -249,7 +251,9 @@ export class TradingPage {
         await this.inputs.selectCountryOfResidence(country);
         await this.inputs.selectFiatCurrency(fiatCurrencyCode);
         const isFiatRateLoadingFlag = `wallet.fiat.current.${networkSymbolOrTokenId}-${fiatCurrencyCode}.isLoading`;
-        await this.page.expectReduxObjectToEqual(isFiatRateLoadingFlag, false);
+        await this.page.expectReduxObjectToEqual(isFiatRateLoadingFlag, false, {
+            timeout: 30_000,
+        });
         await this.inputs.cryptoAmount.fill(cryptoAmount);
         await expect(
             this.page.getByText(messages['AMOUNT_IS_NOT_ENOUGH'].defaultMessage),

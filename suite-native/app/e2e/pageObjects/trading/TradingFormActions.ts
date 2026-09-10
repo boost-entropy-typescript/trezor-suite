@@ -134,6 +134,23 @@ export abstract class TradingFormActions extends TradingActions {
         return this.setAmountValue(amount, this.getSendCryptoAmountElement.bind(this));
     }
 
+    async select1stCEXProvider() {
+        const providersPicker = this.getElementById('provider-picker');
+        await waitForVisible(providersPicker, { timeout: this.SHORT_TIMEOUT });
+        await providersPicker.tap();
+
+        await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
+        await this.expectSheetHeaderTitle('Providers');
+        const providerSheetMatcher = by.id('@trading/provider-sheet');
+        await element(
+            by.id(`@trading/provider-sheet/filter-tab/cex`).withAncestor(providerSheetMatcher),
+        ).tap();
+        await element(by.text('Centralized exchange').withAncestor(providerSheetMatcher))
+            .atIndex(0)
+            .tap();
+        await waitForVisible(providersPicker);
+    }
+
     async viewProviders() {
         const providersPicker = this.getElementById('provider-picker');
         await waitForVisible(providersPicker, { timeout: this.SHORT_TIMEOUT });
@@ -152,8 +169,13 @@ export abstract class TradingFormActions extends TradingActions {
 
         await wait(this.BOTTOM_SHEET_ANIMATION_DURATION);
         await this.expectSheetHeaderTitle('Providers');
-        await element(by.id(`@trading/provider-sheet/filter-tab/${filter}`)).tap();
-        await element(by.text(providerName)).tap();
+        const providerSheetMatcher = by.id('@trading/provider-sheet');
+        await element(
+            by
+                .id(`@trading/provider-sheet/filter-tab/${filter}`)
+                .withAncestor(providerSheetMatcher),
+        ).tap();
+        await element(by.text(providerName).withAncestor(providerSheetMatcher)).tap();
 
         await waitForVisible(providersPicker);
     }
