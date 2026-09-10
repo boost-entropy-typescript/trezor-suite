@@ -39,6 +39,7 @@ export type PopoverProps = {
     popoverOffset?: number;
     zIndex?: number;
     'data-testid'?: string;
+    'data-component'?: string;
 };
 
 export function usePopover({
@@ -115,9 +116,14 @@ export const usePopoverContext = () =>
 type PopoverTriggerProps = {
     children: React.ReactNode;
     'data-testid'?: string;
+    'data-component'?: string;
 };
 
-export const PopoverTrigger = ({ children, 'data-testid': dataTestId }: PopoverTriggerProps) => {
+export const PopoverTrigger = ({
+    children,
+    'data-testid': dataTestId,
+    'data-component': dataComponent = 'PopoverTrigger',
+}: PopoverTriggerProps) => {
     const context = usePopoverContext();
     const ref = useMergeRefs([context.refs.setReference]);
 
@@ -127,6 +133,7 @@ export const PopoverTrigger = ({ children, 'data-testid': dataTestId }: PopoverT
             data-state={context.open ? 'open' : 'closed'}
             data-testid={dataTestId}
             {...context.getReferenceProps()}
+            data-component={dataComponent}
             style={{
                 display: 'flex',
             }}
@@ -170,6 +177,7 @@ export const PopoverContent = forwardRef<HTMLDivElement, PopoverContentProps>((p
                     aria-labelledby={context.labelId}
                     aria-describedby={context.descriptionId}
                     {...context.getFloatingProps()}
+                    data-component="PopoverContent"
                 >
                     {children}
                 </div>
@@ -195,6 +203,7 @@ export const Popover = forwardRef(
             children,
             onOpenChange,
             'data-testid': dataTestId,
+            'data-component': dataComponent = 'Popover',
         }: PopoverProps & { children: React.ReactNode },
         ref,
     ) => {
@@ -213,7 +222,9 @@ export const Popover = forwardRef(
 
         return (
             <PopoverContext.Provider value={popover}>
-                <PopoverTrigger data-testid={dataTestId}>{children}</PopoverTrigger>
+                <PopoverTrigger data-testid={dataTestId} data-component={dataComponent}>
+                    {children}
+                </PopoverTrigger>
                 <PopoverContent style={{ zIndex }}>{content}</PopoverContent>
             </PopoverContext.Provider>
         );

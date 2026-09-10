@@ -140,6 +140,7 @@ export type FlexProps = AllowedFrameProps &
         hasDivider?: boolean;
         dividerColor?: Color;
         'data-testid'?: string;
+        'data-component'?: string;
         as?: string;
         ref?: React.RefObject<HTMLElement | null>;
     };
@@ -158,6 +159,7 @@ export const Flex = ({
     order,
     isReversed = false,
     'data-testid': dataTestId,
+    'data-component': dataComponent = 'Flex',
     as = 'div',
     hasDivider = false,
     dividerColor,
@@ -172,6 +174,7 @@ export const Flex = ({
     return (
         <Container
             data-testid={dataTestId}
+            data-component={dataComponent}
             {...makePropsTransient({
                 rowGap,
                 columnGap,
@@ -198,10 +201,15 @@ export const Flex = ({
     );
 };
 
-export const Column = (props: FlexProps) => <Flex {...props} direction="column" />;
-export const Row = (props: FlexProps) => <Flex alignItems="center" {...props} direction="row" />;
+export const Column = (props: FlexProps) => (
+    <Flex data-component="Column" {...props} direction="column" />
+);
+export const Row = (props: FlexProps) => (
+    <Flex data-component="Row" alignItems="center" {...props} direction="row" />
+);
 export const Center = (props: FlexProps) => (
     <Flex
+        data-component="Center"
         alignSelf="center"
         alignItems="center"
         justifyContent="center"
