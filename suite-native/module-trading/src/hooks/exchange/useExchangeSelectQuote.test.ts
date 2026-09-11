@@ -1,16 +1,15 @@
 import React from 'react';
 
+import { type Store } from '@reduxjs/toolkit';
 import type { ExchangeTrade } from 'invity-api';
 
 import { useServices } from '@suite-common/dependency-injection';
-import {
-    TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-    tradingExchangeActions,
-} from '@suite-common/trading';
+import { tradingExchangeActions } from '@suite-common/trading';
+import { type AccountsRootState } from '@suite-common/wallet-core';
 import { asAccountDescriptor } from '@suite-common/wallet-types';
 import { type NativeAnalyticsDep, events, selectNativeAnalyticsDep } from '@suite-native/analytics';
 import { mockNativeAnalytics } from '@suite-native/analytics/mocks';
-import { type TestStore, act, renderHookWithStoreProvider } from '@suite-native/test-utils-store';
+import { act, renderHookWithStoreProvider } from '@suite-native/test-utils-store';
 import {
     btcAsset,
     getBtcAccount,
@@ -19,11 +18,14 @@ import {
     invityDexQuote,
     mercuryoFixedBestQuote,
 } from '@suite-native/trading-fixtures';
+import { type TradingRootState } from '@suite-native/trading-state';
 import { type ExchangeFormType } from '@suite-native/trading-types';
 
 import { useExchangeForm } from './useExchangeForm';
 import { useExchangeSelectQuote } from './useExchangeSelectQuote';
-import { createTradingLightStore } from '../../test-utils/tradingTestUtils';
+import { createTradingTestStore } from '../../test-utils/tradingTestUtils';
+
+type State = TradingRootState & AccountsRootState;
 
 jest.mock('@suite-common/trading', () => ({
     ...jest.requireActual('@suite-common/trading'),
@@ -68,7 +70,7 @@ const useExchangeSelectQuoteWithReportSpy = (exchangeForm: ExchangeFormType) => 
 
 describe('useExchangeSelectQuote', () => {
     let exchangeForm: ExchangeFormType;
-    let store: TestStore;
+    let store: Store<State>;
 
     const btcAccount = getBtcAccount({ descriptor: asAccountDescriptor('btcAccountKey') });
     const ethAccount = getEthAccount({ descriptor: asAccountDescriptor('ethAccountKey') });
@@ -93,7 +95,7 @@ describe('useExchangeSelectQuote', () => {
         tradingState.exchange.tradingAccountKey = btcAccount.key;
         tradingState.exchange.receiveAccountKey = ethAccount.key;
 
-        return createTradingLightStore({
+        return createTradingTestStore({
             tradeType: 'exchange',
             overrides: {
                 wallet: {
@@ -105,12 +107,14 @@ describe('useExchangeSelectQuote', () => {
     };
 
     const renderExchangeForm = async () =>
-        await renderHookWithStoreProvider(() => useExchangeForm(), { store, services });
+        await renderHookWithStoreProvider(() => useExchangeForm(), {
+            services: { ...services, store },
+        });
 
     const renderUseExchangeSelectQuote = async () => {
         const hook = await renderHookWithStoreProvider(
             () => useExchangeSelectQuoteWithReportSpy(exchangeForm),
-            { store, services },
+            { services: { ...services, store } },
         );
 
         const spy = hook.result.current.reportSpy;
@@ -281,7 +285,7 @@ describe('useExchangeSelectQuote', () => {
             );
         });
 
-        it('should apply default slippage when selecting a DEX quote without slippage', async () => {
+        it('should keep slippage unset when selecting a DEX quote without slippage', async () => {
             const quote = { ...invityDexQuote, swapSlippage: undefined };
             await act(() => {
                 exchangeForm.setValue('quote', quote);
@@ -300,19 +304,14 @@ describe('useExchangeSelectQuote', () => {
                 payload: { nextStep: () => void; quote: ExchangeTrade };
             };
 
-            expect(selectQuoteAction.payload.quote.swapSlippage).toBe(
-                TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-            );
+            expect(selectQuoteAction.payload.quote.swapSlippage).toBeUndefined();
 
             await act(() => {
                 selectQuoteAction.payload.nextStep();
             });
 
             expect(dispatchSpy).toHaveBeenCalledWith(
-                tradingExchangeActions.saveSelectedQuote({
-                    ...quote,
-                    swapSlippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-                }),
+                tradingExchangeActions.saveSelectedQuote(quote),
             );
         });
 
@@ -529,13 +528,9 @@ describe('useExchangeSelectQuote', () => {
             });
 
             expect(mockNavigation.navigate).toHaveBeenCalledWith('TradingExchangeApproval', {});
-            // The hook persists the normalized quote before navigating to the approval screen.
             expect(dispatchSpy).toHaveBeenCalledWith({
                 type: '@trading-exchange/saveSelectedQuote',
-                payload: {
-                    ...quote,
-                    swapSlippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-                },
+                payload: quote,
             });
             const dispatchedTypes = dispatchSpy.mock.calls.map(([action]) => (action as any)?.type);
             expect(dispatchedTypes).not.toContain('@trading-exchange/savePreselectedQuote');
@@ -575,10 +570,7 @@ describe('useExchangeSelectQuote', () => {
             });
             expect(dispatchSpy).toHaveBeenCalledWith({
                 type: '@trading-exchange/saveSelectedQuote',
-                payload: {
-                    ...quote,
-                    swapSlippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-                },
+                payload: quote,
             });
             const dispatchedTypes = dispatchSpy.mock.calls.map(([action]) => (action as any)?.type);
             expect(dispatchedTypes).not.toContain('@trading-exchange/savePreselectedQuote');
@@ -620,10 +612,7 @@ describe('useExchangeSelectQuote', () => {
             });
             expect(dispatchSpy).toHaveBeenCalledWith({
                 type: '@trading-exchange/saveSelectedQuote',
-                payload: {
-                    ...quote,
-                    swapSlippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-                },
+                payload: quote,
             });
         });
 
@@ -660,10 +649,7 @@ describe('useExchangeSelectQuote', () => {
             });
             expect(dispatchSpy).toHaveBeenCalledWith({
                 type: '@trading-exchange/saveSelectedQuote',
-                payload: {
-                    ...quote,
-                    swapSlippage: TRADING_SETTINGS_MAX_SLIPPAGE_PERCENTAGE_DEFAULT,
-                },
+                payload: quote,
             });
             const dispatchedTypes = dispatchSpy.mock.calls.map(([action]) => (action as any)?.type);
             expect(dispatchedTypes).not.toContain('@trading-exchange/savePreselectedQuote');
