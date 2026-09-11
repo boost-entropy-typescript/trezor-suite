@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import { openDeferredModal } from '@suite/modal';
-import { useDispatch } from '@suite-common/redux-utils';
+import { useServices } from '@suite-common/dependency-injection';
+import { selectDispatch } from '@suite-common/redux-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
 import { DEFAULT_PAYMENT } from '@suite-common/wallet-constants';
 import { updateFiatRatesThunk } from '@suite-common/wallet-core';
 import {
     type FiatRatesResult,
     type Output,
-    type Rate,
     type RatesByKey,
     type Timestamp,
 } from '@suite-common/wallet-types';
@@ -29,7 +29,6 @@ type useSendFormImportProps = {
     network: UseSendFormState['network'];
     tokens: UseSendFormState['account']['tokens'];
     localCurrencyOption: UseSendFormState['localCurrencyOption'];
-    fiatRate?: Rate;
     currentRates?: RatesByKey;
 };
 
@@ -40,7 +39,7 @@ export const useSendFormImport = ({
     localCurrencyOption,
     currentRates,
 }: useSendFormImportProps) => {
-    const dispatch = useDispatch();
+    const { dispatch } = useServices(selectDispatch);
     const { shouldSendInSats } = useBitcoinAmountUnit(network.symbol);
 
     const importTransaction = async () => {
