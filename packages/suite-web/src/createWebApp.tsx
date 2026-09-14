@@ -7,7 +7,6 @@ import { ServicesProvider } from '@suite-common/dependency-injection';
 import { type HydrateReduxStoreDep } from 'src/reducers/createHydrateReduxStore';
 import { type SuiteReduxStoreDep } from 'src/reducers/createReduxStore';
 import { type SuiteServices } from 'src/support/createSuiteCompositionRoot';
-import { preloadStore } from 'src/support/suite/preloadStore';
 import { LoadingScreen } from 'src/support/suite/screens/LoadingScreen';
 
 import { MainWeb } from './MainWeb';
@@ -35,11 +34,9 @@ export const createWebApp =
         const root = createRoot(container);
         root.render(<LoadingScreen />);
 
-        const preloadAction = await preloadStore();
+        await deps.services.hydrateReduxStore();
 
-        deps.services.hydrateReduxStore(preloadAction);
-
-        deps.services.loadNetworkModules();
+        deps.services.networks.loadNetworkModules();
 
         root.render(
             <ServicesProvider services={deps.services}>
