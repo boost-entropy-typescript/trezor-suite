@@ -34,9 +34,7 @@ void (deviceMessage.payload satisfies typeof deviceButtonRequest);
 
 declare const deviceConnect: Extract<DeviceEvent, { type: typeof DEVICE.CONNECT }>['payload'];
 const deviceMessage2 = createDeviceMessage(DEVICE.CONNECT, deviceConnect);
-// @ts-expect-error TODO
 void (deviceMessage2.type satisfies typeof DEVICE.CONNECT);
-// @ts-expect-error TODO
 void (deviceMessage2.payload satisfies typeof deviceConnect);
 
 // @ts-expect-error Device button payload is not compatible with blockchain error type.
@@ -66,7 +64,7 @@ declare const transportRequestDevice: typeof TRANSPORT.REQUEST_DEVICE;
 createTransportMessage(transportRequestDevice, undefined);
 
 // @ts-expect-error Transport error messages require an error payload.
-createTransportMessage(transportError, undefined);
+createTransportMessage(transportErrorType, undefined);
 
 /* UI EVENT MESSAGES */
 declare const uiEventPayload: Extract<
@@ -82,7 +80,7 @@ const uiEventMessage2 = createUiEventMessage(UI_EVENTS.BUNDLE_PROGRESS, uiEventP
 void (uiEventMessage2.type satisfies typeof UI_EVENTS.BUNDLE_PROGRESS);
 void (uiEventMessage2.payload satisfies typeof uiEventPayload);
 
-// TODO: ts-expect-error Transport missing UI event does not accept a payload.
+// @ts-expect-error Transport missing UI event does not accept a payload.
 createUiEventMessage(UI_EVENTS.TRANSPORT_MISSING, undefined);
 
 // @ts-expect-error Bundle progress UI event requires a payload.
@@ -99,9 +97,10 @@ const uiRequestMessage = createUiRequestMessage(UI_REQUESTS.REQUEST_PIN, uiReque
 });
 void (uiRequestMessage.type satisfies typeof UI_REQUESTS.REQUEST_PIN);
 void (uiRequestMessage.payload satisfies typeof uiRequestPayload);
+void (uiRequestMessage.requestId satisfies string);
 
-// TODO: ts-expect-error UI request messages require request options.
-// createUiRequestMessage(UI_REQUESTS.REQUEST_PIN, uiRequestPayload);
+// @ts-expect-error UI request messages require request options.
+createUiRequestMessage(UI_REQUESTS.REQUEST_PIN, uiRequestPayload);
 
-// TODO: ts-expect-error UI request options require requestId.
+// @ts-expect-error UI request options require requestId.
 createUiRequestMessage(UI_REQUESTS.REQUEST_PIN, uiRequestPayload, {});
