@@ -24,6 +24,25 @@ export const globalNoExtraneousDependenciesDevDependencies = [
     '**/*e2e/**', // Todo: This shall be only in packages that has e2e tests
 ];
 
+const desktopApiImplementationMessage =
+    'Only a composition root may choose a DesktopApi implementation. Declare DesktopApiDep and take the API as an injected dependency, or use selectDesktopApiDep in React.';
+
+export const desktopApiRestrictedImports = [
+    { name: '@trezor/suite-desktop-api-electron', message: desktopApiImplementationMessage },
+];
+
+/**
+ * Build-artifact imports stay blocked for these files through
+ * `@typescript-eslint/no-restricted-imports`, which this does not touch.
+ */
+/** @type {Config} */
+export const desktopApiCompositionRootAllowance = {
+    files: ['**/preload.ts', '**/createSuiteDesktopCompositionRoot.ts'],
+    rules: {
+        'no-restricted-imports': 'off',
+    },
+};
+
 /** @type {Config[]} */
 export const importConfig = [
     // TODO: Remove the compatibility wrapper when eslint-plugin-import supports ESLint 10.
@@ -91,4 +110,5 @@ export const importConfig = [
             'import/no-unresolved': 'off', // Does not work with Babel react-native to react-native-web
         },
     },
+    desktopApiCompositionRootAllowance,
 ];

@@ -1,4 +1,6 @@
 import { type TradingComposedTransactionInfo } from '@suite-common/trading';
+import { type DesktopApiDep } from '@trezor/suite-desktop-api';
+import { mockGetHttpReceiverAddress } from '@trezor/suite-desktop-api/mocks';
 
 import { type Account } from 'src/types/wallet';
 import { createQuoteLink } from 'src/utils/wallet/trading/sellUtils';
@@ -8,6 +10,10 @@ import * as fixtures from './__fixtures__/sellUtils';
 const { QUOTE_REQUEST_FIAT, QUOTE_REQUEST_CRYPTO } = fixtures;
 
 describe('sellUtils', () => {
+    const deps: DesktopApiDep<'getHttpReceiverAddress'> = {
+        desktopApi: { getHttpReceiverAddress: mockGetHttpReceiverAddress() },
+    };
+
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -34,6 +40,7 @@ describe('sellUtils', () => {
         it('should create link for quote for fiat', async () => {
             expect(
                 await createQuoteLink(
+                    deps,
                     QUOTE_REQUEST_FIAT,
                     mockAccount,
                     mockComposedInfo,
@@ -47,6 +54,7 @@ describe('sellUtils', () => {
         it('should create link for quote when selectedFee is high', async () => {
             expect(
                 await createQuoteLink(
+                    deps,
                     QUOTE_REQUEST_CRYPTO,
                     mockAccount,
                     { ...mockComposedInfo, selectedFee: 'high' },
@@ -60,6 +68,7 @@ describe('sellUtils', () => {
         it('should create link for quote when selectedFee is custom', async () => {
             expect(
                 await createQuoteLink(
+                    deps,
                     QUOTE_REQUEST_CRYPTO,
                     mockAccount,
                     { ...mockComposedInfo, selectedFee: 'custom' },
@@ -73,6 +82,7 @@ describe('sellUtils', () => {
         it('should create link for quote when account network type is solana', async () => {
             expect(
                 await createQuoteLink(
+                    deps,
                     QUOTE_REQUEST_CRYPTO,
                     {
                         ...mockAccount,

@@ -10738,6 +10738,7 @@ __metadata:
     "@suite-common/delegated-identity-key-types": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@trezor/connect": "workspace:*"
@@ -10766,6 +10767,7 @@ __metadata:
   dependencies:
     "@suite-common/device": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
@@ -10951,6 +10953,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/firmware": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
@@ -11199,6 +11202,22 @@ __metadata:
     "@trezor/network-stellar-suite-common": "workspace:*"
     "@trezor/network-tron-suite-common": "workspace:*"
     "@trezor/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@suite-common/persistent-device-data@workspace:*, @suite-common/persistent-device-data@workspace:suite-common/persistent-device-data":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/persistent-device-data@workspace:suite-common/persistent-device-data"
+  dependencies:
+    "@reduxjs/toolkit": "npm:2.12.0"
+    "@suite-common/device": "workspace:*"
+    "@suite-common/platform-encryption": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
+    "@trezor/connect": "workspace:*"
+    "@trezor/device-utils": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -11701,6 +11720,7 @@ __metadata:
     "@suite-common/firmware": "workspace:*"
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/networks": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/schemas": "workspace:*"
@@ -12628,6 +12648,7 @@ __metadata:
     "@suite-common/device-authenticity": "workspace:*"
     "@suite-common/firmware-authenticity": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
@@ -13422,10 +13443,10 @@ __metadata:
     "@react-navigation/native": "npm:7.1.31"
     "@suite-common/analytics-redux": "workspace:*"
     "@suite-common/dependency-injection": "workspace:*"
-    "@suite-common/device": "workspace:*"
     "@suite-common/earn-stablecoin-api": "workspace:*"
     "@suite-common/firmware": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-quota-manager": "workspace:*"
@@ -13472,6 +13493,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-constants": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
@@ -14347,6 +14369,7 @@ __metadata:
     "@suite-common/logger": "workspace:*"
     "@suite-common/message-system": "workspace:*"
     "@suite-common/networks": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/platform-encryption-native": "workspace:*"
     "@suite-common/receive": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -14354,6 +14377,7 @@ __metadata:
     "@suite-common/suite-sync": "workspace:*"
     "@suite-common/suite-sync-quota-manager": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
+    "@suite-common/suite-types": "workspace:*"
     "@suite-common/thp": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/token-definitions": "workspace:*"
@@ -15206,6 +15230,7 @@ __metadata:
     "@suite-common/device": "workspace:*"
     "@suite-common/firmware-authenticity": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite/router": "workspace:*"
@@ -15251,7 +15276,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite/bluetooth@workspace:suite/bluetooth"
   dependencies:
+    "@reduxjs/toolkit": "npm:2.12.0"
     "@suite-common/bluetooth": "workspace:*"
+    "@suite-common/redux-utils": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/transport-bluetooth": "workspace:*"
   languageName: unknown
@@ -15367,6 +15394,7 @@ __metadata:
     "@suite-common/connect-popup": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
@@ -15907,6 +15935,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/message-system": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync": "workspace:*"
@@ -17790,14 +17819,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@trezor/suite-desktop-api-electron@workspace:*, @trezor/suite-desktop-api-electron@workspace:packages/suite-desktop-api-electron":
+  version: 0.0.0-use.local
+  resolution: "@trezor/suite-desktop-api-electron@workspace:packages/suite-desktop-api-electron"
+  dependencies:
+    "@trezor/suite-desktop-api": "workspace:*"
+    electron: "npm:43.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@trezor/suite-desktop-api@workspace:*, @trezor/suite-desktop-api@workspace:packages/suite-desktop-api":
   version: 0.0.0-use.local
   resolution: "@trezor/suite-desktop-api@workspace:packages/suite-desktop-api"
   dependencies:
+    "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite/tor-types": "workspace:*"
     "@trezor/type-utils": "workspace:*"
-    electron: "npm:43.2.0"
   languageName: unknown
   linkType: soft
 
@@ -17830,6 +17868,7 @@ __metadata:
     "@trezor/node-utils": "workspace:*"
     "@trezor/request-manager": "workspace:*"
     "@trezor/suite-desktop-api": "workspace:*"
+    "@trezor/suite-desktop-api-electron": "workspace:*"
     "@trezor/suite-desktop-native": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/transport": "workspace:*"
@@ -17889,6 +17928,7 @@ __metadata:
     "@trezor/icons": "workspace:*"
     "@trezor/suite": "workspace:*"
     "@trezor/suite-desktop-api": "workspace:*"
+    "@trezor/suite-desktop-api-electron": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -18014,6 +18054,7 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
     "@trezor/suite": "workspace:*"
+    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/transport-common": "workspace:*"
     "@trezor/transport-web": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -18076,6 +18117,7 @@ __metadata:
     "@suite-common/metadata-types": "workspace:*"
     "@suite-common/mev": "workspace:*"
     "@suite-common/networks": "workspace:*"
+    "@suite-common/persistent-device-data": "workspace:*"
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/react-query": "workspace:*"
     "@suite-common/receive": "workspace:*"

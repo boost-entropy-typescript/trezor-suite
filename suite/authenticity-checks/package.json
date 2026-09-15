@@ -15,6 +15,7 @@
         "@suite-common/device": "workspace:*",
         "@suite-common/firmware-authenticity": "workspace:*",
         "@suite-common/message-system": "workspace:*",
+        "@suite-common/persistent-device-data": "workspace:*",
         "@suite/router": "workspace:*",
         "@suite/router-config": "workspace:*",
         "@suite/settings": "workspace:*"

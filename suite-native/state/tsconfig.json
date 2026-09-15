@@ -32,6 +32,9 @@
         },
         { "path": "../../suite-common/networks" },
         {
+            "path": "../../suite-common/persistent-device-data"
+        },
+        {
             "path": "../platform-encryption-native"
         },
         { "path": "../../suite-common/receive" },
@@ -49,6 +52,9 @@
         },
         {
             "path": "../../suite-common/suite-sync-types"
+        },
+        {
+            "path": "../../suite-common/suite-types"
         },
         { "path": "../../suite-common/thp" },
         {

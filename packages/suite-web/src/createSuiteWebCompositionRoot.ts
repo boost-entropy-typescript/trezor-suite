@@ -18,6 +18,7 @@ import { extraDependencies } from 'src/support/extraDependencies';
 import { createPreloadStore } from 'src/support/suite/createPreloadStore';
 
 import { type WebApp, createWebApp } from './createWebApp';
+import { createWebDesktopApi } from './support/createWebDesktopApi';
 import { getWebThpHostName } from './support/getWebThpHostName';
 
 type SuiteWebCompositionRoot = { app: WebApp };
@@ -54,6 +55,7 @@ export const createSuiteWebCompositionRoot = (): SuiteWebCompositionRoot => {
     const db = createDb({ dispatch: store.dispatch, reloadApp });
     const suiteServices = createSuiteServicesCompositionRoot({
         db,
+        desktopApi: createWebDesktopApi(),
         dispatch: store.dispatch,
         getState: store.getState,
         history,
