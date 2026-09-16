@@ -15232,6 +15232,32 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite/app-assets@workspace:*, @suite/app-assets@workspace:suite/app-assets":
+  version: 0.0.0-use.local
+  resolution: "@suite/app-assets@workspace:suite/app-assets"
+  dependencies:
+    "@babel/preset-env": "npm:7.29.7"
+    "@babel/preset-typescript": "npm:^7.29.7"
+    "@mobily/ts-belt": "npm:^3.13.1"
+    "@suite-common/suite-types": "workspace:*"
+    "@suite-common/suite-utils": "workspace:*"
+    "@trezor/eslint": "workspace:*"
+    "@types/fs-extra": "npm:^11.0.4"
+    autoprefixer: "npm:^10.4.24"
+    babel-loader: "npm:^10.1.1"
+    css-loader: "npm:^7.1.3"
+    fs-extra: "npm:^11.3.1"
+    postcss-loader: "npm:^8.2.0"
+    semver: "npm:^7.7.1"
+    simple-git: "npm:^3.36.0"
+    style-loader: "npm:^4.0.0"
+    ts-node: "npm:^10.9.2"
+    tsx: "npm:^4.21.0"
+    webpack: "npm:5.109.0"
+    webpack-cli: "npm:^7.2.1"
+  languageName: unknown
+  linkType: soft
+
 "@suite/authenticity-checks@workspace:*, @suite/authenticity-checks@workspace:suite/authenticity-checks":
   version: 0.0.0-use.local
   resolution: "@suite/authenticity-checks@workspace:suite/authenticity-checks"
@@ -15292,11 +15318,11 @@ __metadata:
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/test-utils": "workspace:*"
     "@suite-common/toast-notifications": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/device": "workspace:*"
     "@trezor/connect": "workspace:*"
     "@trezor/device-utils": "workspace:*"
     "@trezor/env-utils": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/transport-bluetooth": "workspace:*"
     "@trezor/utils": "workspace:*"
   languageName: unknown
@@ -15350,14 +15376,34 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/settings": "workspace:*"
     "@trezor/components": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/theme": "workspace:*"
     react: "npm:19.2.3"
     react-redux: "npm:9.3.0"
     styled-components: "npm:^6.3.9"
+  languageName: unknown
+  linkType: soft
+
+"@suite/desktop-app-api-electron@workspace:*, @suite/desktop-app-api-electron@workspace:suite/desktop-app-api-electron":
+  version: 0.0.0-use.local
+  resolution: "@suite/desktop-app-api-electron@workspace:suite/desktop-app-api-electron"
+  dependencies:
+    "@suite/desktop-app-api": "workspace:*"
+    electron: "npm:43.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@suite/desktop-app-api@workspace:*, @suite/desktop-app-api@workspace:suite/desktop-app-api":
+  version: 0.0.0-use.local
+  resolution: "@suite/desktop-app-api@workspace:suite/desktop-app-api"
+  dependencies:
+    "@suite-common/dependency-injection": "workspace:*"
+    "@suite-common/platform-encryption": "workspace:*"
+    "@suite/tor-types": "workspace:*"
+    "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -15374,6 +15420,7 @@ __metadata:
     "@suite-common/toast-notifications": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/router": "workspace:*"
     "@trezor/components": "workspace:*"
@@ -15381,7 +15428,6 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/product-components": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/utils": "workspace:*"
     react: "npm:19.2.3"
     react-redux: "npm:9.3.0"
@@ -15705,6 +15751,7 @@ __metadata:
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/device": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/settings": "workspace:*"
@@ -15715,7 +15762,6 @@ __metadata:
     "@trezor/eslint": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/requirements": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/type-utils": "workspace:*"
     "@trezor/utils": "workspace:*"
     dropbox: "npm:^10.45.0"
@@ -15775,7 +15821,7 @@ __metadata:
   resolution: "@suite/platform-encryption-electron@workspace:suite/platform-encryption-electron"
   dependencies:
     "@suite-common/platform-encryption": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@trezor/type-utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -15890,10 +15936,10 @@ __metadata:
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/trading": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/experimental": "workspace:*"
     "@trezor/connect-common": "workspace:*"
     "@trezor/env-utils": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -16036,6 +16082,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/external-links": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/modal": "workspace:*"
@@ -16046,7 +16093,6 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/product-components": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/urls": "workspace:*"
     react: "npm:19.2.3"
     react-redux: "npm:9.3.0"
@@ -17813,52 +17859,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@trezor/suite-data@workspace:*, @trezor/suite-data@workspace:packages/suite-data":
-  version: 0.0.0-use.local
-  resolution: "@trezor/suite-data@workspace:packages/suite-data"
-  dependencies:
-    "@babel/preset-env": "npm:7.29.7"
-    "@babel/preset-typescript": "npm:^7.29.7"
-    "@mobily/ts-belt": "npm:^3.13.1"
-    "@suite-common/suite-types": "workspace:*"
-    "@suite-common/suite-utils": "workspace:*"
-    "@trezor/eslint": "workspace:*"
-    "@types/fs-extra": "npm:^11.0.4"
-    autoprefixer: "npm:^10.4.24"
-    babel-loader: "npm:^10.1.1"
-    css-loader: "npm:^7.1.3"
-    fs-extra: "npm:^11.3.1"
-    postcss-loader: "npm:^8.2.0"
-    semver: "npm:^7.7.1"
-    simple-git: "npm:^3.36.0"
-    style-loader: "npm:^4.0.0"
-    ts-node: "npm:^10.9.2"
-    tsx: "npm:^4.21.0"
-    webpack: "npm:5.109.0"
-    webpack-cli: "npm:^7.2.1"
-  languageName: unknown
-  linkType: soft
-
-"@trezor/suite-desktop-api-electron@workspace:*, @trezor/suite-desktop-api-electron@workspace:packages/suite-desktop-api-electron":
-  version: 0.0.0-use.local
-  resolution: "@trezor/suite-desktop-api-electron@workspace:packages/suite-desktop-api-electron"
-  dependencies:
-    "@trezor/suite-desktop-api": "workspace:*"
-    electron: "npm:43.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@trezor/suite-desktop-api@workspace:*, @trezor/suite-desktop-api@workspace:packages/suite-desktop-api":
-  version: 0.0.0-use.local
-  resolution: "@trezor/suite-desktop-api@workspace:packages/suite-desktop-api"
-  dependencies:
-    "@suite-common/dependency-injection": "workspace:*"
-    "@suite-common/platform-encryption": "workspace:*"
-    "@suite/tor-types": "workspace:*"
-    "@trezor/type-utils": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
 "@trezor/suite-desktop-core@workspace:packages/suite-desktop-core":
   version: 0.0.0-use.local
   resolution: "@trezor/suite-desktop-core@workspace:packages/suite-desktop-core"
@@ -17876,6 +17876,8 @@ __metadata:
     "@suite-common/suite-utils": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
+    "@suite/desktop-app-api-electron": "workspace:*"
     "@suite/sentry": "workspace:*"
     "@suite/tor-types": "workspace:*"
     "@trezor/coinjoin": "workspace:*"
@@ -17887,8 +17889,6 @@ __metadata:
     "@trezor/ipc-proxy": "workspace:*"
     "@trezor/node-utils": "workspace:*"
     "@trezor/request-manager": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
-    "@trezor/suite-desktop-api-electron": "workspace:*"
     "@trezor/suite-desktop-native": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/transport": "workspace:*"
@@ -17936,6 +17936,8 @@ __metadata:
     "@suite/analytics": "workspace:*"
     "@suite/bluetooth": "workspace:*"
     "@suite/debug": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
+    "@suite/desktop-app-api-electron": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/flags": "workspace:*"
     "@suite/github": "workspace:*"
@@ -17948,8 +17950,6 @@ __metadata:
     "@trezor/connect-electron": "workspace:*"
     "@trezor/icons": "workspace:*"
     "@trezor/suite": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
-    "@trezor/suite-desktop-api-electron": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/urls": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -18007,6 +18007,7 @@ __metadata:
     "@suite-common/wallet-types": "workspace:*"
     "@suite-common/wallet-utils": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/app-assets": "workspace:*"
     "@suite/debug": "workspace:*"
     "@suite/flags": "workspace:*"
     "@suite/intl": "workspace:^"
@@ -18023,7 +18024,6 @@ __metadata:
     "@trezor/network-solana": "workspace:*"
     "@trezor/perf-e2e": "workspace:*"
     "@trezor/protobuf": "workspace:*"
-    "@trezor/suite-data": "workspace:*"
     "@trezor/suite-desktop": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/transport-common": "workspace:*"
@@ -18067,6 +18067,7 @@ __metadata:
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-utils": "workspace:*"
     "@suite/debug": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/platform-encryption-webauthn": "workspace:*"
     "@suite/router": "workspace:*"
     "@suite/sentry": "workspace:*"
@@ -18075,7 +18076,6 @@ __metadata:
     "@trezor/env-utils": "workspace:*"
     "@trezor/eslint": "workspace:*"
     "@trezor/suite": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/transport-common": "workspace:*"
     "@trezor/transport-web": "workspace:*"
     "@trezor/utils": "workspace:*"
@@ -18173,11 +18173,13 @@ __metadata:
     "@suite/account": "workspace:*"
     "@suite/address": "workspace:*"
     "@suite/analytics": "workspace:*"
+    "@suite/app-assets": "workspace:*"
     "@suite/authenticity-checks": "workspace:*"
     "@suite/backup": "workspace:*"
     "@suite/bluetooth": "workspace:*"
     "@suite/coinjoin": "workspace:*"
     "@suite/debug": "workspace:*"
+    "@suite/desktop-app-api": "workspace:*"
     "@suite/desktop-update": "workspace:*"
     "@suite/device": "workspace:*"
     "@suite/discovery": "workspace:*"
@@ -18241,8 +18243,6 @@ __metadata:
     "@trezor/product-components": "workspace:*"
     "@trezor/react-utils": "workspace:*"
     "@trezor/styles": "workspace:*"
-    "@trezor/suite-data": "workspace:*"
-    "@trezor/suite-desktop-api": "workspace:*"
     "@trezor/suite-storage": "workspace:*"
     "@trezor/theme": "workspace:*"
     "@trezor/type-utils": "workspace:*"
@@ -45957,6 +45957,7 @@ __metadata:
     "@swc/core": "npm:^1.15.47"
     "@swc/jest": "npm:^0.2.39"
     "@trezor/eslint": "workspace:*"
+    "@trezor/requirements": "workspace:*"
     "@types/estree": "npm:^1.0.8"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:22.13.10"

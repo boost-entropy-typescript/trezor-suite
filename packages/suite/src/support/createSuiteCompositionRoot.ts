@@ -1,8 +1,9 @@
-import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit';
 import { saveAs } from 'file-saver';
 
 import { type DesktopAnalyticsDep, createAnalytics } from '@suite/analytics';
 import { selectShouldRetryFirmwareRevisionCheckError } from '@suite/authenticity-checks';
+import { type BluetoothDep, createBluetoothCompositionRoot } from '@suite/bluetooth';
+import { type DesktopApiDep } from '@suite/desktop-app-api';
 import { rerunFwAuthenticityChecksThunk } from '@suite/device';
 import { selectLabelingDataForAccount } from '@suite/metadata';
 import {
@@ -43,8 +44,8 @@ import { selectTradedAccountKeys } from '@suite-common/trading';
 import { selectAccountsByDeviceState } from '@suite-common/wallet-core';
 import { type CreateLoggerDep, type GetTrezorConnectPrivilegedDep } from '@trezor/connect';
 import { isDesktop } from '@trezor/env-utils';
-import { type DesktopApiDep } from '@trezor/suite-desktop-api';
 
+import { type SuiteReduxStore } from 'src/reducers/createReduxStore';
 import { selectIsWindowVisible } from 'src/reducers/suite/windowReducer';
 import { type DbDep } from 'src/storage/createDb';
 import { reportSecurityCheck } from 'src/utils/suite/sentry';
@@ -70,12 +71,10 @@ export type SuiteServices = CommonServices &
     DesktopAnalyticsDep &
     MetadataMigrationDep &
     SuiteRouterHistoryDep &
-    TransportsDep;
+    TransportsDep &
+    BluetoothDep;
 
-export type StoreAPIDep = {
-    getState: () => AppState;
-    dispatch: ThunkDispatch<AppState, Record<never, never>, UnknownAction>;
-};
+export type StoreAPIDep = Pick<SuiteReduxStore, 'getState' | 'dispatch'>;
 
 export type SuiteAppDeps = StoreAPIDep &
     DbDep &
@@ -100,6 +99,10 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
     });
 
     const analytics = createAnalytics();
+    const bluetooth = createBluetoothCompositionRoot({
+        dispatch: deps.dispatch,
+        getState: deps.getState,
+    });
 
     const getCurrentAccountLabels = toGetter(deps.getState, selectAllLabelsForAccount);
     const getAccountsByDeviceState = toGetter(deps.getState, selectAccountsByDeviceState);
@@ -170,6 +173,7 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
         ensureDelegatedIdentityKey,
         platformEncryption: deps.platformEncryption,
         analytics,
+        bluetooth,
         suiteRouterHistory: createSuiteRouterHistory({
             history: deps.history,
         }),
