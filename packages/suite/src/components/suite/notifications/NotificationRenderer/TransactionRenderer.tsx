@@ -7,7 +7,7 @@ import { selectDeviceThunk, selectDevices, selectSelectedDevice } from '@suite-c
 import { selectDispatch } from '@suite-common/redux-utils';
 import {
     selectAccounts,
-    selectBlockchainState,
+    selectNetworkBlockchainInfo,
     selectTransactions,
 } from '@suite-common/wallet-core';
 import {
@@ -25,6 +25,7 @@ import {
     type TransactionNotificationType,
 } from '@trezor/product-components';
 
+import { FormattedCryptoAmount } from 'src/components/suite/FormattedCryptoAmount';
 import { AccountLabeling } from 'src/components/suite/labeling/AccountLabeling';
 import type { NotificationRendererProps } from 'src/components/suite/notifications/NotificationRenderer/NotificationRenderer';
 import type { NotificationViewProps } from 'src/components/suite/notifications/Notifications/NotificationGroup/NotificationList/NotificationView';
@@ -37,7 +38,7 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
     const { symbol, descriptor, txid, device } = props.notification;
     const accounts = useSelector(selectAccounts);
     const transactions = useSelector(selectTransactions);
-    const blockchain = useSelector(selectBlockchainState);
+    const blockchain = useSelector(state => selectNetworkBlockchainInfo(state, symbol));
     const devices = useSelector(selectDevices);
     const currentDevice = useSelector(selectSelectedDevice);
     const routeName = useSelector(selectRouteName);
@@ -53,7 +54,7 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
     const accountTxs = getAccountTransactions(account.key, transactions);
     const tx = findTransaction(txid, accountTxs);
     const accountDevice = findAccountDevice(account, devices);
-    const confirmations = tx ? getConfirmations(tx, blockchain[account.symbol].blockHeight) : 0;
+    const confirmations = tx ? getConfirmations(tx, blockchain.blockHeight) : 0;
     const destinationRoute = isStakeTypeTx(tx?.ethereumSpecific?.parsedData?.methodId)
         ? 'wallet-staking'
         : 'wallet-index';
@@ -62,6 +63,11 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
     // users think the approve step is the whole transaction. Mirror the trading behavior above.
     const isYieldRoute = routerApp === 'earn-yield';
     const transactionToken = 'token' in props.notification ? props.notification.token : undefined;
+    const notificationAmount =
+        'amount' in props.notification ? props.notification.amount : undefined;
+    // An approval prints the ticker itself, next to the amount.
+    const isSymbolRenderedBesideAmount =
+        props.notification.type === 'tx-approved' || props.notification.type === 'tx-revoked';
     const toastTestIdPrefix = `@toast/${props.notification.type}`;
 
     const handleTransactionClick = () => {
@@ -131,9 +137,20 @@ export const TransactionRenderer = ({ render: View, ...props }: TransactionRende
                         symbol={props.notification.symbol}
                         token={transactionToken}
                         amount={
-                            'formattedAmount' in props.notification
-                                ? props.notification.formattedAmount
-                                : undefined
+                            notificationAmount !== undefined ? (
+                                <FormattedCryptoAmount
+                                    value={notificationAmount}
+                                    symbol={
+                                        isSymbolRenderedBesideAmount
+                                            ? undefined
+                                            : (transactionToken?.symbol ?? symbol)
+                                    }
+                                    contractAddress={transactionToken?.contract}
+                                    tokenDecimals={transactionToken?.decimals}
+                                    isCompact
+                                    disableHiddenPlaceholder
+                                />
+                            ) : undefined
                         }
                         isInfiniteApproval={
                             props.notification.type === 'tx-approved' &&

@@ -1,6 +1,7 @@
 import { messages } from '@suite/intl';
-import { localizeNumber } from '@suite-common/wallet-utils';
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
+import { localizeNumber } from '@trezor/utils';
 
 import { formatAddressWithNewlines, replaceTemplatesInTranslation } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
@@ -31,7 +32,10 @@ test.describe('Doge Send', { tag: ['@T3W1', '@T3T1'] }, () => {
         await settingsPage.navigateTo('coins');
         await settingsPage.changeNetworks({
             enableNetworks: [
-                { symbol: 'doge', backend: { type: 'blockbook', url: blockbookMock.url } },
+                {
+                    symbol: asNetworkSymbol('doge'),
+                    backend: { type: 'blockbook', url: blockbookMock.url },
+                },
             ],
         });
     });
@@ -41,7 +45,7 @@ test.describe('Doge Send', { tag: ['@T3W1', '@T3T1'] }, () => {
         { annotation: createTestAnnotation({ stream: TestStream.Wallet }) },
         async ({ page, device, walletPage, tradingPage, devicePrompt }) => {
             await test.step('Open send form for Doge', async () => {
-                await walletPage.openAccount({ symbol: 'doge' });
+                await walletPage.openAccount({ symbol: asNetworkSymbol('doge') });
                 await walletPage.openSendFormButton.click();
             });
 

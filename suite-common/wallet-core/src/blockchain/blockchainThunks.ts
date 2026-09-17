@@ -1,5 +1,6 @@
 import { type AnalyticsDep } from '@suite-common/analytics';
 import { type DeviceRootState, selectDevices } from '@suite-common/device';
+import { type LegacyNetworkSymbol } from '@suite-common/legacy-network-config';
 import { type NetworksRootState } from '@suite-common/networks';
 import { type WithServices, createThunk } from '@suite-common/redux-utils';
 import { type GetIsWindowVisibleDep } from '@suite-common/suite-types';
@@ -12,17 +13,17 @@ import {
 } from '@suite-common/wallet-config';
 import type { Account, CustomBackend, GetTradedAccountKeysDep } from '@suite-common/wallet-types';
 import {
+    asAmountSubunit,
     findAccountDevice,
     findAccountsByDescriptor,
     findAccountsByNetwork,
     formatNetworkAmount,
-    formatTokenAmount,
     getAccountIdentity,
-    getAreSatoshisUsed,
     getBackendFromSettings,
     isTrezorConnectBackendType,
     shouldSubscribeBlocks,
     shouldUseIdentities,
+    subunitsToUnits,
 } from '@suite-common/wallet-utils';
 import TrezorConnect, {
     type BlockchainBlock,
@@ -31,7 +32,7 @@ import TrezorConnect, {
 } from '@trezor/connect';
 import { asCoinSymbol } from '@trezor/connect-common';
 import type { TimerId } from '@trezor/type-utils';
-import { arrayDistinct, arrayToDictionary } from '@trezor/utils';
+import { BigNumber, arrayDistinct, arrayToDictionary } from '@trezor/utils';
 
 import { BLOCKCHAIN_MODULE_PREFIX, blockchainActions } from './blockchainActions';
 import {
@@ -55,13 +56,12 @@ import {
 } from '../fees/feesThunks';
 import {
     type WalletSettingsRootState,
-    selectBitcoinAmountUnit,
     selectEnabledNetworks,
 } from '../settings/walletSettingsReducer';
 
 export const DEFAULT_NETWORK_SYNC_INTERVAL = 60 * 1000; // 1 minute
 
-const NETWORK_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
+const NETWORK_SYNC_INTERVALS: Partial<Record<LegacyNetworkSymbol, number>> = {
     bsc: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
     pol: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
     op: DEFAULT_NETWORK_SYNC_INTERVAL / 1.5,
@@ -77,7 +77,7 @@ const NETWORK_SYNC_INTERVALS: Partial<Record<NetworkSymbol, number>> = {
 const getNetworkSyncInterval = (
     symbol: NetworkSymbol,
     defaultInterval: number = DEFAULT_NETWORK_SYNC_INTERVAL,
-) => NETWORK_SYNC_INTERVALS[symbol] ?? defaultInterval;
+) => NETWORK_SYNC_INTERVALS[symbol as LegacyNetworkSymbol] ?? defaultInterval;
 
 type ReconnectBlockchainThunkParams = {
     symbol: NetworkSymbol;
@@ -115,7 +115,9 @@ export const setCustomBackendThunk = createThunk<
     { state: SetCustomBackendThunkState }
 >(`${BLOCKCHAIN_MODULE_PREFIX}/setCustomBackendThunk`, async (symbol, { dispatch, getState }) => {
     const blockchain = selectBlockchainState(getState());
-    const backends = [getBackendFromSettings(symbol, blockchain[symbol].backends)];
+    const backends = [
+        getBackendFromSettings(symbol, blockchain[symbol as LegacyNetworkSymbol].backends),
+    ];
     const result = await setBackendsToConnect(backends);
 
     // a disabled network has nothing to sync, so do not open a connection to its backend
@@ -306,7 +308,7 @@ export const syncAccountsWithBlockchainThunk = createThunk<
         const isWindowVisible = getIsWindowVisible();
 
         // First clear, to cancel last planned sync
-        tryClearTimeout(blockchain[symbol].syncTimeout);
+        tryClearTimeout(blockchain[symbol as LegacyNetworkSymbol].syncTimeout);
 
         // Sync only when the app window is active
         const shouldSync = isWindowVisible;
@@ -433,16 +435,18 @@ export const onBlockchainNotificationThunk = createThunk<
         const accountDevice = findAccountDevice(account, selectDevices(getState()));
 
         const token = tx.tokens?.[0];
-        const areSatoshisUsed = getAreSatoshisUsed(selectBitcoinAmountUnit(getState()), account);
 
-        const formattedAmount = token
-            ? formatTokenAmount(token)
-            : formatNetworkAmount(tx.amount, account.symbol, true, areSatoshisUsed);
+        const amount = token
+            ? subunitsToUnits({
+                  value: asAmountSubunit(new BigNumber(token.amount ?? '0')),
+                  decimals: token.decimals,
+              }).toString()
+            : formatNetworkAmount(tx.amount, account.symbol);
 
         dispatch(
             notificationsActions.addEvent({
                 type: 'tx-received',
-                formattedAmount,
+                amount,
                 device: accountDevice,
                 token,
                 descriptor: account.descriptor,
@@ -494,7 +498,7 @@ export const onBlockchainDisconnectThunk = createThunk<
     if (!network) return;
 
     const { symbol } = network;
-    const blockchain = selectBlockchainState(getState())[symbol];
+    const blockchain = selectBlockchainState(getState())[symbol as LegacyNetworkSymbol];
     const hasAccounts = findAccountsByNetwork(symbol, selectAccounts(getState())).length > 0;
 
     /**

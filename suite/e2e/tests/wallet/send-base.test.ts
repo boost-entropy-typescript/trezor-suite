@@ -1,6 +1,6 @@
-import { localizeNumber } from '@suite-common/wallet-utils';
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
-import { BigNumber } from '@trezor/utils';
+import { BigNumber, localizeNumber } from '@trezor/utils';
 
 import { formatAddressWithNewlines } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
@@ -32,10 +32,14 @@ test.describe(
             async ({ page, onboardingPage, dashboardPage, walletPage, settingsPage }) => {
                 await page.clock.install();
                 await onboardingPage.completeOnboarding();
-                await settingsPage.changeNetworks({ enableNetworks: ['base'] }); //add more EVMs
+                await settingsPage.changeNetworks({ enableNetworks: [asNetworkSymbol('base')] }); //add more EVMs
                 await dashboardPage.deviceSwitchingOpenButton.click();
                 await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-                await walletPage.openAccount({ symbol: 'base', type: 'normal', atIndex: 0 });
+                await walletPage.openAccount({
+                    symbol: asNetworkSymbol('base'),
+                    type: 'normal',
+                    atIndex: 0,
+                });
             },
         );
 

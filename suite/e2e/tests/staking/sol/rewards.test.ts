@@ -1,5 +1,6 @@
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestCategory, TestPriority, TestStream } from '@trezor/e2e-utils';
-import { BigNumber } from '@trezor/utils';
+import { BigNumber, localizeNumber } from '@trezor/utils';
 
 import {
     rewards,
@@ -11,6 +12,8 @@ import {
 import { expect, test } from '../../../support/fixtures';
 import { createTestAnnotation } from '../../../support/reporters/annotations';
 
+const solSymbol = asNetworkSymbol('sol');
+
 // Expected values based on our mocked responses
 const firstStakedAmount = solStakingAccountFirst.stakeInSol;
 const secondStakedAmount = solStakingAccountSecond.stakeInSol;
@@ -18,8 +21,14 @@ const stakedTotal = (Number(firstStakedAmount) + Number(secondStakedAmount)).toF
 const unstakingTotal = solStakingAccountDeactivating.stakeInSol;
 const stakingAccountTotal = new BigNumber(
     Number(firstStakedAmount) + Number(secondStakedAmount) + Number(unstakingTotal),
-).decimalPlaces(8, BigNumber.ROUND_DOWN);
-const stakingAccountTotalFormatted = `${stakingAccountTotal}… SOL`;
+);
+// An account balance is compact: two decimals from 1 upwards, and no ellipsis.
+const stakingAccountTotalFormatted = `${localizeNumber(
+    stakingAccountTotal.decimalPlaces(2, BigNumber.ROUND_DOWN),
+    'en-US',
+    2,
+    2,
+)} SOL`;
 const totalRewardsInSol = (Number(totalReward.response.total) / 1_000_000_000).toFixed(9);
 
 test.describe('sol staking', { tag: ['@T3W1', '@T3T1'] }, () => {
@@ -39,7 +48,7 @@ test.describe('sol staking', { tag: ['@T3W1', '@T3T1'] }, () => {
         await onboardingPage.completeOnboarding();
         await settingsPage.changeNetworks({
             enableNetworks: [
-                { symbol: 'sol', backend: { type: 'solana', url: solanaStakingMock.url } },
+                { symbol: solSymbol, backend: { type: 'solana', url: solanaStakingMock.url } },
             ],
         });
 
@@ -73,7 +82,7 @@ test.describe('sol staking', { tag: ['@T3W1', '@T3T1'] }, () => {
         async ({ page, walletPage, tradingPage, stakingSection }) => {
             await test.step('Check staking dashboard', async () => {
                 await page.clock.install();
-                await walletPage.openAccount({ symbol: 'sol', type: 'normal', atIndex: 0 });
+                await walletPage.openAccount({ symbol: solSymbol, type: 'normal', atIndex: 0 });
                 await stakingSection.stakingTabButton.click();
                 await stakingSection.expectStakingAmounts({
                     expected: {
@@ -86,7 +95,7 @@ test.describe('sol staking', { tag: ['@T3W1', '@T3T1'] }, () => {
 
                 await expect(
                     walletPage.balanceOfAccountWithSymbol({
-                        symbol: 'sol',
+                        symbol: solSymbol,
                         subAccount: 'staking',
                     }),
                 ).toHaveText(stakingAccountTotalFormatted);
@@ -119,7 +128,7 @@ test.describe('sol staking', { tag: ['@T3W1', '@T3T1'] }, () => {
                 });
                 await expect(
                     walletPage.balanceOfAccountWithSymbol({
-                        symbol: 'sol',
+                        symbol: solSymbol,
                         subAccount: 'staking',
                     }),
                 ).toHaveText(stakingAccountTotalFormatted);

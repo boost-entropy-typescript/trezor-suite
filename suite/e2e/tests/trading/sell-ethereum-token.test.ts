@@ -1,11 +1,14 @@
-import { localizeNumber } from '@suite-common/wallet-utils';
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
+import { localizeNumber } from '@trezor/utils';
 
 import { sellStatusFlow } from '../../fixtures/trading/statusFlow';
 import { formatAddressWithNewlines } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
 import { transformAddress } from '../../support/testExtends/customMatchers';
+
+const ethSymbol = asNetworkSymbol('eth');
 
 const sendAmount = '50';
 const tokenSymbol = 'USDC';
@@ -27,15 +30,15 @@ test.describe('Trading - Sell ETH token', { tag: ['@T3W1', '@T3T1'] }, () => {
             await tradingMock.rewriteProviderRedirect();
             await tradingMock.setWatchFields({ destinationAddress: depositAddress });
             await tradingMock.setStatus('SEND_CRYPTO');
-            const ethBackend = await tradingMock.startBackend('eth');
+            const ethBackend = await tradingMock.startBackend(ethSymbol);
 
             await onboardingPage.completeOnboarding();
             await settingsPage.changeNetworks({
-                enableNetworks: [{ symbol: 'eth', backend: ethBackend }],
+                enableNetworks: [{ symbol: ethSymbol, backend: ethBackend }],
             });
             await dashboardPage.deviceSwitchingOpenButton.click();
             await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-            await walletPage.openSellTradingOfToken('eth', tokenSymbol);
+            await walletPage.openSellTradingOfToken(ethSymbol, tokenSymbol);
         },
     );
 

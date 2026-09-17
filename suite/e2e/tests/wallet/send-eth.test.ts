@@ -1,6 +1,6 @@
-import { localizeNumber } from '@suite-common/wallet-utils';
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
-import { BigNumber } from '@trezor/utils';
+import { BigNumber, localizeNumber } from '@trezor/utils';
 
 import { formatAddressWithNewlines } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
@@ -25,10 +25,14 @@ test.describe('Send Eth', { tag: ['@T3W1', '@T3T1'] }, () => {
 
     test.beforeEach(async ({ onboardingPage, dashboardPage, walletPage, settingsPage }) => {
         await onboardingPage.completeOnboarding();
-        await settingsPage.changeNetworks({ enableNetworks: ['eth'] });
+        await settingsPage.changeNetworks({ enableNetworks: [asNetworkSymbol('eth')] });
         await dashboardPage.deviceSwitchingOpenButton.click();
         await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-        await walletPage.openAccount({ symbol: 'eth', type: 'normal', atIndex: 0 });
+        await walletPage.openAccount({
+            symbol: asNetworkSymbol('eth'),
+            type: 'normal',
+            atIndex: 0,
+        });
     });
 
     test(

@@ -1,18 +1,23 @@
 import { asNetworkSymbol, getNetwork } from '@suite-common/wallet-config';
-import { localizeNumber } from '@suite-common/wallet-utils';
 import { TestCategory, TestPriority, TestStream } from '@trezor/e2e-utils';
 import { Model } from '@trezor/trezor-user-env-link';
-import { BigNumber } from '@trezor/utils';
+import { localizeNumber } from '@trezor/utils';
 
-import { formatAddressWithNewlines } from '../../support/common';
+import {
+    formatAddressWithNewlines,
+    getBigNumberFromBalance,
+    toCompactAmount,
+} from '../../support/common';
 import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
 import { transformAddress } from '../../support/testExtends/customMatchers';
 
+const solSymbol = asNetworkSymbol('sol');
+
 const RECIPIENT_ADDRESS = 'ENk2eeP4umP6cjAGRsVG4NEVKEVQmRn6JEpN8hubv2Hf';
 const FORMATTED_ADDRESS = formatAddressWithNewlines(RECIPIENT_ADDRESS);
 const TRANSFORMED_ADDRESS = transformAddress(RECIPIENT_ADDRESS, 'fourTetragrams');
-const SOL_DECIMALS = getNetwork(asNetworkSymbol('sol')).decimals;
+const SOL_DECIMALS = getNetwork(solSymbol).decimals;
 
 test.describe('Send - Solana', { tag: ['@webOnly', '@T3T1', '@T3W1'] }, () => {
     test.use({
@@ -24,10 +29,10 @@ test.describe('Send - Solana', { tag: ['@webOnly', '@T3T1', '@T3W1'] }, () => {
 
     test.beforeEach(async ({ settingsPage, onboardingPage, dashboardPage, walletPage }) => {
         await onboardingPage.completeOnboarding();
-        await settingsPage.changeNetworks({ enableNetworks: ['sol'] });
+        await settingsPage.changeNetworks({ enableNetworks: [solSymbol] });
         await dashboardPage.deviceSwitchingOpenButton.click();
         await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-        await walletPage.openAccount({ symbol: 'sol', type: 'normal', atIndex: 0 });
+        await walletPage.openAccount({ symbol: solSymbol, type: 'normal', atIndex: 0 });
     });
 
     test(
@@ -58,23 +63,33 @@ test.describe('Send - Solana', { tag: ['@webOnly', '@T3T1', '@T3W1'] }, () => {
                 await expect(tradingPage.fees.maxFee).not.toBeEmpty();
                 await expect(tradingPage.sendBalance).toHaveText(/\d/);
 
-                const balance = Number(await tradingPage.sendBalance.innerText());
                 maxFee = Number(await tradingPage.fees.maxFee.innerText());
                 const reservedAmount = await tradingPage.fees.getNetworkReserveAmount();
+
+                // The balance beside the asset name is compact now, so the expectation comes from
+                // the account header instead, which still carries every decimal.
+                const { originalBalance: balance } = await getBigNumberFromBalance(
+                    walletPage.topPanelBalance,
+                );
+
                 sendMaxAmountWithReserve = localizeNumber(
-                    new BigNumber(balance - maxFee - reservedAmount),
+                    balance.minus(maxFee).minus(reservedAmount),
                     'en-US',
                     0,
                     SOL_DECIMALS,
                 );
                 await expect(tradingPage.sendAmountInput).toHaveValue(sendMaxAmountWithReserve);
+
                 const expectedTotalSent = localizeNumber(
-                    new BigNumber(balance - reservedAmount),
+                    balance.minus(reservedAmount),
                     'en-US',
                     0,
                     SOL_DECIMALS,
                 );
                 await expect(walletPage.totalSent).toHaveText(expectedTotalSent);
+                await expect(tradingPage.sendBalance).toHaveText(
+                    toCompactAmount(balance.toFixed()),
+                );
                 await expect(tradingPage.sendButton).toBeEnabled();
             });
 

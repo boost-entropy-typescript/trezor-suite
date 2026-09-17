@@ -12,7 +12,7 @@ import { type SuiteSyncDataState, type SuiteSyncState } from '@suite-common/suit
 import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { testMocks } from '@suite-common/test-utils';
 import { notificationsActions } from '@suite-common/toast-notifications';
-import { type Network, getNetwork } from '@suite-common/wallet-config';
+import { type Network, asNetworkSymbol, getNetwork } from '@suite-common/wallet-config';
 import { DEFAULT_PAYMENT, DEFAULT_VALUES } from '@suite-common/wallet-constants';
 import {
     accountsActions,
@@ -86,7 +86,7 @@ const UTXO = {
 export const BTC_ACCOUNT: Omit<SelectedAccountStatus, 'network'> & { network: Partial<Network> } = {
     status: 'loaded',
     account: mockWalletAccount({
-        symbol: 'btc',
+        symbol: asNetworkSymbol('btc'),
         descriptor: asAccountDescriptor('xpub'),
         deviceState: '1stTestnetAddress@device_id:0',
         addresses: {
@@ -150,14 +150,19 @@ export const BTC_ACCOUNT: Omit<SelectedAccountStatus, 'network'> & { network: Pa
         formattedBalance: '1000 BTC',
         utxo: Object.values(UTXO),
     }),
-    network: { networkType: 'bitcoin', symbol: 'btc', decimals: 8, features: ['rbf'] },
+    network: {
+        networkType: 'bitcoin',
+        symbol: asNetworkSymbol('btc'),
+        decimals: 8,
+        features: ['rbf'],
+    },
 };
 
 export const ETH_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: mockWalletAccount(
         {
-            symbol: 'eth',
+            symbol: asNetworkSymbol('eth'),
             descriptor: asAccountDescriptor('0xdB09b793984B862C430b64B9ed53AcF867cC041F'),
             deviceState: '1stTestnetAddress@device_id:0',
             balance: '10000000000000000000', // 10 ETH
@@ -181,7 +186,7 @@ export const XRP_ACCOUNT: DeepPartial<SelectedAccountStatus> = {
     status: 'loaded',
     account: mockWalletAccount(
         {
-            symbol: 'xrp',
+            symbol: asNetworkSymbol('xrp'),
             descriptor: asAccountDescriptor('rAPERVgXZavGgiGv6xBgtiZurirW2yAmY'),
             deviceState: '1stTestnetAddress@device_id:0',
             balance: '100000000', // 100 XRP
@@ -1491,7 +1496,7 @@ export const signAndPush: SignAndPush[] = [
             actions: [
                 {
                     type: notificationsActions.addToast.type,
-                    payload: { type: 'tx-sent', formattedAmount: '1 ETH' }, // BUG ?
+                    payload: { type: 'tx-sent', amount: '1' },
                 },
                 {
                     type: routerLocationChange.type,
@@ -1547,7 +1552,7 @@ export const signAndPush: SignAndPush[] = [
             actions: [
                 {
                     type: notificationsActions.addToast.type,
-                    payload: { type: 'tx-sent', formattedAmount: '1 XRP' },
+                    payload: { type: 'tx-sent', amount: '1' },
                 },
                 {
                     type: routerLocationChange.type,
@@ -1650,7 +1655,7 @@ export const signAndPush: SignAndPush[] = [
             actions: [
                 {
                     type: notificationsActions.addToast.type,
-                    payload: { type: 'tx-sent', formattedAmount: '24.999999 BTC' },
+                    payload: { type: 'tx-sent', amount: '24.999999' },
                 },
                 {
                     type: accountsActions.updateAccount.type,

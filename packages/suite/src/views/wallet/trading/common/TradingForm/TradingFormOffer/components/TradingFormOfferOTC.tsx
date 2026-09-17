@@ -12,9 +12,10 @@ import {
     getOtcProvidersByCountry,
     useFetchOtc,
 } from '@suite-common/trading';
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { selectBaseCurrency } from '@suite-common/wallet-core';
-import { localizeNumber } from '@suite-common/wallet-utils';
 import { Banner, Column, Text } from '@trezor/components';
+import { localizeNumber } from '@trezor/utils';
 
 import { useSelector } from 'src/hooks/suite';
 import { useFiatFromCryptoValue } from 'src/hooks/suite/useFiatFromCryptoValue';
@@ -71,7 +72,7 @@ export const TradingFormOfferOTC = () => {
 
     const { fiatAmount: fiatAmountConverted } = useFiatFromCryptoValue({
         amount: cryptoAmount || '0',
-        symbol: network?.symbol || 'btc',
+        symbol: network?.symbol || asNetworkSymbol('btc'),
         tokenAddress: contractAddress,
         rateType: 'current',
     });

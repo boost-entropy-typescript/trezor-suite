@@ -1,14 +1,16 @@
 import { getCryptoId } from '@suite-common/trading';
 import { asNetworkSymbol } from '@suite-common/wallet-config';
-import { localizeNumber } from '@suite-common/wallet-utils';
 import { TestStream } from '@trezor/e2e-utils';
-import { BigNumber } from '@trezor/utils';
+import { BigNumber, localizeNumber } from '@trezor/utils';
 
 import { swapStatusFlow } from '../../fixtures/trading/statusFlow';
 import { formatAddressWithNewlines } from '../../support/common';
 import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
 import { transformAddress } from '../../support/testExtends/customMatchers';
+
+const btcSymbol = asNetworkSymbol('btc');
+const ethSymbol = asNetworkSymbol('eth');
 
 const sendAmount = '0.001';
 const formattedSendAmount = `${localizeNumber(sendAmount)} BTC`;
@@ -22,15 +24,15 @@ test.describe('Trading - Swap', { tag: ['@T3W1', '@T3T1'] }, () => {
     test.beforeEach(
         async ({ onboardingPage, dashboardPage, settingsPage, walletPage, tradingMock }) => {
             tradingMock.setTradeFlow('swap');
-            const btcBackend = await tradingMock.startBackend('btc');
+            const btcBackend = await tradingMock.startBackend(btcSymbol);
 
             await onboardingPage.completeOnboarding();
             await settingsPage.changeNetworks({
-                enableNetworks: [{ symbol: 'btc', backend: btcBackend }, 'eth'],
+                enableNetworks: [{ symbol: btcSymbol, backend: btcBackend }, ethSymbol],
             });
             await dashboardPage.deviceSwitchingOpenButton.click();
             await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-            await walletPage.openSwapTrading({ symbol: 'btc' });
+            await walletPage.openSwapTrading({ symbol: btcSymbol });
         },
     );
 
@@ -42,18 +44,18 @@ test.describe('Trading - Swap', { tag: ['@T3W1', '@T3T1'] }, () => {
                 await tradingPage.fillSwapForm({
                     amount: sendAmount,
                     sellAsset: {
-                        networkSymbol: 'btc',
+                        networkSymbol: btcSymbol,
                     },
                     buyAsset: {
                         searchFilter: receiveTokenSymbol,
                         networkFilter: 'eth',
                         assetCryptoId: getCryptoId(
-                            asNetworkSymbol('eth'),
+                            ethSymbol,
                             '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                         ),
                     },
                     selectReceiveAddress: async () => {
-                        await tradingPage.receiveAccount.selectSuiteReceiveAccount(0, 'eth');
+                        await tradingPage.receiveAccount.selectSuiteReceiveAccount(0, ethSymbol);
                     },
                 });
             });

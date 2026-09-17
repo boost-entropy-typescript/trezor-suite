@@ -1,3 +1,4 @@
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
 
 import ETH_BASE_TX from '../../fixtures/staking/eth-base-tx.json';
@@ -15,6 +16,9 @@ import { createTestAnnotation } from '../../support/reporters/annotations';
 const { usdcPrime } = YIELD_VAULTS;
 const YIELD_USDC_VAULT_DISPLAY_NAME = ['Trezor Steakhouse', '\n', 'USDC Prime Vault'];
 const WITHDRAW_AMOUNT = '5';
+// The dashboard shows a deposited position compactly, and a stablecoin reads money-like.
+const YIELD_USDC_DEPOSITED_AMOUNT_COMPACT = '10.00';
+const YIELD_USDC_REMAINING_AMOUNT_COMPACT = '5.00';
 const WITHDRAW_MAX_FEE = '0.00010840280031 ETH';
 
 const buildEthAccountTokens = ({
@@ -52,7 +56,10 @@ test.describe('stablecoin yield withdrawal', { tag: ['@webOnly', '@T3W1', '@T3T1
         await yieldMock.start();
         await settingsPage.changeNetworks({
             enableNetworks: [
-                { symbol: 'eth', backend: { type: 'blockbook', url: blockbookMock.url } },
+                {
+                    symbol: asNetworkSymbol('eth'),
+                    backend: { type: 'blockbook', url: blockbookMock.url },
+                },
             ],
         });
     });
@@ -74,11 +81,14 @@ test.describe('stablecoin yield withdrawal', { tag: ['@webOnly', '@T3W1', '@T3T1
 
                 await expect(yieldSection.depositedAmount(usdcPrime.id)).toHaveTranslation(
                     'TR_EARN_YIELD_DASHBOARD_DEPOSITED',
-                    { values: { amount: YIELD_USDC_DEPOSITED_AMOUNT, displaySymbol: 'USDC' } },
+                    {
+                        values: {
+                            amount: YIELD_USDC_DEPOSITED_AMOUNT_COMPACT,
+                            displaySymbol: 'USDC',
+                        },
+                    },
                 );
-                await expect(yieldSection.yearlyRewardAmount(usdcPrime.id)).toHaveText(
-                    '0.426 USDC',
-                );
+                await expect(yieldSection.yearlyRewardAmount(usdcPrime.id)).toHaveText('0.42 USDC');
                 await expect(yieldSection.depositMoreButton(usdcPrime.id)).toBeVisible();
                 await expect(yieldSection.depositNowButton(usdcPrime.id)).toBeHidden();
 
@@ -195,11 +205,14 @@ test.describe('stablecoin yield withdrawal', { tag: ['@webOnly', '@T3W1', '@T3T1
 
                 await expect(yieldSection.depositedAmount(usdcPrime.id)).toHaveTranslation(
                     'TR_EARN_YIELD_DASHBOARD_DEPOSITED',
-                    { values: { amount: '5', displaySymbol: 'USDC' } },
+                    {
+                        values: {
+                            amount: YIELD_USDC_REMAINING_AMOUNT_COMPACT,
+                            displaySymbol: 'USDC',
+                        },
+                    },
                 );
-                await expect(yieldSection.yearlyRewardAmount(usdcPrime.id)).toHaveText(
-                    '0.213 USDC',
-                );
+                await expect(yieldSection.yearlyRewardAmount(usdcPrime.id)).toHaveText('0.21 USDC');
                 await expect(yieldSection.withdrawButton(usdcPrime.id)).toBeVisible();
             });
         },

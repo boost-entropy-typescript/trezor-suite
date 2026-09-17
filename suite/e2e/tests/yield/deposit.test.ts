@@ -1,3 +1,4 @@
+import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { TestStream } from '@trezor/e2e-utils';
 
 import ETH_BASE_TX from '../../fixtures/staking/eth-base-tx.json';
@@ -14,6 +15,8 @@ import { createTestAnnotation } from '../../support/reporters/annotations';
 const { usdcPrime, usdtPrime } = YIELD_VAULTS;
 const YIELD_USDC_VAULT_DISPLAY_NAME = ['Trezor Steakhouse', '\n', 'USDC Prime Vault'];
 const EXPECT_YIELD_DASHBOARD_ROWS = [usdcPrime, usdtPrime];
+// The toast shows the approved amount compactly, and a stablecoin reads money-like.
+const COMPACT_APPROVED_AMOUNT = '10.00';
 const APPROVE_MAX_FEE = '0.00003161748342375 ETH';
 const DEPOSIT_MAX_FEE = '0.00010840280031 ETH';
 
@@ -30,7 +33,10 @@ test.describe('stablecoin yield', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =>
         await yieldMock.start();
         await settingsPage.changeNetworks({
             enableNetworks: [
-                { symbol: 'eth', backend: { type: 'blockbook', url: blockbookMock.url } },
+                {
+                    symbol: asNetworkSymbol('eth'),
+                    backend: { type: 'blockbook', url: blockbookMock.url },
+                },
             ],
         });
     });
@@ -56,7 +62,7 @@ test.describe('stablecoin yield', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =>
                 await yieldSection.earnMenuButton.click();
 
                 const ethAccountName = await walletPage
-                    .accountLabel({ symbol: 'eth', type: 'normal', atIndex: 0 })
+                    .accountLabel({ symbol: asNetworkSymbol('eth'), type: 'normal', atIndex: 0 })
                     .innerText();
 
                 await expect(yieldSection.yieldTitle).toHaveTranslation('TR_EARN_DEFI_YIELD_TITLE');
@@ -176,7 +182,9 @@ test.describe('stablecoin yield', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =>
                 await devicePrompt.waitForFinalPromptAndConfirm();
                 await devicePrompt.sendButton.click();
                 await expect(toastSection.approved).toBeVisible();
-                await expect(toastSection.approvedAmount).toHaveText('10USDC');
+                await expect(toastSection.approvedAmount).toHaveText(
+                    `${COMPACT_APPROVED_AMOUNT}USDC`,
+                );
                 await expect(yieldFlowSection.pendingTransactionLabel).toHaveTranslation(
                     'TR_EXCHANGE_APPROVAL_FORM_CONFIRMING_APPROVAL',
                 );
@@ -266,10 +274,10 @@ test.describe('stablecoin yield', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =>
                 await expect(yieldFlowSection.flowCompleteTransferInputAmount).toHaveText(
                     '10 USDC',
                 );
-                // Output shares render at full token precision via formatCoinBalance (8 fractional
-                // digits + ellipsis), not the rounded simulation preview shown earlier in the flow.
+                // Output shares render at full token precision, not the rounded simulation
+                // preview shown earlier in the flow.
                 await expect(yieldFlowSection.flowCompleteTransferOutputAmount).toHaveText(
-                    '9.94423845… trSHUSDCp',
+                    '9.944238455556494028 trSHUSDCp',
                 );
 
                 await blockbookMock.sendNewBlockNotification(YIELD_NEW_BLOCK);

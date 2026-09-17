@@ -1,11 +1,12 @@
 import { getCryptoId } from '@suite-common/trading';
 import { asNetworkSymbol } from '@suite-common/wallet-config';
-import { localizeNumber } from '@suite-common/wallet-utils';
 import { TestStream } from '@trezor/e2e-utils';
-import { BigNumber } from '@trezor/utils';
+import { BigNumber, localizeNumber } from '@trezor/utils';
 
 import { expect, test } from '../../support/fixtures';
 import { createTestAnnotation } from '../../support/reporters/annotations';
+
+const ethSymbol = asNetworkSymbol('eth');
 
 const sendAmount = '0.03';
 const formattedSendAmount = `${localizeNumber(sendAmount)} ETH`;
@@ -25,15 +26,18 @@ test.describe('Trading - Swap fees', { tag: ['@T3W1', '@T3T1'] }, () => {
         async ({ onboardingPage, dashboardPage, walletPage, settingsPage, tradingMock }) => {
             tradingMock.setTradeFlow('swap');
             // Backend is wired only as a broadcast guard; the test never gets past the device.
-            const ethBackend = await tradingMock.startBackend('eth');
+            const ethBackend = await tradingMock.startBackend(ethSymbol);
 
             await onboardingPage.completeOnboarding();
             await settingsPage.changeNetworks({
-                enableNetworks: [{ symbol: 'eth', backend: ethBackend }, 'btc'],
+                enableNetworks: [
+                    { symbol: ethSymbol, backend: ethBackend },
+                    asNetworkSymbol('btc'),
+                ],
             });
             await dashboardPage.deviceSwitchingOpenButton.click();
             await dashboardPage.addHiddenWallet(process.env.PASSPHRASE!);
-            await walletPage.openSwapTrading({ symbol: 'eth' });
+            await walletPage.openSwapTrading({ symbol: ethSymbol });
         },
     );
 
@@ -45,7 +49,7 @@ test.describe('Trading - Swap fees', { tag: ['@T3W1', '@T3T1'] }, () => {
                 await tradingPage.fillSwapForm({
                     amount: sendAmount,
                     sellAsset: {
-                        networkSymbol: 'eth',
+                        networkSymbol: ethSymbol,
                     },
                     buyAsset: {
                         searchFilter: 'Bitcoin',
