@@ -2,12 +2,12 @@ import { useEffect, useMemo } from 'react';
 import { FormProvider } from 'react-hook-form';
 
 import { selectFullSelectedAccount } from '@suite/account';
-import { events, selectDesktopAnalyticsDep } from '@suite/analytics';
+import { events, injectDesktopAnalytics } from '@suite/analytics';
 import { Translation } from '@suite/intl';
 import { useServices } from '@suite-common/dependency-injection';
-import { selectDispatch } from '@suite-common/redux-utils';
+import { injectDispatch } from '@suite-common/redux-utils';
+import { CARDANO_EVERSTAKE_DREP } from '@suite-common/wallet-constants';
 import {
-    CARDANO_EVERSTAKE_DREP,
     DEFAULT_VOTING_OPTION,
     getCardanoAccountDrepId,
     selectVotingDelegationOption,
@@ -39,7 +39,7 @@ export const StakeChangeDelegateModalLoaded = ({
 }: StakeChangeDelegateModalProps) => {
     const { account } = selectedAccount;
 
-    const { analytics, dispatch } = useServices(selectDesktopAnalyticsDep, selectDispatch);
+    const { analytics, dispatch } = useServices(injectDesktopAnalytics, injectDispatch);
 
     const selectedVotingDelegation = useSelector(state =>
         selectVotingDelegationOption(state, account.key),

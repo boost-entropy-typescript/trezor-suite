@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useServices } from '@suite-common/dependency-injection';
-import { selectDispatch } from '@suite-common/redux-utils';
+import { injectDispatch } from '@suite-common/redux-utils';
 import {
     CARDANO_EPOCH_DAYS,
     fetchAllTransactionsForAccountThunk,
@@ -38,7 +38,7 @@ export const AdaStakingDashboard = ({ selectedAccount }: AdaStakingDashboardProp
 
     const isDiscoveryRunning = useSelector(selectHasRunningDiscovery);
 
-    const { dispatch } = useServices(selectDispatch);
+    const { dispatch } = useServices(injectDispatch);
 
     useEffect(() => {
         if (accountKey) {
@@ -82,8 +82,6 @@ export const AdaStakingDashboard = ({ selectedAccount }: AdaStakingDashboardProp
                                 <StakingCard
                                     account={account}
                                     isValidatorsQueueLoading={undefined}
-                                    daysToAddToPool={CARDANO_EPOCH_DAYS}
-                                    daysToUnstake={CARDANO_EPOCH_DAYS}
                                 />
                                 <DebugOnlyCardanoStakingCard account={account} />
                             </Column>

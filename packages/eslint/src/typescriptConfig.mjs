@@ -10,11 +10,10 @@ const buildArtifactPatterns = {
         'Import from the package root instead. Deep paths into "lib/" or "libDev/" target build artifacts that may not exist or may diverge from the workspace source.',
 };
 
-// Network family packages (@trezor/network-bitcoin, -ethereum, ...) expose sectioned entry
-// points. `@trezor/network-module` is the shared module contract rather than a family, so it is
-// imported from its root like any other shared package.
+// Bare network packages expose sectioned entry points. Type contracts and Suite layer packages
+// keep root imports; a dash in a network name alone does not exempt a bare package.
 const networksPackagePattern = {
-    regex: '^@trezor/network-(?!module$)[a-z]+$',
+    regex: '^@trezor/(?![^/]*-(?:types|suite(?:-common|-native)?)$)network-[^/]+$',
     message: 'Import from /constants, /runtime or /types subpath.',
 };
 
