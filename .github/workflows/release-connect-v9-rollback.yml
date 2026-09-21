@@ -7,6 +7,9 @@ permissions:
 on:
   workflow_dispatch:
 
+env:
+  CONNECT_CLOUDFRONT_DISTRIBUTION_ID: E3LVNAOGT94E37
+
 jobs:
   rollback-connect-production:
     if: startsWith(github.ref, 'refs/heads/release/connect/')
@@ -25,3 +28,7 @@ jobs:
       - name: Synching production bucket with rollback
         run: |
           aws s3 sync --delete s3://rollback-connect.trezor.io/${{ env.LATEST_VERSION }}/ s3://connect.trezor.io/${{ env.LATEST_VERSION }}/
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ env.CONNECT_CLOUDFRONT_DISTRIBUTION_ID }} --paths '/*'
