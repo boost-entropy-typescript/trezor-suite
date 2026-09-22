@@ -112,12 +112,6 @@ export type WrappedNativeTokenPendingTxParams = {
     txid: string;
 };
 
-export type YieldInsufficientBalanceParams = {
-    accountKey: AccountKey;
-    tokenContract: TokenAddress;
-    yieldId: string;
-};
-
 type YieldDepositApprovalReviewParams = YieldFlowParams & {
     amount: string;
     approvalLimitType: 'per-deposit' | 'unlimited';
@@ -147,6 +141,7 @@ export type YieldStackParamList = {
     [YieldStackRoutes.YieldDepositWrapReview]: YieldFlowParams;
     [YieldStackRoutes.YieldDepositApproval]: YieldFlowParams;
     [YieldStackRoutes.YieldDeposit]: YieldFlowParams;
+    [YieldStackRoutes.YieldDepositNoBalance]: YieldFlowParams;
     [YieldStackRoutes.YieldDepositRevoke]: YieldDepositRevokeParams;
     [YieldStackRoutes.YieldWithdraw]: YieldWithdrawParams;
     [YieldStackRoutes.YieldDepositApprovalReview]: YieldDepositApprovalReviewParams;
@@ -534,7 +529,7 @@ export type RootStackParamList = {
     };
     [RootStackRoutes.YieldNavigator]: NavigatorScreenParams<YieldStackParamList>;
     [RootStackRoutes.WrappedNativeTokenNavigator]: NavigatorScreenParams<WrappedNativeTokenStackParamList>;
-    [RootStackRoutes.EarnForm]: {
+    [RootStackRoutes.StakingForm]: {
         accountKey: AccountKey;
     };
     [RootStackRoutes.EarnConsents]: {
