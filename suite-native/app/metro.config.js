@@ -49,6 +49,13 @@ const legacyBrowserFieldPackages = [
     '@noble/hashes',
 ];
 
+// Metro strips the extension in async chunk URLs, so `dist/index.cjs` comes back as `dist/index`
+// and re-resolves to `dist/index.js` under a different module id: "Requiring unknown module".
+const cjsAsyncChunkPackages = ['@walletconnect/core', '@walletconnect/utils', '@reown/walletkit'];
+
+const isAsyncChunkEntryOf = (packageNames, moduleName) =>
+    packageNames.some(packageName => moduleName.endsWith(`${packageName}/dist/index`));
+
 const isModuleFrom = (packageNames, moduleName) =>
     packageNames.some(
         packageName => moduleName === packageName || moduleName.startsWith(`${packageName}/`),
@@ -62,6 +69,17 @@ const isModuleFrom = (packageNames, moduleName) =>
 const jwaPackagePath = path.join(path.sep, 'node_modules', 'jwa', path.sep);
 
 const isRequestedByJwa = context => context.originModulePath.includes(jwaPackagePath);
+
+// Hermes cannot run WASM; see networks/cardano/network-cardano/README.md.
+const cardanoSerializationLibPath = path.resolve(
+    __dirname,
+    '../../networks/cardano/network-cardano/generated/csl-asmjs/cardano_serialization_lib.js',
+);
+
+// Transforming the multi-megabyte Cardano Serialization Lib asm.js file exceeds the default worker
+// heap (4.5 GB). Worker threads created after this call inherit the cap; memory is allocated only
+// as needed, not reserved up front.
+require('v8').setFlagsFromString('--max-old-space-size=12288');
 
 /**
  * Metro configuration
@@ -99,6 +117,10 @@ const config = {
                 originModulePath: context.originModulePath,
             });
 
+            if (isAsyncChunkEntryOf(cjsAsyncChunkPackages, moduleName)) {
+                return context.resolveRequest(context, `${moduleName}.cjs`, platform);
+            }
+
             if (isModuleFrom(cjsOnlyPackages, moduleName)) {
                 return context.resolveRequest(
                     { ...context, isESMImport: false },
@@ -124,11 +146,11 @@ const config = {
                 type: 'sourceFile',
             });
 
-            if (moduleName.startsWith('@emurgo/cardano')) {
-                // Cardano libs doesn't have main field in package.json which will cause error in metro
-                // Also they use WASM which doesn't work in RN so we polyfill it with empty file to build errors
-                // In future we will need JS implementation of Cardano libs or C++ implementation
-                return getSourceFile('./cardanoPolyfills.js');
+            if (
+                moduleName === '@emurgo/cardano-serialization-lib-nodejs' ||
+                moduleName === '@emurgo/cardano-serialization-lib-browser'
+            ) {
+                return { filePath: cardanoSerializationLibPath, type: 'sourceFile' };
             }
 
             if (process.env.EXPO_PUBLIC_IS_DETOX_BUILD && moduleName === '@trezor/connect') {

@@ -2,6 +2,9 @@
 @blockaid/client
 
 @braintree/sanitize-url
+@emurgo/cardano-serialization-lib-asmjs
+@emurgo/cardano-serialization-lib-browser
+@emurgo/cardano-serialization-lib-nodejs
 @exodus/patch-broken-hermes-typed-arrays
 @fivebinaries/coin-selection
 @noble/hashes
@@ -18,6 +21,7 @@
 abortcontroller-polyfill
 ajv
 bignumber.js
+binaryen
 react-native-tcp-socket # needed byElectrumWorker
 toml
 viem
