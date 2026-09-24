@@ -12872,6 +12872,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@suite-native/experimental-features@workspace:suite-native/experimental-features"
   dependencies:
+    "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
     "@suite-native/settings": "workspace:*"
     react: "npm:19.2.3"
@@ -13613,6 +13614,7 @@ __metadata:
     "@trezor/requirements": "workspace:*"
     expo: "npm:~57.0.8"
     react: "npm:19.2.3"
+    react-hook-form: "npm:^7.77.0"
     react-native: "npm:0.86.0"
     react-redux: "npm:9.3.0"
   languageName: unknown
@@ -14084,6 +14086,8 @@ __metadata:
     "@suite-native/config": "workspace:*"
     "@suite-native/device": "workspace:*"
     "@suite-native/device-manager": "workspace:*"
+    "@suite-native/experimental-features": "workspace:*"
+    "@suite-native/feature-feedback": "workspace:*"
     "@suite-native/forms": "workspace:*"
     "@suite-native/helpers": "workspace:*"
     "@suite-native/icons": "workspace:*"
