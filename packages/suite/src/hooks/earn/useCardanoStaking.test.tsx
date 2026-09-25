@@ -4,7 +4,7 @@ import { createTestCompositionRoot, renderHookWithStoreProvider } from '@suite-c
 import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { stakeInitialState } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
-import { mockWalletAccount, networkSpecificDefaultCardano } from '@suite-common/wallet-types/mocks';
+import { mockWalletAccount } from '@suite-common/wallet-types/mocks';
 import TrezorConnect from '@trezor/connect';
 
 import { useCardanoStaking } from './useCardanoStaking';
@@ -41,10 +41,26 @@ const mockNeverStakedAccount = (): Account =>
             addresses: { change: [CHANGE_ADDRESS], used: [], unused: [] },
             utxo: [],
         },
+        { misc: { staking: { isActive: false } } },
+    );
+
+const mockAccountWithRewardsButNoDrep = (): Account =>
+    mockWalletAccount(
         {
-            ...networkSpecificDefaultCardano,
+            symbol: asNetworkSymbol('ada'),
+            availableBalance: '10000000',
+            addresses: { change: [CHANGE_ADDRESS], used: [], unused: [] },
+            utxo: [],
+        },
+        {
             misc: {
-                staking: { address: '', isActive: false, rewards: '', poolId: null, drep: null },
+                staking: {
+                    address: 'stake1address',
+                    isActive: true,
+                    rewards: '1000000',
+                    poolId: null,
+                    drep: null,
+                },
             },
         },
     );
@@ -104,7 +120,39 @@ describe('useCardanoStaking', () => {
         expect(result.current.isStakingDisabled).toBe(true);
     });
 
-    it('keeps only the error code of a failed compose, never the message that may embed the payload', async () => {
+    it('keeps a known compose error as the reason', async () => {
+        cardanoComposeTransactionMock.mockResolvedValue({
+            success: true,
+            payload: [{ type: 'error', error: 'UTXO_BALANCE_INSUFFICIENT' }],
+        });
+
+        const { result } = renderCardanoStaking(mockNeverStakedAccount());
+
+        await act(() => result.current.calculateFeeAndDeposit('delegate'));
+
+        expect(result.current.delegatingAvailable).toEqual({
+            status: false,
+            reason: 'UTXO_BALANCE_INSUFFICIENT',
+        });
+    });
+
+    it('reduces an unknown compose error to a fixed reason', async () => {
+        cardanoComposeTransactionMock.mockResolvedValue({
+            success: true,
+            payload: [{ type: 'error', error: 'Something the UI has no case for' }],
+        });
+
+        const { result } = renderCardanoStaking(mockNeverStakedAccount());
+
+        await act(() => result.current.calculateFeeAndDeposit('delegate'));
+
+        expect(result.current.delegatingAvailable).toEqual({
+            status: false,
+            reason: 'COMPOSE_FAILED',
+        });
+    });
+
+    it('reports a failed compose by a fixed reason, never the message that may embed the payload', async () => {
         const utxoAddress = 'addr1q9utxo';
         cardanoComposeTransactionMock.mockResolvedValue({
             success: false,
@@ -120,8 +168,20 @@ describe('useCardanoStaking', () => {
 
         expect(result.current.delegatingAvailable).toEqual({
             status: false,
-            reason: 'Failure_UnknownCode',
+            reason: 'COMPOSE_FAILED',
         });
+    });
+
+    it('reports the missing DRep delegation instead of composing a withdrawal the node would reject', async () => {
+        const { result } = renderCardanoStaking(mockAccountWithRewardsButNoDrep());
+
+        await act(() => result.current.calculateFeeAndDeposit('withdrawal'));
+
+        expect(result.current.withdrawingAvailable).toEqual({
+            status: false,
+            reason: 'DREP_DELEGATION_REQUIRED',
+        });
+        expect(cardanoComposeTransactionMock).not.toHaveBeenCalled();
     });
 
     it('does not make withdrawing available when there is nothing to withdraw', async () => {

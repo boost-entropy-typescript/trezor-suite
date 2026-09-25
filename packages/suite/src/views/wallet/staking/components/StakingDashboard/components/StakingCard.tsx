@@ -9,9 +9,11 @@ import { getNetworkDisplaySymbol } from '@suite-common/wallet-config';
 import {
     getStakingDataForNetwork,
     isCardanoStakedWithEverstake,
+    isCardanoWithdrawalBlockedByMissingDrep,
     selectAccountIsStakingActive,
     selectAccountStakeTypeTransactions,
     selectCardanoPoolsInfo,
+    stakeActions,
 } from '@suite-common/wallet-core';
 import { type Account } from '@suite-common/wallet-types';
 import { isPending } from '@suite-common/wallet-utils';
@@ -163,6 +165,11 @@ export const StakingCard = ({
         (isStakeConfirming || isTxStatusShown) && !!progressLabelsData.length;
 
     const isCardanoNetworkType = account.networkType === 'cardano';
+    const isDrepDelegationRequired = isCardanoWithdrawalBlockedByMissingDrep(account);
+    const isClaimDisabled = !canClaimRewards || isClaimingDisabled || isDrepDelegationRequired;
+    const drepDelegationRequiredMessage = isDrepDelegationRequired ? (
+        <Translation id="TR_STAKE_DREP_DELEGATION_REQUIRED" />
+    ) : undefined;
 
     const openStakeModal = () => {
         if (!isStakingDisabled) {
@@ -179,7 +186,7 @@ export const StakingCard = ({
     };
 
     const openClaimModal = () => {
-        if (canClaimRewards && !isClaimingDisabled) {
+        if (canClaimRewards && !isClaimingDisabled && !isDrepDelegationRequired) {
             dispatch(openModal({ type: 'claim', account }));
 
             analytics.report({
@@ -194,7 +201,7 @@ export const StakingCard = ({
     };
 
     const openUnstakeModal = () => {
-        if (!isUnstakingDisabled) {
+        if (!isUnstakingDisabled && !isDrepDelegationRequired) {
             dispatch(openModal({ type: 'unstake', account }));
 
             analytics.report({
@@ -212,6 +219,12 @@ export const StakingCard = ({
         if (!isCardanoNetworkType || !isStakingActive || isStakeConfirming || isVotingDisabled)
             return;
 
+        dispatch(
+            stakeActions.setAccountVotingDelegation({
+                accountKey: account.key,
+                option: { type: 'current' },
+            }),
+        );
         dispatch(openModal({ type: 'change-delegate' }));
 
         analytics.report({
@@ -391,23 +404,34 @@ export const StakingCard = ({
                             </Button>
                         </Tooltip>
                     ) : (
-                        <Tooltip content={claimingMessageContent}>
+                        <Tooltip content={claimingMessageContent ?? drepDelegationRequiredMessage}>
                             <Button
                                 onClick={openClaimModal}
-                                isDisabled={!canClaimRewards || isClaimingDisabled}
-                                iconLeft={isClaimingDisabled ? InfoIcon : undefined}
-                                intent="brand"
+                                isDisabled={isClaimDisabled}
+                                iconLeft={
+                                    isClaimingDisabled || isDrepDelegationRequired
+                                        ? InfoIcon
+                                        : undefined
+                                }
+                                intent={isClaimDisabled ? 'neutral' : 'brand'}
+                                priority={isClaimDisabled ? 'secondary' : 'primary'}
                                 data-testid="@account/staking/claim-rewards-button"
                             >
                                 <Translation id="TR_EARN_CLAIM_REWARDS" />
                             </Button>
                         </Tooltip>
                     )}
-                    <Tooltip content={unstakingMessageContent}>
+                    <Tooltip content={unstakingMessageContent ?? drepDelegationRequiredMessage}>
                         <Button
-                            isDisabled={!canUnstake || isUnstakingDisabled}
+                            isDisabled={
+                                !canUnstake || isUnstakingDisabled || isDrepDelegationRequired
+                            }
                             onClick={openUnstakeModal}
-                            iconLeft={isUnstakingDisabled ? InfoIcon : undefined}
+                            iconLeft={
+                                isUnstakingDisabled || isDrepDelegationRequired
+                                    ? InfoIcon
+                                    : undefined
+                            }
                             intent="neutral"
                             priority="secondary"
                             data-testid="@account/staking/unstake-button"
@@ -429,8 +453,8 @@ export const StakingCard = ({
                                     !isStakingActive || isStakeConfirming || isVotingDisabled
                                 }
                                 iconLeft={isVotingDisabled ? InfoIcon : undefined}
-                                intent="neutral"
-                                priority="secondary"
+                                intent={isDrepDelegationRequired ? 'brand' : 'neutral'}
+                                priority={isDrepDelegationRequired ? 'primary' : 'secondary'}
                             >
                                 <Translation id="TR_STAKE_CHANGE_DELEGATE" />
                             </Button>

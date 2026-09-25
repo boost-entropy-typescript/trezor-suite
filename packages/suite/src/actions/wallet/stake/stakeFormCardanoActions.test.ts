@@ -3,7 +3,7 @@ import { asNetworkSymbol } from '@suite-common/wallet-config';
 import { CARDANO_EVERSTAKE_DREP } from '@suite-common/wallet-constants';
 import { type AccountVotingDelegation } from '@suite-common/wallet-core';
 import { type Account, type AccountKey, type CardanoAction } from '@suite-common/wallet-types';
-import { mockWalletAccount, networkSpecificDefaultCardano } from '@suite-common/wallet-types/mocks';
+import { mockWalletAccount } from '@suite-common/wallet-types/mocks';
 import TrezorConnect, { type CardanoCertificate, PROTO } from '@trezor/connect';
 
 import { CardanoComposeError, prepareTxPlan } from './stakeFormCardanoActions';
@@ -39,11 +39,13 @@ const CHANGE_ADDRESS = {
 type CreateCardanoAccountProps = {
     drepId: string | null;
     isStakingActive?: boolean;
+    rewards?: string;
 };
 
 const createCardanoAccount = ({
     drepId,
     isStakingActive = true,
+    rewards = '0',
 }: CreateCardanoAccountProps): Account =>
     ({
         key: 'ada-account-key',
@@ -60,7 +62,7 @@ const createCardanoAccount = ({
         misc: {
             staking: {
                 address: 'stake-address',
-                rewards: '0',
+                rewards,
                 isActive: isStakingActive,
                 poolId: NON_EVERSTAKE_POOL_ID,
                 drep: drepId === null ? null : { drep_id: drepId },
@@ -83,12 +85,7 @@ const mockNeverStakedAccount = (): Account =>
             addresses: { change: [CHANGE_ADDRESS], used: [], unused: [] },
             utxo: [],
         },
-        {
-            ...networkSpecificDefaultCardano,
-            misc: {
-                staking: { address: '', isActive: false, rewards: '', poolId: null, drep: null },
-            },
-        },
+        { misc: { staking: { isActive: false } } },
     );
 
 const mockComposeSuccess = () => {
@@ -130,25 +127,18 @@ const createStakeReadyAccount = () =>
                 unused: [],
             },
         },
-        {
-            ...networkSpecificDefaultCardano,
-            misc: {
-                staking: {
-                    address: 'stake1_address',
-                    isActive: true,
-                    rewards: '1000000',
-                    poolId: null,
-                    drep: null,
-                },
-            },
-        },
+        { misc: { staking: { address: 'stake1_address', rewards: '1000000' } } },
     );
 
 const STAKE_READY_ACCOUNT_KEY = createStakeReadyAccount().key;
 
-const prepare = (action: CardanoAction, votingDelegation?: AccountVotingDelegation) =>
+const prepare = (
+    action: CardanoAction,
+    votingDelegation?: AccountVotingDelegation,
+    account: Account = createStakeReadyAccount(),
+) =>
     prepareTxPlan({
-        account: createStakeReadyAccount(),
+        account,
         action,
         cardanoPools: [],
         votingDelegation,
@@ -228,6 +218,56 @@ describe('prepareTxPlan', () => {
         expect(cardanoComposeTransactionMock).not.toHaveBeenCalled();
     });
 
+    it('does not compose a withdrawal for an account with rewards but no DRep delegation', async () => {
+        mockComposeSuccess();
+
+        const result = await prepareTxPlan({
+            account: createCardanoAccount({ drepId: null, rewards: '1000000' }),
+            action: 'withdrawal',
+            cardanoPools,
+        });
+
+        expect(result).toBeNull();
+        expect(cardanoComposeTransactionMock).not.toHaveBeenCalled();
+    });
+
+    it('does not compose a deregistration that would withdraw rewards without a DRep delegation', async () => {
+        mockComposeSuccess();
+
+        const result = await prepareTxPlan({
+            account: createCardanoAccount({ drepId: null, rewards: '1000000' }),
+            action: 'deregister',
+            cardanoPools,
+        });
+
+        expect(result).toBeNull();
+        expect(cardanoComposeTransactionMock).not.toHaveBeenCalled();
+    });
+
+    it('composes a deregistration without rewards even when there is no DRep delegation', async () => {
+        mockComposeSuccess();
+
+        await prepareTxPlan({
+            account: createCardanoAccount({ drepId: null, rewards: '0' }),
+            action: 'deregister',
+            cardanoPools,
+        });
+
+        expect(cardanoComposeTransactionMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('composes a withdrawal for an account with rewards that votes for a DRep', async () => {
+        mockComposeSuccess();
+
+        await prepareTxPlan({
+            account: createCardanoAccount({ drepId: PREDEFINED_DREP_ID, rewards: '1000000' }),
+            action: 'withdrawal',
+            cardanoPools,
+        });
+
+        expect(cardanoComposeTransactionMock).toHaveBeenCalledTimes(1);
+    });
+
     it('composes no vote delegation certificate when the current delegation is kept, so a predefined DRep survives a pool migration', async () => {
         const account = createCardanoAccount({ drepId: PREDEFINED_DREP_ID });
 
@@ -303,11 +343,11 @@ describe('prepareTxPlan', () => {
             });
         });
 
-        it.each([
-            { accountKey: STAKE_READY_ACCOUNT_KEY, option: { type: 'everstake' } } as const,
-            undefined,
-        ])('delegates the vote to Everstake for %p', async votingDelegation => {
-            await prepare(action, votingDelegation);
+        it('delegates the vote to Everstake for the Everstake option', async () => {
+            await prepare(action, {
+                accountKey: STAKE_READY_ACCOUNT_KEY,
+                option: { type: 'everstake' },
+            });
 
             expect(getVoteDelegationCertificate()?.dRep).toEqual({
                 type: PROTO.CardanoDRepType.KEY_HASH,
@@ -315,28 +355,50 @@ describe('prepareTxPlan', () => {
                 scriptHash: undefined,
             });
         });
+
+        it.each([
+            { accountKey: STAKE_READY_ACCOUNT_KEY, option: { type: 'abstain' } } as const,
+            undefined,
+        ])('delegates the vote as abstain for %p', async votingDelegation => {
+            await prepare(action, votingDelegation);
+
+            expect(getVoteDelegationCertificate()?.dRep).toEqual({
+                type: PROTO.CardanoDRepType.ABSTAIN,
+                keyHash: undefined,
+                scriptHash: undefined,
+            });
+        });
     });
 
     describe.each(['deregister', 'withdrawal'] as const)('%s', action => {
         it('composes despite an invalid custom drepId', async () => {
+            const account = createCardanoAccount({
+                drepId: PREDEFINED_DREP_ID,
+                rewards: '1000000',
+            });
+
             await expect(
-                prepare(action, {
-                    accountKey: STAKE_READY_ACCOUNT_KEY,
-                    option: { type: 'another_drep', drepId: 'not-a-drep' },
-                }),
+                prepare(
+                    action,
+                    {
+                        accountKey: account.key,
+                        option: { type: 'another_drep', drepId: 'not-a-drep' },
+                    },
+                    account,
+                ),
             ).resolves.not.toBeNull();
             expect(getVoteDelegationCertificate()).toBeUndefined();
         });
     });
 
     describe('a selection confirmed for another account', () => {
-        const everstakeDrep = {
-            type: PROTO.CardanoDRepType.KEY_HASH,
-            keyHash: CARDANO_EVERSTAKE_DREP.hex,
+        const abstainDrep = {
+            type: PROTO.CardanoDRepType.ABSTAIN,
+            keyHash: undefined,
             scriptHash: undefined,
         };
 
-        it("delegates the vote to Everstake instead of keeping this account's live delegation", async () => {
+        it("delegates the vote as abstain instead of keeping this account's live delegation", async () => {
             const account = createCardanoAccount({ drepId: PREDEFINED_DREP_ID });
 
             const certificateTypes = getCertificateTypes(
@@ -347,29 +409,29 @@ describe('prepareTxPlan', () => {
             );
 
             expect(certificateTypes).toContain(PROTO.CardanoCertificateType.VOTE_DELEGATION);
-            expect(getVoteDelegationCertificate()?.dRep).toEqual(everstakeDrep);
+            expect(getVoteDelegationCertificate()?.dRep).toEqual(abstainDrep);
         });
 
         it.each(['delegate', 'voteDelegate'] as const)(
-            'delegates the %s vote to Everstake instead of its custom DRep',
+            'delegates the %s vote as abstain instead of its custom DRep',
             async action => {
                 await prepare(action, {
                     accountKey: OTHER_ACCOUNT_KEY,
                     option: { type: 'another_drep', drepId: CUSTOM_DREP_BECH32 },
                 });
 
-                expect(getVoteDelegationCertificate()?.dRep).toEqual(everstakeDrep);
+                expect(getVoteDelegationCertificate()?.dRep).toEqual(abstainDrep);
             },
         );
 
-        it('composes with Everstake instead of failing on its invalid custom drepId', async () => {
+        it('composes as abstain instead of failing on its invalid custom drepId', async () => {
             await expect(
                 prepare('delegate', {
                     accountKey: OTHER_ACCOUNT_KEY,
                     option: { type: 'another_drep', drepId: 'not-a-drep' },
                 }),
             ).resolves.not.toBeNull();
-            expect(getVoteDelegationCertificate()?.dRep).toEqual(everstakeDrep);
+            expect(getVoteDelegationCertificate()?.dRep).toEqual(abstainDrep);
         });
     });
 });
