@@ -1,4 +1,4 @@
-import { type Resolver, useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { act, waitFor } from '@testing-library/react';
 import { type CryptoId, type SellFiatTrade } from 'invity-api';
@@ -125,9 +125,11 @@ const wait = (ms: number) =>
 
 const renderSellQuotes = (
     defaultValues: TradingSellFormProps,
-    options: { resolver?: Resolver<TradingSellFormProps> } = {},
+    options: {
+        validateAmount?: (sendCryptoSelect: TradingAssetSellOption | undefined) => true | string;
+    } = {},
 ) => {
-    const { resolver } = options;
+    const { validateAmount } = options;
     const initialProps: { currentNetwork: Network | undefined } = {
         currentNetwork: getNetwork(btcSymbol),
     };
@@ -150,8 +152,18 @@ const renderSellQuotes = (
             const methods = useForm<TradingSellFormProps>({
                 mode: 'onChange',
                 defaultValues,
-                resolver,
             });
+            const sendCryptoSelect = useWatch({
+                control: methods.control,
+                name: 'sendCryptoSelect',
+            });
+
+            if (validateAmount) {
+                methods.register('outputs.0.amount', {
+                    validate: () => validateAmount(sendCryptoSelect),
+                });
+            }
+
             useSellQuotes({
                 methods,
                 network: currentNetwork,
@@ -235,6 +247,7 @@ describe('useSellQuotes', () => {
         });
         await wait(NO_REFETCH_WAIT_MS);
         expect(mockHandleRequest).toHaveBeenCalledTimes(1);
+        expect(mockAbort).not.toHaveBeenCalled();
 
         await act(async () => {
             result.current.setValue('outputs.0.amount', '0.003');
@@ -260,19 +273,38 @@ describe('useSellQuotes', () => {
         expect(mockHandleRequest).toHaveBeenCalledTimes(1);
     });
 
-    it('does not fetch while the form is invalid', async () => {
-        const invalidResolver: Resolver<TradingSellFormProps> = () => ({
-            values: {},
-            errors: { feePerUnit: { type: 'manual', message: 'invalid' } },
+    it('refetches after the amount side flips to fiat even when both sides hold the same value', async () => {
+        const { result } = renderSellQuotes({
+            ...VALID_DEFAULTS,
+            outputs: VALID_DEFAULTS.outputs.map(output => ({ ...output, fiat: '0.0015' })),
         });
-        const { result } = renderSellQuotes(VALID_DEFAULTS, { resolver: invalidResolver });
 
-        await act(async () => {
-            await result.current.trigger();
+        await waitFor(() => expect(mockHandleRequest).toHaveBeenCalledTimes(1), { timeout: 1500 });
+
+        act(() => {
+            result.current.setValue('amountInCrypto', false);
+        });
+
+        await waitFor(() => expect(mockHandleRequest).toHaveBeenCalledTimes(2), { timeout: 1500 });
+        expect(mockHandleRequest).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                formValues: expect.objectContaining({ amountInCrypto: false }),
+            }),
+        );
+    });
+
+    it('aborts and stops requesting when the active amount is cleared', async () => {
+        const { result } = renderSellQuotes(VALID_DEFAULTS);
+
+        await waitFor(() => expect(mockHandleRequest).toHaveBeenCalledTimes(1), { timeout: 1500 });
+
+        act(() => {
+            result.current.setValue('outputs.0.amount', '');
         });
         await wait(NO_REFETCH_WAIT_MS);
 
-        expect(mockHandleRequest).not.toHaveBeenCalled();
+        expect(mockAbort).toHaveBeenCalledTimes(1);
+        expect(mockHandleRequest).toHaveBeenCalledTimes(1);
     });
 
     it('clears quotes eagerly when the network becomes undefined', async () => {
@@ -284,5 +316,24 @@ describe('useSellQuotes', () => {
         rerender({ currentNetwork: undefined });
 
         await waitFor(() => expect(mockClearQuotes).toHaveBeenCalled());
+    });
+
+    it('refetches with the rules of the newly selected send asset', async () => {
+        const { result } = renderSellQuotes(VALID_DEFAULTS, {
+            validateAmount: sendCryptoSelect =>
+                sendCryptoSelect?.id !== SEND_CRYPTO_SELECT.id || 'insufficient',
+        });
+
+        await wait(NO_REFETCH_WAIT_MS);
+        expect(mockHandleRequest).not.toHaveBeenCalled();
+
+        act(() => {
+            result.current.setValue('sendCryptoSelect', {
+                ...SEND_CRYPTO_SELECT,
+                id: 'litecoin' as CryptoId,
+            });
+        });
+
+        await waitFor(() => expect(mockHandleRequest).toHaveBeenCalledTimes(1), { timeout: 1500 });
     });
 });

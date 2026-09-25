@@ -23,7 +23,7 @@ import {
 import { getNetwork } from '@suite-common/wallet-config';
 
 import { useSelector } from 'src/hooks/suite';
-import { useTradingCurrencySwitcher } from 'src/hooks/wallet/trading/form/common/useTradingCurrencySwitcher';
+import { useTradingAmountUnitSync } from 'src/hooks/wallet/trading/form/common/useTradingAmountUnitSync';
 import { useServerEnvironment } from 'src/hooks/wallet/trading/useServerEnviroment';
 import { useBitcoinAmountUnit } from 'src/hooks/wallet/useBitcoinAmountUnit';
 import { type TradingBuyFormContextProps } from 'src/types/trading/tradingForm';
@@ -50,7 +50,7 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
 
     useServerEnvironment();
 
-    const { account, cryptoId } = useTradingFormAccount(type);
+    const { cryptoId } = useTradingFormAccount(type);
 
     const fiatTradingValuesParams = selectedQuote
         ? {
@@ -71,7 +71,7 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
         mode: 'onChange',
         defaultValues: redirectValues || defaultValues,
     });
-    const { formState, reset, setValue, getValues, clearErrors, control } = methods;
+    const { formState, reset, setValue, getValues, control } = methods;
     // Watch only those values that are relevant in render function
     const [cryptoSelect, fiatInput, cryptoInput, currencySelect] = useWatch({
         control,
@@ -107,21 +107,11 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
         cryptoSelect?.networkSymbol,
     );
 
-    const { toggleAmountInCrypto: baseToggleAmountInCrypto } = useTradingCurrencySwitcher({
-        account,
+    useTradingAmountUnitSync({
+        networkSymbol: cryptoSelect?.networkSymbol,
         methods,
-        inputNames: {
-            cryptoInput: TRADING_FORM_CRYPTO_INPUT,
-            fiatInput: TRADING_FORM_FIAT_INPUT,
-        },
+        cryptoInputName: TRADING_FORM_CRYPTO_INPUT,
     });
-
-    const toggleAmountInCrypto = () => {
-        setValue(TRADING_FORM_CRYPTO_INPUT, '');
-        setValue(TRADING_FORM_FIAT_INPUT, '');
-        clearErrors([TRADING_FORM_CRYPTO_INPUT, TRADING_FORM_FIAT_INPUT]);
-        baseToggleAmountInCrypto();
-    };
 
     const { isScheduledQuotesRefresh } = useBuyQuotes({ methods, network, shouldSendInSats });
 
@@ -149,7 +139,6 @@ export const useTradingBuyForm = (): TradingBuyFormContextProps => {
                 isFormLoading,
                 isFormInvalid,
                 isLoadingOrInvalid,
-                toggleAmountInCrypto,
             },
         },
         ...methods,

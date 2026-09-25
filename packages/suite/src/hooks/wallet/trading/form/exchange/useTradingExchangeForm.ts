@@ -7,7 +7,6 @@ import {
     TRADING_EXCHANGE_FORM,
     TRADING_FORM_OUTPUT_AMOUNT,
     TRADING_FORM_OUTPUT_CURRENCY,
-    TRADING_FORM_OUTPUT_FIAT,
     TRADING_FORM_RECEIVE_CRYPTO_CURRENCY_SELECT,
     TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT,
     type TradingExchangeAmountLimitProps,
@@ -30,8 +29,8 @@ import { type Account } from '@suite-common/wallet-types';
 
 import { useSelector } from 'src/hooks/suite';
 import { useSolanaSubscribeBlocks } from 'src/hooks/wallet/form/useSolanaSubscribeBlocks';
+import { useTradingAmountUnitSync } from 'src/hooks/wallet/trading/form/common/useTradingAmountUnitSync';
 import { useTradingComposeTransaction } from 'src/hooks/wallet/trading/form/common/useTradingComposeTransaction';
-import { useTradingCurrencySwitcher } from 'src/hooks/wallet/trading/form/common/useTradingCurrencySwitcher';
 import { useTradingFiatValues } from 'src/hooks/wallet/trading/form/common/useTradingFiatValues';
 import { useTradingExchangeFormDefaultValues } from 'src/hooks/wallet/trading/form/exchange/useTradingExchangeFormDefaultValues';
 import { useServerEnvironment } from 'src/hooks/wallet/trading/useServerEnviroment';
@@ -82,7 +81,7 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
         defaultValues,
     });
 
-    const { reset, register, setValue, clearErrors, formState, control } = methods;
+    const { reset, register, formState, control } = methods;
 
     // Watch only the values the orchestrator itself renders with; each atomic hook
     // owns its own narrow named subscription. Replaces the former broad useWatch.
@@ -145,13 +144,10 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
     const isFormLoadingBase = isInitialDataLoading || formState.isSubmitting || isLoading;
     const isFormInvalid = !(formIsValid && hasValues) || !isReceiveAddressFormValid;
 
-    const { toggleAmountInCrypto: baseToggleAmountInCrypto } = useTradingCurrencySwitcher({
-        account,
+    useTradingAmountUnitSync({
+        networkSymbol: account?.symbol,
         methods,
-        inputNames: {
-            cryptoInput: TRADING_FORM_OUTPUT_AMOUNT,
-            fiatInput: TRADING_FORM_OUTPUT_FIAT,
-        },
+        cryptoInputName: TRADING_FORM_OUTPUT_AMOUNT,
     });
 
     const { dexQuotes, isScheduledQuotesRefresh, refreshQuotes } = useExchangeQuotes({
@@ -168,13 +164,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
 
     const isFormLoading = isFormLoadingBase || isScheduledQuotesRefresh;
     const isLoadingOrInvalid = noProviders || isFormLoading || isFormInvalid;
-
-    const toggleAmountInCrypto = () => {
-        setValue(TRADING_FORM_OUTPUT_AMOUNT, '', { shouldDirty: true });
-        setValue(TRADING_FORM_OUTPUT_FIAT, '', { shouldDirty: true });
-        clearErrors([TRADING_FORM_OUTPUT_AMOUNT, TRADING_FORM_OUTPUT_FIAT]);
-        baseToggleAmountInCrypto();
-    };
 
     const helpers = useExchangeFormInputs({
         account,
@@ -238,8 +227,6 @@ export const useTradingExchangeForm = (): TradingExchangeFormContextProps => {
                 isFormLoading,
                 isFormInvalid,
                 isLoadingOrInvalid,
-
-                toggleAmountInCrypto,
             },
             helpers,
         },

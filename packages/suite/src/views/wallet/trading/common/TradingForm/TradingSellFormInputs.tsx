@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import { Translation } from '@suite/intl';
 import {
     TRADING_FORM_OUTPUT_AMOUNT,
     TRADING_FORM_OUTPUT_FIAT,
@@ -13,10 +14,8 @@ import {
     selectTradingSendAccount,
 } from '@suite-common/trading';
 import { type TokenAddress } from '@suite-common/wallet-types';
-import { asAmountSubunit, subunitsToUnits } from '@suite-common/wallet-utils';
 import { Column, Row } from '@trezor/components';
 import { useCurrentRef } from '@trezor/react-utils';
-import { BigNumber } from '@trezor/utils';
 
 import { useSelector } from 'src/hooks/suite';
 import { useSelectedTradingAsset } from 'src/hooks/wallet/trading/form/common/useSelectedTradingAsset';
@@ -24,7 +23,9 @@ import { useTradingAssetDecimals } from 'src/hooks/wallet/trading/form/common/us
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { TradingBalance } from 'src/views/wallet/trading/common/TradingBalance';
 import { TradingFormInputCountry } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputCountry/TradingFormInputCountry';
-import { TradingFormInputFiatCrypto } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputFiatCrypto';
+import { TradingFormInputCurrency } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputCurrency';
+import { TradingFormInputCryptoAmount } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputCryptoAmount';
+import { TradingFormInputFiat } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputFiatCrypto/TradingFormInputFiat';
 import { TradingFormInputPaymentMethod } from 'src/views/wallet/trading/common/TradingForm/TradingFormInput/TradingFormInputPaymentMethod/TradingFormInputPaymentMethod';
 
 import { TradingFormCard } from './TradingFormCard';
@@ -56,14 +57,16 @@ export const TradingSellFormInputs = () => {
     const asset = useSelectedTradingAsset(type);
     const account = useSelector(state => selectTradingSendAccount(state, type));
 
-    const { control } = useFormContext<TradingSellFormProps>();
-
-    const [outputs, sendCryptoSelect, amountInCrypto, countrySelect] = useWatch({
+    const {
         control,
-        name: ['outputs', 'sendCryptoSelect', 'amountInCrypto', 'countrySelect'],
+        formState: { errors },
+    } = useFormContext<TradingSellFormProps>();
+
+    const [outputs, sendCryptoSelect, countrySelect] = useWatch({
+        control,
+        name: ['outputs', 'sendCryptoSelect', 'countrySelect'],
     });
     const output = outputs[0];
-    const currencySelect = output?.currency;
     const tokenAddress = (output?.token ?? undefined) as TokenAddress | undefined;
 
     const { getAssetDecimals } = useTradingAssetDecimals();
@@ -75,14 +78,6 @@ export const TradingSellFormInputs = () => {
             }),
         [getAssetDecimals, sendCryptoSelect?.accountKey, sendCryptoSelect?.id],
     );
-
-    const outputAmount =
-        shouldSendInSats && output?.amount
-            ? subunitsToUnits({
-                  value: asAmountSubunit(new BigNumber(output.amount)),
-                  decimals: sendAssetDecimals,
-              }).toString()
-            : output?.amount;
 
     const onCryptoCurrencyChangeRef = useCurrentRef(helpers.onCryptoCurrencyChange);
     const handleSellAssetSelect = useCallback<TradingFormInputSellAssetProps['onAssetSelect']>(
@@ -98,48 +93,64 @@ export const TradingSellFormInputs = () => {
     return (
         <Column gap={20}>
             <TradingFormCard>
-                <TradingFormSection>
-                    <TradingFormInputSellAsset
-                        inputName={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
-                        inputLabel="TR_TRADING_YOU_SELL"
-                        inputBottomText={
-                            <AssetPickerInputBalance
-                                name={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
-                            />
-                        }
-                        inputPlaceholder="TR_SELECT_TOKEN"
-                        includedCryptoIds={sellSupportedCryptoIds}
-                        onAssetSelect={handleSellAssetSelect}
-                    />
-                    <Column gap={8}>
-                        <TradingFormInputFiatCrypto
+                <TradingFormSection
+                    title={<Translation id="TR_TRADING_YOU_PAY" />}
+                    errorMessage={errors.outputs?.[0]?.amount?.message}
+                    data-testid="@trading/form/you-pay"
+                >
+                    <Row gap={12} alignItems="center">
+                        <TradingFormInputCryptoAmount
                             cryptoInputName={TRADING_FORM_OUTPUT_AMOUNT}
                             fiatInputName={TRADING_FORM_OUTPUT_FIAT}
                             cryptoSelectName={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
-                            currencySelectLabel={currencySelect?.value.toUpperCase() ?? ''}
-                            cryptoCurrencyLabel={sendCryptoSelect?.id}
                         />
-                        {amountInCrypto && asset && (
-                            <Row justifyContent="space-between" alignItems="center" gap={8}>
-                                <TradingFractionButtons />
-                                <TradingBalance
-                                    balance={outputAmount}
-                                    displaySymbol={sendCryptoSelect?.id}
-                                    symbol={asset.symbol}
-                                    tokenAddress={tokenAddress}
-                                    showOnlyAmount
-                                    amountInCrypto={amountInCrypto}
-                                    decimals={sendAssetDecimals}
-                                />
-                            </Row>
+                        <TradingFormInputSellAsset
+                            inputName={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
+                            inputLabel="TR_TRADING_YOU_SELL"
+                            inputPlaceholder="TR_SELECT_TOKEN"
+                            includedCryptoIds={sellSupportedCryptoIds}
+                            onAssetSelect={handleSellAssetSelect}
+                        />
+                    </Row>
+                    <Row gap={8} justifyContent="space-between" alignItems="center" minHeight={20}>
+                        {!!asset && (
+                            <TradingBalance
+                                balance={output?.amount}
+                                symbol={asset.symbol}
+                                tokenAddress={tokenAddress}
+                                showOnlyAmount
+                                isInSats={shouldSendInSats}
+                                decimals={sendAssetDecimals}
+                            />
                         )}
-                    </Column>
+                        <Row gap={12} alignItems="center">
+                            <TradingFractionButtons />
+                            <AssetPickerInputBalance
+                                name={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
+                            />
+                        </Row>
+                    </Row>
                     {showReserveBanner && asset && (
                         <TradingNetworkReserveBanner
                             symbol={asset.symbol}
                             contractAddress={tokenAddress}
                         />
                     )}
+                </TradingFormSection>
+
+                <TradingFormSection
+                    title={<Translation id="TR_TRADING_YOU_GET" />}
+                    errorMessage={errors.outputs?.[0]?.fiat?.message}
+                    data-testid="@trading/form/you-get"
+                >
+                    <Row gap={12} alignItems="center">
+                        <TradingFormInputFiat
+                            cryptoInputName={TRADING_FORM_OUTPUT_AMOUNT}
+                            fiatInputName={TRADING_FORM_OUTPUT_FIAT}
+                            cryptoSelectName={TRADING_FORM_SEND_CRYPTO_CURRENCY_SELECT}
+                        />
+                        <TradingFormInputCurrency />
+                    </Row>
                 </TradingFormSection>
             </TradingFormCard>
             <TradingFormCard>

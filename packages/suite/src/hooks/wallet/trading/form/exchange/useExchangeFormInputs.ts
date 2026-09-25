@@ -73,9 +73,6 @@ export const useExchangeFormInputs = ({
 
     const { fractionButton, setFractionButton, onFiatCurrencyChange } = useTradingFiatCryptoAmount({
         methods,
-        tradingFiatValues,
-        networkDecimals,
-        shouldSendInSats,
     });
 
     const { onCryptoCurrencyChange } = useTradingCryptoAssetChange({
@@ -116,6 +113,10 @@ export const useExchangeFormInputs = ({
     };
 
     const setAllAmount = () => {
+        if (!account) {
+            return;
+        }
+
         if (tokenData) {
             const cryptoInputValue = calcMaxTokenAmount({
                 balance: tokenData.balance || '0',
