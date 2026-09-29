@@ -16,20 +16,20 @@ import { BaseCurrencyAmountFormatter } from '@suite-native/formatters';
 import { TokenIcon } from '@suite-native/icons';
 import { TokenSettingsBottomSheet } from '@suite-native/module-earn';
 import {
-    type AccountsStackParamList,
+    type AccountDetailStackParamList,
+    AccountDetailStackRoutes,
     type RootStackParamList,
     RootStackRoutes,
     ScreenHeader,
-    type StackToStackCompositeNavigationProps,
+    type StackNavigationProps,
 } from '@suite-native/navigation';
 import { type TokensRootState, isNetworkWithTokens } from '@suite-native/tokens';
 
 import { selectAssetTabOfAccountToken } from '../selectors';
 
-type AccountDetailNavigationProps = StackToStackCompositeNavigationProps<
-    AccountsStackParamList,
-    RootStackRoutes.AccountDetail,
-    RootStackParamList
+type AccountDetailNavigationProps = StackNavigationProps<
+    AccountDetailStackParamList,
+    AccountDetailStackRoutes.AccountDetail
 >;
 
 type AssetDetailScreenHeaderContentProps = {
@@ -86,7 +86,7 @@ const AssetDetailScreenSettingsButton = ({
         ) {
             openModal();
         } else {
-            navigation.navigate(RootStackRoutes.AccountSettings, {
+            navigation.navigate(AccountDetailStackRoutes.AccountSettings, {
                 accountKey: account.key,
             });
         }
@@ -122,8 +122,9 @@ export const AssetDetailScreenHeader = ({
     account,
     tokenContract,
 }: AssetDetailScreenHeaderProps) => {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const route = useRoute<RouteProp<RootStackParamList, RootStackRoutes.AccountDetail>>();
+    const navigation = useNavigation<NativeStackNavigationProp<AccountDetailStackParamList>>();
+    const route =
+        useRoute<RouteProp<AccountDetailStackParamList, AccountDetailStackRoutes.AccountDetail>>();
     const { closeActionType } = route.params;
 
     const tokenTab = useSelector(
@@ -134,18 +135,22 @@ export const AssetDetailScreenHeader = ({
     );
 
     const closeAction = () => {
-        const isAccountAssetsInStack = navigation
-            .getState()
+        const rootNavigation =
+            navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
+        const isAccountAssetsInStack = rootNavigation
+            ?.getState()
             .routes.some(stackRoute => stackRoute.name === RootStackRoutes.AccountAssets);
 
-        if (isAccountAssetsInStack) {
-            navigation.popTo(RootStackRoutes.AccountAssets, {
+        if (rootNavigation && isAccountAssetsInStack) {
+            rootNavigation.popTo(RootStackRoutes.AccountAssets, {
                 accountKey: account.key,
                 tab: tokenTab,
             });
-        } else {
-            navigation.goBack();
+
+            return;
         }
+
+        navigation.goBack();
     };
 
     return (

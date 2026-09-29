@@ -6,6 +6,7 @@ import { DeviceManagerScreenHeader } from '@suite-native/device-manager';
 import { AccountsRediscoveryNeededWarning } from '@suite-native/discovery';
 import { Translation } from '@suite-native/intl';
 import {
+    AccountDetailStackRoutes,
     type AccountsStackParamList,
     type AccountsStackRoutes,
     type RootStackParamList,
@@ -35,9 +36,12 @@ export const AccountsScreen = ({ navigation, route }: ScreenNavigationProps) => 
 
             return;
         }
-        navigation.navigate(RootStackRoutes.AccountDetail, {
-            accountKey,
-            closeActionType: 'back',
+        navigation.navigate(RootStackRoutes.AccountDetailStack, {
+            screen: AccountDetailStackRoutes.AccountDetail,
+            params: {
+                accountKey,
+                closeActionType: 'back',
+            },
         });
     };
 

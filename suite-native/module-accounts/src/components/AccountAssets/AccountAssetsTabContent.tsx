@@ -8,6 +8,7 @@ import { type AccountsRootState, selectAccountByKey } from '@suite-common/wallet
 import { type AccountKey } from '@suite-common/wallet-types';
 import { events, injectNativeAnalytics } from '@suite-native/analytics';
 import {
+    AccountDetailStackRoutes,
     type RootStackParamList,
     RootStackRoutes,
     SendStackRoutes,
@@ -57,10 +58,13 @@ export const AccountAssetsTabContent = ({
                     params: { accountKey, tokenContract },
                 });
             } else {
-                navigation.navigate(RootStackRoutes.AccountDetail, {
-                    accountKey,
-                    tokenContract,
-                    closeActionType: 'back',
+                navigation.navigate(RootStackRoutes.AccountDetailStack, {
+                    screen: AccountDetailStackRoutes.AccountDetail,
+                    params: {
+                        accountKey,
+                        tokenContract,
+                        closeActionType: 'back',
+                    },
                 });
             }
         },
